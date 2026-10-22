@@ -125,6 +125,7 @@ public partial class Body
         CurrentExertion = ExertionLevel.Low;
         LongtermExertion = ExertionLevel.Low;
         StartHealthTick();
+		RefreshNausea();
         return Actor;
     }
 

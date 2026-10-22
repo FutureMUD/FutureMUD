@@ -34,6 +34,7 @@ namespace MudSharp.Body
         CantUseRestrained = 16,
         CantUseMissingBone = 32,
         CantUseSpinalDamage = 64,
+        CantUseNumbness = 128,
     }
 
     [Flags]
@@ -50,6 +51,7 @@ namespace MudSharp.Body
         CantUseMissingBone = 128,
         CantUseSpinalDamage = 256,
         CantUseLimbRestrained = 512,
+        CantUseLimbNumbness = 1024,
     }
 
     public enum EncumbranceLevel

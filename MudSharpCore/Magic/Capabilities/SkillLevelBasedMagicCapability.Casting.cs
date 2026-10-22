@@ -28,7 +28,8 @@ public partial class SkillLevelBasedMagicCapability
 				Array.AsReadOnly(root.Elements("SupportGrant").Select(x => new MagicCastingSupportGrant(
 					Guid.Parse((string)x.Attribute("key")!), (long)x.Attribute("trait")!, (double)x.Attribute("opening")!,
 					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("starting") ?? false, LoadPrerequisites(x))).ToArray()),
-				(bool?)root.Attribute("enrolOnClassSelection") ?? false);
+				(bool?)root.Attribute("enrolOnClassSelection") ?? false,
+				root.Element("Patron") is { } patron ? System.Text.Json.JsonSerializer.Deserialize<PatronCastingPolicy>(patron.Value) : null);
 		}
 		catch (Exception ex)
 		{
@@ -46,6 +47,7 @@ public partial class SkillLevelBasedMagicCapability
 			new XAttribute("source", p.SourceResourceId), new XAttribute("reserve", p.ReserveResourceId),
 			new XAttribute("passive", p.PassiveEntitlement), new XAttribute("startingVersion", p.StartingGrantVersion),
 			new XAttribute("enrolOnClassSelection", p.EnrolOnClassSelection),
+			p.Patron is null ? null : new XElement("Patron", new XCData(System.Text.Json.JsonSerializer.Serialize(p.Patron))),
 			p.Admissions.Select(x => new XElement("Admission", new XAttribute("key", x.Key), new XAttribute("spell", x.SpellId),
 				x.TraitId.HasValue ? new XAttribute("trait", x.TraitId.Value) : null, new XAttribute("starting", x.Starting),
 				new XAttribute("min", x.MinimumGrade), new XAttribute("max", x.MaximumGrade),
@@ -77,6 +79,21 @@ public partial class SkillLevelBasedMagicCapability
 		List<string> errors = [];
 		if (_castingLoadError is not null) errors.Add(_castingLoadError);
 		if (CastingPolicy is not { } p) return errors.AsReadOnly();
+		if (p.Patron is { } patron)
+		{
+			foreach (var (spellId, incantation) in patron.Incantations ?? new Dictionary<long, ControlledSpellIncantation>())
+			{
+				if (!p.Admissions.Any(x => x.SpellId == spellId) || Gameworld.MagicSpells.Get(spellId) is not MagicSpell spell)
+					errors.Add($"Patron incantation #{spellId} must reference an admitted native spell.");
+				else errors.AddRange(spell.IncantationConfigurationErrors(incantation).Select(x => $"Patron spell #{spellId}: {x}"));
+			}
+			if (patron.FixedGrade is < 1 or > 7 || patron.SelectionLimit < 0 || patron.PermanentSpells.Distinct().Count() != patron.PermanentSpells.Length || patron.PermanentSpells.Any(x => !p.Admissions.Any(a => a.SpellId == x))) errors.Add("Invalid patron grade, selection limit or permanent spell list.");
+			foreach (var id in new[] { patron.AuthorityProgId, patron.TerritoryProgId })
+			{
+				var prog = Gameworld.FutureProgs.Get(id);
+				if (prog is null || !prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) || !prog.MatchesParameters([ProgVariableTypes.Character])) errors.Add($"Patron prog #{id} must be boolean(character).");
+			}
+		}
 		if (this is IVancianMagicCapability && p.Enabled) errors.Add("Casting cannot be enabled on a Vancian capability.");
 		if (p.Identity == Guid.Empty || p.Version != 1 || p.StartingGrantVersion < 1) errors.Add("Invalid casting identity/version.");
 		CheckTrait(p.DefaultTraitId, "Default trait");

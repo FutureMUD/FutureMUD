@@ -97,7 +97,7 @@ public class IndustrialisedItemCatalogueTests
 	{
 		var metadata = IndustrialisedComponentMetadataCatalogue.Document;
 		var document = ItemSeeder.IndustrialisedCatalogueForTesting;
-		Assert.AreEqual(249, metadata.Types.Count);
+		Assert.AreEqual(253, metadata.Types.Count);
 		Assert.IsTrue(metadata.Prototypes.Count >= 4402);
 		var seededNames = metadata.Prototypes.Values
 			.Select(x => x.Name)

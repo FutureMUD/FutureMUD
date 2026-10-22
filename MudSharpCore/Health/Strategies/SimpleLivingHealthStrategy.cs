@@ -503,6 +503,9 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 
 	public override IReadOnlyList<IWound> ApplyDirectHealthCost(IHaveWounds owner, DirectHealthCostPlan plan) =>
 		OrganicDirectHealthCosts.Apply(this, owner, plan);
+	public override bool TryPlanDirectHealthConsequence(IHaveWounds owner, IBodypart bodypart, double damage, double pain,
+		double stun, out DirectHealthCostPlan plan, out string error) =>
+		OrganicDirectHealthCosts.TryPlan(this, owner, bodypart, damage, pain, stun, WoundSeverity.Horrifying, out plan, out error, allowIncapacitation: true);
 
     private string WoundCountDesc(int count)
     {

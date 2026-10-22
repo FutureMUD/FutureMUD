@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
 using MudSharp.Models;
+using MudSharp.Magic;
 using MudSharp.RPG.Checks;
 
 #nullable enable annotations
@@ -402,6 +403,12 @@ public class ConnectMindPower : SustainedMagicPower
 		{
 			actor.OutputHandler.Send(
 				$"You cannot locate {target.HowSeen(actor, type: Form.Shape.DescriptionType.Possessive, flags: PerceiveIgnoreFlags.IgnoreDark)} mind right now.");
+			return;
+		}
+
+		if (PsionicTrafficHelper.CrossesDome(actor, target))
+		{
+			actor.OutputHandler.Send("A psionic dome prevents you from opening a mind connection across its boundary.");
 			return;
 		}
 

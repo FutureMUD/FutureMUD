@@ -106,7 +106,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
 
     public void DoSustainCostsTick(ICharacter actor, double multiplier = 1.0)
     {
-        bool remove = false;
+        bool remove = !PayStunUpkeep(actor, multiplier);
         foreach ((IMagicResource resource, double cost) in SustainCostsPerMinute)
         {
             if (!actor.UseResource(resource, cost * multiplier))

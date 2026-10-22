@@ -558,6 +558,7 @@ public partial class Character
 
     public void Moved(IMovement movement)
     {
+		MudSharp.Magic.Casting.PatronMagicService.Refill(this);
         OnMoved?.Invoke(this, new MoveEventArgs(this, movement));
         if (movement.IsConsensualMover(this))
         {

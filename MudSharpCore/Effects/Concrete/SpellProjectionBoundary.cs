@@ -2,6 +2,7 @@
 
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Magic;
 using MudSharp.Planes;
 
@@ -10,6 +11,7 @@ namespace MudSharp.Effects.Concrete;
 /// <summary>Nonpersistent runtime boundary reconstructed only for an already committed creation.</summary>
 public sealed class SpellProjectionBoundary(ICharacter owner, SpellProjectionAnchor anchor) : Effect(owner), ISpellProjectionBoundary, IPlanarOverlayEffect
 {
+	private bool _subscribed;
 	public SpellProjectionKind Kind => anchor.Configuration.Kind;
 	protected override string SpecificEffectType => "SpellProjectionBoundary";
 	public override string Describe(IPerceiver voyeur) => $"Bounded {Kind.DescribeEnum()} presence; physical manipulation is unavailable.";
@@ -25,6 +27,9 @@ public sealed class SpellProjectionBoundary(ICharacter owner, SpellProjectionAnc
 	public string? TravelError(SpatialLocation destination, bool throughExit)
 	{
 		if (!owner.IsEmbodied || !owner.IsControllable) return "That projected presence is collapsing.";
+		if (Kind == SpellProjectionKind.WalkingShadow && destination.Room?.Characters
+			.Any(x => x.EffectsOfType<IPsionicDomeEffect>().Any(dome => dome.AppliesTo(owner))) == true)
+			return "A psionic dome prevents the shadow from entering that room.";
 		if (Kind == SpellProjectionKind.SandEffigy)
 			return destination.Room?.Id == anchor.RoomId && (int)destination.Layer == anchor.Layer && destination.RoutePositionMetres == anchor.RoutePosition
 				? null : "The sand effigy cannot move from its anchor.";
@@ -36,6 +41,31 @@ public sealed class SpellProjectionBoundary(ICharacter owner, SpellProjectionAnc
 			!WithinRange(Gameworld.Rooms.Get(anchor.RoomId), destination.Room, owner, anchor.Configuration.MaximumRoomDistance))
 			return "That destination is beyond the projection's anchor range.";
 		return null;
+	}
+
+	public override void InitialEffect()
+	{
+		base.InitialEffect();
+		if (Kind != SpellProjectionKind.WalkingShadow) return;
+		owner.OnLocationChanged += OwnerOnLocationChanged;
+		_subscribed = true;
+		CollapseIfWarded();
+	}
+
+	public override void RemovalEffect()
+	{
+		if (_subscribed) owner.OnLocationChanged -= OwnerOnLocationChanged;
+		_subscribed = false;
+		base.RemovalEffect();
+	}
+
+	private void OwnerOnLocationChanged(MudSharp.Form.Shape.ILocateable _, IRoomExit? __) => CollapseIfWarded();
+
+	private void CollapseIfWarded()
+	{
+		if (Kind != SpellProjectionKind.WalkingShadow || owner.Location?.Characters
+			.Any(x => x.EffectsOfType<IPsionicDomeEffect>().Any(dome => dome.AppliesTo(owner))) != true) return;
+		Gameworld.SpellOwnedProjections?.RequestRetirement(owner, SpellRetirementReason.AnchorSevered);
 	}
 
 	internal static bool WithinRange(IRoom? anchor, IRoom? destination, ICharacter actor, int distance)

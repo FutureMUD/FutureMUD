@@ -111,6 +111,7 @@ public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield
             case CanUseBodypartResult.CantUseLimbRestrained:
             case CanUseBodypartResult.CantUseMissingBone:
             case CanUseBodypartResult.CantUseSpinalDamage:
+			case CanUseBodypartResult.CantUseLimbNumbness:
                 return IWieldItemWieldResult.TooDamaged;
         }
 

@@ -274,15 +274,26 @@ The syntax is:
             }
         }
 
+		ManualCombatActionContext? actionContext = null;
+		var contextualEffect = manualCommand.AuxiliaryAction?.AuxiliaryEffects
+			.OfType<IContextualAuxiliaryEffect>()
+			.FirstOrDefault();
+		if (contextualEffect is not null &&
+			!contextualEffect.TryParseContext(actor, target, ss, out actionContext, out var contextError))
+		{
+			actor.OutputHandler.Send(contextError);
+			return;
+		}
+
         ManualCombatMoveResolution result =
-            ManualCombatCommandResolver.TryResolve(actor, manualCommand, target);
+            ManualCombatCommandResolver.TryResolve(actor, manualCommand, target, context: actionContext);
         if (!result.Success)
         {
             actor.OutputHandler.Send(result.Error);
             return;
         }
 
-        if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectManualCombatCommand(actor, manualCommand, target)) &&
+        if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectManualCombatCommand(actor, manualCommand, target, actionContext)) &&
             actor.Gameworld.GetStaticBool("EchoQueuedActions"))
         {
             actor.OutputHandler.Send(

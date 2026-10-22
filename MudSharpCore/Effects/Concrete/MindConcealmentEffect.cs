@@ -46,6 +46,7 @@ public class MindConcealmentEffect : ConcentrationConsumingEffect, IMagicEffect,
 	public Difficulty DetectMagicDifficulty => MindPower.DetectableWithDetectMagic;
 	public string UnknownIdentityDescription => MindPower.UnknownIdentityDescription;
 	public int AuditDifficultyStages => MindPower.AuditDifficultyStages;
+	public bool ConcealsActivity => MindPower.HideActivity;
 
 	public override string Describe(IPerceiver voyeur)
 	{

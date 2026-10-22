@@ -74,9 +74,11 @@ internal static partial class GNHProgram
 		}
 		var pilotFixture = SeedSettingQualificationPilotRooms(database);
 		SeedSettingActionFixtures(database);
+		var templarConfiguration = SeedSettingTemplarFixtures(database, pilotFixture.Origin);
 		var clock = new HarnessClock();
 		using var time = RuntimeClock.Push(clock);
 		SettingRoleReader receipt;
+		TemplarNativeReceipt templarReceipt;
 		using (var world = LoadProductionRestartWorld(clock))
 		using (var session = new FMDB())
 		{
@@ -128,6 +130,7 @@ internal static partial class GNHProgram
 				return (actor,PersistSettingQualificationCharacter(world,targetApp));
 			},ids);
 			var applications = CheckSettingHeritageApplications(world, accountId, cultureId, ids).ToArray();
+			templarReceipt = QualifySettingTemplars(database, world, accountId, cultureId, ids, pilotFixture.Origin, pilotFixture.Destination);
 			world.SaveManager.Flush();
 			using var db = NewIndependentContext(database.ConnectionString);
 			Require(db.CharacterTraits.Single(x => x.CharacterId == merchant.Id && x.TraitDefinitionId == ids["arm.skill.pilot"]).Value == 40,
@@ -142,6 +145,8 @@ internal static partial class GNHProgram
 		// No producer world remains alive while either cold reader writes durable state.
 		RunItemReaderProcess(receipt, "--setting-role-reader");
 		RunItemReaderProcess(receipt with { Phase = "verify" }, "--setting-role-reader");
+		RunItemReaderProcess(templarReceipt, "--templar-reader");
+		RestoreSettingTemplarFixtures(database, templarConfiguration);
 		Console.WriteLine("SETTING-native-roles-heritage=PASS real-production-world real-Chargen-and-Character native-Pilot40-cap95-liver2 deferred40-first-acquisition-only two-cold-readers compiled-language200-100-60 gates-unchanged");
 	}
 
@@ -173,7 +178,7 @@ internal static partial class GNHProgram
 			.ToDictionary(x => x.StableKey, x => x.LogicalId!.Value);
 	}
 
-	private static Chargen NewSettingQualificationApplication(IFuturemud world, long accountId, long cultureId, string name, IRace? selectedRace = null)
+	private static Chargen NewSettingQualificationApplication(IFuturemud world, long accountId, long cultureId, string name, IRace? selectedRace = null, Gender gender = Gender.Male)
 	{
 		Db.Account account;
 		using (new FMDB()) account = FMDB.Context.Accounts.Single(x => x.Id == accountId);
@@ -183,7 +188,7 @@ internal static partial class GNHProgram
 			? world.Ethnicities.Single(x => x.Name == "Admin" && x.ParentRace == app.SelectedRace)
 			: world.Ethnicities.Single(x => x.ParentRace == selectedRace);
 		app.SelectedCulture = world.Cultures.Get(cultureId);
-		app.SelectedGender = Gender.Male; app.Handedness = Alignment.Right;
+		app.SelectedGender = gender; app.Handedness = Alignment.Right;
 		(app.SelectedHeight, app.SelectedWeight) = app.SelectedRace.DefaultHeightWeightModel(app.SelectedGender).GetRandomHeightWeight();
 		app.SelectedBirthday = app.SelectedCulture.PrimaryCalendar.GetRandomBirthday(25);
 		app.SelectedName = app.SelectedCulture.NameCultureForGender(app.SelectedGender).GetPersonalName(name);

@@ -47,6 +47,7 @@ internal static partial class GNHProgram
             "--setting-foundations-run" => CoreFoundationQualification(setting: true),
             "--setting-debug-runtime-run" => RestoreSettingDebugCheckpoint(),
             "--setting-role-reader" => ReadSettingRoleQualification(args[1]),
+			"--templar-reader" => ReadSettingTemplarQualification(args[1]),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
 #if DEBUG

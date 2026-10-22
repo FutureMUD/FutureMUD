@@ -41,7 +41,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		return _world.MagicCapabilities.OfType<IMagicCastingCapability>().Where(x => x.CastingPolicy is not null)
 			.SelectMany(c => c.CastingPolicy!.Admissions.Where(x => !spellId.HasValue || x.SpellId == spellId).Select(a =>
 			{
-				var error = Preflight(actor, c.Id, a.SpellId, a.MinimumGrade, false);
+				var error = Preflight(actor, c.Id, a.SpellId, c.CastingPolicy!.Patron?.FixedGrade ?? a.MinimumGrade, false);
 				return new MagicCastingRoute(c.Id, a.Key, a.SpellId, a.TraitId ?? c.CastingPolicy.DefaultTraitId,
 					c.CastingPolicy.ReserveResourceId, error is null, error ?? "Available; target, components and payment require casting.");
 			})).ToArray();
@@ -62,6 +62,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (_world.MagicCapabilities.Get(capabilityId) is not IMagicCastingCapability c || c.CastingPolicy is not { Enabled: true } p)
 			return "That capability has no enabled configured casting route.";
 		capability = c;
+		if (actor.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IMindImpairmentEffect>().Any(x => x.Applies())) return "Your impaired mind cannot form a spell.";
 		if (!actor.Capabilities.Any(x => x.Id == c.Id)) return "That capability is not currently available to this body.";
 		if (c.CastingConfigurationErrors().FirstOrDefault() is { } config) return config;
 		if (p.Admissions.FirstOrDefault(x => x.SpellId == spellId) is not { } a) return "This capability does not explicitly admit that spell.";
@@ -69,7 +70,13 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (_world.MagicSpells.Get(spellId) is not MagicSpell s || !s.ReadyForGame || s.Trigger is not ICastMagicTrigger || s.GradeProfile is not { } profile)
 			return "The admitted spell is not a ready ordinary cast-trigger spell with a valid grade profile.";
 		spell = s;
-		var acquired = Acquisition(actor, spellId);
+		var acquired = RouteAcquisition(actor, c, spellId, profile.Version);
+		if (p.Patron is { } patron)
+		{
+			if (patron.RequireShout && mode == MagicCastingMode.Manifest) method = "Shout";
+			if (!PatronMagicService.HasSpell(actor, c, spellId)) return "This spell is not a current authorised patron selection.";
+			if (grade != patron.FixedGrade || overreach || mode == MagicCastingMode.Practice) return "This patron route uses its fixed grade without practice or overreach.";
+		}
 		if (acquired is null) return "You have not acquired that spell.";
 		if (acquired.ProfileVersion != profile.Version) return "The acquired spell's grade profile version needs staff reconciliation.";
 		trait = _world.Traits.Get(a.TraitId ?? p.DefaultTraitId)!;
@@ -95,8 +102,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			actor.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IActionEffect>().Any(x => x.IsBlockingEffect("general") &&
 				(x is not MagicPracticeAction action || action.OperationId != continuingOperation))))
 			return "Finish or stop other blocking work, movement or combat before practising.";
-		var deliveryPolicy = mode == MagicCastingMode.Area ? profile.Area!.Deliveries.SingleOrDefault(x => x.Method.EqualTo(method)) :
-			mode == MagicCastingMode.Manifest ? profile.Incantation?.Deliveries.SingleOrDefault(x => x.Method.EqualTo(method)) : null;
+		var deliveryPolicy = RouteDelivery(c, mode, mode == MagicCastingMode.Area ? profile.Area!.Deliveries :
+			mode == MagicCastingMode.Manifest ? PatronMagicService.Incantation(c, s)?.Deliveries : null, method);
 		if (mode == MagicCastingMode.Area && deliveryPolicy is null) return "That native speech/area combination is not explicitly enabled for this spell.";
 		var deliverySteps = deliveryPolicy?.DifficultySteps ?? 0;
 		var steps = (long)(practice?.Difficulty ?? s.CastingDifficulty) + g.DifficultySteps + (overreach ? profile.OverreachDifficultySteps : 0) + deliverySteps;
@@ -123,6 +130,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 	}
 	private Prepared Prepare(MagicCastingIntent intent, MagicSpell? preparedSelectionSource = null)
 	{
+		intent = PatronDelivery(intent);
 		var actor = intent.Actor;
 		if (ResolveRoute(actor, intent.CapabilityId, intent.SpellId, intent.Grade, intent.Overreach,
 			out var capability, out var admission, out var spell, out var trait, out var difficulty, intent.Mode, method: intent.Method) is { } refusal)
@@ -138,13 +146,13 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var area = intent.Mode == MagicCastingMode.Area ? PrepareArea(intent, spell) : null;
 		var target = area is not null ? new SpellTargetResolution(new PerceivableGroup(area.Candidates.Select(x => (IPerceivable)x.Target).ToArray()), []) :
 			intent.Mode == MagicCastingMode.Practice ? new SpellTargetResolution(null, []) :
-			SpellTargetCapture.Resolve(actor, spell, power, new StringStack(intent.Targets), spell.GradeProfile.Incantation is not null);
+			SpellTargetCapture.Resolve(actor, spell, power, new StringStack(intent.Targets), PatronMagicService.Incantation(capability, spell) is not null);
 		if (target is null) throw new InvalidOperationException("No valid target was resolved.");
 		preparedSelectionSource?.ConfirmPendingLifetimeAdmissions();
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
 		foreach (var individual in targets)
 			if (!actor.CanInteractPlanar(individual, PlanarInteractionKind.Magic)) throw new InvalidOperationException("Your current plane cannot reach a target with magic.");
-		var controlledGrade = Acquisition(actor, spell.Id)!.ControlledGrade;
+		var controlledGrade = RouteAcquisition(actor, capability, spell.Id, spell.GradeProfile!.Version)!.ControlledGrade;
 		// Practice never clones/binds effect templates or invokes their target/caster application paths.
 		var copy = intent.Mode == MagicCastingMode.Practice ? spell : spell.CastingCopy(actor, trait, intent.Grade, power, difficulty, controlledGrade);
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
@@ -180,6 +188,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			if (resource.Id == policy.SourceResourceId)
 				amount *= area?.Policy.Deliveries.Single(x => x.Method.EqualTo(intent.Method)).EnergyMultiplier ?? delivery?.EnergyMultiplier ?? 1;
 			if (intent.Mode == MagicCastingMode.Practice && resource.Id == policy.SourceResourceId) amount *= spell.GradeProfile.Practice!.EnergyMultiplier;
+			if (resource.Id == policy.SourceResourceId && PatronMagicService.InFreeTerritory(actor, capability)) amount = 0;
 			if (!double.IsFinite(amount) || amount < 0) throw new InvalidOperationException($"cost/{resource.Id}: amount must be finite and non-negative.");
 			var holder = destination.Id == policy.ReserveResourceId ? Owner(actor) : ReserveHolder(actor, destination.Id);
 			payments.Add(new(holder, destination, amount));

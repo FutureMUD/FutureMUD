@@ -1598,6 +1598,7 @@ The syntax is:
 
         if (actor.Combat != null)
         {
+            if (targetItem.GetItemType<IConditionalBindingItem>()?.PreventRemoval(actor, true) == true) return;
             if (!actor.Body.CanRemoveItem(targetItem, ItemCanGetIgnore.IgnoreWeight))
             {
                 actor.Send(actor.Body.WhyCannotRemove(targetItem, ignoreFlags: ItemCanGetIgnore.IgnoreWeight));
@@ -2123,6 +2124,12 @@ The possible syntaxes for this command are:
         {
             problemItem = null;
             return true;
+        }
+
+        if (item.GetItemType<IConditionalBindingItem>()?.PreventRemoval(actor, true) == true)
+        {
+            problemItem = item;
+            return false;
         }
 
         if (actor.Body.CanRemoveItem(item, ItemCanGetIgnore.IgnoreFreeHands))

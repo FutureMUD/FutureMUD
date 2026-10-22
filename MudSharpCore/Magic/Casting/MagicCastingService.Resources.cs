@@ -16,6 +16,7 @@ public sealed partial class MagicCastingService
 
 	public void Reconcile(ICharacter actor)
 	{
+		PatronMagicService.Refill(actor);
 		var owner = Owner(actor);
 		if (owner is MudSharp.Character.Character runtime) runtime.ReconcileCastingResources();
 		var current = ProgressBodies(actor).SelectMany(physical => physical.Merits.OfType<IMagicCapabilityMerit>().Where(x => x.Applies(physical))
@@ -49,6 +50,7 @@ public sealed partial class MagicCastingService
 		lock (Guard(actor))
 		{
 			(Owner(actor) as MudSharp.Character.Character)?.ReconcileCastingResourceCapacities();
+			PatronMagicService.Refill(actor);
 			ValidatePractices(actor);
 		}
 	}

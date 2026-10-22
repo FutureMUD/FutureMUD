@@ -98,6 +98,69 @@ public class SimpleLivingDirectHealthCostTests
 		Assert.AreEqual(0.0, wound.CurrentStun, 0.000001);
 	}
 
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void ConfiguredConsequence_OverwhelmsExistingStunWhilePreservingOtherChannelsAndHealthFloor(bool complex)
+	{
+		using NativeHealthFixture fixture = new(complex: complex);
+		fixture.Actor.SetupGet(x => x.HealthStrategy).Returns(fixture.Strategy);
+		fixture.Body.SetupGet(x => x.MaximumStamina).Returns(100);
+		fixture.Body.SetupGet(x => x.CurrentStamina).Returns(100);
+		Assert.IsTrue(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object, 0, 0, 80,
+			WoundSeverity.Horrifying, out var initial, out var error), error);
+		var wound = fixture.Strategy.ApplyDirectHealthCost(fixture.Actor.Object, initial).Single();
+		fixture.Wounds.Add(wound);
+		Assert.IsFalse(MudSharp.Magic.ConfiguredItemConsequence.CanApply(fixture.Actor.Object, new MudSharp.Magic.ItemConsequence(Stun: 40)), "Voluntary payment still refuses incapacitating prices.");
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object, new MudSharp.Magic.ItemConsequence(20, 40, 40, 10, true)));
+		Assert.AreEqual(20, wound.CurrentDamage, 0.000001);
+		Assert.AreEqual(120, wound.CurrentStun, 0.000001);
+		fixture.Body.Verify(x => x.SpendStamina(40), Times.Once);
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object, new MudSharp.Magic.ItemConsequence(Health: 200, HealthFloor: 10)));
+		Assert.AreEqual(90, wound.CurrentDamage, 0.000001);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void ConfiguredConsequence_FullHealthDamageExceedsInitialPartCapWithoutDuplicatingStun(bool complex)
+	{
+		using NativeHealthFixture fixture = new(capacity: 10, complex: complex);
+		fixture.Body.SetupGet(x => x.CurrentStamina).Returns(100);
+		fixture.Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>()))
+			.Callback<IEnumerable<IWound>>(wounds => fixture.Wounds.AddRange(wounds));
+		Assert.IsFalse(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object, 100, 0, 40,
+			WoundSeverity.Horrifying, out _, out _), "Voluntary admission must still respect part capacity.");
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object,
+			new MudSharp.Magic.ItemConsequence(HealthFraction: 1, Stun: 40)));
+		var wound = fixture.Wounds.Single();
+		Assert.AreEqual(100, wound.CurrentDamage, 0.000001);
+		Assert.AreEqual(40, wound.CurrentStun, 0.000001);
+		Assert.AreEqual(0, wound.CurrentPain, 0.000001);
+		fixture.Saves.Verify(x => x.AddInitialisation((ILateInitialisingItem)wound), Times.Once);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void ConfiguredConsequence_AttachesNewWoundsAndReusesThemOnRepeatedConsequences(bool complex)
+	{
+		using NativeHealthFixture fixture = new(complex: complex);
+		fixture.Body.SetupGet(x => x.CurrentStamina).Returns(100);
+		fixture.Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>()))
+			.Callback<IEnumerable<IWound>>(wounds => fixture.Wounds.AddRange(wounds));
+		var consequence = new MudSharp.Magic.ItemConsequence(20, 40, 10, 10);
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object, consequence));
+		var wound = fixture.Wounds.Single();
+		Assert.AreEqual(20, wound.CurrentDamage, 0.000001);
+		Assert.AreEqual(40, wound.CurrentStun, 0.000001);
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object, consequence));
+		Assert.AreSame(wound, fixture.Wounds.Single());
+		Assert.AreEqual(40, wound.CurrentDamage, 0.000001);
+		Assert.AreEqual(80, wound.CurrentStun, 0.000001);
+		fixture.Actor.Verify(x => x.ProcessPassiveWound(wound), Times.Exactly(2));
+	}
+
 	private sealed class NativeHealthFixture : IDisposable
 	{
 		public Mock<ICharacter> Actor { get; } = new() { DefaultValue = DefaultValue.Mock };

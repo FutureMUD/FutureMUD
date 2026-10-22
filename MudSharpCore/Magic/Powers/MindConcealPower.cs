@@ -75,6 +75,8 @@ public class MindConcealPower : SustainedMagicPower
 		UnknownIdentityDescription = root.Element("UnknownIdentityDescription")?.Value ?? "an unknown presence";
 		AuditDifficultyStages = int.Parse(root.Element("AuditDifficultyStages")?.Value ?? "1");
 		IncludeSubschools = bool.Parse(root.Element("IncludeSubschools")?.Value ?? "true");
+		AllSchools = (bool?)root.Element("AllSchools") ?? false;
+		HideActivity = (bool?)root.Element("HideActivity") ?? false;
 		var progText = root.Element("AppliesToCharacterProg")?.Value ?? Gameworld.AlwaysTrueProg.Id.ToString();
 		AppliesToCharacterProg = Gameworld.FutureProgs.GetByIdOrName(progText) ??
 		                         throw new ApplicationException(
@@ -102,6 +104,8 @@ public class MindConcealPower : SustainedMagicPower
 			new XElement("UnknownIdentityDescription", new XCData(UnknownIdentityDescription)),
 			new XElement("AuditDifficultyStages", AuditDifficultyStages),
 			new XElement("IncludeSubschools", IncludeSubschools),
+			new XElement("AllSchools", AllSchools),
+			new XElement("HideActivity", HideActivity),
 			new XElement("EmoteForBegin", new XCData(EmoteForBegin)),
 			new XElement("EmoteForBeginSelf", new XCData(EmoteForBeginSelf)),
 			new XElement("EmoteForEnd", new XCData(EmoteForEnd)),
@@ -116,8 +120,10 @@ public class MindConcealPower : SustainedMagicPower
 
 	public bool AppliesToSchool(IMagicSchool school)
 	{
-		return school == School || IncludeSubschools && school.IsChildSchool(School);
+		return AllSchools || school == School || IncludeSubschools && school.IsChildSchool(School);
 	}
+	public bool AllSchools { get; private set; }
+	public bool HideActivity { get; private set; }
 
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
@@ -225,6 +231,7 @@ public class MindConcealPower : SustainedMagicPower
 		sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
 		sb.AppendLine($"Audit Difficulty Stages: {AuditDifficultyStages.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Includes Subschools: {IncludeSubschools.ToColouredString()}");
+		sb.AppendLine($"All Schools: {AllSchools.ToColouredString()}; Conceals Activity: {HideActivity.ToColouredString()}");
 		sb.AppendLine($"Applies Character Prog: {AppliesToCharacterProg.MXPClickableFunctionName()}");
 		sb.AppendLine();
 		sb.AppendLine("Emotes:");
@@ -243,6 +250,8 @@ public class MindConcealPower : SustainedMagicPower
 	#3unknown <desc>#0 - sets the replacement identity shown while concealed
 	#3audit <stages>#0 - sets extra difficulty stages for audit/trace attempts
 	#3subschools#0 - toggles whether the concealment covers child schools
+	#3allschools <true|false>#0 - controls whether all schools are covered
+	#3hideactivity <true|false>#0 - controls concealment from passive activity sensing
 	#3applies <prog>#0 - sets a prog controlling which observers are affected
 	#3beginemote <emote>#0 - sets the emote for beginning this power
 	#3beginemoteself <emote>#0 - sets the self emote for beginning this power
@@ -251,6 +260,15 @@ public class MindConcealPower : SustainedMagicPower
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.PeekSpeech().EqualTo("allschools") || command.PeekSpeech().EqualTo("hideactivity"))
+		{
+			var field = command.PopForSwitch();
+			if (!bool.TryParse(command.PopSpeech(), out var value)) return false;
+			if (field == "allschools") AllSchools = value; else HideActivity = value;
+			Changed = true;
+			actor.Send($"{field.ColourName()} set to {value.ToColouredString()}.");
+			return true;
+		}
 		switch (command.PopForSwitch())
 		{
 			case "begin":

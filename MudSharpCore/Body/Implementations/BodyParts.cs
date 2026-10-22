@@ -394,6 +394,11 @@ public partial class Body
             return CanUseBodypartResult.CantUseLimbPain;
         }
 
+		if (limbResult.HasFlag(CanUseLimbResult.CantUseNumbness))
+		{
+			return CanUseBodypartResult.CantUseLimbNumbness;
+		}
+
         if (limbResult.HasFlag(CanUseLimbResult.CantUseSevered))
         {
             return CanUseBodypartResult.CantUseSevered;
@@ -441,6 +446,10 @@ public partial class Body
         CanUseLimbResult result = CanUseLimbResult.CanUse;
         List<ILimbIneffectiveEffect> limbEffects = EffectsOfType<ILimbIneffectiveEffect>().Where(x => x.Applies(limb) && x.AppliesToLimb(limb))
                                                                  .ToList();
+		if (limbEffects.Any(x => x.Reason == LimbIneffectiveReason.Numbness))
+		{
+			result |= CanUseLimbResult.CantUseNumbness;
+		}
         if (limbEffects.Any(x => x.Reason == LimbIneffectiveReason.Severing))
         {
             result |= CanUseLimbResult.CantUseSevered;
@@ -481,6 +490,8 @@ public partial class Body
 
     public bool ReevaluateLimbAndPartDamageEffects()
     {
+		RemoveAllEffects(x => x is MudSharp.Effects.Concrete.LimbNumbnessEffect numbness &&
+			!Limbs.Any(limb => limb.Id == numbness.LimbId));
         bool result = CheckBodypartDamage();
 
         foreach (ILimb limb in Limbs)

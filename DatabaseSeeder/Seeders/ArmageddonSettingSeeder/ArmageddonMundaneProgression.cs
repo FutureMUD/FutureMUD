@@ -157,25 +157,49 @@ public static class ArmageddonMundaneProgression
 			if (role.Name == "Mercenary" && !role.Primary) desired.Add(merits[ArmageddonMundaneMerits.MercenaryKey]);
 			ReconcileRoleMerits(db, role.Key, actualRoles[role.Key], desired, messages);
 		}
-		foreach (var skill in ArmageddonSkillPackage.Skills.Where(x => !x.Scaffold))
-		{
-			var trait = skills[skill.Key];
-			var members = Roles.SelectMany(role => role.Skills.Where(x => x.Key == skill.Key).Select(x => (Role: role, Skill: x))).ToArray();
-			string Sum(bool primary) => string.Join(" + ", members.Where(x => x.Role.Primary == primary).Select(x =>
-				$"{x.Skill.Cap.ToString(CultureInfo.InvariantCulture)} * {{r{actualRoles[x.Role.Key].Id} role={actualRoles[x.Role.Key].Id}}}"));
-			var primaryMembers = members.Where(x => x.Role.Primary).ToArray();
-			var main = Sum(true); var sub = Sum(false);
-			var expression = skill.Language ? "200" : primaryMembers.Length == 0 ? (sub.Length == 0 ? "0" : sub) :
-				$"if({{main role={string.Join(',', primaryMembers.Select(x => actualRoles[x.Role.Key].Id))}}}, {main}, {(sub.Length == 0 ? "0" : sub)})";
-			var record = db.SeederManagedRecords.Single(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == skill.Key + ".cap");
-			ArmageddonSettingOwnership.Reconcile(db, record, trait.Expression, new Dictionary<string, string>
-			{
-				["Name"] = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!["Name"], ["Expression"] = JsonSerializer.Serialize(expression)
-			}, messages);
-		}
+		ReconcileSkillCaps(db, skills, messages);
 		BindAnalyze(db, actualRoles.Values.Where(x => x.Type == 0).Select(x => x.Id).ToArray(), messages);
 		db.SaveChanges(); transaction?.Commit();
 		messages.Add("Mundane progression installed: seven main guilds, 24 subclasses, source trees, approved writing grants and exact Bard/Mercenary merits. No existing character was enrolled.");
+	}
+
+	internal static void ReconcileSkillCaps(FuturemudDatabaseContext db, IReadOnlyDictionary<string, TraitDefinition> skills, ICollection<string> messages)
+	{
+		var roleIds = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module &&
+			x.EntityType == nameof(ChargenRole) && !x.Retired && x.LogicalId != null).ToDictionary(x => x.StableKey, x => x.LogicalId!.Value);
+		var caps = Roles.Where(x => roleIds.ContainsKey(x.Key)).SelectMany(role => role.Skills.Select(skill =>
+			(Role: roleIds[role.Key], Trait: skills[skill.Key].Id, role.Primary, skill.Cap))).ToList();
+		var templar = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package &&
+			x.Module == ArmageddonTemplarInstaller.Module && x.StableKey == ArmageddonTemplarInstaller.ProgressionKey &&
+			x.EntityType == nameof(Merit) && !x.Retired);
+		if (templar is not null)
+		{
+			// The ownership baseline is the authored source graph, even when a builder edits the merit.
+			var fields = JsonSerializer.Deserialize<Dictionary<string, string>>(templar.SeedBaseline!)!;
+			var definition = XElement.Parse(JsonSerializer.Deserialize<string>(fields["Definition"])!);
+			caps.AddRange(definition.Element("Rules")!.Elements("Rule").Select(x =>
+				((long)x.Attribute("role")!, (long)x.Attribute("trait")!, (bool)x.Attribute("primary")!, (double)x.Attribute("cap")!)));
+		}
+		var scaffolds = ArmageddonSkillPackage.Skills.Where(x => x.Scaffold).Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
+		var languages = db.Languages.Select(x => x.LinkedTraitId).AsEnumerable()
+			.Concat(ArmageddonSkillPackage.Skills.Where(x => x.Language).Select(x => skills[x.Key].Id)).ToHashSet();
+		var canonical = ArmageddonSkillPackage.Skills.Where(x => !x.Scaffold).Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
+		foreach (var (key, trait) in skills.Where(x => ArmageddonSkillPackage.CanonicalKey(x.Key) == x.Key && !scaffolds.Contains(x.Key) &&
+			(canonical.Contains(x.Key) || caps.Any(c => c.Trait == x.Value.Id))))
+		{
+			var members = caps.Where(x => x.Trait == trait.Id).ToArray();
+			string Sum(bool primary) => string.Join(" + ", members.Where(x => x.Primary == primary).Select(x =>
+				$"{x.Cap.ToString(CultureInfo.InvariantCulture)} * {{r{x.Role} role={x.Role}}}"));
+			var primaryMembers = members.Where(x => x.Primary).ToArray();
+			var main = Sum(true); var sub = Sum(false);
+			var expression = languages.Contains(trait.Id) ? "200" : primaryMembers.Length == 0 ? (sub.Length == 0 ? "0" : sub) :
+				$"if({{main role={string.Join(',', primaryMembers.Select(x => x.Role))}}}, {main}, {(sub.Length == 0 ? "0" : sub)})";
+			var record = db.SeederManagedRecords.Single(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key + ".cap");
+			var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+			var next = new Dictionary<string, string> { ["Expression"] = JsonSerializer.Serialize(expression) };
+			if (baseline.TryGetValue("Name", out var name)) next["Name"] = name;
+			ArmageddonSettingOwnership.Reconcile(db, record, trait.Expression, next, messages);
+		}
 	}
 
 	private static void ReconcileRoleMerits(FuturemudDatabaseContext db, string key, ChargenRole role, IEnumerable<long> desired, ICollection<string> messages)
@@ -193,8 +217,11 @@ public static class ArmageddonMundaneProgression
 		foreach (var id in ids.Except(links.Select(x => x.MeritId))) db.ChargenRolesMerits.Add(new ChargenRolesMerit { ChargenRoleId = role.Id, MeritId = id });
 	}
 
-	private static void BindAnalyze(FuturemudDatabaseContext db, long[] roleIds, ICollection<string> messages)
+	internal static void BindAnalyze(FuturemudDatabaseContext db, long[] roleIds, ICollection<string> messages)
 	{
+		roleIds = roleIds.Concat(db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package &&
+			x.Module == ArmageddonTemplarInstaller.Module && x.EntityType == nameof(ChargenRole) && !x.Retired && x.LogicalId != null)
+			.Select(x => x.LogicalId!.Value)).Distinct().ToArray();
 		const string key = "arm.capability.analyze";
 		var check = db.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)CheckType.AnalyzeEligibilityCheck);
 		var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);

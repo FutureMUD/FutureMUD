@@ -147,6 +147,8 @@ Some effect families intentionally use different aggregation semantics:
 - `PlanarState` chooses the strongest active planar payload and applies that overlay if the net effect remains positive.
 - `ThermalImbalance` pushes progress into the shared `ThermalImbalance` consequence model rather than storing a drug-specific overlay.
 
+Physical nausea may also be supplied by a persistent timed `MundaneNausea` effect. Its intensity is normalized to body mass before passing through the shared `ICauseDrugEffect` aggregation. `IBody.RefreshNausea()` reconciles only nausea symptoms using the same active doses, specific-drug neutralisation, resistance, tolerance and effect neutralisation rules as ordinary drug processing. Source addition/removal and login refresh symptoms immediately; this method does not metabolise doses, advance dependence, regenerate stamina or apply cellular damage. The ordinary `Nausea` symptom retains its native 35-second vomiting schedule. Score and description severity use the same additive physical/alcohol calculation as onset messages, including when alcohol is absent.
+
 ## Supported Drug Effects
 | Drug type | Runtime behavior |
 | --- | --- |

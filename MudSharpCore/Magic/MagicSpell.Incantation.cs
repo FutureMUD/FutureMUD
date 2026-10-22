@@ -28,7 +28,7 @@ public partial class MagicSpell
 				new XAttribute("name", x.Method), new XAttribute("volume", (int)x.Volume),
 				new XAttribute("energy", x.EnergyMultiplier), new XAttribute("difficulty", x.DifficultySteps))));
 
-	private IReadOnlyList<string> IncantationConfigurationErrors(ControlledSpellIncantation? p)
+	internal IReadOnlyList<string> IncantationConfigurationErrors(ControlledSpellIncantation? p)
 	{
 		if (p is null) return [];
 		List<string> errors = [];

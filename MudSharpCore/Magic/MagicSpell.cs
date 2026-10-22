@@ -1480,7 +1480,10 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     {
 		if (Trigger is SpellTriggers.AttackHitTrigger or SpellTriggers.SubstanceTrigger) return false;
 		return HasLegacyRoute(magician) || (magician is not null &&
-			(Gameworld.MagicCasting?.Acquisition(magician, Id) is not null || VancianMagicService.For(Gameworld).KnowsThroughVancian(magician, this)));
+			(Gameworld.MagicCasting?.Acquisition(magician, Id) is not null ||
+			 magician.Capabilities.OfType<IMagicCastingCapability>().Any(x =>
+				 x.CastingPolicy is { Enabled: true, Patron: not null } && Casting.PatronMagicService.HasSpell(magician, x, Id)) ||
+			 VancianMagicService.For(Gameworld).KnowsThroughVancian(magician, this)));
 	}
 
 	public bool HasLegacyRoute(ICharacter magician)
@@ -1599,6 +1602,13 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
 		SpellInvocationContext? invocation, params SpellAdditionalParameter[] additionalParameters)
 	{
+		if (magician.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IMindImpairmentEffect>().Any(x => x.Applies())) { magician.Send("Your impaired mind cannot form a spell."); return; }
+		var bindingTargets = target is PerceivableGroup group ? group.Members.ToArray() : target is null ? Array.Empty<IPerceivable>() : new[] { target };
+		if (magician.Body.DirectWornItems.SelectMany(x => x.Components).OfType<MudSharp.GameItems.Interfaces.IConditionalBindingItem>().Any(x => x.InterceptSpell(magician, this, bindingTargets)))
+		{
+			magician.Send("Your binding prevents that spell.");
+			return;
+		}
 		if (GradeProfile?.Area?.ChainLightning is not null &&
 			(invocation?.Source != SpellInvocationSource.ConfiguredCasting || invocation.Configured is null))
 		{

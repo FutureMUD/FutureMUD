@@ -29,24 +29,27 @@ internal static class ArmageddonSettingLinks
 			"ChargenScreenStoryboard.SettingLinks" => db.ChargenScreenStoryboards.Any(x => x.Id == id),
 			"Check.SettingLinks" => db.Checks.Any(x => x.Type == id),
 			"RandomNameProfile.SettingLinks" => db.RandomNameProfiles.Any(x => x.Id == id),
+			"ChargenRole.SettingLinks" => db.ChargenRoles.Any(x => x.Id == id),
+			"CombatAction.SettingLinks" => db.CombatActions.Any(x => x.Id == id),
+			"GameItemProto.SettingLinks" => record.RevisionNumber is { } revision && db.GameItemProtos.Any(x => x.Id == id && x.RevisionNumber == revision),
 			_ => false
 		};
 	}
 
 	internal static IReadOnlyDictionary<string, string> Reconcile(FuturemudDatabaseContext db, string key, string parentType,
-		long parentId, IReadOnlyDictionary<string, string> current, IReadOnlyDictionary<string, string> desired, ICollection<string> messages)
+		long parentId, IReadOnlyDictionary<string, string> current, IReadOnlyDictionary<string, string> desired, ICollection<string> messages, int? revision = null)
 	{
 		var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
 		var created = record is null;
 		if (created)
 		{
 			record = new SeederManagedRecord { Seeder = ArmageddonMagicInstaller.Package, Module = Module, StableKey = key,
-				EntityType = parentType + ".SettingLinks", LogicalId = parentId, ManifestVersion = ArmageddonSkillPackage.Version, AppliedAt = DateTime.UtcNow };
+				EntityType = parentType + ".SettingLinks", LogicalId = parentId, RevisionNumber = revision, ManifestVersion = ArmageddonSkillPackage.Version, AppliedAt = DateTime.UtcNow };
 			if (db.SeederManagedRecords.Any(x => x.EntityType == record.EntityType && x.LogicalId == parentId))
 				throw new InvalidOperationException($"Competing reference ownership: {key}.");
 			db.SeederManagedRecords.Add(record);
 		}
-		else if (!Valid(db, record!) || record!.EntityType != parentType + ".SettingLinks" || record.LogicalId != parentId)
+		else if (!Valid(db, record!) || record!.EntityType != parentType + ".SettingLinks" || record.LogicalId != parentId || record.RevisionNumber != revision)
 			throw new InvalidOperationException($"Invalid typed reference ownership: {key}.");
 		return SeederManagedRecordReconciler.Reconcile(record!, current, desired, created, messages);
 	}

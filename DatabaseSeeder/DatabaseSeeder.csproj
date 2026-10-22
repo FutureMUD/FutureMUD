@@ -75,6 +75,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Assets/Manifests/Armageddon/skills.json" LogicalName="DatabaseSeeder.Armageddon.skills.json" />
     <EmbeddedResource Include="Assets/Manifests/Armageddon/naming.json" LogicalName="DatabaseSeeder.Armageddon.naming.json" />
+    <EmbeddedResource Include="Assets/Manifests/Armageddon/templar_classes.json" LogicalName="DatabaseSeeder.Armageddon.templar_classes.json" />
     <EmbeddedResource Include="Assets/Manifests/Armageddon/*.tsv" LogicalName="DatabaseSeeder.Armageddon.%(Filename)%(Extension)" />
     <EmbeddedResource Include="Assets/Manifests/CoreTags.tsv" LogicalName="DatabaseSeeder.CoreTags.tsv" />
   </ItemGroup>

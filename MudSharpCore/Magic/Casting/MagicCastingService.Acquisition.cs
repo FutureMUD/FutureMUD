@@ -6,7 +6,7 @@ namespace MudSharp.Magic.Casting;
 public sealed partial class MagicCastingService
 {
 	private readonly record struct ProgressionNode(long Capability, MagicCastingPrerequisiteKind Kind, long Id);
-	private static IEnumerable<ProgressionNode> ProgressionNodes(IMagicCastingCapability c) => c.CastingPolicy!.Admissions
+	private static IEnumerable<ProgressionNode> ProgressionNodes(IMagicCastingCapability c) => c.CastingPolicy!.Admissions.Where(_ => c.CastingPolicy.Patron is null)
 		.Select(x => new ProgressionNode(c.Id, MagicCastingPrerequisiteKind.Spell, x.SpellId))
 		.Concat(c.CastingPolicy.Supports.Select(x => new ProgressionNode(c.Id, MagicCastingPrerequisiteKind.SupportTrait, x.TraitId)));
 	private readonly Dictionary<long, HashSet<ProgressionNode>> _spellEdges = [];
@@ -52,6 +52,7 @@ public sealed partial class MagicCastingService
 			!target.Capabilities.Any(x => x.Id == capabilityId) || p.Admissions.FirstOrDefault(x => x.SpellId == spellId) is not { } admission)
 			return new(false, false, "The target needs a current enabled capability explicitly admitting that spell.");
 		if (c.CastingConfigurationErrors().FirstOrDefault() is { } error) return new(false, false, error);
+		if (p.Patron is not null) return new(false, false, "Patron spells are granted by current route selections, not permanent acquisition.");
 		var owner = Owner(target);
 		var trait = _world.Traits.Get(admission.TraitId ?? p.DefaultTraitId)!;
 		if (QuarantineReason(target, spellId, trait.Id, p.ReserveResourceId) is { } q) return new(false, false, q);
@@ -98,7 +99,7 @@ public sealed partial class MagicCastingService
 				p.ReserveResourceId, MagicCastingStateStore.EnrolmentRecorded, new XElement("Enrolment", new XAttribute("version", 1),
 					new XAttribute("identity", p.Identity), new XElement("Provenance", provenance)).ToString(SaveOptions.DisableFormatting), _clock(), _clock()) : null;
 			_store.Write(operation: receipt, enrolment: pending);
-			foreach (var root in p.Admissions.Where(x => x.Starting))
+			foreach (var root in p.Admissions.Where(x => x.Starting && p.Patron is null))
 			{
 				var grant = GrantCore(target, c.Id, root.SpellId, $"Enrolment {p.Identity}, {provenance}");
 				if (!grant.Allowed) return grant;

@@ -27,4 +27,11 @@ public partial class ComplexLivingHealthStrategy
 
 	public override IReadOnlyList<IWound> ApplyDirectHealthCost(IHaveWounds owner, DirectHealthCostPlan plan) =>
 		OrganicDirectHealthCosts.Apply(this, owner, plan);
+	public override bool TryPlanDirectHealthConsequence(IHaveWounds owner, IBodypart bodypart, double damage, double pain,
+		double stun, out DirectHealthCostPlan plan, out string error)
+	{
+		if (bodypart is IBone) { plan = null!; error = "A bone is not an exact cellular consequence target."; return false; }
+		return OrganicDirectHealthCosts.TryPlan(this, owner, bodypart, damage, pain, stun, WoundSeverity.Horrifying,
+			out plan, out error, allowIncapacitation: true);
+	}
 }

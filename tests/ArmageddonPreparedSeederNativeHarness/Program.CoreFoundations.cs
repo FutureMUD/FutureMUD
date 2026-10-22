@@ -235,7 +235,7 @@ internal static partial class GNHProgram
 			using (var db = NewPreparedReplayContext(restored.ConnectionString))
 			{
 				RequireNoUseful(db);
-				var ownedSpells = db.SeederManagedRecords.Where(x => x.EntityType == "MagicSpell" && x.Seeder == ArmageddonMagicInstaller.Package && !x.Retired).Select(x => x.LogicalId).ToArray();
+				var ownedSpells = db.SeederManagedRecords.Where(x => x.EntityType == "MagicSpell" && x.Seeder == ArmageddonMagicInstaller.Package && x.Module != ArmageddonTemplarInstaller.Module && !x.Retired).Select(x => x.LogicalId).ToArray();
                 var spellIds = db.MagicSpells.Select(x => x.Id).ToHashSet();
                 Require(ownedSpells.Length == 152 && ownedSpells.Distinct().Count() == 152 && ownedSpells.All(x => x is { } id && spellIds.Contains(id)), "Exact 152 canonical owned spells were not installed.");
 				var sewer = db.Terrains.Single(x => x.Id == db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonRegionalLandInstaller.TerrainKey("sewer")).LogicalId);

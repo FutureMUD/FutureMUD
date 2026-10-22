@@ -1,6 +1,7 @@
 using MudSharp.Body;
 using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
+using System.Linq;
 
 namespace MudSharp.Combat.Moves;
 
@@ -8,17 +9,20 @@ internal class AuxiliaryMove : CombatMoveBase
 {
     private readonly ICharacter _target;
     private readonly IAuxiliaryCombatAction _action;
+    private readonly ManualCombatActionContext? _context;
     private readonly IPhysicalImpactProfile _impactProfile;
     private readonly Func<bool> _impactParticipants;
     internal IBody ImpactStaminaBody { get; }
     public override bool UsesStaminaWithResult(CombatMoveResult result) =>
         (!IsPhysicalImpact || !ReferenceEquals(result, CombatMoveResult.Irrelevant)) && base.UsesStaminaWithResult(result);
 
-    public AuxiliaryMove(ICharacter assailant, ICharacter target, IAuxiliaryCombatAction action)
+    public AuxiliaryMove(ICharacter assailant, ICharacter target, IAuxiliaryCombatAction action,
+        ManualCombatActionContext? context = null)
     {
         Assailant = assailant;
         _target = target;
         _action = action;
+        _context = context;
         _impactProfile = (action as IPhysicalImpactAuxiliaryAction)?.PhysicalImpact;
         if (_impactProfile is not null)
         {
@@ -64,7 +68,8 @@ internal class AuxiliaryMove : CombatMoveBase
 
     public static double MoveStaminaCost(ICharacter assailant, IAuxiliaryCombatAction move)
     {
-        var cost = move is IPhysicalImpactAuxiliaryAction { PhysicalImpact: not null }
+		var contextualMove = move.AuxiliaryEffects.OfType<IContextualAuxiliaryEffect>().Any();
+		var cost = move is IPhysicalImpactAuxiliaryAction { PhysicalImpact: not null } && !contextualMove
             ? 2.0 + Math.Clamp(100.0 - assailant.TraitValue(move.CheckTrait), 0.0, 100.0) / 22.0
             : move.StaminaCost;
         return cost * CombatBase.GraceMoveStaminaMultiplier(assailant);
@@ -87,7 +92,17 @@ internal class AuxiliaryMove : CombatMoveBase
 		{
 			if (!_impactParticipants()) return CombatMoveResult.Irrelevant;
 			if (_action is not IPhysicalImpactAuxiliaryAction current || !ReferenceEquals(current.PhysicalImpact, _impactProfile)) return CombatMoveResult.Irrelevant;
-			return PhysicalImpactResolver.Resolve(this, Assailant, _target, _action, _impactProfile, defenderMove);
+			return PhysicalImpactResolver.Resolve(this, Assailant, _target, _action, _impactProfile, defenderMove,
+				attackOutcome =>
+				{
+					if (_context is null) return;
+					foreach (var effect in _action.AuxiliaryEffects.OfType<IContextualAuxiliaryEffect>())
+					{
+						if (!CanContinueCommand() || !CanReachTarget(Assailant, _target) ||
+							!effect.IsValidContext(Assailant, _target, _context, out _)) return;
+						effect.ApplyEffect(Assailant, _target, attackOutcome, _context, true);
+					}
+				});
 		}
 		if (!CanReachTarget(Assailant, _target)) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
@@ -123,7 +138,20 @@ internal class AuxiliaryMove : CombatMoveBase
         {
 			if (!CanContinueCommand()) break;
 			if (!CanReachTarget(Assailant, _target)) break;
-            effect.ApplyEffect(Assailant, _target, attackRoll);
+            if (effect is IContextualAuxiliaryEffect contextual && _context is not null)
+            {
+                if (!contextual.IsValidContext(Assailant, _target, _context, out var error))
+                {
+                    Assailant.OutputHandler.Send(error);
+                    break;
+                }
+
+                contextual.ApplyEffect(Assailant, _target, attackRoll, _context);
+            }
+            else
+            {
+                effect.ApplyEffect(Assailant, _target, attackRoll);
+            }
         }
 
         return CompletedResult();

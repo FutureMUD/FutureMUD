@@ -25,6 +25,7 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
         _showHelpText = power.ShowHelp;
         XElement root = XElement.Parse(power.Definition);
 		LoadPowerTags(root);
+		LoadBodilyCosts(root);
 		_seededIdentity = (string)root.Element("SeededIdentity");
         XElement psionicElement = root.Element("IsPsionic");
         if (psionicElement != null && bool.TryParse(psionicElement.Value, out bool psi))
@@ -293,6 +294,7 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
     protected virtual bool TargetIsValid(ICharacter owner, ICharacter target)
 	{
 		return TargetFilterFunction(owner, target) &&
+		       (!IsPsionic || !PsionicTrafficHelper.CrossesDome(owner, target)) &&
 		       MagicInterdictionHelper.GetInterdiction(owner, target, School, false) is null;
 	}
 
@@ -434,6 +436,7 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
 
     public void ConsumePowerCosts(ICharacter actor, string verb)
     {
+		ConsumeBodilyCost(actor, verb);
         foreach ((IMagicResource resource, double cost) in InvocationCosts[verb])
         {
             InvocationResourcePayment.TryPay(actor, resource, cost);
@@ -468,6 +471,8 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
 	#3traceduration <timespan|seconds>#0 - sets how long durable traces last
 	#3tracedifficulty <difficulty>#0 - sets how hard traces are to read
 	#3tracedesc <text>#0 - sets the activity text for traces
+	#3bodilycost <base> <skill> <willpower> [verbs]#0 - configures bodily stun activation costs (or none)
+	#3stunupkeep <skill> <wisdom> <exemption prog|none> <attempts per minute>#0 - configures stun upkeep (or none)
 {SubtypeHelpText}";
 
     public virtual bool BuildingCommand(ICharacter actor, StringStack command)
@@ -492,6 +497,8 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
                 return BuildingCommandBlurb(actor, command);
             case "cost":
                 return BuildingCommandCost(actor, command);
+			case "bodilycost": return BuildingCommandBodilyCost(actor, command, false);
+			case "stunupkeep": return BuildingCommandBodilyCost(actor, command, true);
             case "school":
                 return BuildingCommandSchool(actor, command);
             case "tag":
@@ -839,6 +846,8 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
         sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
         sb.AppendLine($"Can Invoke Prog: {CanInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Why Can't Invoke Prog: {WhyCantInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Bodily activation cost: {BodilyCost?.ToString() ?? "None"}");
+		sb.AppendLine($"Stun upkeep: {StunUpkeep?.ToString() ?? "None"}");
         ShowSubtype(actor, sb);
         sb.AppendLine();
         sb.AppendLine("Costs:");
@@ -867,6 +876,7 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
 
     protected void AddBaseDefinition(XElement root)
     {
+		SaveBodilyCosts(root);
         if (!string.IsNullOrEmpty(_seededIdentity)) root.Add(new XElement("SeededIdentity", _seededIdentity));
         root.Add(new XElement("IsPsionic", IsPsionic));
 		root.Add(new XElement("PowerTags", _powerTags.Order(StringComparer.Ordinal).Select(x => new XElement("Tag", x))));

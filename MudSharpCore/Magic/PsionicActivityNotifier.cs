@@ -27,6 +27,8 @@ public static class PsionicActivityNotifier
 
 		foreach (var effect in source.Gameworld.Characters.SelectMany(x => x.EffectsOfType<PsionicSensitivityEffect>()).ToList())
 		{
+			if (source.EffectsOfType<IMindContactConcealmentEffect>().Any(x => x.ConcealsActivity &&
+				x.ConcealsIdentityFrom(source, effect.CharacterOwner, power.School))) continue;
 			effect.NotifyActivity(activity);
 		}
 

@@ -33,14 +33,14 @@ public partial class MagicModule
 		var admitted = capabilities.SelectMany(x => x.CastingPolicy?.Admissions ?? []).Select(x => x.SpellId).ToHashSet();
 		if (command.EqualTo("spells"))
 		{
-			var sb = new StringBuilder("Acquisition is permanent; current routes and energy are shown separately.\n");
+			var sb = new StringBuilder("Current spell knowledge, casting routes and energy are shown separately.\n");
 			foreach (var spell in actor.Gameworld.MagicSpells.Where(x => admitted.Contains(x.Id) || x.School.Id == school.Id).OrderBy(x => x.Name))
 			{
 				var acquired = service.Acquisition(actor, spell.Id);
 				var legacy = spell is MagicSpell native && native.HasLegacyRoute(actor);
 				var vancian = MudSharp.Magic.Vancian.VancianMagicService.For(actor.Gameworld).KnowsThroughVancian(actor, spell);
 				if (acquired is null && !legacy && !vancian && !admitted.Contains(spell.Id)) continue;
-				sb.AppendLine($"{spell.Name.ColourName()}: {(acquired is null ? "not acquired" : $"acquired, controlled grade {acquired.ControlledGrade}")}{(legacy ? "; independent legacy grant" : "")}{(vancian ? "; independent Vancian knowledge" : "")}");
+				sb.AppendLine($"{spell.Name.ColourName()}: {(acquired is null ? PatronKnowledge(spell.Id) ? "current patron grant" : "not acquired" : $"acquired, controlled grade {acquired.ControlledGrade}")}{(legacy ? "; independent legacy grant" : "")}{(vancian ? "; independent Vancian knowledge" : "")}");
 				AppendRoutes(sb, spell.Id);
 			}
 			actor.OutputHandler.Send(sb.ToString()); return true;
@@ -59,10 +59,11 @@ public partial class MagicModule
 		if (!command.EqualToAny("cast", "practice"))
 		{
 			var known = service.Acquisition(actor, chosen.Id);
-			var sb = new StringBuilder($"{chosen.Name}\n{chosen.Description}\nAcquisition: {(known is null ? "not acquired" : $"controlled grade {known.ControlledGrade}; {known.Provenance}")}\nNative school: {chosen.School.Name}\n");
+			var sb = new StringBuilder($"{chosen.Name}\n{chosen.Description}\nKnowledge: {(known is null ? PatronKnowledge(chosen.Id) ? "current patron grant" : "not acquired" : $"controlled grade {known.ControlledGrade}; {known.Provenance}")}\nNative school: {chosen.School.Name}\n");
 			AppendRoutes(sb, chosen.Id);
 			sb.AppendLine($"{school.SchoolVerb} cast \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
-			sb.AppendLine($"{school.SchoolVerb} practice \"{chosen.Name}\" grade <1..7> [overreach] [via <capability>] (target-free, explicitly authored practice only)");
+			if (capabilities.Any(x => x.CastingPolicy is { Patron: null } && actor.Capabilities.Any(c => c.Id == x.Id) && x.CastingPolicy.Admissions.Any(a => a.SpellId == chosen.Id)))
+				sb.AppendLine($"{school.SchoolVerb} practice \"{chosen.Name}\" grade <1..7> [overreach] [via <capability>] (target-free, explicitly authored practice only)");
 			if (chosen is MagicSpell { GradeProfile.Area: { } areaPolicy })
 			{
 				sb.AppendLine($"{school.SchoolVerb} area \"{chosen.Name}\" grade <1..7> [overreach] on here [via <capability>]");
@@ -74,6 +75,13 @@ public partial class MagicModule
 				sb.AppendLine($"{school.SchoolVerb} formula <POWER> {string.Join(" ", incantation.CategoryWords)} [overreach] on <target> [via <capability>] (five words in any order)");
 				sb.AppendLine($"Native speech or POWER + alias: {string.Join(", ", incantation.Aliases)}; select {actor.Gameworld.Languages.Get(incantation.LanguageId)?.Name}. Category vocabulary: {incantation.VocabularyProvenance}.");
 			}
+			else if (chosen is IControlledMagicSpell controlled)
+				foreach (var capability in capabilities.Where(x => actor.Capabilities.Any(c => c.Id == x.Id)))
+					if (PatronMagicService.Incantation(capability, controlled) is { } fallback)
+					{
+						sb.AppendLine($"{school.SchoolVerb} formula <POWER> {string.Join(" ", fallback.CategoryWords)} on <target> via {capability.Name.DoubleQuotes()}");
+						sb.AppendLine($"Select {actor.Gameworld.Languages.Get(fallback.LanguageId)?.Name}; vocabulary: {fallback.VocabularyProvenance}.");
+					}
 			actor.OutputHandler.Send(sb.ToString()); return true;
 		}
 		if (!args.PopSpeech().EqualTo("grade"))
@@ -110,6 +118,9 @@ public partial class MagicModule
 			practice ? MagicCastingMode.Practice : area ? MagicCastingMode.Area : MagicCastingMode.Manifest, Method: method)).Message);
 		return true;
 
+		bool PatronKnowledge(long spellId) => capabilities.Any(x => x.CastingPolicy is { Enabled: true, Patron: not null } &&
+			actor.Capabilities.Any(c => c.Id == x.Id) && PatronMagicService.HasSpell(actor, x, spellId));
+
 		void AppendRoutes(StringBuilder sb, long spellId)
 		{
 			foreach (var route in service.Routes(actor, spellId).Where(x => capabilities.Any(c => c.Id == x.CapabilityId)))
@@ -118,6 +129,8 @@ public partial class MagicModule
 				var holder = MagicCastingService.ReserveHolder(actor, route.ReserveId);
 				var balance = resource is null ? 0 : holder.MagicResourceAmounts.GetValueOrDefault(resource);
 				sb.AppendLine($"  via {actor.Gameworld.MagicCapabilities.Get(route.CapabilityId)!.Name.ColourName()}: {route.Reason}; energy {balance.ToString("N2", actor).ColourValue()} {resource?.Name}");
+				if (actor.Gameworld.MagicCapabilities.Get(route.CapabilityId) is IMagicCastingCapability { CastingPolicy.Patron: { } patron })
+					sb.AppendLine($"    Fixed grade {patron.FixedGrade.ToString(actor)}; no practice or overreach; current patron authority is required.");
 			}
 		}
 	}

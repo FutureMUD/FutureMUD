@@ -1,5 +1,8 @@
-﻿#nullable enable
+#nullable enable
 
+
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 
 namespace MudSharp.Magic;
 
@@ -31,6 +34,28 @@ public static class PsionicTrafficHelper
 	public static bool CanReceiveInvoluntaryMentalTraffic(ICharacter target)
 	{
 		return !target.AffectedBy<IIgnoreForceEffect>();
+	}
+
+	public static bool CrossesDome(ICharacter source, ICharacter target)
+	{
+		if (source.Location is null || target.Location is null || source.Location == target.Location)
+		{
+			return false;
+		}
+
+		return IsWardRoom(source) || IsWardRoom(target);
+	}
+
+	public static bool CanSendPsionicTraffic(ICharacter source, ICharacter target)
+	{
+		return CanReceiveInvoluntaryMentalTraffic(target) && !CrossesDome(source, target) &&
+		       !target.EffectsOfType<MindBarrierEffect>().Any(x => x.Applies(source));
+	}
+
+	private static bool IsWardRoom(ICharacter character)
+	{
+		return character.Location?.Characters
+			.Any(x => x.EffectsOfType<IPsionicDomeEffect>().Any(dome => dome.AppliesTo(character))) == true;
 	}
 
 	public static string SourceDescription(ICharacter source, ICharacter observer, IMagicSchool school)
@@ -91,9 +116,29 @@ public static class PsionicTrafficHelper
 	{
 		return source.Gameworld.Characters
 		             .Where(x => x != source && x != target)
+		             // Mental perceptions do not cross an active barrier or a room ward.
+		             // Builder-authored connected links remain available to their endpoints.
+		             .Where(x => PassiveSensingAllowed(target, x))
 		             .Where(x => x.EffectsOfType<ITelepathyEffect>()
 		                          .Any(y => y.Applies(target) &&
 		                                    ((!showThinks || y.ShowThinks) && (!showFeels || y.ShowFeels))));
+	}
+
+	private static bool PassiveSensingAllowed(ICharacter thinker, ICharacter listener)
+	{
+		if (thinker.EffectsOfType<MindBarrierEffect>().Any(x => x.Applies(listener)))
+		{
+			return false;
+		}
+
+		// A dome suppresses passive mental perception anywhere inside the ward and
+		// prevents sensing across its boundary. This is a native deterministic mapping
+		// of the source's probabilistic skill checks.
+		var thinkerDome = thinker.Location?.Characters.SelectMany(x => x.EffectsOfType<IPsionicDomeEffect>())
+			.FirstOrDefault(x => x.AppliesTo(thinker));
+		var listenerDome = listener.Location?.Characters.SelectMany(x => x.EffectsOfType<IPsionicDomeEffect>())
+			.FirstOrDefault(x => x.AppliesTo(listener));
+		return thinkerDome is null && listenerDome is null;
 	}
 
 	private static string ListenerDescription(ICharacter thinker, ICharacter listener, IMagicSchool school,

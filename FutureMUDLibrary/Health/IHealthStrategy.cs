@@ -129,6 +129,10 @@ namespace MudSharp.Health
 		{
 			throw new NotSupportedException("This health strategy does not support direct independent health costs.");
 		}
+		/// <summary>Plans independent bodily consequences that may incapacitate the recipient. Voluntary cost admission remains bounded.</summary>
+		bool TryPlanDirectHealthConsequence(IHaveWounds owner, IBodypart bodypart, double damage, double pain,
+			double stun, out DirectHealthCostPlan plan, out string error) =>
+			TryPlanDirectHealthCost(owner, bodypart, damage, pain, stun, WoundSeverity.Horrifying, out plan, out error);
         string HealthStrategyType { get; }
         HealthStrategyOwnerType OwnerType { get; }
         HealthStateModel HealthStateModel { get; }

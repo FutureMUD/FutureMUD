@@ -24,8 +24,9 @@ public static class RoleSkillProgressionService
 
 	private static IReadOnlyDictionary<long, RoleSkillEntitlement> Compose(IEnumerable<IRoleSkillProgressionMerit> merits, IEnumerable<long> roles)
 	{
-		var ids = roles.ToArray();
-		return merits.SelectMany(x => x.Progression.Compose(ids).Values).ToDictionary(x => x.TraitId);
+		var ids = roles.ToHashSet();
+		var rules = merits.SelectMany(x => x.Progression.Rules).Where(x => ids.Contains(x.RoleId)).Distinct();
+		return new RoleSkillProgression(rules).Compose(ids);
 	}
 
 	public static IEnumerable<ITraitDefinition> InitialSkills(ICharacterTemplate template) =>

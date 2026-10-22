@@ -172,6 +172,8 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction, IPh
                 return new PositionChange(definition, gameworld);
             case "disarm":
                 return new Disarm(definition, gameworld);
+            case "pressurepoint":
+                return new PressurePoint(definition, gameworld);
             default:
                 throw new NotImplementedException();
         }

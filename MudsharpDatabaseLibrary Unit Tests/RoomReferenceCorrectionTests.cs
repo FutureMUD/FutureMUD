@@ -196,6 +196,23 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
 	}
 
+	[DataTestMethod]
+	[DataRow("LimbNumbness", "<Limb>9000</Limb>")]
+	[DataRow("MundaneNausea", "<Intensity>4</Intensity>")]
+	[DataRow("MundaneParalysis", "")]
+	[DataRow("MundaneSilence", "")]
+	[DataRow("MundaneTraitPenalty", "<Trait>9000</Trait><Penalty>3</Penalty>")]
+	[DataRow("PsionicCathexis", "<Power>9000</Power><ClanId>9001</ClanId>")]
+	[DataRow("PsionicMindwipe", "<Power>9000</Power>")]
+	[DataRow("PsionicDome", "<Power>9001</Power><RoomId>9000</RoomId>")]
+	public void PostCutoverStatusAndPsionicEffects_PreserveTheirOwnIdentityNamespaces(string factory, string payload)
+	{
+		// Dome RoomId is already a playable Room ID: this effect was introduced after
+		// containing-Room removal. Other payload IDs identify limbs, traits, powers or clans.
+		var xml = $"<Effects><Effect><Type>{factory}</Type><Effect>{payload}</Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
 	[TestMethod]
 	public void ReadAttunementChildren_DeclareNoRoomLinksAndPreserveCasterIdentityBytes()
 	{

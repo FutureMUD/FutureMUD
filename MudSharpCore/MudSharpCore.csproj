@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	<OutputType>Exe</OutputType>
@@ -10,9 +10,9 @@
 	<Product>FutureMUD</Product>
 	<ApplicationIcon>FM Logo.ico</ApplicationIcon>
 	<AssemblyName>MudSharp</AssemblyName>
-	<Version>2.14.0</Version>
-	<AssemblyVersion>2.14.0</AssemblyVersion>
-	<FileVersion>2.14.0</FileVersion>
+	<Version>2.15.0</Version>
+	<AssemblyVersion>2.15.0</AssemblyVersion>
+	<FileVersion>2.15.0</FileVersion>
   </PropertyGroup>
 
 	<PropertyGroup>

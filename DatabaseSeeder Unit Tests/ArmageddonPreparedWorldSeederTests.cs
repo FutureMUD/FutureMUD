@@ -29,7 +29,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		using var dependencies = source;
 		// Proxy settings intentionally create separate EF service providers. Share their root,
 		// while each unique database name isolates a fixture and avoids one provider per case.
-		var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+		var db = new OwnedInMemorySeederContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), PreparedStores, x => x.EnableNullChecks(false))
 			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
 		db.MagicSchools.AddRange(source.MagicSchools.AsNoTracking());

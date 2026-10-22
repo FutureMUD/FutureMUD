@@ -29,4 +29,4 @@ fi
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 export DOTNET_NOLOGO=1
 cd "$REPO_ROOT"
-"$DOTNET" build MudSharpCore/MudSharpCore.csproj -c Release "-p:NoWarn=NU1902;NU1510"
+"$DOTNET" build MudSharpCore/MudSharpCore.csproj -c Release -m:1 "-p:NoWarn=NU1902;NU1510"

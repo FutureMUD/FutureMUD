@@ -64,7 +64,7 @@ internal sealed class InMemorySeederSnapshot
 
 	internal FuturemudDatabaseContext Create()
 	{
-		var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+		var db = new OwnedInMemorySeederContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
 		try
 		{

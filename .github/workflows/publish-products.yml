@@ -18,6 +18,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: product-release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -273,30 +277,19 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.0.x'
-      - name: Restore product and tests
-        shell: pwsh
-        env:
-          PROJECT_PATH: ${{ needs.prepare.outputs.project }}
-          WEB_PROJECT_PATH: ${{ needs.prepare.outputs.web_project }}
-        run: |
-          dotnet restore $env:PROJECT_PATH -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (-not [string]::IsNullOrWhiteSpace($env:WEB_PROJECT_PATH)) {
-            dotnet restore $env:WEB_PROJECT_PATH -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
       - name: Install WebAssembly build tools
         if: needs.prepare.outputs.package_kind == 'mudclient' || needs.prepare.outputs.package_kind == 'terrainplanner'
         shell: pwsh
         run: dotnet workload install wasm-tools
       - name: Audit Web MUD Client dependencies
-        if: needs.prepare.outputs.package_kind == 'mudclient'
+        if: needs.prepare.outputs.package_kind == 'mudclient' && matrix.runtime != 'linux-arm64'
         shell: pwsh
         run: |
           dotnet restore MudClient/MudClientSolution.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=true -p:NuGetAuditMode=all "-p:WarningsAsErrors=NU1900%3BNU1901%3BNU1902%3BNU1903%3BNU1904"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run targeted tests
-        if: needs.prepare.outputs.tests != ''
+        # linux-arm64 is cross-published on another x64 runner; it is not an ARM test host.
+        if: needs.prepare.outputs.tests != '' && matrix.runtime != 'linux-arm64'
         shell: pwsh
         env:
           TEST_PROJECTS: ${{ needs.prepare.outputs.tests }}
@@ -382,7 +375,7 @@ jobs:
           $env:FutureMUD__PublishingTokenSha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($token)))
           $env:FutureMUD__DataRoot = "$env:RUNNER_TEMP/release-store"
           $webOutput = Join-Path $env:RUNNER_TEMP 'futuremud-web-host'
-          dotnet publish 'FutureMUD.Web/FutureMUD.Web.csproj' -c Release -o $webOutput -p:NuGetAudit=false
+          dotnet publish 'FutureMUD.Web/FutureMUD.Web.csproj' -c Release -o $webOutput -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $webStdout = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stdout.log'
           $webStderr = Join-Path $env:RUNNER_TEMP 'futuremud-web-host.stderr.log'

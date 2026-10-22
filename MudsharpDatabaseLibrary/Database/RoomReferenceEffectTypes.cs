@@ -78,6 +78,7 @@ Lawyering
 LearningFatigueEffect
 LimbDamageEffect
 LimbMissingBoneEffect
+LimbNumbness
 LimbPainEffect
 LimbSeveredEffect
 LiquidContamination
@@ -93,6 +94,10 @@ MagicSpellLockout
 MagicSpellParent
 MagicTelepathy
 MaintainedPsychic
+MundaneNausea
+MundaneParalysis
+MundaneSilence
+MundaneTraitPenalty
 MindBarrier
 MindConcealment
 MonsterIntent
@@ -126,7 +131,10 @@ PrisonerBelongings
 PrivateProperty
 ProgTraitBonusEffect
 PsionicBabble
+PsionicCathexis
+PsionicDome
 PsionicHear
+PsionicMindwipe
 PsionicSensitivity
 PsionicTrace
 PsychicEmotion

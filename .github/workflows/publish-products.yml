@@ -320,7 +320,7 @@ jobs:
           $singleFile = $env:SINGLE_FILE.ToLowerInvariant()
           $includeNativeLibraries = $env:INCLUDE_NATIVE_LIBRARIES.ToLowerInvariant()
           # Carry the framework-dependent setting into executable project references as well.
-          dotnet publish $env:PROJECT_PATH -c Release -r $env:RUNTIME --self-contained false -o $output -p:NuGetAudit=false -p:PublishSingleFile=$singleFile -p:IncludeNativeLibrariesForSelfExtract=$includeNativeLibraries -p:PublishTrimmed=false -p:DebugType=embedded -p:PublishSelfContained=false
+          dotnet publish $env:PROJECT_PATH -c Release -r $env:RUNTIME --self-contained false -o $output -m:1 -p:RestoreBuildInParallel=false -p:BuildInParallel=false -p:NuGetAudit=false -p:PublishSingleFile=$singleFile -p:IncludeNativeLibrariesForSelfExtract=$includeNativeLibraries -p:PublishTrimmed=false -p:DebugType=embedded -p:PublishSelfContained=false
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $archive = "$($env:PRODUCT)-$($env:VERSION)-$($env:RUNTIME).zip"
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal

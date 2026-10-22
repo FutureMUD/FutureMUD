@@ -55,6 +55,8 @@ The Discord webhook is stored as the `FUTUREMUD_RELEASE_DISCORD_WEBHOOK_URL` sec
 
 The manual action in `backfill-products.yml` is restricted to specifically allowlisted historical releases. Do not add new routine releases to that workflow.
 
+Single-file archive publishing uses one MSBuild node with serial restore and project builds to bound hosted-runner resource use. An infrastructure interruption does not qualify a package: retry the existing immutable tag through the manual `release_tag` input after any publishing-workflow correction has reached `master`. Keep the tagged product source unchanged and require the same tests, runtime matrix, smoke test and production promotion on the retry.
+
 ## Publish with Codex
 
 Invoke the repo-local skill with a product and version, for example:

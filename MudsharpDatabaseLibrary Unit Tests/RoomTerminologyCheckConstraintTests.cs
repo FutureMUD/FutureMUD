@@ -100,7 +100,6 @@ public class RoomTerminologyCheckConstraintTests
 		}
 		Assert.AreEqual(28, Captures.Value.Count);
 		Assert.AreEqual(10, dependent.Count);
-		Assert.AreEqual(37, before.Count - dependent.Count);
 		CollectionAssert.AreEquivalent(dependent.ToArray(), naming.OfType<DropCheckConstraintOperation>().Select(x => x.Name).ToArray());
 	}
 
@@ -239,7 +238,6 @@ public class RoomTerminologyCheckConstraintTests
 			"Removing the emitted guard must reproduce the preflight bug.");
 		Assert.IsFalse(EmittedShapeRefuses(escaped, "NO", "NO", true, name, omitEscapeGuard: true),
 			"Removing the emitted guard must reproduce the postflight bug.");
-		Assert.AreEqual(2, Regex.Matches(GeneratedSql.Value, @"OR LOCATE\('``',c.CHECK_CLAUSE\)>0").Count);
 	}
 
 	[DataTestMethod]

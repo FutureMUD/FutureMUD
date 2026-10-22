@@ -147,10 +147,24 @@ public partial class Character : IMagicUser
 
     public IEnumerable<IMagicResource> MagicResources => MagicResourceAmounts.Keys;
     private readonly DoubleCounter<IMagicResource> _magicResourceAmounts = new();
-    public IReadOnlyDictionary<IMagicResource, double> MagicResourceAmounts =>
-		MudSharp.Magic.Casting.MagicCastingService.Owner(this) is { } owner && !ReferenceEquals(owner, this)
+    public IReadOnlyDictionary<IMagicResource, double> MagicResourceAmounts
+	{
+		get
+		{
+			RefreshPatronReserves();
+			return MudSharp.Magic.Casting.MagicCastingService.Owner(this) is { } owner && !ReferenceEquals(owner, this)
 			? _magicResourceAmounts.Where(x => !IsCastingReserve(x.Key)).Concat(owner.MagicResourceAmounts.Where(x => IsCastingReserve(x.Key))).ToDictionary(x => x.Key, x => x.Value)
 			: _magicResourceAmounts;
+		}
+	}
+	private bool _refreshingPatronReserves;
+	private void RefreshPatronReserves()
+	{
+		if (_refreshingPatronReserves || Body is null || Location is null || State.IsDead() || State.IsInStatis()) return;
+		_refreshingPatronReserves = true;
+		try { PatronMagicService.Refill(this); }
+		finally { _refreshingPatronReserves = false; }
+	}
 
     private bool _resourcesChanged;
 
@@ -169,6 +183,7 @@ public partial class Character : IMagicUser
 
     public bool CanUseResource(IMagicResource resource, double amount)
     {
+		RefreshPatronReserves();
 		var owner = CastingResourceOwner(resource);
 		if (!ReferenceEquals(owner, this)) return owner.CanUseResource(resource, amount);
 		if (IsCastingReserve(resource))
@@ -186,6 +201,7 @@ public partial class Character : IMagicUser
 
     public bool UseResource(IMagicResource resource, double amount)
     {
+		RefreshPatronReserves();
 		var owner = CastingResourceOwner(resource);
 		if (!ReferenceEquals(owner, this)) return owner.UseResource(resource, amount);
 		using var deviceAdmission = MagicResourceCapacityAdmission.BeginDebit(this, resource, amount);
@@ -202,6 +218,7 @@ public partial class Character : IMagicUser
 				DebitInvocationResourceBudget(resource, balance, cap, amount);
 			// A capped nested payment must not discard its caller's deferred excess before reconciliation.
 			_magicResourceAmounts[resource] = (CastingCapacityMutationActive ? balance : available) - amount; ResourcesChanged = true;
+			RefreshPatronReserves();
 			return true;
 		}
         if (_magicResourceAmounts[resource] >= amount)

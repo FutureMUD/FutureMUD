@@ -433,6 +433,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 
 	private static string DefaultOwner(string canonicalType)
 	{
+		if (canonicalType is "ConditionalBinding" or "SpellSelectionShrine" or "ResourceRestorer" or "ItemIssuer") return "ArmageddonSettingSeeder";
 		if (canonicalType.Equals("ArmageddonEmberSeed", StringComparison.OrdinalIgnoreCase))
 		{
 			return "ArmageddonMagicSeeder";

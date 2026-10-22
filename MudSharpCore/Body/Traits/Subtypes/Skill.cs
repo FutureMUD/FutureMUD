@@ -33,6 +33,8 @@ public class Skill : Trait, ISkill
 
     public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype, IEnumerable<Tuple<string, double>> bonuses)
     {
+		var impaired = user is ICharacter ch ? ch : (user as MudSharp.Body.IBody)?.Actor;
+		if (impaired?.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IMindImpairmentEffect>().Any(x => x.Applies() && x.PreventsSkillLearning) == true) return false;
         using var learning = CheckLearningScope.EnterIfNeeded(user);
         if (!CheckLearningScope.CanContinue(user)) return false;
         Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype, bonuses);

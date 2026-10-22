@@ -25,7 +25,7 @@ public abstract partial class MagicPowerBase
 	/// <summary>One ordinary activation admission: explicit tag policy, the existing prog, then tag recheck.</summary>
 	public bool CanInvokePower(ICharacter actor, params object?[] arguments)
 	{
-		if (!TagsAllowInvocation(actor)) return false;
+		if (!TagsAllowInvocation(actor) || !BodilyCostReady(actor)) return false;
 		var parameters = new object?[] { actor }.Concat(arguments).ToArray();
 		return CanInvokePowerProg?.ExecuteBool(parameters) != false && TagsAllowInvocation(actor);
 	}

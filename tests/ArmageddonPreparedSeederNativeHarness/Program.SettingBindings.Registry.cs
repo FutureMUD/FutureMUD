@@ -244,10 +244,11 @@ internal static partial class GNHProgram
 		new("approved-content-deferred", evidence + "; powers last; source trait/tree retained", db =>
 		{
 			var id = SettingAuditSkills(db)[canonical].Id;
-			// This reduced baseline installs spells, not PsionicsSeeder powers. Fail if that assumption changes;
-			// do not silently accept adjacent named magic or a shared Psionic Discipline as source parity.
-			Require(!db.MagicPowers.Any(), "Power catalogue is no longer absent; add reviewed per-power trait/gate assertions: " + canonical);
-			return new[] { $"Owned source trait={id}; MagicPowers=0; no source psychic functionality claimed" };
+			// Templar-only powers do not establish a psychic consumer for the mundane class trees.
+			var templarPowers = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package &&
+				x.Module == ArmageddonTemplarInstaller.Module && x.EntityType == "MagicPower" && !x.Retired).Select(x => x.LogicalId).ToArray();
+			Require(db.MagicPowers.All(x => Enumerable.Contains(templarPowers, x.Id)), "Unqualified non-Templar power appeared: " + canonical);
+			return new[] { $"Owned source trait={id}; non-Templar MagicPowers=0; mundane source psychic functionality remains unqualified" };
 		});
 
 	private static readonly CheckType[] OptionalTrapChecks =

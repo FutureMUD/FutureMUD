@@ -14,7 +14,7 @@ namespace MudSharp.Health.Strategies;
 internal static class OrganicDirectHealthCosts
 {
 	internal static bool TryPlan(IHealthStrategy strategy, IHaveWounds owner, IBodypart bodypart, double damage, double pain,
-		double stun, WoundSeverity maximumSeverity, out DirectHealthCostPlan plan, out string error)
+		double stun, WoundSeverity maximumSeverity, out DirectHealthCostPlan plan, out string error, bool allowIncapacitation = false)
 	{
 		plan = null!;
 		error = null!;
@@ -74,7 +74,7 @@ internal static class OrganicDirectHealthCosts
 			return false;
 		}
 
-		if ((pain > 0.0 || stun > 0.0) && character.Body.EffectsOfType<IConsciousnessThresholdModifierEffect>()
+		if (!allowIncapacitation && (pain > 0.0 || stun > 0.0) && character.Body.EffectsOfType<IConsciousnessThresholdModifierEffect>()
 				.Any(x => x.Applies()))
 		{
 			error = "An active consciousness-threshold effect prevents this health cost from being priced safely.";
@@ -105,23 +105,23 @@ internal static class OrganicDirectHealthCosts
 		var bodypartDamage = bodypartWounds.Sum(x => x.CurrentDamage);
 		var bodypartPain = bodypartWounds.Sum(x => x.CurrentPain);
 		var bodypartStun = bodypartWounds.Sum(x => x.CurrentStun);
-		if (!FitsWithin(bodypartDamage, damage, bodypartCapacity) ||
+		if (!allowIncapacitation && (!FitsWithin(bodypartDamage, damage, bodypartCapacity) ||
 			!FitsWithin(bodypartPain, pain, bodypartCapacity) ||
-			!FitsWithin(bodypartStun, stun, bodypartCapacity))
+			!FitsWithin(bodypartStun, stun, bodypartCapacity)))
 		{
 			error = "The selected body part cannot safely absorb that health cost.";
 			return false;
 		}
 
-		if (!FitsWithin(owner.Wounds.Sum(x => x.CurrentDamage), damage, strategy.MaxHP(owner)) ||
+		if (!allowIncapacitation && (!FitsWithin(owner.Wounds.Sum(x => x.CurrentDamage), damage, strategy.MaxHP(owner)) ||
 			!FitsWithin(owner.Wounds.Sum(x => x.CurrentPain), pain, strategy.MaxPain(owner)) ||
-			!FitsWithin(owner.Wounds.Sum(x => x.CurrentStun), stun, strategy.MaxStun(owner)))
+			!FitsWithin(owner.Wounds.Sum(x => x.CurrentStun), stun, strategy.MaxStun(owner))))
 		{
 			error = "Your current condition cannot safely absorb that health cost.";
 			return false;
 		}
 
-		if (strategy.GetSeverity((existingCellular?.CurrentDamage ?? 0.0) + damage) > maximumSeverity)
+		if (!allowIncapacitation && strategy.GetSeverity((existingCellular?.CurrentDamage ?? 0.0) + damage) > maximumSeverity)
 		{
 			error = "The health cost would exceed the configured maximum wound severity.";
 			return false;
@@ -195,7 +195,22 @@ internal static class OrganicDirectHealthCosts
 			return [existing];
 		}
 
-		return strategy.SufferDamage(owner, damage, plan.Bodypart).ToList();
+		var wounds = strategy.SufferDamage(owner, damage, plan.Bodypart).ToList();
+		if (wounds.Count != 1 || wounds[0] is not SimpleOrganicWound wound ||
+			!ReferenceEquals(wound.Parent, owner) || wound.Bodypart != plan.Bodypart || wound.DamageType != DamageType.Cellular)
+			throw new InvalidOperationException("The direct health plan did not produce its expected native cellular wound.");
+		// New wounds cap their initial damage at the part's HP. An incapacitating consequence may
+		// exceed that cap; the established additional-damage path uses exact native channel units.
+		var shortfall = plan.ExpectedDamage - wound.CurrentDamage;
+		if (shortfall > 0.000001)
+			wound.SufferAdditionalDamage(new Damage
+			{
+				ActorOrigin = character, Bodypart = plan.Bodypart, DamageType = DamageType.Cellular,
+				DamageAmount = shortfall, PainAmount = 0, StunAmount = 0
+			});
+		if (Math.Abs(wound.CurrentDamage - plan.ExpectedDamage) > 0.000001)
+			throw new InvalidOperationException("The direct health plan did not apply its exact native damage.");
+		return wounds;
 	}
 
 	private static bool AreValidCosts(params double[] costs)

@@ -880,3 +880,6 @@ public interface IZeroGravityPropulsionPrototype : IExclusiveGameItemComponentPr
 public interface IZeroGravityTetherItemPrototype : IExclusiveGameItemComponentPrototype<IZeroGravityTetherItem>
 {
 }
+
+public interface IConditionalBindingItemPrototype : IExclusiveGameItemComponentPrototype<IConditionalBindingItem> { }
+public interface ISpellSelectionShrinePrototype : IExclusiveGameItemComponentPrototype<ISpellSelectionShrine> { }

@@ -10,7 +10,8 @@ namespace MudSharp.Effects.Interfaces
         Grappling,
         Restrained,
         Boneless,
-        SpinalDamage
+        SpinalDamage,
+        Numbness
     }
 
     public interface ILimbIneffectiveEffect : IEffectSubtype

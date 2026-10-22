@@ -110,7 +110,8 @@ internal static class PhysicalImpactResolver
 		CanAttempt(a, t, action, p) && VehicleCombatService.Instance.CanCrossVehicleBoundary(a, t, false, false, out _);
 
 	internal static CombatMoveResult Resolve(ICombatMove move, ICharacter a, ICharacter t,
-		IAuxiliaryCombatAction action, IPhysicalImpactProfile p, ICombatMove? defense)
+		IAuxiliaryCombatAction action, IPhysicalImpactProfile p, ICombatMove? defense,
+		Action<CheckOutcome>? onSuccessfulContact = null)
 	{
 		using var execution = CommandExecutionScope.EnterMove(move);
 		var attackerPin = Pin(a);
@@ -274,6 +275,10 @@ internal static class PhysicalImpactResolver
 						TimeSpan.FromSeconds(p.SuccessDelaySeconds * CombatBase.CombatSpeedMultiplier));
 				}
 				if (p.SeatOnHit && Admitted()) Seat(t);
+			}
+			if (contact.MoveWasSuccessful && attack.IsPass() && onSuccessfulContact is not null)
+			{
+				onSuccessfulContact(attack);
 			}
 			wounds.ProcessPassiveWounds();
 			return contact;

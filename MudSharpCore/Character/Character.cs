@@ -1037,6 +1037,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         foreach (ILimb limb in Body.Limbs)
         {
             CanUseLimbResult canUseLimb = Body.CanUseLimb(limb);
+			if (canUseLimb.HasFlag(CanUseLimbResult.CantUseNumbness))
+			{
+				sb.AppendLine($"Your {limb.Name} is too numb to function.".Colour(Telnet.BoldRed));
+				canUseLimb &= ~CanUseLimbResult.CantUseNumbness;
+			}
             if ((limb.LimbType == LimbType.Head || limb.LimbType == LimbType.Torso) && !canUseLimb.In(
                     CanUseLimbResult.CantUseGrappled, CanUseLimbResult.CantUseRestrained,
                     CanUseLimbResult.CantUseSpinalDamage))
@@ -2122,6 +2127,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             if (_state != value)
             {
+				var wasInactive = _state.HasFlag(CharacterState.Dead) || _state.HasFlag(CharacterState.Stasis);
                 _state = value;
                 OnStateChanged?.Invoke(this);
                 EffectHandler.RemoveAllEffects(x => x.GetSubtype<IRemoveOnStateChange>()?.ShouldRemove(value) == true, true);
@@ -2138,6 +2144,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                     ClearForcedTransformationHeartbeatRegistration();
                     PauseMagicResourceGeneratorHeartbeats();
                 }
+				if (wasInactive || State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+					Body.RefreshNausea();
 
                 CheckCanFly();
             }

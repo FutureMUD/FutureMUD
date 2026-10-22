@@ -42,6 +42,45 @@ public class RoleSkillProgressionRuntimeTests
 	}
 
 	[TestMethod]
+	public void SeparateMerits_ComposePrimaryCapsSecondaryBonusesAndPrerequisitesForTemplateAndRuntime()
+	{
+		var (f, merit, main, sub) = Setup();
+		var original = merit.Object.Progression.Rules;
+		merit.SetupGet(x => x.Progression).Returns(new RoleSkillProgression(original.Where(x => x.Primary)));
+		var secondary = new Mock<IRoleSkillProgressionMerit>();
+		secondary.SetupGet(x => x.Id).Returns(43);
+		secondary.SetupGet(x => x.Progression).Returns(new RoleSkillProgression(original.Where(x => !x.Primary)));
+		secondary.Setup(x => x.AppliesToTemplate(It.IsAny<ICharacterTemplate>())).Returns(true);
+		sub.SetupGet(x => x.AdditionalMerits).Returns(new IMerit[] { secondary.Object });
+		var template = RoleSkillProgressionService.Entitlements(f.Chargen);
+		Assert.AreEqual(35.0, template[1].ComposedOpening);
+		Assert.AreEqual(60.0, template[1].Cap);
+		Assert.AreEqual(25.0, template[2].ComposedOpening);
+		Assert.IsFalse(template[2].InitiallyGranted);
+		Assert.AreEqual(1L, template[2].ParentTraitId);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		actor.SetupGet(x => x.Roles).Returns(new[] { main.Object, sub.Object });
+		actor.SetupGet(x => x.Merits).Returns(new IMerit[] { merit.Object, secondary.Object });
+		merit.Setup(x => x.Applies(actor.Object)).Returns(true);
+		secondary.Setup(x => x.Applies(actor.Object)).Returns(true);
+		var runtime = RoleSkillProgressionService.Entitlements(actor.Object);
+		foreach (var (id, entitlement) in template) Assert.AreEqual(entitlement, runtime[id]);
+		Assert.IsFalse(RoleSkillProgressionService.CanAcquire(actor.Object, f.Skills[1]));
+		actor.Setup(x => x.HasTrait(f.Skills[0])).Returns(true);
+		actor.Setup(x => x.TraitRawValue(f.Skills[0])).Returns(50);
+		Assert.IsTrue(RoleSkillProgressionService.CanAcquire(actor.Object, f.Skills[1]));
+		f.Chargen.SelectedRoles = [sub.Object];
+		Assert.AreEqual(45.0, RoleSkillProgressionService.Entitlements(f.Chargen)[1].Cap);
+		Assert.IsTrue(RoleSkillProgressionService.Entitlements(f.Chargen)[2].InitiallyGranted);
+		// Identical source rules in two applicable merits do not award the secondary bonus twice.
+		secondary.SetupGet(x => x.Progression).Returns(new RoleSkillProgression(original));
+		Assert.AreEqual(35.0, RoleSkillProgressionService.Entitlements(actor.Object)[1].ComposedOpening);
+		secondary.SetupGet(x => x.Progression).Returns(new RoleSkillProgression([new(10, 1, true, 20, 70)]));
+		Assert.ThrowsException<System.ArgumentException>(() => RoleSkillProgressionService.Entitlements(actor.Object));
+	}
+
+	[TestMethod]
 	public void ChargenProjection_SharedChildrenWaitAndRoleResetRemovesDerivedAwards()
 	{
 		var (f, _, _, sub) = Setup();

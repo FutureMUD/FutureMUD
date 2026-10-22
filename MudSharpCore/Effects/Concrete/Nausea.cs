@@ -56,7 +56,7 @@ public class Nausea : Effect, ICheckBonusEffect, IScoreAddendumEffect
     public override string Describe(IPerceiver voyeur)
     {
         return
-            $"Nausea @ {IntensityPerGramMass:N2}, BAC {BloodAlcoholContent} total {_intensityPerGramMass * GetIntensityFromBAC(BloodAlcoholContent) * GetHungerThirstMultiplier}, giving a penalty of {CheckBonus:N3} to skill checks.";
+            $"Nausea @ {IntensityPerGramMass:N2}, BAC {BloodAlcoholContent} total {(_intensityPerGramMass + GetIntensityFromBAC(BloodAlcoholContent)) * GetHungerThirstMultiplier}, giving a penalty of {CheckBonus:N3} to skill checks.";
     }
 
     public double IntensityToBonusConversionRate { get; set; }
@@ -114,7 +114,7 @@ public class Nausea : Effect, ICheckBonusEffect, IScoreAddendumEffect
         get
         {
             double multiplier = GetHungerThirstMultiplier;
-            double effectiveValue = _intensityPerGramMass * GetIntensityFromBAC(BloodAlcoholContent) * multiplier;
+            double effectiveValue = (_intensityPerGramMass + GetIntensityFromBAC(BloodAlcoholContent)) * multiplier;
             if (effectiveValue >= 10.0)
             {
                 return "Your nausea is all encompassing; it's all you can think or feel at the moment.";
@@ -247,7 +247,7 @@ public class Nausea : Effect, ICheckBonusEffect, IScoreAddendumEffect
         IBody bodyOwner = (IBody)Owner;
         if (bodyOwner.Actor.State.HasFlag(CharacterState.Dead) || bodyOwner.Actor.State.HasFlag(CharacterState.Stasis))
         {
-            RemovalEffect();
+            Owner.RemoveEffect(this, true);
             return;
         }
 

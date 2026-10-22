@@ -107,6 +107,8 @@ public sealed partial class MagicCastingService
 		if (DeviceItemError(actor, device, continuing) is { } itemError) throw new InvalidOperationException(itemError);
 		if (ResolveRoute(actor, capabilityId, spellId, grade, false, out var capability, out _, out var spell, out var trait,
 			out var difficulty, continuingOperation: continuing) is { } route) throw new InvalidOperationException(route);
+		if (capability.CastingPolicy?.Patron is not null)
+			throw new InvalidOperationException("Patron-granted spells cannot be stored in charged devices.");
 		var proto = (ChargedMagicDeviceGameItemComponentProto)device.Prototype;
 		if (proto.Role == MagicDeviceRole.Focus || !proto.Spells.Contains(spellId)) throw new InvalidOperationException("This carrier does not explicitly allow that charged payload.");
 		if (count < 1 || count > device.Capacity - device.Charges) throw new InvalidOperationException("Only missing charge capacity can be filled.");

@@ -505,22 +505,8 @@ public partial class Body
         return Math.Max(minimum, Math.Min(maximum, value));
     }
 
-    private void ApplyDrugEffects()
-    {
-        DoubleCounter<DrugType> neutralisingEffects = new();
-        DoubleCounter<DrugType> effectIntensities = new();
-
-        // Apply nauseu from drunkenness
-        double bac = 10.0 * NeedsModel.AlcoholLitres / CurrentBloodVolumeLitres;
-        if (bac > 0.0)
-        {
-            effectIntensities[DrugType.Nausea] = 0.0;
-        }
-
-        double healingRateIntensity = 0.0;
-        double healingDifficultyIntensity = 0.0;
-
-        // Apply drug-neutralising drugs
+	private DoubleCounter<IDrug> ActiveDrugIntensities()
+	{
         DoubleCounter<IDrug> drugIntensities = new();
         foreach (DrugDosage drug in ActiveDrugDosages)
         {
@@ -537,6 +523,68 @@ public partial class Body
                 }
             }
         }
+
+		return drugIntensities;
+	}
+
+	private double DrugEffectIntensity(IDrug drug, DrugType type, double adjustedGrams,
+		IEnumerable<IDrugEffectResistanceMerit> resistanceMerits) =>
+		drug.IntensityForType(type) * adjustedGrams * ToleranceMultiplierForDrugType(drug, type) *
+		resistanceMerits.Aggregate(1.0, (value, merit) => value * merit.ModifierForDrugType(type));
+
+	/// <summary>Refreshes only nausea symptoms; never advances metabolism or applies heartbeat consequences.</summary>
+	public void RefreshNausea()
+	{
+		if (_loading) return;
+		if (!IsActiveCharacterBody)
+		{
+			EffectHandler.RemoveAllEffects(x => x is Nausea, true);
+			return;
+		}
+		var resistanceMerits = Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
+		var specificMerits = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
+		var intensity = CombinedEffectsOfType<ICauseDrugEffect>()
+			.Where(x => x.AffectedDrugTypes.Contains(DrugType.Nausea))
+			.Sum(x => x.AddedIntensity(Actor, DrugType.Nausea)) *
+			resistanceMerits.Aggregate(1.0, (value, merit) => value * merit.ModifierForDrugType(DrugType.Nausea));
+		var neutralisation = 0.0;
+		foreach (var (drug, grams) in ActiveDrugIntensities())
+		{
+			if (grams <= 0.0) continue;
+			var adjustedGrams = grams * specificMerits.Aggregate(1.0, (value, merit) => value * merit.MultiplierForDrug(drug));
+			if (drug.DrugTypes.Contains(DrugType.Nausea))
+				intensity += DrugEffectIntensity(drug, DrugType.Nausea, adjustedGrams, resistanceMerits);
+			if (drug.DrugTypes.Contains(DrugType.NeutraliseDrugEffect) &&
+				drug.AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect).NeutralisedTypes.Contains(DrugType.Nausea))
+				neutralisation += drug.IntensityForType(DrugType.NeutraliseDrugEffect) * adjustedGrams;
+		}
+
+		var bac = CurrentBloodVolumeLitres > 0.0 ? 10.0 * NeedsModel.AlcoholLitres / CurrentBloodVolumeLitres : 0.0;
+		var net = intensity - neutralisation;
+		if (net <= 0.0 && bac <= 0.0)
+		{
+			EffectHandler.RemoveAllEffects(x => x is Nausea, true);
+			return;
+		}
+		var nausea = EffectsOfType<Nausea>().FirstOrDefault();
+		if (nausea is null)
+		{
+			nausea = new Nausea(this, 0.0, 0.0);
+			EffectHandler.AddEffect(nausea, TimeSpan.FromSeconds(35));
+		}
+		nausea.IntensityPerGramMass = Weight > 0.0 ? IntensityPerGramMass(net) : 0.0;
+		nausea.BloodAlcoholContent = bac;
+	}
+
+    private void ApplyDrugEffects()
+    {
+        DoubleCounter<DrugType> neutralisingEffects = new();
+        DoubleCounter<DrugType> effectIntensities = new();
+
+        double healingRateIntensity = 0.0;
+        double healingDifficultyIntensity = 0.0;
+
+        var drugIntensities = ActiveDrugIntensities();
 
         List<IDrugEffectResistanceMerit> resistanceMerits = Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
 
@@ -610,11 +658,7 @@ public partial class Body
                     continue;
                 }
 
-                var adjustedEffectIntensity =
-                    drug.IntensityForType(drugEffect) *
-                    adjustedgrams *
-                    ToleranceMultiplierForDrugType(drug, drugEffect) *
-                    resistanceMerits.Aggregate(1.0, (sum, x) => sum * x.ModifierForDrugType(drugEffect));
+                var adjustedEffectIntensity = DrugEffectIntensity(drug, drugEffect, adjustedgrams, resistanceMerits);
                 var adjustedEffectIntensityPerGramMass = IntensityPerGramMass(adjustedEffectIntensity);
 
                 if (drugEffect == DrugType.MagicAbility)
@@ -866,17 +910,7 @@ public partial class Body
                                 (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001));
                     break;
                 case DrugType.Nausea:
-                    Nausea nauseaEffect = EffectsOfType<Nausea>().FirstOrDefault();
-                    if (nauseaEffect == null)
-                    {
-                        nauseaEffect = new Nausea(this, 0, 0);
-                        EffectHandler.AddEffect(nauseaEffect, TimeSpan.FromSeconds(35));
-                    }
-
-                    nauseaEffect.IntensityPerGramMass =
-                        (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
-                        (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
-                    nauseaEffect.BloodAlcoholContent = bac;
+                    // Reconciled by RefreshNausea below, also used by timed physical sources.
                     break;
                 case DrugType.Adrenaline:
                     {
@@ -1289,11 +1323,7 @@ public partial class Body
             EffectHandler.RemoveAllEffects(x => x.IsEffectType<PacifismDrug>(), true);
         }
 
-        if (effectIntensities.ValueOrDefault(DrugType.Nausea) - neutralisingEffects.ValueOrDefault(DrugType.Nausea) <=
-            0.0 && bac <= 0.0)
-        {
-            EffectHandler.RemoveAllEffects(x => x.IsEffectType<Nausea>(), true);
-        }
+        RefreshNausea();
 
         if (effectIntensities.ValueOrDefault(DrugType.Adrenaline) -
             neutralisingEffects.ValueOrDefault(DrugType.Adrenaline) <= 0.0)
@@ -1368,7 +1398,7 @@ public partial class Body
         }
 
         // Kick off the health tick if necessary
-        if (effectIntensities.Any() || bac > 0.0)
+        if (effectIntensities.Any() || NeedsModel.AlcoholLitres > 0.0)
         {
             StartHealthTick();
         }

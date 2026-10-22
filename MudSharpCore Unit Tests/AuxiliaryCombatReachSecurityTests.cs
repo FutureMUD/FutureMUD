@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
@@ -7,6 +8,7 @@ using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.Character.Heritage;
 
 namespace MudSharp_Unit_Tests;
 
@@ -70,28 +72,75 @@ public class AuxiliaryCombatReachSecurityTests
 		Assert.IsTrue(AuxiliaryMove.CanReachTarget(fixture.Actor.Object, fixture.Target.Object));
 	}
 
+	[TestMethod]
+	public void ContextualManualAuxiliaryAction_RejectsMissingSelectionBeforeChargingStamina()
+	{
+		var fixture = new Fixture();
+		var effect = new Mock<IContextualAuxiliaryEffect>();
+		fixture.Action.SetupGet(x => x.AuxiliaryEffects).Returns(new IAuxiliaryEffect[] { effect.Object });
+		fixture.Race.Setup(x => x.UsableAuxiliaryMoves(fixture.Actor.Object, fixture.Target.Object, false))
+			.Returns(new IAuxiliaryCombatAction[] { fixture.Action.Object });
+
+		var result = ManualCombatCommandResolver.TryResolve(fixture.Actor.Object, fixture.Command.Object,
+			fixture.Target.Object);
+
+		Assert.IsFalse(result.Success);
+		StringAssert.Contains(result.Error, "target location");
+		fixture.Actor.Verify(x => x.CanSpendStamina(It.IsAny<double>()), Times.Never);
+		Assert.AreEqual(0, fixture.Actor.Invocations.Count(x => x.Method.Name == nameof(ICharacter.CanSpendStamina)));
+	}
+
+	[TestMethod]
+	public void ContextualManualAuxiliaryAction_RejectsAnatomyThatChangedBeforeQueueing()
+	{
+		var fixture = new Fixture();
+		var context = new ManualCombatActionContext("throat");
+		var effect = new Mock<IContextualAuxiliaryEffect>();
+		effect.Setup(x => x.IsValidContext(fixture.Actor.Object, fixture.Target.Object, context, out It.Ref<string>.IsAny))
+			.Returns((ICharacter _, ICharacter _, ManualCombatActionContext _, out string error) =>
+			{
+				error = "The target has no compatible organic throat anatomy.";
+				return false;
+			});
+		fixture.Action.SetupGet(x => x.AuxiliaryEffects).Returns(new IAuxiliaryEffect[] { effect.Object });
+		fixture.Race.Setup(x => x.UsableAuxiliaryMoves(fixture.Actor.Object, fixture.Target.Object, false))
+			.Returns(new IAuxiliaryCombatAction[] { fixture.Action.Object });
+
+		var result = ManualCombatCommandResolver.TryResolve(fixture.Actor.Object, fixture.Command.Object,
+			fixture.Target.Object, context: context);
+
+		Assert.IsFalse(result.Success);
+		StringAssert.Contains(result.Error, "organic throat anatomy");
+		fixture.Actor.Verify(x => x.CanSpendStamina(It.IsAny<double>()), Times.Never);
+	}
+
 	private sealed class Fixture
 	{
 		public Mock<ICharacter> Actor { get; } = new();
 		public Mock<ICharacter> Target { get; } = new();
 		public Mock<IManualCombatCommand> Command { get; } = new();
+		public Mock<IAuxiliaryCombatAction> Action { get; } = new(MockBehavior.Loose);
+		public Mock<IRace> Race { get; } = new();
 		public AuxiliaryMove Move { get; }
 
 		public Fixture()
 		{
 			var combat = new Mock<ICombat>();
-			var action = new Mock<IAuxiliaryCombatAction>(MockBehavior.Strict);
+			var action = Action;
 			combat.SetupGet(x => x.Combatants).Returns(new IPerceiver[] { Actor.Object, Target.Object });
 			Actor.SetupGet(x => x.Combat).Returns(combat.Object);
+			Actor.SetupGet(x => x.Race).Returns(Race.Object);
 			Target.SetupGet(x => x.Combat).Returns(combat.Object);
 			Actor.SetupGet(x => x.CombatTarget).Returns(Target.Object);
 			Actor.SetupGet(x => x.MeleeRange).Returns(true);
 			Actor.Setup(x => x.ColocatedWith(Target.Object)).Returns(true);
 			Actor.Setup(x => x.CanSee(Target.Object)).Returns(true);
+			Action.SetupGet(x => x.StaminaCost).Returns(1.0);
+			Action.SetupGet(x => x.MaximumTargets).Returns(1);
 			Command.SetupGet(x => x.ActionKind).Returns(ManualCombatActionKind.AuxiliaryAction);
-			Command.SetupGet(x => x.AuxiliaryAction).Returns(action.Object);
+			Command.SetupGet(x => x.AuxiliaryAction).Returns(Action.Object);
 			Command.Setup(x => x.IsUsableBy(Actor.Object, Target.Object)).Returns(true);
-			Move = new AuxiliaryMove(Actor.Object, Target.Object, action.Object);
+			Move = new AuxiliaryMove(Actor.Object, Target.Object, Action.Object);
 		}
 	}
 }

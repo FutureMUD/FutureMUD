@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body.Traits;
+using MudSharp.Body;
+using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 
 #nullable enable
 namespace MudSharp.RPG.Checks;
@@ -26,6 +29,10 @@ public sealed class CheckEvaluationContext(double maximumBaseTargetNumber, Diffi
 		params (string Parameter, object value)[] parameters)
 	{
 		var value = expression.EvaluateWith(owner, trait, values: parameters);
+		var character = owner as ICharacter ?? (owner as IBody)?.Actor;
+		if (character is not null && (trait?.TraitType is TraitType.Skill or TraitType.TheoreticalSkill or TraitType.DerivedSkill ||
+			expression.Parameters?.Values.Any(x => x?.Trait?.TraitType is TraitType.Skill or TraitType.TheoreticalSkill or TraitType.DerivedSkill) == true))
+			value += character.CombinedEffectsOfType<IMindImpairmentEffect>().Where(x => x.Applies()).Sum(x => x.SkillUseModifier);
 		var context = Find(parameters);
 		if (context is null) return value;
 		context.WasEvaluated = true;

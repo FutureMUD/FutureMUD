@@ -35,6 +35,9 @@ public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
 	{
 		throw new NotSupportedException("This health strategy does not support direct independent health costs.");
 	}
+	public virtual bool TryPlanDirectHealthConsequence(IHaveWounds owner, IBodypart bodypart, double damage, double pain,
+		double stun, out DirectHealthCostPlan plan, out string error) =>
+		TryPlanDirectHealthCost(owner, bodypart, damage, pain, stun, WoundSeverity.Horrifying, out plan, out error);
 
     private static readonly Dictionary<string, Func<HealthStrategy, IFuturemud, IHealthStrategy>> _databaseLoaders = new(StringComparer.InvariantCultureIgnoreCase);
     private static readonly Dictionary<string, Func<IFuturemud, string, IHealthStrategy>> _builderLoaders = new(StringComparer.InvariantCultureIgnoreCase);

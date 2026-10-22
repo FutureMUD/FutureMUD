@@ -10,6 +10,13 @@ public partial class SkillLevelBasedMagicCapability
 	private const string CastingHelp = @"Casting options:
 	#3casting enable on|off#0
 	#3casting classenrol on|off#0
+	#3casting patron authority|territory <boolean(character) prog>#0
+	#3casting patron grade|limit <number>#0
+	#3casting patron free|refill|shout on|off#0
+	#3casting patron permanent <admitted spell>#0 - toggles a permanent spell
+	#3casting patron incantation <spell> <language> <reach> <element> <sphere> <mood> [energy] [difficulty]#0 - sets a route-only Shout fallback
+	#3casting patron incantation <spell> none#0 - removes a route-only fallback
+	#3casting patron remove#0 - removes the optional patron policy
 	#3casting resources <source> <reserve> passive|gather#0
 	#3casting trait <skill>#0
 	#3casting entry add|remove <spell>#0
@@ -53,6 +60,7 @@ Removing admission preserves player knowledge. Starting grants require explicit 
 		{
 			switch (action)
 			{
+				case "patron": p = EditPatron(actor, command, p); break;
 				case "enable": p = p with { Enabled = Toggle(command.PopSpeech()) }; break;
 				case "classenrol": p = p with { EnrolOnClassSelection = Toggle(command.PopSpeech()) }; break;
 				case "trait":

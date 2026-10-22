@@ -178,6 +178,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 
+- [Armageddon Templars and configurable magic items](./Armageddon/Armageddon_Templars.md) — class trees, pressure points, Lirathan powers, patron casting, shrines, bindings and resource restoration.
 - [Armageddon S4 Continuation Handoff](./Magic/Armageddon_S4_Continuation_Handoff_20261012.md) â€” start here in a new task: current state, locked decisions, full archived brief, hosted test follow-up, S4 execution and later gates.
 - [ARM-01 Configurable Casting Design and Candidate Repertoire](./Magic/Armageddon_Casting_Design.md)
 - [ARM-02 Configurable Casting Player, Builder and FutureProg Guide](./Magic/Configurable_Casting.md)

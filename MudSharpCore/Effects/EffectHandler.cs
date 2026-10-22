@@ -78,6 +78,7 @@ public class EffectHandler : IEffectHandler
             EffectsChanged = true;
         }
 		NotifyCastingInputChange(effect);
+		NotifyNauseaInputChange(effect);
     }
 
     public void AddEffect(IEffect effect, TimeSpan duration)
@@ -106,6 +107,7 @@ public class EffectHandler : IEffectHandler
 
         _effects.Remove(effect);
 		NotifyCastingInputChange(effect);
+		NotifyNauseaInputChange(effect);
         Gameworld.EffectScheduler.Unschedule(effect);
         if (effect.SavingEffect)
         {
@@ -135,6 +137,13 @@ public class EffectHandler : IEffectHandler
 	{
 		_effects.Clear();
 		_hasSaveableScheduledEffects = false;
+	}
+
+	private void NotifyNauseaInputChange(IEffect effect)
+	{
+		if (effect is not ICauseDrugEffect cause || !cause.AffectedDrugTypes.Contains(MudSharp.Health.DrugType.Nausea)) return;
+		var body = Parent as MudSharp.Body.IBody ?? (Parent as MudSharp.Character.ICharacter)?.Body;
+		body?.RefreshNausea();
 	}
 
 	private void NotifyCastingInputChange(IEffect effect)

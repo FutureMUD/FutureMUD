@@ -3,16 +3,17 @@ using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat;
 
-public sealed record ManualCombatMoveResolution(bool Success, ICombatMove Move, string Error)
+public sealed record ManualCombatMoveResolution(bool Success, ICombatMove Move, string Error,
+	ManualCombatActionContext? Context = null)
 {
 	public static ManualCombatMoveResolution Failed(string error)
 	{
 		return new ManualCombatMoveResolution(false, null, error);
 	}
 
-	public static ManualCombatMoveResolution Resolved(ICombatMove move)
+	public static ManualCombatMoveResolution Resolved(ICombatMove move, ManualCombatActionContext? context = null)
 	{
-		return new ManualCombatMoveResolution(true, move, string.Empty);
+		return new ManualCombatMoveResolution(true, move, string.Empty, context);
 	}
 }
 
@@ -22,7 +23,8 @@ public static class ManualCombatCommandResolver
 		ICharacter actor,
 		IManualCombatCommand command,
 		ICharacter target,
-		bool returnTooExhaustedMove = false)
+		bool returnTooExhaustedMove = false,
+		ManualCombatActionContext? context = null)
 	{
 		if (target is null)
 		{
@@ -38,7 +40,7 @@ public static class ManualCombatCommandResolver
 		{
 			if (command.ActionKind != ManualCombatActionKind.AuxiliaryAction ||
 				command.AuxiliaryAction is not IPhysicalImpactAuxiliaryAction { PhysicalImpact: { InitiateCombat: true } impact } ||
-				!TryInitiateImpact(actor, target, command, impact))
+				!TryInitiateImpact(actor, target, command, impact, context))
 				return ManualCombatMoveResolution.Failed("You cannot initiate that combat action against this target.");
 		}
 
@@ -57,7 +59,7 @@ public static class ManualCombatCommandResolver
 
 		var result = command.ActionKind switch
 		{
-			ManualCombatActionKind.AuxiliaryAction => ResolveAuxiliary(actor, command, target, returnTooExhaustedMove),
+			ManualCombatActionKind.AuxiliaryAction => ResolveAuxiliary(actor, command, target, returnTooExhaustedMove, context),
 			ManualCombatActionKind.WeaponAttack => ResolveWeaponAttack(actor, command, target, returnTooExhaustedMove),
 			_ => ManualCombatMoveResolution.Failed("That manual combat command is not configured with a valid action kind.")
 		};
@@ -71,7 +73,8 @@ public static class ManualCombatCommandResolver
 		return result;
 	}
 
-	private static bool TryInitiateImpact(ICharacter actor, ICharacter target, IManualCombatCommand command, IPhysicalImpactProfile profile)
+	private static bool TryInitiateImpact(ICharacter actor, ICharacter target, IManualCombatCommand command,
+		IPhysicalImpactProfile profile, ManualCombatActionContext? context)
 	{
 		var action = command.AuxiliaryAction;
 		var body = actor.Body; var targetBody = target.Body;
@@ -82,6 +85,9 @@ public static class ManualCombatCommandResolver
 			actor.InstanceId == instance && target.InstanceId == targetInstance && actor.State == state && target.State == targetState &&
 			ReferenceEquals(actor.Location, room) && ReferenceEquals(target.Location, room) && actor.RoomLayer == layer && target.RoomLayer == targetLayer &&
 			CommandExecutionScope.TryContinue(actor);
+		var contextualEffects = action.AuxiliaryEffects.OfType<IContextualAuxiliaryEffect>().ToList();
+		if (contextualEffects.Count > 0 && (context is null || contextualEffects.Any(x =>
+			!x.IsValidContext(actor, target, context, out _)) || !Pinned())) return false;
 		if (!Pinned() || !command.IsUsableBy(actor, target) || !Pinned() ||
 			!PhysicalImpactResolver.CanInitiate(actor, target, action, profile) || !Pinned()) return false;
 		if (!actor.Race.UsableAuxiliaryMoves(actor, target, false).Any(x => ReferenceEquals(x, action)) || !Pinned()) return false;
@@ -127,7 +133,8 @@ public static class ManualCombatCommandResolver
 		ICharacter actor,
 		IManualCombatCommand command,
 		ICharacter target,
-		bool returnTooExhaustedMove)
+		bool returnTooExhaustedMove,
+		ManualCombatActionContext? context)
 	{
 		var action = command.AuxiliaryAction;
 		if (action is null)
@@ -148,6 +155,19 @@ public static class ManualCombatCommandResolver
 			return ManualCombatMoveResolution.Failed("Your race cannot use that auxiliary move against that target right now.");
 		}
 
+		var contextualEffects = available.AuxiliaryEffects.OfType<IContextualAuxiliaryEffect>().ToList();
+		if (contextualEffects.Count > 0)
+		{
+			if (context is null)
+				return ManualCombatMoveResolution.Failed("You must specify a valid target location for that move.");
+
+			foreach (var effect in contextualEffects)
+			{
+				if (!effect.IsValidContext(actor, target, context, out var contextError))
+					return ManualCombatMoveResolution.Failed(contextError);
+			}
+		}
+
 		if (!actor.CanSee(target) || !AuxiliaryMove.CanReachTarget(actor, target))
 		{
 			return ManualCombatMoveResolution.Failed("You can no longer see and reach that target at melee range.");
@@ -166,7 +186,7 @@ public static class ManualCombatCommandResolver
 		}
 
 		return ManualCombatMoveResolution.Resolved(MultiTargetCombatMove.WrapAuxiliaryAction(actor, target, available,
-			secondaryTarget => new AuxiliaryMove(actor, secondaryTarget, available)));
+			secondaryTarget => new AuxiliaryMove(actor, secondaryTarget, available, context)), context);
 	}
 
 	private static ManualCombatMoveResolution ResolveWeaponAttack(

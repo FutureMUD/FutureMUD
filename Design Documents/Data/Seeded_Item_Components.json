@@ -155,6 +155,26 @@
         "Component Type":  "Treatment"
     },
     {
+        "Component Name":  "Armageddon Templar ConditionalBinding policy",
+        "Component Description":  "Reusable conditional magic item content; Armageddon policy instance.",
+        "Component Type":  "ConditionalBinding"
+    },
+    {
+        "Component Name":  "Armageddon Templar ItemIssuer policy",
+        "Component Description":  "Reusable conditional magic item content; Armageddon policy instance.",
+        "Component Type":  "ItemIssuer"
+    },
+    {
+        "Component Name":  "Armageddon Templar ResourceRestorer policy",
+        "Component Description":  "Reusable conditional magic item content; Armageddon policy instance.",
+        "Component Type":  "ResourceRestorer"
+    },
+    {
+        "Component Name":  "Armageddon Templar SpellSelectionShrine policy",
+        "Component Description":  "Reusable conditional magic item content; Armageddon policy instance.",
+        "Component Type":  "SpellSelectionShrine"
+    },
+    {
         "Component Name":  "Armour_BoiledLeather",
         "Component Description":  "Turns an item into Boiled Leather armour",
         "Component Type":  "Armour"

@@ -482,10 +482,11 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
     {
         public IManualCombatCommand Command { get; init; }
         public ICharacter Target { get; init; }
+        public ManualCombatActionContext? Context { get; init; }
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
-            ManualCombatMoveResolution result = ManualCombatCommandResolver.TryResolve(actor, Command, Target, true);
+            ManualCombatMoveResolution result = ManualCombatCommandResolver.TryResolve(actor, Command, Target, true, Context);
             if (!result.Success)
             {
                 actor.Send(result.Error);
@@ -497,7 +498,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override string Describe(IPerceiver voyeur)
         {
-            return $"{Command.PrimaryVerb} {Target.HowSeen(voyeur)}.";
+            return $"{Command.PrimaryVerb} {Target.HowSeen(voyeur)}{(Context is null ? string.Empty : $" {Context.Selection}")}.";
         }
     }
 
@@ -702,12 +703,14 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
     }
 
     public static SelectedCombatAction GetEffectManualCombatCommand(
-        ICharacter actor, IManualCombatCommand command, ICharacter target)
+        ICharacter actor, IManualCombatCommand command, ICharacter target,
+        ManualCombatActionContext? context = null)
     {
         return new SelectedCombatAction(actor, new ManualCombatCommandAction
         {
             Command = command,
-            Target = target
+            Target = target,
+            Context = context
         });
     }
 

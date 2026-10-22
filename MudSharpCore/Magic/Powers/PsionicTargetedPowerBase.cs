@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body.Needs;
 using MudSharp.Body.Traits;
@@ -116,10 +116,15 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 
 	protected CheckOutcome CheckPower(ICharacter actor, ICharacter target, CheckType type)
 	{
-		var hostile = actor != target && DatabaseType is "suggest" or "psychicbolt" or "hex" or "coerce" or "babble" or "projectemotion";
+		var hostile = actor != target && DatabaseType is "suggest" or "psychicbolt" or "hex" or "coerce" or "babble" or "projectemotion" or "psionicmindblast" or "psionicmindwipe" or "psioniccontrol" or "psionicvision";
 		var context = new MentalActionContext(actor, target, this, MentalActionKind.Influence, hostile);
-		var bonus = hostile ? target.Effects.OfType<IMentalActionDefence>().Sum(x => x.DefensiveBonus(context)) : 0;
-		var outcome = Gameworld.GetCheck(type).Check(actor, SkillCheckDifficulty, SkillCheckTrait, target, -bonus);
+		var bonus = hostile
+			? target.Effects.OfType<IMentalActionDefence>().Sum(x => x.DefensiveBonus(context)) +
+			  target.EffectsOfType<MindBarrierEffect>().Where(x => x.Applies(actor)).Sum(x => x.Bonus)
+			: 0;
+		var targetImpairment = target.CombinedEffectsOfType<IMindImpairmentEffect>().Where(x => x.Applies()).Sum(x => x.PsionicTargetModifier);
+		// Initiator skill impairment is applied once by the shared check evaluator.
+		var outcome = Gameworld.GetCheck(type).Check(actor, SkillCheckDifficulty, SkillCheckTrait, target, -bonus - targetImpairment);
 		if (hostile)
 		{
 			actor.RemoveAllEffects<AttentionSuppressionEffect>(fireRemovalAction: true);
@@ -336,4 +341,3 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 		return true;
 	}
 }
-

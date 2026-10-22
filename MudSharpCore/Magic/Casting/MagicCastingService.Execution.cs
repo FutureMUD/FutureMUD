@@ -10,6 +10,7 @@ public sealed partial class MagicCastingService
 {
 	public MagicCastingResult Cast(MagicCastingIntent intent)
 	{
+		intent = PatronDelivery(intent);
 		if (intent.Mode == MagicCastingMode.Practice) return StartPractice(intent);
 		var actor = intent.Actor;
 		var owner = Owner(actor);
@@ -27,11 +28,12 @@ public sealed partial class MagicCastingService
 				var selectionAdmission = CaptureSelectionAdmission(intent, prepared);
 				var resolved = prepared.Quote.Invocation!;
 				var profile = prepared.Spell.GradeProfile!;
-				var acquired = Acquisition(actor, intent.SpellId)!;
+				var route = (IMagicCastingCapability)_world.MagicCapabilities.Get(intent.CapabilityId)!;
+				var acquired = RouteAcquisition(actor, route, intent.SpellId, profile.Version)!;
 				var opportunity = _store.Opportunity(owner.Id, resolved.TraitId);
 				var now = _clock();
-				var skillEligible = opportunity is null || opportunity.NextUtc <= now;
-				var masteryEligible = intent.Overreach && acquired.NextMasteryUtc <= now;
+				var skillEligible = route.CastingPolicy?.Patron is null && (opportunity is null || opportunity.NextUtc <= now);
+				var masteryEligible = route.CastingPolicy?.Patron is null && intent.Overreach && acquired.NextMasteryUtc <= now;
 				payload = new XElement("Casting", new XAttribute("version", 1), new XAttribute("admission", resolved.AdmissionId),
 					new XAttribute("identity", resolved.CapabilityIdentity), new XAttribute("grade", resolved.Grade),
 					new XAttribute("profile", resolved.ProfileVersion), new XAttribute("priorGrade", acquired.ControlledGrade),

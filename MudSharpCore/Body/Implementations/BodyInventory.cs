@@ -440,7 +440,7 @@ public partial class Body
         if (reasons.Any(x => x == IWieldItemWieldResult.Success))
         {
             return reasons.Any(x => x == IWieldItemWieldResult.TooDamaged)
-                ? string.Format("You need two free, undamaged {1} to wield {0}.", item.HowSeen(this),
+                ? string.Format("You need two free, functioning {1} to wield {0}.", item.HowSeen(this),
                     WielderDescriptionPlural)
                 : string.Format("You need two free {1} to wield {0}.", item.HowSeen(this),
                     WielderDescriptionPlural);
@@ -448,7 +448,7 @@ public partial class Body
 
         if (reasons.Any(x => x == IWieldItemWieldResult.TooDamaged))
         {
-            return string.Format("Your free {1} are too damaged to wield {0}.", item.HowSeen(this),
+            return string.Format("Your free {1} cannot function well enough to wield {0}.", item.HowSeen(this),
                 WielderDescriptionPlural);
         }
 
@@ -1575,7 +1575,7 @@ public partial class Body
         if (failingLocs.Any(x => x.Item2 == WearlocGrabResult.FailDamaged))
         {
             return
-                $"You cannot get {actualItem.HowSeen(this)} because your free {WielderDescriptionPlural} are too damaged.";
+                $"You cannot get {actualItem.HowSeen(this)} because your free {WielderDescriptionPlural} cannot function.";
         }
 
         if (failingLocs.Any(x => x.Item2 == WearlocGrabResult.FailFull))
@@ -2637,11 +2637,11 @@ public partial class Body
                        " to accept " + dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.HandsTooDamaged:
                 return target.HowSeen(this, true, DescriptionType.Possessive) + " " +
-                       target.WielderDescriptionPlural + " are too damaged to accept " + dummy.HowSeen(this) + ".";
+                       target.WielderDescriptionPlural + " cannot function well enough to accept " + dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.InventoryFull:
                 return target.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.NoFreeUndamagedHands:
-                return target.HowSeen(this, true) + " has no free, undamaged " + target.WielderDescriptionPlural +
+                return target.HowSeen(this, true) + " has no free, functioning " + target.WielderDescriptionPlural +
                        " to accept " + dummy.HowSeen(this) + ".";
             default:
                 return target.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
@@ -2792,12 +2792,12 @@ public partial class Body
                        ".";
             case WhyCannotGrabReason.HandsTooDamaged:
                 return target.Parent.HowSeen(this, true, DescriptionType.Possessive) + " " +
-                       target.Body.WielderDescriptionPlural + " are too damaged to accept " +
+                       target.Body.WielderDescriptionPlural + " cannot function well enough to accept " +
                        dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.InventoryFull:
                 return target.Parent.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.NoFreeUndamagedHands:
-                return target.Parent.HowSeen(this, true) + " has no free, undamaged " +
+                return target.Parent.HowSeen(this, true) + " has no free, functioning " +
                        target.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
                        ".";
             default:
@@ -3269,6 +3269,7 @@ public partial class Body
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return;
+        if (item.GetItemType<IConditionalBindingItem>()?.PreventRemoval(Actor, true) == true) return;
         if (!CanRemoveItem(item, ignoreFlags))
         {
             if (!silent)
@@ -3622,6 +3623,7 @@ public partial class Body
 
     public bool CanRemoveItem(IGameItem item, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		if (item.GetItemType<IConditionalBindingItem>()?.PreventRemoval(Actor, false) == true) return false;
         if (!CanGet(item, 0, ignoreFlags))
         {
             return false;
@@ -3649,6 +3651,7 @@ public partial class Body
 
     public bool CanBeRemoved(IGameItem item, ICharacter remover)
     {
+		if (!remover.IsAdministrator() && item.GetItemType<IConditionalBindingItem>()?.PreventRemoval(Actor, false) == true) return false;
         if (!remover.CanPerformManualAction(out var manualReason))
         {
             return false;
@@ -4112,6 +4115,7 @@ public partial class Body
     public string WhyCannotRemove(IGameItem item, bool ignoreFreeHands,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		if (item.GetItemType<IConditionalBindingItem>()?.PreventRemoval(Actor, false) == true) return $"{item.HowSeen(Actor, true)} is bound to you and resists removal.";
         if (item.IsItemType<IBeltable>() && item.GetItemType<IBeltable>().ConnectedTo != null)
         {
             return
@@ -4154,10 +4158,10 @@ public partial class Body
                             $"You cannot remove {item.HowSeen(this)} as your {WielderDescriptionPlural} are full.";
                     case WhyCannotGrabReason.HandsTooDamaged:
                         return
-                            $"You cannot remove {item.HowSeen(this)} as your {WielderDescriptionPlural} are too damaged.";
+                            $"You cannot remove {item.HowSeen(this)} as your {WielderDescriptionPlural} cannot function.";
                     case WhyCannotGrabReason.NoFreeUndamagedHands:
                         return
-                            $"You cannot remove {item.HowSeen(this)} as you have no free, undamaged {WielderDescriptionPlural}.";
+                            $"You cannot remove {item.HowSeen(this)} as you have no free, functioning {WielderDescriptionPlural}.";
                 }
 
                 break;

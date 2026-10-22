@@ -24,8 +24,11 @@ $env:DOTNET_NOLOGO = '1'
 
 Push-Location $repoRoot
 try {
-	dotnet build MudSharpCore\MudSharpCore.csproj -c Release --no-restore -p:NoWarn=NU1902%3BNU1510
+	dotnet build MudSharpCore\MudSharpCore.csproj -c Release --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
+	$buildExitCode = $LASTEXITCODE
 }
 finally {
 	Pop-Location
 }
+
+exit $buildExitCode

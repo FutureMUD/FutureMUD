@@ -94,9 +94,6 @@ jobs:
             exit 1
           fi
 
-      - name: Build website
-        run: dotnet build FutureMUD.Web/FutureMUD.Web.csproj -c Release --no-restore -m:1
-
       - name: Test website
         run: dotnet test FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj -c Release --no-restore -m:1
 

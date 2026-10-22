@@ -31,7 +31,7 @@ public class ArmageddonInstallationSettingsTests
 	private static readonly InMemoryDatabaseRoot Stores = new();
 	internal static FuturemudDatabaseContext Fixture(bool classes = true, FuturemudDatabaseContext? legacy = null)
 	{
-		var db = legacy ?? new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+		var db = legacy ?? new OwnedInMemorySeederContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), Stores, x => x.EnableNullChecks(false)).Options);
 		db.SeederChoices.Add(new SeederChoice { Seeder = new ChargenSeeder().Name, Choice = "class", Answer = classes ? "yes" : "no" });
 		db.ChargenScreenStoryboards.Add(new ChargenScreenStoryboard { Id = 1, ChargenStage = (int)ChargenStage.SelectRole,

@@ -21,41 +21,16 @@ internal sealed record EraMedicalRepairCatalogueEntry(
 
 internal static class EraMedicalRepairCatalogue
 {
-	private const string Header = "stable_reference\tnoun\tshort_description\tfull_description\tsize\tquality\tweight_grams\tcost\tmaterial\ttags\tcomponents\tbuilder_notes\tcategory";
-	private static readonly Lazy<IReadOnlyList<EraMedicalRepairCatalogueEntry>> EntriesLazy = new(ReadResources);
+	private static readonly Lazy<IReadOnlyList<EraMedicalRepairCatalogueEntry>> EntriesLazy = new(() =>
+	{
+		var entries = CompiledStockCatalogue.Medical.Select(CompiledStockCatalogue.ToMedicalEntry).ToArray();
+		Validate(entries);
+		return entries;
+	});
 	internal static IReadOnlyList<EraMedicalRepairCatalogueEntry> Entries => EntriesLazy.Value;
 	internal static IReadOnlyList<EraMedicalRepairCatalogueEntry> Renaissance => Entries.Where(x => x.StableReference.StartsWith("renaissance_", StringComparison.Ordinal)).ToArray();
 	internal static IReadOnlyList<EraMedicalRepairCatalogueEntry> EarlyModern => Entries.Where(x => x.StableReference.StartsWith("earlymodern_", StringComparison.Ordinal)).ToArray();
 
-	internal static IReadOnlyList<EraMedicalRepairCatalogueEntry> ReadResources() => ReadResources(typeof(EraMedicalRepairCatalogue).Assembly);
-	internal static IReadOnlyList<EraMedicalRepairCatalogueEntry> ReadResources(Assembly assembly)
-	{
-		var entries = new List<EraMedicalRepairCatalogueEntry>();
-		var resources = assembly.GetManifestResourceNames().Where(x => x.EndsWith(".medical-repair.tsv", StringComparison.OrdinalIgnoreCase)).OrderBy(x => x).ToArray();
-		if (resources.Length != 2) throw new InvalidOperationException($"Expected two embedded medical-repair catalogues, found {resources.Length}.");
-		foreach (var resource in resources)
-		{
-			using var stream = assembly.GetManifestResourceStream(resource) ?? throw new InvalidOperationException($"Cannot read {resource}.");
-			using var reader = new StreamReader(stream);
-			if (!string.Equals(reader.ReadLine()?.TrimStart('\uFEFF'), Header, StringComparison.Ordinal)) throw new InvalidDataException($"Unexpected header in {resource}.");
-			var line = 1;
-			while (reader.ReadLine() is { } value)
-			{
-				line++;
-				if (string.IsNullOrWhiteSpace(value)) continue;
-				var rooms = value.Split('\t');
-				if (rooms.Length != 13) throw new InvalidDataException($"{resource} line {line} has {rooms.Length} cells.");
-				entries.Add(new EraMedicalRepairCatalogueEntry(rooms[0], rooms[1], rooms[2], rooms[3],
-					Enum.Parse<SizeCategory>(rooms[4], true), Enum.Parse<ItemQuality>(rooms[5], true),
-					double.Parse(rooms[6], CultureInfo.InvariantCulture), decimal.Parse(rooms[7], CultureInfo.InvariantCulture), rooms[8],
-					Split(rooms[9]), Split(rooms[10]), rooms[11], rooms[12]));
-			}
-		}
-		Validate(entries);
-		return entries;
-	}
-
-	private static string[] Split(string value) => value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 	private static void Validate(IReadOnlyCollection<EraMedicalRepairCatalogueEntry> entries)
 	{
 		if (entries.Count != 178 || entries.Count(x => x.StableReference.StartsWith("renaissance_", StringComparison.Ordinal)) != 134 || entries.Count(x => x.StableReference.StartsWith("earlymodern_", StringComparison.Ordinal)) != 44)

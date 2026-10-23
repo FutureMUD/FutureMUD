@@ -50,34 +50,7 @@ public partial class ItemSeeder
 
 	private void EnsurePreIndustrialFoodCatalogueLiquidVessel()
 	{
-		CreateItem(
-			"preindustrial_food_catalogue_liquid_amphora",
-			"amphora",
-			"a shared catalogue liquid amphora",
-			null,
-			"A broad-shouldered fired-clay amphora used as the shared output vessel for pre-industrial catalogue liquids. Its sealed neck and sturdy handles make it suitable for water, oils, sauces, syrups, broths, and fermented drinks.",
-			SizeCategory.Large,
-			ItemQuality.Standard,
-			9000.0,
-			32.0m,
-			true,
-			false,
-			"earthenware",
-			[
-				"Functions / Container / Watertight Container",
-				"Food and Drink / Vessels / Beverage Serving Vessel",
-				"Market / Household Goods / Standard Wares"
-			],
-			[
-				"Holdable",
-				"Destroyable_Misc",
-				"LContainer_Amphora_Urna"
-			],
-			null,
-			null,
-			null,
-			null,
-			"Shared liquid-capable output vessel for the pre-industrial food catalogue.");
+		InstallCatalogueItem(Historical06Stock.PreindustrialFoodCatalogueLiquidAmphora());
 	}
 
 	private void SeedMedievalFoodCatalogue()
@@ -362,6 +335,8 @@ public partial class ItemSeeder
 
 	private void UpsertPreIndustrialFoodItem(PreIndustrialFoodItemCatalogueEntry entry)
 	{
+		if (entry.StableReference == "medieval_food_lenten_almond_fish_pottage")
+			entry = ToLegacyFood(RepresentativeCatalogue.Pottage());
 		var tags = BuildFoodItemTags(entry);
 		var componentNames = new List<string> { "Holdable", "Destroyable_Misc" };
 		GameItemComponentProto? preparedComponent = null;
@@ -375,33 +350,13 @@ public partial class ItemSeeder
 			componentNames.Add("Stack_Number");
 		}
 
-		var item = CreateItem(
-			entry.StableReference,
-			entry.Noun,
-			entry.ShortDescription,
-			null,
-			entry.FullDescription,
-			SizeCategory.Small,
-			entry.Quality,
-			entry.WeightInGrams,
-			entry.Cost,
-			false,
-			false,
-			entry.Material,
-			tags,
-			componentNames,
-			null,
-			null,
-			null,
-			null,
-			BuildFoodBuilderNotes(entry),
-			false);
+		var item = InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(entry.StableReference, "UpsertPreIndustrialFoodItem"));
 
 		if (item is null)
 		{
 			throw new InvalidOperationException($"Could not create food catalogue item {entry.StableReference}.");
 		}
-		if (_manifestCaptureOnly)
+		if (_manifestCaptureOnly || IsManifestAggregateCustomized("item", entry.StableReference))
 		{
 			return;
 		}

@@ -39,36 +39,11 @@ internal sealed record IndustrialisedItemCatalogueRow(
 	bool Craftable,
 	string? LifecycleKind);
 
-internal sealed record IndustrialisedCraftCatalogueRow(
-	string Source,
-	int Line,
-	string StableKey,
-	IReadOnlyList<string> EraAdmissions,
-	string Category,
-	string Trait,
-	int MinimumTraitValue,
-	string Difficulty,
-	string ProductStableReference,
-	string InputMaterial,
-	double InputGrams);
 
-internal sealed record IndustrialisedOutfitCatalogueRow(
-	string Source,
-	int Line,
-	string OutfitReference,
-	string Name,
-	string Description,
-	IReadOnlyList<string> EraAdmissions,
-	IReadOnlyList<string> ItemStableReferences);
 
-internal sealed record IndustrialisedTechnologyBindingRow(
-	string Source,
-	int Line,
-	string Profile,
-	string Dimension,
-	string Family,
-	IReadOnlyList<string> Values,
-	bool ComponentBacked);
+
+
+
 
 internal sealed record IndustrialisedPriceEvidenceRow(
 	string Source,
@@ -132,43 +107,41 @@ internal static class IndustrialisedItemCatalogue
 		"Confidence", "SourceUrl", "SourcePage", "Notes"
 	];
 
-	private static readonly Lazy<IndustrialisedItemCatalogueDocument> LazyDocument = new(LoadInternal);
-
+	private static readonly Lazy<IndustrialisedItemCatalogueDocument> LazyDocument = new(LoadCompiled);
 	internal static IndustrialisedItemCatalogueDocument Document => LazyDocument.Value;
+	internal static IndustrialisedItemCatalogueDocument LoadForTesting() => Document;
 
-	internal static IndustrialisedItemCatalogueDocument LoadForTesting() => LoadInternal();
-
-	private static IndustrialisedItemCatalogueDocument LoadInternal()
+	private static IndustrialisedItemCatalogueDocument LoadCompiled()
 	{
-		var assembly = typeof(IndustrialisedItemCatalogue).Assembly;
-		return LoadSources(assembly.GetManifestResourceNames()
-			.Where(x => x.Contains(ResourceMarker, StringComparison.Ordinal) && x.EndsWith(".tsv", StringComparison.Ordinal))
-			.Select(name =>
-			{
-				using var stream = assembly.GetManifestResourceStream(name) ??
-					throw new InvalidDataException($"Embedded catalogue resource {name} could not be opened.");
-				using var reader = new StreamReader(stream);
-				var relativeName = name[(name.IndexOf(ResourceMarker, StringComparison.Ordinal) + ResourceMarker.Length)..];
-				return new IndustrialisedCatalogueSource(relativeName
-					.Replace("Items.", "Items/", StringComparison.Ordinal)
-					.Replace("Clothing.", "Clothing/", StringComparison.Ordinal)
-					.Replace("Food.", "Food/", StringComparison.Ordinal)
-					.Replace("Pricing.", "Pricing/", StringComparison.Ordinal), reader.ReadToEnd());
-			}));
+		var items = CompiledStockCatalogue.Industrial.Select(CompiledStockCatalogue.ToIndustrialRow).ToArray();
+		var crafts = IndustrialResearchRootStock.Crafts().ToArray();
+		var outfits = IndustrialResearchRootStock.Outfits().ToArray();
+		var technology = IndustrialResearchRootStock.TechnologyBindings().ToArray();
+		var prices = CompiledStockCatalogue.Prices.Select(CompiledStockCatalogue.ToPriceRow).ToArray();
+		Validate(items, crafts, outfits, technology, prices);
+		var clothing = new IndustrialisedClothingCatalogueDocument([], [], [], [], [], [], [], [], [], [], [], [], []);
+		IndustrialisedClothingCatalogue.ValidateStructure(clothing);
+		return new(items, crafts, outfits, technology, prices)
+		{
+			Clothing = clothing, Food = CompiledIndustrialFoodResearch.Document
+		};
 	}
 
-	internal static IndustrialisedItemCatalogueDocument LoadDirectory(string directory) =>
+	internal static IndustrialisedItemCatalogueDocument LoadDirectory(string directory, bool compiledStock = false) =>
 		LoadSources(Directory.EnumerateFiles(directory, "*.tsv", SearchOption.AllDirectories)
-			.Select(path => new IndustrialisedCatalogueSource(Path.GetRelativePath(directory, path).Replace('\\', '/'), File.ReadAllText(path))));
+			.Select(path => (Path: path, Name: Path.GetRelativePath(directory, path).Replace('\\', '/')))
+			.Where(source => !compiledStock || (!source.Name.StartsWith("Items/", StringComparison.Ordinal) &&
+				source.Name != "Pricing/historical-price-evidence.tsv"))
+			.Select(source => new IndustrialisedCatalogueSource(source.Name, File.ReadAllText(source.Path))), compiledStock);
 
-	internal static IndustrialisedItemCatalogueDocument LoadSources(IEnumerable<IndustrialisedCatalogueSource> input)
+	internal static IndustrialisedItemCatalogueDocument LoadSources(IEnumerable<IndustrialisedCatalogueSource> input, bool compiledStock = false)
 	{
 		var sources = input.OrderBy(x => x.Name, StringComparer.Ordinal).ToArray();
 		RequireUnique(sources, x => x.Name, "source path");
 		var singletonNames = new[] { "crafts.tsv", "outfits.tsv", "technology-profile-bindings.tsv", "Pricing/historical-price-evidence.tsv" };
 		foreach (var name in singletonNames)
 		{
-			if (sources.Count(x => x.Name == name) != 1)
+			if (!(compiledStock && name == "Pricing/historical-price-evidence.tsv") && sources.Count(x => x.Name == name) != 1)
 			{
 				throw new InvalidDataException($"Catalogue requires source {name} exactly once.");
 			}
@@ -183,16 +156,18 @@ internal static class IndustrialisedItemCatalogue
 			? null
 			: IndustrialisedFoodCatalogue.Load(foodSources.Select(x => x with { Name = x.Name["Food/".Length..] }));
 		var unexpected = sources.Except(itemSources).Except(clothingSources).Except(foodSources).Where(x => !singletonNames.Contains(x.Name, StringComparer.Ordinal)).ToArray();
-		if (unexpected.Length > 0 || itemSources.Length == 0)
+		if (unexpected.Length > 0 || (!compiledStock && itemSources.Length == 0))
 		{
 			throw new InvalidDataException($"Missing item sources or unrecognised catalogue sources: {string.Join(", ", unexpected.Select(x => x.Name))}.");
 		}
 
-		var items = itemSources.SelectMany(x => x.Read(ItemHeaders, ParseItem)).ToArray();
+		var items = compiledStock ? CompiledStockCatalogue.Industrial.Select(CompiledStockCatalogue.ToIndustrialRow).ToArray() :
+			itemSources.SelectMany(x => x.Read(ItemHeaders, ParseItem)).ToArray();
 		var crafts = sources.Single(x => x.Name == "crafts.tsv").Read(CraftHeaders, ParseCraft).ToArray();
 		var outfits = sources.Single(x => x.Name == "outfits.tsv").Read(OutfitHeaders, ParseOutfit).ToArray();
 		var technology = sources.Single(x => x.Name == "technology-profile-bindings.tsv").Read(TechnologyHeaders, ParseTechnology).ToArray();
-		var prices = sources.Single(x => x.Name == "Pricing/historical-price-evidence.tsv").Read(PriceHeaders, ParsePrice).ToArray();
+		var prices = compiledStock ? CompiledStockCatalogue.Prices.Select(CompiledStockCatalogue.ToPriceRow).ToArray() :
+			sources.Single(x => x.Name == "Pricing/historical-price-evidence.tsv").Read(PriceHeaders, ParsePrice).ToArray();
 		Validate(items, crafts, outfits, technology, prices);
 		return new IndustrialisedItemCatalogueDocument(Array.AsReadOnly(items), Array.AsReadOnly(crafts),
 			Array.AsReadOnly(outfits), Array.AsReadOnly(technology), Array.AsReadOnly(prices)) { Clothing = clothing, Food = food };

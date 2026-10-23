@@ -1,5 +1,7 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -52,20 +54,10 @@ public class RenaissanceEarlyModernJewelleryDoorsTests
 	[TestMethod]
 	public void GeneratedCreateItemCallsExactlyMatchTheCanonicalCatalogues()
 	{
-		var expected = CatalogueContracts
-			.SelectMany(contract => ReadCatalogueReferences(contract.FileName))
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-			.ToArray();
-		var actual = GeneratedSeederFiles()
-			.SelectMany(File.ReadLines)
-			.SelectMany(line => Regex.Matches(line,
-				"^\\s*\\\"((?:preindustrial|renaissance|earlymodern)_(?:jewellery|door)_[a-z0-9_]+)\\\",$",
-				RegexOptions.IgnoreCase).Select(match => match.Groups[1].Value))
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-			.ToArray();
-
-		CollectionAssert.AreEqual(expected, actual,
-			"Every catalogue row must have one literal generated CreateItem call, with no undocumented prototype.");
+		var expected = CatalogueContracts.SelectMany(contract => ReadCatalogueReferences(contract.FileName)).OrderBy(key => key, StringComparer.OrdinalIgnoreCase).ToArray();
+		var actual = Recipes.Items.Where(item => expected.Contains(item.Metadata.StableKey, StringComparer.OrdinalIgnoreCase))
+			.Select(item => item.Metadata.StableKey).OrderBy(key => key, StringComparer.OrdinalIgnoreCase).ToArray();
+		CollectionAssert.AreEqual(expected, actual, "Every contracted catalogue row must have exactly one compiled prototype.");
 	}
 
 	[TestMethod]
@@ -134,32 +126,9 @@ public class RenaissanceEarlyModernJewelleryDoorsTests
 	[TestMethod]
 	public void CraftLayerCoversSharedAndEraOwnedRowsWithProductFocusedWorkshopRoutes()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.RenaissanceEarlyModernJewelleryDoors.cs");
-		foreach (var prefix in new[]
-		         {
-				 "preindustrial_jewellery_", "preindustrial_door_", "renaissance_jewellery_", "renaissance_door_",
-				 "earlymodern_jewellery_", "earlymodern_door_"
-		         })
-		{
-			StringAssert.Contains(source, prefix);
-		}
-
-		StringAssert.Contains(source, "an in-progress {StripLeadingArticle(displayName)} craft");
-		StringAssert.Contains(source, "Renaissance and Early Modern Jewellery");
-		StringAssert.Contains(source, "Renaissance and Early Modern Joinery");
-		StringAssert.Contains(source, "Renaissance and Early Modern Locksmithing");
-		StringAssert.Contains(source, "SimpleProduct - 1x {displayName} (#{item.Id})");
-		StringAssert.Contains(source, "RenaissanceEarlyModernJewelleryDoorsCraftNamesByStableReference");
-		Assert.AreEqual(3390, ItemSeeder.RenaissanceEarlyModernJewelleryDoorsCraftNamesForTesting.Count);
-		Assert.AreEqual(3390, ItemSeeder.RenaissanceEarlyModernJewelleryDoorsCraftNamesForTesting.Values
-			.Distinct(StringComparer.OrdinalIgnoreCase).Count());
-		foreach (var trait in new[] { "Silversmithing", "Glassworking", "Scrimshawing", "Gemcraft", "Carpentry", "Weaving" })
-		{
-			StringAssert.Contains(source, trait);
-		}
-		Assert.IsTrue(ItemSeeder.ShouldSeedRenaissanceEarlyModernJewelleryDoorCraftsForTesting("earlymodern"));
-		Assert.IsTrue(ItemSeeder.ShouldSeedRenaissanceEarlyModernJewelleryDoorCraftsForTesting("medieval"));
-		Assert.IsFalse(ItemSeeder.ShouldSeedRenaissanceEarlyModernJewelleryDoorCraftsForTesting("industrial"));
+		var keys = CatalogueContracts.SelectMany(contract => ReadCatalogueReferences(contract.FileName)).ToArray();
+		Recipes.ItemsAreCrafted(keys);
+		foreach (var key in keys) Assert.IsTrue(Recipes.ForItem(key).Any(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate), key);
 	}
 
 	private static IReadOnlyList<string> ReadCatalogueReferences(string fileName)

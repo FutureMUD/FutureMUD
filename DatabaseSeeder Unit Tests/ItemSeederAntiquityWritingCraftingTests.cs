@@ -1,5 +1,9 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -51,122 +55,23 @@ public class ItemSeederAntiquityWritingCraftingTests
 	[TestMethod]
 	public void AntiquityWritingItems_AreSeededWithFunctionalComponentAndTagCoverage()
 	{
-		var rootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
-		var reworkRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityWriting.cs");
-
-		AssertContains(rootSource, "SeedReworkItems();");
-		AssertContains(reworkRootSource, "SeedAntiquityWritingImplementsAndDocuments();");
-
-		foreach (var stableReference in ExpectedWritingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-		}
-
-		foreach (var expected in new[]
-		{
-			"EnsureAntiquityScribingImplementComponent",
-			"EnsureAntiquityInscribableSurfaceComponent",
-			"EnsureAntiquityPaperSheetComponent",
-			"EnsureAntiquityBookComponent",
-			"\"ScribingImplement\"",
-			"\"InscribableSurface\"",
-			"\"PaperSheet\"",
-			"\"Book\"",
-			"WritingImplementType.ReedPen",
-			"WritingImplementType.Charcoal",
-			"WritingImplementType.Stylus"
-		})
-		{
-			AssertContains(itemSource, expected);
-		}
-
-		foreach (var expected in new[]
-		{
-			"Functions / Writing Surface / Loose Sheet",
-			"Functions / Writing Surface / Scroll",
-			"Functions / Writing Surface / Codex",
-			"Functions / Writing Surface / Wax Tablet",
-			"Functions / Writing Surface / Clay Tablet",
-			"Functions / Writing Surface / Wooden Writing Block",
-			"Functions / Writing Surface / Ostracon",
-			"Market / Writing Materials / Writing Implements",
-			"Market / Writing Materials / Document Containers"
-		})
-		{
-			AssertContains(itemSource, expected);
-		}
+		Recipes.AssertNativeCraftCoverage(ExpectedWritingStableReferences,
+			"antiquity_simple_papyrus_scroll", "antiquity_bronze_scraper_knife");
+		foreach (var key in ExpectedWritingStableReferences) Assert.IsTrue(Recipes.Item(key).Components.Count > 0, key);
 	}
 
 	[TestMethod]
 	public void AntiquityWritingCrafts_RegisterKnowledgeGatedSuiteAndNoLegacyLiteracyProgs()
 	{
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityWriting.cs");
-		var householdCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
-
-		AssertContains(craftRoot, "SeedAntiquityWritingCrafts();");
-		AssertContains(householdCraftSource, "IsAntiquityWritingSuiteStableReference");
-
-		foreach (var expected in new[]
-		{
-			"private void SeedAntiquityWritingCrafts()",
-			"SeedAntiquityWritingIntermediateCommodityCrafts();",
-			"AddAntiquityCraft(",
-			"Ancient Papyrus Making",
-			"Ancient Parchment Making",
-			"Ancient Tablet Making",
-			"Ancient Ink and Pigment Making",
-			"Ancient Scribing Implements",
-			"Ancient Scroll and Codex Binding",
-			"knowledgeSubtype:",
-			"knowledgeDescription:"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		foreach (var forbidden in new[] { "HasLiteracy", "HasHandwriting", "HasPainting" })
-		{
-			Assert.IsFalse(craftSource.Contains(forbidden, StringComparison.Ordinal),
-				$"Writing crafts should use the knowledge-gated AddCraft overload, not bespoke {forbidden} progs.");
-		}
+		foreach (var knowledge in new[] { "Ancient Papyrus Making", "Ancient Parchment Making", "Ancient Tablet Making", "Ancient Ink and Pigment Making", "Ancient Scribing Implements", "Ancient Scroll and Codex Binding" }) Recipes.Knowledge(knowledge);
+		foreach (var key in ExpectedWritingStableReferences.Except(new[] { "antiquity_simple_papyrus_scroll", "antiquity_bronze_scraper_knife" }))
+			Assert.IsTrue(Recipes.ForItem(key).Any(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate), key);
 	}
 
 	[TestMethod]
 	public void AntiquityWritingCrafts_AddUpstreamCommodityAndTagSurface()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityWriting.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
-
-		foreach (var expected in ExpectedWritingStockTags())
-		{
-			AssertContains(craftSource, expected);
-			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
-			AssertContains(tagHierarchy, $"Writing Craft Stock / {expected}");
-		}
-
-		foreach (var expected in ExpectedWritingSurfaceTags())
-		{
-			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
-			AssertContains(tagHierarchy, expected);
-		}
-
-		foreach (var expected in new[]
-		{
-			"Charcoal Stick",
-			"Papyrus",
-			"Clay Tablets",
-			"Writing Implements",
-			"Document Containers",
-			"Scrolls",
-			"Codices"
-		})
-		{
-			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
-			AssertContains(tagHierarchy, expected);
-		}
+		Recipes.RequiresTags(ExpectedWritingStockTags().ToArray());
 	}
 
 	[TestMethod]

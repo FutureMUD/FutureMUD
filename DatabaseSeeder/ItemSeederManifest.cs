@@ -11,13 +11,6 @@ using System.Text.Json.Serialization;
 
 namespace DatabaseSeeder;
 
-internal enum ItemSeederOwnershipPolicy
-{
-	StockAggregate,
-	RequiredRelationship,
-	BuilderTextProtected
-}
-
 internal enum ItemSeederManifestInspectionStatus
 {
 	Missing,
@@ -27,21 +20,6 @@ internal enum ItemSeederManifestInspectionStatus
 	Retired,
 	Blocked
 }
-
-internal sealed record ItemSeederManifestEntry(
-	string EntityType,
-	string StableKey,
-	string Module,
-	IReadOnlyCollection<string> EraAdmissions,
-	IReadOnlyCollection<string> Dependencies,
-	ItemSeederOwnershipPolicy OwnershipPolicy,
-	string Fingerprint);
-
-internal sealed record ItemSeederManifestDocument(
-	string ManifestVersion,
-	string SourceFingerprint,
-	DateTime GeneratedAtUtc,
-	IReadOnlyCollection<ItemSeederManifestEntry> Entries);
 
 internal sealed record ItemSeederManifestInspection(
 	ItemSeederManifestEntry Entry,
@@ -228,27 +206,7 @@ internal static class ItemSeederManifestCatalogue
 		return document;
 	}
 
-	public static ItemSeederManifestDocument LoadForRuntime()
-	{
-		var packagedPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Manifests", "Seeded_Item_Manifest.json");
-		if (File.Exists(packagedPath))
-		{
-			return Load(packagedPath);
-		}
-
-		var repositoryRoot = FindRepositoryRoot();
-		var canonicalPath = Path.Combine(repositoryRoot,
-			DefaultRelativePath.Replace('/', Path.DirectorySeparatorChar));
-		var document = Load(canonicalPath);
-		var sourceFingerprint = ComputeSourceFingerprint(repositoryRoot);
-		if (!document.SourceFingerprint.Equals(sourceFingerprint, StringComparison.OrdinalIgnoreCase))
-		{
-			throw new InvalidDataException(
-				$"Seeded_Item_Manifest.json is stale: recorded source {document.SourceFingerprint}, current source {sourceFingerprint}.");
-		}
-
-		return document;
-	}
+	public static ItemSeederManifestDocument LoadForRuntime() => CompiledItemSeederInventory.Document;
 
 	public static string FindRepositoryRoot(string? startingPath = null)
 	{
@@ -283,11 +241,18 @@ internal static class ItemSeederManifestCatalogue
 		var industrialisedCatalogueDirectory = Path.Combine(seedersDirectory, "IndustrialisedCatalogue");
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 		var sourcePaths = Directory
-			.EnumerateFiles(sourceDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly)
+			.EnumerateFiles(sourceDirectory, "*.cs", SearchOption.AllDirectories)
+			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "Catalogue", "Assemblies"), "*.csproj", SearchOption.AllDirectories))
+			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "Catalogue", "Assemblies"), "*.targets", SearchOption.AllDirectories))
+			.Concat(EnumerateFilesIfPresent(Path.Combine(repositoryRoot, "DatabaseSeeder"), "DatabaseSeeder.csproj", SearchOption.TopDirectoryOnly))
+			.Concat(Directory.EnumerateFiles(seedersDirectory, "ItemSeeder*.cs", SearchOption.TopDirectoryOnly))
 			.Concat(Directory.EnumerateFiles(seedersDirectory, "Industrialised*.cs", SearchOption.TopDirectoryOnly))
+			.Concat(EnumerateFilesIfPresent(Path.Combine(repositoryRoot, "DatabaseSeeder"), "ItemSeederManifest.cs", SearchOption.TopDirectoryOnly))
 			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "FoodCatalogue"), "*.tsv", SearchOption.AllDirectories))
 			.Concat(EnumerateFilesIfPresent(Path.Combine(sourceDirectory, "MedicalRepairCatalogue"), "*.tsv", SearchOption.AllDirectories))
 			.Concat(EnumerateFilesIfPresent(industrialisedCatalogueDirectory, "*.tsv", SearchOption.AllDirectories))
+			.Where(path => !path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+				.Any(segment => segment is "bin" or "obj"))
 			.OrderBy(x => Path.GetRelativePath(repositoryRoot, x).Replace('\\', '/'),
 				StringComparer.OrdinalIgnoreCase);
 		foreach (var path in sourcePaths)

@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.IO;
 
 namespace MudSharp.Database;
 
@@ -13,6 +14,8 @@ public interface IDatabaseUpgradeCoordinator
     bool DatabaseLooksBlank(string connectionString);
     string? GetLatestMigrationId(string connectionString);
     void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath, string databaseNamePlaceholder);
+	// The caller retains ownership of the readable stream.
+	void ImportBlankDatabaseSnapshot(string connectionString, Stream script, string databaseNamePlaceholder);
     void CreateBlankDatabaseSnapshot(DatabaseUpgradeRequest request, string snapshotPath, string databaseNamePlaceholder);
     void RecreateEmptyDatabase(string connectionString);
     string CreateBackup(DatabaseUpgradeRequest request);

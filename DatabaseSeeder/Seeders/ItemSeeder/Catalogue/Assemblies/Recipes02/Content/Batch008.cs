@@ -1,0 +1,1948 @@
+#nullable enable
+
+using MudSharp.Body;
+using MudSharp.GameItems.Inventory.Plans;
+using MudSharp.RPG.Checks;
+
+namespace DatabaseSeeder.Seeders;
+
+public static partial class Recipes02Stock
+{
+	public static CatalogueRecipeDefinition FoodProcessingFillAmphoraWithFishSauce() => new()
+	{
+		Metadata = new("Food Processing/fill amphora with fish sauce", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_garum_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:387", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill amphora with fish sauce",
+		Category = "Food Processing",
+		Blurb = "fill an amphora with fermented fish sauce",
+		Action = "filling an amphora with fish sauce",
+		ActiveCraftItemSdesc = "a fish sauce filling task",
+		Gate = null,
+		Trait = "Cooking",
+		AppearProg = "HasCooking",
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pack|packs fish and salt down for fermentation, using $t1.", "$0 pack|packs fish and salt down for fermentation, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 seal|seals the fish sauce in $p1 to ferment.", "$0 seal|seals the fish sauce in $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Meat", PileTag: "Raw Meat Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Meat", ["piletag Raw Meat Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 300.0, Material: "salt", PileTag: null, CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("300 grams of salt", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_garum_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed fish-sauce-fermenting amphora (@antiquity_food_fermenting_garum_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingBakeAntiquityFlatbread() => new()
+	{
+		Metadata = new("Cooking/bake Antiquity flatbread", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "bake Antiquity flatbread",
+		Category = "Cooking",
+		Blurb = "bake a generalized ancient flatbread",
+		Action = "baking ancient flatbread",
+		ActiveCraftItemSdesc = "an Antiquity flatbread baking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Baking", "Baker", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 mix|mixes $i1 with $i2 into a rough dough.", "$0 mix|mixes $i1 with $i2 into a rough dough.", ExertionLevel.Stasis, 0),
+			new(30, "$0 knead|kneads the dough and shape|shapes it into a thin round, using $t1.", "$0 knead|kneads the dough and shape|shapes it into a thin round, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 bake|bakes the flatbread over $t2 and set|sets aside $p1.", "$0 bake|bakes the flatbread over $t2 and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 500.0, MaterialTag: "Food Crop", PileTag: "Flour Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("500 grams of a material tagged as Food Crop", ["piletag Flour Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "Water", Litres: 0.25) { Compatibility = new("250 millilitres of Water", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_flatbread", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_flatbread", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingCookAntiquityGrainPorridge() => new()
+	{
+		Metadata = new("Cooking/cook Antiquity grain porridge", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "cook Antiquity grain porridge",
+		Category = "Cooking",
+		Blurb = "cook generalized ancient grain porridge",
+		Action = "cooking ancient grain porridge",
+		ActiveCraftItemSdesc = "an Antiquity porridge cooking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 sort|sorts $i1 and stir|stirs it into $i2 in $t1.", "$0 sort|sorts $i1 and stir|stirs it into $i2 in $t1.", ExertionLevel.Stasis, 0),
+			new(30, "$0 simmer|simmers the grain until it softens and thickens, using $t2.", "$0 simmer|simmers the grain until it softens and thickens, using $t2.", ExertionLevel.Stasis, 0),
+			new(25, "$0 taste|tastes the porridge and set|sets aside $p1.", "$0 taste|tastes the porridge and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 600.0, MaterialTag: "Food Crop", PileTag: "Meal Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("600 grams of a material tagged as Food Crop", ["piletag Meal Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "Water", Litres: 1.0) { Compatibility = new("1 litre of Water", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_porridge", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_porridge", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingCookAntiquityPulseStew() => new()
+	{
+		Metadata = new("Cooking/cook Antiquity pulse stew", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "cook Antiquity pulse stew",
+		Category = "Cooking",
+		Blurb = "cook generalized ancient pulse stew",
+		Action = "cooking ancient pulse stew",
+		ActiveCraftItemSdesc = "an Antiquity pulse stew cooking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 chop|chops $i2 and combine|combines it with $i1.", "$0 chop|chops $i2 and combine|combines it with $i1.", ExertionLevel.Stasis, 0),
+			new(30, "$0 simmer|simmers the pulses and vegetables in $i3 over $t2, using $t1.", "$0 simmer|simmers the pulses and vegetables in $i3 over $t2, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 season|seasons $p1 and set|sets the stew aside.", "$0 season|seasons $p1 and set|sets the stew aside.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 500.0, MaterialTag: "Food Crop", PileTag: "Pulse Meal Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("500 grams of a material tagged as Food Crop", ["piletag Pulse Meal Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 250.0, MaterialTag: "Vegetable Prep Crop", PileTag: "Vegetable Prep Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of a material tagged as Vegetable Prep Crop", ["piletag Vegetable Prep Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "Water", Litres: 1.0) { Compatibility = new("1 litre of Water", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_pulse_stew", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_pulse_stew", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingCookAntiquityMeatAndGrainDish() => new()
+	{
+		Metadata = new("Cooking/cook Antiquity meat and grain dish", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "cook Antiquity meat and grain dish",
+		Category = "Cooking",
+		Blurb = "cook a generalized ancient meat and grain dish",
+		Action = "cooking an ancient meat and grain dish",
+		ActiveCraftItemSdesc = "an Antiquity meat dish cooking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 cut|cuts $i1 and lay|lays it over $i2.", "$0 cut|cuts $i1 and lay|lays it over $i2.", ExertionLevel.Stasis, 0),
+			new(30, "$0 simmer|simmers the meat and grain in $i3 over $t2, using $t1.", "$0 simmer|simmers the meat and grain in $i3 over $t2, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 rest|rests $p1 before sending it to the table.", "$0 rest|rests $p1 before sending it to the table.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 500.0, MaterialTag: "Meat", PileTag: "Prepared Meat Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("500 grams of a material tagged as Meat", ["piletag Prepared Meat Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 400.0, MaterialTag: "Food Crop", PileTag: "Meal Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("400 grams of a material tagged as Food Crop", ["piletag Meal Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "meat broth", Litres: 0.5) { Compatibility = new("500 millilitres of meat broth", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_meat_dish", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_meat_dish", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingPackAntiquityPreservedMeatRation() => new()
+	{
+		Metadata = new("Cooking/pack Antiquity preserved meat ration", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "pack Antiquity preserved meat ration",
+		Category = "Cooking",
+		Blurb = "pack a generalized ancient preserved meat ration",
+		Action = "packing an ancient preserved meat ration",
+		ActiveCraftItemSdesc = "an Antiquity preserved ration packing task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Easy,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 portion|portions $i1 and mix|mixes it with $i2.", "$0 portion|portions $i1 and mix|mixes it with $i2.", ExertionLevel.Stasis, 0),
+			new(30, "$0 press|presses the ration into a compact travel cake.", "$0 press|presses the ration into a compact travel cake.", ExertionLevel.Stasis, 0),
+			new(25, "$0 wrap|wraps $p1 against damp and vermin.", "$0 wrap|wraps $p1 against damp and vermin.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 400.0, MaterialTag: "Meat", PileTag: "Dried Meat Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("400 grams of a material tagged as Meat", ["piletag Dried Meat Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 250.0, MaterialTag: "Food Crop", PileTag: "Bran Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of a material tagged as Food Crop", ["piletag Bran Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_preserved_meat", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_preserved_meat", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingMakeAntiquityFruitAndGrainSweet() => new()
+	{
+		Metadata = new("Cooking/make Antiquity fruit and grain sweet", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "make Antiquity fruit and grain sweet",
+		Category = "Cooking",
+		Blurb = "make a generalized ancient fruit and grain sweet",
+		Action = "making an ancient fruit sweet",
+		ActiveCraftItemSdesc = "an Antiquity fruit sweet preparation task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 crush|crushes $i1 with $t1.", "$0 crush|crushes $i1 with $t1.", ExertionLevel.Stasis, 0),
+			new(30, "$0 stir|stirs in $i2 until the sweet thickens.", "$0 stir|stirs in $i2 until the sweet thickens.", ExertionLevel.Stasis, 0),
+			new(25, "$0 shape|shapes $p1 and set|sets it aside to firm.", "$0 shape|shapes $p1 and set|sets it aside to firm.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 400.0, MaterialTag: "Fruit Must Crop", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("400 grams of a material tagged as Fruit Must Crop", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 250.0, MaterialTag: "Food Crop", PileTag: "Flour Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of a material tagged as Food Crop", ["piletag Flour Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_sweet", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_sweet", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingServeAntiquityFreshFruitPlatter() => new()
+	{
+		Metadata = new("Cooking/serve Antiquity fresh fruit platter", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "serve Antiquity fresh fruit platter",
+		Category = "Cooking",
+		Blurb = "prepare a generalized ancient fresh fruit platter",
+		Action = "preparing an ancient fresh fruit platter",
+		ActiveCraftItemSdesc = "an Antiquity fresh fruit preparation task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Easy,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 cut|cuts and seed|seeds $i1 with $t1.", "$0 cut|cuts and seed|seeds $i1 with $t1.", ExertionLevel.Stasis, 0),
+			new(30, "$0 arrange|arranges the prepared pieces on the serving dish.", "$0 arrange|arranges the prepared pieces on the serving dish.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 while the fruit is fresh.", "$0 set|sets aside $p1 while the fruit is fresh.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 500.0, MaterialTag: "Ready Fruit Crop", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("500 grams of a material tagged as Ready Fruit Crop", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Knife", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Cooking Knife tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_fruit_platter", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_fruit_platter", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingBakeAntiquityOilseedCake() => new()
+	{
+		Metadata = new("Cooking/bake Antiquity oilseed cake", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "bake Antiquity oilseed cake",
+		Category = "Cooking",
+		Blurb = "bake a generalized ancient oilseed cake",
+		Action = "baking an ancient oilseed cake",
+		ActiveCraftItemSdesc = "an Antiquity oilseed cake baking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Baking", "Baker", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 mix|mixes $i1 and $i2 with $i3 into a coarse batter.", "$0 mix|mixes $i1 and $i2 with $i3 into a coarse batter.", ExertionLevel.Stasis, 0),
+			new(30, "$0 press|presses the batter into small cakes, using $t1.", "$0 press|presses the batter into small cakes, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 bake|bakes the cakes over $t2 and set|sets aside $p1.", "$0 bake|bakes the cakes over $t2 and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 300.0, MaterialTag: "Oilseed Crop", PileTag: "Oilseed Cake Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("300 grams of a material tagged as Oilseed Crop", ["piletag Oilseed Cake Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 300.0, MaterialTag: "Food Crop", PileTag: "Flour Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("300 grams of a material tagged as Food Crop", ["piletag Flour Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "Water", Litres: 0.15) { Compatibility = new("150 millilitres of Water", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_oilseed_cake", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_oilseed_cake", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingCookAntiquitySpicedMeatStew() => new()
+	{
+		Metadata = new("Cooking/cook Antiquity spiced meat stew", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "cook Antiquity spiced meat stew",
+		Category = "Cooking",
+		Blurb = "cook a generalized ancient luxury meat stew",
+		Action = "cooking an ancient spiced meat stew",
+		ActiveCraftItemSdesc = "an Antiquity luxury meat stew cooking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 toast|toasts $i5 and $i6 with $t3 until the spice wakes.", "$0 toast|toasts $i5 and $i6 with $t3 until the spice wakes.", ExertionLevel.Stasis, 0),
+			new(30, "$0 simmer|simmers meat, pulses, vegetables and broth together in $t1, using $t2.", "$0 simmer|simmers meat, pulses, vegetables and broth together in $t1, using $t2.", ExertionLevel.Stasis, 0),
+			new(25, "$0 finish|finishes the rich stew and set|sets aside $p1.", "$0 finish|finishes the rich stew and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 500.0, MaterialTag: "Meat", PileTag: "Prepared Meat Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("500 grams of a material tagged as Meat", ["piletag Prepared Meat Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 350.0, MaterialTag: "Food Crop", PileTag: "Pulse Meal Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("350 grams of a material tagged as Food Crop", ["piletag Pulse Meal Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 250.0, MaterialTag: "Vegetable Prep Crop", PileTag: "Vegetable Prep Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of a material tagged as Vegetable Prep Crop", ["piletag Vegetable Prep Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "meat broth", Litres: 0.75) { Compatibility = new("750 millilitres of meat broth", []), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 25.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("25 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 10.0, Material: "cumin", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("10 grams of cumin", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_spiced_meat_stew", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_spiced_meat_stew", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingBakeAntiquityHoneyedPastry() => new()
+	{
+		Metadata = new("Cooking/bake Antiquity honeyed pastry", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "bake Antiquity honeyed pastry",
+		Category = "Cooking",
+		Blurb = "bake a generalized ancient honeyed pastry",
+		Action = "baking an ancient honeyed pastry",
+		ActiveCraftItemSdesc = "an Antiquity honeyed pastry baking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Baking", "Baker", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 knead|kneads flour with honey and olive oil.", "$0 knead|kneads flour with honey and olive oil.", ExertionLevel.Stasis, 0),
+			new(30, "$0 tint|tints the pastry with $i4 and shape|shapes it carefully, using $t1.", "$0 tint|tints the pastry with $i4 and shape|shapes it carefully, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 bake|bakes the pastry near $t2 and set|sets aside $p1.", "$0 bake|bakes the pastry near $t2 and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 400.0, MaterialTag: "Food Crop", PileTag: "Flour Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("400 grams of a material tagged as Food Crop", ["piletag Flour Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 200.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("200 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "olive oil", Litres: 0.15) { Compatibility = new("150 millilitres of olive oil", []), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 5.0, Material: "saffron", PileTag: "Textile Dye Stock", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("5 grams of saffron", ["piletag Textile Dye Stock"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_honeyed_pastry", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_honeyed_pastry", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingPrepareAntiquityFishSauceRelish() => new()
+	{
+		Metadata = new("Cooking/prepare Antiquity fish sauce relish", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "prepare Antiquity fish sauce relish",
+		Category = "Cooking",
+		Blurb = "prepare a generalized ancient fish sauce relish",
+		Action = "preparing an ancient fish sauce relish",
+		ActiveCraftItemSdesc = "an Antiquity fish sauce relish preparation task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 mince|minces $i2 and $i3 with $t2.", "$0 mince|minces $i2 and $i3 with $t2.", ExertionLevel.Stasis, 0),
+			new(30, "$0 pound|pounds $i4 and garum together in $t1.", "$0 pound|pounds $i4 and garum together in $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 fold|folds the relish together and set|sets aside $p1.", "$0 fold|folds the relish together and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueLiquidRecipeInput(Liquid: "garum sauce", Litres: 0.25) { Compatibility = new("250 millilitres of garum sauce", []), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 200.0, MaterialTag: "Fruit Brining Crop", PileTag: "Brined Fruit Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("200 grams of a material tagged as Fruit Brining Crop", ["piletag Brined Fruit Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 200.0, MaterialTag: "Vegetable Prep Crop", PileTag: "Vegetable Prep Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("200 grams of a material tagged as Vegetable Prep Crop", ["piletag Vegetable Prep Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "black pepper", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of black pepper", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Cooking Knife", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Cooking Knife tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_fish_sauce_relish", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_fish_sauce_relish", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingBakeAntiquityStuffedFlatbread() => new()
+	{
+		Metadata = new("Cooking/bake Antiquity stuffed flatbread", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:673", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "bake Antiquity stuffed flatbread",
+		Category = "Cooking",
+		Blurb = "bake a generalized ancient stuffed flatbread",
+		Action = "baking an ancient stuffed flatbread",
+		ActiveCraftItemSdesc = "an Antiquity stuffed flatbread baking task",
+		Gate = CatalogueRecipeGates.AntiquityFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Baking", "Baker", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 roll|rolls flour dough thin and oil|oils it with $i4.", "$0 roll|rolls flour dough thin and oil|oils it with $i4.", ExertionLevel.Stasis, 0),
+			new(30, "$0 fill|fills the dough with meat, fruit and $i5, using $t1.", "$0 fill|fills the dough with meat, fruit and $i5, using $t1.", ExertionLevel.Stasis, 0),
+			new(25, "$0 bake|bakes the stuffed bread near $t2 and set|sets aside $p1.", "$0 bake|bakes the stuffed bread near $t2 and set|sets aside $p1.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 350.0, MaterialTag: "Food Crop", PileTag: "Flour Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("350 grams of a material tagged as Food Crop", ["piletag Flour Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 300.0, MaterialTag: "Meat", PileTag: "Prepared Meat Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("300 grams of a material tagged as Meat", ["piletag Prepared Meat Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityTagRecipeInput(Grams: 150.0, MaterialTag: "Fruit Must Crop", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("150 grams of a material tagged as Fruit Must Crop", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueLiquidRecipeInput(Liquid: "olive oil", Litres: 0.1) { Compatibility = new("100 millilitres of olive oil", []), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 10.0, Material: "cumin", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("10 grams of cumin", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Cooking Pot", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Cooking Pot tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fire", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Fire tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueProgCookedRecipeProduct(Prog: "ItemSeederAntiquityFood_stuffed_flatbread", RemoveDrugsAndFoodEffects: false, Ingredients: []) { Compatibility = new("ItemSeederAntiquityFood_stuffed_flatbread", []), IsFailProduct = false, MaterialDefiningInputIndex = 0 },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillHellenicBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill hellenic beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_red_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill hellenic beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.HellenicFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "fig", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of fig", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_red_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed red-wine-fermenting amphora (@antiquity_food_fermenting_red_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillHellenicSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill hellenic spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill hellenic spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.HellenicFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "fig", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of fig", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-wine-aging amphora (@antiquity_food_aging_spiced_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillEgyptianBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill egyptian beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill egyptian beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.EgyptianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed beer-fermenting amphora (@antiquity_food_fermenting_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillEgyptianSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill egyptian spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill egyptian spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.EgyptianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-beer-aging amphora (@antiquity_food_aging_spiced_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillRomanBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill roman beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_red_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill roman beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.RomanFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "grape", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of grape", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_red_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed red-wine-fermenting amphora (@antiquity_food_fermenting_red_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillRomanSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill roman spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill roman spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.RomanFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "grape", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of grape", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-wine-aging amphora (@antiquity_food_aging_spiced_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillCelticBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill celtic beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill celtic beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.CelticFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed beer-fermenting amphora (@antiquity_food_fermenting_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillCelticSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill celtic spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill celtic spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.CelticFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-beer-aging amphora (@antiquity_food_aging_spiced_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillGermanicBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill germanic beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill germanic beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.GermanicFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed beer-fermenting amphora (@antiquity_food_fermenting_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillGermanicSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill germanic spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill germanic spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.GermanicFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-beer-aging amphora (@antiquity_food_aging_spiced_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillKushiteBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill kushite beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_date_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill kushite beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.KushiteFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_date_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed date-beer-fermenting amphora (@antiquity_food_fermenting_date_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillKushiteSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill kushite spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_beer_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill kushite spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.KushiteFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityTagRecipeInput(Grams: 1000.0, MaterialTag: "Grain Crop", PileTag: "Wort Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram of a material tagged as Grain Crop", ["piletag Wort Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_beer_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-beer-aging amphora (@antiquity_food_aging_spiced_beer_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillPunicBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill punic beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_white_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill punic beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.PunicFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "fig", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of fig", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_white_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed white-wine-fermenting amphora (@antiquity_food_fermenting_white_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillPunicSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill punic spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill punic spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.PunicFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "fig", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of fig", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-wine-aging amphora (@antiquity_food_aging_spiced_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillPersianBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill persian beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_white_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill persian beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.PersianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "grape", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of grape", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_white_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed white-wine-fermenting amphora (@antiquity_food_fermenting_white_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillPersianSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill persian spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill persian spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.PersianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "grape", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of grape", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-wine-aging amphora (@antiquity_food_aging_spiced_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillEtruscanBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill etruscan beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_red_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill etruscan beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.EtruscanFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "grape", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of grape", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_red_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed red-wine-fermenting amphora (@antiquity_food_fermenting_red_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillEtruscanSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill etruscan spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill etruscan spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.EtruscanFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "grape", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of grape", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-wine-aging amphora (@antiquity_food_aging_spiced_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillAnatolianBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill anatolian beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_white_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill anatolian beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.AnatolianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "fig", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of fig", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_white_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed white-wine-fermenting amphora (@antiquity_food_fermenting_white_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillAnatolianSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill anatolian spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_wine_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill anatolian spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.AnatolianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1200.0, Material: "fig", PileTag: "Fruit Must Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 200 grams of fig", ["piletag Fruit Must Commodity"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_wine_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-wine-aging amphora (@antiquity_food_aging_spiced_wine_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillScythianSarmatianBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill scythian-sarmatian beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_fermenting_kumis_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill scythian-sarmatian beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a staple beverage amphora",
+		Action = "filling a beverage amphora",
+		ActiveCraftItemSdesc = "a beverage fermentation task",
+		Gate = CatalogueRecipeGates.ScythianSarmatianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 2,
+		Interruptable = false,
+		Phases = [
+			new(20, "$0 pour|pours the beverage stock into $t1 and seal|seals it.", "$0 pour|pours the beverage stock into $t1 and seal|seals it.", ExertionLevel.Stasis, 0),
+			new(25, "$0 set|sets aside $p1 to ferment.", "$0 set|sets aside $p1 to ferment.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueLiquidRecipeInput(Liquid: "milk", Litres: 3.0) { Compatibility = new("3 litres of milk", []), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_fermenting_kumis_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed kumis-fermenting amphora (@antiquity_food_fermenting_kumis_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition CookingFillScythianSarmatianSpicedBeverageAmphora() => new()
+	{
+		Metadata = new("Cooking/fill scythian-sarmatian spiced beverage amphora", "crafts", ["antiquity"], ["item:antiquity_food_aging_spiced_kumis_amphora"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.AntiquityFood.cs:776", []),
+		RequiredAnyEra = ["antiquity"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "fill scythian-sarmatian spiced beverage amphora",
+		Category = "Cooking",
+		Blurb = "fill a luxury spiced beverage amphora",
+		Action = "filling a spiced beverage amphora",
+		ActiveCraftItemSdesc = "a spiced beverage aging task",
+		Gate = CatalogueRecipeGates.ScythianSarmatianFoodwaysCookingAny,
+		Trait = null,
+		CheckTraitChoices = ["Brewing", "Brewer", "Cooking", "Cook"],
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Hard,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(25, "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", "$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.", ExertionLevel.Stasis, 0),
+			new(30, "$0 blend|blends the sweet spice into the beverage stock.", "$0 blend|blends the sweet spice into the beverage stock.", ExertionLevel.Stasis, 0),
+			new(25, "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", "$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueLiquidRecipeInput(Liquid: "milk", Litres: 3.0) { Compatibility = new("3 litres of milk", []), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 250.0, Material: "honey", PileTag: "Pressed Honey", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("250 grams of honey", ["piletag Pressed Honey"]), QualityWeight = 1 },
+			new CatalogueCommodityRecipeInput(Grams: 15.0, Material: "coriander", PileTag: "Seeded Yield", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("15 grams of coriander", ["piletag Seeded Yield"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Mortar and Pestle", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Mortar and Pestle tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Fermentation Amphora", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Fermentation Amphora tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "antiquity_food_aging_spiced_kumis_amphora", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a sealed spiced-kumis-aging amphora (@antiquity_food_aging_spiced_kumis_amphora)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockPrepareWorkedPlankBundle() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/prepare worked plank bundle", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_plank_bundle"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "prepare worked plank bundle",
+		Category = "Medieval Industry / Stock",
+		Blurb = "prepare worked plank bundle",
+		Action = "prepare worked plank bundle",
+		ActiveCraftItemSdesc = "an in-progress worked plank bundle craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsCarpentry10,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Easy,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 12000.0, Material: "oak", PileTag: "Furniture Timber Stock", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("12 kilograms of oak", ["piletag Furniture Timber Stock"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Hammer", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Hammer tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Awl Punch", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Awl Punch tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_plank_bundle", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a bundle of worked planks (@medieval_industry_stock_plank_bundle)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockShapeHandleBlanks() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/shape handle blanks", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_handle_blanks"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "shape handle blanks",
+		Category = "Medieval Industry / Stock",
+		Blurb = "shape handle blanks",
+		Action = "shape handle blanks",
+		ActiveCraftItemSdesc = "an in-progress handle blanks craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsCarpentry10,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Easy,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 900.0, Material: "ash", PileTag: "Tool Blank Stock", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("900 grams of ash", ["piletag Tool Blank Stock"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Hammer", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Hammer tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Awl Punch", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Awl Punch tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_handle_blanks", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a bundle of handle blanks (@medieval_industry_stock_handle_blanks)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockSortWroughtIronBarStock() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/sort wrought iron bar stock", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_iron_bar"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "sort wrought iron bar stock",
+		Category = "Medieval Industry / Stock",
+		Blurb = "sort wrought iron bar stock",
+		Action = "sort wrought iron bar stock",
+		ActiveCraftItemSdesc = "an in-progress sort wrought iron bar stock craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsBlacksmithing15,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 2400.0, Material: "wrought iron", PileTag: "Metal Bar Stock Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("2 kilograms 400 grams of wrought iron", ["piletag Metal Bar Stock Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Smelting Tool", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Smelting Tool tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Forge Tongs", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Forge Tongs tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_iron_bar", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a wrought-iron bar (@medieval_industry_stock_iron_bar)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockCastBronzeBarStock() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/cast bronze bar stock", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_bronze_bar"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "cast bronze bar stock",
+		Category = "Medieval Industry / Stock",
+		Blurb = "cast bronze bar stock",
+		Action = "cast bronze bar stock",
+		ActiveCraftItemSdesc = "an in-progress cast bronze bar stock craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsSmelting15,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 1600.0, Material: "bronze", PileTag: "Metal Billet Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("1 kilogram 600 grams of bronze", ["piletag Metal Billet Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Smelting Tool", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Smelting Tool tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Forge Tongs", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Forge Tongs tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_bronze_bar", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a bronze casting bar (@medieval_industry_stock_bronze_bar)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockDrawBronzeWireCoil() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/draw bronze wire coil", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_wire_coil"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "draw bronze wire coil",
+		Category = "Medieval Industry / Stock",
+		Blurb = "draw bronze wire coil",
+		Action = "draw bronze wire coil",
+		ActiveCraftItemSdesc = "an in-progress draw bronze wire coil craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsBlacksmithing15,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2 and $t3.", "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2 and $t3.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 500.0, Material: "bronze", PileTag: "Metal Billet Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("500 grams of bronze", ["piletag Metal Billet Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Anvil", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Anvil tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Hammer", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Hammer tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Forge Tongs", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Forge Tongs tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_wire_coil", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a coil of drawn wire (@medieval_industry_stock_wire_coil)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockForgePacketOfIronRivets() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/forge packet of iron rivets", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_rivet_packet"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "forge packet of iron rivets",
+		Category = "Medieval Industry / Stock",
+		Blurb = "forge packet of iron rivets",
+		Action = "forge packet of iron rivets",
+		ActiveCraftItemSdesc = "an in-progress packet of iron rivets craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsBlacksmithing15,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2 and $t3.", "$0 shape|shapes and fit|fits the prepared pieces with $t1, using $t2 and $t3.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 600.0, Material: "wrought iron", PileTag: "Metal Bar Stock Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("600 grams of wrought iron", ["piletag Metal Bar Stock Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Anvil", State: DesiredItemState.InRoom) { Compatibility = new("InRoom - an item with the Anvil tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Hammer", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Hammer tag", []), QualityWeight = 1, UseToolDuration = true },
+			new CatalogueTagRecipeTool(Tag: "Forge Tongs", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Forge Tongs tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_rivet_packet", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a packet of iron rivets (@medieval_industry_stock_rivet_packet)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+
+	public static CatalogueRecipeDefinition MedievalIndustryStockKneadPreparedClayBody() => new()
+	{
+		Metadata = new("Medieval Industry / Stock/knead prepared clay body", "crafts", ["earlymodern", "medieval", "renaissance"], ["item:medieval_industry_stock_clay_body_lump"], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs:153", []),
+		RequiredAnyEra = ["medieval"],
+		IndustrialCaptureOnly = false,
+		UseExplicitStableReference = false,
+		PreserveAuthoredText = false,
+		QualityPolicyVersion = 1,
+		Name = "knead prepared clay body",
+		Category = "Medieval Industry / Stock",
+		Blurb = "knead prepared clay body",
+		Action = "knead prepared clay body",
+		ActiveCraftItemSdesc = "an in-progress knead prepared clay body craft",
+		Gate = CatalogueRecipeGates.MedievalIndustryFoundationsPottery15,
+		Trait = null,
+		AppearProg = null,
+		CanUseProg = null,
+		WhyCannotUseProg = null,
+		OnStartProg = null,
+		OnFinishProg = null,
+		OnCancelProg = null,
+		Difficulty = Difficulty.Normal,
+		Threshold = Outcome.MinorFail,
+		FreeChecks = 5,
+		FailPhase = 3,
+		Interruptable = false,
+		Phases = [
+			new(30, "$0 inspect|inspects the stock and lay|lays out the work.", "$0 inspect|inspects the stock and lay|lays out the work.", ExertionLevel.Stasis, 0),
+			new(45, "$0 shape|shapes and fit|fits the prepared pieces with $t1.", "$0 shape|shapes and fit|fits the prepared pieces with $t1.", ExertionLevel.Stasis, 0),
+			new(45, "$0 finish|finishes the assembly and set|sets aside $p1.", "$0 botch|botches the finishing work and spoil|spoils the assembly.", ExertionLevel.Stasis, 0),
+		],
+		Inputs = [
+			new CatalogueCommodityRecipeInput(Grams: 4200.0, Material: "prepared clay", PileTag: "Prepared Clay Commodity", CharacteristicMode: CatalogueCharacteristicMode.Any, Characteristics: []) { Compatibility = new("4 kilograms 200 grams of prepared clay", ["piletag Prepared Clay Commodity"]), QualityWeight = 1 },
+		],
+		Tools = [
+			new CatalogueTagRecipeTool(Tag: "Kiln Tool", State: DesiredItemState.Held) { Compatibility = new("Held - an item with the Kiln Tool tag", []), QualityWeight = 1, UseToolDuration = true },
+		],
+		Products = [
+			new CatalogueItemRecipeProduct(ItemStableReference: "medieval_industry_stock_clay_body_lump", Quantity: 1, SkinStableReference: null) { Compatibility = new("1x a lump of prepared clay body (@medieval_industry_stock_clay_body_lump)", []), IsFailProduct = false, MaterialDefiningInputIndex = null },
+		],
+		FailProducts = [
+		],
+	};
+}

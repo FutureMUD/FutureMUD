@@ -1,0 +1,28 @@
+<Project>
+	<!-- Use the SDK's supported exclusion item, after references have resolved. Keep the
+	     installer and existing dependencies in IL; precompile bounded catalogue assemblies. -->
+	<Target Name="SelectCatalogueReadyToRunAssemblies" BeforeTargets="PrepareForPublish"
+		Condition="'$(PublishReadyToRun)' == 'true' and '$(CatalogueReadyToRunOnly)' != 'false'">
+		<ItemGroup>
+			<PublishReadyToRunExclude Include="$(TargetFileName)" />
+			<PublishReadyToRunExclude Include="@(ReferenceCopyLocalPaths->'%(Filename)%(Extension)')"
+				Condition="!$([System.String]::Copy('%(ReferenceCopyLocalPaths.Filename)').StartsWith('DatabaseSeeder.Catalogue.'))" />
+		</ItemGroup>
+	</Target>
+	<!-- Retain the actual SDK-selected files for developer publication verification.
+	     This receipt is a build output and is not shipped or read by the installer. -->
+	<Target Name="RecordCatalogueReadyToRunAssemblies" AfterTargets="CreateReadyToRunImages"
+		Condition="'$(PublishReadyToRun)' == 'true'">
+		<ItemGroup>
+			<CataloguePublishedManagedAssembly Include="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.dll'" />
+		</ItemGroup>
+		<WriteLinesToFile File="$(IntermediateOutputPath)CatalogueReadyToRunInputs.txt"
+			Lines="@(CataloguePublishedManagedAssembly->'%(FullPath)')" Overwrite="true" />
+	</Target>
+	<Target Name="RemoveSeederDevelopmentSidecars" BeforeTargets="_ComputeFilesToBundle">
+		<ItemGroup>
+			<ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+				Condition="'%(ResolvedFileToPublish.Extension)' == '.pdb' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Readme.txt' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'MudSharp.runtimeconfig.json'" />
+		</ItemGroup>
+	</Target>
+</Project>

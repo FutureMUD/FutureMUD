@@ -294,25 +294,6 @@ public partial class ItemSeeder
 	{
 		var tags = new List<string> { "Market / Professional Tools / Standard Tools" };
 		tags.AddRange(functionalTags);
-		CreateItem(
-			stableReference,
-			noun,
-			shortDescription,
-			null,
-			fullDescription,
-			size,
-			ItemQuality.Standard,
-			weightInGrams,
-			cost,
-			false,
-			false,
-			material,
-			tags,
-			["Holdable", (int)size >= (int)SizeCategory.Large ? "Destroyable_Furniture" : "Destroyable_Misc"],
-			morphToUniqueReference,
-			morphEmote,
-			morphTimer,
-			null
-		);
+		InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateAntiquityHouseholdCraftTool"));
 	}
 }

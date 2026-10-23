@@ -1,5 +1,11 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using System.Linq;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -139,191 +145,61 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquityClothingCrafts_ProduceEveryCurrentCultureGarmentPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-
-		AssertReferencesPresent(PunicClothingStableReferences, itemSource, craftSource);
-		AssertReferencesPresent(PersianClothingStableReferences, itemSource, craftSource);
-		AssertReferencesPresent(EtruscanClothingStableReferences, itemSource, craftSource);
-		AssertReferencesPresent(AnatolianClothingStableReferences, itemSource, craftSource);
-		AssertReferencesPresent(ScythianSarmatianClothingStableReferences, itemSource, craftSource);
-
-		foreach (var expected in new[]
-		{
-			"SeedAntiquityPunicClothingCrafts();",
-			"SeedAntiquityPersianClothingCrafts();",
-			"SeedAntiquityEtruscanClothingCrafts();",
-			"SeedAntiquityAnatolianClothingCrafts();",
-			"SeedAntiquityScythianSarmatianClothingCrafts();"
-		})
-		{
-			AssertContains(itemCraftingSource, expected);
-		}
+		Recipes.ItemsAreCrafted(PunicClothingStableReferences);
+		Recipes.ItemsAreCrafted(PersianClothingStableReferences);
+		Recipes.ItemsAreCrafted(EtruscanClothingStableReferences);
+		Recipes.ItemsAreCrafted(AnatolianClothingStableReferences);
+		Recipes.ItemsAreCrafted(ScythianSarmatianClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void SupplementalAntiquityClothingReferences_AreRegisteredAcrossSourceCraftsAndDocs()
 	{
-		Assert.AreEqual(39, SupplementalClothingStableReferences.Length, "The supplemental clothing pass should track all 39 new catalogue rows.");
-
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var stableReferenceSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var designSource = ReadSource("Design Documents", "Seeding", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
-
-		foreach (var stableReference in SupplementalClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"\"{stableReference}\"");
-			AssertContains(stableReferenceSource, $"[\"{stableReference}\"]");
-			AssertContains(designSource, $"`{stableReference}`");
-		}
+		Recipes.ItemsAreCrafted(SupplementalClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void SupplementalAntiquityClothingCrafts_UseCommodityTextilesAndStableVariableProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"piletag Garment Cloth",
-			"piletag Spun Yarn",
-			"TagTool - Held - an item with the Sewing Needle tag",
-			"TagTool - Held - an item with the Shears tag",
-			"StableVariableProduct(garment.StableReference, garment.Fine)",
-			"assemble wool travel hand wraps",
-			"assemble upland felt hand-mitts",
-			"assemble wool udones",
-			"assemble felt riding mittens",
-			"assemble felt boot liners"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		foreach (var forbidden in new[]
-		{
-			"SeedAntiquityColdWeatherAccessoryCrafts",
-			"assemble Hellenic wool hand wraps",
-			"assemble Anatolian felt hand-mitts",
-			"Hellenic wool hand wraps",
-			"Anatolian felt hand-mitts"
-		})
-		{
-			Assert.IsFalse(craftSource.Contains(forbidden, StringComparison.Ordinal),
-				$"Supplemental craft source should not contain generated standalone or culture-visible wording: {forbidden}");
-		}
+		Recipes.RequiresTags("Garment Cloth", "Spun Yarn", "Sewing Needle", "Shears");
+		Recipes.CopiesColour(SupplementalClothingStableReferences);
+		foreach (var key in SupplementalClothingStableReferences)
+			Assert.IsFalse(Recipes.ForItem(key).Any(recipe => recipe.Name.Contains("Hellenic", StringComparison.Ordinal) || recipe.Name.Contains("Anatolian", StringComparison.Ordinal)));
 	}
 
 	[TestMethod]
 	public void SupplementalAntiquityClothingItems_UseExistingMaterialsTagsAndPreciseWearComponents()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
-
-		foreach (var material in new[] { "wool", "linen", "felt", "cotton" })
-		{
-			AssertContains(materialSource, $"AddMaterial(\"{material}\"");
-		}
-
-		foreach (var tag in new[]
-		{
-			"Winter Clothing",
-			"Simple Clothing",
-			"Standard Clothing",
-			"Luxury Clothing",
-			"Garment Cloth",
-			"Spun Yarn",
-			"Socks",
-			"Gloves",
-			"Legwear",
-			"Scarves",
-			"Headwear"
-		})
-		{
-			AssertContains(tagSource, $"\"{tag}\"");
-		}
-
-		foreach (var component in new[]
-		{
-			"Wear_Mittens",
-			"Wear_Fingerless_Gloves",
-			"Wear_Socks",
-			"Wear_Chausses",
-			"Wear_Headband",
-			"Wear_Scarf"
-		})
-		{
-			AssertContains(itemSource, $"\"{component}\"");
-			AssertContains(componentCatalogue, $"\"{component}\"");
-		}
+		var items = SupplementalClothingStableReferences.Select(Recipes.Item).ToArray();
+		foreach (var component in new[] { "Wear_Mittens", "Wear_Fingerless_Gloves", "Wear_Socks", "Wear_Chausses", "Wear_Headband", "Wear_Scarf" })
+			Assert.IsTrue(items.Any(item => item.Components.Contains(component)), component);
+		Assert.IsTrue(items.All(item => new[] { "wool", "linen", "felt", "cotton" }.Contains(item.Material)));
 	}
 
 	[TestMethod]
 	public void RemainingAntiquityFinishedGarmentCrafts_UseCultureKnowledgeGates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"const string punicKnowledge = \"Punic Textilecraft\"",
-			"\"Punic\"",
-			"const string persianKnowledge = \"Persian Textilecraft\"",
-			"\"Persian\"",
-			"const string etruscanKnowledge = \"Etruscan Textilecraft\"",
-			"\"Etruscan\"",
-			"const string anatolianKnowledge = \"Anatolian Textilecraft\"",
-			"\"Anatolian\"",
-			"const string scythianKnowledge = \"Scythian-Sarmatian Textilecraft\"",
-			"\"Scythian-Sarmatian\""
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.Knowledge("Punic Textilecraft", PunicClothingStableReferences);
+		Recipes.Knowledge("Persian Textilecraft", PersianClothingStableReferences);
+		Recipes.Knowledge("Etruscan Textilecraft", EtruscanClothingStableReferences);
+		Recipes.Knowledge("Anatolian Textilecraft", AnatolianClothingStableReferences);
+		Recipes.Knowledge("Scythian-Sarmatian Textilecraft", ScythianSarmatianClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void SharedUpstreamTextileCrafts_AddFeltCommodityPath()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
-
-		foreach (var expected in new[]
-		{
-			"felt prepared wool fibre into garment felt",
-			"Commodity - 700 grams of wool; piletag Prepared Textile Fibre; characteristic Colour any; characteristic Fine Colour any",
-			"CommodityProduct - 520 grams of felt commodity; tag Fulled Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1",
-			"CommodityProduct - 180 grams of felt commodity; tag Fulled Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		AssertContains(materialSource, "AddMaterial(\"felt\"");
+		Recipes.HasRecipes("felt prepared wool fibre into garment felt");
+		Recipes.RequiresTags("Prepared Textile Fibre", "Garment Cloth");
+		Assert.IsTrue(Recipes.Recipes.SelectMany(recipe => recipe.Products).OfType<CatalogueCommodityRecipeProduct>().Any(product => product.Material == "felt" && product.Grams > 0));
 	}
 
 	[TestMethod]
 	public void RemainingAntiquitySpecialGarments_UseCommodityInputsAndGeneratedProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"StableSimpleProduct(garment.StableReference)",
-			"antiquity_fine_patterned_anaxyrides",
-			"adjacent_antiquity_fine_banded_tunic",
-			"CommodityTag - {garment.Hair} grams of a material tagged as Hair",
-			"adjacent_antiquity_fur_trimmed_caftan",
-			"piletag Garment Cloth",
-			"piletag Spun Yarn"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		string[] keys = ["antiquity_fine_patterned_anaxyrides", "adjacent_antiquity_fine_banded_tunic", "adjacent_antiquity_fur_trimmed_caftan"];
+		Recipes.ItemsAreCrafted(keys);
+		foreach (var key in keys) Assert.IsTrue(Recipes.ForItem(key).Any(recipe => Recipes.Outputs(recipe).Contains(key, StringComparer.OrdinalIgnoreCase)), key);
 	}
 
 	[TestMethod]

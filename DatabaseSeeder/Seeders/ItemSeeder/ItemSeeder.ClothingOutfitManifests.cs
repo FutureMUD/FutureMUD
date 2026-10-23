@@ -19,28 +19,22 @@ public partial class ItemSeeder
 {
 	private const string OutfitManifestMarkerPrefix = "[[ItemSeederOutfitManifest:";
 
-	private sealed record DocumentedClothingItemSpec(
-		string StableReference,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		SizeCategory Size,
-		ItemQuality Quality,
-		double WeightInGrams,
-		decimal Cost,
-		bool Skinnable,
-		string Material,
-		string[] Tags,
-		string[] Components,
-		string BuilderNotes);
-
-	private sealed record DocumentedClothingSkinSpec(
-		string StableReference,
-		string BaseItemStableReference,
-		string ItemName,
-		string ShortDescription,
-		string FullDescription,
-		ItemQuality? Quality);
+	private sealed record DocumentedClothingItemSpec(CatalogueItemDefinition Item)
+	{
+		public string StableReference => Item.Metadata.StableKey;
+		public string Noun => Item.Noun;
+		public string ShortDescription => Item.ShortDescription;
+		public string FullDescription => Item.FullDescription;
+		public SizeCategory Size => Item.Size;
+		public ItemQuality Quality => Item.Quality;
+		public double WeightInGrams => Item.WeightInGrams;
+		public decimal Cost => Item.Cost;
+		public bool Skinnable => Item.Skinnable;
+		public string Material => Item.Material;
+		public IReadOnlyList<string> Tags => Item.Tags;
+		public IReadOnlyList<string> Components => Item.Components;
+		public string? BuilderNotes => Item.BuilderNotes;
+	}
 
 	internal sealed record OutfitManifestItemSpec(
 		string ItemStableReference,
@@ -125,7 +119,7 @@ public partial class ItemSeeder
 			.ToArray();
 
 	internal static IReadOnlyList<DocumentedClothingSkinTestData> DocumentedClothingSkinsForTesting =>
-		DocumentedClothingSkinSpecs
+		CatalogueSkinDefinitions
 			.Select(x => new DocumentedClothingSkinTestData(
 				x.StableReference,
 				x.BaseItemStableReference,
@@ -296,27 +290,7 @@ public partial class ItemSeeder
 				continue;
 			}
 
-			var item = CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				spec.Skinnable,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				spec.BuilderNotes,
-				allowLegacyShortDescriptionMatch: false);
+			var item = InstallCatalogueItem(spec.Item);
 			if (item is null)
 			{
 				throw new InvalidOperationException(
@@ -365,7 +339,7 @@ public partial class ItemSeeder
 			return new Dictionary<string, DbGameItemSkin>(StringComparer.OrdinalIgnoreCase);
 		}
 
-		var specs = DocumentedClothingSkinSpecs
+		var specs = CatalogueSkinDefinitions
 			.Where(x => requested.Contains(x.StableReference))
 			.ToArray();
 		var unknown = requested
@@ -380,7 +354,7 @@ public partial class ItemSeeder
 	}
 
 	private IReadOnlyDictionary<string, DbGameItemSkin> SeedDocumentedClothingSkins(
-		IReadOnlyCollection<DocumentedClothingSkinSpec> specs)
+		IReadOnlyCollection<CatalogueSkinDefinition> specs)
 	{
 		if (_context is null)
 		{
@@ -441,7 +415,7 @@ public partial class ItemSeeder
 					continue;
 				}
 
-				ApplyDocumentedClothingSkinSpec(existing, spec, baseItem, alwaysTrue!);
+				ApplyCatalogueSkinDefinition(existing, spec, baseItem, alwaysTrue!);
 				CompleteManifestAggregate(manifestEntry, existing.Id, expectedDefinition, disposition);
 				resolved.Add(spec.StableReference, existing);
 				continue;
@@ -500,9 +474,9 @@ public partial class ItemSeeder
 			canUseSkinProg ?? $"<missing:{skin.CanUseSkinProgId}>");
 	}
 
-	private static void ApplyDocumentedClothingSkinSpec(
+	private static void ApplyCatalogueSkinDefinition(
 		DbGameItemSkin skin,
-		DocumentedClothingSkinSpec spec,
+		CatalogueSkinDefinition spec,
 		GameItemProto baseItem,
 		FutureProg alwaysTrue)
 	{
@@ -533,6 +507,7 @@ public partial class ItemSeeder
 			throw new InvalidOperationException("The item seeder context must be initialised before outfit manifests are seeded.");
 		}
 
+		using var liveItemReferences = UseBatchLiveItemReferences();
 		var templates = _context.OutfitTemplates
 			.Include(x => x.OutfitTemplateItems)
 			.AsEnumerable()

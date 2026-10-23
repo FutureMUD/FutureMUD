@@ -1,0 +1,46 @@
+// Derived ownership index. Refresh with --export-compiled-item-inventory; edit catalogue definitions instead.
+#nullable enable
+
+using System.Collections.Generic;
+
+namespace DatabaseSeeder;
+
+public static partial class Inventory09Stock
+{
+	public static IReadOnlyList<ItemSeederManifestEntry> Batch068() =>
+	[
+		new("prog", "ItemSeederPreIndustrialFood_EarlyModern_Prepared_Stew_earlymodern_food_benin_plantain_like_meat_pottage", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "dd82c3e21675342d31bb0d9a05eb1747c8138a809910fff7b1f8710ba9248efb"),
+		new("prog", "ItemSeederPreIndustrialFood_EarlyModern_Prepared_Vegetable_earlymodern_food_tea_table_cucumber_like_pickle_toast", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "28d3b664e3dc3a8329bf5240ca3cb715f3eb74605c493c2badeab79dcf443c66"),
+		new("prog", "ItemSeederPreIndustrialFood_Medieval_Prepared_Bread_medieval_food_castle_shaped_bread_subtlety", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "b7c661273d807da21f73c66d25d4b25bf3b2c701daa96f4797f0773df8d29b5b"),
+		new("prog", "ItemSeederPreIndustrialFood_Medieval_Prepared_Noodle_medieval_food_buddhist_mushroom_noodle_bowl", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "3e1ac04dd2daffe7d4190d9b29bdf233b9097dec9eae49fa8fb99e52263c7a7e"),
+		new("prog", "ItemSeederPreIndustrialFood_Medieval_Prepared_Sweet_medieval_food_byzantine_layered_sesame_pastry", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "d9912b02a4b42996abe5c552872adeb4371644c080c22e5b9c9501e331f0ef51"),
+		new("prog", "ItemSeederPreIndustrialFood_Renaissance_Intermediate_Intermediate_renaissance_food_citrus_peel_first_syrup_stage", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "0ba36895bf8c1d7d35293bd80fd59bfb802d37c5795d3f362157014850b7d89e"),
+		new("prog", "ItemSeederPreIndustrialFood_Renaissance_Intermediate_Intermediate_renaissance_food_pasta_sheet_drying_frame", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "93ce86b6bef9e782289daa25e9ba67d8160815caf0d17bf37a7aea9990a79d86"),
+		new("prog", "ItemSeederPreIndustrialFood_Renaissance_Prepared_Condiment_renaissance_food_italian_fruit_must_mostarda", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "4c08815d1da555455820f5ab38bc4b934714b03e72eb5a045e7c30e4fc85e893"),
+		new("prog", "ItemSeederPreIndustrialFood_Renaissance_Prepared_Fruit_renaissance_food_andean_fruit_quinoa_like_bar", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "3fc2e663dfbf21de22e1e54fb80b8c5fb420e17dda1ec6339afb7a34e5e62e36"),
+		new("prog", "ItemSeederPreIndustrialFood_Renaissance_Prepared_Sweet_renaissance_food_german_fruit_stollen_loaf", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "2a5abb255b460c0893fa06566449bb8dd6d5c727da9471b2af9338ace9bb7ccf"),
+		new("prog", "ItemSeederPreIndustrialFood_Shared_Intermediate_Intermediate_preindustrial_food_boiling_sugar_mass", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "50df0910817e42ad163ef4a6f6c7328e7a91a1d96972204fa785f58b479457dc"),
+		new("prog", "ItemSeederPreIndustrialFood_Shared_Prepared_Preserved_preindustrial_food_dried_apple_rings", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "5a5d29eba6aeb0dcb2ab961a9e04af1fd99dcb0897e1713a9f6f9a1d3dd4e5bc"),
+		new("prog", "ItemSeederPreIndustrialFood_Shared_Prepared_Preserved_preindustrial_food_preserved_herb_cake", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "16836741a007ca28553dc30e73e89f197a614b18c6317d2dae236bad49a0f045"),
+		new("prog", "ItemSeederPreIndustrialFood_Shared_Prepared_Sweet_preindustrial_food_cacao_sugar_custard", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "bffea0fe8b7c5d1843230b4c15deaa68162ac2ba0580e92084b2e8893996fb90"),
+		new("prog", "ItemSeederPreIndustrialFood_Shared_Prepared_Sweet_preindustrial_food_honey_cheese_fritters", "crafts", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "928a07f9a3c6181c44e03213806f298ec4aa026bd83c5b30990cca6c05f4441b"),
+		new("tag", "Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Coffee", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "9e42c438456648f9832c8ab73835a4b28de8c2b7d77e8ada3fefe5d3218b6cf9"),
+		new("tag", "Food and Drink / Food Liquids / Pre-Industrial Catalogue / Family / Fruit", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "08d761e4d0cc2a9446da4d983fe1882fea1a60222722ce44c305fb00adbb7542"),
+		new("tag", "Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Condiment", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "02a171c7c344bb447f9b698a4b3c2369ddb15b2d0c0666f1d4995e67df2cff09"),
+		new("tag", "Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Dairy", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "849a5226a43c2ede197f3581cc3b3257a948dc75350d0c085aadefbb3536cdd6"),
+		new("tag", "Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Family / Stew", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "43dc33764d651893c98bd714ceb4c191d4c44ccc7b312833f3bb776558e54fe0"),
+		new("tag", "Food and Drink / Prepared Foods / Pre-Industrial Catalogue / Scope / Shared", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "24749abb401d8d0f57e27b6145a2f2b7006ddb3d24f32119cee9758ab8f1d6ce"),
+		new("tag", "Functions / Joining", "shared-preindustrial", ["antiquity", "earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "72572357aead921f5a69250cda64995f7206921fae0070efbf345171e539ce7b"),
+		new("tag", "Functions / Material Functions / Primary Production / Primary Production Resource / Bitumen Seep Resource", "shared-preindustrial", ["antiquity", "earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "3ae2e6c4227dd271ff6fc3aca68c875de330a82675e143e22d6a96984da053ba"),
+		new("tag", "Functions / Material Functions / Primary Production / Primary Production Resource / Ochre Resource", "shared-preindustrial", ["antiquity", "earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "d18f798c4543d180c7800cdfd0f965ae52d5262fa09858282850a8da1a11325f"),
+		new("tag", "Functions / Separation / Shearing", "shared-preindustrial", ["antiquity", "earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "219633fd1583d200f8105a90090746038654a72a6e87bf5e92a6f37bc5764310"),
+		new("tag", "Functions / Tools / Hauling Tool", "shared-preindustrial", ["antiquity", "earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "7f6e2ca23cc7683b174a3219e0bf9aea9ee6076033c6de9ed2b8f997cc1446c1"),
+		new("tag", "Functions / Tools / Metalworking Tools / Forge Tongs", "shared-preindustrial", ["antiquity", "earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "b64375f4d30b103de9c1e7a531b5a3530a034caaf5d9093e08fbe86b4213fba6"),
+		new("tag", "Materials / Food Products / Pre-Industrial Food Commodities / Family / Fermented Drink", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "2077339eb2171baeedd6836b3d99b5e556f3cbea77e149f5a2e5df691f15b160"),
+		new("tag", "Materials / Food Products / Pre-Industrial Food Commodities / Family / Porridge", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "9ca2fc0e531ad84f1608f298334e9aac31ec758cf387efd81a728fe783b28a01"),
+		new("tag", "Materials / Food Products / Pre-Industrial Food Commodities / Family / Vinegar", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "a6b5a757465f7f990adeb1f576580b46d1a28fda3f898d911b9fc71184d21aac"),
+		new("vehicle", "vehicle_medieval_market_cart", "vehicles", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, "decdf9b3fcbc9f488b4d28f4d5574bdecfadb90fca0a5dff04e69ccba3d7b8dc"),
+		new("vehicle", "vehicle_renaissance_galleon", "vehicles", ["earlymodern", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "7ca711bad48a4b5cc1843dc02a2e79821b2458cf271e54ecb0224bdedee8a532"),
+		new("vehicle", "vehicle_revolution_coastal_sloop", "vehicles", ["revolution"], [], ItemSeederOwnershipPolicy.StockAggregate, "027ee1a57c130ccd33c5a165db838633a56a7240d1113607407dc351f16870bb"),
+	];
+}

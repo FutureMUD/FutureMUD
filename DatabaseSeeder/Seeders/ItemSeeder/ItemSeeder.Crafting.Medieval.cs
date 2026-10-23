@@ -69,42 +69,10 @@ public partial class ItemSeeder
 		string? ReturnedInputStableReference = null);
 
 	internal static IReadOnlyCollection<MedievalProductionCraftSpecTestData> MedievalProductionCraftSpecsForTesting =>
-		MedievalProductionCraftSpecs()
-			.Select(x =>
-			{
-				var dependencies = x.Inputs
-					.Select(input => new MedievalProductionDependencyTestData(
-						input.Import,
-						input.StableReference,
-						input.SourceStatus,
-						input.SourceOwner,
-						input.SourcePhase))
-					.Concat(x.Tools.Select(tool => new MedievalProductionDependencyTestData(
-						$"TagTool - {tool.Location} - an item with the {tool.Tag} tag",
-						null,
-						tool.SourceStatus,
-						tool.SourceOwner,
-						tool.SourcePhase)))
-					.ToArray();
-				return new MedievalProductionCraftSpecTestData(
-					x.Phase,
-					x.Name,
-					x.Category,
-					x.Trait,
-					x.MinimumTraitValue,
-					x.Difficulty,
-					x.KnowledgeSubtype,
-					x.Inputs.Select(InputContractForTesting).ToArray(),
-					x.Tools.Select(ToolImport).ToArray(),
-					[x.OutputStableReference],
-					dependencies,
-					dependencies
-						.Select(y => y.SourceStatus)
-						.Append(MedievalCraftedSource)
-						.Distinct(StringComparer.Ordinal)
-						.ToArray());
-			})
-			.ToArray();
+		ProductionPlanStock.MedievalProduction().Select(x => new MedievalProductionCraftSpecTestData(x.Phase, x.Name, x.Category,
+			x.Trait, x.MinimumTraitValue, x.Difficulty, x.KnowledgeSubtype, x.Inputs.ToArray(), x.Tools.ToArray(),
+			x.Products.ToArray(), x.Dependencies.Select(y => new MedievalProductionDependencyTestData(y.Contract,
+				y.StableReference, y.SourceStatus!, y.SourceOwner, y.SourcePhase)).ToArray(), x.SourceOwnership.ToArray())).ToArray();
 
 	internal static bool ShouldSeedMedievalCraftsForTesting(string? eras)
 	{

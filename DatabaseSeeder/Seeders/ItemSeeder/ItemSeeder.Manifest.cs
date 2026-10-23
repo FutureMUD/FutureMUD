@@ -5,8 +5,10 @@ using MudSharp.Framework;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using CultureInfo = System.Globalization.CultureInfo;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -19,31 +21,11 @@ public partial class ItemSeeder
 	private readonly Dictionary<string, ItemSeederReconciliationResult> _manifestResults =
 		new(StringComparer.OrdinalIgnoreCase);
 	private readonly HashSet<string> _customizedManifestAggregates = new(StringComparer.OrdinalIgnoreCase);
+	private readonly HashSet<string> _retainedManagedTagParents = new(StringComparer.OrdinalIgnoreCase);
 	private bool _manifestCaptureOnly;
 
-	private static string BuildManifestBackedDescription()
-	{
-		try
-		{
-			var repositoryRoot = ItemSeederManifestCatalogue.FindRepositoryRoot();
-			var path = System.IO.Path.Combine(repositoryRoot,
-				ItemSeederManifestCatalogue.DefaultRelativePath.Replace('/', System.IO.Path.DirectorySeparatorChar));
-			if (System.IO.File.Exists(path))
-			{
-				var manifest = ItemSeederManifestCatalogue.Load(path);
-				var itemCount = manifest.Entries.Count(x => x.EntityType.Equals("item", StringComparison.OrdinalIgnoreCase));
-				var craftCount = manifest.Entries.Count(x => x.EntityType.Equals("craft", StringComparison.OrdinalIgnoreCase));
-				var otherCount = manifest.Entries.Count - itemCount - craftCount;
-				return $"This seeder installs and safely reconciles {itemCount:N0} stock item prototypes, {craftCount:N0} crafts, and {otherCount:N0} supporting stock aggregates across the implemented pre-industrial eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
-			}
-		}
-		catch (Exception)
-		{
-			// Packaged builds may not carry the repository layout used by development tooling.
-		}
-
-		return "This seeder installs and safely reconciles the manifest-backed stock item, craft, outfit, food, and vehicle catalogues for the implemented pre-industrial eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
-	}
+	private static string BuildManifestBackedDescription() =>
+        "This seeder installs and safely reconciles stock item, craft, outfit, food and vehicle catalogues for the supported eras. Reruns repair untouched stock, retain builder customization, and can add eras without removing previously installed content.";
 
 	private enum ManifestAggregateDisposition
 	{
@@ -286,7 +268,9 @@ public partial class ItemSeeder
 		IEnumerable<string>? dependencies = null,
 		ItemSeederOwnershipPolicy ownershipPolicy = ItemSeederOwnershipPolicy.StockAggregate,
 		string? module = null,
-		IEnumerable<string>? eraAdmissions = null)
+		IEnumerable<string>? eraAdmissions = null,
+		[System.Runtime.CompilerServices.CallerFilePath] string sourceFile = "",
+		[System.Runtime.CompilerServices.CallerLineNumber] int sourceLine = 0)
 	{
 		if (entityType == "item" && FindHistoricalClothingSource(stableKey) is not null)
 		{
@@ -309,6 +293,7 @@ public partial class ItemSeeder
 			ownershipPolicy,
 			ItemSeederManifestCatalogue.Fingerprint(canonicalDefinition));
 		var identity = $"{entry.EntityType}\u001f{entry.StableKey}";
+		_definitionCapture?.Register(entry, canonicalDefinition, sourceFile, sourceLine);
 		if (_manifestEntries.TryGetValue(identity, out var existing))
 		{
 			if (!existing.Fingerprint.Equals(entry.Fingerprint, StringComparison.OrdinalIgnoreCase))
@@ -337,7 +322,8 @@ public partial class ItemSeeder
 	internal ItemSeederManifestDocument CaptureManifest(
 		MudSharp.Database.FuturemudDatabaseContext context,
 		string repositoryRoot,
-		string eras = "antiquity medieval renaissance earlymodern industrial")
+		string eras = "antiquity medieval renaissance earlymodern industrial",
+		IReadOnlyDictionary<string, string>? captureAnswers = null)
 	{
 		_manifestCaptureOnly = true;
 		_manifestEntries.Clear();
@@ -345,11 +331,14 @@ public partial class ItemSeeder
 		_customizedManifestAggregates.Clear();
 		try
 		{
-			SeedData(context, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+			PrepareSyntheticCapturePrerequisites(context, eras);
+			var answers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 			{
 				["eras"] = eras,
 				["technologyprofile"] = "neutral"
-			});
+			};
+			foreach (var answer in captureAnswers ?? new Dictionary<string, string>()) answers[answer.Key] = answer.Value;
+			SeedData(context, answers);
 			return ItemSeederManifestCatalogue.BuildDocument(
 				_manifestEntries.Values,
 				ItemSeederManifestCatalogue.ComputeSourceFingerprint(repositoryRoot));
@@ -501,9 +490,6 @@ public partial class ItemSeeder
 		GameItemProto item,
 		string stableReference)
 	{
-		var tagsById = _tagsByFullPath.Values
-			.GroupBy(x => x.Id)
-			.ToDictionary(x => x.Key, x => _tagsByFullPath.First(y => y.Value.Id == x.Key).Key);
 		var tagIds = item.GameItemProtosTags.Select(x => x.TagId).ToHashSet();
 		if (_context!.Entry(item).State != Microsoft.EntityFrameworkCore.EntityState.Added)
 		{
@@ -522,13 +508,19 @@ public partial class ItemSeeder
 				.Select(x => new ValueTuple<long, int>(x.GameItemComponentProtoId, x.GameItemComponentRevision)));
 		}
 
-		var componentNames = _context.GameItemComponentProtos.Local
-			.AsEnumerable()
-			.Concat(_context.GameItemComponentProtos.AsEnumerable())
-			.Where(x => componentKeys.Contains((x.Id, x.RevisionNumber)))
-			.Select(x => x.Name)
+		var componentNames = componentKeys
+			.Select(key =>
+			{
+				if (_componentNamesByKey.TryGetValue(key, out var name)) return name;
+				var component = _context.GameItemComponentProtos.Find(key.Item1, key.Item2);
+				if (component is null) return null;
+				_componentNamesByKey[key] = component.Name;
+				return component.Name;
+			})
+			.Where(name => name is not null)
+			.Select(name => name!)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
 			.ToArray();
 		var materialName = _materials.Values
 			.FirstOrDefault(x => x.Id == item.MaterialId)?.Name ??
@@ -550,8 +542,8 @@ public partial class ItemSeeder
 			item.PermitPlayerSkins,
 			item.IsHiddenFromPlayers,
 			materialName,
-			tagIds.Where(tagsById.ContainsKey)
-				.Select(x => tagsById[x])
+			tagIds.Select(id => _tagsByFullPath.FirstOrDefault(path => path.Value.Id == id).Key)
+				.Where(path => path is not null)
 				.Distinct(StringComparer.OrdinalIgnoreCase)
 				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 				.ToArray(),
@@ -560,6 +552,37 @@ public partial class ItemSeeder
 			item.MorphEmote,
 			item.MorphTimeSeconds,
 			destroyedReference);
+	}
+
+	private static string GetCompatibleItemFingerprint(
+		ItemManifestDefinition live, string targetFingerprint, decimal preferredCost)
+	{
+		var actualFingerprint = ItemSeederManifestCatalogue.Fingerprint(live);
+		if (actualFingerprint.Equals(targetFingerprint, StringComparison.OrdinalIgnoreCase))
+		{
+			return actualFingerprint;
+		}
+
+		// SQL decimal columns return a fixed scale, unlike authored literals. Prove
+		// the complete recorded stock signature at another scale without changing
+		// the amount, any other field, or the canonical fingerprint contract.
+		var preferredScale = (decimal.GetBits(preferredCost)[3] >> 16) & 0xff;
+		var actualScale = (decimal.GetBits(live.Cost)[3] >> 16) & 0xff;
+		var attemptedScales = 1u << actualScale;
+		for (var index = -1; index <= 28; index++)
+		{
+			var scale = index < 0 ? preferredScale : index;
+			if ((attemptedScales & (1u << scale)) != 0) continue;
+			if (!decimal.TryParse(live.Cost.ToString($"F{scale}", CultureInfo.InvariantCulture),
+				    NumberStyles.Number, CultureInfo.InvariantCulture, out var cost) || cost != live.Cost) continue;
+			var representedScale = (decimal.GetBits(cost)[3] >> 16) & 0xff;
+			if ((attemptedScales & (1u << representedScale)) != 0) continue;
+			attemptedScales |= 1u << representedScale;
+			var fingerprint = ItemSeederManifestCatalogue.Fingerprint(live with { Cost = cost });
+			if (fingerprint.Equals(targetFingerprint, StringComparison.OrdinalIgnoreCase)) return fingerprint;
+		}
+
+		return actualFingerprint;
 	}
 
 	private static bool IsRepairableMissingItemStock(
@@ -599,8 +622,35 @@ public partial class ItemSeeder
 				DestroyedItemStableReference = expected.DestroyedItemStableReference
 			};
 		}
-		return ItemSeederManifestCatalogue.Fingerprint(normalized)
-			.Equals(ItemSeederManifestCatalogue.Fingerprint(expected), StringComparison.OrdinalIgnoreCase);
+		var expectedFingerprint = ItemSeederManifestCatalogue.Fingerprint(expected);
+		return GetCompatibleItemFingerprint(normalized, expectedFingerprint, expected.Cost)
+			.Equals(expectedFingerprint, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private IReadOnlyDictionary<long, string>? _batchLiveItemReferences;
+
+	private IDisposable UseBatchLiveItemReferences()
+	{
+		var previous = _batchLiveItemReferences;
+		if (!_manifestCaptureOnly)
+		{
+			// DbSet.Local detects changes across the tracked graph. Resolve a batch once,
+			// rather than repeating that scan for every entry in every stock outfit.
+			var tracked = _context!.GameItemProtos.Local.ToArray();
+			var trackedKeys = tracked.Select(x => (x.Id, x.RevisionNumber)).ToHashSet();
+			var persisted = _context.GameItemProtos.AsNoTracking()
+				.Where(x => x.UniqueName != null && x.UniqueName != "")
+				.Select(x => new { x.Id, x.RevisionNumber, x.UniqueName, Current = x.EditableItem.RevisionStatus == 4 })
+				.AsEnumerable()
+				.Where(x => !string.IsNullOrWhiteSpace(x.UniqueName) && !trackedKeys.Contains((x.Id, x.RevisionNumber)));
+			_batchLiveItemReferences = tracked.Where(x => !string.IsNullOrWhiteSpace(x.UniqueName))
+				.Select(x => new { x.Id, x.RevisionNumber, x.UniqueName, Current = x.EditableItem?.RevisionStatus == 4 })
+				.Concat(persisted)
+				.GroupBy(x => x.Id)
+				.ToDictionary(x => x.Key, x => x.OrderByDescending(y => y.Current)
+					.ThenByDescending(y => y.RevisionNumber).First().UniqueName);
+		}
+		return new ManifestModuleScope(() => _batchLiveItemReferences = previous);
 	}
 
 	private string? ResolveItemStableReference(long? logicalId)
@@ -609,10 +659,13 @@ public partial class ItemSeeder
 		{
 			return null;
 		}
+		if (_batchLiveItemReferences is not null)
+			return _batchLiveItemReferences.GetValueOrDefault(logicalId.Value) ??
+			       _itemStableReferencesById.GetValueOrDefault(logicalId.Value);
 
 		var persistedReference = _context!.GameItemProtos.Local
 			.AsEnumerable()
-			.Concat(_context.GameItemProtos.AsEnumerable())
+			.Concat(_context.GameItemProtos.Where(x => x.Id == logicalId.Value && x.UniqueName != null && x.UniqueName != "").AsEnumerable())
 			.Where(x => x.Id == logicalId.Value && !string.IsNullOrWhiteSpace(x.UniqueName))
 			.OrderByDescending(x => x.EditableItem?.RevisionStatus == 4)
 			.ThenByDescending(x => x.RevisionNumber)
@@ -739,7 +792,7 @@ public partial class ItemSeeder
 
 	private ManifestAggregateDisposition InspectManifestAggregate(
 		ItemSeederManifestEntry entry,
-		long logicalId,
+		long? logicalId,
 		object liveDefinition)
 	{
 		if (_manifestCaptureOnly)
@@ -830,7 +883,11 @@ public partial class ItemSeeder
 		         .Where(x => x.Seeder == Name && !x.Retired)
 		         .ToArray())
 		{
-			if (activeIdentities.Contains(ManagedRecordIdentity(record.EntityType, record.StableKey)))
+			// Earlier synthetic captures included these optional or incorrectly classified routes.
+			// Keep any pre-existing ownership intact while retaining their explicit research payloads.
+			if (record.EntityType == "craft" && LegacyRecipeCaptureResearch.Keys.Contains(record.StableKey)) continue;
+			var identity = ManagedRecordIdentity(record.EntityType, record.StableKey);
+			if (activeIdentities.Contains(identity) || _retainedManagedTagParents.Contains(identity))
 			{
 				continue;
 			}

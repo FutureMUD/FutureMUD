@@ -1,5 +1,11 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using System.Linq;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -32,47 +38,20 @@ public class ItemSeederRomanClothingCraftingTests
 	[TestMethod]
 	public void RomanClothingCrafts_ProduceEveryCurrentRomanClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		foreach (var stableReference in RomanClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"StableReference: \"{stableReference}\"");
-		}
-
-		AssertContains(craftSource, "StableVariableProduct(garment.StableReference, garment.Fine)");
+		Recipes.ItemsAreCrafted(RomanClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void RomanFinishedGarmentCrafts_UseRomanKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-
-		AssertContains(craftSource, "const string romanKnowledge = \"Roman Textilecraft\"");
-		AssertContains(craftSource, "knowledgeSubtype: \"Roman\"");
-		AssertContains(craftSource, "AddRomanGarmentCraft(");
-		AssertContains(craftSource, "romanKnowledge,");
-		AssertContains(itemCraftingSource, "SeedAntiquityRomanClothingCrafts();");
+		Recipes.Knowledge("Roman Textilecraft", RomanClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void RomanGarmentCrafts_UseSharedTextileCommoditiesAndCopyColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"piletag Garment Cloth",
-			"piletag Spun Yarn",
-			"characteristic Colour any",
-			"characteristic Fine Colour any",
-			"StableVariableProduct(garment.StableReference, garment.Fine)"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.RequiresTags("Garment Cloth", "Spun Yarn");
+		Recipes.CopiesColour(RomanClothingStableReferences);
 	}
 
 	[TestMethod]

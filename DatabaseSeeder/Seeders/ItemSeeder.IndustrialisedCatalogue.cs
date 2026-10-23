@@ -15,7 +15,8 @@ namespace DatabaseSeeder.Seeders;
 public partial class ItemSeeder
 {
 	private readonly IndustrialisedItemCatalogueDocument? _industrialisedCatalogueOverride;
-	private IndustrialisedItemCatalogueDocument IndustrialisedCatalogue => _industrialisedCatalogueOverride ?? IndustrialisedItemCatalogue.Document;
+	private IndustrialisedItemCatalogueDocument IndustrialisedCatalogue => _industrialisedCatalogueOverride ??
+		IndustrialisedItemCatalogue.Document;
 
 	public ItemSeeder() { }
 
@@ -228,6 +229,13 @@ public partial class ItemSeeder
 		foreach (var row in rows)
 		{
 			using var manifestModule = UseManifestModule(row.Layer, row.EraAdmissions.ToArray());
+			if (_industrialisedCatalogueOverride is null)
+			{
+				InstallIndustrialCatalogueItem(CompiledStockCatalogue.IndustrialItem(row.StableReference),
+					ResolveIndustrialisedComponents(row, profile),
+					IndustrialisedCatalogue.Clothing.Skins.Any(skin => skin.BaseItemReference == row.StableReference));
+				continue;
+			}
 			CreateItem(
 				row.StableReference,
 				row.Noun,

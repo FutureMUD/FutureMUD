@@ -13,6 +13,24 @@ namespace MudSharp_Unit_Tests;
 public class BlankDatabaseSnapshotTests
 {
 	[TestMethod]
+	public void EmbeddedBlankSnapshot_PreservesCommittedBytesAndMigrationAssessment()
+	{
+		var directory = GetDatabaseSeederProjectDirectory();
+		using var embedded = BlankDatabaseSnapshotManifest.OpenEmbeddedSnapshot();
+		using var committed = File.OpenRead(BlankDatabaseSnapshotManifest.GetSnapshotPath(directory));
+		Assert.AreEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(committed)),
+			Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(embedded)));
+		var manifest = BlankDatabaseSnapshotManifest.LoadEmbedded();
+		Assert.IsNotNull(manifest);
+		Assert.AreEqual(BlankDatabaseSnapshotManifest.Load(directory)!.LatestMigrationId, manifest.LatestMigrationId);
+		var assessment = BlankDatabaseSnapshotManager.AssessEmbedded(manifest.LatestMigrationId);
+		Assert.IsTrue(assessment.CanUseSnapshot);
+		Assert.IsTrue(assessment.UsesEmbeddedSnapshot);
+		Assert.IsFalse(BlankDatabaseSnapshotManager.AssessEmbedded("a newer migration").CanUseSnapshot);
+		Assert.IsFalse(BlankDatabaseSnapshotManager.AssessEmbedded(null).CanUseSnapshot);
+	}
+
+	[TestMethod]
 	public void CommittedBlankSnapshot_PreservesIntrinsicRacialMeritAssociations()
 	{
 		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
@@ -329,6 +347,8 @@ public class BlankDatabaseSnapshotTests
 
 		public void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath,
 			string databaseNamePlaceholder) => throw new NotSupportedException();
+
+		public void ImportBlankDatabaseSnapshot(string connectionString, Stream script, string databaseNamePlaceholder) => throw new NotSupportedException();
 
 		public void RecreateEmptyDatabase(string connectionString) => throw new NotSupportedException();
 		public string CreateBackup(DatabaseUpgradeRequest request) => throw new NotSupportedException();

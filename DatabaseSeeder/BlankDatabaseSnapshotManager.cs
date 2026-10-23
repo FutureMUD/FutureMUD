@@ -18,6 +18,18 @@ public sealed class BlankDatabaseSnapshotManifest
 {
     public const string SnapshotFileName = "BlankDatabaseSnapshot.sql";
     public const string ManifestFileName = "BlankDatabaseSnapshot.manifest.json";
+	internal const string SnapshotResourceName = "DatabaseSeeder.BlankDatabaseSnapshot.sql";
+	internal const string ManifestResourceName = "DatabaseSeeder.BlankDatabaseSnapshot.manifest.json";
+	private static readonly Lazy<BlankDatabaseSnapshotManifest?> EmbeddedManifest = new(() =>
+	{
+		using var stream = typeof(BlankDatabaseSnapshotManifest).Assembly.GetManifestResourceStream(ManifestResourceName);
+		return stream is null ? null : JsonSerializer.Deserialize<BlankDatabaseSnapshotManifest>(stream, JsonOptions);
+	});
+
+	public static BlankDatabaseSnapshotManifest? LoadEmbedded() => EmbeddedManifest.Value;
+	public static Stream OpenEmbeddedSnapshot() => typeof(BlankDatabaseSnapshotManifest).Assembly.GetManifestResourceStream(SnapshotResourceName)
+		?? throw new FileNotFoundException("The executable contains no blank database snapshot.", SnapshotResourceName);
+
     public const string DatabaseNamePlaceholder = "__FUTUREMUD_DATABASE__";
     private const string SnapshotRefreshConnectionString =
         "server=localhost;port=3306;database=futuremud_snapshot;uid=futuremud;password=snapshot;Default Command Timeout=300000;";
@@ -109,6 +121,7 @@ public sealed class BlankDatabaseSnapshotManifest
 
 public sealed class BlankDatabaseSnapshotAssessment
 {
+	public bool UsesEmbeddedSnapshot { get; init; }
     public required string SnapshotPath { get; init; }
     public required string ManifestPath { get; init; }
     public BlankDatabaseSnapshotManifest? Manifest { get; init; }
@@ -118,6 +131,26 @@ public sealed class BlankDatabaseSnapshotAssessment
 
 public static class BlankDatabaseSnapshotManager
 {
+	public static BlankDatabaseSnapshotAssessment AssessEmbedded(string? latestMigrationId)
+	{
+		var manifest = BlankDatabaseSnapshotManifest.LoadEmbedded();
+		var hasSnapshot = typeof(BlankDatabaseSnapshotManifest).Assembly.GetManifestResourceNames()
+			.Contains(BlankDatabaseSnapshotManifest.SnapshotResourceName, StringComparer.Ordinal);
+		var reason = !hasSnapshot ? "The executable contains no blank database snapshot."
+			: manifest is null ? "The executable contains no blank database snapshot metadata."
+			: string.IsNullOrWhiteSpace(latestMigrationId) ? "Could not determine the latest migration id for snapshot validation."
+			: manifest.LatestMigrationId != latestMigrationId
+				? $"Blank database snapshot is stale. Manifest has {manifest.LatestMigrationId} but latest migration is {latestMigrationId}."
+				: null;
+		return new()
+		{
+			SnapshotPath = BlankDatabaseSnapshotManifest.SnapshotResourceName,
+			ManifestPath = BlankDatabaseSnapshotManifest.ManifestResourceName,
+			UsesEmbeddedSnapshot = true, Manifest = manifest, CanUseSnapshot = reason is null,
+			Reason = reason ?? $"Blank database snapshot is current at migration {latestMigrationId}."
+		};
+	}
+
     public static BlankDatabaseSnapshotAssessment Assess(string assetDirectory, string? latestMigrationId)
     {
         string snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory);

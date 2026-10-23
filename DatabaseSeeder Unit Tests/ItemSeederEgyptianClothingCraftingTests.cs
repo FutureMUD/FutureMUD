@@ -1,5 +1,11 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using System.Linq;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -26,75 +32,38 @@ public class ItemSeederEgyptianClothingCraftingTests
 	[TestMethod]
 	public void EgyptianClothingCrafts_ProduceEveryCurrentEgyptianClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		foreach (var stableReference in EgyptianClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"StableReference: \"{stableReference}\"");
-		}
-
-		AssertContains(craftSource, "StableVariableProduct(garment.StableReference, garment.Fine)");
+		Recipes.ItemsAreCrafted(EgyptianClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void EgyptianFinishedGarmentCrafts_UseEgyptianKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-
-		AssertContains(craftSource, "const string egyptianKnowledge = \"Egyptian Textilecraft\"");
-		AssertContains(craftSource, "knowledgeSubtype: \"Egyptian\"");
-		AssertContains(craftSource, "AddEgyptianGarmentCraft(");
-		AssertContains(craftSource, "egyptianKnowledge,");
-		AssertContains(itemCraftingSource, "SeedAntiquityEgyptianClothingCrafts();");
+		Recipes.Knowledge("Egyptian Textilecraft", EgyptianClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void EgyptianBeadedGarments_UseCommodityBeadStockAndPeriodNeedle()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		AssertContains(tagSource, "AddTag(context, \"Bead Stock\", \"Material Functions\")");
-		AssertContains(itemSource, "Functions / Tools / Textilecraft Tools / Beading Needle");
-		AssertContains(craftSource, "\"sort glass beads for textile edging\"");
-		AssertContains(craftSource, "CommodityProduct - 110 grams of glass commodity; tag Bead Stock");
-		AssertContains(craftSource, "piletag Bead Stock");
-		AssertContains(craftSource, "TagTool - Held - an item with the Beading Needle tag");
+		var keys = new[] { "adjacent_antiquity_beaded_linen_girdle", "adjacent_antiquity_linen_bead_apron" };
+		Recipes.ItemsAreCrafted(keys);
+		foreach (var key in keys) Assert.IsTrue(Recipes.ForItem(key).Any(recipe => recipe.Tools.OfType<CatalogueTagRecipeTool>().Any(tool => tool.Tag == "Beading Needle")), key);
+		Assert.IsTrue(Recipes.Items.Any(item => item.Tags.Contains("Functions / Tools / Textilecraft Tools / Beading Needle")));
 	}
 
 	[TestMethod]
 	public void EgyptianGarmentCrafts_UseSharedTextileCommoditiesAndCopyColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"piletag Garment Cloth",
-			"piletag Spun Yarn",
-			"characteristic Colour any",
-			"characteristic Fine Colour any",
-			"StableVariableProduct(garment.StableReference, garment.Fine)"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.RequiresTags("Garment Cloth", "Spun Yarn");
+		Recipes.CopiesColour(EgyptianClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void EgyptianSpottedHideMantle_UsesExistingTempleTextilecraftInputs()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		AssertContains(itemSource, "\"antiquity_egyptian_spotted_hide_priest_mantle\"");
-		AssertContains(craftSource, "assemble a spotted hide priest mantle");
-		AssertContains(craftSource, "Commodity - 1 kilogram 200 grams of animal skin; piletag Prepared Hide");
-		AssertContains(craftSource, "Commodity - 30 grams of linen; piletag Spun Yarn");
-		AssertContains(craftSource, "StableSimpleProduct(\"antiquity_egyptian_spotted_hide_priest_mantle\")");
+		const string key = "antiquity_egyptian_spotted_hide_priest_mantle";
+		Recipes.ItemsAreCrafted([key]);
+		Recipes.Knowledge("Egyptian Textilecraft", [key]);
+		Assert.IsTrue(Recipes.ForItem(key).Any(recipe => recipe.Inputs.Any(input => input is CatalogueCommodityRecipeInput || input is CatalogueCommodityTagRecipeInput)));
 	}
 
 	[TestMethod]

@@ -51,25 +51,12 @@ public partial class ItemSeeder
 	private void CreateAntiquityApiaryTool(string stableReference, string noun, string shortDescription,
 		string fullDescription, SizeCategory size, double weightInGrams, decimal cost, string material, string toolTagPath)
 	{
-		CreateItem(stableReference, noun, shortDescription, null, fullDescription, size, ItemQuality.Standard,
-			weightInGrams, cost, false, false, material,
-			[
-				toolTagPath,
-				"Market / Professional Tools / Standard Tools"
-			],
-			["Holdable", "Destroyable_Misc"], null, null, null, null);
+		InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateAntiquityApiaryTool"));
 	}
 
 	private void CreateAntiquityApiaryEquipment(string stableReference, string noun, string shortDescription,
 		string fullDescription, SizeCategory size, double weightInGrams, decimal cost, string material, string toolTagPath)
 	{
-		CreateItem(stableReference, noun, shortDescription, null, fullDescription, size, ItemQuality.Standard,
-			weightInGrams, cost, false, false, material,
-			[
-				toolTagPath,
-				"Market / Professional Tools / Standard Tools"
-			],
-			["Holdable", (int)size >= (int)SizeCategory.Large ? "Destroyable_Furniture" : "Destroyable_Misc"],
-			null, null, null, null);
+		InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateAntiquityApiaryEquipment"));
 	}
 }

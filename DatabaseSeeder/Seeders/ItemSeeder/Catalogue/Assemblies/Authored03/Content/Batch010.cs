@@ -1,0 +1,1373 @@
+#nullable enable
+
+using MudSharp.GameItems;
+
+namespace DatabaseSeeder.Seeders;
+
+public static partial class Authored03Stock
+{
+	public static CatalogueItemDefinition MedievalToolLapidarySaw() => new()
+	{
+		Metadata = new("medieval_tool_lapidary_saw", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "saw",
+		ShortDescription = "a bow-framed lapidary saw",
+		LongDescription = null,
+		FullDescription = "This small bow saw holds a thin abrasive blade for cutting shell, jet, amber, soft stone, and gem rough under grit and water.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 520,
+		Cost = 60.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Lapidary Tools / Lapidary Saw"],
+		Components = ["Holdable", "Tool_Lapidary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolLapidaryWheel() => new()
+	{
+		Metadata = new("medieval_tool_lapidary_wheel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "wheel",
+		ShortDescription = "a hand-turned lapidary wheel",
+		LongDescription = null,
+		FullDescription = "This small stone wheel sits in a wooden frame with a hand crank and shallow slurry trough for grinding beads, cabochons, shell, amber, and soft stone.",
+		Size = SizeCategory.Normal,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 12000,
+		Cost = 95.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "stone",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Lapidary Tools / Lapidary Wheel"],
+		Components = ["Holdable", "Tool_Lapidary_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolDrillBow() => new()
+	{
+		Metadata = new("medieval_tool_drill_bow", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "drill",
+		ShortDescription = "a bow drill with small bits",
+		LongDescription = null,
+		FullDescription = "This bow drill has a corded bow, hand block, spindle, and small iron bits for boring beads, shell, bone, horn, and soft stone.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 460,
+		Cost = 22.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Woodcrafting Tools / Bow Drill", "Functions / Tools / Lapidary Tools / Bead Drill"],
+		Components = ["Holdable", "Tool_Lapidary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPottersWheel() => new()
+	{
+		Metadata = new("medieval_tool_potters_wheel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "wheel",
+		ShortDescription = "a kick-driven potter's wheel",
+		LongDescription = null,
+		FullDescription = "This heavy wooden potter's wheel has a low kick wheel below and a smooth throwing head above for thrown vessels.",
+		Size = SizeCategory.Large,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 26000,
+		Cost = 60.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Pottery Tools / Potter's Wheel"],
+		Components = ["Holdable", "Tool_Pottery_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPottersRib() => new()
+	{
+		Metadata = new("medieval_tool_potters_rib", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "rib",
+		ShortDescription = "a wooden potter's rib",
+		LongDescription = null,
+		FullDescription = "This curved wooden rib is polished smooth by wet clay, with one broad face and one sharper edge for shaping vessel walls.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 55,
+		Cost = 4.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "boxwood",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Pottery Tools / Potter's Rib"],
+		Components = ["Holdable", "Tool_Pottery_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolClayKnife() => new()
+	{
+		Metadata = new("medieval_tool_clay_knife", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "knife",
+		ShortDescription = "a blunt clay knife",
+		LongDescription = null,
+		FullDescription = "This small wooden-handled knife has a blunt iron edge for cutting wet clay, trimming vessel rims, and cleaning pot feet.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 120,
+		Cost = 6.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Pottery Tools / Clay Knife"],
+		Components = ["Holdable", "Tool_Pottery_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolWireCutter() => new()
+	{
+		Metadata = new("medieval_tool_wire_cutter", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "cutter",
+		ShortDescription = "a potter's wire cutter",
+		LongDescription = null,
+		FullDescription = "This simple cutter is a taut wire set between two small wooden grips for cutting clay lumps and freeing thrown pots from a wheel head.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 60,
+		Cost = 4.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Pottery Tools / Wire Cutter"],
+		Components = ["Holdable", "Tool_Pottery_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPressMold() => new()
+	{
+		Metadata = new("medieval_tool_press_mold", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "mould",
+		ShortDescription = "a fired-clay press mould",
+		LongDescription = null,
+		FullDescription = "This fired-clay mould has a shallow carved cavity for pressing tiles, lamps, relief panels, or repeated vessel parts.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 1400,
+		Cost = 18.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "earthenware",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Pottery Tools / Press Mold"],
+		Components = ["Holdable", "Tool_Pottery_General", "Destroyable_Glassware"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolClayStamp() => new()
+	{
+		Metadata = new("medieval_tool_clay_stamp", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "stamp",
+		ShortDescription = "a carved clay stamp",
+		LongDescription = null,
+		FullDescription = "This small fired-clay stamp has a carved face for pressing simple marks, borders, or maker's signs into wet clay.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 95,
+		Cost = 6.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "earthenware",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Pottery Tools / Clay Stamp"],
+		Components = ["Holdable", "Tool_Pottery_General", "Destroyable_Glassware"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMasonsHammer() => new()
+	{
+		Metadata = new("medieval_tool_masons_hammer", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "hammer",
+		ShortDescription = "an iron mason's hammer",
+		LongDescription = null,
+		FullDescription = "This mason's hammer has a square striking face, a narrow pick, and a tough ash handle for dressing stone.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 1300,
+		Cost = 18.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Stoneworking Tools / Bush Hammer", "Functions / Tools / Striking Tools / Hammer"],
+		Components = ["Holdable", "Tool_Masonry_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPointChisel() => new()
+	{
+		Metadata = new("medieval_tool_point_chisel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "chisel",
+		ShortDescription = "an iron point chisel",
+		LongDescription = null,
+		FullDescription = "This iron point chisel tapers to a strong narrow tip for roughing out stone blocks, slate, and masonry details.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 420,
+		Cost = 10.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Stoneworking Tools / Stone Chisel"],
+		Components = ["Holdable", "Tool_Masonry_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolToothChisel() => new()
+	{
+		Metadata = new("medieval_tool_tooth_chisel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "chisel",
+		ShortDescription = "an iron tooth chisel",
+		LongDescription = null,
+		FullDescription = "This stone chisel has several small teeth across its cutting edge for refining rough-dressed stone after point work.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 440,
+		Cost = 12.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Stoneworking Tools / Stone Chisel"],
+		Components = ["Holdable", "Tool_Masonry_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMasonsTrowel() => new()
+	{
+		Metadata = new("medieval_tool_masons_trowel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "trowel",
+		ShortDescription = "an iron mason's trowel",
+		LongDescription = null,
+		FullDescription = "This flat iron trowel has a pointed blade and wooden handle for spreading mortar, plaster, limewash, and tile bedding.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 360,
+		Cost = 8.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Construction Tools / Construction Trowel", "Functions / Tools / Finishing Tools / Trowel"],
+		Components = ["Holdable", "Tool_Masonry_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMasonsLine() => new()
+	{
+		Metadata = new("medieval_tool_masons_line", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "line",
+		ShortDescription = "a mason's line and pins",
+		LongDescription = null,
+		FullDescription = "This small bundle holds a hemp line wrapped around two iron pins for setting straight courses, door openings, and wall faces.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 160,
+		Cost = 5.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "hemp",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Layout Tools / Stringline"],
+		Components = ["Holdable", "Tool_Masonry_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMasonsSquare() => new()
+	{
+		Metadata = new("medieval_tool_masons_square", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "square",
+		ShortDescription = "a wooden mason's square",
+		LongDescription = null,
+		FullDescription = "This right-angled wooden square is reinforced with small iron plates and marked by chalk and stone dust.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 520,
+		Cost = 10.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Construction Tools / Construction Ruler"],
+		Components = ["Holdable", "Tool_Masonry_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolGlassBlowpipe() => new()
+	{
+		Metadata = new("medieval_tool_glass_blowpipe", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "blowpipe",
+		ShortDescription = "an iron glassblowing pipe",
+		LongDescription = null,
+		FullDescription = "This long iron blowpipe has a narrow bore, wrapped mouth end, and darkened gathering end for taking molten glass from a furnace.",
+		Size = SizeCategory.Normal,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 1400,
+		Cost = 32.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Glassblowing Tools / Blowpipe"],
+		Components = ["Holdable", "Tool_Glassblowing_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPontilRod() => new()
+	{
+		Metadata = new("medieval_tool_pontil_rod", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "rod",
+		ShortDescription = "an iron pontil rod",
+		LongDescription = null,
+		FullDescription = "This straight iron pontil rod has a rounded working end for supporting hot glass while the mouth or base is shaped.",
+		Size = SizeCategory.Normal,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 1100,
+		Cost = 24.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Glassblowing Tools / Pontil Rod"],
+		Components = ["Holdable", "Tool_Glassblowing_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMarverTable() => new()
+	{
+		Metadata = new("medieval_tool_marver_table", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "table",
+		ShortDescription = "a smooth stone marver table",
+		LongDescription = null,
+		FullDescription = "This low stone-topped table has a flat polished surface for rolling, shaping, and cooling gathered glass.",
+		Size = SizeCategory.Large,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 42000,
+		Cost = 95.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "stone",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Glassblowing Tools / Marver Table"],
+		Components = ["Holdable", "Tool_Glassblowing_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolGlassJacks() => new()
+	{
+		Metadata = new("medieval_tool_glass_jacks", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "jacks",
+		ShortDescription = "a pair of glassworker's jacks",
+		LongDescription = null,
+		FullDescription = "These iron jacks have long tapering blades and wrapped handles for opening, necking, and shaping hot glass.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 520,
+		Cost = 45.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Glassblowing Tools / Jacks"],
+		Components = ["Holdable", "Tool_Glassblowing_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolGlassShears() => new()
+	{
+		Metadata = new("medieval_tool_glass_shears", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "shears",
+		ShortDescription = "a pair of iron glass shears",
+		LongDescription = null,
+		FullDescription = "These iron shears have short strong blades and long handles for cutting hot glass necks, gathers, and waste trails.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 740,
+		Cost = 28.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Glassblowing Tools / Glass Shears"],
+		Components = ["Holdable", "Tool_Glassblowing_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolGlassBlocks() => new()
+	{
+		Metadata = new("medieval_tool_glass_blocks", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "blocks",
+		ShortDescription = "a set of wet wooden glass blocks",
+		LongDescription = null,
+		FullDescription = "These shaped wooden blocks are darkened by water and heat, hollowed to cup and smooth gathered glass as it turns.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 980,
+		Cost = 22.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "beech",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Glassblowing Tools / Blocks"],
+		Components = ["Holdable", "Tool_Glassblowing_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMouldAndDeckle() => new()
+	{
+		Metadata = new("medieval_tool_mould_and_deckle", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "mould",
+		ShortDescription = "a mould and deckle",
+		LongDescription = null,
+		FullDescription = "This papermaker's mould and deckle are built from a wooden frame, fine screen, and removable raised rim for forming rag-paper sheets.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 850,
+		Cost = 50.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "beech",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Papermaking Tools / Mould and Deckle"],
+		Components = ["Holdable", "Tool_Papermaking_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolCouchingBlanket() => new()
+	{
+		Metadata = new("medieval_tool_couching_blanket", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "blanket",
+		ShortDescription = "a wool couching blanket",
+		LongDescription = null,
+		FullDescription = "This thick wool blanket is used to receive wet paper sheets from a mould before pressing.",
+		Size = SizeCategory.Normal,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 1200,
+		Cost = 16.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wool",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Papermaking Tools / Couching Blanket"],
+		Components = ["Holdable", "Tool_Papermaking_General", "Destroyable_Clothing"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPressFelt() => new()
+	{
+		Metadata = new("medieval_tool_press_felt", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "felt",
+		ShortDescription = "a papermaker's press felt",
+		LongDescription = null,
+		FullDescription = "This dense felt sheet is cut to paper-press size and marked by countless wet sheets stacked against it.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 420,
+		Cost = 8.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "felt",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Papermaking Tools / Press Felt"],
+		Components = ["Holdable", "Tool_Papermaking_General", "Destroyable_Clothing"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolLayPress() => new()
+	{
+		Metadata = new("medieval_tool_lay_press", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "press",
+		ShortDescription = "a wooden lay press",
+		LongDescription = null,
+		FullDescription = "This low wooden press has flat boards and screw posts for pressing stacks of wet paper or sized sheets.",
+		Size = SizeCategory.Large,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 18000,
+		Cost = 62.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Papermaking Tools / Lay Press"],
+		Components = ["Holdable", "Tool_Papermaking_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolRagSortingKnife() => new()
+	{
+		Metadata = new("medieval_tool_rag_sorting_knife", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "knife",
+		ShortDescription = "a rag-sorting knife",
+		LongDescription = null,
+		FullDescription = "This small iron knife has a rounded point and keen edge for cutting old linen, hemp, or cotton rags before soaking and beating.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 180,
+		Cost = 8.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Papermaking Tools / Rag Sorting Knife"],
+		Components = ["Holdable", "Tool_Papermaking_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPaperSizingBrush() => new()
+	{
+		Metadata = new("medieval_tool_paper_sizing_brush", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "brush",
+		ShortDescription = "a paper-sizing brush",
+		LongDescription = null,
+		FullDescription = "This broad brush has a wooden back and dense bristles for laying size onto paper or parchment.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 220,
+		Cost = 12.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wood",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Papermaking Tools / Paper Sizing Brush"],
+		Components = ["Holdable", "Tool_Papermaking_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolBookbindersNeedle() => new()
+	{
+		Metadata = new("medieval_tool_bookbinders_needle", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "needle",
+		ShortDescription = "a bookbinder's iron needle",
+		LongDescription = null,
+		FullDescription = "This stout iron needle has a broad eye and polished shaft for sewing quires through fold holes and around support cords.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 22,
+		Cost = 3.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Bookbinding Tools / Bookbinder's Needle"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolBookbindersPunch() => new()
+	{
+		Metadata = new("medieval_tool_bookbinders_punch", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "punch",
+		ShortDescription = "a bookbinder's awl punch",
+		LongDescription = null,
+		FullDescription = "This small awl-like punch has a sharp iron point and rounded wooden grip for opening holes through quires, parchment, leather covers, and thin boards.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 80,
+		Cost = 6.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Bookbinding Tools / Bookbinder's Punch"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolBackingHammer() => new()
+	{
+		Metadata = new("medieval_tool_backing_hammer", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "hammer",
+		ShortDescription = "a bookbinder's backing hammer",
+		LongDescription = null,
+		FullDescription = "This small iron hammer has a broad polished face and rounded edges for shaping a sewn book spine without cutting the covering.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 620,
+		Cost = 16.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Bookbinding Tools / Backing Hammer", "Functions / Tools / Striking Tools / Hammer"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolLeatherParingKnife() => new()
+	{
+		Metadata = new("medieval_tool_leather_paring_knife", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "knife",
+		ShortDescription = "a leather paring knife",
+		LongDescription = null,
+		FullDescription = "This thin iron knife has a slanted edge and flat back for shaving leather covers, turn-ins, and spine pieces thin enough for bookbinding.",
+		Size = SizeCategory.VerySmall,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 130,
+		Cost = 9.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Bookbinding Tools / Leather Paring Knife"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolQalamCutter() => new()
+	{
+		Metadata = new("medieval_tool_qalam_cutter", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "knife",
+		ShortDescription = "a small qalam cutter",
+		LongDescription = null,
+		FullDescription = "This small iron knife has a short keen blade and narrow handle for trimming reed pens and qalams to a clean writing angle.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 70,
+		Cost = 12.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Calligraphy Tools / Qalam Cutter"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolQuillCuringSand() => new()
+	{
+		Metadata = new("medieval_tool_quill_curing_sand", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "sand",
+		ShortDescription = "a packet of quill-curing sand",
+		LongDescription = null,
+		FullDescription = "This small wrapped packet holds clean heated sand used to dry and harden quills before cutting them into pens.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 180,
+		Cost = 4.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "sand",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Calligraphy Tools / Quill Curing Sand"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolRulingBoard() => new()
+	{
+		Metadata = new("medieval_tool_ruling_board", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "board",
+		ShortDescription = "a ruled manuscript board",
+		LongDescription = null,
+		FullDescription = "This flat wooden board is marked with straight grooves, pinholes, and faint dark lines for ruling manuscript pages and quires.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 900,
+		Cost = 24.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "beech",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Calligraphy Tools / Ruling Board"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolManuscriptPricker() => new()
+	{
+		Metadata = new("medieval_tool_manuscript_pricker", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "pricker",
+		ShortDescription = "a manuscript pricker",
+		LongDescription = null,
+		FullDescription = "This slender iron pricker has a sharp point and small bone handle for marking guide holes before ruling pages.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 45,
+		Cost = 6.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Calligraphy Tools / Manuscript Pricker"],
+		Components = ["Holdable", "Tool_Bookbinding_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolBlockCarvingKnife() => new()
+	{
+		Metadata = new("medieval_tool_block_carving_knife", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "knife",
+		ShortDescription = "a woodblock carving knife",
+		LongDescription = null,
+		FullDescription = "This small iron knife has a fine angled edge for carving letters and images into a prepared woodblock.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 90,
+		Cost = 16.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Woodblock Printing Tools / Block Carving Knife"],
+		Components = ["Holdable", "Tool_Printing_Woodblock_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolBlockClearingChisel() => new()
+	{
+		Metadata = new("medieval_tool_block_clearing_chisel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "chisel",
+		ShortDescription = "a block-clearing chisel",
+		LongDescription = null,
+		FullDescription = "This narrow iron chisel has a small wooden handle and flat edge for clearing blank areas from a carved printing block.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 120,
+		Cost = 10.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Woodblock Printing Tools / Block Clearing Chisel"],
+		Components = ["Holdable", "Tool_Printing_Woodblock_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolPrintingBaren() => new()
+	{
+		Metadata = new("medieval_tool_printing_baren", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "baren",
+		ShortDescription = "a woven printing baren",
+		LongDescription = null,
+		FullDescription = "This round printing baren is made from woven fibre over a smooth backing disc for rubbing damp paper against an inked woodblock.",
+		Size = SizeCategory.VerySmall,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 140,
+		Cost = 14.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "bamboo",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Woodblock Printing Tools / Printing Baren"],
+		Components = ["Holdable", "Tool_Printing_Woodblock_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolInkDauber() => new()
+	{
+		Metadata = new("medieval_tool_ink_dauber", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "dauber",
+		ShortDescription = "a cloth-bound ink dauber",
+		LongDescription = null,
+		FullDescription = "This small dauber has a cloth-wrapped pad tied over a short wooden handle for spreading ink or pigment across a carved block.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 80,
+		Cost = 6.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "linen",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Woodblock Printing Tools / Ink Dauber"],
+		Components = ["Holdable", "Tool_Printing_Woodblock_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolImpressionSpoon() => new()
+	{
+		Metadata = new("medieval_tool_impression_spoon", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "spoon",
+		ShortDescription = "a polished impression spoon",
+		LongDescription = null,
+		FullDescription = "This smooth wooden spoon has a rounded back used to rub paper down over an inked block or incised surface.",
+		Size = SizeCategory.VerySmall,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 60,
+		Cost = 5.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "boxwood",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Woodblock Printing Tools / Impression Spoon"],
+		Components = ["Holdable", "Tool_Printing_Woodblock_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolFlourSieve() => new()
+	{
+		Metadata = new("medieval_tool_flour_sieve", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "sieve",
+		ShortDescription = "a framed flour sieve",
+		LongDescription = null,
+		FullDescription = "This round wooden sieve is stretched with fine woven mesh for sifting flour, meal, bran, powdered pigment, or fine dry medicines.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 320,
+		Cost = 8.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wood",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Milling Tools / Grain Sieve", "Functions / Tools / Cooking"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolKneadingTrough() => new()
+	{
+		Metadata = new("medieval_tool_kneading_trough", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "trough",
+		ShortDescription = "a wooden kneading trough",
+		LongDescription = null,
+		FullDescription = "This long wooden trough has a smoothed interior for mixing and kneading dough, paste, or thick prepared stock.",
+		Size = SizeCategory.Large,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 16000,
+		Cost = 34.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Cooking", "Functions / Tools / Foodmaking Tools / Kneading Trough"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolSaltingTrough() => new()
+	{
+		Metadata = new("medieval_tool_salting_trough", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "trough",
+		ShortDescription = "an oak salting trough",
+		LongDescription = null,
+		FullDescription = "This stout oak trough is darkened by salt, fish, and meat juices from preserving work.",
+		Size = SizeCategory.Large,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 18000,
+		Cost = 40.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Butcher Tools / Meat Processing Tools", "Functions / Tools / Foodmaking Tools / Salting Trough"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolSmokingRack() => new()
+	{
+		Metadata = new("medieval_tool_smoking_rack", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "rack",
+		ShortDescription = "a blackened smoking rack",
+		LongDescription = null,
+		FullDescription = "This wooden rack is blackened by smoke and fitted with hooks and crossbars for hanging meat, fish, herbs, or hides above a low fire.",
+		Size = SizeCategory.Large,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 9000,
+		Cost = 28.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Butcher Tools / Meat Storage Tools / Hanging Rack", "Functions / Tools / Foodmaking Tools / Smoking Rack", "Functions / Tools / Cooking / Cooking Utensils / Drying Rack"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolOilPress() => new()
+	{
+		Metadata = new("medieval_tool_oil_press", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "press",
+		ShortDescription = "a wooden oil press",
+		LongDescription = null,
+		FullDescription = "This screw press has a heavy wooden frame, broad pressing board, and stained catch channel for oilseed, nuts, or olives.",
+		Size = SizeCategory.Huge,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 52000,
+		Cost = 180.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Cooking", "Functions / Tools / Foodmaking Tools / Oil Press"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolFruitPress() => new()
+	{
+		Metadata = new("medieval_tool_fruit_press", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "press",
+		ShortDescription = "a wooden fruit press",
+		LongDescription = null,
+		FullDescription = "This wooden screw press has slatted baskets, a broad pressure plate, and a trough for must, juice, syrups, or wine stock.",
+		Size = SizeCategory.Huge,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 48000,
+		Cost = 135.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "oak",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Cooking", "Functions / Tools / Foodmaking Tools / Fruit Press"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Furniture"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMashingPaddle() => new()
+	{
+		Metadata = new("medieval_tool_mashing_paddle", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "paddle",
+		ShortDescription = "a broad mashing paddle",
+		LongDescription = null,
+		FullDescription = "This long wooden paddle has a broad pierced blade for stirring mash, wort, medicinal decoctions, or large grain mixtures.",
+		Size = SizeCategory.Normal,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 620,
+		Cost = 7.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "ash",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Brewing Tools / Mashing Paddle"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMortarAndPestle() => new()
+	{
+		Metadata = new("medieval_tool_mortar_and_pestle", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "mortar",
+		ShortDescription = "a stone mortar and pestle",
+		LongDescription = null,
+		FullDescription = "This heavy stone mortar has a deep bowl, matching pestle, and rim worn by grinding herbs, spices, pigments, and medicines.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 3200,
+		Cost = 24.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "stone",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Apothecary Tools / Apothecary Mortar", "Functions / Tools / Apothecary Tools / Apothecary Pestle", "Functions / Tools / Cooking / Cooking Utensils / Mortar and Pestle"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolMedicineStrainer() => new()
+	{
+		Metadata = new("medieval_tool_medicine_strainer", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "strainer",
+		ShortDescription = "a fine medicine strainer",
+		LongDescription = null,
+		FullDescription = "This fine linen strainer is stretched over a small wooden hoop for filtering decoctions, syrups, tinctures, and infused oils.",
+		Size = SizeCategory.VerySmall,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 55,
+		Cost = 5.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "linen",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Medical Tools / Medicine Strainer", "Functions / Tools / Apothecary Tools / Apothecary Strainer"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolOintmentSpatula() => new()
+	{
+		Metadata = new("medieval_tool_ointment_spatula", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "spatula",
+		ShortDescription = "a horn ointment spatula",
+		LongDescription = null,
+		FullDescription = "This small horn spatula has a rounded blade for lifting salves, poultices, creams, and softened wax without cutting the mixture.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 28,
+		Cost = 4.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "horn",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Medical Tools / Ointment Spatula", "Functions / Tools / Apothecary Tools / Apothecary Spatula"],
+		Components = ["Holdable", "Tool_Apothecary_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolCuppingVessel() => new()
+	{
+		Metadata = new("medieval_tool_cupping_vessel", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "cup",
+		ShortDescription = "a small glass cupping vessel",
+		LongDescription = null,
+		FullDescription = "This small thick-walled glass cup has a rounded lip and heat-smoothed rim for medical cupping.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 120,
+		Cost = 16.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "glass",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Medical Tools / Cupping Vessel"],
+		Components = ["Holdable", "Tool_Medical_General", "Destroyable_Glassware"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolCauteryIron() => new()
+	{
+		Metadata = new("medieval_tool_cautery_iron", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "iron",
+		ShortDescription = "an iron cautery tool",
+		LongDescription = null,
+		FullDescription = "This iron cautery tool has a long shaft, wrapped grip, and rounded working tip for heated medical, veterinary, or farrier use.",
+		Size = SizeCategory.Small,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 420,
+		Cost = 16.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Surgical Tools / Cautery Iron"],
+		Components = ["Holdable", "Tool_Medical_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolSutureNeedle() => new()
+	{
+		Metadata = new("medieval_tool_suture_needle", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "needle",
+		ShortDescription = "a curved suture needle",
+		LongDescription = null,
+		FullDescription = "This small curved iron needle has a fine eye and controlled point for drawing gut or silk thread through flesh or heavy dressing stock.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Standard,
+		WeightInGrams = 12,
+		Cost = 6.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "wrought iron",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Surgical Tools / Surgical Suture Needle"],
+		Components = ["Holdable", "Tool_Medical_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolSurgicalProbe() => new()
+	{
+		Metadata = new("medieval_tool_surgical_probe", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "probe",
+		ShortDescription = "a slender surgical probe",
+		LongDescription = null,
+		FullDescription = "This slender bronze probe has a rounded end and flattened handle for checking wound depth, lifting dressing edges, and guiding small medical work.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 35,
+		Cost = 14.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "bronze",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Surgical Tools / Surgical Probe"],
+		Components = ["Holdable", "Tool_Medical_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+	public static CatalogueItemDefinition MedievalToolForceps() => new()
+	{
+		Metadata = new("medieval_tool_forceps", "medieval", ["medieval"], [], ItemSeederOwnershipPolicy.StockAggregate, CatalogueReadiness.ProductionReady, "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs:197", []),
+		Noun = "forceps",
+		ShortDescription = "a pair of bronze medical forceps",
+		LongDescription = null,
+		FullDescription = "These slim bronze forceps have narrow jaws and a springy grip for lifting dressings, removing splinters, handling sutures, or holding small medical stock.",
+		Size = SizeCategory.Tiny,
+		Quality = ItemQuality.Good,
+		WeightInGrams = 42,
+		Cost = 16.0m,
+		Skinnable = false,
+		HiddenFromPlayers = false,
+		Material = "bronze",
+		Tags = ["Market / Professional Tools / Standard Tools", "Functions / Tools / Surgical Tools / Forceps"],
+		Components = ["Holdable", "Tool_Medical_General", "Destroyable_Misc"],
+		MorphToStableReference = null,
+		MorphEmote = null,
+		MorphSeconds = null,
+		DestroyedItemStableReference = null,
+		BuilderNotes = null,
+		AllowLegacyShortDescriptionMatch = true,
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

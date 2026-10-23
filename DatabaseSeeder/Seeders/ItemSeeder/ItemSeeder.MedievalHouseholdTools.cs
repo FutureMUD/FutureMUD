@@ -193,26 +193,6 @@ public partial class ItemSeeder
 			("medieval_tool_forceps", "forceps", "a pair of bronze medical forceps", "These slim bronze forceps have narrow jaws and a springy grip for lifting dressings, removing splinters, handling sutures, or holding small medical stock.", SizeCategory.Tiny, ItemQuality.Good, 42.0, 16.0m, "bronze", [ "Market / Professional Tools / Standard Tools", "Functions / Tools / Surgical Tools / Forceps" ], [ "Holdable", "Tool_Medical_General", "Destroyable_Misc" ], null, null, null)
 		];
 
-		Array.ForEach(items, item => CreateItem
-		(
-			item.StableReference,
-			item.Noun,
-			item.Sdesc,
-			null,
-			item.Fdesc,
-			item.Size,
-			item.Quality,
-			item.Weight,
-			item.Cost,
-			false,
-			false,
-			item.Material,
-			item.Tags,
-			item.Components,
-			item.MorphTo,
-			item.MorphEmote,
-			item.MorphTimer,
-			null
-		));
+		Array.ForEach(items, item => InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(item.StableReference, "SeedMedievalHouseholdCraftTools")));
 	}
 }

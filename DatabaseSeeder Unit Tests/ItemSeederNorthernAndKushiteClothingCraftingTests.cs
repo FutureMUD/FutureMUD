@@ -1,5 +1,11 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using System.Linq;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -72,92 +78,41 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 	[TestMethod]
 	public void NorthernAndKushiteClothingCrafts_ProduceEveryCurrentGarmentPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-
-		foreach (var stableReference in CelticClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"\"{stableReference}\"");
-		}
-
-		foreach (var stableReference in GermanicClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"\"{stableReference}\"");
-		}
-
-		foreach (var stableReference in KushiteClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"\"{stableReference}\"");
-		}
-
-		AssertContains(itemCraftingSource, "SeedAntiquityCelticClothingCrafts();");
-		AssertContains(itemCraftingSource, "SeedAntiquityGermanicClothingCrafts();");
-		AssertContains(itemCraftingSource, "SeedAntiquityKushiteClothingCrafts();");
+		Recipes.ItemsAreCrafted(CelticClothingStableReferences);
+		Recipes.ItemsAreCrafted(GermanicClothingStableReferences);
+		Recipes.ItemsAreCrafted(KushiteClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void FinishedGarmentCrafts_UseCultureKnowledgeGates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"const string celticKnowledge = \"Celtic Textilecraft\"",
-			"knowledgeSubtype: \"Celtic\"",
-			"const string germanicKnowledge = \"Germanic Textilecraft\"",
-			"knowledgeSubtype: \"Germanic\"",
-			"const string kushiteKnowledge = \"Kushite Textilecraft\"",
-			"knowledgeSubtype: \"Kushite\""
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.Knowledge("Celtic Textilecraft", CelticClothingStableReferences);
+		Recipes.Knowledge("Germanic Textilecraft", GermanicClothingStableReferences);
+		Recipes.Knowledge("Kushite Textilecraft", KushiteClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void SharedUpstreamTextileCrafts_AddCottonCommodityPath()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
-
-		foreach (var expected in new[]
+		Recipes.HasRecipes("sort cotton bolls for ginning", "clean and comb cotton fibre", "spin cotton yarn on a drop spindle", "weave cotton garment cloth on a warp-weighted loom", "dye cotton cloth madder red", "dye cotton cloth indigo blue");
+		var sorting = Recipes.Named("sort cotton bolls for ginning");
+		Assert.IsTrue(sorting.Inputs.OfType<CatalogueCommodityRecipeInput>().Any(input => input.Material == "cotton crop" && input.Grams == 1200));
+		foreach (var (name, grams, tag) in new[] { ("clean and comb cotton fibre", 600.0, "Prepared Textile Fibre"), ("spin cotton yarn on a drop spindle", 400.0, "Spun Yarn"), ("weave cotton garment cloth on a warp-weighted loom", 380.0, "Woven Cloth") })
 		{
-			"sort cotton bolls for ginning",
-			"clean and comb cotton fibre",
-			"spin cotton yarn on a drop spindle",
-			"weave cotton garment cloth on a warp-weighted loom",
-			"Commodity - 1 kilogram 200 grams of cotton crop",
-			"CommodityProduct - 600 grams of cotton commodity; tag Prepared Textile Fibre; characteristic Colour=white; characteristic Fine Colour=bone white",
-			"CommodityProduct - 400 grams of cotton commodity; tag Spun Yarn; characteristic Colour from $i1; characteristic Fine Colour from $i1",
-			"CommodityProduct - 380 grams of cotton commodity; tag Woven Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1",
-			"dye cotton cloth madder red",
-			"dye cotton cloth indigo blue"
-		})
-		{
-			AssertContains(craftSource, expected);
+			var recipe = Recipes.Named(name);
+			Assert.IsTrue(recipe.Products.OfType<CatalogueCommodityRecipeProduct>().Any(product => product.Material == "cotton" && product.Grams == grams && product.Tag == tag), name);
 		}
-
-		AssertContains(materialSource, "AddMaterial(\"cotton\"");
-		AssertContains(materialSource, "\"cotton crop\"");
 	}
 
 	[TestMethod]
 	public void SpecialNorthernGarments_UseCommodityInputsAndStableSimpleProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var helperSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		AssertContains(helperSource, "private string StableSimpleProduct(string stableReference)");
-		AssertContains(craftSource, "StableSimpleProduct(garment.StableReference)");
-		AssertContains(craftSource, "StableSimpleProduct(\"antiquity_woolly_skin_cape\")");
-		AssertContains(craftSource, "CommodityTag - 300 grams of a material tagged as Hair");
-		AssertContains(craftSource, "CommodityTag - 1 kilogram 200 grams of a material tagged as Animal Skin");
-		AssertContains(craftSource, "piletag Garment Cloth");
-		AssertContains(craftSource, "piletag Spun Yarn");
+		var recipe = Recipes.Named("assemble a woolly skin cape");
+		Assert.IsTrue(recipe.Products.OfType<CatalogueItemRecipeProduct>().Any(product => product.ItemStableReference == "antiquity_woolly_skin_cape" && product.Quantity == 1));
+		Assert.IsTrue(recipe.Inputs.OfType<CatalogueCommodityTagRecipeInput>().Any(input => input.MaterialTag == "Hair" && input.Grams == 250));
+		Assert.IsTrue(recipe.Inputs.OfType<CatalogueCommodityTagRecipeInput>().Any(input => input.MaterialTag == "Animal Skin" && input.Grams == 1200));
+		Assert.IsTrue(recipe.Inputs.OfType<CatalogueCommodityRecipeInput>().Any(input => input.Material == "wool" && input.Grams == 30 && input.PileTag == "Spun Yarn"));
+		Recipes.RequiresTags("Garment Cloth", "Spun Yarn");
 	}
 
 	[TestMethod]

@@ -104,10 +104,7 @@ public partial class ItemSeeder
 				spec.LongDescription, spec.FullDescription, spec.Size, spec.Quality, spec.WeightInGrams, spec.Cost,
 				spec.Skinnable, spec.HiddenFromPlayers, spec.Material, spec.Tags, spec.Components,
 				spec.MorphTo, spec.MorphEmote, spec.MorphTimer, spec.DestroyedItem, spec.BuilderNotes);
-		return CreateItem(spec.StableReference, spec.Noun, spec.ShortDescription, spec.LongDescription, spec.FullDescription,
-			spec.Size, spec.Quality, spec.WeightInGrams, spec.Cost, spec.Skinnable, spec.HiddenFromPlayers, spec.Material,
-			spec.Tags, spec.Components, spec.MorphTo, spec.MorphEmote, spec.MorphTimer, spec.DestroyedItem,
-			spec.BuilderNotes, spec.AllowLegacyShortDescriptionMatch);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(spec.StableReference, "CreateHistoricalClothingItem"));
 	}
 
 	private void SeedIndustrialisedClothingReuse(string eras)

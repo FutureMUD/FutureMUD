@@ -8,6 +8,7 @@ public partial class ItemSeeder
 {
 	private void SeedRenaissanceMedicalAndRepair()
 	{
-		SeedStraightforwardEraCatalogueItems("Renaissance medical and repair catalogue", EraMedicalRepairCatalogue.Renaissance.Select(x => x.ToItemSpec()));
+		var entries = EraMedicalRepairCatalogue.Renaissance;
+		SeedStraightforwardEraCatalogueItems("Renaissance medical and repair catalogue", entries.Select(x => x.ToItemSpec()));
 	}
 }

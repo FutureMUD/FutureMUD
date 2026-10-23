@@ -1,5 +1,9 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -127,97 +131,30 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void AntiquityTextileDyeCrafts_UseDyeStockIntermediates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		         {
-			         "AddTextileDyeStockCraft(",
-			         "tag Textile Dye Stock",
-			         "piletag Textile Dye Stock",
-			         "prepare madder red dye stock",
-			         "prepare kermes scarlet dye stock",
-			         "prepare tyrian purple dye stock",
-			         "prepare oak-gall black dye stock",
-			         "dye wool cloth kermes scarlet",
-			         "dye linen cloth pomegranate yellow",
-			         "dye cotton cloth henna orange",
-			         "dye felt cloth oak-gall black"
-		         })
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		foreach (var expected in TextileFineDyeColours)
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.RequiresTags("Textile Dye Stock");
+		foreach (var colour in TextileFineDyeColours) Assert.IsTrue(Recipes.Recipes.SelectMany(recipe => recipe.Products).OfType<CatalogueCommodityRecipeProduct>()
+			.Any(product => product.Characteristics.Any(characteristic => characteristic.Definition == "Fine Colour" && characteristic.Value == colour)), colour);
+		Recipes.HasRecipes("prepare madder red dye stock", "prepare kermes scarlet dye stock", "prepare tyrian purple dye stock", "prepare oak-gall black dye stock");
 	}
 
 	[TestMethod]
 	public void AntiquityHouseholdPigmentCrafts_CoverMineralOrganicAndToxicPigments()
 	{
-		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
-
-		foreach (var expected in new[]
-		         {
-			         "prepare lamp black paint pigment",
-			         "prepare lead white paint pigment",
-			         "prepare cinnabar red paint pigment",
-			         "prepare orpiment yellow paint pigment",
-			         "prepare realgar orange paint pigment",
-			         "prepare malachite green paint pigment",
-			         "prepare verdigris green paint pigment",
-			         "prepare egyptian blue paint pigment",
-			         "prepare madder lake pigment",
-			         "prepare kermes lake pigment",
-			         "prepare indigo lake pigment",
-			         "prepare woad lake pigment",
-			         "prepare saffron lake pigment",
-			         "prepare tyrian purple lake pigment",
-			         "tag Lake Pigment",
-			         "tag Paint Pigment",
-			         "CommodityPileInput(180.0, \"Paint Pigment\", colour: true, fineColour: true)"
-		         })
-		{
-			AssertContains(householdSource, expected);
-		}
+		foreach (var colour in NewFinePigmentColours) Assert.IsTrue(Recipes.Recipes.SelectMany(recipe => recipe.Products).OfType<CatalogueCommodityRecipeProduct>()
+			.Any(product => product.Characteristics.Any(characteristic => characteristic.Definition == "Fine Colour" && characteristic.Value == colour)), colour);
 	}
 
 	[TestMethod]
 	public void AntiquityPigmentAndDyeCrafts_EmitProfileBackedColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var householdSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
 		var coreSource = SeederSourceTestHelper.ReadPartialFamily("CoreDataSeeder");
-		var source = $"{craftSource}\n{householdSource}";
-		var basicColours = new[]
-			{
-				"black", "white", "grey", "light grey", "dark grey", "red", "dark red", "blue", "dark blue",
-				"green", "brown", "dark green", "orange", "light blue", "light green", "yellow", "light red",
-				"purple", "pink", "olive"
-			}
-			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-		var emitted = Regex.Matches(
-				source,
-				@"Add(?:TextileDyeStockCraft|PaintPigmentCraft)\(""[^""]+"", ""[^""]+"", ""(?<basic>[^""]+)"", ""(?<fine>[^""]+)""",
-				RegexOptions.Singleline)
-			.Cast<Match>()
-			.Concat(Regex.Matches(
-					source,
-					@"AddDyeCraft\(""[^""]+"", ""[^""]+"", ""[^""]+"", ""(?<basic>[^""]+)"", ""(?<fine>[^""]+)""",
-					RegexOptions.Singleline)
-				.Cast<Match>())
-			.Select(x => (Basic: x.Groups["basic"].Value, Fine: x.Groups["fine"].Value))
-			.ToList();
-
-		Assert.IsTrue(emitted.Count > 0, "Expected to find emitted colour arguments in pigment and dye crafts.");
-
-		foreach (var (basic, fine) in emitted)
-		{
-			Assert.IsTrue(basicColours.Contains(basic), $"Basic colour '{basic}' is not in the seeded Basic_Colours profile.");
-			AssertContains(coreSource, $"\"{fine}\"");
-		}
+		var basicColours = new[] { "black", "white", "grey", "light grey", "dark grey", "red", "dark red", "blue", "dark blue", "green", "brown", "dark green", "orange", "light blue", "light green", "yellow", "light red", "purple", "pink", "olive" }.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var emitted = Recipes.Recipes.SelectMany(recipe => recipe.Products).OfType<CatalogueCommodityRecipeProduct>()
+			.Where(product => product.Tag is "Paint Pigment" or "Textile Dye Stock").SelectMany(product => product.Characteristics).Where(characteristic => characteristic.Value is not null).ToArray();
+		Assert.IsTrue(emitted.Length > 0);
+		foreach (var characteristic in emitted)
+			if (characteristic.Definition == "Colour") Assert.IsTrue(basicColours.Contains(characteristic.Value!), characteristic.Value);
+			else if (characteristic.Definition == "Fine Colour") AssertContains(coreSource, $"\"{characteristic.Value}\"");
 	}
 
 	[TestMethod]

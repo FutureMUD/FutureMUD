@@ -7,40 +7,6 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-internal enum IndustrialisedFoodPhysicalKind
-{
-	Item,
-	Liquid
-}
-
-internal enum IndustrialisedFoodReviewState
-{
-	Proposed,
-	DependencyReviewed,
-	ContentReviewed,
-	ProductionReady
-}
-
-internal sealed record IndustrialisedFoodConceptRow(
-	string Source, int Line, string StableReference, IndustrialisedFoodPhysicalKind PhysicalKind,
-	string Family, IReadOnlyList<string> Admissions, string Concept, string Ownership,
-	string Material, string LiquidDependency, IReadOnlyList<string> Components, IReadOnlyList<string> Tags,
-	string IngredientProfile, string NutritionProfile, string DietaryProfile, string FreshnessProfile,
-	IReadOnlyList<string> HealthBindings, string ProductionRoute, string FailureFamily, string EvidenceRoute,
-	string Rationale, IndustrialisedFoodReviewState ReviewState);
-
-internal sealed record IndustrialisedFoodDependencyRow(
-	string Source, int Line, string StableReference, string ConsumerReference, string ProductionRole,
-	IndustrialisedFoodReviewState ReviewState);
-
-internal sealed record IndustrialisedFoodServingRow(
-	string Source, int Line, string StableReference, IReadOnlyList<string> Admissions, string Context,
-	string Name, IndustrialisedFoodReviewState ReviewState);
-
-internal sealed record IndustrialisedFoodServingEntryRow(
-	string Source, int Line, string ServingReference, int Order, string Kind, string StableReference,
-	double Quantity, string Unit);
-
 internal sealed record IndustrialisedFoodCatalogueDocument(
 	IReadOnlyList<IndustrialisedFoodConceptRow> Concepts,
 	IReadOnlyList<IndustrialisedFoodDependencyRow> AdoptedDependencies,
@@ -130,7 +96,7 @@ internal static class IndustrialisedFoodCatalogue
 	private static T EnumValue<T>(string text) where T : struct, Enum => IndustrialisedCatalogueValues.EnumValue<T>(text);
 	private static IndustrialisedFoodReviewState Review(string text) => EnumValue<IndustrialisedFoodReviewState>(text);
 
-	private static void Validate(IndustrialisedFoodConceptRow[] concepts, IndustrialisedFoodDependencyRow[] adopted,
+	internal static void Validate(IndustrialisedFoodConceptRow[] concepts, IndustrialisedFoodDependencyRow[] adopted,
 		IndustrialisedFoodServingRow[] servings, IndustrialisedFoodServingEntryRow[] entries,
 		IReadOnlyDictionary<string, IReadOnlyList<string[]>> supporting)
 	{

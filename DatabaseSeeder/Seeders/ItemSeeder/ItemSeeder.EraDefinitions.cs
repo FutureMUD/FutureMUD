@@ -151,26 +151,7 @@ public partial class ItemSeeder
 				EnsureAntiquityTagPath(tag);
 			}
 
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				false,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				spec.MorphToUniqueReference,
-				spec.MorphEmote,
-				spec.MorphTimer,
-				spec.DestroyedItemUniqueReference,
-				spec.BuilderNotes);
+			InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(spec.StableReference, "SeedEraItemSpecs"));
 		}
 	}
 }

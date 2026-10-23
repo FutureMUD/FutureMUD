@@ -1,6 +1,7 @@
 #nullable enable
 
 using DatabaseSeeder.Seeders;
+using DatabaseSeeder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +10,7 @@ using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ItemQuality = MudSharp.GameItems.ItemQuality;
 
 namespace MudSharp_Unit_Tests;
@@ -16,6 +18,53 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederClothingOutfitManifestTests
 {
+	[DataTestMethod]
+	[DataRow("rename")]
+	[DataRow("blank")]
+	[DataRow("status")]
+	[DataRow("persisted-whitespace")]
+	public void LiveItemReferenceBatch_PreservesCurrentRevisionsTrackedRenamesAndScope(string scenario)
+	{
+		using var context = BuildContext();
+		var current = new GameItemProto { Id = 101, RevisionNumber = 0, UniqueName = "stock_shirt", EditableItem = new EditableItem { RevisionStatus = 4 } };
+		context.GameItemProtos.AddRange(current,
+			new GameItemProto { Id = 101, RevisionNumber = 1, UniqueName = "draft_shirt", EditableItem = new EditableItem { RevisionStatus = 0 } },
+			new GameItemProto { Id = 102, RevisionNumber = 0, UniqueName = "stock_trousers", EditableItem = new EditableItem { RevisionStatus = 4 } });
+		foreach (var item in context.GameItemProtos.Local)
+		{
+			item.Name = item.UniqueName;
+			item.Keywords = item.UniqueName;
+			item.MorphEmote = string.Empty;
+		}
+		context.SaveChanges();
+		current.UniqueName = "builder_renamed_shirt";
+		if (scenario == "blank") current.UniqueName = string.Empty;
+		if (scenario == "status")
+		{
+			current.EditableItem.RevisionStatus = 0;
+			context.GameItemProtos.Local.Single(x => x.Id == 101 && x.RevisionNumber == 1).EditableItem.RevisionStatus = 4;
+		}
+		if (scenario == "persisted-whitespace")
+		{
+			current.UniqueName = "   ";
+			context.SaveChanges();
+			context.ChangeTracker.Clear();
+		}
+		var seeder = new ItemSeeder();
+		const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+		typeof(ItemSeeder).GetField("_context", flags)!.SetValue(seeder, context);
+		var resolve = typeof(ItemSeeder).GetMethod("ResolveItemStableReference", flags)!;
+		string? Reference(long id) => (string?)resolve.Invoke(seeder, new object[] { id });
+		var expected = new[] { Reference(101), Reference(102), Reference(999) };
+		if (scenario == "persisted-whitespace") context.ChangeTracker.Clear();
+		using ((IDisposable)typeof(ItemSeeder).GetMethod("UseBatchLiveItemReferences", flags)!.Invoke(seeder, null)!)
+		{
+			CollectionAssert.AreEqual(expected, new[] { Reference(101), Reference(102), Reference(999) });
+			Assert.AreEqual(scenario == "rename" ? "builder_renamed_shirt" : "draft_shirt", Reference(101));
+		}
+		Assert.IsNull(typeof(ItemSeeder).GetField("_batchLiveItemReferences", flags)!.GetValue(seeder), "The batch snapshot must not outlive reconciliation.");
+	}
+
 	[DataTestMethod]
 	[DataRow("medieval")]
 	[DataRow("renaissance")]
@@ -130,7 +179,12 @@ public class ItemSeederClothingOutfitManifestTests
 	[TestMethod]
 	public void DocumentedOutfitManifests_AllItemReferencesHaveSeedSources()
 	{
-		var itemSeederSource = SeederSourceTestHelper.ReadPartialFamily("ItemSeeder");
+		using var context = DatabaseSeeder.Program.CreateItemManifestCaptureContext();
+		var seededReferences = new ItemSeeder()
+			.CaptureManifest(context, ItemSeederManifestCatalogue.FindRepositoryRoot()).Entries
+			.Where(x => x.EntityType == "item")
+			.Select(x => x.StableKey)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		var generatedReferences = ItemSeeder.DocumentedClothingItemStableReferencesForTesting;
 		var unresolved = ItemSeeder.AntiquityOutfitManifestSpecsForTesting
 			.Concat(ItemSeeder.MedievalOutfitManifestSpecsForTesting)
@@ -138,8 +192,7 @@ public class ItemSeederClothingOutfitManifestTests
 			.Concat(ItemSeeder.EarlyModernOutfitManifestSpecsForTesting)
 			.SelectMany(x => x.ItemStableReferences)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.Where(x => !generatedReferences.Contains(x) &&
-			            !itemSeederSource.Contains($"\"{x}\"", StringComparison.Ordinal))
+			.Where(x => !seededReferences.Contains(x))
 			.ToArray();
 
 		Assert.AreEqual(0, unresolved.Length, string.Join(Environment.NewLine, unresolved));

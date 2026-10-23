@@ -71,26 +71,6 @@ public partial class ItemSeeder
 			("medieval_industry_stock_repair_supply_packet", "packet", "a packet of mixed repair supplies", "This packet holds small scraps of thread, leather, glue, wax, rivets, and cord for use in later specialist repair-kit crafts.", SizeCategory.Small, ItemQuality.Standard, 420.0, 18.0m, "linen", [ "Market / Repair Supplies / General Repair Supplies" ], [ "Holdable", "Destroyable_Misc" ])
 		];
 
-		Array.ForEach(items, item => CreateItem
-		(
-			item.StableReference,
-			item.Noun,
-			item.Sdesc,
-			null,
-			item.Fdesc,
-			item.Size,
-			item.Quality,
-			item.Weight,
-			item.Cost,
-			false,
-			false,
-			item.Material,
-			item.Tags,
-			item.Components,
-			null,
-			null,
-			null,
-			null
-		));
+		Array.ForEach(items, item => InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(item.StableReference, "SeedMedievalComponentGapItems")));
 	}
 }

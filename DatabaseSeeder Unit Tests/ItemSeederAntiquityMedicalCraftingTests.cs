@@ -1,5 +1,11 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using System.Linq;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -107,64 +113,13 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	[TestMethod]
 	public void AntiquityMedicalCrafts_RegisterKnowledgeGatedSuite()
 	{
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityMedical.cs");
-
-		AssertContains(craftRoot, "SeedAntiquityMedicalCrafts();");
-
-		foreach (var expected in new[]
-		         {
-			         "private void SeedAntiquityMedicalCrafts()",
-			         "SeedAntiquityMedicalIntermediateCommodityCrafts();",
-			         "AddAntiquityCraft(",
-			         "Ancient Medical Treatment Supplies",
-			         "Ancient Herbal Remedies",
-			         "Ancient Surgical Instruments",
-			         "Ancient Prosthetics and Mobility Aids",
-			         "knowledgeSubtype:",
-			         "knowledgeDescription:"
-		         })
-		{
-			AssertContains(craftSource, expected);
-		}
+		foreach (var knowledge in new[] { "Ancient Medical Treatment Supplies", "Ancient Herbal Remedies", "Ancient Surgical Instruments", "Ancient Prosthetics and Mobility Aids" }) Recipes.Knowledge(knowledge);
 	}
 
 	[TestMethod]
 	public void AntiquityMedicalCrafts_AddUpstreamCommodityAndTagSurface()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityMedical.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
-
-		foreach (var expected in ExpectedMedicalStockTags())
-		{
-			AssertContains(craftSource, expected);
-			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
-			AssertContains(tagHierarchy, $"Medical Craft Stock / {expected}");
-		}
-
-		foreach (var expected in ExpectedMedicalTreatmentTags())
-		{
-			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
-			AssertContains(tagHierarchy, $"Medical Treatment / {expected}");
-		}
-
-		foreach (var expected in new[]
-		         {
-			         "Medicine Strainer",
-			         "Ointment Spatula",
-			         "Cupping Vessel",
-			         "Surgical Probe",
-			         "Cautery Iron",
-			         "Herbal Medicine",
-			         "Treatment Supplies",
-			         "Surgical Supplies",
-			         "Prosthetics and Mobility"
-		         })
-		{
-			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
-			AssertContains(tagHierarchy, expected);
-		}
+		Recipes.RequiresTags(ExpectedMedicalStockTags().ToArray());
 	}
 
 	[TestMethod]

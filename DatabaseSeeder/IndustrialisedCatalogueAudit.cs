@@ -71,7 +71,12 @@ internal static class IndustrialisedCatalogueAudit
 	internal static string SourceFingerprint(string directory)
 	{
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-		foreach (var path in Directory.EnumerateFiles(directory, "*.tsv", SearchOption.AllDirectories)
+		var assemblies = Path.GetFullPath(Path.Combine(directory, "..", "ItemSeeder", "Catalogue", "Assemblies"));
+		var compiledSources = Directory.Exists(assemblies) ? Directory.EnumerateFiles(assemblies, "*", SearchOption.AllDirectories)
+			.Where(path => Path.GetExtension(path) is ".cs" or ".csproj" or ".targets")
+			.Where(path => !path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+				.Any(segment => segment is "bin" or "obj")) : Enumerable.Empty<string>();
+		foreach (var path in Directory.EnumerateFiles(directory, "*.tsv", SearchOption.AllDirectories).Concat(compiledSources)
 			.OrderBy(x => Path.GetRelativePath(directory, x).Replace('\\', '/'), StringComparer.Ordinal))
 		{
 			hash.AppendData(Encoding.UTF8.GetBytes(Path.GetRelativePath(directory, path).Replace('\\', '/')));
@@ -83,10 +88,10 @@ internal static class IndustrialisedCatalogueAudit
 		return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
 	}
 
-	internal static void RefreshOrCheck(string repositoryRoot, bool check)
+	internal static void RefreshOrCheck(string repositoryRoot, bool check, bool compiledCatalogue = true)
 	{
 		var directory = Path.Combine(repositoryRoot, "DatabaseSeeder", "Seeders", "IndustrialisedCatalogue");
-		var document = IndustrialisedItemCatalogue.LoadDirectory(directory);
+		var document = compiledCatalogue ? IndustrialisedItemCatalogue.Document : IndustrialisedItemCatalogue.LoadDirectory(directory);
 		var sourceHash = SourceFingerprint(directory);
 		// Generate and validate every output before writing any; invalid graph or scope data must not partially refresh audits.
 		var outputs = new Dictionary<string, string>(StringComparer.Ordinal)

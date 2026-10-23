@@ -1,0 +1,52 @@
+#nullable enable
+
+using System.Collections.Generic;
+
+namespace DatabaseSeeder.Seeders;
+
+internal static partial class CompiledRecipeCatalogue
+{
+	private static IEnumerable<CatalogueRecipeDefinition> Batch36(IReadOnlySet<string> eras, bool capture)
+	{
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakePlainCottonPamphletForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0007PlainPamphlet();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakePlainOakTicketForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0008PlainTicket();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakePlainPaperLabelForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0009PlainLabel();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakePlainCottonChartForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0010PlainChart();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedOakWastepaperForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0011ReinforcedWastepaper();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedPaperPosterForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0012ReinforcedPoster();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedCottonNoticeForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0013ReinforcedNotice();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedOakPlacardForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0014ReinforcedPlacard();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedPaperMapForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0015ReinforcedMap();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedCottonManualForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0016ReinforcedManual();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedOakPamphletForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0017ReinforcedPamphlet();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedPaperTicketForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0018ReinforcedTicket();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedCottonLabelForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0019ReinforcedLabel();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeReinforcedOakChartForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0020ReinforcedChart();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactPaperWastepaperForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0021CompactWastepaper();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactCottonPosterForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0022CompactPoster();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactOakNoticeForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0023CompactNotice();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactPaperPlacardForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0024CompactPlacard();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactCottonMapForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0025CompactMap();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactOakManualForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0026CompactManual();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactPaperPamphletForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0027CompactPamphlet();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactCottonTicketForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0028CompactTicket();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactOakLabelForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0029CompactLabel();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeCompactPaperChartForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0030CompactChart();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyCottonWastepaperForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0031HeavyDutyWastepaper();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyOakPosterForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0032HeavyDutyPoster();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyPaperNoticeForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0033HeavyDutyNotice();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyCottonPlacardForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0034HeavyDutyPlacard();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyOakMapForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0035HeavyDutyMap();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyPaperManualForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0036HeavyDutyManual();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyCottonPamphletForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0037HeavyDutyPamphlet();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyOakTicketForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0038HeavyDutyTicket();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyPaperLabelForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0039HeavyDutyLabel();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeHeavyDutyCottonChartForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0040HeavyDutyChart();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeFoldingOakWastepaperForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0041FoldingWastepaper();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeFoldingPaperPosterForDomesticPublicDisplayCraftIndustrialisedPrintedMediaSignage0042FoldingPoster();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeEconomyOakManualForDomesticPublicDisplayCraftIndustrialPrintedMediaSignage0001EconomyManual();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeEconomyPaperPamphletForDomesticPublicDisplayCraftIndustrialPrintedMediaSignage0002EconomyPamphlet();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeEconomyCottonTicketForDomesticPublicDisplayCraftIndustrialPrintedMediaSignage0003EconomyTicket();
+		if (eras.Contains("industrial")) yield return Recipes23Stock.PrintedMediaAndSignageMakeEconomyOakLabelForDomesticPublicDisplayCraftIndustrialPrintedMediaSignage0004EconomyLabel();
+	}
+}

@@ -372,7 +372,7 @@ public partial class ItemSeeder
 		foreach (var skin in document.Skins.Where(x => _manifestCaptureOnly || x.EraAdmissions.Any(selected.Contains)))
 		{
 			using var module = UseManifestModule("outfits", skin.EraAdmissions.ToArray());
-			var resolved = SeedDocumentedClothingSkins(new DocumentedClothingSkinSpec[]
+			var resolved = SeedDocumentedClothingSkins(new CatalogueSkinDefinition[]
 			{
 				new(skin.StableReference, skin.BaseItemReference, skin.Noun, skin.ShortDescription, skin.FullDescription, skin.QualityOverride)
 			});

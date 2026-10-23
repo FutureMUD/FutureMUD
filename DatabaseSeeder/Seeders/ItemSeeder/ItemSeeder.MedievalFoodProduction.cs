@@ -93,120 +93,12 @@ public partial class ItemSeeder
 
 	private void SeedMedievalFoodProductionTools()
 	{
-		CreateItem(
-			"medieval_tool_butchers_knife",
-			"knife",
-			"a broad iron butcher's knife",
-			null,
-			"This broad wrought-iron knife has a thick spine, a keen working edge, and an ash handle pinned firmly through the tang for breaking down heavy raw cuts.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			620.0,
-			18.0m,
-			false,
-			false,
-			"wrought iron",
-			["Functions / Tools / Butcher Tools / Meat Cutting Tools / Butcher's Knife", "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_Weapon"],
-			null,
-			null,
-			null,
-			null);
-		CreateItem(
-			"medieval_tool_cooking_knife",
-			"knife",
-			"an iron cooking knife",
-			null,
-			"This practical wrought-iron kitchen knife has a medium blade, a plain wooden handle, and a fine edge suited to chopping vegetables, trimming dough, and preparing cooked food.",
-			SizeCategory.Small,
-			ItemQuality.Standard,
-			360.0,
-			12.0m,
-			false,
-			false,
-			"wrought iron",
-			["Functions / Tools / Cooking / Cooking Utensils / Cooking Knife", "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_Weapon"],
-			null,
-			null,
-			null,
-			null);
-		CreateItem(
-			"medieval_tool_threshing_flail",
-			"flail",
-			"a jointed wooden threshing flail",
-			null,
-			"This long ash handle is joined by a short leather hinge to a heavier oak swipple, forming a durable flail for beating grain loose from straw.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			1700.0,
-			8.0m,
-			false,
-			false,
-			"oak",
-			["Functions / Tools / Foodmaking Tools / Threshing Flail", "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_Misc"],
-			null,
-			null,
-			null,
-			null);
-		CreateItem(
-			"medieval_tool_winnowing_basket",
-			"basket",
-			"a broad woven winnowing basket",
-			null,
-			"This broad, shallow willow basket has a tightly woven base and low rim, allowing threshed grain to be tossed into a breeze while chaff blows free.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			900.0,
-			7.0m,
-			false,
-			false,
-			"willow",
-			["Functions / Tools / Agricultural Tools / Winnowing Basket", "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_Misc"],
-			null,
-			null,
-			null,
-			null);
-		CreateItem(
-			"medieval_tool_cooking_pot",
-			"pot",
-			"a soot-darkened bronze cooking pot",
-			null,
-			"This round-bellied bronze pot has a reinforced rim, a fitted carrying bail, and a blackened base from long use over hearth fires.",
-			SizeCategory.Normal,
-			ItemQuality.Standard,
-			5200.0,
-			55.0m,
-			false,
-			false,
-			"bronze",
-			["Functions / Tools / Cooking / Cookware / Cooking Pot", "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_HeavyMetal"],
-			null,
-			null,
-			null,
-			null);
-		CreateItem(
-			"medieval_workshop_lauter_tun",
-			"tun",
-			"a slatted wooden lauter tun",
-			null,
-			"This broad oak tun has tight coopered staves, a slatted false bottom, and a plugged outlet low on one side for separating sweet wort from spent grain.",
-			SizeCategory.Large,
-			ItemQuality.Standard,
-			19000.0,
-			68.0m,
-			false,
-			false,
-			"oak",
-			["Functions / Tools / Brewing Tools / Lauter Tun", "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_Furniture"],
-			null,
-			null,
-			null,
-			null);
+		InstallCatalogueItem(Historical04Stock.MedievalToolButchersKnife());
+		InstallCatalogueItem(Historical04Stock.MedievalToolCookingKnife());
+		InstallCatalogueItem(Historical04Stock.MedievalToolThreshingFlail());
+		InstallCatalogueItem(Historical04Stock.MedievalToolWinnowingBasket());
+		InstallCatalogueItem(Historical04Stock.MedievalToolCookingPot());
+		InstallCatalogueItem(Historical04Stock.MedievalWorkshopLauterTun());
 	}
 
 	private void SeedMedievalPreparedFoods()
@@ -267,24 +159,6 @@ public partial class ItemSeeder
 		string material,
 		string preparedFoodComponent)
 	{
-		return CreateItem(
-			stableReference,
-			noun,
-			shortDescription,
-			null,
-			fullDescription,
-			size,
-			ItemQuality.Standard,
-			weight,
-			4.0m,
-			false,
-			false,
-			material,
-			[MedievalPreparedFoodTagPath, "Market / Household Goods / Standard Wares"],
-			["Holdable", "Destroyable_Misc", preparedFoodComponent],
-			null,
-			null,
-			null,
-			null);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateMedievalPreparedFood"));
 	}
 }

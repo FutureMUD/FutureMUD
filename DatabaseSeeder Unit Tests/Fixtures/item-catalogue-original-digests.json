@@ -1,0 +1,288 @@
+{
+  "BaselineSha256": "33DA90BB0643968484C364C4DE84A315E34872FA2475E40A38AFF8ADF1E002F7",
+  "Scenarios": [
+    {
+      "Name": "eras-01",
+      "Eras": "antiquity",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 4241,
+      "Sha256": "F02D03A5C3B2A5AA3A6F3CAC8A9934A6DD65103A32F49FC272DFDF2663D06022"
+    },
+    {
+      "Name": "eras-02",
+      "Eras": "medieval",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 14383,
+      "Sha256": "FD96945976ED1FFB5AA23CD334310046F49F638CCE70222701063D2D83F97BF7"
+    },
+    {
+      "Name": "eras-03",
+      "Eras": "antiquity medieval",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 17546,
+      "Sha256": "E2B9A43586A20EF11A562C85B1B424A5465F43204988285E8B34357DC7E6F449"
+    },
+    {
+      "Name": "eras-04",
+      "Eras": "renaissance",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 14457,
+      "Sha256": "9DF87B64E7D7873449641787102F45E9C383A572CE47D11A9B0B7BF0C8B5274D"
+    },
+    {
+      "Name": "eras-05",
+      "Eras": "antiquity renaissance",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 17620,
+      "Sha256": "579445C932A64B9C952E1FF1C312682D93A30B339E665148B1A7212F5258C0DA"
+    },
+    {
+      "Name": "eras-06",
+      "Eras": "medieval renaissance",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 22872,
+      "Sha256": "F1EC76032436AFD4AC7E0B2C5592258FCBA1F87BFD57EBEF9D53F9CCDC7C0281"
+    },
+    {
+      "Name": "eras-07",
+      "Eras": "antiquity medieval renaissance",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 26035,
+      "Sha256": "482ACEC55F11FA58499585D2C68899F2F5FD09FAAB6D32E8C35E3A36BB8970B9"
+    },
+    {
+      "Name": "eras-08",
+      "Eras": "earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 15243,
+      "Sha256": "05B2354A0DCDE68B54A280B0EC939A3B491755A4ADB24CD1D816A5914B872918"
+    },
+    {
+      "Name": "eras-09",
+      "Eras": "antiquity earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 18406,
+      "Sha256": "AE204074A9D88F1A7A41E43D09F4796ED32E14D2650BCF207B5DA3F0F2357625"
+    },
+    {
+      "Name": "eras-10",
+      "Eras": "medieval earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 23602,
+      "Sha256": "6004D58803176930150175649DB631F0A8EBD4DFA1CC3C8FC9074B3BF2AD2933"
+    },
+    {
+      "Name": "eras-11",
+      "Eras": "antiquity medieval earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 26765,
+      "Sha256": "E4DDA58EE24FBE90E1F408CBE87531C3C15271FACC8895388AC0161A012185EE"
+    },
+    {
+      "Name": "eras-12",
+      "Eras": "renaissance earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 22310,
+      "Sha256": "5E338A155AC84101616A43301B061856AE147C717C08BD3967DFE2901E22F079"
+    },
+    {
+      "Name": "eras-13",
+      "Eras": "antiquity renaissance earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 25473,
+      "Sha256": "45C0E7280DE1A737FF5872F6ABBA88FD5CCE147CAF2665F0E0E508A20C8091E5"
+    },
+    {
+      "Name": "eras-14",
+      "Eras": "medieval renaissance earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 30663,
+      "Sha256": "A2683CDA0E0B5F37BF638405D59438FF9447D16231AB1B7791D257BF19CC0317"
+    },
+    {
+      "Name": "eras-15",
+      "Eras": "antiquity medieval renaissance earlymodern",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 33826,
+      "Sha256": "330D58B7871A025EB8D993C056655A1CA12AE07DFE69A3A7D18D4D40D2D16045"
+    },
+    {
+      "Name": "profile-neutral",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "neutral"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-northamerican",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "northamerican"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-continentaleuropean",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "continentaleuropean"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-britishirish",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "britishirish"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-australasian",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "australasian"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-japanese",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "japanese"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-chinese",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "chinese"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    },
+    {
+      "Name": "profile-custom",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "custom"
+      },
+      "Count": 42756,
+      "Sha256": "F87285E21F85897ECDAAD113774A519C2492806177AD1342F503D84F4AA4EEAF"
+    },
+    {
+      "Name": "profile-custom-bound",
+      "Eras": "antiquity medieval renaissance earlymodern industrial",
+      "Answers": {
+        "technologyprofile": "custom",
+        "technologypower": "Connectable_Male_To_MainsPlug",
+        "technologypaper": "A4, Letter",
+        "technologytelecom": "Telephone_Standard",
+        "technologynetworkmedia": "NetworkAdapter_Wired",
+        "technologyvehicle": "AttachableConnectable_PowerLead"
+      },
+      "Count": 42756,
+      "Sha256": "AFEF64D6192757E69F843835791C13973666E5CF774A6452EF7D597B35B73281"
+    }
+  ],
+  "SourceGraphs": [
+    {
+      "Name": "industrialised",
+      "Sha256": "A557E46A77603633E1A695CBCA71F7F4DFE5E8439991AC80B581F978A146F520"
+    },
+    {
+      "Name": "eraChoices",
+      "Sha256": "E2B4406D8A3FDD2759C654BC7DE7F29BD25ECB8CBF7C7B58B87C2EB98007F174"
+    },
+    {
+      "Name": "technologyChoices",
+      "Sha256": "5690728BAE0D6905F4CCECF51A7E095AA8DE46D955A69585394442999615CEC1"
+    },
+    {
+      "Name": "sharedAntiquityAliases",
+      "Sha256": "831C2776F50527C0A1AB08497D05642CD6854E322BCC2DAC4673FB16656CB4B2"
+    },
+    {
+      "Name": "approvedHistoricalClothingReuse",
+      "Sha256": "4E8FC9190DA0FDE540C3095ECE22F5975CC2DED7923A07DECF15BEF48917F1EB"
+    },
+    {
+      "Name": "foodItems",
+      "Sha256": "FB743F06762B96A22796E4BF891224F55505E22EF6B7628544FF57CF4C05D3DC"
+    },
+    {
+      "Name": "foodLiquids",
+      "Sha256": "B0DA5F2C5650BF1461ED5BFCAE5F34C534DFA87B6C657A61C360091D4623BA6F"
+    },
+    {
+      "Name": "renaissanceMedical",
+      "Sha256": "6AA78ABB53487E6D079BE95D08195A0EA392AA3FF327261E9D7070B03BEF7E61"
+    },
+    {
+      "Name": "earlyModernMedical",
+      "Sha256": "77905841A6C53C74E83784072FBE086E14FA7F987530FC7B591DA7162CE308C4"
+    },
+    {
+      "Name": "vehicles",
+      "Sha256": "0BB4A6736ADB0582FBFFFA4E72A9CDB6FDFC8F2E1B7550769FF8D7EF5D68DB52"
+    },
+    {
+      "Name": "antiquityOutfits",
+      "Sha256": "C7F70915206E0500C7B921208EA9A12762E6C117C273E5606088F03D976D6452"
+    },
+    {
+      "Name": "medievalOutfits",
+      "Sha256": "5F32C3D89C60BEECC713A8F846AFBAD954C9FD81B65E95EEDEEF1DCFDF26FDF9"
+    },
+    {
+      "Name": "renaissanceOutfits",
+      "Sha256": "1996CC6C82ABC001021BC176A46A1640FDC58C553691B443A5AF8251209641B7"
+    },
+    {
+      "Name": "earlyModernOutfits",
+      "Sha256": "D56708038056152E10FBF4D0340FFDFBED92296E4B8945DAA32A74BD88C41E9A"
+    },
+    {
+      "Name": "productionPlans",
+      "Sha256": "33C480FB48C7606988A4CE4D1B9320C72A585969817AEABC472F8CD2648403B5"
+    }
+  ]
+}

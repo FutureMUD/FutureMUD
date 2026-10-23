@@ -85,27 +85,12 @@ public partial class ItemSeeder
 
 		foreach (var spec in specs)
 		{
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				spec.Skinnable,
-				spec.HideFromPlayers,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				spec.BuilderNotes,
-				allowLegacyShortDescriptionMatch: false);
+			if (CompiledStockCatalogue.TryMedicalItem(spec.StableReference, out var compiled))
+			{
+				InstallCatalogueItem(compiled!);
+				continue;
+			}
+			InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(spec.StableReference, "SeedStraightforwardEraCatalogueItems"));
 		}
 	}
 }

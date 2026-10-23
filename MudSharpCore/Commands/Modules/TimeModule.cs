@@ -426,12 +426,17 @@ The syntax for this command is as follows:
 	#3timezone edit <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - legacy edit syntax
 	#3timezone new <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - creates and opens a timezone
 	#3timezone open <id|alias|clock:alias>#0 - opens a timezone for editing
+	#3timezone edit <id|alias|clock:alias>#0 - also opens a timezone; use the full legacy syntax above for a direct update
 	#3timezone set alias|name|offset|hours|minutes ...#0 - edits an opened timezone
-	#3timezone clone <old> <alias> [<clock>] [""<name>""]#0 - clones a timezone";
+	#3timezone clone <old> <alias> [<clock>] [""<name>""]#0 - clones a timezone
+
+The #3timezone update#0 alias accepts the same full arguments as legacy #3timezone edit#0. Quote names containing spaces.";
 
     [PlayerCommand("Timezone", "timezone")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("timezone", TimeZoneHelp, AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("timezone", TimeZoneHelp, AutoHelp.HelpArgOrNoArg,
+        Examples = new[] { "timezone open \"Harbour Time\"", "timezone set name \"Port Standard Time\"", "timezone set offset 2 30", "timezone close" },
+        ExamplePrerequisites = "an existing timezone with alias Harbour Time on a clock with 60 minutes per hour; substitute your own alias")]
     protected static void Timezone(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -441,6 +446,7 @@ The syntax for this command is as follows:
             case "list":
             case "create":
             case "update":
+            case "edit":
                 break;
             default:
                 BaseBuilderModule.GenericBuildingCommand(actor, ss, EditableItemHelper.TimezoneHelper);
@@ -482,13 +488,18 @@ The syntax for this command is as follows:
                 return;
             case "edit":
             case "update":
+                if (ss.PeekSpeech().EqualTo("new"))
+                {
+                    BaseBuilderModule.GenericBuildingCommand(actor, new StringStack($"edit {ss.RemainingArgument}"), EditableItemHelper.TimezoneHelper);
+                    return;
+                }
                 if (ss.CountRemainingArguments() >= 4)
                 {
                     TimeZoneEdit(actor, ss);
                     return;
                 }
 
-                BaseBuilderModule.GenericBuildingCommand(actor, new StringStack($"edit {ss.SafeRemainingArgument}"), EditableItemHelper.TimezoneHelper);
+                BaseBuilderModule.GenericBuildingCommand(actor, new StringStack($"edit {ss.RemainingArgument}"), EditableItemHelper.TimezoneHelper);
                 return;
             default:
                 actor.OutputHandler.Send(TimeZoneHelp.SubstituteANSIColour());

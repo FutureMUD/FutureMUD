@@ -267,9 +267,10 @@ public class Language : SaveableItem, ILanguage
             return false;
         }
 
-        ILanguage language = long.TryParse(command.SafeRemainingArgument, out long value)
+        var selector = command.PopSpeech();
+        ILanguage language = long.TryParse(selector, out long value)
             ? Gameworld.Languages.Get(value)
-            : Gameworld.Languages.GetByName(command.SafeRemainingArgument);
+            : Gameworld.Languages.GetByName(selector);
         if (language == null)
         {
             actor.OutputHandler.Send("There is no such language.");

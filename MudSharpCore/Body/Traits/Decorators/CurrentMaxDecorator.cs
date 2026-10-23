@@ -5,11 +5,14 @@ public class CurrentMaxDecorator : FrameworkItem, ITraitValueDecorator
 {
     private static CurrentMaxDecorator _instance;
 
-    public CurrentMaxDecorator(Models.TraitDecorator decorator)
+	public CurrentMaxDecorator(Models.TraitDecorator decorator, bool setAsSingleton = true)
     {
         _id = decorator.Id;
         _name = decorator.Name;
-        _instance = this;
+		if (setAsSingleton)
+		{
+			_instance = this;
+		}
     }
 
     private CurrentMaxDecorator()

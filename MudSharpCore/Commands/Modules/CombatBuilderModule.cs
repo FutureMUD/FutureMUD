@@ -281,7 +281,7 @@ The syntax for this command is as follows:
 	#3weaponattack edit#0 - an alias for WEAPONATTACK SHOW when you have something open
 	#3weaponattack show <id|name>#0 - shows details about a particular weapon attack
 	#3weaponattack close#0 - closes the open weapon attack
-	#3weaponattack natural <race> <attack> <bodypart>#0 - toggles an unarmed attack being enabled for a race
+	#3weaponattack natural <race> <attack> <bodypart> <quality>#0 - adds or updates a race's natural attack with that bodypart and item quality
 	#3weaponattack natural <race> <attack> remove#0 - removes all attacks of that type from the race
 	#3weaponattack new <type>#0 - creates a new weapon attack of the specified type
 	#3weaponattack clone <which>#0 - creates a carbon copy of the specified weapon type
@@ -539,7 +539,7 @@ You can use the following arguments to refine the list command:
             return;
         }
 
-        actor.OutputHandler.Send("TODO");
+        actor.OutputHandler.Send("Weapon-attack deletion is not supported: attacks may be referenced by weapon types, races, combat messages and saved content. Inspect known consumers with builderrefs attack <id>; remove their use through those editors; this command deletes nothing.");
     }
 
     private static void WeaponAttackSet(ICharacter actor, StringStack ss)
@@ -874,7 +874,20 @@ The syntax for this command is as follows:
             actor.OutputHandler.Send("There is no such auxiliary move.");
             return;
         }
-        IAuxiliaryCombatAction newAction = action.Clone();
+        var name = ss.SafeRemainingArgument.TitleCase();
+        if (string.IsNullOrWhiteSpace(name) || long.TryParse(name, out _) || name.Length > 4000)
+        {
+            actor.OutputHandler.Send("Specify a non-numeric name of at most 4,000 characters for the cloned auxiliary move.");
+            return;
+        }
+
+        if (actor.Gameworld.AuxiliaryCombatActions.Any(x => x.Name.EqualTo(name)))
+        {
+            actor.OutputHandler.Send("There is already an auxiliary move with that name.");
+            return;
+        }
+
+        IAuxiliaryCombatAction newAction = action.Clone(name);
         actor.Gameworld.Add(newAction);
         actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IAuxiliaryCombatAction>>());
         actor.AddEffect(new BuilderEditingEffect<IAuxiliaryCombatAction>(actor) { EditingItem = newAction });
@@ -1263,6 +1276,17 @@ You can also use the following options to filter searches:
             DescriptionString = $"Deleting combat message {cm.Message.ColourCommand()}",
             AcceptAction = text =>
             {
+                if (!actor.Gameworld.CombatMessageManager.CombatMessages.Contains(cm))
+                {
+                    actor.OutputHandler.Send("That combat message has already been deleted.");
+                    return;
+                }
+
+                foreach (var editor in actor.Gameworld.Characters.Append(actor).Distinct())
+                {
+                    editor.RemoveAllEffects(x => x is BuilderEditingEffect<ICombatMessage> effect && effect.EditingItem == cm);
+                }
+
                 actor.OutputHandler.Send($"You delete the combat message {cm.Message.ColourCommand()} (#{cm.Id.ToString("N0", actor)}).");
                 cm.Delete();
                 actor.Gameworld.Destroy(cm);
@@ -1286,7 +1310,15 @@ You can also use the following options to filter searches:
             return;
         }
 
-        actor.EffectsOfType<BuilderEditingEffect<ICombatMessage>>().First().EditingItem.BuildingCommand(actor, ss);
+        var message = actor.EffectsOfType<BuilderEditingEffect<ICombatMessage>>().First().EditingItem;
+        if (!actor.Gameworld.CombatMessageManager.CombatMessages.Contains(message))
+        {
+            actor.RemoveAllEffects(x => x is BuilderEditingEffect<ICombatMessage> effect && effect.EditingItem == message);
+            actor.OutputHandler.Send("That combat message has been deleted. Open another message to edit.");
+            return;
+        }
+
+        message.BuildingCommand(actor, ss);
     }
 
     private static void CombatMessageClose(ICharacter actor, StringStack ss)

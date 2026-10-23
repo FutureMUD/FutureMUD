@@ -14,7 +14,7 @@ using MoveSpeed = MudSharp.Movement.MoveSpeed;
 
 namespace MudSharp.Body.Implementations;
 
-public class BodyPrototype : SaveableItem, IBodyPrototype
+public partial class BodyPrototype : SaveableItem, IBodyPrototype
 {
     protected readonly List<IBodypart> _allBodyparts = new();
     protected readonly List<IBodypartGroupDescriber> _bodypartGroupDescribers = new();
@@ -32,6 +32,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
     protected readonly List<long> _bodypartRemovalIds = new();
 
     private bool _limbsInitialised;
+	private readonly List<IMoveSpeed> _localSpeeds = new();
 
     public BodyPrototype(BodyProto proto, IFuturemud game)
     {
@@ -97,11 +98,12 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
         LegDescriptionPlural = proto.LegDescriptionPlural;
         LegDescriptionSingular = proto.LegDescriptionSingular;
 
-        foreach (Models.MoveSpeed speed in proto.MoveSpeeds)
+        foreach (Models.MoveSpeed speed in proto.MoveSpeeds.OrderBy(x => x.Id))
         {
             MoveSpeed gspeed = new(speed);
             Gameworld.Add(gspeed);
             _speeds.Add(gspeed);
+			_localSpeeds.Add(gspeed);
         }
 
 
@@ -143,6 +145,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
                 var gspeed = new MoveSpeed(dbSpeed);
                 Gameworld.Add(gspeed);
                 _speeds.Add(gspeed);
+				_localSpeeds.Add(gspeed);
             }
         }
 
@@ -484,7 +487,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
         {
             if (!Limbs.Any(x => x.Parts.Contains(item)))
             {
-                throw new ApplicationException($"Bodypart without a limb: {item.FullDescription()} for {Name}");
+				System.Diagnostics.Debug.WriteLine($"Bodypart without a limb: {item.FullDescription()} for {Name}");
             }
         }
 #endif
@@ -555,6 +558,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
             from speed in Speeds.OrderBy(x => x.Position.Id).ThenByDescending(x => x.Multiplier)
             select new List<string>
             {
+                speed.Id.ToString("N0", actor),
                 speed.Name,
                 speed.Position.Name,
                 speed.Multiplier.ToString("P2", actor),
@@ -565,6 +569,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
             },
             new List<string>
             {
+                "Id",
                 "Name",
                 "Position",
                 "Rate",

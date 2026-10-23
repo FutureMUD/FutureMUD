@@ -88,13 +88,35 @@ public class ChargenStoryboard : IChargenStoryboard
 
     public void ReorderStage(ChargenStage stage, ChargenStage afterStage)
     {
-        ChargenStage movingStagePredecessor = _defaultNextStage.FirstOrDefault(x => x.Value == stage).Key;
+		if (stage == afterStage)
+		{
+			throw new ArgumentException("A stage cannot be placed after itself.", nameof(afterStage));
+		}
+
+		if (!_defaultOrder.Contains(stage) || !_defaultOrder.Contains(afterStage))
+		{
+			throw new ArgumentException("Both stages must belong to the storyboard.");
+		}
+
+		if (_defaultNextStage[afterStage] == stage)
+		{
+			return;
+		}
+
+        var movingStagePredecessor = _defaultNextStage.FirstOrDefault(x => x.Value == stage);
         ChargenStage movingStageFollower = _defaultNextStage[stage];
         ChargenStage afterStageOldFollower = _defaultNextStage[afterStage];
 
         _defaultNextStage[afterStage] = stage;
         _defaultNextStage[stage] = afterStageOldFollower;
-        _defaultNextStage[movingStagePredecessor] = movingStageFollower;
+		if (movingStagePredecessor.Value == stage)
+		{
+			_defaultNextStage[movingStagePredecessor.Key] = movingStageFollower;
+		}
+
+		_defaultOrder.Remove(stage);
+		_defaultOrder.Insert(_defaultOrder.IndexOf(afterStage) + 1, stage);
+		FirstStage = _defaultOrder[0];
 
         foreach (IChargenScreenStoryboard ss in _stageScreenMap.Values)
         {

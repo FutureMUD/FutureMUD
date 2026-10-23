@@ -29,6 +29,8 @@ Syntax:
 	#3vehicleroute submit <comment>#0
 	#3vehicleroute approve <id|name> <comment>#0
 
+Edit opens the newest draft for the exact ID/name, or creates a revision from the current route. Approval selects only a pending revision. For an explicit revision use #310r2#0 or #310 2#0. Quote names containing spaces; ambiguous names require an ID.
+
 Route settings:
 	#3stop add <name> [<room id> [<layer>] [at <route distance>]]#0
 	#3stop remove <stop>#0
@@ -135,11 +137,15 @@ Route settings:
 			return;
 		}
 
-		var route = ResolveRoute(actor, command.SafeRemainingArgument);
+		var route = ResolveVehicleRouteRevisionForEditing(actor.Gameworld.VehicleRoutes, command.SafeRemainingArgument);
 		if (route is null)
 		{
 			actor.OutputHandler.Send("There is no such vehicle route.");
 			return;
+		}
+		if (route.Status == RevisionStatus.Rejected)
+		{
+			route.ChangeStatus(RevisionStatus.UnderDesign, "Returned to design after rejection.", actor.Account);
 		}
 		if (route.Status == RevisionStatus.Current)
 		{
@@ -213,10 +219,10 @@ Route settings:
 		{
 			routeText = $"{routeText} {command.PopSpeech()}";
 		}
-		var route = ResolveRoute(actor, routeText);
+		var route = ResolveVehicleRouteRevisionForApproval(actor.Gameworld.VehicleRoutes, routeText);
 		if (route is null)
 		{
-			actor.OutputHandler.Send("There is no such vehicle route.");
+			actor.OutputHandler.Send("There is no pending vehicle route revision with that exact ID or name.");
 			return;
 		}
 		if (!route.CanSubmit())
@@ -290,6 +296,41 @@ Schedules use #3<reference departure> | <recurrence>#0. Recurrences accept forms
 	private static IVehicleService? ResolveService(ICharacter actor, string text)
 	{
 		return actor.Gameworld.VehicleServices.GetByIdOrName(text);
+	}
+
+	internal static IVehicleRoute? ResolveVehicleRouteRevisionForEditing(IEnumerable<IVehicleRoute> routes, string selector)
+	{
+		var revisions = ResolveExactVehicleRouteRevisions(routes, selector);
+		return revisions.Where(x => x.Status is RevisionStatus.UnderDesign or RevisionStatus.PendingRevision or RevisionStatus.Rejected)
+			.OrderByDescending(x => x.RevisionNumber).FirstOrDefault() ??
+			revisions.Where(x => x.Status == RevisionStatus.Current).OrderByDescending(x => x.RevisionNumber).FirstOrDefault();
+	}
+
+	internal static IVehicleRoute? ResolveVehicleRouteRevisionForApproval(IEnumerable<IVehicleRoute> routes, string selector) =>
+		ResolveExactVehicleRouteRevisions(routes, selector).Where(x => x.Status == RevisionStatus.PendingRevision)
+			.OrderByDescending(x => x.RevisionNumber).FirstOrDefault();
+
+	private static IReadOnlyCollection<IVehicleRoute> ResolveExactVehicleRouteRevisions(IEnumerable<IVehicleRoute> routes, string selector)
+	{
+		var command = new StringStack(selector.Trim());
+		if (command.IsFinished) return [];
+		var token = command.PopSpeech().TrimStart('#');
+		var separator = token.LastIndexOfAny(['r', 'R']);
+		long id;
+		int revision;
+		List<IVehicleRoute> matches;
+		if (separator > 0 && long.TryParse(token[..separator], out id) && int.TryParse(token[(separator + 1)..], out revision) && command.IsFinished)
+		{
+			matches = routes.Where(x => x.Id == id && x.RevisionNumber == revision).ToList();
+		}
+		else if (long.TryParse(token, out id))
+		{
+			if (command.IsFinished) matches = routes.Where(x => x.Id == id).ToList();
+			else if (int.TryParse(command.SafeRemainingArgument, out revision)) matches = routes.Where(x => x.Id == id && x.RevisionNumber == revision).ToList();
+			else matches = routes.Where(x => x.Name.EqualTo(new StringStack(selector).SafeRemainingArgument)).ToList();
+		}
+		else matches = routes.Where(x => x.Name.EqualTo(new StringStack(selector).SafeRemainingArgument)).ToList();
+		return matches.Select(x => x.Id).Distinct().Skip(1).Any() ? [] : matches;
 	}
 
 	private static IVehicleRoute? ResolveRoute(ICharacter actor, string text)

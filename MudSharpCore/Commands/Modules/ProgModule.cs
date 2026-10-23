@@ -927,6 +927,12 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
         actor.Send(sb.ToString());
         actor.EditorMode((text, handler, paramlist) =>
             {
+                if (append && !string.IsNullOrEmpty(prog.FunctionText))
+                {
+                    text = string.IsNullOrEmpty(text) ? prog.FunctionText :
+                        prog.FunctionText + (prog.FunctionText.EndsWith('\n') ? "" : "\n") + text;
+                }
+
                 prog.FunctionText = text;
                 handler.Send(
                     $"You change the function text of prog {prog.MXPClickableFunctionNameWithId()}.");
@@ -1196,7 +1202,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
     private static void ProgDelete(ICharacter actor, StringStack command)
     {
-        actor.Send("Coming soon...");
+        actor.Send("Prog deletion is not supported. Inspect known consumers with builderrefs prog <id>: progs may be referenced by other progs and saved subsystem definitions. Reassign their consumers before retiring them; this command deletes nothing.");
     }
 
     private static void ProgParameter(ICharacter actor, StringStack command)

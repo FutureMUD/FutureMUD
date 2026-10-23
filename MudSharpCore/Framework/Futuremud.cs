@@ -1212,6 +1212,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _limbs.Add(limb);
     }
 
+    public void Add(IBodyPrototype prototype)
+    {
+        _bodyPrototypes.Add(prototype);
+    }
+
     public void Add(IWeaponType type)
     {
         _weaponTypes.Add(type);

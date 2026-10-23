@@ -387,6 +387,20 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 
 				break;
 			case AgricultureOperationType.HarvestApiary:
+				if (ApiaryYieldMultiplier <= 0.0 || !double.IsFinite(ApiaryYieldMultiplier) || ApiaryYieldOutputs.Count == 0)
+				{
+					return "This HarvestApiary operation has no usable yield multiplier or product outputs configured.";
+				}
+
+				foreach (var output in ApiaryYieldOutputs)
+				{
+					if (!double.IsFinite(output.BaseWeight) || output.BaseWeight <= 0.0 || Gameworld.Materials.GetByName(output.MaterialName) == null ||
+					    (!string.IsNullOrWhiteSpace(output.TagName) && Gameworld.Tags.GetByName(output.TagName) == null))
+					{
+						return "This HarvestApiary operation has a product with an invalid weight, material, or tag.";
+					}
+				}
+
 				if (!field.HasActiveApiary)
 				{
 					return "This field does not have an apiary installation.";

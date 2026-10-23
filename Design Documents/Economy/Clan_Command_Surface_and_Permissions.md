@@ -110,6 +110,8 @@ Some clan actions are intentionally not pure privilege-flag checks.
 
 For appointment hierarchies, authority can also flow through the parent appointment chain. This is used for cases where a role may manage subordinate offices even if the actor does not hold a broad clan-management privilege.
 
+Appointment editing rejects a parent that is the appointment itself, one of its descendants, or part of an already cyclic ancestor chain. Authority checks stop on repeated appointments even when historical data contains a loop. Clearing a parent remains available to repair such data. Both the parent appointment and the minimum rank required to appoint are persisted, including when either restriction is cleared.
+
 The shared helper is:
 
 - `ClanCommandUtilities.HoldsOrControlsAppointment`

@@ -101,6 +101,8 @@ public class Appointment : SaveableItem, IAppointment
             dbitem.MaximumSimultaneousHolders = MaximumSimultaneousHolders;
             dbitem.PaygradeId = Paygrade?.Id;
             dbitem.MinimumRankId = MinimumRankToHold?.Id;
+            dbitem.MinimumRankToAppointId = MinimumRankToAppoint?.Id;
+            dbitem.ParentAppointmentId = ParentPosition?.Id;
             dbitem.FameType = (int)FameType;
 
             if (InsigniaGameItem != null)

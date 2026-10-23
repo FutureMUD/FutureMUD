@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using JetBrains.Annotations;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
@@ -2879,7 +2879,7 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        LineOfCreditAccountUser user = account.AccountUsers.GetByPersonalName(command.SafeRemainingArgument);
+        LineOfCreditAccountUser user = account.AccountUsers.GetByPersonalName(command.PopSpeech());
         if (user == null)
         {
             actor.OutputHandler.Send(
@@ -3061,7 +3061,6 @@ Additionally, you can use the following shop admin subcommands:
             Keywords = new List<string> { "close", "credit", "account" },
             DescriptionString = "Closing a line of credit account"
         }));
-        throw new NotImplementedException();
     }
 
     private static void ShopAccountCreate(ICharacter actor, IShop shop, StringStack command)
@@ -5057,7 +5056,7 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
 	#3bank list#0 - lists all of the banks
 	#3bank show <which>#0 - shows information about a bank
 	#3bank edit new <name> <code> <economiczone>#0 - creates a new bank
-	#3bank clone <which> <name> <code>#0 - clones a bank into a new bank
+Bank cloning is not supported. Use #3bank edit new <name> <code> <economiczone>#0 to create an independent bank; accounts, reserves and branches are not copied.
 	#3bank edit <which>#0 - begins to edit a bank
 	#3bank edit#0 - alias for BANK SHOW <currently editing bank>
 	#3bank close#0 - stops editing a bank
@@ -10095,12 +10094,12 @@ It is recommended that you use this command rather than creating market influenc
 
 The syntax for this command is as follows:
 
-	#3mit list#0 - shows all market influence templates
+	#3mit list [<id>|+keyword|-keyword]#0 - filters names, summaries and visibility progs
 	#3mit show <id>#0 - shows a particular market influence template
 	#3mit edit <id>#0 - begins editing a market influence template
 	#3mit edit#0 - an alias for #3mit show <editing id>#0
 	#3mit close#0 - stops editing a market influence template
-	#3mit clone <name>#0 - clones an existing template and then begins editing the clone
+	#3mit clone <source> <new name>#0 - clones an existing template and then begins editing the clone
 	#3mit new <name>#0 - creates a new market influence template
 	#3mit set name <name>#0 - sets a new name
 	#3mit set about#0 - drops you into an editor to write an about info for builders
@@ -10179,7 +10178,7 @@ The syntax for this command is as follows:
             return;
         }
 
-        IMarketInfluenceTemplate old = actor.Gameworld.MarketInfluenceTemplates.GetByIdOrName(ss.SafeRemainingArgument);
+        IMarketInfluenceTemplate old = actor.Gameworld.MarketInfluenceTemplates.GetByIdOrName(ss.PopSpeech());
         if (old is null)
         {
             actor.OutputHandler.Send("There is no market influence template like that.");
@@ -10192,7 +10191,12 @@ The syntax for this command is as follows:
             return;
         }
 
-        string name = ss.SafeRemainingArgument.TitleCase();
+        string name = ss.SafeRemainingArgument.Trim().TitleCase();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            actor.OutputHandler.Send("The clone must have a non-empty name.");
+            return;
+        }
         if (actor.Gameworld.MarketInfluenceTemplates.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send($"There is already a market influence template called {name.ColourName()}. Names must be unique.");
@@ -10285,8 +10289,9 @@ The syntax for this command is as follows:
 
     private static void MarketInfluenceTemplateList(ICharacter actor, StringStack ss)
     {
-        List<IMarketInfluenceTemplate> templates = actor.Gameworld.MarketInfluenceTemplates.ToList();
-        // TODO - filters
+        if (!BuilderListFilter.TryApply(actor.Gameworld.MarketInfluenceTemplates, ss, out var templates, out var error,
+                item => new[] { item.Name, item.TemplateSummary, item.CharacterKnowsAboutInfluenceProg?.Name }))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in templates
             select new List<string>
@@ -10317,12 +10322,12 @@ The syntax for this command is as follows:
     #region Market Influences
     public const string MarketInfluenceHelpText = @"The Market Influence command is used to create and manage 
 
-	#3mi list#0 - shows all market influences
+	#3mi list [<id>|+keyword|-keyword|market <id|name>|template <id|name>]#0 - lists matching influences
 	#3mi show <id>#0 - shows a particular market influence
 	#3mi edit <id>#0 - begins editing a market influence
 	#3mi edit#0 - an alias for #3mi show <editing id>#0
 	#3mi close#0 - stops editing a market influence
-	#3mi clone <name>#0 - clones an existing influence and then begins editing the clone
+	#3mi clone <source> <new name>#0 - clones an existing influence and then begins editing the clone
 	#3mi new <market> <date> <name>#0 - creates a new market influence
 	#3mi begin <market> <template> [<from>] [<until>]#0 - creates a new market influence from a template
 	#3mi end <id>#0 - ends a market influence
@@ -10571,7 +10576,7 @@ The syntax for this command is as follows:
             return;
         }
 
-        IMarketInfluence old = actor.Gameworld.MarketInfluences.GetByIdOrName(ss.SafeRemainingArgument);
+        IMarketInfluence old = actor.Gameworld.MarketInfluences.GetByIdOrName(ss.PopSpeech());
         if (old is null)
         {
             actor.OutputHandler.Send("There is no market influence like that.");
@@ -10584,7 +10589,12 @@ The syntax for this command is as follows:
             return;
         }
 
-        string name = ss.SafeRemainingArgument.TitleCase();
+        string name = ss.SafeRemainingArgument.Trim().TitleCase();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            actor.OutputHandler.Send("The clone must have a non-empty name.");
+            return;
+        }
 
         IMarketInfluence influence = old.Clone(name);
         actor.Gameworld.Add(influence);
@@ -10673,8 +10683,14 @@ The syntax for this command is as follows:
 
     private static void MarketInfluenceList(ICharacter actor, StringStack ss)
     {
-        List<IMarketInfluence> influences = actor.Gameworld.MarketInfluences.ToList();
-        // TODO - filters
+        if (!BuilderListFilter.TryApply(actor.Gameworld.MarketInfluences, ss, out var influences, out var error,
+                item => new[] { item.Name, item.Market.Name, item.MarketInfluenceTemplate?.Name },
+                new Dictionary<string, Func<IMarketInfluence, string, bool>>
+                {
+                    ["market"] = (item, value) => BuilderListFilter.IsIdOrName(item.Market, value),
+                    ["template"] = (item, value) => BuilderListFilter.IsIdOrName(item.MarketInfluenceTemplate, value)
+                }))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in influences
             select new List<string>
@@ -10715,12 +10731,12 @@ Not every market needs to have every category, but categories themselves can be 
 
 The syntax for working with categories is as follows:
 
-	#3mc list#0 - shows all market categories
+	#3mc list [<id>|+keyword|-keyword]#0 - lists matching market categories
 	#3mc show <id>#0 - shows a particular market category
 	#3mc edit <id>#0 - begins editing a market category
 	#3mc edit#0 - an alias for #3mc show <editing id>#0
 	#3mc close#0 - stops editing a market category
-	#3mc clone <name>#0 - clones an existing market category and then begins editing the clone
+	#3mc clone <source> <new name>#0 - clones an existing market category and then begins editing the clone
 	#3mc new <tag> <name>#0 - creates a new market category with a specified default item tag
 	#3mc set name <name>#0 - changes the name
 	#3mc set eover <%>#0 - changes the elasticity for oversupply
@@ -10812,7 +10828,7 @@ The syntax for working with categories is as follows:
             return;
         }
 
-        IMarketCategory old = actor.Gameworld.MarketCategories.GetByIdOrName(ss.SafeRemainingArgument);
+        IMarketCategory old = actor.Gameworld.MarketCategories.GetByIdOrName(ss.PopSpeech());
         if (old is null)
         {
             actor.OutputHandler.Send("There is no market category like that.");
@@ -10825,7 +10841,12 @@ The syntax for working with categories is as follows:
             return;
         }
 
-        string name = ss.SafeRemainingArgument.TitleCase();
+        string name = ss.SafeRemainingArgument.Trim().TitleCase();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            actor.OutputHandler.Send("The clone must have a non-empty name.");
+            return;
+        }
         if (actor.Gameworld.MarketCategories.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send($"There is already a market category called {name.ColourName()}. Names must be unique.");
@@ -10918,8 +10939,8 @@ The syntax for working with categories is as follows:
 
     private static void MarketCategoryList(ICharacter actor, StringStack ss)
     {
-        List<IMarketCategory> categories = actor.Gameworld.MarketCategories.ToList();
-        // TODO - filters
+        if (!BuilderListFilter.TryApply(actor.Gameworld.MarketCategories, ss, out var categories, out var error))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in categories
             let prices = actor.Gameworld.Markets.Where(x => x.MarketCategories.Contains(item))
@@ -10962,7 +10983,7 @@ There are several related commands, #3marketcategory#0, #3marketinfluencetemplat
 
 The syntax for this command is as follows:
 
-	#3market list#0 - shows all markets
+	#3market list [<id>|+keyword|-keyword|zone <id|name>]#0 - lists matching markets
 	#3market show <id>#0 - shows a particular market
 	#3market edit <id>#0 - begins editing a market
 	#3market edit#0 - an alias for #3market show <editing id>#0
@@ -11074,8 +11095,11 @@ The syntax for this command is as follows:
 
     private static void MarketList(ICharacter actor, StringStack ss)
     {
-        List<IMarket> markets = actor.Gameworld.Markets.ToList();
-        // TODO - filters
+        if (!BuilderListFilter.TryApply(actor.Gameworld.Markets, ss, out var markets, out var error,
+                item => new[] { item.Name, item.EconomicZone.Name },
+                new Dictionary<string, Func<IMarket, string, bool>>
+                { ["zone"] = (item, value) => BuilderListFilter.IsIdOrName(item.EconomicZone, value) }))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in markets
             select new List<string>
@@ -11190,27 +11214,27 @@ There are several related commands, #3marketcategory#0, #3marketinfluencetemplat
 
 The syntax for this command is as follows:
 
-	#3market list [<market>]#0 - shows all market populations
-	#3market show <id>#0 - shows a particular market population
-	#3market edit <id>#0 - begins editing a market population
-	#3market edit#0 - an alias for #3market show <editing id>#0
-	#3market close#0 - stops editing a market population
-	#3market clone <name>#0 - clones an existing market population and then begins editing the clone
-	#3market new <market> <name>#0 - creates a new market population in a market
-	#3market set name <name>#0 - renames this market population
-	#3market set desc#0 - drops you into an editor to edit the description
-	#3market set scale <number>#0 - sets the number of people represented by this pop
-	#3market set income <factor>#0 - sets the base income factor for this population
-	#3market set savings <cycles>#0 - sets current savings in budget-cycle multiples
-	#3market set savingscap <cycles>#0 - sets the savings cap in budget-cycle multiples
-	#3market set flicker <%>#0 - sets the stress hysteresis threshold for this population
-	#3market set need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
-	#3market set stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
-	#3market set stress <threshold> remove#0 - permanently removes a stress threshold
-	#3market set stress <threshold> name <name>#0 - renames a stress threshold
-	#3market set stress <threshold> desc#0 - drops into an editor to edit the threshold's description
-	#3market set stress <threshold> onstart <prog>|none#0 - sets or clears an on-start prog for the threshold
-	#3market set stress <threshold> onend <prog>|none#0 - sets or clears an on-end prog for the threshold";
+	#3marketpopulation list [<market>]#0 - shows all market populations
+	#3marketpopulation show <id>#0 - shows a particular market population
+	#3marketpopulation edit <id>#0 - begins editing a market population
+	#3marketpopulation edit#0 - an alias for #3marketpopulation show <editing id>#0
+	#3marketpopulation close#0 - stops editing a market population
+	#3marketpopulation clone <source> <new name>#0 - clones an existing market population and then begins editing the clone
+	#3marketpopulation new <market> <name>#0 - creates a new market population in a market
+	#3marketpopulation set name <name>#0 - renames this market population
+	#3marketpopulation set desc#0 - drops you into an editor to edit the description
+	#3marketpopulation set scale <number>#0 - sets the number of people represented by this pop
+	#3marketpopulation set income <factor>#0 - sets the base income factor for this population
+	#3marketpopulation set savings <cycles>#0 - sets current savings in budget-cycle multiples
+	#3marketpopulation set savingscap <cycles>#0 - sets the savings cap in budget-cycle multiples
+	#3marketpopulation set flicker <%>#0 - sets the stress hysteresis threshold for this population
+	#3marketpopulation set need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
+	#3marketpopulation set stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
+	#3marketpopulation set stress <threshold> remove#0 - permanently removes a stress threshold
+	#3marketpopulation set stress <threshold> name <name>#0 - renames a stress threshold
+	#3marketpopulation set stress <threshold> desc#0 - drops into an editor to edit the threshold's description
+	#3marketpopulation set stress <threshold> onstart <prog>|none#0 - sets or clears an on-start prog for the threshold
+	#3marketpopulation set stress <threshold> onend <prog>|none#0 - sets or clears an on-end prog for the threshold";
 
     [PlayerCommand("MarketPopulation", "marketpopulation", "mp")]
     [CommandPermission(PermissionLevel.Admin)]

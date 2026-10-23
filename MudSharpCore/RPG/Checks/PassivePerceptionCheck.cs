@@ -26,7 +26,7 @@ public class PassivePerceptionCheck : TimeboundCheck
                 $"Check Template #{check.CheckTemplateId} had a definition that did not specify a PassiveFuzziness element");
         }
 
-        PassiveFuzziness = double.Parse(element.Value);
+		PassiveFuzziness = double.Parse(element.Value, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     public TraitExpression CoreTraitExpression { get; private set; }

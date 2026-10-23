@@ -1252,7 +1252,8 @@ Administrators have the following additional syntax options:
 					return null;
 				}
 
-				var account = restaurant.LineOfCreditAccounts.FirstOrDefault(x => x.AccountName.EqualTo(ss.PopSpeech()));
+				var accountName = ss.PopSpeech();
+				var account = restaurant.LineOfCreditAccounts.FirstOrDefault(x => x.AccountName.EqualTo(accountName));
 				if (account is null)
 				{
 					actor.OutputHandler.Send("There is no such line of credit account at this restaurant.");

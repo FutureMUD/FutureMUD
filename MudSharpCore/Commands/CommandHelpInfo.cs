@@ -1,5 +1,6 @@
 ﻿using MudSharp.CharacterCreation;
 using MudSharp.Commands.Modules;
+using MudSharp.Accounts;
 using MudSharp.Help;
 using System.Diagnostics;
 using System.Numerics;
@@ -23,6 +24,9 @@ public class CommandHelpInfo : ICommandHelpInfo
         AutoHelpSetting = autoHelp;
         AdminHelp = adminHelp;
         AdminOnly = adminOnly;
+        CommandName = helpName;
+        Aliases = new[] { helpName };
+        PermissionRequired = adminOnly ? PermissionLevel.JuniorAdmin : PermissionLevel.Any;
     }
 
     public CommandHelpInfo(string helpName, string defaultHelp, AutoHelp autoHelp, string adminHelp, bool adminOnly,
@@ -32,11 +36,46 @@ public class CommandHelpInfo : ICommandHelpInfo
         AddConditionalHelp(conditionalHelpPredicate, conditionalHelpText);
     }
 
+    public IReadOnlyList<string> Examples { get; private set; } = Array.Empty<string>();
+    public string ExamplePrerequisites { get; private set; } = string.Empty;
+
+    public CommandHelpInfo WithExamples(IEnumerable<string> examples, string prerequisites)
+    {
+        Examples = examples.ToArray();
+        ExamplePrerequisites = prerequisites;
+        if (Examples.Count == 0) return this;
+        var section = "\n\nExamples (" + prerequisites + "):\n" +
+                      string.Join("\n", Examples.Select(x => x.ColourCommand()));
+        DefaultHelp += section;
+        AdminHelp += section;
+        return this;
+    }
+
     public string HelpName { get; protected set; }
     public string DefaultHelp { get; protected set; }
     public string AdminHelp { get; protected set; }
     public AutoHelp AutoHelpSetting { get; protected set; }
     public bool AdminOnly { get; protected set; }
+
+	public string CommandName { get; private set; }
+	public IReadOnlyList<string> Aliases { get; private set; }
+	public string Subsystem { get; private set; } = "Built-In";
+	public PermissionLevel PermissionRequired { get; private set; }
+	public string Capability { get; private set; } = "Command";
+	public string Summary { get; private set; } = string.Empty;
+
+	public CommandHelpInfo WithMetadata(string commandName, IEnumerable<string> aliases, string subsystem,
+		PermissionLevel permission, string capability = "Command", string summary = null)
+	{
+		CommandName = commandName;
+		Aliases = aliases.Distinct(StringComparer.InvariantCultureIgnoreCase).ToArray();
+		Subsystem = subsystem;
+		PermissionRequired = permission;
+		Capability = capability;
+		Summary = summary ?? DefaultHelp?.SubstituteANSIColour().StripANSIColour()
+			.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim() ?? string.Empty;
+		return this;
+	}
 
     public CommandHelpInfo AddConditionalHelp(Func<ICharacter, bool> predicate, string helpText)
     {
@@ -134,16 +173,17 @@ public class CommandHelpInfo : ICommandHelpInfo
     string IHelpInformation.HelpName => HelpName;
 
     /// <inheritdoc />
-    IEnumerable<string> IHelpInformation.Keywords => [HelpName];
+    IEnumerable<string> IHelpInformation.Keywords => Aliases.Concat(new[] { HelpName, CommandName, Subsystem, Capability })
+        .Distinct(StringComparer.InvariantCultureIgnoreCase);
 
     /// <inheritdoc />
     string IHelpInformation.Category => "Commands";
 
     /// <inheritdoc />
-    string IHelpInformation.Subcategory => "Built-In";
+    string IHelpInformation.Subcategory => Subsystem;
 
     /// <inheritdoc />
-    string IHelpInformation.TagLine => $"Automatically generated help for the {HelpName} command";
+    string IHelpInformation.TagLine => string.IsNullOrEmpty(Summary) ? $"Help for the {HelpName} command" : Summary;
 
     /// <inheritdoc />
     string IHelpInformation.PublicText => DefaultHelp;
@@ -152,7 +192,7 @@ public class CommandHelpInfo : ICommandHelpInfo
     string IHelpInformation.LastEditedBy => "System";
 
     /// <inheritdoc />
-    DateTime IHelpInformation.LastEditedDate => DateTime.UtcNow;
+    DateTime IHelpInformation.LastEditedDate => DateTime.MinValue; // Source edit date is not recorded.
 
     /// <inheritdoc />
     IFutureProg IHelpInformation.Rule => Futuremud.Games.First().AlwaysTrueProg;
@@ -163,7 +203,7 @@ public class CommandHelpInfo : ICommandHelpInfo
     /// <inheritdoc />
     bool IHelpInformation.CanView(ICharacter actor)
     {
-        return true;
+        return !AdminOnly || actor.IsAdministrator();
     }
 
     /// <inheritdoc />
@@ -173,10 +213,11 @@ public class CommandHelpInfo : ICommandHelpInfo
         StringBuilder sb = new();
         sb.AppendLine($"Help on {HelpName.TitleCase()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine();
-        sb.AppendLine($"Category: {ihi.Category.TitleCase().ColourValue()}");
-        sb.AppendLine($"Subcategory: {ihi.Subcategory.TitleCase().ColourValue()}");
+        sb.AppendLine($"Category: {ihi.Category.TitleCase().ColourName()}");
+        sb.AppendLine($"Subcategory: {ihi.Subcategory.TitleCase().ColourName()}");
         sb.AppendLine($"Keywords: {ihi.Keywords.ListToColouredStringOr()}");
-        sb.AppendLine($"Tagline: {ihi.TagLine.ProperSentences().ColourCommand()}");
+        sb.AppendLine($"Command: {CommandName.ColourCommand()} | Capability: {Capability.ColourName()} | Access: {PermissionRequired.DescribeEnum().ColourName()}".Wrap(actor.InnerLineFormatLength));
+        sb.AppendLine($"Tagline: {ihi.TagLine.ProperSentences()}".Wrap(actor.InnerLineFormatLength));
         sb.AppendLine();
         sb.AppendLine(HelpTextFor(actor).SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 
@@ -189,7 +230,7 @@ public class CommandHelpInfo : ICommandHelpInfo
 
         sb.AppendLine();
         sb.AppendLine(
-            $"Lasted edited by {ihi.LastEditedBy.Proper().Colour(Telnet.Green)} on {ihi.LastEditedDate.GetLocalDateString(actor).Colour(Telnet.Green)}.");
+            "Source: built-in command help shipped with the engine. Source edit date is not recorded.");
 
         return sb.ToString();
     }
@@ -201,15 +242,15 @@ public class CommandHelpInfo : ICommandHelpInfo
         StringBuilder sb = new();
         sb.AppendLine($"Help on {HelpName.TitleCase()}".GetLineWithTitleInner(chargen, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine();
-        sb.AppendLine($"Category: {ihi.Category.TitleCase().ColourValue()}");
-        sb.AppendLine($"Subcategory: {ihi.Subcategory.TitleCase().ColourValue()}");
+        sb.AppendLine($"Category: {ihi.Category.TitleCase().ColourName()}");
+        sb.AppendLine($"Subcategory: {ihi.Subcategory.TitleCase().ColourName()}");
         sb.AppendLine($"Keywords: {ihi.Keywords.ListToColouredStringOr()}");
-        sb.AppendLine($"Tagline: {ihi.TagLine.ProperSentences().ColourCommand()}");
+        sb.AppendLine($"Tagline: {ihi.TagLine.ProperSentences()}".Wrap(chargen.Account.InnerLineFormatLength));
         sb.AppendLine();
         sb.AppendLine(ihi.PublicText.SubstituteANSIColour().Wrap(chargen.Account.InnerLineFormatLength));
         sb.AppendLine();
         sb.AppendLine(
-            $"Lasted edited by {ihi.LastEditedBy.Proper().Colour(Telnet.Green)} on {ihi.LastEditedDate.GetLocalDateString(chargen.Account).Colour(Telnet.Green)}.");
+            "Source: built-in command help shipped with the engine. Source edit date is not recorded.");
 
         return sb.ToString();
     }

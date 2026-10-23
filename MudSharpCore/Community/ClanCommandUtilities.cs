@@ -11,12 +11,18 @@ public static class ClanCommandUtilities
 			return false;
 		}
 
-		if (membership.Appointments.Contains(appointment))
+		var visited = new HashSet<IAppointment>();
+		while (appointment is not null && visited.Add(appointment))
 		{
-			return true;
+			if (membership.Appointments.Contains(appointment))
+			{
+				return true;
+			}
+
+			appointment = appointment.ParentPosition;
 		}
 
-		return HoldsOrControlsAppointment(membership, appointment.ParentPosition);
+		return false;
 	}
 
 	public static bool HasReachedConsecutiveTermLimit(IEnumerable<IElection> elections, long characterId,

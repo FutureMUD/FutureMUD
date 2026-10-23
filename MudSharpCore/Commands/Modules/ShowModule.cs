@@ -1,4 +1,5 @@
-﻿using MailKit.Search;
+using MudSharp.Commands.Helpers;
+using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -154,7 +155,7 @@ public class ShowModule : Module<ICharacter>
 	#3outcomes#0 - shows a list of the possible outcomes
 	#3permissions#0 - shows all permission levels for accounts
 	#3profiles#0 - shows all characteristic profiles
-	#3overlays#0 - shows all room overlay packages
+	#3overlays [<id>|+keyword|-keyword|status <status>|builder <account-id>|revision <number>]#0 - lists matching room overlay packages
 	#3pattern <id>#0 - shows a description pattern
 	#3patterns#0 - shows all description patterns
 	#3popbloodmodels#0 - shows all population blood models
@@ -3653,9 +3654,15 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
             return;
         }
 
-        List<Construction.IRoomOverlayPackage> overlays = actor.Gameworld.RoomOverlayPackages.ToList();
-
-        // TODO - filters
+        if (!BuilderListFilter.TryApply(actor.Gameworld.RoomOverlayPackages, input, out var overlays, out var error,
+                item => new[] { item.Name, item.Status.DescribeEnum() },
+                new Dictionary<string, Func<Construction.IRoomOverlayPackage, string, bool>>
+                {
+                    ["status"] = (item, value) => item.Status.ToString().EqualTo(value) || item.Status.DescribeEnum().EqualTo(value),
+                    ["builder"] = (item, value) => long.TryParse(value, out var id) && item.BuilderAccountID == id,
+                    ["revision"] = (item, value) => int.TryParse(value, out var revision) && item.RevisionNumber == revision
+                }))
+        { actor.OutputHandler.Send(error); return; }
 
         using (new FMDB())
         {

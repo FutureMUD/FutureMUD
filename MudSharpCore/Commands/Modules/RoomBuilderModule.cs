@@ -138,6 +138,7 @@ These are the commands used to work with overlay packages:
 	#3room package review <id>#0 - reviews a specific package
 	#3room package history <id>#0 - shows the building/review history of a particular room package
 	#3room package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
+	#3room package delete#0 - deletes your open under-design package only if no room uses it as its active overlay
 
 These commands all require you to have an open overlay package:
 
@@ -721,8 +722,7 @@ Enter your text below:");
             return;
         }
 
-        // TODO
-        actor.OutputHandler.Send("Mass deletion will come later.");
+        actor.OutputHandler.Send("Bulk room deletion is not supported. Use room delete in each room so its dependency and occupant checks run before confirmation. No rooms were deleted.");
     }
 
     #region CellNew
@@ -4005,6 +4005,18 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             actor.OutputHandler.Send("That Room Overlay Package is not currently under design.");
             return;
         }
+
+		var package = actor.CurrentOverlayPackage;
+		var activeRooms = actor.Gameworld.Rooms
+			.Where(x => x.CurrentOverlay.Package.Id == package.Id &&
+			            x.CurrentOverlay.Package.RevisionNumber == package.RevisionNumber)
+			.ToList();
+		if (activeRooms.Count > 0)
+		{
+			actor.OutputHandler.Send(
+				$"You cannot delete this package because it supplies the active overlay for {activeRooms.Count.ToStringN0(actor).ColourValue()} room(s): {activeRooms.Select(x => x.Id.ToStringN0(actor)).ListToCommaSeparatedValues()}. Activate another approved package for those rooms first.".ColourError());
+			return;
+		}
 
         using (new FMDB())
         {

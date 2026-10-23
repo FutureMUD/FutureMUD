@@ -2802,7 +2802,8 @@ Use #3vehicle#0 for live-instance inspection, recovery, access grants and retire
 
 	private static void VehicleProtoShow(ICharacter actor, StringStack ss)
 	{
-		var proto = actor.Gameworld.VehiclePrototypes.GetByIdOrName(ss.SafeRemainingArgument);
+		var proto = ss.IsFinished ? actor.EditingItem<IVehiclePrototype>() :
+			actor.Gameworld.VehiclePrototypes.GetByIdOrName(ss.SafeRemainingArgument);
 		actor.OutputHandler.Send(proto?.Show(actor) ?? "There is no such vehicle prototype.");
 	}
 

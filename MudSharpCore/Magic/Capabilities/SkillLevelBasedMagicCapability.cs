@@ -89,6 +89,7 @@ public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapabi
 		try
 		{
         root = XElement.Parse(capability.Definition);
+        ShowMagicResourcesInPrompt = (bool?)root.Element("ShowMagicResourcesInPrompt") ?? true;
         foreach (XElement item in root.Elements("Power"))
         {
             _skillPowerMap.Add((gameworld.Traits.Get(long.Parse(item.Attribute("trait").Value)),
@@ -124,6 +125,7 @@ public partial class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapabi
     public virtual string SaveToXml()
     {
         XElement root = new("Definition",
+            new XElement("ShowMagicResourcesInPrompt", ShowMagicResourcesInPrompt),
             new XElement("ConcentrationTrait", ConcentrationTrait.Id),
             new XElement("ConcentrationCapabilityExpression", ConcentrationCapabilityExpression.OriginalFormulaText),
             new XElement("ConcentrationDifficultyExpression", ConcentrationDifficultyExpression.OriginalFormulaText),

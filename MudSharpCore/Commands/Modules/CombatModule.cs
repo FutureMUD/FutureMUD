@@ -2407,7 +2407,7 @@ The syntax is simply #3flee#0 to toggle it on, and the same again to return to y
 
     [PlayerCommand("Ward", "ward")]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("clinch", @"The #3Ward#0 command is used to focus on the ward defense, with means using the threat of counter-attacking with your weapon to keep your opponent at range and also to defend against attacks with that same threat.
+    [HelpInfo("ward", @"The #3Ward#0 command is used to focus on the ward defense, which means using the threat of counter-attacking with your weapon to keep your opponent at range and also to defend against attacks with that same threat.
 
 If the ward fails, you can still dodge the attack (albeit at a penalty) but you can't parry or block. If the opponent pushes through the ward attempt you will get a free counter-attack against them.
 

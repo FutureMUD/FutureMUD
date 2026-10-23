@@ -200,10 +200,9 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 	#3maximumaccounts <##>#0 - sets the max number of accounts per customer
 	#3manager <who|id>#0 - toggles someone being a bank manager
 	#3branch#0 - toggles your current location as a bank branch
-	#3accounts#0 - view a list of accounts
-	#3account <accn>#0 - view info about an account
+	Use #3bank accounts#0 for accessible accounts, or #3bank manager accounts#0 and #3bank manager account <account>#0 with manager authority at a branch. These are operational commands, not #3bank set#0 options.
 	#3type add <name>#0 - creates a new bank account type
-	#3type remove <name>#0 - deletes a bank account type
+	Account-type deletion is unsupported because existing accounts and transaction history retain references to their types.
 	#3type view <which>#0 - views a bank account type
 	#3type <which> <...>#0 - edits the properties of a bank account type";
 
@@ -343,7 +342,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
     private bool BuildingCommandAccountTypeDelete(ICharacter actor, StringStack command)
     {
-        actor.OutputHandler.Send("Coming soon.");
+        actor.OutputHandler.Send("Bank account types cannot currently be deleted: existing accounts and transaction history retain references to them. Edit the existing type with bank set type <name> <setting> instead.");
         return false;
     }
 

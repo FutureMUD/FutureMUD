@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
@@ -196,7 +196,7 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 
         sb.AppendLine();
         sb.AppendLine(
-            $"Lasted edited by {LastEditedBy.Proper().Colour(Telnet.Green)} on {LastEditedDate.GetLocalDateString(actor).Colour(Telnet.Green)}.");
+            $"Last edited by {LastEditedBy.Proper().Colour(Telnet.Green)} on {LastEditedDate.GetLocalDateString(actor).Colour(Telnet.Green)}.");
 
         return sb.ToString();
     }
@@ -214,7 +214,7 @@ public class Helpfile : SaveableItem, IEditableHelpfile
         sb.AppendLine(PublicText.Wrap(chargen.Account.InnerLineFormatLength));
         sb.AppendLine();
         sb.AppendLine(
-            $"Lasted edited by {LastEditedBy.Proper().Colour(Telnet.Green)} on {LastEditedDate.GetLocalDateString(chargen.Account).Colour(Telnet.Green)}.");
+            $"Last edited by {LastEditedBy.Proper().Colour(Telnet.Green)} on {LastEditedDate.GetLocalDateString(chargen.Account).Colour(Telnet.Green)}.");
 
         return sb.ToString();
     }

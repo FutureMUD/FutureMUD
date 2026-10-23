@@ -108,7 +108,7 @@ namespace MudSharp.Commands.Modules
             newCharacter.HandleEvent(EventType.NPCOnGameLoadFinished, newCharacter);
         }
 
-        private static void NPCClone(ICharacter actor, StringStack command)
+        internal static void NPCClone(ICharacter actor, StringStack command)
         {
             if (command.IsFinished)
             {
@@ -342,6 +342,12 @@ The core syntax to use this command is as follows:
             StringStack ss = new(command.RemoveFirstWord());
             switch (ss.PopSpeech().ToLowerInvariant())
             {
+                case "capabilities":
+                case "validate":
+                case "diff":
+                case "undo":
+                    BaseBuilderModule.GenericRevisableBuildingCommand(character, ss.GetUndo(), EditableRevisableItemHelper.NpcTemplateHelper);
+                    break;
                 case "list":
                     GenericRevisableList(character, ss, EditableRevisableItemHelper.NpcTemplateHelper);
                     break;
@@ -1087,18 +1093,16 @@ You can use the following sub-commands:
 
 The following options are available:
 
-	#3npcspawner list [all|mine|+key|-key]#0 - lists all NPC Spawners
+	#3npcspawner list [<id>|+key|-key]#0 - lists NPC Spawners, optionally filtered by ID or name
 	#3npcspawner edit <id|name>#0 - opens the specified NPC Spawner for editing
 	#3npcspawner edit new <name>#0 - creates a new NPC Spawner for editing
 	#3npcspawner edit#0 - equivalent of doing SHOW on your currently editing NPC Spawner
 	#3npcspawner clone <id|name> <new name>#0 - creates a carbon copy of a NPC Spawner for editing
 	#3npcspawner show <id|name>#0 - shows a particular NPC Spawner.
 	#3npcspawner set <subcommand>#0 - changes something about the NPC Spawner. See its help for more info.
-	#3npcspawner edit submit#0 - submits a NPC Spawner for review
-	#3npcspawner review all|mine|<id|name>#0 - reviews a submitted NPC Spawner
-	#3npcspawner review list#0 - shows all NPC Spawner submitted for review
+	#3npcspawner close#0 - stops editing the selected spawner
 
-{GenericReviewableSearchList}";
+NPC Spawners are live editable records. Successful settings take effect immediately and are saved normally; there is no submit/review lifecycle. Closing an editor does not undo changes.";
 
         [PlayerCommand("NPCSpawner", "npcspawner", "spawner")]
         [CommandPermission(PermissionLevel.Admin)]

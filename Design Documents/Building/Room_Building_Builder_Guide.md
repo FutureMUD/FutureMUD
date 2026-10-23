@@ -261,6 +261,8 @@ room package swap 42
 
 Use `room package revise` for an existing current or rejected package when you want a new revision. Use `room package delete` only for an open `Under Design` package you really want to discard.
 
+Deletion is blocked while any room uses that package revision as its active overlay. The refusal lists the affected room IDs. Activate another approved package for those rooms before discarding the draft. This also protects newly created rooms whose only overlay belongs to the draft; deleting a package is not a way to delete those rooms.
+
 `room package review <id>` and `room package review all` open a temporary review proposal. Type `accept edit <comments>` or `decline edit <comments>` as the follow-up response before the proposal times out.
 
 ## Terrain, Outdoors Type, and Environment

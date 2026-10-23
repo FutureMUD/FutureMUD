@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Commands.Helpers;
 using MudSharp.Database;
@@ -31,6 +31,13 @@ You should also see the related #3component#0 command. Components are what give 
 The valid sub-commands and their syntaxes are as follows:
 
 	#3item list [<filters>]#0 - lists all item prototypes. See below for filters.
+	#3item capabilities#0 - reports supported helper operations
+	#3item validate [<id> [<revision>]]#0 - checks submission rules without activation
+	#3item diff [<id> [<revision>]]#0 - compares supported fields with the approved revision
+	#3item undo#0 - attempts guarded recovery of your last single noun/name edit
+	#3item list [filters] --page <number> --limit <1-1000> --sort id|name|revision#0 - controls catalogue output
+	#3item list [filters] --count#0 - counts matches without formatting rows
+	#3item list [filters] --export csv#0 - exports selected rows through normal output
 
 		#6all#0 - includes obsolete and non-current revisions
 		#6mine#0 - only shows items you personally created
@@ -128,6 +135,12 @@ The valid sub-commands and their syntaxes are as follows:
                 case "set":
                     GenericRevisableSet(actor, ss, EditableRevisableItemHelper.GameItemHelper);
                     break;
+                case "capabilities":
+                case "validate":
+                case "diff":
+                case "undo":
+                    BaseBuilderModule.GenericRevisableBuildingCommand(actor, ss.GetUndo(), EditableRevisableItemHelper.GameItemHelper);
+                    break;
                 case "list":
                     GenericRevisableList(actor, ss, EditableRevisableItemHelper.GameItemHelper);
                     break;
@@ -165,7 +178,7 @@ The valid sub-commands and their syntaxes are as follows:
                 GameItemProtoLookupExtensions.IsValidUniqueName);
         }
 
-        private static void Item_Clone(ICharacter actor, StringStack ss)
+        internal static void Item_Clone(ICharacter actor, StringStack ss)
         {
             if (ss.IsFinished)
             {
@@ -1432,14 +1445,14 @@ The syntax for this command is as follows:
                         continue;
                     case '+':
                         keyword = text[1..];
-                        itemgroups = itemgroups.Where(x => x.Forms.Any(y =>
+                        itemgroups = itemgroups.Where(x => x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || x.Forms.Any(y =>
                             y.Describe(actor, Enumerable.Empty<IGameItem>())
                              .Contains(keyword, StringComparison.InvariantCultureIgnoreCase)));
                         continue;
                     case '-':
                         keyword = text[1..];
-                        itemgroups = itemgroups.Where(x => x.Forms.Any(y =>
-                            !y.Describe(actor, Enumerable.Empty<IGameItem>())
+                        itemgroups = itemgroups.Where(x => !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) && !x.Forms.Any(y =>
+                            y.Describe(actor, Enumerable.Empty<IGameItem>())
                               .Contains(keyword, StringComparison.InvariantCultureIgnoreCase)));
                         continue;
                     default:
@@ -1597,7 +1610,9 @@ The syntax to use this command is as follows:
 #3itemskin show#0 - views information about your currently editing item skin
 #3itemskin set ...#0 - edits properties of an item skin
 #3itemskin set suggestdesc [<optional extra context>]#0 - asks your configured AI model to suggest a full description override
-#3itemskin review all|mine|<builder name>|<id>#0 - opens the specified item skins for review and approval
+#3itemskin review <id>#0 - reviews one pending skin
+#3itemskin review list [mine|by <account>]#0 - lists pending skins
+#3itemskin review all [by <account>]#0 - reviews all matching pending skins
 
 {GenericReviewableSearchList}";
 
@@ -1782,7 +1797,7 @@ Item choices start open and unlocked unless marked #3closed#0 or #3locked#0. #3l
 			actor.Send("There is no such loot table revision."); return false;
 		}
 
-		private static void LootTableClone(ICharacter actor, StringStack command)
+		internal static void LootTableClone(ICharacter actor, StringStack command)
 		{
 			if (!TryGetLootTable(actor, command, out var source) || command.IsFinished) { actor.Send("Specify a source and new name."); return; }
 			var clone = ((MudSharp.Work.Loot.LootTable)source).Clone(actor.Account, command.SafeRemainingArgument);

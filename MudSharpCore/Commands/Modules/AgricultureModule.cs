@@ -1,3 +1,4 @@
+using MudSharp.Commands.Helpers;
 ﻿using MudSharp.Database;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects;
@@ -32,10 +33,15 @@ Admin Syntax:
 	#3field profiles|crops|herds|woodlands|operations#0
 	#3field scoretype list|set|disable ...#0
 	#3field profile show|create|set|delete ...#0
-	#3field crop show|create|set|delete ...#0
+	#3field crop show|validate|create|set|delete ...#0
+	#3field crop set <crop> output|seeds list|add|set|remove|clear ...#0
 	#3field herds show|create|set|delete ...#0
-	#3field woodland show|create|set|delete ...#0
-	#3field operation show|create|set|delete ...#0";
+	#3field woodland show|validate|create|set|delete ...#0
+	#3field woodland set <woodland> output list|add|set|remove|clear ...#0
+	#3field operation show|validate|create|set|delete ...#0
+	#3field operation set <operation> apiaryinstall <hives> <radius>#0
+	#3field operation set <operation> apiarytend <health> <stores> <yield>#0
+	#3field operation set <operation> apiaryyield <multiplier> <cost> ...#0";
 
 	[PlayerCommand("Field", "field")]
 	[HelpInfo("field", FieldHelp, AutoHelp.HelpArgOrNoArg)]
@@ -977,6 +983,10 @@ Scores: {profile.DefaultScores.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+			case "validate":
+                var target = actor.Gameworld.AgricultureCropDefinitions.GetByIdOrName(ss.SafeRemainingArgument);
+                actor.OutputHandler.Send(target is null ? "No such definition to validate." : BuilderPreflight.Describe(target, actor.Gameworld));
+                return;
 			case "list":
 				ListCrops(actor);
 				return;
@@ -996,7 +1006,7 @@ Scores: {profile.DefaultScores.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 				return;
 		}
 
-		actor.OutputHandler.Send("Syntax: field crop list|show|create|set|delete");
+		actor.OutputHandler.Send("Syntax: field crop list|show|validate|create|set|delete");
 	}
 
 	private static void ShowCrop(ICharacter actor, StringStack ss)
@@ -1095,7 +1105,7 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, pollination, or score?");
+			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, pollination, score, output, or seeds?");
 			return;
 		}
 
@@ -1255,9 +1265,125 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 				concrete.BuildingSetScoreRange(cropScore, range.Minimum, range.Maximum);
 				actor.OutputHandler.Send($"You set this crop's {cropScore.DescribeFor(actor.Gameworld).ColourName()} growing range to {range.Minimum.ToStringN0Colour(actor)}-{range.Maximum.ToStringN0Colour(actor)}.");
 				return;
+			case "output":
+			case "outputs":
+			case "yield":
+				SetCropCommodities(actor, concrete, ss, false);
+				return;
+			case "seed":
+			case "seeds":
+			case "seedrequirement":
+				SetCropCommodities(actor, concrete, ss, true);
+				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, pollination, or score?");
+		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, pollination, score, output, or seeds?");
+	}
+
+	private static void SetCropCommodities(ICharacter actor, AgricultureCropDefinition crop, StringStack ss, bool seeds)
+	{
+		var items = (seeds ? crop.SeedRequirements : crop.YieldOutputs).ToList();
+		var label = seeds ? "seed requirement" : "harvest output";
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Syntax: field crop set <crop> {(seeds ? "seeds" : "output")} list|add <grams> <material> [tag <tag>]|set <index> <grams> <material> [tag <tag>]|remove <index>|clear");
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "list":
+				actor.OutputHandler.Send(items.Count == 0 ? $"This crop has no {label}s." : string.Join("\n", items.Select((item, index) => $"{index + 1}. {item.BaseWeight.ToString("N2", actor)} g {item.MaterialName}{(string.IsNullOrEmpty(item.TagName) ? "" : $" [tag {item.TagName}]")}")));
+				return;
+			case "clear":
+				SetCropCommodities(crop, seeds, Array.Empty<AgricultureCommodityYield>());
+				actor.OutputHandler.Send($"You clear this crop's {label}s.");
+				return;
+			case "remove":
+				if (!TryPopOneBasedIndex(ss, items.Count, out var removeIndex))
+				{
+					actor.OutputHandler.Send("Specify a valid 1-based index and no extra arguments.");
+					return;
+				}
+
+				items.RemoveAt(removeIndex);
+				SetCropCommodities(crop, seeds, items);
+				actor.OutputHandler.Send($"You remove {label} {removeIndex + 1}.");
+				return;
+			case "add":
+				if (!TryPopCommodity(actor, ss, out var added)) return;
+				items.Add(added);
+				SetCropCommodities(crop, seeds, items);
+				actor.OutputHandler.Send($"You add {added.BaseWeight.ToString("N2", actor)} g of {added.MaterialName.ColourName()} to this crop's {label}s.");
+				return;
+			case "set":
+				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var oneBased) || oneBased < 1 || oneBased > items.Count || !TryPopCommodity(actor, ss, out var replacement))
+				{
+					actor.OutputHandler.Send("Specify a valid 1-based index followed by positive finite grams, a material and optional tag.");
+					return;
+				}
+
+				items[oneBased - 1] = replacement;
+				SetCropCommodities(crop, seeds, items);
+				actor.OutputHandler.Send($"You replace {label} {oneBased}.");
+				return;
+		}
+
+		actor.OutputHandler.Send("Use list, add, set, remove, or clear.");
+	}
+
+	private static void SetCropCommodities(AgricultureCropDefinition crop, bool seeds, IEnumerable<AgricultureCommodityYield> items)
+	{
+		if (seeds) crop.BuildingSetSeedRequirements(items);
+		else crop.BuildingSetYieldOutputs(items);
+	}
+
+	private static bool TryPopOneBasedIndex(StringStack ss, int count, out int index)
+	{
+		index = -1;
+		if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var oneBased) || oneBased < 1 || oneBased > count || !ss.IsFinished) return false;
+		index = oneBased - 1;
+		return true;
+	}
+
+	private static bool TryPopCommodity(ICharacter actor, StringStack ss, out AgricultureCommodityYield item)
+	{
+		item = null;
+		if (ss.IsFinished || !double.TryParse(ss.PopSpeech(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var grams) || !double.IsFinite(grams) || grams <= 0.0 || ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Specify a positive finite weight in grams and a material name.");
+			return false;
+		}
+
+		var material = ss.PopSpeech();
+		var tag = string.Empty;
+		if (!ss.IsFinished)
+		{
+			if (!ss.PopSpeech().EqualTo("tag") || ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Specify an optional tag as tag <tag name>.");
+				return false;
+			}
+			tag = ss.PopSpeech();
+			if (!ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Quote material and tag names containing spaces.");
+				return false;
+			}
+		}
+
+		if (actor.Gameworld.Materials.GetByName(material) == null)
+		{
+			actor.OutputHandler.Send("There is no such material.");
+			return false;
+		}
+		if (!string.IsNullOrEmpty(tag) && actor.Gameworld.Tags.GetByName(tag) == null)
+		{
+			actor.OutputHandler.Send("There is no such tag.");
+			return false;
+		}
+		item = new AgricultureCommodityYield(material, grams, tag);
+		return true;
 	}
 
 	private static void SetCropPlanting(ICharacter actor, AgricultureCropDefinition crop, StringStack ss)
@@ -1619,6 +1745,10 @@ NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+			case "validate":
+                var target = actor.Gameworld.AgricultureWoodlandDefinitions.GetByIdOrName(ss.SafeRemainingArgument);
+                actor.OutputHandler.Send(target is null ? "No such definition to validate." : BuilderPreflight.Describe(target, actor.Gameworld));
+                return;
 			case "list":
 				ListWoodlands(actor);
 				return;
@@ -1638,7 +1768,7 @@ NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 				return;
 		}
 
-		actor.OutputHandler.Send("Syntax: field woodland list|show|create|set|delete");
+		actor.OutputHandler.Send("Syntax: field woodland list|show|validate|create|set|delete");
 	}
 
 	private static void ShowWoodland(ICharacter actor, StringStack ss)
@@ -1692,7 +1822,7 @@ Outputs: {DescribeCommodityOutputs(woodland.YieldOutputs, actor)}");
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, type, establishment, or cycle?");
+			actor.OutputHandler.Send("Do you want to set name, description, type, establishment, cycle, or output?");
 			return;
 		}
 
@@ -1734,9 +1864,52 @@ Outputs: {DescribeCommodityOutputs(woodland.YieldOutputs, actor)}");
 				concrete.BuildingSetHarvestCycleDays(cycle);
 				actor.OutputHandler.Send($"You set harvest cycle time to {concrete.HarvestCycleDays.ToStringN0Colour(actor)} days.");
 				return;
+			case "output":
+			case "outputs":
+				SetWoodlandCommodities(actor, concrete, ss);
+				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, type, establishment, or cycle?");
+		actor.OutputHandler.Send("Do you want to set name, description, type, establishment, cycle, or output?");
+	}
+
+	private static void SetWoodlandCommodities(ICharacter actor, AgricultureWoodlandDefinition woodland, StringStack ss)
+	{
+		var items = woodland.YieldOutputs.ToList();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Syntax: field woodland set <woodland> output list|add <grams> <material> [tag <tag>]|set <index> <grams> <material> [tag <tag>]|remove <index>|clear");
+			return;
+		}
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "list":
+				actor.OutputHandler.Send(items.Count == 0 ? "This woodland has no outputs." : string.Join("\n", items.Select((item, index) => $"{index + 1}. {item.BaseWeight.ToString("N2", actor)} g {item.MaterialName}{(string.IsNullOrEmpty(item.TagName) ? "" : $" [tag {item.TagName}]")}")));
+				return;
+			case "clear":
+				woodland.BuildingSetYieldOutputs(Array.Empty<AgricultureCommodityYield>());
+				actor.OutputHandler.Send("You clear this woodland's harvest outputs.");
+				return;
+			case "remove":
+				if (!TryPopOneBasedIndex(ss, items.Count, out var removeIndex)) { actor.OutputHandler.Send("Specify a valid 1-based index and no extra arguments."); return; }
+				items.RemoveAt(removeIndex);
+				woodland.BuildingSetYieldOutputs(items);
+				actor.OutputHandler.Send($"You remove woodland output {removeIndex + 1}.");
+				return;
+			case "add":
+				if (!TryPopCommodity(actor, ss, out var added)) return;
+				items.Add(added);
+				woodland.BuildingSetYieldOutputs(items);
+				actor.OutputHandler.Send($"You add {added.BaseWeight.ToString("N2", actor)} g of {added.MaterialName.ColourName()} to this woodland's outputs.");
+				return;
+			case "set":
+				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var oneBased) || oneBased < 1 || oneBased > items.Count || !TryPopCommodity(actor, ss, out var replacement)) { actor.OutputHandler.Send("Specify a valid 1-based index followed by positive finite grams, a material and optional tag."); return; }
+				items[oneBased - 1] = replacement;
+				woodland.BuildingSetYieldOutputs(items);
+				actor.OutputHandler.Send($"You replace woodland output {oneBased}.");
+				return;
+		}
+		actor.OutputHandler.Send("Use list, add, set, remove, or clear.");
 	}
 
 	private static void DeleteWoodland(ICharacter actor, StringStack ss)
@@ -1789,6 +1962,10 @@ Outputs: {DescribeCommodityOutputs(woodland.YieldOutputs, actor)}");
 
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+            case "validate":
+                var target = actor.Gameworld.AgricultureOperations.GetByIdOrName(ss.SafeRemainingArgument);
+                actor.OutputHandler.Send(target is null ? "No such definition to validate." : BuilderPreflight.Describe(target, actor.Gameworld));
+                return;
 			case "list":
 				ListOperations(actor);
 				return;
@@ -1808,7 +1985,7 @@ Outputs: {DescribeCommodityOutputs(woodland.YieldOutputs, actor)}");
 				return;
 		}
 
-		actor.OutputHandler.Send("Syntax: field operation list|show|create|set|delete");
+		actor.OutputHandler.Send("Syntax: field operation list|show|validate|create|set|delete");
 	}
 
 	private static void ShowOperation(ICharacter actor, StringStack ss)
@@ -1885,7 +2062,7 @@ Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, type, target, required, allowed, result, project, prog, delta, woodlandyield, or herdyield?");
+			actor.OutputHandler.Send("Do you want to set name, description, type, target, required, allowed, result, project, prog, delta, woodlandyield, herdyield, apiaryinstall, apiarytend, or apiaryyield?");
 			return;
 		}
 
@@ -2041,9 +2218,70 @@ Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 				concrete.BuildingSetHerdYield(herdMultiplier, herdCost);
 				actor.OutputHandler.Send($"You set herd product output to x{concrete.HerdYieldMultiplier.ToString("N2", actor).ColourValue()} and yield cost to {concrete.HerdYieldCost.ToString("N0", actor).ColourValue()}.");
 				return;
+			case "apiaryinstall":
+			case "apiaryinstallation":
+				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var hives) || hives < 1 || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var radius) || radius < 0 || !ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Specify a positive hive count and a non-negative pollination radius.");
+					return;
+				}
+				concrete.BuildingSetApiaryInstallation(hives, radius);
+				actor.OutputHandler.Send($"You set apiary installation to {hives} hives with pollination radius {radius}.");
+				return;
+			case "apiarytend":
+			case "apiarytending":
+				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var healthDelta) || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var storesDelta) || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var yieldDelta) || !ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Specify signed health, stores, and yield deltas. Negative values are valid.");
+					return;
+				}
+				concrete.BuildingSetApiaryTending(healthDelta, storesDelta, yieldDelta);
+				actor.OutputHandler.Send($"You set apiary tending deltas to {healthDelta}, {storesDelta}, and {yieldDelta}.");
+				return;
+			case "apiaryyield":
+				SetApiaryYield(actor, concrete, ss);
+				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, type, target, required, allowed, result, project, prog, delta, woodlandyield, or herdyield?");
+		actor.OutputHandler.Send("Do you want to set name, description, type, target, required, allowed, result, project, prog, delta, woodlandyield, herdyield, apiaryinstall, apiarytend, or apiaryyield?");
+	}
+
+	private static void SetApiaryYield(ICharacter actor, AgricultureOperation operation, StringStack ss)
+	{
+		if (ss.IsFinished || !double.TryParse(ss.PopSpeech(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var multiplier) || !double.IsFinite(multiplier) || multiplier <= 0.0 || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var cost) || cost < 0 || cost > 100 || ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Specify a positive finite yield multiplier, a 0-100 yield cost, and list|add|set|remove|clear.");
+			return;
+		}
+
+		var items = operation.ApiaryYieldOutputs.ToList();
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "list":
+				actor.OutputHandler.Send(items.Count == 0 ? "This operation has no apiary products configured." : string.Join("\n", items.Select((item, index) => $"{index + 1}. {item.BaseWeight.ToString("N2", actor)} g {item.MaterialName}{(string.IsNullOrEmpty(item.TagName) ? "" : $" [tag {item.TagName}]")}")));
+				return;
+			case "clear":
+				items.Clear();
+				break;
+			case "remove":
+				if (!TryPopOneBasedIndex(ss, items.Count, out var removeIndex)) { actor.OutputHandler.Send("Specify a valid 1-based index and no extra arguments."); return; }
+				items.RemoveAt(removeIndex);
+				break;
+			case "add":
+				if (!TryPopCommodity(actor, ss, out var added)) return;
+				items.Add(added);
+				break;
+			case "set":
+				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var oneBased) || oneBased < 1 || oneBased > items.Count || !TryPopCommodity(actor, ss, out var replacement)) { actor.OutputHandler.Send("Specify a valid 1-based index followed by positive finite grams, a material and optional tag."); return; }
+				items[oneBased - 1] = replacement;
+				break;
+			default:
+				actor.OutputHandler.Send("Use list, add, set, remove, or clear.");
+				return;
+		}
+
+		operation.BuildingSetApiaryYield(multiplier, cost, items);
+		actor.OutputHandler.Send($"You set apiary yield to x{multiplier.ToString("N2", actor)} with cost {cost} and {items.Count} product(s).");
 	}
 
 	private static void DeleteOperation(ICharacter actor, StringStack ss)

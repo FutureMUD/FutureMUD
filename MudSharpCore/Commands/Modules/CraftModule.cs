@@ -276,6 +276,13 @@ The full list of filters for craft list is below:
         StringStack ss = new(input.RemoveFirstWord());
         switch (ss.PopSpeech().ToLowerInvariant())
         {
+            case "capabilities":
+            case "validate":
+            case "diff":
+            case "undo":
+                if (!actor.IsAdministrator()) { actor.OutputHandler.Send("You must be an administrator to use builder diagnostics."); return; }
+                BaseBuilderModule.GenericRevisableBuildingCommand(actor, ss.GetUndo(), EditableRevisableItemHelper.CraftHelper);
+                return;
             case "begin":
             case "start":
                 CraftBegin(actor, ss);
@@ -398,7 +405,7 @@ The full list of filters for craft list is below:
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    private static void CraftClone(ICharacter actor, StringStack ss)
+    internal static void CraftClone(ICharacter actor, StringStack ss)
     {
         if (!actor.IsAdministrator())
         {
@@ -861,6 +868,13 @@ Note: See the closely related #3projects#0 command for information about your cu
         {
             switch (text)
             {
+                case "capabilities":
+                case "validate":
+                case "diff":
+                case "undo":
+                    if (!actor.IsAdministrator()) { actor.OutputHandler.Send("You must be an administrator to use builder diagnostics."); return; }
+                    BaseBuilderModule.GenericRevisableBuildingCommand(actor, ss.GetUndo(), EditableRevisableItemHelper.ProjectHelper);
+                    return;
                 case "list":
                     BaseBuilderModule.GenericRevisableList(actor, ss, EditableRevisableItemHelper.ProjectHelper);
                     return;

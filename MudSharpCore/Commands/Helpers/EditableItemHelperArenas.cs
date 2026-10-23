@@ -99,7 +99,7 @@ public partial class EditableItemHelper
                 proto.EconomicZone.Name,
                 proto.Currency.Name
             },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Combat Arena #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = @"You can use the combat arena builder with the following syntax:
 
@@ -217,7 +217,7 @@ public partial class EditableItemHelper
                 proto.AdminNpcLoaderProg?.MXPClickableFunctionName() ?? "None",
                 proto.ResurrectNpcOnDeath.ToColouredString()
             },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Combatant Class #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = @"You can use the combatant class builder with the following syntax:
 
@@ -428,7 +428,7 @@ public partial class EditableItemHelper
                 proto.BringYourOwn.ToColouredString(),
                 proto.BettingModel.DescribeEnum()
             },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Arena Event Type #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = @"You can use the arena event type builder with the following syntax:
 
@@ -536,7 +536,7 @@ public partial class EditableItemHelper
                 proto.State.DescribeEnum(),
                 proto.ScheduledAt.ToString("g", character)
             },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Arena Event #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = @"You can use the arena event builder with the following syntax:
 

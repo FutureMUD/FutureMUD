@@ -1,4 +1,5 @@
-﻿using Humanizer;
+using MudSharp.Commands.Helpers;
+using Humanizer;
 using MudSharp.Accounts;
 using MudSharp.Celestial;
 using MudSharp.Character.Name;
@@ -27,21 +28,21 @@ public class LegalModule : Module<ICharacter>
     public static LegalModule Instance { get; } = new();
 
     private const string LegalAuthorityHelpText =
-        @"This command is used to edit and manage legal authorities, which are the entities which create and enforce laws. The valid options for this command are:
+        @"This command is used to edit and manage legal authorities, which are the entities which create and enforce laws. When filtering a subordinate list, supply its legal authority before the filters; omit the authority only for an unfiltered list of the selected authority. The valid options for this command are:
 
-	#3legal list#0 - lists all legal authorities
+	#3legal list [<id>|+keyword|-keyword]#0 - lists matching legal authorities
 	#3legal edit new <name> <currency>#0 - creates a new legal authority
 	#3legal edit <authority>#0 - opens a legal authority for editing
 	#3legal edit#0 - equivalent to the show option for your currently edited authority
 	#3legal show <which>#0 - shows a legal authority in detail
 	#3legal close#0 - closes your currently edited authority
 	#3legal delete#0 - permanently deletes the edited legal authority
-	#3legal laws [<legal authority>]#0 - shows all the laws
-	#3legal classes [<legal authority>]#0 - shows all the classes
-	#3legal enforcements [<legal authority>]#0 - shows all enforcer authorities
+	#3legal laws <legal authority> [<id>|+keyword|-keyword|type <crime-type>]#0 - lists matching laws
+	#3legal classes <legal authority> [<id>|+keyword|-keyword]#0 - lists matching legal classes
+	#3legal enforcements <legal authority> [<id>|+keyword|-keyword]#0 - lists matching enforcer authorities
 	#3legal roster [<legal authority>|<zone>]#0 - shows the enforcer roster and patrol eligibility
 	#3legal status [<legal authority>]#0 - diagnoses legal authority setup, patrol coverage and required equipment
-	#3legal patrols [<legal authority>]#0 - shows all patrol routes
+	#3legal patrols <legal authority> [<id>|+keyword|-keyword]#0 - lists matching patrol routes
 	#3legal cancelpatrol <legal authority> <patrol>#0 - cancels an active patrol
 
 You can also use the following options to change the properties of an authority that you are editing:
@@ -978,8 +979,8 @@ The syntax is:
             }
         }
 
-        List<IPatrolRoute> patrols = editing.PatrolRoutes.ToList();
-        // TODO - filtering
+        if (!BuilderListFilter.TryApply(editing.PatrolRoutes, ss, out var patrols, out var error, item => new[] { item.Name, item.PatrolStrategy.Name }))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in patrols
             select new List<string>
@@ -1027,8 +1028,8 @@ The syntax is:
             }
         }
 
-        List<IEnforcementAuthority> enforcements = editing.EnforcementAuthorities.ToList();
-        // TODO - filtering
+        if (!BuilderListFilter.TryApply(editing.EnforcementAuthorities, ss, out var enforcements, out var error))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in enforcements
             select new List<string>
@@ -1076,8 +1077,8 @@ The syntax is:
             }
         }
 
-        List<ILegalClass> classes = editing.LegalClasses.ToList();
-        // TODO - filtering
+        if (!BuilderListFilter.TryApply(editing.LegalClasses, ss, out var classes, out var error))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in classes
             select new List<string>
@@ -1121,8 +1122,10 @@ The syntax is:
             }
         }
 
-        List<ILaw> laws = editing.Laws.ToList();
-        // TODO - filtering
+        if (!BuilderListFilter.TryApply(editing.Laws, ss, out var laws, out var error, item => new[] { item.Name, item.CrimeType.DescribeEnum(), item.EnforcementStrategy.DescribeEnum() },
+                new Dictionary<string, Func<ILaw, string, bool>>
+                { ["type"] = (item, value) => item.CrimeType.ToString().EqualTo(value) || item.CrimeType.DescribeEnum().EqualTo(value) }))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from item in laws
             select new List<string>
@@ -1157,8 +1160,11 @@ The syntax is:
 
     private static void LegalAuthorityList(ICharacter actor, StringStack ss)
     {
+        if (!BuilderListFilter.TryApply(actor.Gameworld.LegalAuthorities, ss, out var authorities, out var error,
+                item => new[] { item.Name }.Concat(item.EnforcementZones.Select(zone => zone.Name))))
+        { actor.OutputHandler.Send(error); return; }
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
-            from authority in actor.Gameworld.LegalAuthorities
+            from authority in authorities
             select new[]
             {
                 authority.Id.ToString("N0", actor),

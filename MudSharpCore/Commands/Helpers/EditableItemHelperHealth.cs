@@ -64,7 +64,7 @@ public partial class EditableItemHelper
                                                               proto.Id.ToString("N0", character),
                                                               proto.Name
                                                           },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         DefaultCommandHelp = BuilderModule.BloodAntigenHelpText,
         GetEditHeader = item => $"Blood Antigen #{item.Id:N0} ({item.Name})"
     };
@@ -125,7 +125,7 @@ public partial class EditableItemHelper
                                                               proto.Name,
                                                               proto.Antigens.Select(x => x.Name).ListToCommaSeparatedValues(", ")
                                                           },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         DefaultCommandHelp = BuilderModule.BloodTypeHelpText,
         GetEditHeader = item => $"Blood Type #{item.Id:N0} ({item.Name})"
     };
@@ -189,7 +189,7 @@ public partial class EditableItemHelper
                                                               proto.BloodModel?.Name ?? "None",
                                                               proto.BloodTypes.OrderByDescending(x => x.Weight).Select(x => $"{x.Bloodtype.Name} ({(x.Weight / weight):P2})").ListToCommaSeparatedValues(", ")
                                                           },
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         DefaultCommandHelp = BuilderModule.PopulationBloodModelHelpText,
         GetEditHeader = item => $"Population Blood Model #{item.Id:N0} ({item.Name})"
     };

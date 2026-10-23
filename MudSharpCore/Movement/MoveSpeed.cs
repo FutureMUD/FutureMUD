@@ -25,4 +25,15 @@ public class MoveSpeed : FrameworkItem, IMoveSpeed
     public double StaminaMultiplier { get; protected set; }
 
     public IPositionState Position { get; protected set; }
+
+    public void Update(string alias, string firstPersonVerb, string thirdPersonVerb, string presentParticiple,
+        double multiplier, double staminaMultiplier)
+    {
+        _name = alias;
+        FirstPersonVerb = firstPersonVerb;
+        ThirdPersonVerb = thirdPersonVerb;
+        PresentParticiple = presentParticiple;
+        Multiplier = multiplier;
+        StaminaMultiplier = staminaMultiplier;
+    }
 }

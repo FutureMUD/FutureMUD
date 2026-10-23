@@ -1,5 +1,7 @@
 # FutureMUD Magic System Overview
 
+Magic-school cloning preserves the requested new name and creates an independent school identity. Skill-level capability prompt-resource visibility is saved in the capability definition and restored on load; older definitions without that element retain the visible default.
+
 ## Vancian magic
 
 The `vancian` capability adds capability-local Selected and Spellbook repertoires, finite memorised/spontaneous allowances, explicit at-will access, saved next-refresh loadouts and configurable preparation/sleep recovery. The identity owns choices and expenditure across physical instances; the acting body supplies casting costs and context. The existing `skilllevel` capability remains available. See the [Vancian runtime](Vancian_Magic_Runtime.md), [player guide](Vancian_Magic_Player_Guide.md) and [builder guide](Vancian_Magic_Builder_Guide.md).
@@ -68,6 +70,8 @@ Each school currently owns or anchors:
 - all powers, spells, and capabilities assigned to that school
 
 The parent-school relationship is currently a taxonomy reference. In the inspected runtime, it is not a generic inheritance mechanism for powers, spells, or capabilities.
+
+The parent setter rejects the school itself, any descendant, and any candidate whose existing ancestor chain already contains a loop. Ancestry queries also stop on repeated schools so malformed historical data cannot cause unbounded recursion. Clearing a parent remains available to break a historical loop; loading does not automatically rewrite that data.
 
 ### Capabilities
 Capabilities answer "who can use this school?"

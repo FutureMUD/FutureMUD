@@ -1,5 +1,7 @@
 # FutureMUD Item System Content Workflows
 
+The shared builder diagnostics provide `item validate [id [revision]]`, `item diff [id [revision]]`, equivalent `itemskin` commands, `builderrefs item|skin <id|name>`, and catalogue limit/page/count/sort/CSV options. Single-item review includes the supported field comparison. Comparisons use the approved revision and enforce visibility; reference reporting is admin-only and explicitly partial. Component internals, tags and planar settings still need normal show/review. See the [shared builder guide](../Building/Generic_Editable_Item_Builder_Workflows.md) for exact coverage and guarded name recovery.
+
 ## Books, transcription and prepaid scrolls
 
 Builders author blank book/scroll prototypes and can auditably grant base formulae to individual books. Players may use any visible, accessible, readable/usable formula source, including borrowed books. Timed copying preserves a book source; successful scroll transcription consumes its one charge and copies only the base formula. Inscription combines spell and production inventory plans, reserves the exact casting, revalidates on completion, then pays before creating one charge. There is no seeded stock content or automatic character grant in this feature. See the [worked configuration](../Magic/Vancian_Magic_Builder_Guide.md) and [player guide](../Magic/Vancian_Magic_Player_Guide.md).
@@ -438,6 +440,10 @@ Junior administrators can use `resdesc <item>` to edit one item's short descript
 Use `resdesc <item> clear` or `redesc <item> clear` to remove that override and resume inheritance from the skin or prototype. Each field is independent, and instance overrides take precedence over skins. Characters and corpses retain the existing character-description editor and character markup; a corpse is never assigned an item description override by these commands. Character/corpse targeting keeps its existing priority when a keyword could also match an item.
 
 ### Skins
+
+`itemskin clone <source> <new name>` creates a distinct private, under-design skin with revision zero and the caller as its builder. It copies appearance fields and the use prog while retaining the same base item prototype. Source editing authority is required; ordinary players also require the prototype to permit player skins. The source remains unchanged.
+
+A public skin is available for use and inspection; public visibility does not grant editing rights. Opening a skin by ID, name, or explicit revision checks editing authority before changing its status or creating a revision. Editing and revision lifecycle commands recheck authority on the selected skin, so an old editing session cannot bypass a later ownership change. Description editor submission and AI suggestion acceptance also recheck authority at the time they apply their text. Ordinary authors must reopen a design revision if their selected draft has since been approved; administrator maintenance access remains available.
 Skins are item-prototype-adjacent content that override presentation details such as:
 - item name
 - short description
@@ -452,6 +458,8 @@ From a workflow perspective, skins matter when:
 Skin authors edit these variants with `itemskin set ...`. Admins can also use `itemskin set suggestdesc [<optional extra context>]` to ask the configured description AI for full-description override suggestions. That prompt is deliberately framed as a variant of the base item: it includes the prototype's physical properties and tags, the effective short and long descriptions, the skin's overrides, and the item-description markup available to full descriptions. The AI call is admin-only so ordinary player skin authors cannot create unbounded API cost.
 
 ### Item groups
+
+`itemgroup list +keyword` matches group names or any form description. `itemgroup list -keyword` excludes a group if its name or any form matches; groups with no forms remain eligible. Programming targets containing spaces work in both `programming "control unit" ...` and `programming item "control unit" ...` forms.
 Item groups are content-side presentation tools for rooms. They let many similar items collapse into grouped room descriptions instead of flooding room output.
 
 Use them when validating:

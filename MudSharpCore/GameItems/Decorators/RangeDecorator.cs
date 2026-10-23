@@ -1,4 +1,6 @@
 ﻿
+using System.Globalization;
+
 namespace MudSharp.GameItems.Decorators;
 
 public class RangeDecorator : StackDecorator
@@ -14,8 +16,8 @@ public class RangeDecorator : StackDecorator
         XElement root = XElement.Parse(proto.Definition);
         foreach (XElement sub in root.Elements("Range"))
         {
-            _quantities.Add(sub.Attribute("Item").Value, Convert.ToDouble(sub.Attribute("Min").Value),
-                Convert.ToDouble(sub.Attribute("Max").Value));
+			_quantities.Add(sub.Attribute("Item").Value, double.Parse(sub.Attribute("Min").Value, CultureInfo.InvariantCulture),
+				double.Parse(sub.Attribute("Max").Value, CultureInfo.InvariantCulture));
         }
     }
 

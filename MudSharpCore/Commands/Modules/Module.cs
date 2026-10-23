@@ -82,6 +82,10 @@ public class HelpInfo : Attribute
     public string DefaultHelp { get; protected set; }
     public AutoHelp AutoHelpSetting { get; protected set; }
     public string AdminHelp { get; protected set; }
+    public string Summary { get; set; }
+    public string Capability { get; set; }
+    public string[] Examples { get; set; } = Array.Empty<string>();
+    public string ExamplePrerequisites { get; set; } = string.Empty;
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
@@ -253,7 +257,12 @@ public abstract class Module<T> : IModule
                 helpInfoData.AutoHelpSetting,
                 helpInfoData.AdminHelp,
                 commandPermission?.PermissionLevel >= PermissionLevel.JuniorAdmin
-                );
+                ).WithMetadata(playerCommand.CommandWords.FirstOrDefault() ?? playerCommand.Name, playerCommand.CommandWords,
+                    commandMethod.GetCustomAttribute<CustomModuleName>()?.ModuleName ?? Name,
+                    commandPermission?.PermissionLevel ?? PermissionLevel.Any,
+                    helpInfoData.Capability ?? (GetType().Name.Contains("Builder", StringComparison.Ordinal)
+                        ? "Building" : commandPermission?.PermissionLevel >= PermissionLevel.JuniorAdmin
+                            ? "Administration" : "Play"), helpInfoData.Summary).WithExamples(helpInfoData.Examples, helpInfoData.ExamplePrerequisites);
             foreach (var conditionalHelp in commandMethod.GetCustomAttributes(typeof(ConditionalHelpInfo), false)
                          .OfType<ConditionalHelpInfo>())
             {

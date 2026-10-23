@@ -34,7 +34,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction, IPh
         }
     }
 
-    protected AuxiliaryCombatAction(AuxiliaryCombatAction rhs)
+    protected AuxiliaryCombatAction(AuxiliaryCombatAction rhs, string name)
     {
         Gameworld = rhs.Gameworld;
         using (new FMDB())
@@ -45,7 +45,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction, IPh
             dbitem.UsabilityProgId = rhs.UsabilityProg?.Id;
             dbitem.Intentions = (long)rhs.Intentions;
             dbitem.MoveType = (int)rhs.MoveType;
-            dbitem.Name = rhs.Name;
+            dbitem.Name = name;
             dbitem.RecoveryDifficultyFailure = (int)rhs.RecoveryDifficultyFailure;
             dbitem.RecoveryDifficultySuccess = (int)rhs.RecoveryDifficultySuccess;
             dbitem.StaminaCost = rhs.StaminaCost;
@@ -563,8 +563,10 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction, IPh
 
     public IAuxiliaryCombatAction Clone()
     {
-        return new AuxiliaryCombatAction(this);
+        return Clone(Name);
     }
+
+    public IAuxiliaryCombatAction Clone(string name) => new AuxiliaryCombatAction(this, name);
 
     public string DescribeForCombatMessageShow(ICharacter actor)
     {

@@ -1,5 +1,7 @@
 # FutureMUD Economy System: Workflows and Integration
 
+`builderrefs banktype <id|name>` reports loaded accounts using an account type; `builderrefs prog <id|name>` includes concrete bank account closing progs among its stated providers. These partial reports do not enable account-type deletion or replace account/transaction lifecycle checks. Bank/property/auction helper `capabilities` now reports actual supported operations, and helper lists accept page/limit/count/sort/CSV output options. See the [shared builder guide](../Building/Generic_Editable_Item_Builder_Workflows.md).
+
 ## Scope
 This document explains how builders and engine contributors work with the current economy system in practice.
 
@@ -25,6 +27,17 @@ Employment analytics remove terminal control characters from legacy player-autho
 | `EditableItemHelperEconomy` | standardized admin creation and editing flows for property, auction houses, banks, coins, and shoppers |
 
 ### Practical implication
+
+See the [common builder workflow](../Building/Generic_Editable_Item_Builder_Workflows.md) for selection, persistence, revision review and catalogue filtering. Market lists accept IDs and positive/negative keywords; `market list zone <id|name>` and `mi list market <id|name>` / `template <id|name>` narrow related records. Bank/property/auction lists reject unsupported custom filters instead of silently ignoring them.
+
+Bank account inspection uses operational bank commands at a branch, not `bank set accounts` or `bank set account`: `bank accounts` lists accessible accounts; authorised managers can use `bank manager accounts` and `bank manager account <account>`. Bank account-type deletion remains unsupported because accounts and transaction history refer to their types. Property declared tenants currently support individual characters; clan/shop tenant addition is unsupported and reports that limitation with the individual-tenant alternative.
+
+Builder clone syntax includes both source and destination: `mit clone "Seasonal Supply" "Winter Supply"`, `mi clone <source> <new name>`, and `mc clone <source> <new name>`. Quote multiword source names. Bank cloning is unsupported; create a bank with `bank edit new <name> <code> <economiczone>` and configure it explicitly. Customer accounts, balances and branches are not copied.
+
+Property creation uses `property edit new <name> <economiczone> <value> <bank account>`. For example, `property edit new "South Warehouse" "Port District" "100 crowns" PORT:123` names a property, resolves the economic zone, parses its currency value and resolves the initial owner's account in that order. The account's character or clan owner becomes the property owner. Replace the example zone, currency and bank account with existing world data.
+
+Use `marketpopulation` (or `mp`) for population definitions, including `marketpopulation edit <id|name>` and `marketpopulation set ...`; `market` edits the market itself. Shop account limits consume the account and quoted user separately from the currency amount: `shop account userlimit "Trade Credit" "Ada Smith" 100 crowns`. Zero retains the existing unlimited-user convention. `shop account close <account>` changes nothing until its proposal is accepted. Restaurant `credit "Trade Credit"` payment selection resolves the complete account name once, including accounts later in the catalogue.
+
 Most economy content is authored as world data, not hard-coded content. The engine supplies the abstractions and workflows, and builders connect them to a specific world through:
 
 - chosen currencies

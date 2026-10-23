@@ -1,4 +1,4 @@
-﻿using MudSharp.Commands.Modules;
+using MudSharp.Commands.Modules;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy;
@@ -113,7 +113,7 @@ public partial class EditableItemHelper
             actor.OutputHandler.Send(
                 $"You create a new property named {name.ColourName()}, which you are now editing.");
         },
-        EditableCloneAction = (actor, input) => { actor.OutputHandler.Send("The clone action is not available for properties."); },
+        EditableCloneAction = null,
 
         GetListTableHeaderFunc = character => new List<string>
         {
@@ -130,7 +130,7 @@ public partial class EditableItemHelper
                                                               proto.EconomicZone.Name
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Property #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = PropertyModule.PropertyHelpAdmins
     };
@@ -226,7 +226,7 @@ public partial class EditableItemHelper
             actor.OutputHandler.Send(
                 $"You create a new auction house named {name.ColourName()}, which you are now editing.");
         },
-        EditableCloneAction = (actor, input) => { actor.OutputHandler.Send("The clone action is not available for auction houses."); },
+        EditableCloneAction = null,
 
         GetListTableHeaderFunc = character => new List<string>
         {
@@ -243,7 +243,7 @@ public partial class EditableItemHelper
                                                               proto.EconomicZone.Name
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Auction House #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = EconomyModule.AuctionHelpAdmins
     };
@@ -319,41 +319,6 @@ public partial class EditableItemHelper
             actor.OutputHandler.Send(
                 $"You create a new bank named {name.ColourName()}, which you are now editing.");
         },
-        EditableCloneAction = (actor, input) =>
-        {
-            if (input.IsFinished)
-            {
-                actor.OutputHandler.Send("Which bank do you want to clone?");
-                return;
-            }
-
-            IBank bank = actor.Gameworld.Banks.GetByIdOrName(input.PopSpeech());
-            if (bank == null)
-            {
-                actor.OutputHandler.Send("There is no such bank.");
-                return;
-            }
-
-            if (input.IsFinished)
-            {
-                actor.OutputHandler.Send("You must specify a name for your new cloned bank.");
-                return;
-            }
-
-            string name = input.SafeRemainingArgument;
-            if (actor.Gameworld.Banks.Any(x => x.Name.EqualTo(name)))
-            {
-                actor.OutputHandler.Send($"There is already a bank with that name. Names must be unique.");
-                return;
-            }
-
-            //var clone = new Bank((Economy.Banks.Bank) bank , name);
-            //actor.Gameworld.Add(clone);
-            //actor.RemoveAllEffects<BuilderEditingEffect<IBank>>();
-            //actor.AddEffect(new BuilderEditingEffect<IBank>(actor) {EditingItem = clone});
-            //actor.OutputHandler.Send($"You clone the bank {bank.Name.ColourValue()} to a new bank called {clone.Name.ColourValue()}, which you are now editing.");
-        },
-
         GetListTableHeaderFunc = character => character.IsAdministrator()
             ? new List<string>
             {
@@ -389,7 +354,7 @@ public partial class EditableItemHelper
                                                                   proto.BranchLocations.Count().ToString("N0", character)
                                                               },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Bank #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = EconomyModule.BankAdminHelpText
     };

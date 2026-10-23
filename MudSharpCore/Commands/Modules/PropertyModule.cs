@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using MudSharp.Character.Name;
@@ -89,7 +89,7 @@ The following commands are specific to those who own a property (or who are mana
 
 	#3property list#0 - lists all of the properties
 	#3property show <which>#0 - shows information about a property
-	#3property edit new <name> <code> <economiczone>#0 - creates a new property	
+	#3property edit new <name> <economiczone> <value> <bank account>#0 - creates a property owned by the bank account owner (quote multiword arguments)
 	#3property edit <which>#0 - begins to edit a property
 	#3property edit#0 - alias for PROPERTY SHOW <currently editing property>
 	#3property close#0 - stops editing a property
@@ -1018,26 +1018,12 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyTenantAddClan(ICharacter actor, StringStack ss, IProperty property)
     {
-        if (ss.IsFinished)
-        {
-            actor.OutputHandler.Send(
-                $"Which clan do you want to add as a tenant to the {property.Name.ColourName()} property?");
-            return;
-        }
-
-        actor.OutputHandler.Send("Coming soon.");
+        actor.OutputHandler.Send("Adding a clan as a declared tenant is not supported. Use property tenant <property> add <character> to declare individual tenants.");
     }
 
     private static void PropertyTenantAddShop(ICharacter actor, StringStack ss, IProperty property)
     {
-        if (ss.IsFinished)
-        {
-            actor.OutputHandler.Send(
-                $"Which shop do you want to add as a tenant to the {property.Name.ColourName()} property?");
-            return;
-        }
-
-        actor.OutputHandler.Send("Coming soon.");
+        actor.OutputHandler.Send("Adding a shop as a declared tenant is not supported. Use property tenant <property> add <character> to declare individual tenants.");
     }
 
     private static void PropertyTenantRemoveClan(ICharacter actor, StringStack ss, IProperty property)
@@ -1223,10 +1209,10 @@ The following commands are specific to those who own a property (or who are mana
 
 	#3list#0 - lists the current tenants for this property
 	#3add <target>#0 - adds a character that you can see as a tenant
-	#3remove <target|name> - removes a character as a tenant
-	#3addclan <clan>#0 - adds a clan (and their members) as a tenant
+	#3remove <target|name>#0 - removes a character as a tenant
+	Clan tenant addition is currently unsupported; declare individual characters with #3add#0.
 	#3removeclan <clan>#0 - removes a clan as a tenant
-	#3addshop <shop>#0 - adds a shop and their employees as a tenant
+	Shop tenant addition is currently unsupported; declare individual characters with #3add#0.
 	#3removeshop <shop>#0 - removes a shop as a tenant".SubstituteANSIColour());
                 return;
         }

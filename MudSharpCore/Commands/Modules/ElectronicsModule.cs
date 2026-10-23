@@ -708,6 +708,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return;
 		}
 
+		var originalArguments = ss.RemainingArgument;
 		var firstToken = ss.PopSpeech();
 		if (firstToken.EqualTo("item"))
 		{
@@ -721,8 +722,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return;
 		}
 
-		ProgrammingItem(actor,
-			new StringStack(ss.IsFinished ? firstToken : $"{firstToken} {ss.RemainingArgument}"));
+		ProgrammingItem(actor, new StringStack(originalArguments));
 	}
 
 	[PlayerCommand("Type", "type")]

@@ -135,7 +135,7 @@ public partial class EditableItemHelper
                                                               proto.School.Name
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = @"This command is used to work with and edit magic spells.
 
@@ -420,7 +420,7 @@ The core syntax is as follows:
                                                               proto.Gameworld.MagicCapabilities.Count(x => x.School == proto).ToString("N0", character),
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = @"This command is used to work with and edit magic schools.
 
@@ -537,7 +537,7 @@ The core syntax is as follows:
                                                               proto.Regenerators.SelectMany(x => x.GeneratedResources).Distinct().Select(x => x.Name.ColourValue()).ListToCommaSeparatedValues(", ")
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = @"This command is used to work with and edit magic resources.
 
@@ -660,7 +660,7 @@ The core syntax is as follows:
                                                               proto.ClassicPromptString(1.0)
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = @"This command is used to work with and edit magic resources.
 
@@ -768,7 +768,7 @@ The core syntax is as follows:
                                                               proto.Gameworld.MagicCapabilities.Count(x => x.Regenerators.Contains(proto)).ToString("N0", character)
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = @"This command is used to work with and edit magic regenerators.
 
@@ -881,7 +881,7 @@ The core syntax is as follows:
                                                               proto.PowerType
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = @"This command is used to work with and edit magic powers.
 

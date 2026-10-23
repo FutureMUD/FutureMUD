@@ -1,5 +1,7 @@
 # FutureMUD Time And Date System
 
+Timezone built-in help publishes concrete, prerequisite-labelled examples that the regression suite replays through registered command dispatch and delegated setters. The shared `timezone undo` operation applies only to the last alias/name-identity change, with current-state and collision checks; display-name edits have no generic undo. See the [shared builder guide](../Building/Generic_Editable_Item_Builder_Workflows.md).
+
 ## Scope
 This document describes the verified current implementation of FutureMUD's in-game time and date system.
 
@@ -112,6 +114,8 @@ Fallback policies are chosen by owner semantics:
 Every fallback attempts to notify admins through `DiscordConnection.NotifyAdmins`. The notification includes the bad stored string, value type, calendar name/id, clock name/id where applicable, owner type/id/name, affected field, fallback value, and parse failure reason. If Discord is unavailable or notification fails, the same payload is written through the server console utility and the load continues.
 
 ## Clock Model
+
+Clock and calendar lists accept an ID, `+keyword` or `-keyword`; unsupported or empty filters return guidance. `timezone list [clock]` retains its clock-scoped catalogue. `timezone edit <id|alias|clock:alias>` opens the ordinary editor. The legacy multi-argument form `timezone edit <clock> <alias> "<name>" <hours> [minutes]` performs a direct update; `timezone update` is an alias for that form. Quote names containing spaces.
 `IClock` defines a configurable clock rather than assuming Earth time.
 
 New clocks start with one full-day crude time range named `day`, which builders can customise. The first database insert already contains the complete clock definition, so creating a clock does not temporarily persist an empty definition or produce empty crude intervals that fail to reload.

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Grouping;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Improvement;
@@ -292,7 +292,7 @@ public partial class EditableItemHelper
                                                               proto.Name
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Bodypart Shape #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = BuilderModule.BodypartShapesHelp
     };
@@ -330,7 +330,7 @@ public partial class EditableItemHelper
                 case "shape":
                     break;
                 default:
-                    actor.OutputHandler.Send($"Do you want to create a #3direct#0 or #3shape#0 bodypart describer?");
+                    actor.OutputHandler.Send("Do you want to create a #3direct#0 or #3shape#0 bodypart describer?".SubstituteANSIColour());
                     return;
             }
 
@@ -544,7 +544,7 @@ public partial class EditableItemHelper
                                                               proto.EffectiveArmourType?.Name ?? "",
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Shield Type #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = CombatBuilderModule.ShieldTypeHelp
     };
@@ -674,7 +674,7 @@ public partial class EditableItemHelper
                                                               proto.FireTrait.Name
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Ranged Weapon Type #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = CombatBuilderModule.RangedWeaponTypeHelp
     };
@@ -834,7 +834,7 @@ public partial class EditableItemHelper
                                                               proto.Attacks.Count().ToString("N0", character)
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Weapon Type #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = CombatBuilderModule.WeaponTypeHelp
     };
@@ -1008,7 +1008,7 @@ public partial class EditableItemHelper
                                                                    .OriginalExpression
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Ammunition Type #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
     };
@@ -1111,7 +1111,7 @@ public partial class EditableItemHelper
                                 proto.DescriptionString
                         },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Ranged Cover #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = CombatBuilderModule.RangedCoverHelp
     };
@@ -1265,7 +1265,7 @@ public partial class EditableItemHelper
                                                               proto.StackedDifficultyBonus.ToBonusString(character)
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Armour Type #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = CombatBuilderModule.ArmourTypeHelp
     };
@@ -1413,7 +1413,7 @@ public partial class EditableItemHelper
                                                               proto.ShowInAttributeCommand.ToColouredString()
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Attribute #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = BuilderModule.AttributeCommandHelp
     };
@@ -1514,7 +1514,7 @@ public partial class EditableItemHelper
                                                               proto.IsActive.ToColouredString()
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"NPC Spawner #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = NPCBuilderModule.NPCSpawnerHelp
     };
@@ -1630,7 +1630,7 @@ public partial class EditableItemHelper
                                                               proto.ShowCommandByLine
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = RoomBuilderModule.AutoAreaHelpText,
 
@@ -1748,7 +1748,7 @@ public partial class EditableItemHelper
                                                               proto.ShowCommandByline
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = RoomBuilderModule.AutoRoomHelpText,
 
@@ -1859,7 +1859,7 @@ public partial class EditableItemHelper
                                                               proto.OnceOnly.ToColouredString()
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = BuilderModule.DreamHelpText,
 
@@ -1958,7 +1958,7 @@ public partial class EditableItemHelper
                                                               instances.ToString("N0", character).MXPSend($"ai npclist {proto.Id}", "View the specific instances")
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = NPCBuilderModule.AIHelp,
 
@@ -2074,7 +2074,7 @@ public partial class EditableItemHelper
                                                               proto.MinimumTimeBetweenAwards.DescribePreciseBrief(character)
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = ChargenModule.ChargenResourceHelp,
 
@@ -2334,7 +2334,7 @@ public partial class EditableItemHelper
                                                               proto.ImproverType
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = BuilderModule.ImproverHelpText,
 
@@ -2456,7 +2456,7 @@ public partial class EditableItemHelper
                                                               proto.Fancy
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = BuilderModule.ColourCommandHelp,
 
@@ -2627,7 +2627,7 @@ public partial class EditableItemHelper
                                                               proto.LastDescriber.ToColouredString()
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = BuilderModule.UnitHelpText,
 
@@ -2744,7 +2744,7 @@ public partial class EditableItemHelper
                                                               proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationWeight.Value, UnitType.Mass, character)  : ""
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
 
         DefaultCommandHelp = BuilderModule.HeightWeightModelHelp,
 
@@ -2754,6 +2754,7 @@ public partial class EditableItemHelper
     public static EditableItemHelper PlaneHelper { get; } = new()
     {
         ItemName = "Plane",
+        DefaultListOrder = items => items.Cast<IPlane>().OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id),
         ItemNamePlural = "Planes",
         SetEditableItemAction = (actor, item) =>
         {
@@ -2932,6 +2933,10 @@ public partial class EditableItemHelper
         DefaultCommandHelp = BuilderModule.HearingProfileHelpText,
         GetEditHeader = item => $"Hearing Profile #{item.Id:N0} ({item.Name})"
     };
+
+    internal BuilderCapabilities Capabilities => new(EditableNewAction is not null, EditableCloneAction is not null, EditableDeleteAction is not null, CustomSearch is not null, false);
+
+    internal Func<IEnumerable<IEditableItem>, IEnumerable<IEditableItem>> DefaultListOrder { get; private set; } = items => items.OrderBy(x => x.Id);
 
     public string ItemName { get; private set; }
     public string ItemNamePlural { get; private set; }

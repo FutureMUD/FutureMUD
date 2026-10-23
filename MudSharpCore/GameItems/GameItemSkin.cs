@@ -339,7 +339,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
         sb.AppendLine("Enter the description in the editor below.");
         sb.AppendLine();
         actor.OutputHandler.Send(sb.ToString());
-        actor.EditorMode(PostAction, CancelAction, 1.0);
+        actor.EditorMode(PostAction, CancelAction, 1.0, suppliedArguments: [actor]);
         return true;
     }
 
@@ -350,9 +350,27 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 
     private void PostAction(string text, IOutputHandler handler, object[] args)
     {
+        if (!CanApplyDescription((ICharacter)args[0]))
+        {
+            return;
+        }
+
         FullDescription = text.Fullstop().ProperSentences();
         Changed = true;
         handler.Send($"You update the full description override for this skin to:\n\n{FullDescription.Wrap(80, "\t")}");
+    }
+
+    private bool CanApplyDescription(ICharacter actor)
+    {
+        if (ReadOnly || (!actor.IsAdministrator() &&
+                         (!IsAssociatedBuilder(actor) ||
+                          Status is not (RevisionStatus.UnderDesign or RevisionStatus.PendingRevision))))
+        {
+            actor.OutputHandler.Send("You can no longer change this skin's description. Reopen an editable revision that you are permitted to edit.".ColourError());
+            return false;
+        }
+
+        return true;
     }
 
     private bool BuildingCommandSuggestDesc(ICharacter actor, StringStack command)
@@ -510,6 +528,11 @@ public class GameItemSkin : EditableItem, IGameItemSkin
                 DescriptionString = "Applying an AI description suggestion to an item skin",
                 AcceptAction = text =>
                 {
+                    if (!CanApplyDescription(actor))
+                    {
+                        return;
+                    }
+
                     if (!int.TryParse(text, out var value) || value < 1 || value > descriptions.Length)
                     {
                         actor.OutputHandler.Send("You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");

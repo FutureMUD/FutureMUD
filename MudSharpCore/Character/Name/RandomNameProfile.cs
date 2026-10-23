@@ -552,7 +552,7 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
             return false;
         }
 
-        string name = command.SafeRemainingArgument;
+        string name = command.PopSpeech();
         NameCultureElement element = Culture.NameCultureElements.FirstOrDefault(x => x.Name.EqualTo(name)) ??
                       (name.TryParseEnum<NameUsage>(out NameUsage theEnum)
                           ? Culture.NameCultureElements.FirstOrDefault(x => x.Usage == theEnum)

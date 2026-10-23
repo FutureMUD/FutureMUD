@@ -794,6 +794,42 @@ public class AgricultureOperationTests
 	}
 
 	[TestMethod]
+	[DoNotParallelize]
+	public void ApplyOperation_ConfiguredApiaryHarvest_CreatesWeightedProductAndDebitsStores()
+	{
+		var world = BuildFieldGameworld(enabled: false);
+		var field = BuildFieldWithCustomScore(world.Object, 50, AgricultureFieldUse.Fallow,
+			apiary: new TestApiaryState(2, 80, 50, 60, 2));
+		var materials = new All<MudSharp.Form.Material.ISolid>();
+		materials.Add(Mock.Of<MudSharp.Form.Material.ISolid>(x => x.Id == 1 && x.Name == "honey" && x.Names == new[] { "honey" }));
+		world.SetupGet(x => x.Materials).Returns(materials);
+		var operation = BuildOperation(AgricultureOperationType.HarvestApiary, AgricultureFieldUse.Fallow,
+			AgricultureFieldUse.Fallow, gameworldOverride: world.Object);
+		Assert.IsFalse(field.ApplyOperation(operation, null, null!, false, out _));
+		operation.BuildingSetApiaryYield(1.5, 10, [new AgricultureCommodityYield("honey", 100)]);
+		var commodity = new Mock<MudSharp.GameItems.Interfaces.ICommodity>();
+		commodity.SetupAllProperties();
+		var item = new Mock<MudSharp.GameItems.IGameItem>();
+		item.Setup(x => x.GetItemType<MudSharp.GameItems.Interfaces.ICommodity>()).Returns(commodity.Object);
+		var proto = new Mock<MudSharp.GameItems.IGameItemProto>();
+		proto.Setup(x => x.CreateNew(null)).Returns(item.Object);
+		var previous = MudSharp.GameItems.Prototypes.CommodityGameItemComponentProto.ItemPrototype;
+		try
+		{
+			MudSharp.GameItems.Prototypes.CommodityGameItemComponentProto.ItemPrototype = proto.Object;
+			Assert.IsTrue(field.ApplyOperation(operation, null, null!, false, out var harvestResult), harvestResult);
+			Assert.AreEqual(60.0, commodity.Object.Weight, 0.0001);
+			Assert.AreEqual(40, field.Apiary.Stores);
+			Assert.AreEqual(50, field.Apiary.YieldPotential);
+			world.Verify(x => x.Add(item.Object), Times.Once);
+			operation.BuildingSetApiaryYield(double.MaxValue, 10, [new AgricultureCommodityYield("honey", double.MaxValue)]);
+			Assert.IsTrue(field.ApplyOperation(operation, null, null!, false, out _));
+			proto.Verify(x => x.CreateNew(null), Times.Once);
+		}
+		finally { MudSharp.GameItems.Prototypes.CommodityGameItemComponentProto.ItemPrototype = previous; }
+	}
+
+	[TestMethod]
 	public void WhyCannotApply_SowRejectsPerennialCropTarget()
 	{
 		var operation = BuildOperation(AgricultureOperationType.Sow, AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureTargetType.Crop);

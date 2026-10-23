@@ -27,7 +27,7 @@ using System.Text.Json;
 
 namespace MudSharp.Commands.Modules;
 
-internal class BuilderModule : BaseBuilderModule
+internal partial class BuilderModule : BaseBuilderModule
 {
     private BuilderModule()
         : base("Builder")
@@ -1964,7 +1964,7 @@ Here are some examples of plausible trait expressions applying the above:
 
 	This would substitute the character's value for axes (skill 37), and not permit it to branch if they don't have it
 
-3) #01d10+truncate(str:1/10)#0
+3) #31d10+truncate(str:1/10)#0
 
 	This would roll 1 ten-sided dice and add +1 for every 10 whole points of strength the character had
 
@@ -2203,7 +2203,7 @@ Here are some examples of plausible trait expressions applying the above:
             return;
         }
 
-        actor.OutputHandler.Send("TODO");
+        actor.OutputHandler.Send("Trait-expression deletion is not supported. Inspect known consumers with builderrefs expression <id>: expressions may be referenced by checks, traits and saved subsystem definitions. Reassign those consumers through their editors; this command deletes nothing.");
     }
 
     private static void TraitExpressionSet(ICharacter actor, StringStack ss)
@@ -3969,6 +3969,13 @@ The list of filters you can use with #3bodypart list#0 are as follows:
             return;
         }
 
+        if (effect.EditingItem.Body is MudSharp.Body.Implementations.BodyPrototype bodyPrototype &&
+            bodyPrototype.HasInstantiatedBodiesInAffectedTree(out string structuralBlock))
+        {
+            actor.OutputHandler.Send(structuralBlock.ColourError());
+            return;
+        }
+
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send(
@@ -4020,7 +4027,23 @@ The list of filters you can use with #3bodypart list#0 are as follows:
             return;
         }
 
+        if (IsStructuralBodypartEdit(ss) &&
+            effect.EditingItem.Body is MudSharp.Body.Implementations.BodyPrototype bodyPrototype &&
+            bodyPrototype.HasInstantiatedBodiesInAffectedTree(out string structuralBlock))
+        {
+            actor.OutputHandler.Send(structuralBlock.ColourError());
+            return;
+        }
+
         effect.EditingItem.BuildingCommand(actor, ss);
+    }
+
+    private static bool IsStructuralBodypartEdit(StringStack command)
+    {
+		return command.PeekSpeech().ToLowerInvariant() is
+			"type" or "count" or "counts" or "countsas" or "counts_as" or "countas" or "count as" or "counts as" or
+			"core" or "extra" or "male" or "female" or "upstream" or "inside" or "internal" or "removeinside" or
+			"removeinternal" or "primary" or "cover" or "uncover";
     }
 
     private static void BodypartClose(ICharacter actor, StringStack ss)

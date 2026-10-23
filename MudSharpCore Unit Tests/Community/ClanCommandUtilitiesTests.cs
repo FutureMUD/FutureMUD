@@ -11,6 +11,21 @@ namespace MudSharp_Unit_Tests.Community;
 public class ClanCommandUtilitiesTests
 {
 	[TestMethod]
+	[Timeout(5000)]
+	public void HoldsOrControlsAppointment_CyclicHierarchy_TerminatesWithoutGrantingAnUnrelatedMemberControl()
+	{
+		var a = new Mock<IAppointment>();
+		var b = new Mock<IAppointment>();
+		a.SetupGet(x => x.ParentPosition).Returns(b.Object);
+		b.SetupGet(x => x.ParentPosition).Returns(a.Object);
+		var membership = new Mock<IClanMembership>();
+		membership.SetupGet(x => x.Appointments).Returns(new List<IAppointment>());
+		Assert.IsFalse(ClanCommandUtilities.HoldsOrControlsAppointment(membership.Object, a.Object));
+		membership.SetupGet(x => x.Appointments).Returns(new List<IAppointment> { b.Object });
+		Assert.IsTrue(ClanCommandUtilities.HoldsOrControlsAppointment(membership.Object, a.Object));
+	}
+
+	[TestMethod]
 	public void HoldsOrControlsAppointment_WhenMembershipHoldsParentAppointment_ReturnsTrueForChildAppointment()
 	{
 		Mock<IAppointment> parent = new();

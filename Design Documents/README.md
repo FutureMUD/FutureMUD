@@ -20,6 +20,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [NPC Skill Packages](./Characters/NPC_Skill_Packages.md)
 
 ## Building
+- [Body Prototype Builder Guide](./Building/Body_Prototype_Builder_Guide.md)
+- [Check and Decorator Editors](./Building/Check_and_Decorator_Editors.md)
 - [Autobuilder Builder How-To](./Building/Autobuilder_Builder_How_To.md)
 - [Autobuilder Seeder Implementation Guide](./Building/Autobuilder_Seeder_Implementation_Guide.md)
 - [Autobuilder System Implementation](./Building/Autobuilder_System_Implementation.md)

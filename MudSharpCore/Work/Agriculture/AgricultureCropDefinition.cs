@@ -155,6 +155,20 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 	public IReadOnlyCollection<AgricultureCommodityYield> YieldOutputs => _yieldOutputs;
 	public IReadOnlyCollection<AgricultureCommodityYield> SeedRequirements => _seedRequirements;
 
+	public void BuildingSetYieldOutputs(IEnumerable<AgricultureCommodityYield> outputs)
+	{
+		_yieldOutputs.Clear();
+		_yieldOutputs.AddRange(outputs ?? Enumerable.Empty<AgricultureCommodityYield>());
+		Changed = true;
+	}
+
+	public void BuildingSetSeedRequirements(IEnumerable<AgricultureCommodityYield> requirements)
+	{
+		_seedRequirements.Clear();
+		_seedRequirements.AddRange(requirements ?? Enumerable.Empty<AgricultureCommodityYield>());
+		Changed = true;
+	}
+
 	public void BuildingSetName(string name)
 	{
 		_name = name;

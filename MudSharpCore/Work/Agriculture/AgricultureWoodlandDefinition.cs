@@ -95,6 +95,13 @@ public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandD
 	public int HarvestCycleDays { get; private set; }
 	public IReadOnlyCollection<AgricultureCommodityYield> YieldOutputs => _yieldOutputs;
 
+	public void BuildingSetYieldOutputs(IEnumerable<AgricultureCommodityYield> outputs)
+	{
+		_yieldOutputs.Clear();
+		_yieldOutputs.AddRange(outputs ?? Enumerable.Empty<AgricultureCommodityYield>());
+		Changed = true;
+	}
+
 	public void BuildingSetName(string name)
 	{
 		_name = name;

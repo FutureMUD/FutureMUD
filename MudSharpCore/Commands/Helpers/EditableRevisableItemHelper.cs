@@ -26,6 +26,7 @@ internal class EditableRevisableItemHelper
             ItemName = "NPC Template",
             ItemNamePlural = "NPC Templates",
             CommandName = "npc",
+            EditableCloneAction = NPCBuilderModule.NPCClone,
             DeleteEditableItemAction = item =>
             {
                 using (new FMDB())
@@ -171,6 +172,7 @@ internal class EditableRevisableItemHelper
             ItemName = "Item Prototype",
             ItemNamePlural = "Item Prototypes",
             CommandName = "item",
+            EditableCloneAction = ItemBuilderModule.Item_Clone,
             NameSetCommandAliases = new[] { "noun" },
 			// Nouns are shared vocabulary, not catalogue identifiers.
 			NameScopeKeyFunc = item => item.Id,
@@ -563,6 +565,7 @@ internal class EditableRevisableItemHelper
 
         CraftHelper = new EditableRevisableItemHelper
         {
+            EditableCloneAction = CraftModule.CraftClone,
             ItemName = "Craft",
             ItemNamePlural = "Crafts",
             DeleteEditableItemAction = item =>
@@ -941,6 +944,7 @@ internal class EditableRevisableItemHelper
         {
             ItemName = "Item Skin",
             ItemNamePlural = "Item Skins",
+            CloneItemFunc = (actor, item, name) => ((IGameItemSkin)item).Clone(actor, name),
             DeleteEditableItemAction = item =>
             {
                 using (new FMDB())
@@ -1066,9 +1070,9 @@ internal class EditableRevisableItemHelper
                         new EditableItemReviewProposal<IGameItemSkin>(character,
                             protos.Cast<IGameItemSkin>().ToList())),
             CastToType = typeof(IGameItemSkin),
-            CustomSearch = (protos, keyword, gameworld) => protos,
+            CustomSearch = null,
             CanReviewFunc = x => x.IsAdministrator(),
-            CanViewItemFunc = (ch, item) => ch.IsAdministrator() || ((IGameItemSkin)item).IsPublic,
+            CanViewItemFunc = (ch, item) => ch.IsAdministrator() || ((IGameItemSkin)item).IsPublic || item.IsAssociatedBuilder(ch),
             CanEditItemFunc = (ch, item) => ch.IsAdministrator() || item.IsAssociatedBuilder(ch)
         };
 
@@ -1078,6 +1082,7 @@ internal class EditableRevisableItemHelper
 
 		LootTableHelper = new EditableRevisableItemHelper
 		{
+            EditableCloneAction = ItemBuilderModule.LootTableClone,
 			ItemName = "Loot Table",
 			ItemNamePlural = "Loot Tables",
 			DeleteEditableItemAction = item =>
@@ -1148,12 +1153,15 @@ internal class EditableRevisableItemHelper
     public static EditableRevisableItemHelper ItemSkinHelper { get; }
 	public static EditableRevisableItemHelper LootTableHelper { get; }
 
+    internal BuilderCapabilities Capabilities => new(EditableNewAction is not null, CloneItemFunc is not null || EditableCloneAction is not null, DeleteEditableItemAction is not null, CustomSearch is not null, true);
+
     public string ItemName { get; private set; }
     public string ItemNamePlural { get; private set; }
     public Action<ICharacter, IEditableRevisableItem> SetEditableItemAction { get; private set; }
     public Func<ICharacter, IEditableRevisableItem> GetEditableItemFunc { get; private set; }
     public Action<IEditableRevisableItem> DeleteEditableItemAction { get; private set; }
     public Action<ICharacter, StringStack> EditableNewAction { get; private set; }
+    public Action<ICharacter, StringStack> EditableCloneAction { get; private set; }
     public Func<ICharacter, long, IEnumerable<IEditableRevisableItem>> GetAllEditableItemsByIdFunc { get; private set; }
     public Func<ICharacter, long, int, IEditableRevisableItem> GetEditableItemByIdRevNumFunc { get; private set; }
     public Func<ICharacter, long, IEditableRevisableItem> GetEditableItemByIdFunc { get; private set; }
@@ -1183,6 +1191,8 @@ internal class EditableRevisableItemHelper
     public Func<ICharacter, bool> CanReviewFunc { get; private set; } = x => true;
     public Func<ICharacter, IEditableRevisableItem, bool> CanViewItemFunc { get; private set; } = (x, y) => true;
     public Func<ICharacter, IEditableRevisableItem, bool> CanEditItemFunc { get; private set; } = (x, y) => true;
+
+    public Func<ICharacter, IEditableRevisableItem, string, IEditableRevisableItem> CloneItemFunc { get; private set; }
 
     public Type CastToType { get; private set; }
     public string DefaultCommandHelp { get; private set; }

@@ -84,7 +84,7 @@ A crop field can hold one `AgricultureFieldCrop` row:
 
 Crop stages are `Planted`, `Germinating`, `Growing`, `Setting`, `Harvestable`, `Overripe`, and `Failed`. Sowing creates annual crop state, ticks advance it, and annual harvest operations clear it back to fallow.
 
-Crop definitions can include planting windows, seed requirements, and one or more commodity outputs in their XML definition. Planting windows are saved as stable group or season names under `<PlantingWindows>`. No planting windows means unrestricted, which preserves older custom crops.
+Crop definitions can include planting windows, seed-requirement metadata, and one or more commodity outputs in their XML definition. Planting windows are saved as stable group or season names under `<PlantingWindows>`. No planting windows means unrestricted, which preserves older custom crops. Seed-requirement metadata is not consumed or enforced by sowing; required seed materials are configured separately on the sowing project's material requirements.
 
 Sow and orchard planting operations check the crop's planting windows against the field's current local season before a project starts. The agriculture completion action revalidates through the same operation path, so a long-running project that finishes after the valid planting window has closed does not bypass the crop rule.
 

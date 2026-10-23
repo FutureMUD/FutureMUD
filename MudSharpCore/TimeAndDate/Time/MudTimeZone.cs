@@ -4,7 +4,7 @@ using MudSharp.Models;
 
 namespace MudSharp.TimeAndDate.Time;
 
-public class MudTimeZone : SaveableItem, IMudTimeZone
+public class MudTimeZone : SaveableItem, IEditableMudTimeZone
 {
     protected string _alias;
     protected string _description;

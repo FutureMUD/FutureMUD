@@ -1543,7 +1543,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 
 			var skillMultiplier = output.TagName.EqualTo("Seeds") ? outcome.SeedYieldMultiplier : outcome.CropYieldMultiplier;
 			var weight = output.BaseWeight * healthFactor * yieldFactor * multiplier * skillMultiplier;
-			if (weight < 1.0)
+			if (!double.IsFinite(weight) || weight < 1.0)
 			{
 				continue;
 			}

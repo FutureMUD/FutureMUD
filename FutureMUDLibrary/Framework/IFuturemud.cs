@@ -541,6 +541,7 @@ namespace MudSharp.Framework
         void Add(ISurgicalProcedure procedure);
         void Add(IWearProfile profile);
         void Add(ILimb limb);
+        void Add(IBodyPrototype prototype);
         void Add(IWeaponType type);
         void Add(IRangedWeaponType type);
         void Add(IRangedCover cover);

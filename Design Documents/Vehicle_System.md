@@ -692,7 +692,7 @@ vehicleroute submit <comment>
 vehicleroute approve <id|name> <comment>
 ```
 
-Submission requires at least two valid stops, a compiled path for every adjacent stop pair, matching topology versions, unique stop ordering, valid platform bindings, and a compatible vehicle route profile. Approved revisions are immutable. Editing or cloning creates a new revision.
+Submission requires at least two valid stops, a compiled path for every adjacent stop pair, matching topology versions, unique stop ordering, valid platform bindings, and a compatible vehicle route profile. Approved revisions are immutable. Editing an exact ID/name opens its newest draft when one exists, otherwise it creates a revision from the current route. Approval selects only pending revisions, even when a current revision has the same ID. Use `#10r2` or `10 2` to select an explicit revision; quote multiword names. Names shared by different route IDs require an ID. Bare `vehicle proto show` displays the prototype currently selected for editing.
 
 A `VehicleService` pins an approved route revision, one live vehicle, operator mode, recurring clock/calendar specification, maximum hold, and enabled state:
 

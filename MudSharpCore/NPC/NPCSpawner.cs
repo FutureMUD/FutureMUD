@@ -421,7 +421,7 @@ Note that the #6Multi#0 strategy has additional building commands:
             return false;
         }
 
-        INPCTemplate? template = Gameworld.NpcTemplates.GetByIdOrName(command.SafeRemainingArgument);
+        INPCTemplate? template = Gameworld.NpcTemplates.GetByIdOrName(command.PopSpeech());
         if (template is null)
         {
             actor.OutputHandler.Send("There is no NPC Template like that.");
@@ -447,7 +447,7 @@ Note that the #6Multi#0 strategy has additional building commands:
             return true;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double weighting) || weighting <= 0.0)
+        if (!double.TryParse(command.SafeRemainingArgument, out double weighting) || !double.IsFinite(weighting) || weighting <= 0.0)
         {
             actor.OutputHandler.Send($"You must specify a weighting that is a number greater than zero.");
             return false;

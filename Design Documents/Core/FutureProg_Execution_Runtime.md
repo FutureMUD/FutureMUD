@@ -1,5 +1,9 @@
 # FutureProg Execution Runtime
 
+## Builder source editing
+
+Submitting `prog set append` retains the existing source and appends the editor text, adding a line break when needed. An empty append leaves the source unchanged. `prog set text` replaces the source. Cancelling either editor leaves the source unchanged; submitted source follows the normal compilation path. Prog deletion remains unsupported while persisted callers cannot be safely reassigned automatically.
+
 ## Durable Vancian notifications
 
 `ExecuteWithStatus` reports execution/parameter-conversion errors and deliberately runs notifications without cached results. Vancian selection and refresh operations durably mark callbacks as invoking before calling this entry point; a failed or interrupted callback requires inspection and is never automatically replayed on reload. This leaves ordinary `Execute` and its existing caching semantics intact. The [Vancian API](../Magic/Vancian_Magic_FutureProg.md) uses typed functions and the same guarded service as player commands and crafting.

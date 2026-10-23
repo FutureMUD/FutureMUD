@@ -14,7 +14,7 @@ using MudSharp.PerceptionEngine.Lists;
 
 namespace MudSharp.Commands.Modules;
 
-internal abstract class BaseBuilderModule : Module<ICharacter>
+internal abstract partial class BaseBuilderModule : Module<ICharacter>
 {
 	protected const string GenericEditableItemNameRenameHelp =
 		"#3rename <match regex> <replacement text>#0 - safely bulk renames names using case-sensitive .NET regex replacement syntax\n" +
@@ -87,9 +87,20 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
     public static void GenericRevisableEditDelete(ICharacter character, StringStack input,
         EditableRevisableItemHelper helper)
     {
+        if (!helper.Capabilities.Delete)
+        {
+            character.OutputHandler.Send($"Deletion is not supported for {helper.ItemNamePlural}.");
+            return;
+        }
+
         if (helper.GetEditableItemFunc(character) == null)
         {
             character.Send("You are not currently editing any {0}.", helper.ItemNamePlural);
+            return;
+        }
+
+        if (!CanModifyRevisableItem(character, helper, helper.GetEditableItemFunc(character)))
+        {
             return;
         }
 
@@ -111,6 +122,11 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
         if (helper.GetEditableItemFunc(character) == null)
         {
             character.Send("You are not currently editing any {0}.", helper.ItemNamePlural);
+            return;
+        }
+
+        if (!CanModifyRevisableItem(character, helper, helper.GetEditableItemFunc(character)))
+        {
             return;
         }
 
@@ -144,6 +160,11 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
             return;
         }
 
+        if (!CanModifyRevisableItem(character, helper, helper.GetEditableItemFunc(character)))
+        {
+            return;
+        }
+
         if (helper.GetEditableItemFunc(character).Status != RevisionStatus.Current)
         {
             character.Send("You are not editing the most current revision of this {0}.", helper.ItemName);
@@ -160,6 +181,11 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
     public static void GenericRevisableEditNew(ICharacter character, StringStack input,
         EditableRevisableItemHelper helper)
     {
+        if (!helper.Capabilities.Create)
+        {
+            character.OutputHandler.Send($"Creation is not supported for {helper.ItemNamePlural}.");
+            return;
+        }
         helper.EditableNewAction(character, input);
     }
 
@@ -189,12 +215,6 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
                 return;
             }
 
-            if (!helper.CanEditItemFunc(character, proto))
-            {
-                character.OutputHandler.Send($"You are not permitted to edit that {helper.ItemName}.");
-                return;
-            }
-
             if (proto.Status != RevisionStatus.UnderDesign && proto.Status != RevisionStatus.PendingRevision &&
                 proto.Status != RevisionStatus.Rejected)
             {
@@ -214,9 +234,8 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
             return;
         }
 
-        if (proto.ReadOnly)
+        if (!CanModifyRevisableItem(character, helper, proto))
         {
-            character.Send($"You cannot create a new revision or edit the properties of that {helper.ItemName} because it is read-only.");
             return;
         }
 
@@ -238,6 +257,24 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 
         character.OutputHandler.Send($"You open {helper.GetEditableItemFunc(character).EditHeader()} for editing.");
     }
+
+	private static bool CanModifyRevisableItem(ICharacter character, EditableRevisableItemHelper helper,
+		IEditableRevisableItem item)
+	{
+		if (!helper.CanEditItemFunc(character, item))
+		{
+			character.OutputHandler.Send($"You are not permitted to edit that {helper.ItemName}.");
+			return false;
+		}
+
+		if (item.ReadOnly)
+		{
+			character.OutputHandler.Send($"You cannot modify that {helper.ItemName} because it is read-only.");
+			return false;
+		}
+
+		return true;
+	}
 
     public static void GenericReview(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
     {
@@ -438,10 +475,15 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
     public static void GenericReviewDefault(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
     {
-        IEditableRevisableItem proto = long.TryParse(input.Last, out long value)
-            ? helper.GetAllEditableItemsByIdFunc(character, value)
-                    .FirstOrDefault(x => x.Status == RevisionStatus.PendingRevision)
-            : helper.GetAllEditableItems(character).FirstOrDefault(x => x.Status == RevisionStatus.PendingRevision);
+        if (!long.TryParse(input.Last, out long value) || !input.IsFinished)
+        {
+            character.OutputHandler.Send("Use review <id>, review list mine, or review all by <account>. Unknown selectors do not select a review target.");
+            return;
+        }
+
+        var proto = helper.GetAllEditableItemsByIdFunc(character, value)
+            .Where(x => x.Status == RevisionStatus.PendingRevision)
+            .OrderByDescending(x => x.RevisionNumber).FirstOrDefault();
 
         if (proto == null)
         {
@@ -451,6 +493,9 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
         character.OutputHandler.Send(
             $"You are reviewing {proto.EditHeader().ColourName()}.\n\n{proto.Show(character)}\n\nTo approve this {helper.ItemName}, type {"accept edit".Colour(Telnet.Yellow)} or {"decline edit".Colour(Telnet.Yellow)} to reject.\nIf you do not wish to approve or decline, you may type {"abort edit".Colour(Telnet.Yellow)}.");
+        if (BuilderRevisionDiff.Snapshot(proto) is not null && helper.CanViewItemFunc(character, proto))
+            DisplayRevisionDiff(character, proto, helper);
+
         character.AddEffect(helper.GetReviewProposalEffectFunc(new List<IEditableRevisableItem> { proto }, character),
             TimeSpan.FromSeconds(120));
     }
@@ -464,6 +509,17 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
         }
 
         var item = helper.GetEditableItemFunc(character);
+        if (!CanModifyRevisableItem(character, helper, item))
+        {
+            return;
+        }
+
+		if (!character.IsAdministrator() && item.Status is not (RevisionStatus.UnderDesign or RevisionStatus.PendingRevision))
+		{
+			character.OutputHandler.Send($"You must open a design revision before changing that {helper.ItemName}.");
+			return;
+		}
+
         if (TrySetEditableRevisableItemName(character, input, helper, item))
         {
             return;
@@ -492,16 +548,26 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
     public static void GenericRevisableList(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
     {
-        List<IEditableRevisableItem> protos = helper.GetAllEditableItems(character).ToList();
+        if (!BuilderCatalogueOptions.TryParse(input, true, out var options, out input, out var error))
+        {
+            character.OutputHandler.Send(error.ColourError());
+            return;
+        }
+        IEnumerable<IEditableRevisableItem> protos = helper.GetAllEditableItems(character).Where(x => helper.CanViewItemFunc(character, x));
 
         bool useCurrent = true;
         // Apply user-supplied filter criteria
         while (!input.IsFinished)
         {
             string cmd = input.PopSpeech().ToLowerInvariant();
-            if (long.TryParse(cmd, out long value))
+            if (string.IsNullOrWhiteSpace(cmd))
             {
-                protos = protos.Where(x => x.Id == value).ToList();
+                character.OutputHandler.Send("Filters cannot be empty. Use an ID, +keyword or -keyword.");
+                return;
+            }
+            if (long.TryParse(cmd, out long value) && cmd[0] is not ('+' or '-'))
+            {
+                protos = protos.Where(x => x.Id == value);
                 continue;
             }
 
@@ -527,7 +593,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                             return;
                         }
 
-                        protos = protos.Where(x => x.BuilderAccountID == dbaccount.Id).ToList();
+                        var accountId = dbaccount.Id;
+                        protos = protos.Where(x => x.BuilderAccountID == accountId);
                         break;
                     }
 
@@ -541,7 +608,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                             return;
                         }
 
-                        protos = protos.Where(x => x.BuilderAccountID == dbaccount.Id).ToList();
+                        var accountId = dbaccount.Id;
+                        protos = protos.Where(x => x.BuilderAccountID == accountId);
                         break;
                     }
 
@@ -562,7 +630,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                             return;
                         }
 
-                        protos = protos.Where(x => x.ReviewerAccountID == dbaccount.Id).ToList();
+                        var accountId = dbaccount.Id;
+                        protos = protos.Where(x => x.ReviewerAccountID == accountId);
                         break;
                     }
 
@@ -580,7 +649,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                             x.HasKeyword(subcmd, character.Body, true) ||
                             x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase) ||
                             (x is IGameItemProto itemProto && itemProto.HasBuilderSearchText(subcmd)) ||
-                            (x is INPCTemplate npcTemplate && npcTemplate.HasBuilderSearchText(subcmd))).ToList();
+                            (x is INPCTemplate npcTemplate && npcTemplate.HasBuilderSearchText(subcmd)));
                         break;
                     }
 
@@ -597,11 +666,16 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                             !x.HasKeyword(subcmd, character.Body, true) &&
                             !x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase) &&
                             (x is not IGameItemProto itemProto || !itemProto.HasBuilderSearchText(subcmd)) &&
-                            (x is not INPCTemplate npcTemplate || !npcTemplate.HasBuilderSearchText(subcmd))).ToList();
+                            (x is not INPCTemplate npcTemplate || !npcTemplate.HasBuilderSearchText(subcmd)));
                         break;
                     }
 
-                    protos = helper.CustomSearch(protos, cmd, character.Gameworld).ToList();
+                    if (helper.CustomSearch is null)
+                    {
+                        character.OutputHandler.Send($"The filter {cmd.ColourCommand()} is not supported.");
+                        return;
+                    }
+                    protos = helper.CustomSearch(protos.ToList(), cmd, character.Gameworld);
                     break;
             }
         }
@@ -610,20 +684,11 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
         {
             protos = protos.Where(x =>
                 x.Status == RevisionStatus.Current || x.Status == RevisionStatus.UnderDesign ||
-                x.Status == RevisionStatus.PendingRevision).ToList();
+                x.Status == RevisionStatus.PendingRevision);
         }
 
-        // Sort List
-        protos = protos.OrderBy(x => x.Id).ThenBy(x => x.RevisionNumber).ToList();
-
-        // Display Output for List
-        character.OutputHandler.Send(
-            StringUtilities.GetTextTable(
-                helper.GetListTableContentsFunc(character, protos),
-                helper.GetListTableHeaderFunc(character), character.Account.LineFormatLength,
-                colour: Telnet.Green, unicodeTable: character.Account.UseUnicode
-            )
-        );
+        options.Display(character, protos, items => helper.GetListTableContentsFunc(character, items),
+            helper.GetListTableHeaderFunc(character));
     }
 
     public static void GenericRevisableShow(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
@@ -680,7 +745,54 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
     private static void GenericRevisableClone(ICharacter actor, StringStack input, EditableRevisableItemHelper helper)
     {
-        throw new NotImplementedException();
+        if (!helper.Capabilities.CanClone)
+        {
+            actor.OutputHandler.Send($"Cloning is not supported for {helper.ItemNamePlural}.");
+            return;
+        }
+
+        if (helper.EditableCloneAction is not null)
+        {
+            helper.EditableCloneAction(actor, input);
+            return;
+        }
+
+        var selector = input.PopSpeech();
+        if (string.IsNullOrWhiteSpace(selector))
+        {
+            actor.OutputHandler.Send("Specify the ID or name of the item to clone.");
+            return;
+        }
+        var source = helper.GetAllEditableItems(actor).GetByIdOrNameRevisable(selector);
+        if (source is null || !helper.CanEditItemFunc(actor, source))
+        {
+            actor.OutputHandler.Send($"There is no such {helper.ItemName} that you are permitted to clone.");
+            return;
+        }
+
+        if (source is IGameItemSkin skin && !actor.IsAdministrator() && !skin.ItemProto.PermitPlayerSkins)
+        {
+            actor.OutputHandler.Send("That item prototype no longer permits player skins.");
+            return;
+        }
+
+        var name = helper.TryNormaliseNameForBulkRename(source, input.SafeRemainingArgument);
+        if (!name.IsValid || string.IsNullOrWhiteSpace(name.Name))
+        {
+            actor.OutputHandler.Send(name.Error ?? "You must supply a valid name for the clone.");
+            return;
+        }
+
+        if (helper.GetAllEditableItems(actor).Any(x => x.Name.EqualTo(name.Name)))
+        {
+            actor.OutputHandler.Send("That name is already in use. Choose a different name for the clone.");
+            return;
+        }
+
+        var clone = helper.CloneItemFunc(actor, source, name.Name);
+        helper.AddItemToGameWorldAction(clone);
+        helper.SetEditableItemAction(actor, clone);
+        actor.OutputHandler.Send($"You clone {source.EditHeader()} as {clone.EditHeader()}, which you are now editing.");
     }
 
     public static void GenericRevisableBuildingCommand(ICharacter actor, StringStack input,
@@ -688,6 +800,18 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
     {
         switch (input.PopSpeech().ToLowerInvariant())
         {
+            case "capabilities":
+                actor.OutputHandler.Send(helper.Capabilities.Describe());
+                return;
+            case "validate":
+                GenericValidate(actor, input, helper);
+                return;
+            case "undo":
+                GenericNameUndo(actor, helper);
+                return;
+            case "diff":
+                GenericRevisionDiff(actor, input, helper);
+                return;
             case "edit":
             case "open":
                 GenericRevisableEdit(actor, input, helper);
@@ -719,7 +843,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                 return;
             default:
                 actor.OutputHandler.Send(
-                    $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}");
+                    $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}\n\n{helper.Capabilities.Describe()}");
                 return;
         }
     }
@@ -761,6 +885,12 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
         var oldName = item.Name;
         helper.SetNameFromValidatedBulkRenameAction(item, result.Name);
+        if (oldName != result.Name)
+        {
+            character.RemoveAllEffects<BuilderNameUndo>(x => ReferenceEquals(x.Helper, helper));
+            character.AddEffect(new BuilderNameUndo(character, helper, item, result.Name,
+                () => RestoreBuilderName(character, helper, item, oldName)), TimeSpan.FromMinutes(30));
+        }
         character.OutputHandler.Send(
             $"You rename {helper.ItemName.ToLowerInvariant()} {oldName.ColourName()} to {result.Name.ColourName()}.");
         return true;
@@ -817,6 +947,11 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
     public static void GenericEditNew(ICharacter character, StringStack input, EditableItemHelper helper)
     {
+        if (!helper.Capabilities.Create)
+        {
+            character.OutputHandler.Send($"Creation is not supported for {helper.ItemNamePlural}.");
+            return;
+        }
         helper.EditableNewAction(character, input);
     }
 
@@ -861,15 +996,25 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
     public static void GenericList(ICharacter character, StringStack input, EditableItemHelper helper)
     {
-        List<IEditableItem> protos = helper.GetAllEditableItems(character).ToList();
+        if (!BuilderCatalogueOptions.TryParse(input, false, out var options, out input, out var error))
+        {
+            character.OutputHandler.Send(error.ColourError());
+            return;
+        }
+        IEnumerable<IEditableItem> protos = helper.GetAllEditableItems(character);
 
         // Apply user-supplied filter criteria
         while (!input.IsFinished)
         {
             string cmd = input.PopSpeech().ToLowerInvariant();
-            if (long.TryParse(cmd, out long value))
+            if (string.IsNullOrWhiteSpace(cmd))
             {
-                protos = protos.Where(x => x.Id == value).ToList();
+                character.OutputHandler.Send("Filters cannot be empty. Use an ID, +keyword or -keyword.");
+                return;
+            }
+            if (long.TryParse(cmd, out long value) && cmd[0] is not ('+' or '-'))
+            {
+                protos = protos.Where(x => x.Id == value);
                 continue;
             }
 
@@ -886,7 +1031,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                         }
 
                         protos = protos.Where(x => x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase))
-                                       .ToList();
+                                       ;
                         break;
                     }
 
@@ -901,26 +1046,23 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
                         protos = protos
                                  .Where(x => !x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase))
-                                 .ToList();
+                                 ;
                         break;
                     }
 
-                    protos = helper.CustomSearch(protos, cmd, character.Gameworld).ToList();
+                    if (helper.CustomSearch is null)
+                    {
+                        character.OutputHandler.Send($"The filter {cmd.ColourCommand()} is not supported. Use an ID, +keyword or -keyword.");
+                        return;
+                    }
+
+                    protos = helper.CustomSearch(protos.ToList(), cmd, character.Gameworld);
                     break;
             }
         }
 
-        // Sort List
-        protos = protos.OrderBy(x => x.Id).ToList();
-
-        // Display Output for List
-        character.OutputHandler.Send(
-            StringUtilities.GetTextTable(
-                helper.GetListTableContentsFunc(character, protos),
-                helper.GetListTableHeaderFunc(character), character.Account.LineFormatLength,
-                colour: Telnet.Green, unicodeTable: character.Account.UseUnicode
-            )
-        );
+        options.Display(character, protos, items => helper.GetListTableContentsFunc(character, items),
+            helper.GetListTableHeaderFunc(character), helper.DefaultListOrder);
     }
 
     public static void GenericShow(ICharacter character, StringStack input, EditableItemHelper helper)
@@ -955,6 +1097,12 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
     public static void GenericClone(ICharacter character, StringStack input, EditableItemHelper helper)
     {
+        if (!helper.Capabilities.CanClone)
+        {
+            character.OutputHandler.Send($"Cloning is not supported for {helper.ItemNamePlural}.");
+            return;
+        }
+
         helper.EditableCloneAction(character, input);
     }
 
@@ -968,6 +1116,15 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
         switch (input.PopSpeech().ToLowerInvariant())
         {
+            case "capabilities":
+                actor.OutputHandler.Send(helper.Capabilities.Describe());
+                return;
+            case "validate":
+                GenericValidate(actor, input, helper);
+                return;
+            case "undo":
+                GenericNameUndo(actor, helper);
+                return;
             case "edit":
             case "open":
                 GenericEdit(actor, input, helper);
@@ -1000,14 +1157,14 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 				return;
             default:
                 actor.OutputHandler.Send(
-                    $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}");
+                    $"{helper.DefaultCommandHelp.SubstituteANSIColour()}\n\n{GenericEditableItemNameRenameHelp.SubstituteANSIColour()}\n\n{helper.Capabilities.Describe()}");
                 return;
         }
     }
 
 	public static void GenericDelete(ICharacter actor, StringStack input, EditableItemHelper helper)
 	{
-		if (helper.EditableDeleteAction is null)
+		if (!helper.Capabilities.Delete)
 		{
 			actor.OutputHandler.Send($"{helper.ItemNamePlural} cannot be deleted with this command.");
 			return;
@@ -1089,6 +1246,12 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
         var oldName = item.Name;
         helper.SetNameFromValidatedBulkRenameAction(item, result.Name);
+        if (oldName != result.Name)
+        {
+            character.RemoveAllEffects<BuilderNameUndo>(x => ReferenceEquals(x.Helper, helper));
+            character.AddEffect(new BuilderNameUndo(character, helper, item, result.Name,
+                () => RestoreBuilderName(character, helper, item, oldName)), TimeSpan.FromMinutes(30));
+        }
         character.OutputHandler.Send(
             $"You rename {helper.ItemName.ToLowerInvariant()} {oldName.ColourName()} to {result.Name.ColourName()}.");
         return true;

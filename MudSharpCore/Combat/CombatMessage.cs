@@ -250,6 +250,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
             dbitem.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
             { CombatMessage = dbitem, WeaponAttackId = item });
         }
+        FMDB.Context.CombatMessagesCombatActions.RemoveRange(dbitem.CombatMessagesCombatActions);
         foreach (long item in AuxiliaryActionIds)
         {
             dbitem.CombatMessagesCombatActions.Add(new CombatMessagesCombatActions

@@ -293,6 +293,12 @@ Description: {type.Description.ColourValue()}
             return;
         }
 
+		if (screen.Stage == otherScreen.Stage)
+		{
+			actor.OutputHandler.Send("You cannot place a storyboard after itself.");
+			return;
+		}
+
         bool isPrevious = true;
         foreach (ChargenStage stage in actor.Gameworld.ChargenStoryboard.DefaultOrder)
         {

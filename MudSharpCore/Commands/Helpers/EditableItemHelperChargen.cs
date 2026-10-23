@@ -281,7 +281,7 @@ public partial class EditableItemHelper
                 TimeSpan.FromSeconds(proto.Delays.Sum(x => x.TotalSeconds)).DescribePreciseBrief(character)
             },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Character Intro Template #{item.Id:N0}",
         DefaultCommandHelp = ChargenModule.IntroTemplateHelp
     };
@@ -289,6 +289,7 @@ public partial class EditableItemHelper
     public static EditableItemHelper NewPlayerHintHelper { get; } = new()
     {
         ItemName = "New Player Hint",
+        DefaultListOrder = items => items.Cast<INewPlayerHint>().OrderByDescending(x => x.Priority).ThenBy(x => x.Id),
         ItemNamePlural = "New Player Hints",
         SetEditableItemAction = (actor, item) =>
         {
@@ -346,7 +347,7 @@ public partial class EditableItemHelper
                 proto.Priority.ToString("N0", character)
             },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"New Player Hint #{item.Id:N0}",
         DefaultCommandHelp = BuilderModule.NewPlayerHintHelp
     };
@@ -462,7 +463,7 @@ public partial class EditableItemHelper
                                                                    .ToString("N0", character)
                                                           },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Chargen Advice #{item.Id:N0} ({item.Name})",
         DefaultCommandHelp = BuilderModule.ChargenAdviceHelp
     };
@@ -582,7 +583,7 @@ public partial class EditableItemHelper
                 proto.ApplicabilityProg?.MXPClickableFunctionName() ?? ""
             },
 
-        CustomSearch = (protos, keyword, gameworld) => protos,
+        CustomSearch = null,
         GetEditHeader = item => $"Merit #{item.Id:N0}",
         DefaultCommandHelp = ChargenModule.MeritHelpText
     };

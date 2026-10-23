@@ -53,10 +53,10 @@ Administrators can use `field` to manage cell fields and agriculture definitions
 
 - `field create [profile]`, `field delete`, `field set <score> <0-100>`, `field reset`, and `field tick`.
 - `field profile list|show|create|set|delete`.
-- `field crop list|show|create|set|delete`.
+- `field crop list|show|create|set|delete`; crop setters also author harvest outputs and seed-requirement metadata.
 - `field herds list|show|create|set|delete`.
-- `field woodland list|show|create|set|delete`.
-- `field operation list|show|create|set|delete`.
+- `field woodland list|show|create|set|delete`; woodland setters also author harvest outputs.
+- `field operation list|show|create|set|delete`; operation setters include apiary installation, tending, and harvest configuration.
 - `field scoretype list|set|disable` configures optional custom field score slots for non-standard settings.
 - `terrain set agriculture <profile|none>` sets the default agriculture profile for future field creation on that terrain.
 

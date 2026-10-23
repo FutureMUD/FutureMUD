@@ -6111,11 +6111,15 @@ return 0",
             return;
         }
 
-        if (targetAppointment == appointment)
-        {
-            actor.OutputHandler.Send("You cannot assign an appointment as its own parent.");
-            return;
-        }
+		var visited = new HashSet<IAppointment>();
+		for (var ancestor = targetAppointment; ancestor is not null; ancestor = ancestor.ParentPosition)
+		{
+			if (ancestor == appointment || !visited.Add(ancestor))
+			{
+				actor.OutputHandler.Send("You cannot assign that parent because it would create or inherit an appointment hierarchy loop.");
+				return;
+			}
+		}
 
         actor.OutputHandler.Send(
             $"You assign appointment {targetAppointment.Name.TitleCase().Colour(Telnet.Green)} as the parent of appointment {appointment.Name.TitleCase().Colour(Telnet.Green)} in {clan.FullName.TitleCase().Colour(Telnet.Green)}.");

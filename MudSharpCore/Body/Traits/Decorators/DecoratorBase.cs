@@ -14,14 +14,14 @@ public abstract class DecoratorBase : FrameworkItem, ITraitValueDecorator
 
 	public abstract string Show(ICharacter actor);
 
-    public static ITraitValueDecorator GetDecorator(TraitDecorator decorator)
+	public static ITraitValueDecorator GetDecorator(TraitDecorator decorator, bool setAsCurrentMaxSingleton = true)
     {
         switch (decorator.Type)
         {
             case "SimpleNumeric":
                 return new SimpleNumericDecorator(decorator);
             case "CurrentMax":
-                return new CurrentMaxDecorator(decorator);
+				return new CurrentMaxDecorator(decorator, setAsCurrentMaxSingleton);
             case "Percentage":
                 return new PercentageDecorator(decorator);
             case "Range":

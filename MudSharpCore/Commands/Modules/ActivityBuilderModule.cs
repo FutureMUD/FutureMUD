@@ -334,7 +334,7 @@ You can use the following options with this command:
 	#3butcheringproduct list [+key, -key]#0 - shows all the butchering products
 	#3butcheringproduct show <which>#0 - shows a butchering product
 	#3butcheringproduct edit <which>#0 - opens a butchering product for editing
-	#3butcheringproduct edit new <name>#0 - creates a new butchering product
+	#3butcheringproduct edit new <name> <body> <bodypart> <item prototype> [quantity]#0 - creates a new butchering product; quantity defaults to 1
 	#3butcheringproduct edit#0 - an alias for #3butcheringproduct show#0 on an opened butchering product
 	#3butcheringproduct clone <which> <name>#0 - clones a butchering products to a new one
 	#3butcheringproduct close#0 - closes the currently edited butchering product

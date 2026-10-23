@@ -43,7 +43,7 @@ public class MagicSchool : SaveableItem, IMagicSchool
 
     public MagicSchool(MagicSchool rhs, string newName)
     {
-        _name = rhs.Name;
+        _name = newName;
         _parentSchool = rhs._parentSchool;
         _parentSchoolId = rhs._parentSchoolId;
         Gameworld = rhs.Gameworld;
@@ -97,7 +97,16 @@ public class MagicSchool : SaveableItem, IMagicSchool
 
     public bool IsChildSchool(IMagicSchool other)
     {
-        return ParentSchool == other || (ParentSchool?.IsChildSchool(other) ?? false);
+		var visited = new HashSet<IMagicSchool>();
+		for (var school = ParentSchool; school is not null && visited.Add(school); school = school.ParentSchool)
+		{
+			if (school == other)
+			{
+				return true;
+			}
+		}
+
+		return false;
     }
 
     /// <summary>
@@ -306,11 +315,15 @@ public class MagicSchool : SaveableItem, IMagicSchool
             return false;
         }
 
-        if (school.IsChildSchool(school))
-        {
-            actor.OutputHandler.Send($"Setting this school's parent to {school.Name.ColourName()} would create a loop relationship, which is not allowed.");
-            return false;
-        }
+		var visited = new HashSet<IMagicSchool>();
+		for (var ancestor = school; ancestor is not null; ancestor = ancestor.ParentSchool)
+		{
+			if (ancestor == this || !visited.Add(ancestor))
+			{
+				actor.OutputHandler.Send($"Setting this school's parent to {school.Name.ColourName()} would create or inherit a loop, which is not allowed.");
+				return false;
+			}
+		}
 
         _parentSchool = school;
         _parentSchoolId = school.Id;

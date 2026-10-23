@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using MudSharp.Commands.Helpers;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MudSharp.Accounts;
 using MudSharp.Database;
 using MudSharp.Editor;
@@ -592,7 +593,7 @@ internal class HelpModule : Module<ICharacter>
     {
         if (command.IsFinished)
         {
-            actor.Send(StringUtilities.HMark + "Subcommands of 'hedit extra' include: add, remove, move, text, prog");
+            actor.Send(StringUtilities.HMark + "Subcommands of 'hedit extra' include: add, remove, text, prog");
             return;
         }
 
@@ -687,22 +688,24 @@ internal class HelpModule : Module<ICharacter>
 
 The syntax for this is as follows:
 
-	#3hedit list#0 - lists all helpfiles
+	#3hedit list [<id>|+keyword|-keyword|category <name>|subcategory <name>|prog <id|name>]#0 - lists matching helpfiles, including reader-restricted topics
 	#3hedit show <helpfile>#0 - shows builder information about a helpfile
 	#3hedit new <name> <category> <subcategory> [<tagline>]#0 - creates a new helpfile
 	#3hedit delete <which>#0 - deletes a helpfile
 	#3hedit name <helpfile> <newname>#0 - renames a helpfile
-	#3hedit keywords <keywords separated by spaces>#0 - sets keywords for the helpfile for searching
-	#3hedit tagline <helpile> <tagline>#0 - sets the tagline for a helpfile
-	#3hedit category <category>#0 - sets the category of a helpfile
-	#3hedit subcategory <subcategory#0 - sets the subcategory of a helpfile
+	#3hedit keywords <helpfile> <keywords separated by spaces>#0 - sets keywords for searching
+	#3hedit tagline <helpfile> <tagline>#0 - sets the tagline for a helpfile
+	#3hedit category <helpfile> <category>#0 - sets the category of a helpfile
+	#3hedit subcategory <helpfile> <subcategory>#0 - sets the subcategory of a helpfile
 	#3hedit prog <helpfile> <prog>#0 - sets a prog that controls if someone can see the helpfile
 	#3hedit prog <helpfile> clear#0 - clears a prog from a helpfile (instead always visible)
-	#3hedit text <helpfile#0 - drops you into an editor to edit the helpfile text
+	#3hedit text <helpfile>#0 - drops you into an editor to edit the helpfile text
 	#3hedit extra add <helpfile> <prog>#0 - drops you into an editor to add a new extra text
 	#3hedit extra remove <helpfile> <##>#0 - removes the specified extra text
 	#3hedit extra text <helpfile> <##>#0 - drops you into an editor to edit the text of an extra text
-	#3hedit extra prog <##> <prog>#0 - changes the prog associated with an extra text";
+	#3hedit extra prog <helpfile> <##> <prog>#0 - changes the prog associated with an extra text
+
+Quote multi-word helpfile names. Extra-text indexes start at 1. Editor cancellation leaves the existing text unchanged.";
 
     [PlayerCommand("Hedit", "hedit")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -760,7 +763,15 @@ The syntax for this is as follows:
     private static void HEditList(ICharacter actor, StringStack ss)
     {
         StringBuilder sb = new();
-        List<IHelpfile> helpfiles = actor.Gameworld.Helpfiles.ToList();
+        if (!BuilderListFilter.TryApply(actor.Gameworld.Helpfiles, ss, out var helpfiles, out var error,
+                item => new[] { item.Name, item.Category, item.Subcategory, item.TagLine }.Concat(item.Keywords),
+                new Dictionary<string, Func<IHelpfile, string, bool>>
+                {
+                    ["category"] = (item, value) => item.Category.EqualTo(value),
+                    ["subcategory"] = (item, value) => item.Subcategory.EqualTo(value),
+                    ["prog"] = (item, value) => BuilderListFilter.IsIdOrName(item.Rule, value)
+                }))
+        { actor.OutputHandler.Send(error); return; }
         sb.AppendLine(StringUtilities.GetTextTable(
             from help in helpfiles
             select new List<string>
@@ -809,7 +820,7 @@ The syntax for this is as follows:
     }
 
     [PlayerCommand("Help", "help")]
-    [HelpInfo("help", @"The #3help#0 command searches the game's help files and built-in command help. With no arguments it lists available categories. Use #3help on#0 to browse a category, or provide a topic; quoted text is useful for multi-word names.
+    [HelpInfo("help", @"The #3help#0 command searches the game's help files and built-in command help, including registered command aliases. With no arguments it lists available categories. Use #3help on#0 to browse a category, or provide a topic; quoted text is useful for multi-word names.
 
 The syntax is:
 
@@ -828,7 +839,7 @@ For example, #3help get#0 shows the help for getting items, and #3help on comman
                                .RetrieveAppropriateCommandTree(actor)
                                .Commands
                                .CommandHelpInfos
-                               .DistinctBy(x => x.HelpName)
+                               .Distinct()
                                .Where(x => !x.AdminOnly || isAdmin)
                                .ToList();
         List<IHelpInformation> combined = allHelpfiles.OfType<IHelpInformation>().Concat(builtInHelp).ToList();
@@ -895,35 +906,12 @@ The following is a list of all of the categories that exist for you to search:
             helpfileName = ss.SafeRemainingArgument;
         }
 
-        IHelpInformation exactMatch = combined.FirstOrDefault(x => x.CanView(actor) &&
-                                                                       (string.IsNullOrEmpty(categoryName) ||
-                                                                        x.Category.StartsWith(categoryName,
-                                                                            StringComparison
-                                                                                .InvariantCultureIgnoreCase)) &&
-                                                                       x.HelpName.EqualTo(helpfileName));
-
-        List<IHelpInformation> helpfilesMatched = exactMatch != null
-            ? new[] { exactMatch }.ToList()
-            : combined.Where(
-                x =>
-                     (string.IsNullOrEmpty(categoryName) ||
-                      x.Category.StartsWith(categoryName, StringComparison.InvariantCultureIgnoreCase)) &&
-                     x.HelpName.StartsWith(helpfileName, StringComparison.InvariantCultureIgnoreCase)
-            ).ToList();
-
-        if (!helpfilesMatched.Any())
+        var helpfilesMatched = FindHelpMatches(combined, actor, categoryName, helpfileName);
+        if (helpfilesMatched.Count == 0)
         {
-            helpfilesMatched =
-                combined.Where(
-                         x => x.Keywords.Any(y => y.StartsWith(helpfileName, StringComparison.Ordinal) && x.CanView(actor)))
-                     .ToList();
-            if (!helpfilesMatched.Any())
-            {
-                actor.OutputHandler.Send("No help files matched your query.");
-                return;
-            }
+            actor.OutputHandler.Send("No help files matched your query.");
+            return;
         }
-
         if (helpfilesMatched.Count > 1)
         {
             actor.OutputHandler.Send("Your query matched multiple help files:\n\n" +
@@ -935,6 +923,22 @@ The following is a list of all of the categories that exist for you to search:
 
         actor.OutputHandler.Send(helpfilesMatched.First().DisplayHelpFile(actor));
     }
+
+	internal static List<IHelpInformation> FindHelpMatches(IEnumerable<IHelpInformation> topics, ICharacter actor,
+		string category, string query)
+	{
+		var visible = topics.Where(x => x.CanView(actor) &&
+			(string.IsNullOrEmpty(category) || x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase))).ToList();
+		// Authored exact names retain precedence over built-in aliases and prefix matches.
+		var exact = visible.FirstOrDefault(x => x.HelpName.EqualTo(query));
+		if (exact is not null) return [exact];
+		var aliases = visible.OfType<CommandHelpInfo>()
+			.Where(x => x.Aliases.Any(alias => alias.EqualTo(query))).Cast<IHelpInformation>().ToList();
+		if (aliases.Count > 0) return aliases;
+		var names = visible.Where(x => x.HelpName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase)).ToList();
+		if (names.Count > 0) return names;
+		return visible.Where(x => x.Keywords.Any(keyword => keyword.StartsWith(query, StringComparison.InvariantCultureIgnoreCase))).ToList();
+	}
 
     private static bool HandleHelpOnCommand(ICharacter actor, StringStack ss, string cmd, List<IHelpfile> allHelpfiles, List<ICommandHelpInfo> builtInHelp)
     {
@@ -956,8 +960,9 @@ The following is a list of all of the categories that exist for you to search:
         if (cmd.EqualTo("commands"))
         {
             helpOutput.AddRange(builtInHelp
+                                .DistinctBy(x => x.HelpName)
                                 .Where(x => helpfiles.All(y => !y.Name.EqualTo(x.HelpName)))
-                                .Select(x => (Name: x.HelpName, $"Automatically generated helpfile for command", "Built-In", x.HelpName))
+                                .Select(x => (Name: x.HelpName, x.TagLine, x.Subcategory, x.Keywords.ListToString(separator: " ", conjunction: "")))
                                 );
         }
 

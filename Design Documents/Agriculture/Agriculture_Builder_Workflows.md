@@ -1,5 +1,7 @@
 # Agriculture Builder Workflows
 
+Use `field crop validate <id|name>`, `field woodland validate <id|name>` and `field operation validate <id|name>` for read-only preflight. Crop and woodland checks inspect timings, ranges and output materials/tags/weights; harvest-apiary checks inspect multiplier, cost and outputs. Unsupported operation validators are reported explicitly. These checks neither activate definitions nor execute preview progs. See the [shared builder guide](../Building/Generic_Editable_Item_Builder_Workflows.md) for result semantics.
+
 ## Seed First
 Run `AgricultureSeeder` after core utility progs exist. It installs:
 
@@ -62,18 +64,39 @@ field crop set "Wheat" moisture 35 80
 field crop set "Wheat" planting group Autumn Spring
 field crop set "Moonwheat" planting season "Early Thaw"
 field crop set "Moonwheat" planting none
+field crop set "Moonwheat" output add 180 "Wheat Grain" tag "Seeded Yield"
+field crop set "Moonwheat" output list
+field crop set "Moonwheat" output set 1 220 "Wheat Grain" tag "Seeded Yield"
+field crop set "Moonwheat" output remove 1
+field crop set "Moonwheat" seeds add 30 "Wheat Grain" tag Seeds
+field crop set "Moonwheat" seeds clear
 field crop set "Apples" pollination Strong 1 2
 field crop set "Apples" perennial true
 field crop set "Apples" cycle 220
 field herds set "Cattle Herd" npc cattle
 field herds set "Cattle Herd" output add 3500 milk tag Raw Milk
 field woodland set "Hazel Coppice" cycle 365
+field woodland set "Hazel Coppice" output add 2400 "Hazel Wood" tag "Seeded Yield"
+field woodland set "Hazel Coppice" output list
+field woodland set "Hazel Coppice" output set 1 2600 "Hazel Wood" tag "Seeded Yield"
+field woodland set "Hazel Coppice" output remove 1
+field woodland set "Hazel Coppice" output clear
 field operation set "Sow Crop" delta Moisture -3
 field operation set "Sow Crop" project "Stock Agriculture: Sow Crop"
 field operation set "Coppice Woodland" woodlandyield 0.45 45
 field operation set "Collect Herd Products" herdyield 1.0 55
 field operation set "Install Apiary" allowed Crop on
+field operation set "Install Apiary" apiaryinstall 2 3
+field operation set "Tend Apiary" apiarytend 5 10 -2
+field operation set "Harvest Apiary" apiaryyield 1.0 35 add 600 "Raw Honeycomb" tag "Apiary Product"
+field operation set "Harvest Apiary" apiaryyield 1.0 35 list
 ```
+
+Crop and woodland `output` lists and crop `seeds` lists are edited with 1-based indices. `add` and `set` take a positive finite weight in grams, a material, and an optional `tag <tag name>` selector; quote material or tag names containing spaces. `clear` removes the full list. These selectors must resolve to existing materials and tags. `apiaryyield` takes a positive finite multiplier and a 0-100 stores/yield cost before its list action. A `HarvestApiary` operation must have a positive multiplier and at least one valid output to apply. `apiaryinstall` takes a positive hive count and non-negative pollination radius; `apiarytend` takes signed health, stores, and yield deltas, so negative deltas remain valid.
+
+Crop `SeedRequirements` are definition metadata. They do not automatically become project material requirements or get consumed by sowing. Configure seed consumption independently on the sowing project's material requirements; this keeps the crop's descriptive seed recipe separate from the project template that controls what workers must supply.
+
+For a persistence and harvest acceptance pass, create a crop and woodland, author at least one output on each and seed metadata on the crop, save/reload their definitions, then apply a harvest-ready `Harvest` operation and a mature woodland yield operation through `IAgricultureField.ApplyOperation`. Assert the resulting commodity piles use the authored material, tag and weight scaling. For apiaries, create a `HarvestApiary` operation with output, save/reload it, install an apiary with `InstallApiary`, raise stores/yield potential, then apply harvest and assert piles; separately verify empty outputs, zero multiplier and invalid material/tag references make `WhyCannotApply` reject the operation. Existing runtime seams are `AgricultureField.ApplyOperation`, `AgricultureOperation.WhyCannotApply`, and the `AgricultureOperationTests` fixture patterns.
 
 Deleting a definition is blocked while live fields or active agriculture contexts still reference it.
 

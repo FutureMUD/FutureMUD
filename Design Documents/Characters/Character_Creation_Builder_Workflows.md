@@ -56,6 +56,8 @@ The storyboard graph has both order and dependency rules.
 
 Use `chargen reorder` only when the new order still respects stage dependencies.
 
+Use `chargen reorder <screen> <after-screen>` to move a screen immediately after another screen. A screen cannot follow itself. Choosing its existing predecessor leaves the graph unchanged. Successful moves update both the displayed order and the next-stage links, and both survive saving and reloading; terminal stages retain their existing termination behaviour.
+
 Typical dependency examples are:
 - birthday depends on culture
 - height depends on race and gender

@@ -15,6 +15,7 @@ namespace MudSharp.Server;
 
 internal class MudSharp
 {
+	private static readonly ExceptionNotificationQueue _backgroundCrashNotifications = new();
     private static async Task Main(string[] args)
     {
         if (TryRunDocumentationExport(args))
@@ -32,6 +33,11 @@ internal class MudSharp
 			return;
 		}
 
+#if !DEBUG
+		try
+		{
+#endif
+		ExceptionReporter.Operation = "Startup: console and configuration";
         ConfigureConsoleHost();
 
         IPAddress hostIp;
@@ -68,6 +74,7 @@ internal class MudSharp
                 Console.WriteLine(
                     "FutureMUD Failed to start up due to being unable to open the connection configuration: " +
                     e.Message);
+				WriteCrashLog(ExceptionReporter.Format(e, "Connection configuration", true));
                 return;
             }
         }
@@ -106,12 +113,7 @@ internal class MudSharp
                 "server=localhost;port=3306;database=test_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;";
 #endif
         }
-#if DEBUG
-#else
-		try
-		{
-#endif
-
+		ExceptionReporter.Operation = "Startup: constructing game world";
         using (FutureMUDConsoleWriter consoleWriter =
                new($"./Console Log {DateTime.UtcNow:yyyy MMMM dd HH mm ss}.txt"))
         {
@@ -122,15 +124,18 @@ internal class MudSharp
 
             Thread.CurrentThread.Name = "Main Game Thread";
 
+			ExceptionReporter.Operation = "Startup: loading database";
             ((IFuturemudLoader)mud).LoadFromDatabase();
             TrySetConsoleTitle(mud.Name);
 
             File.Delete("BOOTING");
             mud.MarkStartupDatabaseUpgradeComplete();
+			ExceptionReporter.Operation = "Startup: starting game loop";
             mud.StartGameLoop();
 
             // Post Shutdown Sequence
 
+			ExceptionReporter.Operation = "Shutdown: stopping services";
 			await Task.Delay(500);
 			if (mud.Server is IAsyncServer asyncServer)
 			{
@@ -141,55 +146,19 @@ internal class MudSharp
 				mud.Server.Stop();
 			}
             EmailHelper.Instance.EndEmailThread();
+			FlushBackgroundCrashNotifications();
         }
 #if DEBUG
 #else
 		}
-		catch (DbUpdateException e)
-		{
-			var version = Assembly.GetCallingAssembly().GetName().Version;
-			var sb = new StringBuilder();
-			sb.AppendLine($"Crash Log for Engine Version v{version.Major}.{version.Minor}.{version.Build}.{version.Revision.ToString("0000")}");
-			sb.AppendLine();
-			sb.AppendLine(e.ToString());
-			sb.AppendLine();
-			sb.AppendLine($"DbUpdateException error details - {e.InnerException?.InnerException?.Message}");
-
-			foreach (var eve in e.Entries)
-			{
-				sb.AppendLine($"Entity of type {eve.Entity.GetType().Name} in state {eve.State} could not be updated");
-			}
-
-			WriteCrashLog(sb.ToString());
-		}
-		catch (ReflectionTypeLoadException e)
-		{
-			var version = Assembly.GetCallingAssembly().GetName().Version;
-			var sb = new StringBuilder();
-			sb.AppendLine($"Crash Log for Engine Version v{version.Major}.{version.Minor}.{version.Build}.{version.Revision.ToString("0000")}");
-			sb.AppendLine();
-			sb.AppendLine(e.ToString());
-			sb.AppendLine();
-			sb.AppendLine("Reflection Type Errors:");
-			for (var i = 0; i < e.LoaderExceptions.Length; i++)
-			{
-				sb.AppendLine($"Type: {e.Types[i].AssemblyQualifiedName} Error: {e.LoaderExceptions[i]}");
-			}
-
-			WriteCrashLog(sb.ToString());
-		}
 		catch (Exception e)
 		{
-			var version = Assembly.GetCallingAssembly().GetName().Version;
-			var sb = new StringBuilder();
-			sb.AppendLine($"Crash Log for Engine Version v{version.Major}.{version.Minor}.{version.Build}.{version.Revision.ToString("0000")}");
-			sb.AppendLine();
-			sb.AppendLine(e.ToString());
-			WriteCrashLog(sb.ToString());
+			WriteCrashLog(ExceptionReporter.Format(e, "Engine main", true));
 		}
 
 		finally
 		{
+			FlushBackgroundCrashNotifications();
 			Thread.Sleep(100);
 			Environment.Exit(0);
 		}
@@ -317,13 +286,20 @@ internal class MudSharp
 
     public static void WriteCrashLog(string crashLog)
     {
-        using (StreamWriter writer = new($"Fatal Exception {DateTime.Now:yyyy MMMM dd HH mm ss}.txt"))
-        {
-            writer.Write(crashLog);
-        }
-
-        Futuremud.Games.First().DiscordConnection?.NotifyCrash(crashLog);
+		ExceptionReporter.Write(crashLog,
+			report => Futuremud.Games.FirstOrDefault()?.DiscordConnection?.NotifyCrash(report));
     }
+
+	internal static void WriteBackgroundCrashLog(string crashLog)
+	{
+		ExceptionReporter.Write(crashLog, _backgroundCrashNotifications.Enqueue);
+	}
+
+	internal static void FlushBackgroundCrashNotifications()
+	{
+		_backgroundCrashNotifications.Drain(
+			report => Futuremud.Games.FirstOrDefault()?.DiscordConnection?.NotifyCrash(report));
+	}
 
     private static void ConfigureConsoleHost()
     {

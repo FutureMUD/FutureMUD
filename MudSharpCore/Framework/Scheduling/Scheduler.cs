@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using MudSharp.Framework.Diagnostics;
+using MudSharp.Server;
 
 namespace MudSharp.Framework.Scheduling;
 
@@ -77,7 +78,12 @@ public class Scheduler : IScheduler
 			}
 
 			var fireStarted = Stopwatch.GetTimestamp();
-			schedule.Fire();
+			try { schedule.Fire(); }
+			catch (Exception exception)
+			{
+				ExceptionReporter.Annotate(exception, ("Operation", () => $"Schedule.Fire: {schedule.GetType().FullName}"));
+				throw;
+			}
 			var fireElapsed = Stopwatch.GetElapsedTime(fireStarted);
 			if (fireElapsed.TotalMilliseconds > 100)
 			{

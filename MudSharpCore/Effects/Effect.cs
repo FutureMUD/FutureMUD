@@ -4,6 +4,7 @@ using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.Health;
+using MudSharp.Server;
 using System.Data;
 using System.Reflection;
 
@@ -71,12 +72,21 @@ public abstract partial class Effect : FrameworkItem, IEffect, IPhysicalEntityRe
     {
         try
         {
-            return EffectFactories[effect.Element("Type").Value](effect, owner);
+			try
+			{
+				return EffectFactories[effect.Element("Type").Value](effect, owner);
+			}
+			catch (KeyNotFoundException exception)
+			{
+				throw new ApplicationException($"Unknown effect type {effect.Element("Type").Value}", exception);
+			}
         }
-        catch (KeyNotFoundException)
+        catch (Exception exception)
         {
-            throw new ApplicationException(
-                $"Unknown effect type {effect.Element("Type").Value}");
+			ExceptionReporter.Annotate(exception,
+				("Operation", () => $"LoadEffect: {effect.Element("Type")?.Value}"),
+				("EntityId", () => owner.Id), ("EntityType", () => owner.FrameworkItemType));
+			throw;
         }
     }
 

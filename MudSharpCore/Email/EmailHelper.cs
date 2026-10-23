@@ -6,6 +6,7 @@ using System.Threading;
 using MimeKit;
 using MimeKit.Text;
 using MudSharp.Database;
+using MudSharp.Server;
 
 namespace MudSharp.Email;
 
@@ -21,6 +22,7 @@ public class EmailHelper
 	];
 
 	private readonly object _sync = new();
+	private readonly Action<string> _crashLogger;
 	private readonly SemaphoreSlim _queueSignal = new(0);
 	private readonly SemaphoreSlim _transportGate = new(1, 1);
 	private readonly PriorityQueue<QueuedMessage, DateTimeOffset> _messageQueue = new();
@@ -47,8 +49,9 @@ public class EmailHelper
 	private sealed record QueuedMessage(Guid CorrelationId, EmailTemplateTypes TemplateType, MimeMessage Message,
 		int Attempt);
 
-	private EmailHelper()
+	internal EmailHelper(Action<string>? crashLogger = null)
 	{
+		_crashLogger = crashLogger ?? Server.MudSharp.WriteBackgroundCrashLog;
 	}
 
 	public static EmailHelper Instance { get; } = new();
@@ -223,7 +226,8 @@ public class EmailHelper
 			_emailThreadCancellation?.Dispose();
 			_emailThreadCancellation = new CancellationTokenSource();
 			_emailThreadStarted = true;
-			_emailThread = Task.Run(() => EmailDelegateAsync(_emailThreadCancellation.Token));
+			var token = _emailThreadCancellation.Token;
+			_emailThread = Task.Run(() => EmailDelegateAsync(token));
 		}
 
 		ConsoleUtilities.WriteLine("#EStarting email handling thread...#0");
@@ -259,7 +263,7 @@ public class EmailHelper
 		}
 		catch (AggregateException)
 		{
-			// The worker records delivery failures itself; shutdown remains bounded.
+			// The worker records both delivery failures and unexpected exits itself; shutdown remains bounded.
 		}
 
 		if (!emailThread.IsCompleted)
@@ -293,8 +297,9 @@ public class EmailHelper
 		_queueSignal.Release();
 	}
 
-	private async Task EmailDelegateAsync(CancellationToken cancellationToken)
+	internal async Task EmailDelegateAsync(CancellationToken cancellationToken)
 	{
+		ExceptionReporter.Operation = "Email worker";
 		try
 		{
 			while (!cancellationToken.IsCancellationRequested)
@@ -318,6 +323,13 @@ public class EmailHelper
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
+		}
+		catch (Exception exception)
+		{
+			var report = ExceptionReporter.FormatPrivateFailure(exception, "Email worker stopped unexpectedly",
+				("Worker outcome", () => "Stopped; queued mail will wait until the worker is restarted."));
+			try { _crashLogger(report); }
+			catch (Exception) { ExceptionReporter.WriteFallback(null, report); }
 		}
 		finally
 		{

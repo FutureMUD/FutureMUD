@@ -68,9 +68,36 @@ public class NetworkWorkflowTests
 		Assert.AreEqual(1, logs.Count);
 		StringAssert.Contains(logs[0], "get empty-stack");
 		StringAssert.Contains(logs[0], "fixture command failure");
+		StringAssert.Contains(logs[0], "Engine version:");
+		StringAssert.Contains(logs[0], "Process terminating: False");
 		CollectionAssert.AreEqual(new[] { "look" }, healthyCommands);
 		Assert.AreEqual(ConnectionState.Open, healthy.State);
 		await failed.TransportCompletion.WaitAsync(TimeSpan.FromSeconds(2));
+	}
+
+	[TestMethod]
+	public async Task AttemptCommand_BrokenDiagnosticContext_PreservesExceptionAndInput()
+	{
+		var transport = new TestConnectionTransport();
+		var reports = new List<string>();
+		using var connection = new PlayerConnection(transport, TimeProvider.System, new TestNetworkTelemetry(), reports.Add);
+		var context = CreateControlContext(new List<string>());
+		context.Setup(x => x.HandleCommand("look"))
+			.Callback(() => context.SetupGet(x => x.Actor).Throws(new InvalidOperationException("diagnostic failure")))
+			.Throws(new InvalidOperationException("original command failure"));
+		connection.Bind(context.Object);
+		connection.StartTransport();
+		transport.QueueInput("look\r");
+		await WaitUntil(() => connection.HasIncomingCommands);
+
+		connection.AttemptCommand();
+
+		Assert.AreEqual(1, reports.Count);
+		StringAssert.Contains(reports[0], "original command failure");
+		StringAssert.Contains(reports[0], "Input: look");
+		StringAssert.Contains(reports[0], "Character ID: unavailable");
+		Assert.AreEqual(ConnectionState.Closing, connection.State);
+		await connection.TransportCompletion.WaitAsync(TimeSpan.FromSeconds(2));
 	}
 
 	[TestMethod]

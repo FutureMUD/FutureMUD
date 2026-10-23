@@ -331,6 +331,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 				var phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 
 				sw.Restart();
+				MudSharp.Server.ExceptionReporter.Operation = "Game loop: Network";
 				ProcessNetwork();
 				RecordLoopPhase(RuntimeLoopPhase.Network, sw, collectPerformance, phaseAllocatedBefore);
 				if (sw.ElapsedMilliseconds > 250)
@@ -342,6 +343,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
 				phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 				sw.Restart();
+				MudSharp.Server.ExceptionReporter.Operation = "Game loop: PendingCommands";
 				ProcessPendingCommands();
 				RecordLoopPhase(RuntimeLoopPhase.PendingCommands, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -353,6 +355,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+                MudSharp.Server.ExceptionReporter.Operation = "Game loop: IdlerWarnings";
                 WarnIdlers();
 				RecordLoopPhase(RuntimeLoopPhase.IdlerWarnings, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -364,6 +367,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+                MudSharp.Server.ExceptionReporter.Operation = "Game loop: Clocks";
                 ClockManager.UpdateClocks();
 				RecordLoopPhase(RuntimeLoopPhase.Clocks, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -375,6 +379,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+                MudSharp.Server.ExceptionReporter.Operation = "Game loop: Scheduler";
                 Scheduler.CheckSchedules();
 				RecordLoopPhase(RuntimeLoopPhase.Scheduler, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -386,6 +391,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+                MudSharp.Server.ExceptionReporter.Operation = "Game loop: EffectScheduler";
                 EffectScheduler.CheckSchedules();
 				RecordLoopPhase(RuntimeLoopPhase.EffectScheduler, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -397,6 +403,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+                MudSharp.Server.ExceptionReporter.Operation = "Game loop: LogFlush";
                 LogManager.FlushLog();
 				RecordLoopPhase(RuntimeLoopPhase.LogFlush, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -408,6 +415,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+                MudSharp.Server.ExceptionReporter.Operation = "Game loop: DeadConnections";
                 ClearDeadConnections();
 				RecordLoopPhase(RuntimeLoopPhase.DeadConnections, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
@@ -419,6 +427,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                 sw.Restart();
+				MudSharp.Server.ExceptionReporter.Operation = "Game loop: Discord";
+				MudSharp.Server.MudSharp.FlushBackgroundCrashNotifications();
                 if (GetStaticBool("UseDiscordBot"))
                 {
                     DiscordConnection.HandleMessages();
@@ -437,6 +447,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
                 {
                     phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                     sw.Restart();
+                    MudSharp.Server.ExceptionReporter.Operation = "Game loop: SaveFlush";
                     SaveManager.Flush();
 					RecordLoopPhase(RuntimeLoopPhase.SaveFlush, sw, collectPerformance, phaseAllocatedBefore);
                     if (sw.ElapsedMilliseconds > 250)
@@ -460,6 +471,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
                     TimeSpan pathfindingBudget = TimeSpan.FromMilliseconds(Math.Min(milliseconds, 3));
 					phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
                     sw.Restart();
+                    MudSharp.Server.ExceptionReporter.Operation = "Game loop: Pathfinding";
                     ExitManager.PathfindingService.DoIdleWork(pathfindingBudget);
                     if (sw.ElapsedMilliseconds > 50)
                     {
@@ -472,6 +484,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 					RecordLoopPhase(RuntimeLoopPhase.Pathfinding, sw, collectPerformance, phaseAllocatedBefore);
 					phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 					sw.Restart();
+                    MudSharp.Server.ExceptionReporter.Operation = "Game loop: LazyLoad";
                     SaveManager.FlushLazyLoad(TimeSpan.FromMilliseconds(milliseconds));
 					RecordLoopPhase(RuntimeLoopPhase.LazyLoad, sw, collectPerformance, phaseAllocatedBefore);
                 }
@@ -491,6 +504,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 			ForceOutgoingMessages();
 			LinearRouteMovement.MaterialiseAllForShutdown(this);
 			RouteVehicleMovementStrategy.MaterialiseAllForShutdown(this);
+            MudSharp.Server.ExceptionReporter.Operation = "Game loop: SaveFlush";
             SaveManager.Flush();
         }
         finally

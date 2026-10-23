@@ -10,22 +10,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
-	private sealed record RenaissanceMilitaryItemSpec(
-		string StableReference,
-		string Category,
-		string Admission,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		SizeCategory Size,
-		ItemQuality Quality,
-		double WeightInGrams,
-		decimal Cost,
-		bool Skinnable,
-		string Material,
-		string[] Tags,
-		string[] Components,
-		string BuilderNotes);
+
 
 	internal sealed record RenaissanceMilitaryItemSpecTestData(
 		string StableReference,
@@ -84,27 +69,7 @@ public partial class ItemSeeder
 
 		foreach (var spec in RenaissanceMilitaryItemSpecs)
 		{
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				spec.Skinnable,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				spec.BuilderNotes,
-				allowLegacyShortDescriptionMatch: false);
+			InstallCatalogueItem(spec);
 		}
 
 		UpsertOutfitManifests(RenaissanceMilitaryArmourOutfitManifestSpecs);
@@ -113,29 +78,9 @@ public partial class ItemSeeder
 	private void SeedRenaissanceBlackPowderSupportItems()
 	{
 		foreach (var spec in RenaissanceMilitaryItemSpecs.Where(x =>
-			         RenaissanceBlackPowderSupportStableReferences.Contains(x.StableReference)))
+			         RenaissanceBlackPowderSupportStableReferences.Contains(x.Metadata.StableKey)))
 		{
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				spec.Skinnable,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				spec.BuilderNotes,
-				allowLegacyShortDescriptionMatch: false);
+			InstallCatalogueItem(spec);
 		}
 	}
 
@@ -189,9 +134,9 @@ public partial class ItemSeeder
 	internal static IReadOnlyCollection<RenaissanceMilitaryItemSpecTestData> RenaissanceMilitaryItemSpecsForTesting =>
 		RenaissanceMilitaryItemSpecs
 			.Select(x => new RenaissanceMilitaryItemSpecTestData(
-				x.StableReference,
-				x.Category,
-				x.Admission,
+				x.Metadata.StableKey,
+				x.Historical!.Category!,
+				x.Historical!.Admission!,
 				x.ShortDescription,
 				x.FullDescription,
 				x.Skinnable,

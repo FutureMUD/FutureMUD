@@ -56,6 +56,8 @@ internal class Program
 
     private static void Main(string[] args)
     {
+		if (Seeders.CatalogueCaptureCommand.TryHandle(args)) return;
+		if (Seeders.CatalogueInventoryExporter.TryHandle(args)) return;
 #if DEBUG
 		try { if (EnvironmentalExposureCatalogueCapture.TryHandle(args)) return; }
 		catch (Exception exception) when (args.Contains("--capture-environmental-exposure"))
@@ -298,7 +300,7 @@ The exception details were as follows:
 		return true;
 	}
 
-	private static FuturemudDatabaseContext CreateItemManifestCaptureContext()
+	internal static FuturemudDatabaseContext CreateItemManifestCaptureContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase($"ItemSeederManifestCapture-{Guid.NewGuid():N}")
@@ -347,7 +349,7 @@ The exception details were as follows:
         DatabaseBackupSettings.Load(AppContext.BaseDirectory);
         bool databaseLooksBlank = UpgradeCoordinator.DatabaseLooksBlank(ConnectionString!);
         string? latestMigrationId = UpgradeCoordinator.GetLatestMigrationId(ConnectionString!);
-        BlankDatabaseSnapshotAssessment snapshotAssessment = BlankDatabaseSnapshotManager.Assess(Path.Combine(AppContext.BaseDirectory, "Assets", "Database"), latestMigrationId);
+        BlankDatabaseSnapshotAssessment snapshotAssessment = BlankDatabaseSnapshotManager.AssessEmbedded(latestMigrationId);
         DatabaseBootstrapMode bootstrapMode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank, snapshotAssessment);
 
         switch (bootstrapMode)
@@ -381,10 +383,18 @@ The exception details were as follows:
     {
         try
         {
+			if (snapshotAssessment.UsesEmbeddedSnapshot)
+			{
+				using var snapshot = BlankDatabaseSnapshotManifest.OpenEmbeddedSnapshot();
+				UpgradeCoordinator.ImportBlankDatabaseSnapshot(ConnectionString!, snapshot, BlankDatabaseSnapshotManifest.DatabaseNamePlaceholder);
+			}
+			else
+			{
             UpgradeCoordinator.ImportBlankDatabaseSnapshot(
                 ConnectionString!,
                 snapshotAssessment.SnapshotPath,
                 BlankDatabaseSnapshotManifest.DatabaseNamePlaceholder);
+			}
         }
         catch (Exception e)
         {

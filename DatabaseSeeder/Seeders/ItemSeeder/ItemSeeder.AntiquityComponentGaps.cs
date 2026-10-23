@@ -39,26 +39,7 @@ public partial class ItemSeeder
 				EnsureAntiquityTagPath(tag);
 			}
 
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				false,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				spec.BuilderNotes ?? "Seeded from the antiquity item component gap report.");
+			InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(spec.StableReference, "SeedAntiquityComponentGapItems"));
 		}
 	}
 

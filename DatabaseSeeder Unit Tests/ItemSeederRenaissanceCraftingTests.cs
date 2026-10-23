@@ -1,5 +1,7 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,20 +18,9 @@ public class ItemSeederRenaissanceCraftingTests
 	[TestMethod]
 	public void RenaissanceFinishedItemCrafts_AreWiredAndDoNotDuplicateSpecialistJewelleryOrDoorRoutes()
 	{
-		var source = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Renaissance.cs");
-		var dispatcher = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-
-		StringAssert.Contains(dispatcher, "SeedRenaissanceFinishedItemCrafts();");
-		StringAssert.Contains(source, "renaissance_jewellery_");
-		StringAssert.Contains(source, "renaissance_door_");
-		StringAssert.Contains(source, "an in-progress {StripLeadingArticle(displayName)} craft");
-		StringAssert.Contains(source, "Commodity - {materialAmount} grams of {material}");
-		StringAssert.Contains(source, "SimpleProduct - 1x {displayName} (#{item.Value.Id})");
-		StringAssert.Contains(source, "\"Labouring\", 15");
-		Assert.IsFalse(source.Contains("\"Crafting\", 15", StringComparison.Ordinal),
-			"The generic Renaissance craft path must use a concrete stock skill, not the Crafting category.");
-		Assert.IsTrue(ItemSeeder.ShouldSeedRenaissanceFinishedItemCraftsForTesting("renaissance"));
-		Assert.IsFalse(ItemSeeder.ShouldSeedRenaissanceFinishedItemCraftsForTesting("medieval"));
+		var recipes = Recipes.Recipes.Where(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate gate && gate.Knowledge == "Renaissance Finished Item Crafting").ToArray();
+		Assert.IsTrue(recipes.Length > 1000);
+		Assert.IsFalse(recipes.SelectMany(Recipes.Outputs).Any(key => key.StartsWith("renaissance_jewellery_", StringComparison.Ordinal) || key.StartsWith("renaissance_door_", StringComparison.Ordinal)));
 	}
 
 	[TestMethod]

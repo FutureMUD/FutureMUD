@@ -1,5 +1,7 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -64,22 +66,10 @@ public class ItemSeederMedievalCraftingTests
 	[TestMethod]
 	public void MedievalDispatcher_WiresHistoricFoundationAndLaunchStubs()
 	{
-		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
-		var sharedBaseline = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.PreIndustrialBaseline.cs");
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Crafting.cs");
-
-		AssertContains(reworkRoot, "SeedSharedPreIndustrialBaselineItems();");
-		AssertContains(sharedBaseline, "SeedHistoricCommonWorkshopItems();");
-		foreach (var method in MedievalItemLaunchers.Values)
-		{
-			AssertContains(reworkRoot, $"{method}();");
-		}
-
-		AssertContains(craftRoot, "SeedHistoricFoundationCrafts();");
-		foreach (var method in MedievalCraftLaunchers)
-		{
-			AssertContains(craftRoot, $"{method}();");
-		}
+		var selected = CompiledRecipeCatalogue.Select(new System.Collections.Generic.HashSet<string>(["medieval"], StringComparer.OrdinalIgnoreCase), false).ToArray();
+		Assert.IsTrue(selected.Length > 1000);
+		Assert.IsTrue(selected.Any(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate gate && gate.Knowledge == "Historic Workshop Foundations"));
+		Assert.IsTrue(selected.Any(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate gate && gate.Knowledge == "Medieval Industry Foundations"));
 	}
 
 	[TestMethod]
@@ -159,7 +149,7 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalJewellerySeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	public void MedievalJewellerySeeder_ImplementsReferenceCatalogueWithExplicitCatalogueDefinitions()
 	{
 		var jewellerySource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalJewellery.cs");
 		var designReference = ReadSource("Design Documents", "Seeding", "Medieval_Jewellery_Seeder_Design_Reference.md");
@@ -187,13 +177,7 @@ public class ItemSeederMedievalCraftingTests
 			.Cast<Match>()
 			.Select(x => x.Groups["ref"].Value)
 			.ToArray();
-		var sourceReferences = Regex.Matches(
-				jewellerySource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_jewellery_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
+		var sourceReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalJewellery.cs").Where(item => item.Metadata.StableKey.StartsWith("medieval_jewellery_", StringComparison.Ordinal)).Select(item => item.Metadata.StableKey).ToArray();
 
 		Assert.AreEqual(400, designReferences.Length,
 			"The medieval jewellery design reference should contain the full 400-item catalogue.");
@@ -202,32 +186,17 @@ public class ItemSeederMedievalCraftingTests
 		CollectionAssert.AreEqual(designReferences, fdescReferences,
 			"The fdesc catalogue should stay in the same order as the design reference.");
 		CollectionAssert.AreEqual(designReferences, sourceReferences,
-			"SeedMedievalJewelleryAndDevotionalGoods should contain exactly one direct CreateItem call for each jewellery reference.");
+			"SeedMedievalJewelleryAndDevotionalGoods should contain exactly one explicit catalogue definition for each jewellery reference.");
 		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval jewellery item should be created exactly once.");
-		AssertContains(jewellerySource, @"""SealStamp_Medieval_NobleSignetRing""");
-		AssertContains(jewellerySource, "System.TimeSpan.FromHours(6.0)");
-		AssertContains(jewellerySource, "System.TimeSpan.FromDays(1.0)");
+		Assert.IsTrue(CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalJewellery.cs").Any(item => item.Components.Contains("SealStamp_Medieval_NobleSignetRing")));
+		Assert.IsTrue(CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalJewellery.cs").Any(item => item.MorphSeconds == 21600));
+		Assert.IsTrue(CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalJewellery.cs").Any(item => item.MorphSeconds == 86400));
 
-		foreach (var forbidden in new[]
-		{
-			"foreach",
-			"for (",
-			"Dictionary<",
-			"IReadOnly",
-			"record ",
-			"BuildMedieval",
-			"SeedEraItemSpecs(",
-			"EnsureMedieval"
-		})
-		{
-			Assert.IsFalse(jewellerySource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalJewelleryAndDevotionalGoods should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-		}
 	}
 
 	[TestMethod]
-	public void MedievalTreatmentAndRepairSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	public void MedievalTreatmentAndRepairSeeder_ImplementsReferenceCatalogueWithExplicitCatalogueDefinitions()
 	{
 		var medicalSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalMedical.cs");
 		var repairSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalRepairKits.cs");
@@ -240,20 +209,8 @@ public class ItemSeederMedievalCraftingTests
 			.Cast<Match>()
 			.Select(x => x.Groups["ref"].Value)
 			.ToArray();
-		var medicalReferences = Regex.Matches(
-				medicalSource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_(?:medical|drug)_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
-		var repairReferences = Regex.Matches(
-				repairSource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_repair_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
+		var medicalReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalMedical.cs").Select(item => item.Metadata.StableKey).ToArray();
+		var repairReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalRepairKits.cs").Select(item => item.Metadata.StableKey).ToArray();
 		var sourceReferences = medicalReferences
 			.Concat(repairReferences)
 			.ToArray();
@@ -261,57 +218,28 @@ public class ItemSeederMedievalCraftingTests
 		Assert.AreEqual(183, designReferences.Length,
 			"The treatment/drug/repair design reference should contain the full 183-item catalogue.");
 		Assert.AreEqual(150, medicalReferences.Length,
-			"SeedMedievalMedicalAndApothecaryItems should contain the 150 direct treatment, drug, mobility, and prosthetic item calls.");
+			"SeedMedievalMedicalAndApothecaryItems should contain the 150 explicit treatment, drug, mobility, and prosthetic item calls.");
 		Assert.AreEqual(33, repairReferences.Length,
 			"SeedMedievalRepairKits should contain the 33 direct repair-kit and repair-supply item calls.");
 		CollectionAssert.AreEqual(designReferences, sourceReferences,
-			"The medical and repair partials should follow the merged design reference order with exactly one direct CreateItem call per row.");
+			"The medical and repair partials should follow the merged design reference order with exactly one explicit catalogue definition per row.");
 		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval treatment, drug, mobility, prosthetic, or repair item should be created exactly once.");
 
-		foreach (var forbidden in new[]
-		{
-			"foreach",
-			"for (",
-			"Dictionary<",
-			"IReadOnly",
-			"record ",
-			"BuildMedieval",
-			"SeedEraItemSpecs(",
-			"EnsureMedieval"
-		})
-		{
-			Assert.IsFalse(medicalSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalMedicalAndApothecaryItems should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-			Assert.IsFalse(repairSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalRepairKits should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-		}
 	}
 
 	[TestMethod]
-	public void MedievalMilitarySeeder_ImplementsFullCatalogueWithDirectCreateItemCalls()
+	public void MedievalMilitarySeeder_ImplementsFullCatalogueWithExplicitCatalogueDefinitions()
 	{
 		var armourSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalArmour.cs");
 		var weaponsSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalWeapons.cs");
-		var armourReferences = Regex.Matches(
-				armourSource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_military_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
-		var weaponReferences = Regex.Matches(
-				weaponsSource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_military_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
+		var armourReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalArmour.cs").Select(item => item.Metadata.StableKey).ToArray();
+		var weaponReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalWeapons.cs").Select(item => item.Metadata.StableKey).ToArray();
 
 		Assert.AreEqual(143, weaponReferences.Length,
-			"SeedMedievalWeaponsShieldsAccessories should contain exactly one direct CreateItem call for each melee, ranged, ammunition, and thrown catalogue row.");
+			"SeedMedievalWeaponsShieldsAccessories should contain exactly one explicit catalogue definition for each melee, ranged, ammunition, and thrown catalogue row.");
 		Assert.AreEqual(239, armourReferences.Length,
-			"SeedMedievalArmour should contain exactly one direct CreateItem call for each armour, shield, and military carrying, storage, and support gear row.");
+			"SeedMedievalArmour should contain exactly one explicit catalogue definition for each armour, shield, and military carrying, storage, and support gear row.");
 		Assert.AreEqual(weaponReferences.Length, weaponReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval military weapon or ammunition item should be created exactly once.");
 		Assert.AreEqual(armourReferences.Length, armourReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
@@ -356,23 +284,6 @@ public class ItemSeederMedievalCraftingTests
 			},
 			"The armour partial should contain the armour/tack/barding, shield, and carrying/storage/support catalogue slices in source order.");
 
-		foreach (var forbidden in new[]
-		{
-			"foreach",
-			"for (",
-			"Dictionary<",
-			"IReadOnly",
-			"record ",
-			"BuildMedieval",
-			"SeedEraItemSpecs(",
-			"EnsureMedieval"
-		})
-		{
-			Assert.IsFalse(armourSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalArmour should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-			Assert.IsFalse(weaponsSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalWeaponsShieldsAccessories should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-		}
 	}
 
 	[TestMethod]
@@ -396,13 +307,8 @@ public class ItemSeederMedievalCraftingTests
 			.Cast<Match>()
 			.Select(x => x.Groups["ref"].Value)
 			.ToArray();
-		var sourceReferences = Regex.Matches(
-				clothingSource,
-				@"(?:CreateItem\s*\(|CreateHistoricalClothingItem\(FindHistoricalClothingSource\()\s*""(?<ref>medieval_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
+		var sourceReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalClothing.cs").Select(item => item.Metadata.StableKey).Concat(Regex.Matches(clothingSource, @"CreateHistoricalClothingItem\(FindHistoricalClothingSource\(""(?<ref>[^""]+)""\)")
+			.Cast<Match>().Select(match => match.Groups["ref"].Value)).ToArray();
 
 		Assert.AreEqual(408, designReferences.Length, "The design reference should contain the full 408-garment catalogue.");
 		CollectionAssert.AreEqual(designReferences, csvReferences,
@@ -422,25 +328,10 @@ public class ItemSeederMedievalCraftingTests
 			Assert.IsNull(source.LegacyAliasReference, reference);
 		}
 
-		foreach (var forbidden in new[]
-		{
-			"foreach",
-			"for (",
-			"Dictionary<",
-			"IReadOnly",
-			"record ",
-			"BuildMedieval",
-			"SeedEraItemSpecs(",
-			"EnsureMedieval"
-		})
-		{
-			Assert.IsFalse(clothingSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalClothing should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-		}
 	}
 
 	[TestMethod]
-	public void MedievalFurnitureSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	public void MedievalFurnitureSeeder_ImplementsReferenceCatalogueWithExplicitCatalogueDefinitions()
 	{
 		var householdSource = string.Join(Environment.NewLine,
 			new[]
@@ -452,38 +343,17 @@ public class ItemSeederMedievalCraftingTests
 				"ItemSeeder.MedievalJewellery.cs"
 			}
 			.Select(x => ReadSource("DatabaseSeeder", "Seeders", x)));
-		var sourceReferences = Regex.Matches(
-				householdSource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.Where(x => !x.StartsWith("medieval_jewellery_", StringComparison.Ordinal))
-			.ToArray();
+		var sourceReferences = new[] { "ItemSeeder.MedievalContainers.cs", "ItemSeeder.MedievalDoorsLocksStrongboxes.cs", "ItemSeeder.MedievalFood.cs", "ItemSeeder.MedievalFurniture.cs", "ItemSeeder.MedievalJewellery.cs" }.SelectMany(CompiledCatalogueFixtures.FromSource).Select(item => item.Metadata.StableKey).Where(key => !key.StartsWith("medieval_jewellery_", StringComparison.Ordinal)).ToArray();
 
 		Assert.AreEqual(1751, sourceReferences.Length,
-			"The medieval household goods split should contain exactly one direct CreateItem call for each source catalogue row.");
+			"The medieval household goods split should contain exactly one explicit catalogue definition for each source catalogue row.");
 		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval household item should be created exactly once.");
 
-		foreach (var forbidden in new[]
-		{
-			"foreach",
-			"for (",
-			"Dictionary<",
-			"IReadOnly",
-			"BuildMedieval",
-			"SeedEraItemSpecs(",
-			"EnsureMedieval"
-		})
-		{
-			Assert.IsFalse(householdSource.Contains(forbidden, StringComparison.Ordinal),
-				$"Medieval household goods should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-		}
 	}
 
 	[TestMethod]
-	public void MedievalWritingSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	public void MedievalWritingSeeder_ImplementsReferenceCatalogueWithExplicitCatalogueDefinitions()
 	{
 		var writingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalWriting.cs");
 		var designReference = ReadSource("Design Documents", "Seeding", "FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md");
@@ -503,37 +373,17 @@ public class ItemSeederMedievalCraftingTests
 			.Cast<Match>()
 			.Select(x => x.Groups["ref"].Value)
 			.ToArray();
-		var sourceReferences = Regex.Matches(
-				writingSource,
-				@"CreateItem\s*\(\s*""(?<ref>medieval_writing_[^""]+)""",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant)
-			.Cast<Match>()
-			.Select(x => x.Groups["ref"].Value)
-			.ToArray();
+		var sourceReferences = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalWriting.cs").Select(item => item.Metadata.StableKey).ToArray();
 
 		Assert.AreEqual(286, designReferences.Length,
 			"The writing design reference should contain the full 286-item catalogue.");
 		CollectionAssert.AreEqual(designReferences, csvReferences,
 			"The writing fdesc catalogue should stay in the same order as the design reference.");
 		CollectionAssert.AreEqual(designReferences, sourceReferences,
-			"SeedMedievalWritingAdministrationAndDocuments should contain exactly one direct CreateItem call for each writing reference.");
+			"SeedMedievalWritingAdministrationAndDocuments should contain exactly one explicit catalogue definition for each writing reference.");
 		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval writing, book, document, seal, container, scribal-tool, or writing-support item should be created exactly once.");
 
-		foreach (var forbidden in new[]
-		{
-			"foreach",
-			"for (",
-			"Dictionary<",
-			"IReadOnly",
-			"BuildMedieval",
-			"SeedEraItemSpecs(",
-			"EnsureMedieval"
-		})
-		{
-			Assert.IsFalse(writingSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalWritingAdministrationAndDocuments should remain direct CreateItem calls without helper catalogue token {forbidden}.");
-		}
 	}
 
 	[TestMethod]
@@ -688,33 +538,28 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalMilitaryItems_ReplaceDocumentedConservativeFallbacksWithoutChangingStableReferences()
+	public void MedievalMilitaryItems_PreserveDocumentedPhysicalBindingsAndStableReferences()
 	{
-		string armour = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalArmour.cs");
-		string weapons = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.MedievalWeapons.cs");
-
-		Assert.IsFalse(armour.Contains("\"Armour_HeavyClothing\"", StringComparison.Ordinal));
-		Assert.IsFalse(armour.Contains("\"Armour_UltraHeavyClothing\"", StringComparison.Ordinal));
-		Assert.IsFalse(armour.Contains("\"Armour_Platemail\"", StringComparison.Ordinal));
-		Assert.AreEqual(14, Regex.Matches(armour, "\"Armour_Padded\"").Count);
-		Assert.AreEqual(20, Regex.Matches(armour, "\"Armour_RigidMetal\"").Count);
-		Assert.AreEqual(1, Regex.Matches(armour, "\"Armour_CoatOfPlates\"").Count);
-		Assert.AreEqual(4, Regex.Matches(armour, "\"Armour_Splinted\"").Count);
-
-		AssertItemUses(weapons, "medieval_military_light_riding_spear", "Melee_Lance");
-		StringAssert.Matches(weapons, new Regex(
-			"\\\"medieval_military_plain_short_spear\\\"(?s:.*?)SizeCategory\\.Normal",
-			RegexOptions.CultureInvariant),
-			"The shield-side short spear must remain one-hand wieldable by a normal human hand.");
-		AssertItemUses(weapons, "medieval_military_broad_poleblade", "Melee_Poleblade");
-		AssertItemUses(weapons, "medieval_military_hooked_polearm", "Melee_HookedPolearm");
-		AssertItemUses(weapons, "medieval_military_recurved_riders_shortbow", "CompositeBow_Light");
-		AssertItemUses(weapons, "medieval_military_fine_horn_recurve_bow", "CompositeBow_War");
-		AssertItemUses(weapons, "medieval_military_wootz_war_sword", "Melee_Sabre");
-
-		Assert.AreEqual(382,
-			Regex.Matches($"{armour}{Environment.NewLine}{weapons}", @"\bCreateItem\s*\(").Count,
-			"Fallback replacement must not change the Medieval catalogue size.");
+		var armour = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalArmour.cs");
+		var weapons = CompiledCatalogueFixtures.FromSource("ItemSeeder.MedievalWeapons.cs");
+		foreach (var forbidden in new[] { "Armour_HeavyClothing", "Armour_UltraHeavyClothing", "Armour_Platemail" })
+			Assert.IsFalse(armour.Any(item => item.Components.Contains(forbidden)), forbidden);
+		Assert.AreEqual(14, armour.Count(item => item.Components.Contains("Armour_Padded")));
+		Assert.AreEqual(20, armour.Count(item => item.Components.Contains("Armour_RigidMetal")));
+		Assert.AreEqual(1, armour.Count(item => item.Components.Contains("Armour_CoatOfPlates")));
+		Assert.AreEqual(4, armour.Count(item => item.Components.Contains("Armour_Splinted")));
+		foreach (var (key, component) in new[]
+		{
+			("medieval_military_light_riding_spear", "Melee_Lance"),
+			("medieval_military_broad_poleblade", "Melee_Poleblade"),
+			("medieval_military_hooked_polearm", "Melee_HookedPolearm"),
+			("medieval_military_recurved_riders_shortbow", "CompositeBow_Light"),
+			("medieval_military_fine_horn_recurve_bow", "CompositeBow_War"),
+			("medieval_military_wootz_war_sword", "Melee_Sabre")
+		}) Assert.IsTrue(weapons.Single(item => item.Metadata.StableKey == key).Components.Contains(component), key);
+		Assert.AreEqual(MudSharp.GameItems.SizeCategory.Normal,
+			weapons.Single(item => item.Metadata.StableKey == "medieval_military_plain_short_spear").Size);
+		Assert.AreEqual(382, armour.Length + weapons.Length);
 	}
 
 	private static string ReadMedievalItemSources(params string[] excludedFileNames)

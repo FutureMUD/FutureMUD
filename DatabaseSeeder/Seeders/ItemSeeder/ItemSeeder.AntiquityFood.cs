@@ -1,5 +1,7 @@
 #nullable enable
 
+using Microsoft.EntityFrameworkCore;
+
 using MudSharp.Framework;
 using MudSharp.Database;
 using MudSharp.GameItems;
@@ -452,16 +454,13 @@ public partial class ItemSeeder
 	private GameItemProto? CreateAntiquityFoodTool(string stableReference, string noun, string sdesc, string fdesc,
 		SizeCategory size, double weight, string material, string toolTag)
 	{
-		return CreateItem(stableReference, noun, sdesc, null, fdesc, size, ItemQuality.Standard, weight, 6M, false,
-			false, material, [toolTag, "Market / Professional Tools / Standard Tools"],
-			["Holdable", "Destroyable_Misc"], null, null, null, null);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateAntiquityFoodTool"));
 	}
 
 	private GameItemProto? CreateAntiquityFoodVessel(string stableReference, string noun, string sdesc, string fdesc,
 		string material, string liquidComponent, params string[] vesselTags)
 	{
-		return CreateItem(stableReference, noun, sdesc, null, fdesc, SizeCategory.Large, ItemQuality.Standard, 5000, 10M,
-			false, false, material, vesselTags, ["Holdable", "Destroyable_Misc", liquidComponent], null, null, null, null);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateAntiquityFoodVessel"));
 	}
 
 	private GameItemProto? CreateAntiquityFermentingFoodVessel(string activeStableReference,
@@ -470,11 +469,7 @@ public partial class ItemSeeder
 	{
 		var finished = CreateAntiquityFoodVessel(finishedStableReference, "amphora", finishedSdesc, finishedFdesc,
 			"fired clay", "LContainer_Amphora_Congius", $"{AntiquityFoodVesselTagPath} / Beverage Serving Vessel");
-		return CreateItem(activeStableReference, "amphora", activeSdesc, null, activeFdesc, SizeCategory.Large,
-			ItemQuality.Standard, 5200, 12M, false, false, "fired clay",
-			[$"{AntiquityFoodRootTagPath} / Fermenting Foods", $"{AntiquityFoodVesselTagPath} / Fermenting Vessel"],
-			["Holdable", "Destroyable_Misc", "LContainer_Amphora_Congius"],
-			finished is null ? null : finishedStableReference, morphEmote, morphTimer, null);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(activeStableReference, "CreateAntiquityFermentingFoodVessel"));
 	}
 
 	private GameItemProto? CreateAntiquityPreparedFoodItem(string stableSuffix, string noun, string sdesc, string fdesc,
@@ -484,10 +479,7 @@ public partial class ItemSeeder
 		string[] tags = luxury
 			? [$"{AntiquityFoodRootTagPath} / Prepared Foods", $"{AntiquityFoodRootTagPath} / Prepared Foods / Luxury Prepared Foods"]
 			: [$"{AntiquityFoodRootTagPath} / Prepared Foods"];
-		return CreateItem(stableReference, noun, sdesc, null, fdesc, SizeCategory.Small, ItemQuality.Standard, 450, 4M,
-			false, false, material,
-			tags,
-			["Holdable", "Destroyable_Misc", preparedComponent], null, null, null, null);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreateAntiquityPreparedFoodItem"));
 	}
 
 	private void EnsureAntiquityFoodSpoilageRules()
@@ -524,30 +516,31 @@ public partial class ItemSeeder
 
 	private Tag EnsureAntiquityTagPath(string path)
 	{
-		if (_tagsByFullPath.TryGetValue(path, out var existing))
-		{
-			var separator = path.LastIndexOf(" / ", StringComparison.Ordinal);
-			var definition = new TagManifestDefinition(
-				path,
-				separator < 0 ? path : path[(separator + 3)..],
-				separator < 0 ? null : path[..separator]);
-			var entry = RegisterManifestAggregate("tag", path, definition);
-			InspectManifestAggregate(entry, existing.Id, definition);
-			return existing;
-		}
-
+		var completePathExists = _tagsByFullPath.ContainsKey(path);
 		var parts = path.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		Tag? parent = null;
 		var fullPath = string.Empty;
 		foreach (var part in parts)
 		{
 			fullPath = string.IsNullOrWhiteSpace(fullPath) ? part : $"{fullPath} / {part}";
-			if (_tagsByFullPath.TryGetValue(fullPath, out existing))
+			if (_tagsByFullPath.TryGetValue(fullPath, out var existing))
 			{
-				var cachedDefinition = new TagManifestDefinition(fullPath, part,
-					parent is null ? null : fullPath[..fullPath.LastIndexOf(" / ", StringComparison.Ordinal)]);
-				var cachedEntry = RegisterManifestAggregate("tag", fullPath, cachedDefinition);
-				InspectManifestAggregate(cachedEntry, existing.Id, cachedDefinition);
+				if (completePathExists && fullPath != path)
+				{
+					// A cached path historically claims only its leaf. Keep already-owned
+					// parents active without taking ownership or rewriting their provenance.
+					RetainManagedTagParent(fullPath, existing);
+				}
+				else
+				{
+					var cachedDefinition = new TagManifestDefinition(fullPath, part,
+						parent is null ? null : fullPath[..fullPath.LastIndexOf(" / ", StringComparison.Ordinal)]);
+					var cachedEntry = RegisterManifestAggregate("tag", fullPath, cachedDefinition,
+						module: FindManagedRecord("tag", fullPath)?.Module);
+					InspectManifestAggregate(cachedEntry, existing.Id, cachedDefinition);
+				}
+				// Replay the same leaf-name binding as a fresh install, including homonyms.
+				_tags[existing.Name] = existing;
 				parent = existing;
 				continue;
 			}
@@ -588,6 +581,23 @@ public partial class ItemSeeder
 		}
 
 		return parent!;
+	}
+
+	private void RetainManagedTagParent(string path, Tag tag)
+	{
+		var record = FindManagedRecord("tag", path);
+		if (record is null || record.Retired)
+		{
+			return;
+		}
+
+		if (record.LogicalId != tag.Id)
+		{
+			throw new InvalidOperationException(
+				$"ItemSeeder ownership conflict for tag:{path}: provenance names ID {record.LogicalId}, but the parent resolves to {tag.Id}.");
+		}
+
+		_retainedManagedTagParents.Add(ManagedRecordIdentity("tag", path));
 	}
 
 	private long NextTagId()
@@ -873,8 +883,29 @@ public partial class ItemSeeder
 			(long)spoilTime.TotalSeconds,
 			echo);
 		var manifestEntry = RegisterManifestAggregate("commodity-spoilage", name, manifestDefinition);
-		var existing = _context!.CommoditySpoilageRules.AsEnumerable().FirstOrDefault(x => x.Name == name) ??
-		               _context.CommoditySpoilageRules.Local.AsEnumerable().FirstOrDefault(x => x.Name == name);
+		var managed = FindManagedRecord(manifestEntry.EntityType, manifestEntry.StableKey);
+		var pending = _pendingGeneratedManifestIdentities.TryGetValue(
+			ManagedRecordIdentity(manifestEntry.EntityType, manifestEntry.StableKey), out var identity) &&
+			ReferenceEquals(identity.Record, managed) ? identity.Entity as CommoditySpoilageRule : null;
+		if (managed is not null && (managed.LogicalId is < 0 || managed.LogicalId is null && pending is null))
+			throw new InvalidOperationException($"Commodity spoilage ownership for '{name}' has no resolvable permanent or pending identity.");
+		var named = _context!.CommoditySpoilageRules.Where(x => x.Name == name)
+			.AsEnumerable()
+			.Concat(_context.CommoditySpoilageRules.Local.Where(x => x.Name == name))
+			.Distinct()
+			.ToArray();
+		if (named.Length > 1)
+			throw new InvalidOperationException($"Multiple commodity spoilage rules claim '{name}'.");
+		var owned = managed?.LogicalId is > 0 ? _context.CommoditySpoilageRules.Find(managed.LogicalId.Value) : null;
+		if (managed?.LogicalId is > 0 && owned is null)
+			throw new InvalidOperationException($"Owned commodity spoilage rule '{name}' is missing at ID {managed.LogicalId}.");
+		if (owned is not null && named.FirstOrDefault() is { } collision && collision.Id != owned.Id)
+			throw new InvalidOperationException($"Commodity spoilage rule '{name}' has competing named and managed targets.");
+		if (pending is not null && named.FirstOrDefault() is { } pendingCollision && !ReferenceEquals(pending, pendingCollision))
+			throw new InvalidOperationException($"Commodity spoilage rule '{name}' has competing named and pending targets.");
+		var existing = owned ?? pending ?? named.FirstOrDefault();
+		if (existing is null && managed?.LogicalId is 0)
+			throw new InvalidOperationException($"Legacy commodity spoilage ownership for '{name}' has no permanent ID or provable named target.");
 		var disposition = ManifestAggregateDisposition.Insert;
 		if (existing is null)
 		{
@@ -884,8 +915,10 @@ public partial class ItemSeeder
 			};
 			_context.CommoditySpoilageRules.Add(existing);
 		}
-		else
+		else if (!ReferenceEquals(existing, pending))
 		{
+			if (_context.Entry(existing).State == EntityState.Added)
+				throw new InvalidOperationException($"An unrelated pending commodity spoilage rule already claims '{name}'.");
 			string? MaterialName(long? id) => id is null
 				? null
 				: _materials.Values.FirstOrDefault(x => x.Id == id)?.Name ??
@@ -906,6 +939,22 @@ public partial class ItemSeeder
 				TagName(existing.ResultCommodityTagId),
 				existing.SecondsUntilSpoiled,
 				existing.SpoilEcho);
+			if (managed?.LogicalId is 0)
+			{
+				// Older installs recorded the CLR default before MySQL generated this rule's key.
+				// A unique, untouched complete old signature is required before repairing that binding.
+				var liveFingerprint = ItemSeederManifestCatalogue.Fingerprint(liveDefinition);
+				if (existing.Id <= 0 || !liveFingerprint.Equals(managed.AppliedFingerprint, StringComparison.OrdinalIgnoreCase) ||
+				    _managedRecordsByIdentity.Values.Any(record => record.EntityType == manifestEntry.EntityType &&
+					    record.LogicalId == existing.Id && !record.StableKey.Equals(name, StringComparison.OrdinalIgnoreCase)))
+					throw new InvalidOperationException($"Legacy commodity spoilage ownership for '{name}' cannot be repaired without guessing; its complete stock signature or exclusive target no longer matches.");
+				managed.LogicalId = existing.Id;
+				if (liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase))
+				{
+					IncrementManifestResult(manifestEntry.Module, result => result with { Unchanged = result.Unchanged + 1 });
+					return;
+				}
+			}
 			disposition = InspectManifestAggregate(manifestEntry, existing.Id, liveDefinition);
 			if (disposition is ManifestAggregateDisposition.Customized or ManifestAggregateDisposition.Unchanged)
 			{
@@ -923,7 +972,10 @@ public partial class ItemSeeder
 		existing.ResultCommodityTagId = resultCommodityTag?.Id;
 		existing.SecondsUntilSpoiled = (long)spoilTime.TotalSeconds;
 		existing.SpoilEcho = echo;
-		CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
+		if (disposition == ManifestAggregateDisposition.Insert)
+			CompleteGeneratedManifestAggregate(manifestEntry, existing, manifestDefinition);
+		else
+			CompleteManifestAggregate(manifestEntry, existing.Id, manifestDefinition, disposition);
 	}
 
 	private sealed record AntiquityFoodCultureSpec(

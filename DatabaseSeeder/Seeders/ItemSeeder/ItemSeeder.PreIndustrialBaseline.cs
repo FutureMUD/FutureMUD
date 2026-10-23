@@ -209,27 +209,7 @@ public partial class ItemSeeder
 		string? builderNotes = null)
 	{
 		var aliasNote = BuildPreIndustrialAliasBuilderNotesForTesting(sourceStableReference);
-		return CreateItem(
-			stableReference,
-			noun,
-			sdesc,
-			ldesc,
-			fdesc,
-			size,
-			quality,
-			weightInGrams,
-			inherentCost,
-			skinnable,
-			hideFromPlayers,
-			material,
-			BuildPreIndustrialAliasTags(tags),
-			components,
-			morphToUniqueReference,
-			morphEmote,
-			morphTimer,
-			destroyedItemUniqueReference,
-			MergeBuilderNotes(builderNotes, aliasNote),
-			allowLegacyShortDescriptionMatch: false);
+		return InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "CreatePreIndustrialAlias"));
 	}
 
 	internal static string BuildPreIndustrialAliasBuilderNotesForTesting(string sourceStableReference)
@@ -319,26 +299,7 @@ public partial class ItemSeeder
 	{
 		foreach (var spec in PreIndustrialNewItemSpecs.Where(x => x.Group == group))
 		{
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				false,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				"Shared pre-industrial baseline stock.");
+			InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(spec.StableReference, "SeedPreIndustrialNewItems"));
 		}
 	}
 }

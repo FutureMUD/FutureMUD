@@ -1,0 +1,53 @@
+// Derived ownership index. Refresh with --export-compiled-item-inventory; edit catalogue definitions instead.
+#nullable enable
+
+using System.Collections.Generic;
+
+namespace DatabaseSeeder;
+
+public static partial class Inventory13Stock
+{
+	public static IReadOnlyList<ItemSeederManifestEntry> Batch004() =>
+	[
+		new("component", "PreparedFood_Catalogue_preindustrial_food_savoury_spice_porridge", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "dedc9cdd26d03b68f3404fb61e7f97241b8dad2d5d0caac6dbd516b2c8358b58"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_savoury_sticky_rice_parcel", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "f581fbf6a1389c47efce56b47931faee2d37a586908c8335ea647db3080d2159"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sliced_fresh_apples", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "5937d92529557a9e94969cee16221ca47f649512919064895d12e3f6237c9867"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_smoked_hard_cheese", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "26564642e109f426aa049c684d8213b4b9a8899761ed765533891a7196d7d3a6"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sorghum_hearth_cake", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "c8c95c0491c56107a4653fcb10a876badc4a498185b4ac3d3a7eb28eb4efb884"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sorghum_thin_gruel", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "1e26ce14c8fe37a3baaf5935ff115fc39637a70ecfb86ad7fab18052dec12cea"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sour_cured_fish_chunks", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "70610edfa9f7d271df9350baa57f9a626456ab26c0f941306f7419b23d2dc0a9"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_spiced_boiled_eggs", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "4836900a525f1adffd698e873e00908f8b87b4c55cb566ab7735030f9955c9cd"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_spiced_cream", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "54a2cac2a5f0e409833b128cefc675230b96dd580f8e765eac83415920e627f2"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_spiced_fruit_compote", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "dbb77403da42c55f710bbe2d0d30fcca7c93bcafeab72083ce1f2042f64d1565"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_stale_bread_pottage", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "dfe4be276db5716c7a1cd39e3447b38b8aa5364abf5942cff0eba07b37844c99"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_steamed_crustacean", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "0f94bae146e56f641ce86ae3536524a5e44fe17cf1153ad27c9f5035fa5a2292"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_steamed_mussel_pot", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "447f22c474c8755c301ea0a114633d1fd88b89f02517f4a74d5ca741ef59dd78"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_stoneground_porridge", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "27b2b8823e1c3a55639d317884bbc8112ed057046eea45496b625e7119e13010"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_stuffed_meat_roll", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "e94669936b50a6801cf8d17d71eec88c578e684b8090d5f7138594b79d2af8d3"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sugar_egg_meringue", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "0e910d7fc52f414f39daaed80a829620460ca49e249822e34d3bdf5d9534980b"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sugar_spice_conserve", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "8cbf0c16de7d7354e5be48766c2e5c7da0f50d1fbbbd7b28c112da887d8cbdcc"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_sweet_bread_pap", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "6eb5c4c7cf4b9b13aa956d46621000f2f391ed24359bbb6d3bfcad9080dba52b"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_tamarind_porridge", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "3e41cd98a4406e7cc455cc96348027e29720a479ae8ed613dc14d94e9d3f6557"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_thick_fish_pottage", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "9eec63f76b374dcae64efb23e341837b955d87d6f1387cdd719530c781f5ee5a"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_thick_mushroom_pottage", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "9e26b36cd2929a00b3085e4a596f211dfd7cecf776bd7f70fff132581d903496"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_turnip_greens_with_onions", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "76d11bf4ff01ef09d65037b6172186827e036b729ac4f88e2b15f87f2db754c1"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_urad_bean_cakes", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "6ff595e6f9b7902da3c6ee8a29eae01786e1591f38cf56b91d6888f00c5c3c5c"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_whey_gruel", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "3ecd8a00403ea99a7ee0854e090cc1f43d30a800886535f40b8c12e7227a0097"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_white_sieved_loaf", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "40177d65f2c3ff969e5bb5a814fa77b525a03723cfcdf7f8d463e8aa4324c5fc"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_whole_ember_roasted_fish", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "01c5ef3512022ac7e2b6eca13a441c054c692995d96fecc2f2d37374acd8ec10"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_wilted_spinach_leaves", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "3ad80caad259ebb7f51f6c913e1740dee81a3132309a994aedadc5efc16ee838"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_yeasted_pocket_bread", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "9b53518f8be73324f47547c1aa3580f354f192511fd3702a1faed4530dbac054"),
+		new("component", "PreparedFood_Catalogue_preindustrial_food_yoghurt_and_grain_bowl", "shared-preindustrial", ["earlymodern", "medieval", "renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "22d673a67d035d68567398adfe9aed30b370a371566220852a0b4a7744b8af52"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_aztec_nixtamal_tortilla_stack", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "18b1974db25719324f64abb25f68868fe0a5c2261399848066222a7661c790b7"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_iberian_maize_ship_cake", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "1ef80744c919a044ddcc9e45456bde21524371a8d3626e7d73b663240f60c1b3"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_italian_capon_tortellini", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "f7480fb2a7b9c485771907ce3f248943126c46701ba2101b4461a03b022bd69d"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_italian_cold_capon_jelly_mosaic", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "4499bcb9af9f62ce8a3642364d5d3ca24c41e3fff532abc5627c57c7a6cd7390"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_italian_fruit_must_mostarda", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "44dc1f004b469e8be97ffe3196976ddb82f520ae630584ad9174626983654e39"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_italian_greens_tortelli", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "287e66582a44e40d9628922604b7556c68acd07e4ea6c230aa725d49f660e3ab"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_italian_rice_flour_gnocchi", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "32260f06ed1a8915aad97f9ba881d9d795c1e09ff15e9c2dbd1df7212c774d45"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_italian_sugar_plate_castle", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "279815b873bce4f6d5ce89780a7dd1ebe1b3cfaa574cf5d7eb1c28ed220aeb48"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_japanese_grilled_miso_rice_cake", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "dade9c58d02dd806e6014f7ded361a99e75d7cda5eeba650a62e513ea42eda8f"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_mughal_royal_haleem", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "646c72875029d953afaed0966f5b1fa04b5f706a9403078d370b4a897bee9ce1"),
+		new("component", "PreparedFood_Catalogue_renaissance_food_mughal_yakhni_rice", "renaissance", ["renaissance"], [], ItemSeederOwnershipPolicy.StockAggregate, "eaf988a3c269a64f1cd07c01fd56747e88d4fbfdc6e0a535ee26f2941bcd4832"),
+	];
+}

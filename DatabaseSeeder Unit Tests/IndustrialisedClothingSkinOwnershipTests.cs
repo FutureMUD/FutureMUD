@@ -144,7 +144,7 @@ public partial class IndustrialisedClothingReuseTests
 		var seeder = new ItemSeeder(Catalogue());
 		seeder.ValidateClothingPrerequisitesForTesting(context, "industrial");
 		var before = SkinState(context);
-		var specType = typeof(ItemSeeder).GetNestedType("DocumentedClothingSkinSpec", BindingFlags.NonPublic)!;
+		var specType = typeof(CatalogueSkinDefinition);
 		var specs = Array.CreateInstance(specType, 2);
 		for (var i = 0; i < 2; i++)
 		{

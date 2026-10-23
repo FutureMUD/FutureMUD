@@ -86,42 +86,14 @@ public partial class ItemSeeder
 		string? SelectorProgName = null);
 
 	internal static IReadOnlyCollection<PreIndustrialFoodCatalogueCraftSpecTestData>
-		PreIndustrialFoodCatalogueCraftSpecsForTesting =>
-			PreIndustrialFoodCatalogueCraftSpecs()
-				.Select(x =>
-				{
-					var dependencies = x.Inputs
-						.Select(input => new PreIndustrialFoodCatalogueDependencyTestData(
-							input.Import,
-							input.StableReference,
-							input.SourceOwner,
-							input.SourcePhase))
-						.ToArray();
-					return new PreIndustrialFoodCatalogueCraftSpecTestData(
-						x.Scope,
-						x.StableReference,
-						x.Kind,
-						x.Family,
-						x.Trait,
-						x.MinimumTraitValue,
-						x.Difficulty,
-						x.KnowledgeSubtype,
-						x.Phase,
-						x.Category,
-						x.Inputs.Select(y => y.Import).ToArray(),
-						[FoodCatalogueTool(x.Family)],
-						x.Output.Contracts,
-						dependencies,
-						dependencies.Select(y => y.SourceOwner)
-							.Append(x.Output.Liquid is null ? SharedFoodCatalogueSource : SharedLiquidVesselSource)
-							.Distinct(StringComparer.Ordinal).ToArray());
-				})
-				.ToArray();
+		PreIndustrialFoodCatalogueCraftSpecsForTesting => ProductionPlanStock.PreIndustrialFoodCatalogue()
+			.Select(x => new PreIndustrialFoodCatalogueCraftSpecTestData(x.Scope, x.StableReference, x.Kind, x.Family,
+				x.Trait, x.MinimumTraitValue, x.Difficulty, x.KnowledgeSubtype, x.Phase, x.Category, x.Inputs.ToArray(),
+				x.Tools.ToArray(), x.Products.ToArray(), x.Dependencies.Select(y => new PreIndustrialFoodCatalogueDependencyTestData(
+					y.Contract, y.StableReference, y.SourceOwner, y.SourcePhase)).ToArray(), x.SourceOwnership.ToArray())).ToArray();
 
 	internal static IReadOnlyCollection<string> PreIndustrialFoodCatalogueOutputContractsForTesting =>
-		PreIndustrialFoodCatalogueCraftSpecs()
-			.SelectMany(x => x.Output.Contracts)
-			.ToArray();
+		ProductionPlanStock.PreIndustrialFoodCatalogue().SelectMany(x => x.Products).ToArray();
 
 	internal static bool ShouldSeedPreIndustrialFoodCatalogueCraftsForTesting(string? eras)
 	{

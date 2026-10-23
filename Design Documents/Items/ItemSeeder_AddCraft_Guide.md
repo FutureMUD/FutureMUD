@@ -1,8 +1,10 @@
 # ItemSeeder AddCraft Authoring Guide
 
-This guide documents the craft-authoring slice in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`.
+New stock recipes use `CatalogueRecipeDefinition` in the [compiled catalogue](../../DatabaseSeeder/Seeders/ItemSeeder/Catalogue/Assemblies), with explicit typed inputs, tools, phases and success/failure products. Follow the [ItemSeeder authoring workflow](../Seeding/Seeders/ItemSeeder.md#start-here-to-add-content). For a complete literal example, see [the first recipe batch](../../DatabaseSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/Recipes01/Content/Batch001.cs).
 
-`AddCraft` now uses a typed seeder API internally. The compact spreadsheet-style strings are still supported, but they are treated as an import layer: strings are parsed into typed phase, input, tool, and product specs, validated as a group, and then inserted through one implementation path.
+Add every fixed variant as an authored definition and register its factory in the appropriate `CompiledRecipeSelection` batch. Preserve stable keys, insertion order, module/admissions, gates, configured check-trait choices and dependencies. The typed writer resolves stable references, saves selector programs before serialising permanent IDs and uses the common craft persistence/ownership implementation. `Compatibility` prose preserves historical fingerprint projections; the normal stock writer does not parse it.
+
+The rest of this guide documents the `AddCraft` persistence API and its compact import syntax in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`. Import strings remain available for explicit developer/import operations and compatibility tests. They are not the stock catalogue authoring format. The phase, quality, indexing, product and FutureProg contracts below also inform typed catalogue records.
 
 For the broader runtime and builder model, see:
 
@@ -22,7 +24,7 @@ The core typed specs are:
 | `CraftToolSpec` | Original import text, tool type, main details, import options, tool quality weight, and `UseToolDuration`. |
 | `CraftProductSpec` | Original import text, product type, main details, import options, success/fail status, and material-defining input index. |
 
-The old string-heavy `AddCraft` overload remains for stock spreadsheet imports. It builds these specs and calls the typed implementation.
+The string-heavy `AddCraft` overload remains for explicit spreadsheet imports. It builds these specs and calls the typed implementation.
 
 ## Player-Facing Craft Text
 
@@ -30,18 +32,18 @@ The old string-heavy `AddCraft` overload remains for stock spreadsheet imports. 
 
 The active item sdesc is a short description, not a sentence. New stock calls should use the form `an in-progress <product> craft`, for example `an in-progress bronze armour lamella stock craft`. The importer also normalises older `<action> in progress`, `<product> being made`, and `<product> process` forms to that convention.
 
-## Where To Invoke It
+## Where To Invoke The Compatibility API
 
-Stock craft definitions live in `SeedCrafts()` in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`.
+Stock definitions live in bounded `Catalogue/Assemblies/Recipes*/Content` batches; `SeedCrafts()` dispatches the compiled selection. Add new stock there, rather than adding procedural `AddCraft` calls to the dispatcher.
 
-Add new calls after `_nextId` has been reset and after the item prototypes, tags, materials, liquids, traits, and FutureProgs they reference have already been seeded into the lookup dictionaries. In normal `ItemSeeder` flow, `CreateProgs()` and `SeedItems()` run before `SeedCrafts()`, so stock craft calls can use:
+An explicit import operation must run after identifier allocators and the item prototypes, tags, materials, liquids, traits and FutureProgs it references have been initialised. Compatibility calls can use:
 
 - `_traits["Skill Name"]` for the check trait
 - named FutureProgs already cached in `_progs`
 - item prototype references by `#id`
 - tag/material/liquid/currency/NPC/blood-model names already present in the database
 
-The helper is private to `ItemSeeder.Crafting.cs`, so agents should produce calls in that file rather than trying to call it from another seeder.
+The helper is private to the `ItemSeeder` partial class. Other seeders must not depend on its private persistence API.
 
 All names and `#id` values in examples below are templates. Before committing a generated craft, replace them with real seeded FutureProg names, trait names, tags, materials, liquids, currencies, NPC templates, blood models, and item prototype IDs that exist in the target database seed flow.
 
@@ -155,7 +157,7 @@ AddCraft(new CraftDefinitionSpec
 });
 ```
 
-The import overload is usually the right choice for stock craft catalogue work because it is compact and matches the existing data style.
+For stock catalogue work, author `CatalogueRecipeDefinition`; choose an overload here only when maintaining an explicit importer or compatibility test.
 
 ## Invocation Parameter Checklist
 
@@ -225,7 +227,7 @@ Echoes are emote text. Use `$0` for the crafter, `$iN` for inputs, `$tN` for too
 
 ## Minimal Import Example
 
-This is the smallest practical shape for a normal stock craft:
+This is a minimal compatibility-import example:
 
 ```csharp
 AddCraft(
@@ -570,15 +572,13 @@ When writing typed specs by hand:
 
 ## Rerun Behavior
 
-Craft creation is insert-or-skip by stable `Name + Category`.
+A recipe retains its explicit stable key or the frozen historical `Category/Name` key. The managed record binds that identity to its logical ID/revision and the complete last-applied persisted craft signature.
 
-If a matching craft already exists, `AddCraft` returns that existing row unchanged. It does not refresh the craft and does not add duplicate phases, inputs, tools, products, or fail products.
+An unchanged owned craft keeps its IDs and child graph. An untouched owned craft can receive a stock update through the common writer. Builder customisations are preserved; narrowly proven missing stock links can be repaired. Unmanaged conflicts must prove the complete expected stock signature before adoption and otherwise block. A duplicate registration in one selection retains the first registration, preserving the legacy collision behaviour.
 
-The seed craft call is still the base install truth. If a craft has incorrect visible text, inputs, tools, products, or metadata, fix the `AddCraft` call or typed spec so a clean install creates the correct craft directly. Do not seed a wrong craft and then rely on a second correction pass for new databases.
+The catalogue definition is the base install truth. Fix visible text, inputs, tools, products or metadata in that definition so a clean install creates the correct craft directly. Keep a deliberate compatibility migration separate when its ownership rules differ from ordinary stock reconciliation.
 
-The skip happens before parsing imports or generating/upserting trait and knowledge helper progs. This protects already-installed craft rows from accidental duplicate child records. If an existing database needs a stock-craft compatibility update, implement that as explicit, narrow migration or compatibility work with documented stock ownership rather than by rerunning the same craft call.
-
-This is deliberate narrow repeatability for stock craft rows only. It is not a claim that all `ItemSeeder` item/component content is fully repeatable or repair-capable.
+See [ItemSeeder ownership and execution](../Seeding/Seeders/ItemSeeder.md#execution-writes-and-ownership) for aggregate-specific preservation and relational rollback guarantees.
 
 ## Validation
 
@@ -591,7 +591,7 @@ Error lines include:
 - original import text where the error came from
 - the specific lookup or grammar failure
 
-Existing `Name + Category` rows skip before validation because the chosen rerun policy is "do not touch existing stock craft rows".
+Existing rows do not bypass the stock ownership rules merely because their name and category match.
 
 ## Lifecycle, Trait, And Knowledge Progs
 

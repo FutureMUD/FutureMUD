@@ -109,7 +109,7 @@ public class PreIndustrialBaselineTests
 
 		foreach (var (source, alias) in mappings)
 		{
-			StringAssert.Contains(allSeederSource, $"\"{source}\"", $"Missing retained source row {source}.");
+			Assert.IsTrue(CompiledCatalogueFixtures.Items.Any(item => item.Metadata.StableKey == source) || allSeederSource.Contains($"\"{source}\"", StringComparison.Ordinal), $"Missing retained source row {source}.");
 			StringAssert.Contains(aliasSource, $"\"{alias}\"", $"Missing alias row {alias}.");
 			StringAssert.Contains(ItemSeeder.BuildPreIndustrialAliasBuilderNotesForTesting(source), source);
 		}

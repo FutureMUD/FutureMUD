@@ -11,7 +11,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
-	private static ItemSkinManifestDefinition DocumentedClothingSkinDefinition(DocumentedClothingSkinSpec spec,
+	private static ItemSkinManifestDefinition DocumentedClothingSkinDefinition(CatalogueSkinDefinition spec,
 		string alwaysTrueName) => new(spec.StableReference, spec.BaseItemStableReference, spec.ItemName,
 		spec.ShortDescription, spec.FullDescription, null, (int?)spec.Quality, false, alwaysTrueName);
 
@@ -19,7 +19,7 @@ public partial class ItemSeeder
 	/// Resolves stock ownership without adoption, fingerprint updates or item mutations. Both
 	/// whole-catalogue preflight and the existing skin writer use this same target/signature check.
 	/// </summary>
-	private GameItemSkin? ValidateDocumentedClothingSkinOwnership(DocumentedClothingSkinSpec spec,
+	private GameItemSkin? ValidateDocumentedClothingSkinOwnership(CatalogueSkinDefinition spec,
 		long? baseItemId, IReadOnlyCollection<GameItemSkin> rows, string alwaysTrueName)
 	{
 		if (_manifestCaptureOnly) return null;

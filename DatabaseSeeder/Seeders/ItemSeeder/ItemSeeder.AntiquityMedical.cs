@@ -20,25 +20,7 @@ public partial class ItemSeeder
 			string[] tags,
 			string[] components)
 		{
-			CreateItem(
-				stableReference,
-				noun,
-				shortDescription,
-				null,
-				fullDescription,
-				size,
-				quality,
-				weightInGrams,
-				cost,
-				false,
-				false,
-				material,
-				tags,
-				components,
-				null,
-				null,
-				null,
-				null);
+			InstallCatalogueItem(CompiledAuthoredItemCatalogue.Get(stableReference, "SeedAntiquityMedicalItems"));
 		}
 
 		string[] treatmentSupplyTags =

@@ -1,0 +1,53 @@
+// Derived ownership index. Refresh with --export-compiled-item-inventory; edit catalogue definitions instead.
+#nullable enable
+
+using System.Collections.Generic;
+
+namespace DatabaseSeeder;
+
+public static partial class Inventory13Stock
+{
+	public static IReadOnlyList<ItemSeederManifestEntry> Batch037() =>
+	[
+		new("item", "industrial_ppe_ballistic_0006_field_gaiters", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "a900946a2f4115af1c0432ae341cfa32f8dd0a7e969558291bf05c9291f7b9fa"),
+		new("item", "industrial_ppe_ballistic_0022_wall_mounted_apron", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "c3a704887f0471204bc3a8c033cfd39057cba152e4072e4923c32f9bdee6cdf4"),
+		new("item", "industrial_printed_media_signage_0006_lined_wastepaper", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "dbb68bee1602903379746ca98d034aac909a4e0f6e9ecc6ec7e9b0573f54d3d4"),
+		new("item", "industrial_printed_media_signage_0007_lined_poster", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "19060ac3d402fc67db7fb10b5cf3ed193b36a591a0feefa4a89612463ae4864a"),
+		new("item", "industrial_science_education_0023_countertop_slide", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "5945e8dfc53f3ad531ed164d9fe0760bc4f5a38682a37461e4d80826248564a5"),
+		new("item", "industrial_sports_recreation_music_0003_compact_board", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "794d72acafc3666c4543e71fba7c748410709ce63748ca59875e10a5572151ee"),
+		new("item", "industrial_tools_repair_machinery_0008_ventilated_hammer", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "d769e8de5996226af69ae68b9e40952ddd2477a79bf1e05a33314eba7be8586c"),
+		new("item", "industrial_tools_repair_machinery_0030_stackable_grinder", "industrial", ["industrial"], ["item:industrial_tools_repair_machinery_0001_lined_plane"], ItemSeederOwnershipPolicy.RequiredRelationship, "8254377ebb52bdb341faa1e527d949629d4fedd2620649f8618de5791dabb1f7"),
+		new("item", "industrial_tools_repair_machinery_0038_field_saw", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "7178ee4898d05138d793dea87ae8cbfb82232c04fae050fe4cb1bd4d9de8bd68"),
+		new("item", "industrial_transport_support_spares_0002_reinforced_wheel", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "5b0f65af0cbb2717c046caf8b30d8e2e3ea90b49a9e286aa4f73dd6b3ee18136"),
+		new("item", "industrial_transport_support_spares_0014_compact_bearing", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "3a2d933fa4518ea20a87ac6a353e4436cba4a581328d43df5520a80f60ca7db7"),
+		new("item", "industrial_transport_support_spares_0016_compact_lamp", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "d91b33634a368f15aa536df05889a25b2fb84ff2c1afcf40bfdd00c6a14f9be0"),
+		new("item", "industrial_transport_support_spares_0025_heavy_duty_spring", "industrial", ["industrial"], ["item:industrial_transport_support_spares_0001_reinforced_scrap"], ItemSeederOwnershipPolicy.RequiredRelationship, "72dc53ec671f6356ed9f659032d8215b779883f86e53dad44193c35e98f79652"),
+		new("item", "industrial_transport_support_spares_0029_heavy_duty_chain", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "9004fd359f1c30d76ad212c967c38ee161710cd737be4328f4433146a5c7d814"),
+		new("item", "industrial_weapons_police_military_0032_precision_holster", "industrial", ["industrial"], [], ItemSeederOwnershipPolicy.StockAggregate, "e4acddbae3a0a19347d03169117a82d51e10774bd3bdca102acfc2058b956b6a"),
+		new("item", "industrialised_agriculture_forestry_fishing_0011_reinforced_scrap", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "6aa5cae6811112fa7c057b5291b162ba08b1a29282e01cc6cfe5e2036ee19e3c"),
+		new("item", "industrialised_agriculture_forestry_fishing_0015_reinforced_spade", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], ["item:industrialised_agriculture_forestry_fishing_0001_plain_scrap"], ItemSeederOwnershipPolicy.RequiredRelationship, "d0d5a94e16c51efe97c47ae3f87be3761b5ac180fcf0d6d6c934d680ca8fcdaa"),
+		new("item", "industrialised_agriculture_forestry_fishing_0028_compact_trap", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "413cc2bdd6225bc9503af3f3e28aded9c488b2af8f0408a158877110f2a8a550"),
+		new("item", "industrialised_agriculture_forestry_fishing_0057_portable_net", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "576f1d5fe3dc30cf293f3289acbbe82314f940ba0772df5a1b72d8209fd52ad2"),
+		new("item", "industrialised_agriculture_forestry_fishing_0068_workshop_trap", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "871df18dbd621ad3b089b2a205b3f29f990d6a90bc16ae76f08f152a22526801"),
+		new("item", "industrialised_agriculture_forestry_fishing_0083_weatherproof_rake", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "770fa9787abfa91236295c95b9d80ab78adaf8f4ab2c141e630810e75fbab86b"),
+		new("item", "industrialised_agriculture_forestry_fishing_0084_weatherproof_fork", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "99bb3a92e835bc7b0ab7f66ea66d72ded6d65bd7b67a4b43a3a9a9ec6104f8e4"),
+		new("item", "industrialised_agriculture_forestry_fishing_0094_service_fork", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "931caffa181aff3f2756997ce5c9a68d05e235dff69256e7880b8754aee511a3"),
+		new("item", "industrialised_agriculture_forestry_fishing_0097_service_net", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "71fe71ed50dadf66aaadc7831c80c0452b6250332269dafca76a2a4cebaf7eb0"),
+		new("item", "industrialised_agriculture_forestry_fishing_0111_economy_scrap", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "2047caa97b6c8736cc5f8f9cbe566cbd3051d73a5c03f5db641a48a10ee7961c"),
+		new("item", "industrialised_agriculture_forestry_fishing_0112_economy_hoe", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "0e07078a0f69904733ac7a1a128b3d48046efb84c8910553038c79cbd6d34327"),
+		new("item", "industrialised_agriculture_forestry_fishing_0116_economy_shears", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "a695c0d8d0b5b7784a8d90f1170d9826d6024de0d7949e47a28f58639226d9a9"),
+		new("item", "industrialised_agriculture_forestry_fishing_0130_lined_yoke", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], ["item:industrialised_agriculture_forestry_fishing_0001_plain_scrap"], ItemSeederOwnershipPolicy.RequiredRelationship, "12ebd49fd960e527a625ceaa9b1ae97ddcb7da74d79a4d77d5ddbaa885611238"),
+		new("item", "industrialised_agriculture_forestry_fishing_0133_ventilated_rake", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "3a28ea3292ce3489a8ecbe7d6921f67b5c2ad329e563e7e76a069846601cb08b"),
+		new("item", "industrialised_agriculture_forestry_fishing_0134_ventilated_fork", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "103e16e5f31e08ef93b5acffbbaf5212f39bce0726d0a1ad9b33cfd57a80856a"),
+		new("item", "industrialised_automation_access_control_0002_plain_keycard", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "fbe69563c7d88565ae2d6260428f4585f20acec5da56c9a06f387b68e99b2c06"),
+		new("item", "industrialised_automation_access_control_0007_plain_latch", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "5f6d168c7b599c2ca1e30bb50175b16b4dbdc1b64826347f57288cbc450a6ed6"),
+		new("item", "industrialised_automation_access_control_0031_heavy_duty_scrap", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "7901f14e7e8e2bc481d6307621182621fe39d4dfe8e87aee6ba8a90edb68328b"),
+		new("item", "industrialised_automation_access_control_0033_heavy_duty_reader", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "3252abc7452652e455e25851e2f22ca4854132a0784dcef655464e8094a14a68"),
+		new("item", "industrialised_automation_access_control_0077_institutional_latch", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "525ef60ca104c968c000bb8cfd0da9a0791ad329facb37ffb4a7478d82d21eef"),
+		new("item", "industrialised_automation_access_control_0094_service_relay", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "a30b84692e126831764ed6cbf9accb9be5397364fa46bc46dd1f949336d7ab39"),
+		new("item", "industrialised_cleaning_personal_care_0032_heavy_duty_brush", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "bc41c3d888ef7877287a0450941f7754fbc3be1dc99cfc221f21d7a7b11b9808"),
+		new("item", "industrialised_cleaning_personal_care_0037_heavy_duty_broom", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "acfbdc2a88bb39eff0774c671239fd201057d9ff030797b80e8006cc62b4a879"),
+		new("item", "industrialised_cleaning_personal_care_0048_folding_mop", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "4006e9d85314f134632e5e56d10c2bf6866af4c4f602fa4c953ab333581d0044"),
+		new("item", "industrialised_cleaning_personal_care_0064_workshop_razor", "shared-industrialised", ["industrial", "information", "modern", "nuclear"], [], ItemSeederOwnershipPolicy.StockAggregate, "6a06bd6a3a3e2419895a05b474cd652be67c1acb2ceeb24f7e7510ad3b777897"),
+	];
+}

@@ -73,42 +73,10 @@ public partial class ItemSeeder
 		IReadOnlyList<MedievalFoodProduct> Products);
 
 	internal static IReadOnlyCollection<MedievalFoodCraftSpecTestData> MedievalFoodCraftSpecsForTesting =>
-		MedievalFoodCraftSpecs()
-			.Select(x =>
-			{
-				var dependencies = x.Inputs
-					.Select(input => new MedievalFoodDependencyTestData(
-						input.StableReference ?? input.Import,
-						input.StableReference,
-						input.SourceStatus,
-						input.SourceOwner,
-						input.SourcePhase))
-					.Concat(x.Tools.Select(tool => new MedievalFoodDependencyTestData(
-						FoodToolImport(tool),
-						null,
-						tool.SourceStatus,
-						tool.SourceOwner,
-						tool.SourcePhase)))
-					.ToArray();
-				return new MedievalFoodCraftSpecTestData(
-					x.Phase,
-					x.Name,
-					x.Category,
-					x.Trait,
-					x.MinimumTraitValue,
-					x.Difficulty,
-					x.KnowledgeSubtype,
-					x.Inputs.Select(input => input.StableReference ?? input.Import).ToArray(),
-					x.Tools.Select(FoodToolImport).ToArray(),
-					x.Products.Select(ProductContractForTesting).ToArray(),
-					dependencies,
-					dependencies
-						.Select(y => y.SourceStatus)
-						.Append(MedievalFoodCraftedSource)
-						.Distinct(StringComparer.Ordinal)
-						.ToArray());
-			})
-			.ToArray();
+		ProductionPlanStock.MedievalFood().Select(x => new MedievalFoodCraftSpecTestData(x.Phase, x.Name, x.Category,
+			x.Trait, x.MinimumTraitValue, x.Difficulty, x.KnowledgeSubtype, x.Inputs.ToArray(), x.Tools.ToArray(),
+			x.Products.ToArray(), x.Dependencies.Select(y => new MedievalFoodDependencyTestData(y.Contract,
+				y.StableReference, y.SourceStatus!, y.SourceOwner, y.SourcePhase)).ToArray(), x.SourceOwnership.ToArray())).ToArray();
 
 	internal void SeedMedievalFoodBeverageCraftsForTesting(FuturemudDatabaseContext context)
 	{

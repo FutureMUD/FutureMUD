@@ -161,39 +161,42 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
         return _migrationService.GetLatestMigrationId(connectionString);
     }
 
-    public void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath, string databaseNamePlaceholder)
-    {
-        MySqlConnectionStringBuilder builder = new(connectionString);
+    public void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath, string databaseNamePlaceholder) =>
+		ImportBlankDatabaseSnapshot(connectionString, () => new StreamReader(File.OpenRead(scriptPath)), databaseNamePlaceholder);
+
+	/// <summary>Imports the dump through the native backup service, leaving the caller's stream open.</summary>
+	public void ImportBlankDatabaseSnapshot(string connectionString, Stream script, string databaseNamePlaceholder)
+	{
+		ArgumentNullException.ThrowIfNull(script);
+		ImportBlankDatabaseSnapshot(connectionString,
+			() => new StreamReader(script, System.Text.Encoding.UTF8, true, 4096, leaveOpen: true), databaseNamePlaceholder);
+	}
+
+	private void ImportBlankDatabaseSnapshot(string connectionString, Func<StreamReader> openReader, string databaseNamePlaceholder)
+	{
+		MySqlConnectionStringBuilder builder = new(connectionString);
 		if (string.IsNullOrWhiteSpace(builder.Database) || builder.Database.Any(char.IsControl))
-		{
 			throw new ArgumentException("A snapshot target database name must be nonempty and contain no control characters.", nameof(connectionString));
-		}
 		var escapedDatabaseName = builder.Database.Replace("`", "``", StringComparison.Ordinal);
-        string tempDirectory = Path.Combine(Path.GetTempPath(), "FutureMUD-SnapshotImport", Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDirectory);
+		string tempDirectory = Path.Combine(Path.GetTempPath(), "FutureMUD-SnapshotImport", Guid.NewGuid().ToString("N"));
+		Directory.CreateDirectory(tempDirectory);
 		try
 		{
-			string tempPath = Path.Combine(tempDirectory, Path.GetFileName(scriptPath));
-			string script = File.ReadAllText(scriptPath);
-			script = script.Replace(databaseNamePlaceholder, escapedDatabaseName, StringComparison.Ordinal);
-			int deltaMarkerIndex = script.IndexOf(SnapshotDeltaMarker, StringComparison.Ordinal);
-			string backupScript = deltaMarkerIndex >= 0 ? script[..deltaMarkerIndex] : script;
-			string? deltaScript = deltaMarkerIndex >= 0 ? script[deltaMarkerIndex..] : null;
+			using var reader = openReader();
+			var script = reader.ReadToEnd().Replace(databaseNamePlaceholder, escapedDatabaseName, StringComparison.Ordinal);
+			var deltaMarkerIndex = script.IndexOf(SnapshotDeltaMarker, StringComparison.Ordinal);
+			var backupScript = deltaMarkerIndex >= 0 ? script[..deltaMarkerIndex] : script;
+			var deltaScript = deltaMarkerIndex >= 0 ? script[deltaMarkerIndex..] : null;
+			var tempPath = Path.Combine(tempDirectory, "BlankDatabaseSnapshot.sql");
 			File.WriteAllText(tempPath, backupScript);
 			_backupService.RestoreBackup(connectionString, tempPath);
-			if (!string.IsNullOrWhiteSpace(deltaScript))
-			{
-				_backupService.ExecuteSqlScript(connectionString, deltaScript);
-			}
+			if (!string.IsNullOrWhiteSpace(deltaScript)) _backupService.ExecuteSqlScript(connectionString, deltaScript);
 		}
-        finally
-        {
-            if (Directory.Exists(tempDirectory))
-            {
-                Directory.Delete(tempDirectory, recursive: true);
-            }
-        }
-    }
+		finally
+		{
+			if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, recursive: true);
+		}
+	}
 
     public void CreateBlankDatabaseSnapshot(DatabaseUpgradeRequest request, string snapshotPath, string databaseNamePlaceholder)
     {

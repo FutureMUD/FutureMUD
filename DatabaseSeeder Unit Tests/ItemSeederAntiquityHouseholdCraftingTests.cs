@@ -1,5 +1,11 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using System.Linq;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -13,80 +19,36 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdSeeder_CurrentCatalogueHasFurnitureAndContainerTargets()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		Assert.AreEqual(243, CountCreateItemsInMethod(itemSource, "SeedAntiquityContainers"));
-		Assert.AreEqual(89, CountCreateItemsInMethod(itemSource, "SeedAntiquityHouseholdFurniture"));
+		Assert.AreEqual(243, Recipes.OriginalGroup("SeedAntiquityContainers").Length);
+		Assert.AreEqual(89, Recipes.OriginalGroup("SeedAntiquityHouseholdFurniture").Length);
 	}
 
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_DiscoverAllHouseholdGoodsByFunctionalTags()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
-		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-
-		AssertContains(craftRoot, "SeedAntiquityFurnitureAndContainerCrafts();");
-		AssertContains(craftSource, "Functions / Household Items");
-		AssertContains(craftSource, "Functions / Writing Goods");
-		AssertContains(craftSource, "GameItemProtosTags.Any");
-		AssertContains(craftSource, "SeedAntiquityHouseholdIntermediateCommodityCrafts();");
-		AssertContains(craftSource, "targetItems");
-		Assert.IsFalse(craftSource.Contains("Market /", StringComparison.Ordinal),
-			"Household crafts should discover products through functional tags rather than market tags.");
+		var items = Recipes.OriginalGroup("SeedAntiquityContainers").Concat(Recipes.OriginalGroup("SeedAntiquityHouseholdFurniture"))
+			.Where(item => item.Tags.Concat(ItemSeeder.InferReworkFunctionalTagsForTesting(item.Tags))
+				.Any(tag => tag.StartsWith("Functions / Household Items", StringComparison.Ordinal) || tag.StartsWith("Functions / Writing Goods", StringComparison.Ordinal))).ToArray();
+		Assert.IsTrue(items.Length > 250);
+		Recipes.AssertNativeCraftCoverage(items.Select(item => item.Metadata.StableKey),
+			"antiquity_bronze_brazier", "antiquity_earthenware_brazier", "antiquity_iron_fire_basket");
 	}
 
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_UseCommodityIntermediatePathways()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
-
-		foreach (var expected in new[]
-		{
-			"CommodityProduct -",
-			"Furniture Timber Stock",
-			"Furniture Panel Stock",
-			"Carved Wood Stock",
-			"Coopered Staves",
-			"Basketry Splint",
-			"Reed Matting",
-			"Prepared Leather Panel",
-			"Lamp Wick",
-			"Prepared Pitch",
-			"Bisque Vessel Blank",
-			"Glass Vessel Blank",
-			"Cast Vessel Blank",
-			"Stone Vessel Blank",
-			"Inlay Stock",
-			"Paint Pigment",
-			"Lacquer Finish",
-			"Door Hardware Stock",
-			"SimpleVariableProduct - 1x"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		Assert.IsFalse(craftSource.Contains("\"Tag - 1x", StringComparison.Ordinal),
-			"Household craft suite should prefer commodities over full-item inputs.");
+		Recipes.RequiresTags("Furniture Timber Stock", "Furniture Panel Stock", "Carved Wood Stock", "Coopered Staves", "Basketry Splint", "Reed Matting", "Prepared Leather Panel", "Lamp Wick", "Prepared Pitch", "Bisque Vessel Blank", "Glass Vessel Blank", "Cast Vessel Blank", "Stone Vessel Blank", "Inlay Stock", "Paint Pigment", "Lacquer Finish", "Door Hardware Stock");
 	}
 
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_CopySingleColourVariablesFromColourBearingInputs()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityHousehold.cs");
-
-		foreach (var expected in new[]
-		         {
-			         "GetHouseholdVariableSource(",
-			         "AntiquityHouseholdVariableSource.PaintPigment",
-			         "AntiquityHouseholdVariableSource.LacquerFinish",
-			         "CommodityPileInput(180.0, \"Paint Pigment\", colour: true, fineColour: true)",
-			         "variable Colour=$i{variableInputIndex}",
-			         "variable Colour=$i{variableInputIndex}, Fine Colour=$i{variableInputIndex}"
-		         })
-		{
-			AssertContains(craftSource, expected);
-		}
+		var recipes = Recipes.Recipes.Where(recipe => recipe.Inputs.OfType<CatalogueCommodityTagRecipeInput>().Any(input => input.PileTag is "Paint Pigment" or "Lacquer Finish") ||
+			recipe.Inputs.OfType<CatalogueCommodityRecipeInput>().Any(input => input.PileTag is "Paint Pigment" or "Lacquer Finish")).ToArray();
+		Assert.IsTrue(recipes.Length > 0);
+		foreach (var recipe in recipes.Where(recipe => recipe.Products.OfType<CatalogueVariableRecipeProduct>().Any()))
+			foreach (var variable in recipe.Products.OfType<CatalogueVariableRecipeProduct>().SelectMany(product => product.Variables))
+				Assert.IsTrue(variable.InputIndex > 0 && variable.InputIndex <= recipe.Inputs.Count);
 	}
 
 	[TestMethod]

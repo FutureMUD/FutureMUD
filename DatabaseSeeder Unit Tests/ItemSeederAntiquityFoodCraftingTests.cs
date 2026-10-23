@@ -1,5 +1,7 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -74,150 +76,29 @@ public class ItemSeederAntiquityFoodCraftingTests
 	[TestMethod]
 	public void AntiquityApiaryCrafting_BackfillsApicultureItemsAndProcessing()
 	{
-		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityApiary.cs");
-		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityApiary.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
-
-		AssertContains(reworkSource, "SeedAntiquityApiaryItems();");
-		AssertContains(craftRootSource, "SeedAntiquityApiaryCrafts();");
-		foreach (var expected in new[]
-		         {
-			         "antiquity_wicker_beehive",
-			         "antiquity_clay_tube_hive",
-			         "antiquity_wooden_hive_stand",
-			         "antiquity_bee_smoke_pot",
-			         "antiquity_honey_knife",
-			         "antiquity_honey_press",
-			         "antiquity_honey_strainer"
-		         })
-		{
-			AssertContains(itemSource, expected);
-			AssertContains(craftSource, expected);
-		}
-
-		foreach (var expected in new[]
-		         {
-			         "Beekeeping Tools",
-			         "Bee Hive",
-			         "Hive Stand",
-			         "Bee Smoke Pot",
-			         "Honey Knife",
-			         "Honey Press",
-			         "Honey Strainer",
-			         "Raw Honeycomb",
-			         "Pressed Honey",
-			         "Rendered Beeswax"
-		         })
-		{
-			AssertContains(tagSource, expected);
-		}
-
-		AssertContains(materialSource, "AddMaterial(\"honeycomb\"");
-		AssertContains(materialSource, "\"Animal Product\", \"Apiary Product\"");
-		AssertContains(craftSource, "press raw honeycomb");
-		AssertContains(craftSource, "Commodity - 2 kilograms of honeycomb; piletag Raw Honeycomb");
-		AssertContains(craftSource, "CommodityProduct - 1 kilogram 200 grams of honey commodity; tag Pressed Honey");
-		AssertContains(craftSource, "CommodityProduct - 350 grams of beeswax commodity; tag Rendered Beeswax");
+		Recipes.ItemsAreCrafted(["antiquity_wicker_beehive", "antiquity_clay_tube_hive", "antiquity_wooden_hive_stand", "antiquity_bee_smoke_pot", "antiquity_honey_knife", "antiquity_honey_press", "antiquity_honey_strainer"]);
+		var recipe = Recipes.Named("press raw honeycomb");
+		Assert.IsTrue(recipe.Inputs.OfType<CatalogueCommodityRecipeInput>().Any(input => input.Material == "honeycomb" && input.Grams == 2000));
+		Assert.IsTrue(recipe.Products.OfType<CatalogueCommodityRecipeProduct>().Any(product => product.Material == "honey" && product.Grams == 1200 && product.Tag == "Pressed Honey"));
+		Assert.IsTrue(recipe.Products.OfType<CatalogueCommodityRecipeProduct>().Any(product => product.Material == "beeswax" && product.Grams == 350 && product.Tag == "Rendered Beeswax"));
 	}
 
 	[TestMethod]
 	public void AntiquityAgricultureCrafting_BackfillsSeedPastoralAndDerivativeProcessing()
 	{
-		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityAgriculture.cs");
-		var agricultureSource = ReadSource("DatabaseSeeder", "Seeders", "AgricultureSeeder", "AgricultureSeeder.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
-
-		AssertContains(craftRootSource, "SeedAntiquityAgriculturalProcessingCrafts();");
-		AssertContains(craftSource, "select antiquity seed stock");
-		AssertContains(craftSource, "CommodityTag - 5 kilograms of a material tagged as Agriculture Seedable; tag Seeded Yield");
-		AssertContains(craftSource, "ScrapInput - 25.00% by weight of 5 kilograms of a material tagged as Agriculture Seedable ($i1); tag Seeds");
-		AssertContains(craftSource, "strain fresh milk into amphora");
-		AssertContains(craftSource, "Commodity - 3 kilograms of milk; piletag Raw Milk");
-		AssertContains(craftSource, "filled with 3 litres of milk");
-		AssertContains(craftSource, "heap herd manure compost");
-		AssertContains(craftSource, "Commodity - 3 kilograms of feces; piletag Manure Commodity");
-		AssertContains(craftSource, "CommodityProduct - 3 kilograms 500 grams of compost commodity; tag Manure Commodity");
-
-		foreach (var expected in new[]
-		         {
-			         "ferment indigo dye cakes",
-			         "strip pomegranate rind dye stock",
-			         "separate walnut hull dye stock",
-			         "dry saffron threads",
-			         "CommodityProduct - 500 grams of indigo dye cake commodity; tag Textile Dye Stock",
-			         "CommodityProduct - 350 grams of pomegranate rind commodity; tag Textile Dye Stock",
-			         "CommodityProduct - 300 grams of walnut hull commodity; tag Textile Dye Stock",
-			         "CommodityProduct - 45 grams of saffron commodity; tag Textile Dye Stock"
-		         })
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		foreach (var expected in new[]
-		         {
-			         "Raw Milk",
-			         "Raw Wool",
-			         "Egg Product",
-			         "Manure Commodity"
-		         })
-		{
-			AssertContains(tagSource, expected);
-		}
-
-		foreach (var expected in new[]
-		         {
-			         "Yield(\"milk\", 3500, RawMilkTagName)",
-			         "Yield(\"wool\", 450, RawTextileFibreTagName)",
-			         "new(\"Horse Herd\"",
-			         "Yield(\"egg\", 60, EggProductTagName)",
-			         "Yield(\"feces\", 2500, ManureCommodityTagName)",
-			         "AgricultureOperationType.HarvestHerdProducts",
-			         "new(\"Madder\"",
-			         "new(\"Weld\"",
-			         "new(\"Alkanet\"",
-			         "new(\"Henna\"",
-			         "new(\"Coriander\"",
-			         "new(\"Cumin\"",
-			         "new(\"Saffron Crocus\"",
-			         "new(\"Black Pepper\"",
-			         "new(\"Kermes Oak Scrub\"",
-			         "new(\"Dye Lichen Grove\"",
-			         "new(\"Lac Host Grove\""
-		         })
-		{
-			AssertContains(agricultureSource, expected);
-		}
-
-		AssertContains(materialSource, "AddMaterial(\"milk\"");
-		AssertContains(materialSource, "AddMaterial(\"egg\"");
-		AssertContains(materialSource, "AddMaterial(\"saffron crocus\"");
+		Recipes.HasRecipes("select antiquity seed stock", "strain fresh milk into amphora", "heap herd manure compost", "ferment indigo dye cakes", "strip pomegranate rind dye stock", "separate walnut hull dye stock", "dry saffron threads");
+		var seed = Recipes.Named("select antiquity seed stock");
+		Assert.IsTrue(seed.Products.OfType<CatalogueScrapRecipeProduct>().Any(product => product.FractionRecovered == 0.25 && product.Tag == "Seeds"));
+		Assert.IsTrue(Recipes.Named("strain fresh milk into amphora").Products.OfType<CatalogueLiquidRecipeProduct>().Any(product => product.Litres == 3));
+		Assert.IsTrue(Recipes.Named("heap herd manure compost").Products.OfType<CatalogueCommodityRecipeProduct>().Any(product => product.Grams == 3500));
 	}
 
 	[TestMethod]
 	public void AntiquityFoodCrafting_RunsThroughItemSeederReworkPath()
 	{
-		var shimPath = SourcePath("DatabaseSeeder", "Seeders", "AntiquityFoodBeverageSeeder.cs");
-		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityFood.cs");
-		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityFood.cs");
-		var metadataSource = ReadSource("DatabaseSeeder", "SeederMetadataRegistry.cs");
-		var cookingSource = ReadSource("DatabaseSeeder", "Seeders", "CookingSeeder", "CookingSeeder.cs");
-
-		Assert.IsFalse(File.Exists(shimPath), "The food pass should run through ItemSeeder, not a post-butchery shim seeder.");
-		Assert.IsFalse(metadataSource.Contains("AntiquityFoodBeverageSeeder", StringComparison.Ordinal),
-			"The removed shim should not be registered in seeder metadata.");
-		AssertContains(reworkSource, "SeedAntiquityFoodAndBeverageItems();");
-		AssertContains(craftRootSource, "SeedAntiquityFoodCrafts();");
-		AssertContains(itemSource, "SeedAntiquityFoodAndBeverageItems");
-		AssertContains(craftSource, "SeedAntiquityFoodCrafts");
-		Assert.IsFalse(cookingSource.Contains("Antiquity Foodways", StringComparison.Ordinal),
-			"The antiquity food pass should remain in ItemSeeder partials, not CookingSeeder.");
+		Recipes.ItemsAreCrafted(ItemSeeder.AntiquityPreparedFoodStableReferencesForTesting);
+		Assert.IsFalse(File.Exists(SourcePath("DatabaseSeeder", "Seeders", "AntiquityFoodBeverageSeeder.cs")));
+		Assert.IsTrue(Recipes.Recipes.Any(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate gate && gate.Knowledge == "Antiquity Foodways"));
 	}
 
 	[TestMethod]
@@ -355,7 +236,27 @@ public class ItemSeederAntiquityFoodCraftingTests
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityFood.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityFood.cs");
 
-		AssertContains(itemSource, "[toolTag, \"Market / Professional Tools / Standard Tools\"]");
+		foreach (var key in new[]
+		{
+			"antiquity_food_butchers_knife",
+			"antiquity_food_cooking_knife",
+			"antiquity_food_threshing_flail",
+			"antiquity_food_winnowing_basket",
+			"antiquity_food_pitchfork",
+			"antiquity_food_quern",
+			"antiquity_food_mortar",
+			"antiquity_food_grain_sieve",
+			"antiquity_food_fruit_press",
+			"antiquity_food_oil_press",
+			"antiquity_food_mash_tun",
+			"antiquity_food_drying_rack",
+			"antiquity_food_smoking_rack",
+			"antiquity_food_salting_trough",
+		})
+		{
+			var definition = CompiledAuthoredItemCatalogue.Get(key, "CreateAntiquityFoodTool");
+			CollectionAssert.Contains(definition.Tags.ToArray(), "Market / Professional Tools / Standard Tools", key);
+		}
 		foreach (var expected in new[]
 		         {
 			         "antiquity_food_butchers_knife",
@@ -464,7 +365,24 @@ public class ItemSeederAntiquityFoodCraftingTests
 				$"{finished} should be a morph target, not a direct craft output.");
 		}
 
-		AssertContains(itemSource, "finished is null ? null : finishedStableReference");
+		foreach (var (active, finished) in new (string Active, string Finished)[]
+		{
+			("antiquity_food_fermenting_beer_amphora", "antiquity_food_finished_beer_amphora"),
+			("antiquity_food_fermenting_date_beer_amphora", "antiquity_food_finished_date_beer_amphora"),
+			("antiquity_food_fermenting_red_wine_amphora", "antiquity_food_finished_red_wine_amphora"),
+			("antiquity_food_fermenting_white_wine_amphora", "antiquity_food_finished_white_wine_amphora"),
+			("antiquity_food_fermenting_kumis_amphora", "antiquity_food_finished_kumis_amphora"),
+			("antiquity_food_fermenting_garum_amphora", "antiquity_food_finished_garum_amphora"),
+			("antiquity_food_aging_spiced_wine_amphora", "antiquity_food_finished_spiced_wine_amphora"),
+			("antiquity_food_aging_spiced_beer_amphora", "antiquity_food_finished_spiced_beer_amphora"),
+			("antiquity_food_aging_spiced_kumis_amphora", "antiquity_food_finished_spiced_kumis_amphora"),
+		})
+		{
+			var definition = CompiledAuthoredItemCatalogue.Get(active, "CreateAntiquityFermentingFoodVessel");
+			Assert.AreEqual(finished, definition.MorphToStableReference, active);
+			Assert.IsTrue(definition.MorphSeconds > 0, active);
+		}
+
 		AssertContains(craftSource, "StableSimpleProduct(CultureBeverageFermentingStableReference(culture))");
 		AssertContains(craftSource, "StableSimpleProduct(CultureLuxuryBeverageAgingStableReference(culture))");
 		AssertContains(craftSource, "TagTool - Held - an item with the Fermentation Amphora tag");

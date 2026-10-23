@@ -35,14 +35,13 @@ public class ItemSeederManifestTests
 	}
 
 	[TestMethod]
-	public void PackagedManifest_LoadsFromAssetsDirectory()
+	public void PackagedManifest_LoadsFromCompiledCatalogueWithoutSidecars()
 	{
-		var packagedPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Manifests", "Seeded_Item_Manifest.json");
-		Assert.IsTrue(File.Exists(packagedPath));
-		var expected = ItemSeederManifestCatalogue.Load(packagedPath);
 		var actual = ItemSeederManifestCatalogue.LoadForRuntime();
-		Assert.AreEqual(expected.SourceFingerprint, actual.SourceFingerprint);
-		Assert.AreEqual(expected.Entries.Count, actual.Entries.Count);
+		Assert.AreSame(actual, ItemSeederManifestCatalogue.LoadForRuntime());
+		Assert.AreEqual(43825, actual.Entries.Count);
+		Assert.AreEqual("compiled", actual.SourceFingerprint);
+		ItemSeederManifestCatalogue.Validate(actual.Entries);
 	}
 
 	[TestMethod]

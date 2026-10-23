@@ -1,0 +1,53 @@
+// Derived ownership index. Refresh with --export-compiled-item-inventory; edit catalogue definitions instead.
+#nullable enable
+
+using System.Collections.Generic;
+
+namespace DatabaseSeeder;
+
+public static partial class Inventory04Stock
+{
+	public static IReadOnlyList<ItemSeederManifestEntry> Batch008() =>
+	[
+		new("craft", "Carpentry and joinery/build rosette wood shuttered opening", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_qing_shutter_290"], ItemSeederOwnershipPolicy.StockAggregate, "aaecd2926c170f058649c48961f1fbd2687867290d51ebc816998e25281f1b01"),
+		new("craft", "Carpentry and joinery/build shell teak wicket gate", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_sai_wicket_462"], ItemSeederOwnershipPolicy.StockAggregate, "04b587df8dd655373e9b0fa937513e469a77d940475dda5de7a143ad0c71780e"),
+		new("craft", "Carpentry and joinery/build shell wood shuttered opening", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_jos_shutter_328"], ItemSeederOwnershipPolicy.StockAggregate, "6840eb9804dc17ef217c49cec60983b7d1fb69de8a97860803361bd0a256ff6d"),
+		new("craft", "Carpentry and joinery/build small joined beech cloak cupboard", "crafts", ["renaissance"], ["item:renaissance_furniture_cen_cloak_cupboard_02"], ItemSeederOwnershipPolicy.StockAggregate, "c99b60a51f243bef7cdcabb0b076b5ad369e5d35824998f501eba68902f4c567"),
+		new("craft", "Carpentry and joinery/build stacked cedar clothing chest", "crafts", ["renaissance"], ["item:renaissance_furniture_japanese_ryukyuan_stacked_clothing_chest"], ItemSeederOwnershipPolicy.StockAggregate, "79ce38f881644f02cbea3ce04665a36da68c8c1a1ff5731cf19659f5562a7028"),
+		new("craft", "Carpentry and joinery/build star cedar braced door pattern 3", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_braced_door_58"], ItemSeederOwnershipPolicy.StockAggregate, "a61bc48e99bf60ae70bfd1a0aa88eff5592d2273ef9b2ada08e4937818fbc457"),
+		new("craft", "Carpentry and joinery/build star wrought iron barred barrier", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_barrier_26"], ItemSeederOwnershipPolicy.StockAggregate, "12389270d5bc8b5791c5460d31c213e2c6021a087ed8af296baf08a9736be505"),
+		new("craft", "Carpentry and joinery/build sunburst brass metal grille pattern 2", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_ott_grille_182"], ItemSeederOwnershipPolicy.StockAggregate, "24355c5598984d8302e4e8c03c48b073358d4c4c65df138d532bddb20a228465"),
+		new("craft", "Carpentry and joinery/build sunburst bronze barred barrier", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_barrier_96"], ItemSeederOwnershipPolicy.StockAggregate, "2dde14aafc89398acf37f0dc242cefb8eb02be1edeef17ac87f5707ee94f9d5f"),
+		new("craft", "Carpentry and joinery/build sunburst cedar door leaf", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_spa_panel_door_533"], ItemSeederOwnershipPolicy.StockAggregate, "a787025e1a805625f7848fbd1f30637da63c097f44de55cbbcf32e5e86a27a52"),
+		new("craft", "Carpentry and joinery/build sunburst oak courtyard gate pattern 2", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_mrd_courtyard_gate_255"], ItemSeederOwnershipPolicy.StockAggregate, "121d77ab1f199cab7176616c48fa8316159447dc25f94ca7957ff8dad12a0cd5"),
+		new("craft", "Carpentry and joinery/build sunburst pine braced door pattern 2", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_braced_door_72"], ItemSeederOwnershipPolicy.StockAggregate, "228b5e9bb0a662b2c3a0c4ad916fd226017893ff5cf553895d8c5a68f2501671"),
+		new("craft", "Carpentry and joinery/build sunburst pine secure door", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_secure_door_32"], ItemSeederOwnershipPolicy.StockAggregate, "415cb0ef9aece272ad017028b684766a4a819d1fb768583514c48c90ec1b7951"),
+		new("craft", "Carpentry and joinery/build sunburst teak courtyard gate", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_courtyard_gate_08"], ItemSeederOwnershipPolicy.StockAggregate, "0f5b2d5ceedf3850edabdded43ec4dc299a05629cfa4212c758b6e57279e07cd"),
+		new("craft", "Carpentry and joinery/build sunburst teak wicket gate", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_nba_wicket_98"], ItemSeederOwnershipPolicy.StockAggregate, "4200692376866c9d3e839ee0b691c2bbe93a5d21d3a5d6eabf9eed34e59eba22"),
+		new("craft", "Carpentry and joinery/build sunburst wood shuttered opening", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_car_shutter_651"], ItemSeederOwnershipPolicy.StockAggregate, "3b11789cae76fbfddb232465c2e4a598026b2ea795cda9671a34bea7618a159e"),
+		new("craft", "Carpentry and joinery/build tall low bamboo open display shelves", "crafts", ["renaissance"], ["item:renaissance_furniture_jpn_open_display_shelves_01"], ItemSeederOwnershipPolicy.StockAggregate, "af8fec8de08e9b965ada46b14f3bc30c9dc91cc1eba3a5f610b66f7db1b6f78e"),
+		new("craft", "Carpentry and joinery/build tarred shipboard provision rundlet", "crafts", ["renaissance"], ["item:renaissance_trade_shipboard_purser_provision_rundlet"], ItemSeederOwnershipPolicy.StockAggregate, "02cfd5a580be5e5400515533c014cbea738e70a1057464b2e3954487652dd4e8"),
+		new("craft", "Carpentry and joinery/build vamplated cavalry lance", "crafts", ["renaissance"], ["item:renaissance_military_lance_vamplate"], ItemSeederOwnershipPolicy.StockAggregate, "dfd521dc5c750466a52a02a38991a84e1402b4becc5fc1b5dc9b69545e60fb8b"),
+		new("craft", "Carpentry and joinery/build vine brass metal grille", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_gb_grille_49"], ItemSeederOwnershipPolicy.StockAggregate, "6204a11b23bd39a9b1c69d463ea2e413bc49b19b25e5e6e315561ed56cc8f2d9"),
+		new("craft", "Carpentry and joinery/build vine cedar shuttered opening", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_ena_shutter_575"], ItemSeederOwnershipPolicy.StockAggregate, "a26e6c9fb5e4034c440a37dc796ef2e051fb9159ff4dd96828b3cf864b6293b0"),
+		new("craft", "Carpentry and joinery/build vine teak lockable door pattern 3", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_lockable_door_59"], ItemSeederOwnershipPolicy.StockAggregate, "b7e39ab003f2962e52ce66594e6d187b4899e3076e90b7815e43997cef917258"),
+		new("craft", "Carpentry and joinery/build vine wood door leaf", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_nba_panel_door_85"], ItemSeederOwnershipPolicy.StockAggregate, "c389a3b6e3630534ddbc539aa6b7040d4329ffb2b7e9539c0e35ca6a9914a6d6"),
+		new("craft", "Carpentry and joinery/build vine wood shuttered opening pattern 2", "crafts", ["earlymodern", "renaissance"], ["item:renaissance_door_common_shutter_75"], ItemSeederOwnershipPolicy.StockAggregate, "25a60543f6ac0e5de05d1b486353c7bef1f202a054bb4df55a40a9ceff517bd6"),
+		new("craft", "Carpentry and joinery/build water-wave wood lockable door", "crafts", ["earlymodern", "renaissance"], ["item:earlymodern_door_sic_lockable_door_269"], ItemSeederOwnershipPolicy.StockAggregate, "07fedf98978494a227ae303a675489066dc3bb6726360310460b92f2f11fcfd5"),
+		new("craft", "Carpentry/carve acacia household vessel stock", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, "f9f1d7b63d451ac6d88d7885efb4400d26983fbbe7c71b9e8f1c807b7b0aab56"),
+		new("craft", "Carpentry/carve ash household vessel stock", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, "b836b8749a6a069779a05458b6b565c0df5d552dd8e272ef300b0e66f8390abb"),
+		new("craft", "Carpentry/carve willow household vessel stock", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, "84c2ea72c9555625e0878d763d00211f56df3b7a648cc58c05cb6c571df52e82"),
+		new("craft", "Carpentry/make carved wooden meat platter", "crafts", ["antiquity"], ["item:antiquity_tableware_scythian_wooden_meat_platter"], ItemSeederOwnershipPolicy.StockAggregate, "60853a76d25abbbd76799613876e5586287699ce11a03ca2cf55c1cd43c18e0d"),
+		new("craft", "Carpentry/make linen-cord clay wire cutter", "crafts", ["antiquity"], ["item:antiquity_wire_cutter"], ItemSeederOwnershipPolicy.StockAggregate, "6dc1e5d6b6bf9b18dd27b8b02acd42db3c663d343a8d0933b7f8d1d6a2a8b7c3"),
+		new("craft", "Carpentry/make low display stand", "crafts", ["antiquity"], ["item:antiquity_low_display_stand"], ItemSeederOwnershipPolicy.StockAggregate, "fbc418dd96a5bb32114ffe432c98f0b2386040e9faf9cb00752df952b0c732ba"),
+		new("craft", "Carpentry/make marked wooden measuring rod", "crafts", ["antiquity"], ["item:antiquity_wooden_measuring_rod"], ItemSeederOwnershipPolicy.StockAggregate, "bf1e3fc0fd07a24a8b52a1cb4951004934c3b31dacd0185a11025e443081caee"),
+		new("craft", "Carpentry/make oak leather stitching clamp", "crafts", ["antiquity"], ["item:antiquity_oak_stitching_pony"], ItemSeederOwnershipPolicy.StockAggregate, "e54be0eae4043f9857bb0c9d570c8fccee4a63bb6c3fb43ce9fde0e9bfe24134"),
+		new("craft", "Carpentry/make oak shoe last", "crafts", ["antiquity"], ["item:antiquity_oak_shoe_last"], ItemSeederOwnershipPolicy.StockAggregate, "e2d744e04e23aa8a06caeaee6e568dde0457ec81b9907cfc5f4fbc375ae7523d"),
+		new("craft", "Carpentry/make plain storage chest", "crafts", ["antiquity"], ["item:antiquity_plain_storage_chest"], ItemSeederOwnershipPolicy.StockAggregate, "210e3e33e2019c0d1bea9371d8c7e1130175419f643041b84ea2ed4be7550cf6"),
+		new("craft", "Carpentry/make set of open document shelves", "crafts", ["antiquity"], ["item:antiquity_document_shelves"], ItemSeederOwnershipPolicy.StockAggregate, "0e1e3739e590e17ccfb87e0caf6b13702fd70c0d294b0d47da686ac616c1cbf0"),
+		new("craft", "Carpentry/make stepped pottery display stand", "crafts", ["antiquity"], ["item:antiquity_pottery_display_stand"], ItemSeederOwnershipPolicy.StockAggregate, "d7dc04370477a573716ef175cc150c52e0713df29fb580cd7b95ac4ebf18a490"),
+		new("craft", "Carpentry/make wooden corpse bier", "crafts", ["antiquity"], ["item:antiquity_wooden_corpse_bier"], ItemSeederOwnershipPolicy.StockAggregate, "3e3748963a01ebd0817227f5f05bdafd41a6cd7fd490843f3ca013855ca261bb"),
+		new("craft", "Carpentry/prepare pine furniture timber stock", "crafts", ["antiquity"], [], ItemSeederOwnershipPolicy.StockAggregate, "4809e02c60f1ab819beb61b4c88501cc35ebc71fbc462414dcb9e45121cb4229"),
+		new("craft", "Ceramic and glass work/form incised earthenware household platter", "crafts", ["renaissance"], ["item:renaissance_container_sas_domestic_household_platter_01"], ItemSeederOwnershipPolicy.StockAggregate, "9edd802f2c436ffe74e52e8c26b76b0ebc5c558fa373a97d54a988981a6eb893"),
+	];
+}

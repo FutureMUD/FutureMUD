@@ -16,10 +16,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Reference Include="Microsoft.CodeAnalysis">
+			<HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath>
+		</Reference>
+		<Reference Include="Microsoft.CodeAnalysis.CSharp">
+			<HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\DatabaseSeeder\DatabaseSeeder.csproj" />
 		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
 		<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />
 		<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Update="Fixtures/item-catalogue-*.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 </Project>

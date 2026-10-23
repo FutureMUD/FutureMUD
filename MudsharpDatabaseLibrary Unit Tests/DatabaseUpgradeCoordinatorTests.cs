@@ -466,6 +466,38 @@ public class DatabaseUpgradeCoordinatorTests
 		Assert.IsFalse(Directory.Exists(Path.GetDirectoryName(backupService.LastRestorePath)));
 	}
 
+	[DataTestMethod]
+	[DataRow(false, false)]
+	[DataRow(true, false)]
+	[DataRow(false, true)]
+	public void ImportBlankDatabaseSnapshot_StreamPreservesCallerOwnershipAndCleansScratch(bool restoreFails, bool deltaFails)
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var backupService = new FakeBackupService(harness.DirectoryPath)
+		{
+			ThrowOnRestore = restoreFails, ThrowOnExecuteSqlScript = deltaFails
+		};
+		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
+		using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(
+			"CREATE DATABASE `__FUTUREMUD_DATABASE__`;\n" +
+			"-- EF-generated idempotent delta for LatestMigration\nUSE `__FUTUREMUD_DATABASE__`;\n"));
+		void Import() => coordinator.ImportBlankDatabaseSnapshot(
+			CreateRequest(harness.DirectoryPath).ConnectionString, stream, "__FUTUREMUD_DATABASE__");
+		if (restoreFails || deltaFails) Assert.ThrowsException<InvalidOperationException>(Import);
+		else Import();
+		Assert.IsTrue(stream.CanRead, "Import must leave the caller-owned source open on every exit path.");
+		stream.Position = 0;
+		Assert.AreEqual((int)'C', stream.ReadByte());
+		Assert.AreEqual(1, backupService.RestoreBackupCalls);
+		Assert.AreEqual(restoreFails ? 0 : 1, backupService.ExecuteSqlScriptCalls);
+		Assert.IsNotNull(backupService.LastRestorePath);
+		Assert.IsFalse(Directory.Exists(Path.GetDirectoryName(backupService.LastRestorePath)));
+		if (!restoreFails)
+		{
+			Assert.AreEqual("CREATE DATABASE `futuremud_tests`;\n", backupService.LastRestoreContents);
+		}
+	}
+
 	[TestMethod]
 	public void CreateBackup_ExceedingRetention_PrunesOldestSqlFiles()
 	{

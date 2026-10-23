@@ -9,20 +9,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
-	private sealed record RenaissanceHouseholdItemSpec(
-		string StableReference,
-		string Noun,
-		string ShortDescription,
-		string? LongDescription,
-		string FullDescription,
-		SizeCategory Size,
-		ItemQuality Quality,
-		double WeightInGrams,
-		decimal Cost,
-		string Material,
-		string[] Tags,
-		string[] Components,
-		string BuilderNotes);
+
 
 	internal sealed record RenaissanceHouseholdItemSpecTestData(
 		string StableReference,
@@ -38,7 +25,7 @@ public partial class ItemSeeder
 	internal static IReadOnlyCollection<RenaissanceHouseholdItemSpecTestData> RenaissanceHouseholdItemSpecsForTesting =>
 		RenaissanceHouseholdItemSpecs
 			.Select(x => new RenaissanceHouseholdItemSpecTestData(
-				x.StableReference,
+				x.Metadata.StableKey,
 				x.ShortDescription,
 				x.LongDescription,
 				x.FullDescription,
@@ -61,47 +48,27 @@ public partial class ItemSeeder
 
 		foreach (var spec in RenaissanceHouseholdItemSpecs)
 		{
-			CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				spec.LongDescription,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				false,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				null,
-				null,
-				null,
-				null,
-				spec.BuilderNotes,
-				allowLegacyShortDescriptionMatch: false);
+			InstallCatalogueItem(spec);
 		}
 	}
 
 	private IReadOnlyList<string> ValidateRenaissanceHouseholdDependencies(
-		IEnumerable<RenaissanceHouseholdItemSpec> specs)
+		IEnumerable<CatalogueItemDefinition> specs)
 	{
 		var issues = new List<string>();
 		foreach (var spec in specs)
 		{
 			if (!_materials.ContainsKey(spec.Material))
 			{
-				issues.Add($"Missing material {spec.Material} for {spec.StableReference}");
+				issues.Add($"Missing material {spec.Material} for {spec.Metadata.StableKey}");
 			}
 
 			issues.AddRange(spec.Tags
 				.Where(x => !_tagsByFullPath.ContainsKey(x))
-				.Select(x => $"Missing tag {x} for {spec.StableReference}"));
+				.Select(x => $"Missing tag {x} for {spec.Metadata.StableKey}"));
 			issues.AddRange(spec.Components
 				.Where(x => !_components.ContainsKey(x))
-				.Select(x => $"Missing component {x} for {spec.StableReference}"));
+				.Select(x => $"Missing component {x} for {spec.Metadata.StableKey}"));
 		}
 
 		return issues

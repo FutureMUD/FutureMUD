@@ -178,6 +178,7 @@ What is your choice? ",
 
     private void InitialiseDependencies()
     {
+		_retainedManagedTagParents.Clear();
 		_traitGateProgRows = null;
 		_pendingGeneratedManifestIdentities.Clear();
 		if (_context is null)
@@ -765,9 +766,35 @@ What is your choice? ",
 												  TimeSpan? morphTimer,
 												  string? destroyedItemUniqueReference,
 												  string? builderNotes = null,
-												  bool allowLegacyShortDescriptionMatch = true)
+												  bool allowLegacyShortDescriptionMatch = true,
+												  [System.Runtime.CompilerServices.CallerFilePath] string sourceFile = "",
+												  [System.Runtime.CompilerServices.CallerLineNumber] int sourceLine = 0,
+												  [System.Runtime.CompilerServices.CallerMemberName] string sourceMember = "")
 	{
+		if (CatalogueAuthoringTrace is { } trace && !sourceFile.Replace('\\', '/').EndsWith("/Catalogue/CatalogueInstaller.cs", StringComparison.Ordinal))
+		{
+			var rawTags = tags.ToArray();
+			var rawComponents = components.ToArray();
+			tags = rawTags;
+			components = rawComponents;
+			trace(new(sourceFile.Replace('\\', '/'), sourceLine, sourceMember,
+				_materials.TryGetValue(material, out var sourceMaterial) ? sourceMaterial.BehaviourType : null,
+				new CatalogueItemDefinition
+				{
+					Metadata = new(stableReference, _activeManifestModule, _activeManifestEras.ToArray(), [],
+						morphToUniqueReference is null && destroyedItemUniqueReference is null ? ItemSeederOwnershipPolicy.StockAggregate : ItemSeederOwnershipPolicy.RequiredRelationship,
+						CatalogueReadiness.ProductionReady, $"{sourceFile.Replace('\\', '/')}:{sourceLine}", []),
+					Noun = noun, ShortDescription = sdesc, LongDescription = ldesc, FullDescription = fdesc,
+					Size = size, Quality = quality, WeightInGrams = weightInGrams, Cost = inherentCost,
+					Skinnable = skinnable, HiddenFromPlayers = hideFromPlayers, Material = material,
+					Tags = rawTags, Components = rawComponents, MorphToStableReference = morphToUniqueReference,
+					MorphEmote = morphEmote, MorphSeconds = morphTimer is null ? null : (int)morphTimer.Value.TotalSeconds,
+					DestroyedItemStableReference = destroyedItemUniqueReference, BuilderNotes = builderNotes,
+					AllowLegacyShortDescriptionMatch = allowLegacyShortDescriptionMatch
+				}));
+		}
 		var tagList = BuildReworkItemTagList(tags);
+		_definitionCapture?.Supplement("item", stableReference, new { BuilderNotes = builderNotes, AllowLegacyShortDescriptionMatch = allowLegacyShortDescriptionMatch });
 		var componentList = EnsureBeltCapacityComponent(noun, sdesc, tagList, components);
 		var definition = BuildItemManifestDefinition(
 			stableReference,
@@ -834,6 +861,25 @@ What is your choice? ",
 				MorphEmote = definition.MorphEmote,
 				BuilderNotes = null
 			};
+			foreach (var path in tagList.Distinct(StringComparer.OrdinalIgnoreCase))
+			{
+				if (!_tagsByFullPath.TryGetValue(path, out var tag)) continue;
+				capturedItem.GameItemProtosTags.Add(new GameItemProtosTags
+				{
+					GameItemProto = capturedItem, GameItemProtoId = capturedItem.Id,
+					GameItemProtoRevisionNumber = capturedItem.RevisionNumber, TagId = tag.Id, Tag = tag
+				});
+			}
+			foreach (var name in componentList.Where(name => !string.IsNullOrWhiteSpace(name)))
+			{
+				if (!_components.TryGetValue(name, out var component)) continue;
+				capturedItem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+				{
+					GameItemProto = capturedItem, GameItemProtoId = capturedItem.Id,
+					GameItemProtoRevision = capturedItem.RevisionNumber, GameItemComponent = component,
+					GameItemComponentProtoId = component.Id, GameItemComponentRevision = component.RevisionNumber
+				});
+			}
 			CacheReworkItem(stableReference, capturedItem);
 			return capturedItem;
 		}
@@ -872,7 +918,8 @@ What is your choice? ",
 				return existing;
 			}
 			var liveDefinition = BuildLiveItemManifestDefinition(existing, stableReference);
-			var liveFingerprint = ItemSeederManifestCatalogue.Fingerprint(liveDefinition);
+			var liveFingerprint = GetCompatibleItemFingerprint(liveDefinition,
+				managedRecord?.AppliedFingerprint ?? manifestEntry.Fingerprint, definition.Cost);
 			if (managedRecord is null && !liveFingerprint.Equals(manifestEntry.Fingerprint, StringComparison.OrdinalIgnoreCase))
 			{
 				IncrementManifestResult(manifestEntry.Module, x => x with { Blocked = x.Blocked + 1 });
@@ -1077,7 +1124,7 @@ What is your choice? ",
 			.ToArray();
 		var expectedFingerprint = ItemSeederManifestCatalogue.Fingerprint(definition);
 		var exactMatches = candidates
-			.Where(x => ItemSeederManifestCatalogue.Fingerprint(BuildLiveItemManifestDefinition(x, stableReference))
+			.Where(x => GetCompatibleItemFingerprint(BuildLiveItemManifestDefinition(x, stableReference), expectedFingerprint, definition.Cost)
 				.Equals(expectedFingerprint, StringComparison.OrdinalIgnoreCase))
 			.ToArray();
 		if (candidates.Length > 1)

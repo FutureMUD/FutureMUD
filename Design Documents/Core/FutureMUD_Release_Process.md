@@ -61,6 +61,16 @@ The manual action in `backfill-products.yml` is restricted to specifically allow
 
 Single-file archive publishing shuts down build servers after the tests, then uses one MSBuild node with serial restore and project builds and separate compiler processes. This bounds retained compiler state across the test and runtime-specific compilations; all analyzers remain enabled. An infrastructure interruption does not qualify a package: retry the existing immutable tag through the manual `release_tag` input after any publishing-workflow correction has reached `master`. Keep the tagged product source unchanged and require the same tests, runtime matrix, smoke test and production promotion on the retry.
 
+## Windows signing and free distribution options
+
+An unsigned portable executable can be blocked by Windows Smart App Control. Building successfully or publishing one file does not prove that Windows permits it to run. Record any block separately from database and unit-test results; do not disable security policy or add exclusions as a release workaround.
+
+Microsoft provides free signing for **MSIX packages submitted through the Microsoft Store**, with free individual developer registration. This requires a Store submission, certification and MSIX packaging; it does not sign the portable EXE distributed from futuremud.com. Assess console launch, database connectivity, writable configuration/backup locations and the required .NET runtime before adopting that distribution path. See [Microsoft's code-signing options](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options).
+
+SignPath Foundation offers free signing to qualifying projects using an OSI-approved licence. FutureMUD's current CC BY-NC-ND licence does not meet that requirement. Public source visibility alone is insufficient; do not change licensing merely to enable a signing integration. See [SignPath's conditions](https://signpath.org/terms) and the [FutureMUD licensing page](../../FutureMUD.Web/Content/Pages/license.md).
+
+For local development, the ordinary unbundled build can be run with `dotnet DatabaseSeeder/bin/Release/net10.0/DatabaseSeeder.dll` from the repository root after building. This is separate from the one-executable release qualification. No paid signing provider, signing credentials, certificate trust changes or Store submission is configured by the catalogue migration.
+
 ## Publish with Codex
 
 Invoke the repo-local skill with a product and version, for example:

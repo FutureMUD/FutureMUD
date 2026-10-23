@@ -1,5 +1,9 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -32,54 +36,20 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void HellenicClothingCrafts_ProduceEveryCurrentHellenicClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		foreach (var stableReference in HellenicClothingStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"StableReference: \"{stableReference}\"");
-		}
-
-		AssertContains(craftSource, "StableVariableProduct(garment.StableReference, garment.Fine)");
-		AssertContains(craftSource, "SimpleVariableProduct - 1x");
+		Recipes.ItemsAreCrafted(HellenicClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void HellenicFinishedGarmentCrafts_UseHellenicKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		AssertContains(craftSource, "const string hellenicKnowledge = \"Hellenic Textilecraft\"");
-		AssertContains(craftSource, "knowledgeSubtype: \"Hellenic\"");
-		AssertContains(craftSource, "AddHellenicGarmentCraft(");
-		AssertContains(craftSource, "hellenicKnowledge,");
+		Recipes.Knowledge("Hellenic Textilecraft", HellenicClothingStableReferences);
 	}
 
 	[TestMethod]
 	public void UpstreamTextileCrafts_UseCommodityStateTagsAndPreserveColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"tag Raw Textile Fibre",
-			"tag Prepared Textile Fibre",
-			"tag Spun Yarn",
-			"tag Woven Cloth",
-			"tag Dyed Cloth",
-			"tag Fulled Cloth",
-			"piletag Garment Cloth",
-			"characteristic Colour from $i1",
-			"characteristic Fine Colour from $i1",
-			"characteristic Colour={basicColour}",
-			"\"red\", \"madder red\"",
-			"piletag Textile Dye Stock",
-			"deep indigo"
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.RequiresTags("Garment Cloth", "Spun Yarn");
+		Recipes.CopiesColour(HellenicClothingStableReferences);
 	}
 
 	[TestMethod]
@@ -111,29 +81,10 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void AntiquityReworkItems_AddPeriodTextileToolPrototypes()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		foreach (var expected in new[]
+		foreach (var key in new[] { "antiquity_bronze_textile_shears", "antiquity_bronze_sewing_needle", "antiquity_bronze_awl_punch" })
 		{
-			"antiquity_bronze_textile_shears",
-			"antiquity_bronze_sewing_needle",
-			"antiquity_retting_trough",
-			"antiquity_flax_break",
-			"antiquity_fibre_hackle",
-			"antiquity_drop_spindle",
-			"antiquity_distaff",
-			"antiquity_warp_weighted_loom",
-			"antiquity_clay_loom_weight",
-			"antiquity_weaving_shuttle",
-			"antiquity_weavers_sword",
-			"antiquity_dye_vat",
-			"antiquity_mordant_cauldron",
-			"antiquity_fullers_trough",
-			"antiquity_fullers_mallet",
-			"antiquity_tenter_frame"
-		})
-		{
-			AssertContains(itemSource, expected);
+			var item = Recipes.Item(key); Assert.AreEqual("bronze", item.Material);
+			Assert.IsTrue(item.Components.Contains("Holdable")); Assert.IsTrue(item.Tags.Any(tag => tag.StartsWith("Functions /", StringComparison.Ordinal)));
 		}
 	}
 

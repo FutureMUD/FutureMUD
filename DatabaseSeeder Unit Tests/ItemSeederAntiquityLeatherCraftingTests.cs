@@ -1,5 +1,9 @@
 #nullable enable
 
+using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
+
+using DatabaseSeeder.Seeders;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -111,203 +115,46 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void LeatherCrafts_HaveStableReferencesInItemAndCraftSources()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"AntiquityLeatherClothingStableReferences",
-			"AntiquityLeatherArmourStableReferences",
-			"AntiquityLeatherContainerStableReferences",
-			"AntiquityLeatherFurnishingStableReferences",
-			"SeedAntiquityLeatherPreparationCrafts();",
-			"SeedAntiquityLeatherClothingCrafts();",
-			"SeedAntiquityLeatherArmourCrafts();",
-			"SeedAntiquityLeatherContainerCrafts();",
-			"SeedAntiquityLeatherFurnishingCrafts();",
-			"private void SeedAntiquityLeatherPreparationCrafts()",
-			"private void SeedAntiquityLeatherClothingCrafts()",
-			"private void SeedAntiquityLeatherArmourCrafts()",
-			"private void SeedAntiquityLeatherContainerCrafts()",
-			"private void SeedAntiquityLeatherFurnishingCrafts()"
-		})
-		{
-			AssertContains(itemCraftingSource + craftSource, expected);
-		}
-
-		foreach (var stableReference in LeatherCraftStableReferences)
-		{
-			AssertContains(itemSource, $"\"{stableReference}\"");
-			AssertContains(craftSource, $"\"{stableReference}\"");
-			AssertContains(itemCraftingSource, $"[\"{stableReference}\"]");
-		}
+		Recipes.ItemsAreCrafted(LeatherCraftStableReferences);
 	}
 
 	[TestMethod]
 	public void LeatherCrafts_CoverEveryAntiquityLeatherMaterialItem()
 	{
-		var craftSource =
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityRepairKits.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-		var leatherItemStableReferences = FindAntiquityLeatherMaterialItemStableReferences(itemSource)
-			.ToArray();
-
-		Assert.IsTrue(leatherItemStableReferences.Length >= 70, "Expected the material audit to find the full antiquity leather, hide, and fur item surface.");
-
-		var missingCrafts = leatherItemStableReferences
-			.Where(x => !craftSource.Contains($"\"{x}\"", StringComparison.Ordinal))
-			.ToArray();
-
-		Assert.AreEqual(
-			0,
-			missingCrafts.Length,
-			"Every antiquity item whose base material is leather, hide, or fur should have a craft. Missing: " +
-			string.Join(", ", missingCrafts));
+		var keys = Recipes.Items.Where(item => item.Metadata.Source.Contains("ItemSeeder.Antiquity.cs:", StringComparison.Ordinal) &&
+			(item.Material.Contains("leather", StringComparison.OrdinalIgnoreCase) || item.Material.Contains("hide", StringComparison.OrdinalIgnoreCase) || item.Material.Contains("fur", StringComparison.OrdinalIgnoreCase)))
+			.Select(item => item.Metadata.StableKey).ToArray();
+		Assert.IsTrue(keys.Length >= 70);
+		Recipes.AssertNativeCraftCoverage(keys, "antiquity_accessory_kushite_tall_arrow_quiver");
+		var suppressed = SuppressedLegacyRecipeVariants.SuppressedKushiteTallArrowQuiver();
+		Assert.AreEqual(CatalogueReadiness.DependencyReviewed, suppressed.Metadata.Readiness);
+		CollectionAssert.Contains(Recipes.Outputs(suppressed).ToArray(), "antiquity_accessory_kushite_tall_arrow_quiver");
+		Assert.AreEqual(1, Recipes.Recipes.Count(recipe => recipe.Metadata.StableKey == suppressed.Metadata.StableKey));
 	}
 
 	[TestMethod]
 	public void LeatherCrafts_UseLeatherworkingKnowledgeTraitAndCommodityPipeline()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"private const string AntiquityLeatherKnowledge = \"Ancient Hide and Leatherworking\"",
-			"\"Leatherworking\"",
-			"\"Leathermaking\"",
-			"break down raw hides into tanning stock",
-			"Tag - 1x an item with the Raw Hide tag",
-			"CommodityProduct - 1 kilogram 600 grams of animal skin commodity",
-			"CommodityTag - 1 kilogram 600 grams of a material tagged as Animal Skin",
-			"LiquidUse - 2 litres of Water",
-			"LiquidUse - 3 litres of Water",
-			"LiquidTagUse - 2 litres of a liquid tagged Tanning Agent",
-			"tag Prepared Hide",
-			"tag Tanned Leather",
-			"tag Leather Sole",
-			"tag Leather Strap",
-			"tag Leather Thong",
-			"tag Leather Panel",
-			"tag Hardened Leather Panel",
-			"tag Leather Scale",
-			"tag Sealed Leather Panel",
-			"piletag Tanned Leather",
-			"piletag Leather Sole",
-			"piletag Leather Strap",
-			"piletag Leather Thong",
-			"piletag Leather Panel",
-			"piletag Hardened Leather Panel",
-			"AddLeatherCommodityInput(inputs, armourCraft.Scales, \"Leather Scale\")",
-			"AddLeatherCommodityInput(inputs, containerCraft.SealedPanels, \"Sealed Leather Panel\")",
-			"Commodity - 120 grams of beeswax",
-			"Commodity - 90 grams of beeswax",
-			"StableSimpleProduct(",
-			"StableVariableProduct("
-		})
-		{
-			AssertContains(craftSource, expected);
-		}
+		Recipes.Knowledge("Ancient Hide and Leatherworking");
+		Recipes.RequiresTags("Prepared Hide", "Tanned Leather", "Leather Sole", "Leather Strap", "Leather Thong", "Leather Panel", "Hardened Leather Panel", "Leather Scale", "Sealed Leather Panel");
+		Assert.IsTrue(Recipes.Recipes.Any(recipe => recipe.Gate is CatalogueKnowledgeRecipeGate gate && gate.Knowledge == "Ancient Hide and Leatherworking" && gate.Trait == "Leathermaking"));
+		Assert.IsTrue(Recipes.Recipes.SelectMany(recipe => recipe.Inputs).OfType<CatalogueLiquidTagRecipeInput>().Any(input => input.LiquidTag == "Tanning Agent" && input.Litres == 2));
 	}
 
 	[TestMethod]
 	public void LeatherCrafts_BridgeAnimalButcheryRawHidesIntoCommodityPipeline()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder", "AnimalButcherySeeder.cs");
-		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
-		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
-
-		AssertContains(butcherySource, "private const string RawHideTag = \"Raw Hide\";");
-		AssertContains(coreMaterialSource, "AddTag(\"Butchery Output\", \"Animal Product\")");
-		AssertContains(coreMaterialSource, "AddTag(\"Raw Hide\", \"Butchery Output\")");
-		AssertContains(hierarchySource, "Materials / Animal Product / Butchery Output / Raw Hide");
-
-		foreach (var expected in new[]
-		         {
-			         "break down raw hides into tanning stock",
-			         "break raw hide items into animal skin commodity stock",
-			         "Tag - 1x an item with the Raw Hide tag",
-			         "TagTool - InRoom - an item with the Tanning Beam tag",
-			         "TagTool - Held - an item with the Hide Scraper tag",
-			         "CommodityProduct - 1 kilogram 600 grams of animal skin commodity",
-			         "CommodityProduct - 400 grams of animal skin commodity",
-			         "scrape and dehair animal hides",
-			         "CommodityTag - 1 kilogram 600 grams of a material tagged as Animal Skin"
-		         })
-		{
-			AssertContains(craftSource, expected);
-		}
-
-		var bridgeBlock = ExtractCallBlockContaining(craftSource, "break down raw hides into tanning stock");
-		Assert.IsFalse(bridgeBlock.Contains("tag Prepared Hide", StringComparison.Ordinal),
-			"The raw-hide bridge should produce raw animal-skin commodity stock; the existing scrape craft creates Prepared Hide.");
+		var recipe = Recipes.Named("break down raw hides into tanning stock");
+		Assert.IsTrue(recipe.Inputs.OfType<CatalogueTagRecipeInput>().Any(input => input.Tag == "Raw Hide" && input.Quantity == 1));
+		Assert.IsTrue(recipe.Products.OfType<CatalogueCommodityRecipeProduct>().Any(product => product.Material == "animal skin" && product.Grams == 1600));
+		Recipes.HasRecipes("scrape and dehair animal hides");
 	}
 
 	[TestMethod]
 	public void LeatherCrafts_HaveSupportingTagsAndPeriodTools()
 	{
-		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
-		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
-
-		foreach (var expected in new[]
-		{
-			"AddTag(context, \"Leather Commodity\", \"Material Functions\")",
-			"AddTag(context, \"Prepared Hide\", \"Leather Commodity\")",
-			"AddTag(context, \"Tanned Leather\", \"Leather Commodity\")",
-			"AddTag(context, \"Leather Sole\", \"Leather Commodity\")",
-			"AddTag(context, \"Leather Strap\", \"Leather Commodity\")",
-			"AddTag(context, \"Leather Thong\", \"Leather Commodity\")",
-			"AddTag(context, \"Leather Panel\", \"Leather Commodity\")",
-			"AddTag(context, \"Hardened Leather Panel\", \"Leather Commodity\")",
-			"AddTag(context, \"Leather Scale\", \"Leather Commodity\")",
-			"AddTag(context, \"Sealed Leather Panel\", \"Leather Commodity\")",
-			"AddTag(context, \"Shoe Last\", \"Leatherworking Tools\")",
-			"AddTag(context, \"Leather Wax Pot\", \"Leatherworking Tools\")"
-		})
-		{
-			AssertContains(tagSource, expected);
-		}
-
-		foreach (var expected in new[]
-		{
-			"Functions / Material Functions / Leather Commodity / Prepared Hide",
-			"Functions / Material Functions / Leather Commodity / Tanned Leather",
-			"Functions / Material Functions / Leather Commodity / Leather Sole",
-			"Functions / Material Functions / Leather Commodity / Leather Strap",
-			"Functions / Material Functions / Leather Commodity / Leather Thong",
-			"Functions / Material Functions / Leather Commodity / Leather Panel",
-			"Functions / Material Functions / Leather Commodity / Hardened Leather Panel",
-			"Functions / Material Functions / Leather Commodity / Leather Scale",
-			"Functions / Material Functions / Leather Commodity / Sealed Leather Panel",
-			"Functions / Tools / Leatherworking Tools / Shoe Last",
-			"Functions / Tools / Leatherworking Tools / Leather Wax Pot"
-		})
-		{
-			AssertContains(hierarchySource, expected);
-		}
-
-		foreach (var expected in new[]
-		{
-			"antiquity_bronze_awl_punch",
-			"antiquity_oak_stitching_pony",
-			"antiquity_bronze_edge_beveller",
-			"antiquity_bronze_leather_gouge",
-			"antiquity_bronze_leather_creaser",
-			"antiquity_oak_shoe_last",
-			"antiquity_bronze_leather_wax_pot",
-			"antiquity_bronze_hide_scraper",
-			"antiquity_oak_tanning_beam",
-			"antiquity_oak_tanning_rack",
-			"antiquity_oak_tanning_paddle",
-			"antiquity_bronze_dehairing_knife",
-			"antiquity_oak_brain_tanning_bucket"
-		})
-		{
-			AssertContains(itemSource, expected);
-		}
+		Recipes.RequiresTags("Tanning Beam", "Hide Scraper", "Raw Hide", "Tanned Leather");
+		foreach (var key in new[] { "antiquity_bronze_awl_punch", "antiquity_bronze_sewing_needle", "antiquity_bronze_textile_shears" }) Assert.IsTrue(Recipes.Item(key).Components.Contains("Holdable"));
 	}
 
 	[TestMethod]

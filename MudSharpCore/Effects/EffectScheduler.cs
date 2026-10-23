@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using MudSharp.Framework.Diagnostics;
 using MudSharp.Framework.Scheduling;
+using MudSharp.Server;
 
 namespace MudSharp.Effects;
 
@@ -107,7 +108,15 @@ public partial class EffectScheduler : IScheduler, IHaveFuturemud, IEffectSchedu
 
 			_scheduleMap.Remove(schedule.Effect);
 			var fireStarted = Stopwatch.GetTimestamp();
-			schedule.Fire();
+			try { schedule.Fire(); }
+			catch (Exception exception)
+			{
+				ExceptionReporter.Annotate(exception,
+					("Operation", () => $"EffectSchedule.Fire: {schedule.Effect.GetType().FullName}"),
+					("EntityId", () => schedule.Effect.Owner.Id),
+					("EntityType", () => schedule.Effect.Owner.FrameworkItemType));
+				throw;
+			}
 			var fireElapsed = Stopwatch.GetElapsedTime(fireStarted);
 			if (fireElapsed.TotalMilliseconds > 100)
 			{

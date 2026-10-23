@@ -205,32 +205,20 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 			RequestClose(ConnectionCloseMode.Abort);
 			try
 			{
-				var sb = new StringBuilder();
-				sb.AppendLine("Crash during player input");
-				if (ControlPuppet is IFuturemudControlContext fcc)
-				{
-					sb.AppendLine($"Account: {fcc.Account?.Name ?? "N/A"}");
-					var actor = fcc.Actor;
-					if (actor is not null)
-					{
-						sb.AppendLine($"Character: #{actor.Id:N0} {actor.PersonalName.GetName(NameStyle.FullName)} - {actor.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
-						foreach (var item in actor
-						         .CombinedEffectsOfType<IBuilderEditingEffect>()
-						         .SelectNotNull(x => x?.EditingItem as IFrameworkItem))
-						{
-							sb.AppendLine($"Editing: {item}");
-						}
-					}
-				}
-
-				sb.AppendLine("Input:");
-				sb.AppendLine();
-				sb.AppendLine(command);
-				sb.AppendLine();
-				sb.AppendLine("Exception:");
-				sb.AppendLine();
-				sb.AppendLine(e.ToString());
-				_crashLogger(sb.ToString());
+				var context = ControlPuppet as IFuturemudControlContext;
+				_crashLogger(ExceptionReporter.Format(e, "Crash during player input", false,
+					("Input", () => command),
+					("Account", () => context?.Account?.Name),
+					("Character ID", () => context?.Actor?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+					("Room ID", () => context?.Actor?.Location?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+					("Character name", () => context?.Actor?.PersonalName.GetName(NameStyle.FullName)),
+					("Character description", () => context?.Actor?.HowSeen(context.Actor, colour: false,
+						flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)),
+					("Editing", () => context?.Actor is { } actor
+						? string.Join("\n", actor.CombinedEffectsOfType<IBuilderEditingEffect>()
+							.SelectNotNull(x => x?.EditingItem as IFrameworkItem).Take(32)
+							.Select(item => $"{item.FrameworkItemType} #{item.Id}: {item.Name}"))
+						: null)));
 			}
 			catch (Exception)
 			{

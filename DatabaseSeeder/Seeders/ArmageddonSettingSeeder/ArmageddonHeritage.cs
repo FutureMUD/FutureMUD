@@ -19,7 +19,7 @@ namespace DatabaseSeeder.Seeders;
 public sealed record ArmageddonHeritageProfile(string Key, string Name, string? AncestralLanguage, string? SecondaryLanguage, int SecondaryValue);
 public sealed record ArmageddonUpbringing(string Key, string Name, string Language, string Accent, bool Urban);
 
-/// <summary>Approved heritage and physical defaults. New race admission remains explicitly held.</summary>
+/// <summary>Setting heritage, physical defaults and chargen availability.</summary>
 public static partial class ArmageddonHeritage
 {
 	public const string Module = "setting-heritage";
@@ -47,14 +47,23 @@ public static partial class ArmageddonHeritage
 		return grants;
 	}
 
-	private static T Apply<T>(FuturemudDatabaseContext db, string key, T desired, ICollection<string> messages) where T : class =>
-		ArmageddonSettingOwnership.Apply(db, Module, key, desired, messages);
+	private static bool LegacyTemplarLanguage<T>(string key, string module) => module == ArmageddonTemplarInstaller.Module &&
+		(typeof(T) == typeof(Language) && key == "arm.language.tatlum" ||
+		 typeof(T) == typeof(Accent) && key.StartsWith("arm.accent.tatlum.", StringComparison.Ordinal));
+
+	private static T Apply<T>(FuturemudDatabaseContext db, string key, T desired, ICollection<string> messages) where T : class
+	{
+		var previousModule = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key)?.Module;
+		return ArmageddonSettingOwnership.Apply(db, previousModule is not null && LegacyTemplarLanguage<T>(key, previousModule) ? previousModule : Module,
+			key, desired, messages);
+	}
 	private static string Json<T>(T value) => JsonSerializer.Serialize(value);
-	private static void Preflight<T>(FuturemudDatabaseContext db, IEnumerable<(string Key, string Name)> identities) where T : class
+	private static void Preflight<T>(FuturemudDatabaseContext db, IEnumerable<(string Key, string Name)> identities, long? ignoredId = null) where T : class
 	{
 		var names = identities.ToArray();
 		var field = db.Model.FindEntityType(typeof(T))!.FindProperty("Name")?.Name ?? "FunctionName";
-		var installed = db.Set<T>().AsEnumerable().Select(x => (Row: x, Name: (string?)db.Entry(x).Property(field).CurrentValue)).ToArray();
+		var installed = db.Set<T>().AsEnumerable().Where(x => (long)db.Entry(x).Property("Id").CurrentValue! != ignoredId)
+			.Select(x => (Row: x, Name: (string?)db.Entry(x).Property(field).CurrentValue)).ToArray();
 		foreach (var (key, name) in names)
 		{
 			var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
@@ -63,9 +72,14 @@ public static partial class ArmageddonHeritage
 				if (installed.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException($"Unowned heritage {typeof(T).Name} collision: {name}.");
 				continue;
 			}
-			if (record.Module != Module || record.EntityType != typeof(T).Name || record.Retired || record.LogicalId is not { } id || db.Find<T>(id) is null || record.SeedBaseline is null ||
+			if (record.Module != Module && !LegacyTemplarLanguage<T>(key, record.Module) || record.EntityType != typeof(T).Name || record.Retired || record.LogicalId is not { } id || db.Find<T>(id) is null || record.SeedBaseline is null ||
 				db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == id))
 				throw new InvalidOperationException($"Invalid typed heritage ownership: {key}.");
+			var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline)!;
+			var actualName = (string?)db.Entry(db.Find<T>(id)!).Property(field).CurrentValue;
+			var retainsCustomName = baseline.TryGetValue(field, out var previousName) && previousName != Json(actualName);
+			if (!retainsCustomName && installed.Any(x => (long)db.Entry(x.Row).Property("Id").CurrentValue! != id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
+				throw new InvalidOperationException($"Heritage {typeof(T).Name} rename collision: {name}.");
 		}
 	}
 
@@ -74,12 +88,16 @@ public static partial class ArmageddonHeritage
 		PreflightPhysiology(db);
 		PreflightPhysical(db);
 		PreflightAppearance(db);
-		var languages = ArmageddonSkillPackage.Skills.Where(x => x.Language).Select(x => (Slug: x.Key["arm.skill.".Length..], x.Name)).ToArray();
+		ArmageddonLanguages.Preflight(db);
+		var languages = ArmageddonLanguages.Profiles;
 		Preflight<Language>(db, languages.Select(x => ("arm.language." + x.Slug, x.Name)));
-		Preflight<Race>(db, Profiles.Select(x => ("arm.race." + x.Key, "Armageddon " + x.Name)).Append(("arm.race.elf", "Armageddon Elf")));
-		Preflight<Ethnicity>(db, Profiles.Select(x => ("arm.ethnicity." + x.Key + ".default", "Armageddon " + x.Name)));
-		Preflight<Culture>(db, Cultures.Select(x => ("arm.culture." + x.Key, "Armageddon " + x.Name)));
-		Preflight<NameCulture>(db, [("arm.naming.personal", "Armageddon Personal Name")]);
+		var foundation = FoundationHuman(db);
+		Preflight<Race>(db, Profiles.Select(x => ("arm.race." + x.Key, x.Name)).Append(("arm.race.elf", "Elf")), foundation.Id);
+		if (foundation.Name == "Human" && db.Races.Any(x => x.Id != foundation.Id && x.Name == "Admin Human"))
+			throw new InvalidOperationException("The reserved Admin Human foundation name is already in use.");
+		Preflight<Ethnicity>(db, Profiles.Select(x => ("arm.ethnicity." + x.Key + ".default", x.Name)));
+		Preflight<Culture>(db, Cultures.Select(x => ("arm.culture." + x.Key, x.Name)));
+		Preflight<NameCulture>(db, [("arm.naming.personal", "Personal Name")]);
 		PreflightNaming(db);
 		// Accent names are scoped to languages, unlike the other native named entities.
 		foreach (var language in languages)
@@ -87,7 +105,8 @@ public static partial class ArmageddonHeritage
 			var ownedLanguage = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == "arm.language." + language.Slug);
 			if (ownedLanguage is null) continue;
 			var expected = new[] { ("arm.accent." + language.Slug + ".standard", "Standard"), ("arm.accent." + language.Slug + ".learner", "Learner") }
-				.Concat(Cultures.Where(x => x.Language == language.Slug).Select(x => ("arm.accent." + language.Slug + "." + x.Accent.ToLowerInvariant(), x.Accent)));
+				.Concat(Cultures.Where(x => x.Language == language.Slug).Select(x => ("arm.accent." + language.Slug + "." + x.Accent.ToLowerInvariant(), x.Accent)))
+				.Concat(SirihishRacialAccents.Where(_ => language.Slug == "sirihish").Select(x => (RacialAccentKey(x), x.Name)));
 			foreach (var (key, name) in expected)
 				if (!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key) && db.Accents.Any(x => x.LanguageId == ownedLanguage.LogicalId && x.Name == name))
 					throw new InvalidOperationException($"Unowned heritage accent collision: {language.Name}/{name}.");
@@ -104,6 +123,7 @@ public static partial class ArmageddonHeritage
 			progs.Add(("arm.language." + language.Slug + ".native", "ArmageddonNative" + language.Slug));
 			progs.Add(("arm.language." + language.Slug + ".foreign", "ArmageddonForeign" + language.Slug));
 		}
+		progs.AddRange(SirihishRacialAccents.Select(x => (RacialAccentKey(x) + ".availability", RacialAccentProgName(x))));
 		Preflight<FutureProg>(db, progs);
 	}
 
@@ -112,7 +132,7 @@ public static partial class ArmageddonHeritage
 		ICollection<string> messages, params (ProgVariableTypes Type, string Name)[] parameters)
 	{
 		var prog = Apply(db, key, new FutureProg { FunctionName = name, FunctionText = body, ReturnTypeDefinition = result.ToStorageString(),
-			Category = "Armageddon", Subcategory = "Heritage", FunctionComment = "Owned Armageddon heritage binding; physical profiles remain unavailable pending acceptance.",
+			Category = "Armageddon", Subcategory = "Heritage", FunctionComment = "Owned Armageddon heritage binding.",
 			Public = false, AcceptsAnyParameters = false, StaticType = 0 }, messages);
 		var current = db.FutureProgsParameters.Where(x => x.FutureProgId == prog.Id).OrderBy(x => x.ParameterIndex).ToArray();
 		var expected = parameters.Select(x => new ProgParameter((long)x.Type, x.Name)).ToArray();
@@ -130,7 +150,7 @@ public static partial class ArmageddonHeritage
 		db.SaveChanges(); return prog;
 	}
 
-	// Authored sweat-only defaults; all physical profiles remain unavailable.
+	// Authored sweat-only defaults.
 	internal static double SweatRateForProfile(string profile) => profile switch
 	{
 		"human" or "city_elf" or "desert_elf" or "dwarf" or "half_elf" => 0.02,
@@ -180,11 +200,16 @@ public static partial class ArmageddonHeritage
 	}
 	private sealed record NameLink(short Gender, long NameId);
 
+	// The bootstrap remains the source of Admin anatomy and physiology, independently of
+	// the playable Human profile. Identify it through its existing Admin ethnicity, not a display name.
+	private static Race FoundationHuman(FuturemudDatabaseContext db) =>
+		db.Races.Single(x => x.Id == db.Ethnicities.Single(y => y.Name == "Admin").ParentRaceId);
+
 	public static void Install(FuturemudDatabaseContext db, ICollection<string> messages)
 	{
 		var skills = ArmageddonSkillPackage.Resolve(db);
 		var attributes = RawAttributes(db);
-		var human = db.Races.Single(x => x.Name == "Human");
+		var human = FoundationHuman(db);
 		var organic = db.Races.Single(x => x.Id == human.ParentRaceId && x.Name == "Organic Humanoid");
 		var adminCulture = db.Cultures.Single(x => x.Name == "Admin");
 		var adminEthnicity = db.Ethnicities.Single(x => x.ParentRaceId == human.Id && x.Name == "Admin");
@@ -209,17 +234,36 @@ public static partial class ArmageddonHeritage
 			freeParameters[0].ParameterType != (long)ProgVariableTypes.Toon && freeParameters[0].ParameterType != (long)ProgVariableTypes.Chargen)
 			throw new InvalidOperationException("Existing FreeSkillsProg is incompatible; its body and pointer were preserved.");
 		using var transaction = db.Database.IsRelational() && db.Database.CurrentTransaction is null ? db.Database.BeginTransaction() : null;
-		var physiologyMerits = InstallPhysiologyMerits(db, messages);
-		var languages = new Dictionary<string, Language>();
-		foreach (var entry in ArmageddonSkillPackage.Skills.Where(x => x.Language))
+		const string foundationKey = "arm.foundation.human-presentation";
+		var foundationRecord = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == foundationKey);
+		if (foundationRecord is null)
 		{
-			var slug = entry.Key["arm.skill.".Length..];
-			languages[slug] = Apply(db, "arm.language." + slug, new Language { Name = entry.Name, LinkedTraitId = skills[entry.Key].Id,
-				DifficultyModel = adminLanguage.DifficultyModel, UnknownLanguageDescription = "an unfamiliar language", LanguageObfuscationFactor = 0.1 }, messages);
+			var fields = new List<string>();
+			if (human.Name == "Human") fields.Add(nameof(Race.Name));
+			if (human.AvailabilityProgId == yes) fields.Add(nameof(Race.AvailabilityProgId));
+			if (fields.Count > 0) foundationRecord = ArmageddonSettingOwnership.RecordNew(db, Module, foundationKey, human, fields.ToArray());
+		}
+		if (foundationRecord is not null)
+		{
+			var fields = JsonSerializer.Deserialize<Dictionary<string, string>>(foundationRecord.SeedBaseline!)!;
+			var desired = new Dictionary<string, string>();
+			if (fields.ContainsKey(nameof(Race.Name))) desired[nameof(Race.Name)] = Json("Admin Human");
+			if (fields.ContainsKey(nameof(Race.AvailabilityProgId))) desired[nameof(Race.AvailabilityProgId)] = Json((long?)no);
+			ArmageddonSettingOwnership.Reconcile(db, foundationRecord, human, desired, messages);
+		}
+		db.SaveChanges();
+		var physiologyMerits = InstallPhysiologyMerits(db, messages);
+		skills = ArmageddonLanguages.InstallSkills(db, skills, messages);
+		var languages = new Dictionary<string, Language>();
+		foreach (var entry in ArmageddonLanguages.Profiles)
+		{
+			var slug = entry.Slug;
+			languages[slug] = Apply(db, "arm.language." + slug, new Language { Name = entry.Name, LinkedTraitId = skills["arm.skill." + slug].Id,
+				DifficultyModel = adminLanguage.DifficultyModel, UnknownLanguageDescription = entry.UnknownSpeech, LanguageObfuscationFactor = 0.1 }, messages);
 		}
 		var parent = Scaffold(db, "arm.race.elf", human);
-		parent.Name = "Armageddon Elf"; parent.ParentRaceId = organic.Id; parent.AvailabilityProgId = no;
-		parent.Description = "Common biological Elf parent with the approved Elf physical/lifecycle defaults. This parent remains unavailable and is not an eighth playable profile.";
+		parent.Name = "Elf"; parent.ParentRaceId = organic.Id; parent.AvailabilityProgId = no;
+		parent.Description = "Elves are tall, slender people with pointed ears, quick movements and strong tribal loyalties. City and desert elves share this ancestry, shaped by different ways of life.";
 		parent.SweatRateInLitresPerMinute = SweatRateForProfile("city_elf");
 		PhysicalDefaults(db, parent, "city_elf", messages);
 		AttributeDefaults(parent, attributes.Length);
@@ -230,9 +274,9 @@ public static partial class ArmageddonHeritage
 		{
 			var key = "arm.race." + profile.Key;
 			var race = Scaffold(db, key, human);
-			race.Name = "Armageddon " + profile.Name; race.ParentRaceId = profile.Key is "city_elf" or "desert_elf" ? parent.Id : organic.Id;
-			race.AvailabilityProgId = no;
-			race.Description = $"{profile.Name} mechanical profile. Approved attributes, physical/lifecycle data, conservative appearance and racial-merit physiology are installed. This profile remains unavailable pending activation acceptance. No racial immunity or power is implied.";
+			race.Name = profile.Name; race.ParentRaceId = profile.Key is "city_elf" or "desert_elf" ? parent.Id : organic.Id;
+			race.AvailabilityProgId = ArmageddonPresentation.Playable(profile.Key) ? yes : no;
+			race.Description = ArmageddonPresentation.RaceDescription(profile.Key);
 			race.SweatRateInLitresPerMinute = SweatRateForProfile(profile.Key);
 			PhysicalDefaults(db, race, profile.Key, messages);
 			race.HungerRate = 1;
@@ -246,18 +290,18 @@ public static partial class ArmageddonHeritage
 			races[profile.Key] = Apply(db, key, race, messages);
 			AttributeLinks(db, key, profile.Key, races[profile.Key], human, attributes, messages, IntrinsicMeritsFor(profile.Key, physiologyMerits));
 		}
-		var naming = Apply(db, "arm.naming.personal", new NameCulture { Name = "Armageddon Personal Name", Definition = new XElement("NameCulture",
+		var naming = Apply(db, "arm.naming.personal", new NameCulture { Name = "Personal Name", Definition = new XElement("NameCulture",
 			new XElement("Counts", new XElement("Count", new XAttribute("Usage", 0), new XAttribute("Min", 1), new XAttribute("Max", 1))),
 			new XElement("Patterns", Enumerable.Range(0, 6).Select(x => new XElement("Pattern", new XAttribute("Style", x), new XAttribute("Text", "{0}"), new XAttribute("Params", "0")))),
-			new XElement("Elements", new XElement("Element", new XAttribute("Usage", 0), new XAttribute("MinimumCount", 1), new XAttribute("MaximumCount", 1), new XAttribute("Name", "Personal Name"),
-				new XCData("Enter the personal name by which your character is known. Names are free entry; no random-name corpus is installed."))),
+			new XElement("Elements", new XElement("Element", new XAttribute("Usage", 0), new XAttribute("MinimumCount", 1), new XAttribute("MaximumCount", 1), new XAttribute("Name", "Given Name"),
+				new XCData("Your given name is the name people use to address you in everyday life. Choose the name your character knows as their own."))),
 			new XElement("NameEntryRegex", new XCData(@"^(?<birthname>[\p{L}\p{M} '-]+)$"))).ToString() }, messages);
 		var actualCultures = new Dictionary<string, Culture>();
 		foreach (var culture in Cultures)
 		{
 			var slug = culture.Key;
 			var allowed = Profiles.Where(x => Compatible(x.Key, culture)).Select(x => races[x.Key].Id).ToArray();
-			var approval = culture.Key == "nomadic" ? Prog(db, "arm.approval.nomadic", "ArmageddonNomadicBackgroundApproved", "return false", ProgVariableTypes.Boolean, messages, (ProgVariableTypes.Chargen, "ch")) : null;
+			var approval = culture.Key == "nomadic" ? Prog(db, "arm.approval.nomadic", "ArmageddonNomadicBackgroundApproved", "return true", ProgVariableTypes.Boolean, messages, (ProgVariableTypes.Chargen, "ch")) : null;
 			var body = "return (" + string.Join(" or ", allowed.Select(x => $"@ch.Race == ToRace({x})")) + ")" + (approval is null ? "" : $" and @{approval.FunctionName}(@ch)");
 			var available = Prog(db, "arm.culture." + slug + ".availability", "ArmageddonCulture" + slug.Replace("_", "") + "Available", body, ProgVariableTypes.Boolean, messages, (ProgVariableTypes.Chargen, "ch"));
 			var starting = new StringBuilder();
@@ -267,7 +311,7 @@ public static partial class ArmageddonHeritage
 			starting.AppendLine("return 0");
 			var start = Prog(db, "arm.culture." + slug + ".starting", "ArmageddonStarting" + slug.Replace("_", ""), starting.ToString(), ProgVariableTypes.Number, messages,
 				(ProgVariableTypes.Toon, "ch"), (ProgVariableTypes.Trait, "skill"), (ProgVariableTypes.Number, "boost"));
-			var actual = Apply(db, "arm.culture." + slug, new Culture { Name = "Armageddon " + culture.Name, Description = culture.Name + " upbringing. Background only; no city room, spawn, faction or criminal status is imported.",
+			var actual = Apply(db, "arm.culture." + slug, new Culture { Name = culture.Name, Description = ArmageddonPresentation.CultureDescription(slug),
 				NativeLanguageId = languages[culture.Language].Id, AvailabilityProgId = available.Id, PrimaryCalendarId = adminCulture.PrimaryCalendarId, SkillStartingValueProgId = start.Id,
 				PersonWordMale = "Man", PersonWordFemale = "Woman", PersonWordNeuter = "Person", PersonWordIndeterminate = "Person", TolerableTemperatureCeilingEffect = 0, TolerableTemperatureFloorEffect = 0 }, messages);
 			actualCultures[slug] = actual;
@@ -275,21 +319,22 @@ public static partial class ArmageddonHeritage
 		foreach (var profile in Profiles)
 		{
 			var key = "arm.ethnicity." + profile.Key + ".default";
-			var ethnicity = Apply(db, key, new Ethnicity { Name = "Armageddon " + profile.Name, ParentRaceId = races[profile.Key].Id, AvailabilityProgId = yes,
+			var ethnicity = Apply(db, key, new Ethnicity { Name = profile.Name, ParentRaceId = races[profile.Key].Id, AvailabilityProgId = ArmageddonPresentation.Playable(profile.Key) ? yes : no,
 				NativeLanguageId = profile.AncestralLanguage is { } native ? languages[native].Id : null, PopulationBloodModelId = blood,
-				EthnicGroup = profile.Name, EthnicSubgroup = "Default", ChargenBlurb = "Approved profile with conservative racial appearance and shared neutral colour palettes. Physical admission remains separately gated.",
+				EthnicGroup = profile.Name, EthnicSubgroup = "Default", ChargenBlurb = ArmageddonPresentation.RaceDescription(profile.Key),
 				TolerableTemperatureCeilingEffect = 0, TolerableTemperatureFloorEffect = 0 }, messages);
 			EthnicityLinks(db, key, ethnicity, adminEthnicity, null, messages, AppearanceProfiles(db, profile.Key, messages));
 		}
 		InstallNaming(db, actualCultures, races, messages);
 		WirePhysicalScreens(db, races, messages);
 		InstallAccents(db, languages, actualCultures, messages);
+		InstallSirihishRacialAccents(db, languages["sirihish"], races, messages);
 		WireFreeSkills(db, storyboard, oldFree, actualCultures, races, skills, messages);
 		db.SaveChanges();
 		using (var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray()))
 			foreach (var record in db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module && x.EntityType == nameof(FutureProg)).ToArray()) compiler.Compile(record.LogicalId!.Value);
 		transaction?.Commit();
-		messages.Add("Heritage and approved physical defaults installed: five languages/cultures, seven exact-profile ethnicities, lifecycle descriptions, creation bounds and appearance profiles, approved personal-name suggestions with free entry and native200/source secondary grants. All eight new Race rows default unavailable until explicit admission approval; deliberate builder overrides are retained and reported. Bootstrap Human/Admin and existing characters were preserved. No scripts or city spawns installed.");
+		messages.Add("Heritage installed: Human, City Elf, Desert Elf, Dwarf, Half-Giant and Mul are available with their ethnicities and compatible upbringings. Half-Elf and the shared Elf parent remain unavailable. Naming uses a given name with an optional family name and nickname. Builder overrides are retained and reported; Admin Human retains its original identity and physiology. No existing characters or city spawns changed.");
 	}
 
 	private sealed record CharacteristicLink(long Definition, long Profile);
@@ -336,13 +381,13 @@ public static partial class ArmageddonHeritage
 					$"return @ch.Culture == ToCulture({cultures[culture.Key].Id})", ProgVariableTypes.Boolean, messages, (ProgVariableTypes.Chargen, "ch"));
 				Apply(db, "arm.accent." + slug + "." + culture.Accent.ToLowerInvariant(), new Accent { LanguageId = language.Id, Name = culture.Accent,
 					Suffix = "with a " + culture.Accent.ToLowerInvariant() + " accent", VagueSuffix = "with a regional accent", Group = "regional", Role = 0, Difficulty = 5,
-					Description = "Recovered regional identity; native difficulty5 is an authored adaptation, not a historical accent percentage.", ChargenAvailabilityProgId = available.Id }, messages);
+					Description = $"The {culture.Accent.ToLowerInvariant()} pronunciation of {language.Name}, associated with {culture.Name} upbringing.", ChargenAvailabilityProgId = available.Id }, messages);
 			}
 			// Explicit neutral scaffolds cover ancestry natives without a recovered regional accent.
 			Apply(db, "arm.accent." + slug + ".standard", new Accent { LanguageId = language.Id, Name = "Standard", Role = 0, Difficulty = 5, Group = "native scaffold",
-				Suffix = "", VagueSuffix = "", Description = "Authored neutral native accent scaffold; no historical accent corpus is asserted.", ChargenAvailabilityProgId = native.Id }, messages);
+				Suffix = "", VagueSuffix = "", Description = $"The usual pronunciation of {language.Name}.", ChargenAvailabilityProgId = native.Id }, messages);
 			Apply(db, "arm.accent." + slug + ".learner", new Accent { LanguageId = language.Id, Name = "Learner", Role = 2, Difficulty = 6, Group = "learner scaffold",
-				Suffix = "with a learner's accent", VagueSuffix = "with an unfamiliar accent", Description = "Authored non-native fallback, not an additional spoken language.", ChargenAvailabilityProgId = foreign.Id }, messages);
+				Suffix = "with a learner's accent", VagueSuffix = "with an unfamiliar accent", Description = $"The pronunciation of someone learning {language.Name} as an additional language.", ChargenAvailabilityProgId = foreign.Id }, messages);
 		}
 	}
 

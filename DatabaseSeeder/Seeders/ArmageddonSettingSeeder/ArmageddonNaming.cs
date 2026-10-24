@@ -13,7 +13,7 @@ using MudSharp.Character.Name;
 
 namespace DatabaseSeeder.Seeders;
 
-/// <summary>Approved adaptation, retaining canonical pools and curated non-random background constraints.</summary>
+/// <summary>Simple given/family/nickname entry with the approved personal-name suggestion pools.</summary>
 internal static class ArmageddonNaming
 {
 	private static readonly JsonDocument Document = JsonDocument.Parse(typeof(ArmageddonNaming).Assembly
@@ -22,7 +22,7 @@ internal static class ArmageddonNaming
 	internal static JsonElement Data => Document.RootElement;
 	internal static JsonElement[] Cultures => Data.GetProperty("cultures").EnumerateArray().ToArray();
 	internal static string Id(JsonElement culture) => culture.GetProperty("id").GetString()!;
-	internal static string Name(JsonElement culture) => "Armageddon " + culture.GetProperty("name").GetString()!;
+	internal static string Name(JsonElement culture) => culture.GetProperty("name").GetString()!;
 	internal static string Key(JsonElement culture) => "arm.naming." + Id(culture);
 	internal static string[] Eligible(JsonElement culture, int gender)
 	{
@@ -44,61 +44,44 @@ internal static class ArmageddonNaming
 		_ => throw new InvalidOperationException("Unknown approved naming component: " + id)
 	};
 
+	internal static JsonElement[] Elements(JsonElement culture) => culture.GetProperty("elements").EnumerateArray()
+		.Where(x => x.GetProperty("id").GetString() is "personal_name" or "family_name" or "alias").ToArray();
+
 	internal static NameCultureElement Element(JsonElement culture, JsonElement source)
 	{
 		var id = source.GetProperty("id").GetString()!;
-		var cultureId = Id(culture);
-		var usage = Usage(id);
-		var element = new NameCultureElement
+		return new NameCultureElement
 		{
-			Usage = usage, Name = source.GetProperty("label").GetString()!, ChargenBlurb = source.GetProperty("description").GetString()!,
-			MinimumCount = id == "personal_name" ? 1 : 0,
-			MaximumCount = source.TryGetProperty("max_count", out var maximum) && maximum.ValueKind == JsonValueKind.Null ? -1 : 1
-		};
-		if (source.TryGetProperty("collection_id", out var collectionId))
-		{
-			var values = Data.GetProperty("component_collections").GetProperty(collectionId.GetString()!).GetProperty("values");
-			if (values.ValueKind == JsonValueKind.Array)
+			Usage = Usage(id), MinimumCount = id == "personal_name" ? 1 : 0, MaximumCount = 1,
+			Name = id switch { "personal_name" => "Given Name", "family_name" => "Family Name", _ => "Nickname" },
+			ChargenBlurb = id switch
 			{
-				var supplied = values.EnumerateArray().Select(x => x.GetString()!).ToArray();
-				element = element with { SuggestedValues = supplied,
-					AllowedValues = id is "tribe" or "community" or "path_name" ? supplied : [] };
+				"personal_name" => "Your given name is the name people use to address you in everyday life. Choose the name your character knows as their own.",
+				"family_name" => "A family name connects you to your relatives or the household that raised you. Enter one if your character uses a family name, or skip this choice.",
+				_ => "A nickname is an informal name that friends, companions or rivals use for you. Enter one if your character already has a nickname, or skip this choice."
 			}
-			else
-			{
-				element = element with { ParentUsage = NameUsage.FamilyGroupName,
-					ParentValues = values.EnumerateObject().ToDictionary(x => x.Name, x => x.Value.EnumerateArray().Select(v => v.GetString()!).ToArray(), StringComparer.Ordinal) };
-			}
-		}
-		if (id == "tribe") element = element with { DefaultDisplay = false, ConfirmationPrompt = "Do you confirm that your established background supports this tribal membership? This naming declaration grants no membership." };
-		if (id == "tribe" && cultureId is "elf" or "desert_elven") element = element with
-		{
-			DefaultDisplay = false, DistinctFromUsage = NameUsage.Surname,
-			DisplayChoicePrompt = "Do you explicitly choose to display this confirmed tribe after your personal name as a surname? The clan will stay separate."
 		};
-		if (id == "path_name") element = element with { ConfirmationPrompt = "Do you explicitly confirm completion of the relevant apprenticeship in your established background? This declaration grants no training, class, role or achievement." };
-		return element;
 	}
 
 	internal static string Definition(JsonElement culture)
 	{
-		var elements = culture.GetProperty("elements").EnumerateArray().Select(x => Element(culture, x)).ToArray();
-		var full = "{4} {0} {1} {3}";
+		var elements = Elements(culture).Select(x => Element(culture, x)).ToArray();
+		var full = "{0} {1}";
 		string Pattern(int style) => style switch
 		{
-			0 => "{0}", 3 => "?2[{2}][{0}]", 4 => "{1} {3}", 5 => full + " ?2[{2}]", _ => full
+			0 => "{0}", 3 => "?2[{2}][{0}]", 4 => "?1[{1}][{0}]", 5 => full + " ?2[{2}]", _ => full
 		};
 		return new XElement("NameCulture",
 			new XElement("PreserveNameCase", true), new XElement("ExactRandomProfileGender", true),
 			new XElement("AllowTypographicPunctuation", true), new XElement("UseStructuredEntry", true),
-			new XElement("Patterns", Enumerable.Range(0, 6).Select(x => new XElement("Pattern", new XAttribute("Style", x), new XAttribute("Text", Pattern(x)), new XAttribute("Params", "0,6,2,9,18")))),
+			new XElement("Patterns", Enumerable.Range(0, 6).Select(x => new XElement("Pattern", new XAttribute("Style", x), new XAttribute("Text", Pattern(x)), new XAttribute("Params", "0,6,2")))),
 			new XElement("Elements", elements.Select(x => x.SaveToXml())),
 			new XElement("NameEntryRegex", new XCData(@"^(?<birthname>[\p{L}\p{M} '\u2019\-\u2010]+)$")),
 			new XElement("CuratedNamingDefinition", new XCData(JsonSerializer.Serialize(new
 			{
 				culture, source = Data.GetProperty("source"), components = Data.GetProperty("component_collections"),
 				defaults = Data.GetProperty("culture_element_defaults"), random_defaults = Data.GetProperty("random_profile_defaults"),
-				interpretation = "All elements are executable optional naming declarations. Only personal names are randomly generated. No component grants membership, rank, training or achievement."
+				interpretation = "Given name required; family name and nickname optional. Only given names are randomly generated. Original supplementary source data is retained here for provenance."
 			})))).ToString();
 	}
 }
@@ -140,7 +123,7 @@ public static partial class ArmageddonHeritage
 				var desired = ArmageddonNaming.Eligible(culture, gender).Select(x => new NameEntry(0, x, 1)).OrderBy(x => x.Name, StringComparer.Ordinal).ToArray();
 				var merged = ArmageddonSettingLinks.Reconcile(db, profileKey + ".links", nameof(RandomNameProfile), profile.Id,
 					new Dictionary<string, string> { ["Names"] = Json(actual), ["Dice"] = Json(dice) },
-					new Dictionary<string, string> { ["Names"] = Json(desired), ["Dice"] = Json(culture.GetProperty("elements").EnumerateArray().Select(e => new NameDice((int)ArmageddonNaming.Usage(e.GetProperty("id").GetString()!), e.GetProperty("id").GetString() == "personal_name" ? "1" : "0")).OrderBy(x => x.Usage).ToArray()) }, messages);
+					new Dictionary<string, string> { ["Names"] = Json(desired), ["Dice"] = Json(ArmageddonNaming.Elements(culture).Select(e => new NameDice((int)ArmageddonNaming.Usage(e.GetProperty("id").GetString()!), e.GetProperty("id").GetString() == "personal_name" ? "1" : "0")).OrderBy(x => x.Usage).ToArray()) }, messages);
 				var next = JsonSerializer.Deserialize<NameEntry[]>(merged["Names"])!;
 				foreach (var row in db.RandomNameProfilesElements.Where(x => x.RandomNameProfileId == profile.Id).ToArray())
 				{

@@ -65,7 +65,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		var (db, bindings) = Fixture(); using (db)
 		{
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
-			foreach (var cap in db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Armageddon partial ")))
+			foreach (var cap in db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Partial ")))
 			{
 				var xml = XElement.Parse(cap.Definition);
 				Assert.AreEqual("false", (string?)xml.Element("Casting")!.Attribute("passive"));

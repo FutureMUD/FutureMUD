@@ -100,7 +100,7 @@ public static partial class ArmageddonTemplarInstaller
 			};
 			var power = (MagicPower)Put(db, "arm.power.psionicist." + spec.Key, new MagicPower
 			{
-				Name = "Armageddon " + trait.Name, MagicSchoolId = school.Id, PowerModel = spec.Model,
+				Name = trait.Name, MagicSchoolId = school.Id, PowerModel = spec.Model,
 				Blurb = help, ShowHelp = help, Definition = xml.ToString()
 			}, ["Name", "MagicSchoolId", "PowerModel", "Blurb", "ShowHelp", "Definition"], messages);
 			powers.Add(spec.Key, (power, trait.Id));
@@ -120,7 +120,7 @@ public static partial class ArmageddonTemplarInstaller
 				selected.Select(x => new XElement("Power", new XAttribute("trait", powers[x].Trait), new XAttribute("minvalue", 1), new XAttribute("power", powers[x].Power.Id))));
 			var capability = (MagicCapability)Put(db, "arm.capability." + key + "_psionics", new MagicCapability
 			{
-				Name = "Armageddon " + name + " Psionics", CapabilityModel = "skilllevel", PowerLevel = key == "normal" ? 1 : 3,
+				Name = name + " Psionics", CapabilityModel = "skilllevel", PowerLevel = key == "normal" ? 1 : 3,
 				MagicSchoolId = school.Id, Definition = definition.ToString()
 			}, ["Name", "CapabilityModel", "PowerLevel", "MagicSchoolId", "Definition"], messages);
 			Put(db, meritKey, new Merit { Name = capability.Name, Type = "Magic Capability", MeritType = 0, MeritScope = 2,
@@ -140,7 +140,7 @@ public static partial class ArmageddonTemplarInstaller
 				new XAttribute("primary", true), new XAttribute("opening", skill.Opening), new XAttribute("cap", 80),
 				skill.Key == "expel" ? new XAttribute("parent", skills["arm.skill.barrier"].Id) : null,
 				new XAttribute("threshold", skill.Key == "expel" ? 70 : 0), new XAttribute("bonus", 0))));
-		Put(db, MagicPsionicProgressionKey, new Merit { Name = "Armageddon Magic Class Psionic Progression", Type = "Role Skill Progression", MeritScope = 2, MeritType = 0,
+		Put(db, MagicPsionicProgressionKey, new Merit { Name = "Magic Class Psionic Progression", Type = "Role Skill Progression", MeritScope = 2, MeritType = 0,
 			Definition = new XElement("Definition", new XElement("ChargenAvailableProg", db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse").Id),
 				new XElement("ApplicabilityProg", db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id), new XElement("DescriptionText", "@ practise|practises the Way."),
 				new XElement("ChargenBlurb", "Normal Way progression for magic classes."), new XElement("Rules", rules)).ToString() },

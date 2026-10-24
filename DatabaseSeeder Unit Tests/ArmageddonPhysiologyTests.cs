@@ -30,7 +30,7 @@ public class ArmageddonPhysiologyTests
 		}
 		foreach (var profile in ArmageddonHeritage.Profiles)
 		{
-			var race = db.Races.Single(x => x.Name == "Armageddon " + profile.Name);
+			var race = db.Races.Single(x => x.Name == profile.Name);
 			var expected = new List<long> { keys[profile.Key == "desert_elf" ? ArmageddonHeritage.DesertEnvironmentKey : ArmageddonHeritage.NormalEnvironmentKey] };
 			if (profile.Key == "desert_elf") expected.Add(keys[ArmageddonHeritage.DesertStaminaKey]);
 			if (profile.Key is "half_giant" or "mul") expected.Add(keys[ArmageddonHeritage.ReserveStaminaKey]);
@@ -39,9 +39,9 @@ public class ArmageddonPhysiologyTests
 			Assert.AreEqual(1.0, race.HungerRate);
 			Assert.AreEqual(1.0, race.ThirstRate, "The racial merit supplies the multiplier exactly once.");
 		}
-		var parent = db.Races.Single(x => x.Name == "Armageddon Elf");
+		var parent = db.Races.Single(x => x.Name == "Elf");
 		Assert.IsFalse(db.RacesMerits.Any(x => x.RaceId == parent.Id), "Desert elves must not inherit the ordinary environment merit too.");
-		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
+		var giant = db.Races.Single(x => x.Name == "Half-Giant");
 		Assert.AreEqual(48.0, giant.MaximumFoodSatiatedHours);
 		Assert.AreEqual(24.0, giant.MaximumDrinkSatiatedHours);
 		var metabolism = XElement.Parse(db.Merits.Single(x => x.Id == keys[ArmageddonHeritage.GiantMetabolismKey]).Definition);
@@ -61,7 +61,7 @@ public class ArmageddonPhysiologyTests
 		db.SaveChanges();
 		var messages = new List<string>();
 		ArmageddonHeritage.Install(db, messages);
-		var dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
+		var dwarf = db.Races.Single(x => x.Name == "Dwarf");
 		db.RacesMerits.RemoveRange(db.RacesMerits.Where(x => x.RaceId == dwarf.Id));
 		var reserveId = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonHeritage.ReserveStaminaKey).LogicalId!.Value;
 		var reserve = db.Merits.Single(x => x.Id == reserveId);

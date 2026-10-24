@@ -79,7 +79,7 @@ public static class ArmageddonCatalogueCreatureFoundations
 				var config = blueprint.Configuration;
 				var label = blueprint.Name.Replace(" stock anatomy", "", StringComparison.Ordinal);
 				var race = owned.Copy(source.Race);
-				race.Id = owned.Id<Race>(blueprint.Key); race.Name = "Armageddon " + label; race.Description = "A conjured " + label.ToLowerInvariant() + ".";
+				race.Id = owned.Id<Race>(blueprint.Key); race.Name = label; race.Description = "A conjured " + label.ToLowerInvariant() + ".";
 				race.BaseBodyId = bodies[blueprint.Key]; race.ParentRaceId = null; race.AllowedGenders = ((short)MudSharp.Form.Shape.Gender.Neuter).ToString();
 				race.AvailabilityProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg];
 				race.IndividualAttributeCap = Math.Max(24, race.IndividualAttributeCap);
@@ -100,14 +100,14 @@ public static class ArmageddonCatalogueCreatureFoundations
 				owned.Stage(blueprint.Key, race, [blueprint.Key + ".body", "arm.culture.constructs", blueprint.Key + ".strike"]);
 				ids.Add(blueprint.Key, race.Id);
 				var ethnicityKey = config.GetProperty("ethnicity_key").GetString()!;
-				var ethnicity = new Ethnicity { Id = owned.Id<Ethnicity>(ethnicityKey), Name = "Armageddon " + label,
+				var ethnicity = new Ethnicity { Id = owned.Id<Ethnicity>(ethnicityKey), Name = label,
 					ParentRaceId = race.Id, NativeLanguageId = culture.NativeLanguageId, EthnicGroup = "Conjured Creatures", EthnicSubgroup = label,
 					PopulationBloodModelId = population,
 					ChargenBlurb = "A magically conjured creature; unavailable in player character creation.",
 					AvailabilityProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg] };
 				owned.Stage(ethnicityKey, ethnicity, [blueprint.Key]); ids.Add(ethnicityKey, ethnicity.Id);
 				var affinityKey = blueprint.Key + ".affinity";
-				var merit = new Merit { Id = owned.Id<Merit>(affinityKey), Name = "Armageddon " + label + " affinity",
+				var merit = new Merit { Id = owned.Id<Merit>(affinityKey), Name = label + " affinity",
 					Type = "Elemental Affinity", MeritScope = (int)MeritScope.Character, MeritType = (int)MeritType.Merit,
 					Definition = new XElement("Merit", new XElement("ChargenAvailableProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]),
 						new XElement("ApplicabilityProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]),
@@ -135,7 +135,7 @@ public static class ArmageddonCatalogueCreatureFoundations
 	{
 		var key = blueprint.Key + ".strike";
 		TraitExpression Expression(string suffix, string formula) => owned.Put(key + "." + suffix, new TraitExpression
-		{ Name = "Armageddon " + label + " strike " + suffix, Expression = formula }, []);
+		{ Name = label + " strike " + suffix, Expression = formula }, []);
 		// Every stock attribute is 10 + 2*grade. A declared native attribute reference gives
 		// exactly 3*grade damage and grade pain without seven mutually overlapping race attacks.
 		var damage = Expression("damage", $"max(0, 1.5 * (power:{attributeId}{{noimprove,nobranch}} - 10))");
@@ -144,7 +144,7 @@ public static class ArmageddonCatalogueCreatureFoundations
 		var part = db.BodypartProtos.AsNoTracking().Where(x => x.BodyId == bodyId &&
 			(x.BodypartType == (int)BodypartTypeEnum.GrabbingWielding || x.BodypartType == (int)BodypartTypeEnum.BonyGrabbingWielding ||
 			 x.BodypartType == (int)BodypartTypeEnum.Wielding)).OrderBy(x => x.Id).First();
-		var attack = owned.Put(key, new WeaponAttack { Name = "Armageddon " + label + " strike", MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
+		var attack = owned.Put(key, new WeaponAttack { Name = label + " strike", MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
 			Verb = (int)MeleeWeaponVerb.Strike, DamageType = (int)DamageType.Crushing, BodypartShapeId = part.BodypartShapeId,
 			DamageExpressionId = damage.Id, PainExpressionId = pain.Id, StunExpressionId = stun.Id,
 			BaseAttackerDifficulty = (int)Difficulty.Normal, BaseBlockDifficulty = (int)Difficulty.Normal,

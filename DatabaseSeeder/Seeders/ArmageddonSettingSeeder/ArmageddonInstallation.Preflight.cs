@@ -77,7 +77,9 @@ public static partial class ArmageddonInstallation
 		Select(ArmageddonNativeBinding.SkillImprover, db.Improvers.Where(x => x.Name == "Skill Improver").Select(x => x.Id));
 		Select(ArmageddonNativeBinding.AlwaysTrueProg, db.FutureProgs.Where(x => x.FunctionName == "AlwaysTrue").Select(x => x.Id));
 		Select(ArmageddonNativeBinding.AlwaysFalseProg, db.FutureProgs.Where(x => x.FunctionName == "AlwaysFalse").Select(x => x.Id));
-		Select(ArmageddonNativeBinding.HumanRace, db.Races.Where(x => x.Name == "Human").Select(x => x.Id));
+		Select(ArmageddonNativeBinding.HumanRace, db.Ethnicities.Any(x => x.Name == "Admin")
+			? db.Ethnicities.Where(x => x.Name == "Admin" && x.ParentRaceId != null).Select(x => x.ParentRaceId!.Value)
+			: db.Races.Where(x => x.Name == "Human").Select(x => x.Id));
 		Select(ArmageddonNativeBinding.Culture, db.Cultures.Where(x => x.Name == "Admin").Select(x => x.Id));
 		Select(ArmageddonNativeBinding.Language, db.Languages.Where(x => x.Name == "Admin Speech").Select(x => x.Id));
 		Select(ArmageddonNativeBinding.Wood, db.Materials.Where(x => x.Name == "wood").Select(x => x.Id));

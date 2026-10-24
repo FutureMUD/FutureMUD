@@ -30,14 +30,14 @@ public static class ArmageddonMundaneMerits
 		{
 			[BardKey] = new Merit
 			{
-				Name = "Armageddon Bard Languages", Type = "Skill Learning", MeritType = 0, MeritScope = 2,
+				Name = "Bard Languages", Type = "Skill Learning", MeritType = 0, MeritScope = 2,
 				Definition = Definition("@ learn|learns languages readily", new XAttribute("branching", "50"),
 					new XAttribute("improving", "5"), new XAttribute("min_difficulty", "0"), new XAttribute("max_difficulty", "10"),
 					new XElement("Groups", new XElement("Group", "Language")))
 			},
 			[MercenaryKey] = new Merit
 			{
-				Name = "Armageddon Mercenary Liver Clearance", Type = "Liver Clearance", MeritType = 0, MeritScope = 2,
+				Name = "Mercenary Liver Clearance", Type = "Liver Clearance", MeritType = 0, MeritScope = 2,
 				Definition = Definition("@ clear|clears alcohol and active drugs more quickly, including beneficial drugs", new XAttribute("multiplier", "2"))
 			}
 		};

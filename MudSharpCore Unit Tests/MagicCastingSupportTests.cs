@@ -107,7 +107,7 @@ public class MagicCastingSupportTests
 		Assert.IsFalse(prog.ExecuteBool(f.Actor.Object, f.Earth, ""));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
@@ -163,7 +163,7 @@ public class MagicCastingSupportTests
 		Assert.AreEqual(84.0, f.Skills[3]); Assert.AreEqual(0, f.Store.Unresolved().Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void TypedSupport_UncappedGrantAdoptsCap_ReconcilePreservesHistoryAfterRouteLossOrRemoval(bool removeDefinition)
@@ -209,7 +209,7 @@ public class MagicCastingSupportTests
 		var (f, capability, receipt) = UncappedSupportBridge();
 		ReloadSupportCap(f, capability, 90);
 		f.Store.BeforeWrite = op => { if (op?.Stage == MagicCastingStateStore.SkillCapRecorded) throw new InvalidOperationException("cap adoption marker unavailable"); };
-		Assert.ThrowsException<InvalidOperationException>(() => f.Service.Reconcile(f.Actor.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Service.Reconcile(f.Actor.Object));
 		Assert.IsFalse(f.Store.CappedTraits(100).Contains(3));
 		Assert.AreEqual(receipt, f.Store.Operation(receipt.Id)); Assert.AreEqual(84.0, f.Skills[3]);
 		f.Store.BeforeWrite = null; f.Restart(); f.Service.Reconcile(f.Actor.Object);

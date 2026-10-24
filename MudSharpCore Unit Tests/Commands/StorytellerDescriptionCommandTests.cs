@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class StorytellerDescriptionCommandTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc", false)]
 	[DataRow("Resdesc", true)]
 	public void DescriptionCommand_ConditionalPrototypeText_RecallsMatchingRawText(string command, bool shortDescription)
@@ -38,7 +38,7 @@ public class StorytellerDescriptionCommandTests
 		Assert.AreEqual(fixture.Recall, shortDescription ? fixture.Item.Object.OverrideSdesc : fixture.Item.Object.OverrideDesc);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc", false)]
 	[DataRow("Resdesc", true)]
 	public void DescriptionCommand_ItemTarget_SubmitChangesOnlySelectedInstanceDescription(string command, bool shortDescription)
@@ -57,7 +57,7 @@ public class StorytellerDescriptionCommandTests
 		fixture.Item.VerifySet(x => x.Skin = It.IsAny<IGameItemSkin>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc")]
 	[DataRow("Resdesc")]
 	public void DescriptionCommand_Cancel_LeavesOverridesUnchanged(string command)
@@ -72,7 +72,7 @@ public class StorytellerDescriptionCommandTests
 		Assert.AreEqual("Original full.", fixture.Item.Object.OverrideDesc);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc", false)]
 	[DataRow("Resdesc", true)]
 	public void DescriptionCommand_Clear_RestoresOnlySelectedFieldToNull(string command, bool shortDescription)
@@ -86,7 +86,7 @@ public class StorytellerDescriptionCommandTests
 		Assert.IsNull(fixture.PostAction);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc")]
 	[DataRow("Resdesc")]
 	public void DescriptionCommand_UnresolvedCorpse_NeverEntersItemEditor(string command)
@@ -101,7 +101,7 @@ public class StorytellerDescriptionCommandTests
 		fixture.Item.VerifySet(x => x.OverrideSdesc = It.IsAny<string?>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc", false)]
 	[DataRow("Resdesc", true)]
 	public void DescriptionCommand_CharacterOrResolvedCorpse_KeepsBodyEditor(string command, bool shortDescription)
@@ -121,7 +121,7 @@ public class StorytellerDescriptionCommandTests
 		fixture.Actor.Verify(x => x.TargetItem(It.IsAny<string>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Redesc")]
 	[DataRow("Resdesc")]
 	public void DescriptionCommand_DeletedWhileEditing_DoesNotApplyOverride(string command)

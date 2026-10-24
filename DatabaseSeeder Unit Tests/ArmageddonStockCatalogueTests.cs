@@ -52,13 +52,13 @@ public class ArmageddonStockCatalogueTests
 		var race = creature["configuration"]!["race_bundle"]!.GetValue<string>();
 		var ai = creature["configuration"]!["ai_bundle"]!.GetValue<string>();
 		creature["configuration"]!["race_bundle"] = ai;
-		Assert.ThrowsException<InvalidOperationException>(() => new ArmageddonStockCatalogue(json.ToJsonString()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ArmageddonStockCatalogue(json.ToJsonString()));
 		creature["configuration"]!["race_bundle"] = race;
 		creature["configuration"]!["author_notes"] = "Character #1234, arm.race.unknown and 987654321 are narrative examples.";
 		Assert.AreEqual(210, new ArmageddonStockCatalogue(json.ToJsonString()).Blueprints.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]

@@ -26,7 +26,7 @@ public class FuryCalmStockProfileTests
 	internal static EmotionalStockProfile Calm() => ArmageddonStillAngerStock.Profile(11, 11, 20,
 		Enumerable.Range(1, 7).Select(x => new KeyValuePair<int, Difficulty>(x, Difficulty.Normal)));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(101L, 1, 2), DataRow(101L, 7, 14), DataRow(102L, 1, 2), DataRow(102L, 7, 17),
 	 DataRow(103L, 1, 2), DataRow(103L, 7, 17), DataRow(104L, 1, 3), DataRow(104L, 7, 24),
 	 DataRow(105L, 1, 3), DataRow(105L, 7, 24), DataRow(106L, 1, 3), DataRow(106L, 7, 23),
@@ -51,7 +51,7 @@ public class FuryCalmStockProfileTests
 		Assert.AreEqual(5.0, upper.State.Intensity); Assert.AreEqual(SpellPower.ExtremelyWeak, upper.State.Power);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
 	public void ProfileXml_RoundTripAndImmutableInputs_PreserveAllEditableFields(EmotionalSpellKind kind)
 	{
@@ -67,7 +67,7 @@ public class FuryCalmStockProfileTests
 		Assert.IsTrue(XNode.DeepEquals(profile.SaveToXml(), copy.SaveToXml()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1), DataRow(2), DataRow(3), DataRow(4), DataRow(5), DataRow(6), DataRow(7)]
 	public void CalmDurationAndSave_UseResidualGradeWithoutEnduranceDraw(int grade)
 	{
@@ -92,11 +92,11 @@ public class FuryCalmStockProfileTests
 		var old = new EmotionalRetainedState(7, SpellPower.ExtremelyWeak, 11, 0);
 		var result = Calm().ResolveLifetime(1, 999, SpellPower.ExtremelyStrong, (_, _) => 0, TimeSpan.FromSeconds(23 * 600), old);
 		Assert.AreSame(old, result.State); Assert.AreEqual(TimeSpan.FromSeconds(24 * 600), result.Duration);
-		Assert.ThrowsException<ArgumentException>(() => Calm().ResolveLifetime(7, 999, SpellPower.ExtremelyStrong, (_, _) => 0,
+		Assert.ThrowsExactly<ArgumentException>(() => Calm().ResolveLifetime(7, 999, SpellPower.ExtremelyStrong, (_, _) => 0,
 			TimeSpan.FromSeconds(600), old));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing trait"), DataRow("missing eligibility"), DataRow("zero units"), DataRow("nonfinite intensity"),
 	 DataRow("duplicate terrain"), DataRow("duplicate lifetime"), DataRow("mapped exceptions"), DataRow("unsupported version")]
 	public void FuryProfile_MalformedConfiguration_RefusesWithoutFallback(string scenario)
@@ -113,10 +113,10 @@ public class FuryCalmStockProfileTests
 			case "mapped exceptions": xml.Element("HistoricalExceptions")!.SetAttributeValue("status", "guessed"); break;
 			case "unsupported version": xml.SetAttributeValue("version", 2); break;
 		}
-		Assert.ThrowsException<ArgumentException>(() => EmotionalStockProfile.Read(xml));
+		Assert.ThrowsExactly<ArgumentException>(() => EmotionalStockProfile.Read(xml));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing grade"), DataRow("duplicate grade"), DataRow("invalid difficulty"), DataRow("endurance bonus")]
 	public void CalmProfile_IncompleteOrAmbiguousSave_Refuses(string scenario)
 	{
@@ -125,17 +125,17 @@ public class FuryCalmStockProfileTests
 		if (scenario == "duplicate grade") xml.Element("Saves")!.Add(new XElement(xml.Element("Saves")!.Elements().First()));
 		if (scenario == "invalid difficulty") xml.Element("Saves")!.Elements().First().SetAttributeValue("difficulty", 999);
 		if (scenario == "endurance bonus") xml.Element("Fallback")!.SetAttributeValue("endurance", 1);
-		Assert.ThrowsException<ArgumentException>(() => EmotionalStockProfile.Read(xml));
+		Assert.ThrowsExactly<ArgumentException>(() => EmotionalStockProfile.Read(xml));
 	}
 
 	[TestMethod]
 	public void Profile_WrongKindMissingTerrainAndOverflow_Refuse()
 	{
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonRousedFuryStock.Definition(1, 2, Calm()));
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonStillAngerStock.Definition(1, 2, Fury()));
-		Assert.ThrowsException<ArgumentException>(() => Fury().TerrainRule(0));
-		Assert.ThrowsException<InvalidOperationException>(() => Fury().SaveDifficulty(1));
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonRousedFuryStock.Profile(10, double.MaxValue, 5, 20, new(101, 102, 103, 104, 105, 106, 107)));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonRousedFuryStock.Definition(1, 2, Calm()));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonStillAngerStock.Definition(1, 2, Fury()));
+		Assert.ThrowsExactly<ArgumentException>(() => Fury().TerrainRule(0));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Fury().SaveDifficulty(1));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonRousedFuryStock.Profile(10, double.MaxValue, 5, 20, new(101, 102, 103, 104, 105, 106, 107)));
 	}
 
 	[TestMethod]
@@ -151,9 +151,9 @@ public class FuryCalmStockProfileTests
 		f.World.SetupGet(x => x.Terrains).Returns(MagicCastingFixture.Collection(() => terrains));
 		Fury().ValidateBindings(f.World.Object);
 		trait.SetupGet(x => x.TraitType).Returns(TraitType.DerivedAttribute);
-		Assert.ThrowsException<InvalidOperationException>(() => Fury().ValidateBindings(f.World.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Fury().ValidateBindings(f.World.Object));
 		trait.SetupGet(x => x.TraitType).Returns(TraitType.Attribute);
-		terrains.RemoveAt(0); Assert.ThrowsException<InvalidOperationException>(() => Fury().ValidateBindings(f.World.Object));
+		terrains.RemoveAt(0); Assert.ThrowsExactly<InvalidOperationException>(() => Fury().ValidateBindings(f.World.Object));
 	}
 
 	[TestMethod]

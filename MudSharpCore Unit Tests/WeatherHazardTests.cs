@@ -85,7 +85,7 @@ public class WeatherHazardTests
 		Assert.AreSame(normal, overlay.Atmosphere);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(RoomOutdoorsType.Indoors)]
 	[DataRow(RoomOutdoorsType.IndoorsWithWindows)]
 	[DataRow(RoomOutdoorsType.IndoorsClimateExposed)]
@@ -123,7 +123,7 @@ public class WeatherHazardTests
 		fixture.Actor.Verify(x => x.SufferDamage(It.IsAny<IDamage>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, 0)]
 	[DataRow(0.2, 1)]
 	public void Lightning_GroundSplash_ConfigurableAndExcludesSubmergedTargets(double factor, int count)

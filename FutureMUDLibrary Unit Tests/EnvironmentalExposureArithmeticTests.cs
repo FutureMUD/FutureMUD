@@ -86,11 +86,11 @@ public class EnvironmentalExposureArithmeticTests
 		Assert.AreEqual(2, Resolve(1, 10, 0, 0.3 - 0.1, null).Damage, 1e-12);
 		Assert.AreEqual(10, Enumerable.Range(0, 5).Sum(_ => Resolve(1, 10, 0, 0.2, null).Damage), 1e-12);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN)] [DataRow(double.PositiveInfinity)] [DataRow(-1.0)]
-	public void InvalidRates_AreRejected(double value) => Assert.ThrowsException<ArgumentOutOfRangeException>(() => Resolve(1, value, 1, 1, 1));
+	public void InvalidRates_AreRejected(double value) => Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => Resolve(1, value, 1, 1, 1));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.1, 20.0, 0.0, 5.0, 50.0)]
 	[DataRow(1.0, 8.0, 2.0, 30.0, 50.0)]
 	[DataRow(1.0, 4.0, 4.0, 150.0, 50.0)]

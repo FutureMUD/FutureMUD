@@ -23,7 +23,7 @@ public class RoomReferenceMigrationRunnerTests
 		new(null!, (_, _) => "", command.Connection!, command, null, DbCommandMethod.ExecuteNonQuery,
 			Guid.NewGuid(), Guid.NewGuid(), async, false, DateTimeOffset.UtcNow, source);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("expansion", false)]
 	[DataRow("contraction", true)]
 	[DataRow("repair", false)]
@@ -89,7 +89,7 @@ public class RoomReferenceMigrationRunnerTests
 		Assert.IsTrue(db.Rows["Characters"].Where(x => (long)x["Id"]! != 2).All(x => Equals(x["PositionTargetId"], 8101L)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmapped")]
 	[DataRow("empty")]
 	[DataRow("duplicate")]
@@ -123,7 +123,7 @@ public class RoomReferenceMigrationRunnerTests
 			case "partial naming": db.AddSchema("RoomSpatialContractionLedger", "LegacyRoomId", "RoomId"); break;
 		}
 		using var command = db.Marker("expansion");
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		Assert.AreEqual(0, db.Updates);
 		Assert.AreEqual(0, db.Commits);
 		Assert.AreEqual(1, db.Rollbacks);
@@ -136,7 +136,7 @@ public class RoomReferenceMigrationRunnerTests
 		using var db = new FakeConnection("expansion");
 		db.Rows["Bodies"][0]["EffectData"] = "<Effects><Effect>";
 		using var command = db.Marker("expansion");
-		var error = Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		StringAssert.Contains(error.Message, "Bodies #4.EffectData");
 		Assert.AreEqual(0, db.Updates);
 	}
@@ -146,7 +146,7 @@ public class RoomReferenceMigrationRunnerTests
 	{
 		using var db = new FakeConnection("expansion") { FailUpdate = 2 };
 		using var command = db.Marker("expansion");
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		Assert.AreEqual(1, db.Rollbacks);
 		Assert.AreEqual("Room", db.Rows["Characters"][0]["PositionTargetType"]);
 		db.FailUpdate = 0;
@@ -160,7 +160,7 @@ public class RoomReferenceMigrationRunnerTests
 	{
 		using var db = new FakeConnection("expansion") { ThrowAfterCommit = true };
 		using var command = db.Marker("expansion");
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		Assert.AreEqual("Cell", db.Rows["Characters"][0]["PositionTargetType"]);
 		Assert.AreEqual(8101L, db.Rows["Characters"][0]["PositionTargetId"]);
 		db.ThrowAfterCommit = false;
@@ -175,7 +175,7 @@ public class RoomReferenceMigrationRunnerTests
 		using var db = new FakeConnection("contraction");
 		db.AddSchema("CellRoomContractionLedger", "RoomId", "CellId");
 		using var command = db.Marker("verify");
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		Assert.AreEqual(0, db.Updates);
 		db.RemoveSchema("CellRoomContractionLedger");
 		using var correction = db.Marker("contraction");
@@ -202,9 +202,9 @@ public class RoomReferenceMigrationRunnerTests
 		using var db = new FakeConnection("expansion");
 		using var command = db.Marker("expansion");
 		command.Transaction = new FakeTransaction(db);
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		command.Transaction = null; db.CurrentState = ConnectionState.Closed;
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMigrationInterceptor().NonQueryExecuting(command, Event(command), default));
 		Assert.AreEqual(0, db.Opens);
 	}
 

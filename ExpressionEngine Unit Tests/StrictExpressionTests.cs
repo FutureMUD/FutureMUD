@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class StrictExpressionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0", 0.0)]
 	[DataRow("max(0, amount - 3)", 4.0)]
 	[DataRow("if(amount > 0, amount * 2, 0)", 14.0)]
@@ -24,7 +24,7 @@ public class StrictExpressionTests
 		Assert.AreEqual(string.Empty, error);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unknownfunction(1)")]
 	[DataRow("if(true, 0, unknownfunction(1))")]
 	[DataRow("1 +")]

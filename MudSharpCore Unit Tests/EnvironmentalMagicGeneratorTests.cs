@@ -195,7 +195,7 @@ public class EnvironmentalMagicGeneratorTests
 			.Contains("ECOLOGY"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("nativestock")]
 	[DataRow("nativehealth")]
 	[DataRow("nativeyield")]
@@ -390,7 +390,7 @@ public class EnvironmentalMagicGeneratorTests
 		service.Verify(value => value.BeforeProfileChange(generator), Times.Exactly(commands.Length));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("maximum + 1", "baserate", "rate-only")]
 	[DataRow("balance + 1", "baserate", "rate-only")]
 	[DataRow("basecapacity", "undeclared", "not been declared")]
@@ -411,7 +411,7 @@ public class EnvironmentalMagicGeneratorTests
 		Assert.IsFalse(generator.EvaluateOutput(generator.Outputs[0], new Dictionary<string, double>(), 50.0).IsValid);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("-scardamage", "baserate")]
 	[DataRow("basecapacity / pressure", "baserate")]
 	[DataRow("basecapacity", "sqrt(-scardamage)")]
@@ -546,7 +546,7 @@ public class EnvironmentalMagicGeneratorTests
 		IHaveMagicResource[] holders = { Mock.Of<IRoom>(), Mock.Of<ICharacter>(), Mock.Of<IGameItem>() };
 		foreach (var holder in holders)
 		{
-			var exception = Assert.ThrowsException<InvalidOperationException>(() => generator.GetOnMinuteDelegate(holder));
+			var exception = Assert.ThrowsExactly<InvalidOperationException>(() => generator.GetOnMinuteDelegate(holder));
 			StringAssert.Contains(exception.Message, holder is IRoom ? "centrally coordinated" : "physical rooms only");
 		}
 		var cache = (IDictionary)typeof(BaseMagicResourceGenerator).GetField("_delegates", BindingFlags.Instance | BindingFlags.NonPublic)!

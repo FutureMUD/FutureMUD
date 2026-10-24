@@ -32,7 +32,7 @@ public class RaceLifecycleTests
 		return race;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(3, 10, 20, 30, 61, 81)]
 	[DataRow(3, 12, 24, 35, 71, 94)]
 	[DataRow(3, 22, 44, 66, 135, 179)]

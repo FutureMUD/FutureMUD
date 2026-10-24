@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class StartupScriptGeneratorTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]

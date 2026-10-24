@@ -32,7 +32,7 @@ public class IndustrialisedClothingPhysicalBindingsTests
 		CollectionAssert.AreEqual(new long[] { 51 }, new List<long>(result.ProfileIds));
 		Assert.AreEqual(1.0, result.LayerWeight);
 		Assert.IsFalse(result.Bulky);
-		Assert.ThrowsException<NotSupportedException>(() => ((IList<long>)result.ProfileIds).Add(52));
+		Assert.ThrowsExactly<NotSupportedException>(() => ((IList<long>)result.ProfileIds).Add(52));
 	}
 
 	[TestMethod]
@@ -51,7 +51,7 @@ public class IndustrialisedClothingPhysicalBindingsTests
 		finally { CultureInfo.CurrentCulture = original; }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-holdable", "both Holdable and Wearable")]
 	[DataRow("missing-wearable", "both Holdable and Wearable")]
 	[DataRow("duplicate-logical-id", "multiple revisions")]
@@ -77,7 +77,7 @@ public class IndustrialisedClothingPhysicalBindingsTests
 		Failure(() => IndustrialisedClothingPhysicalBindings.Bind(components, [Profile()], [], Source), diagnostic);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Definition/>", "no Profiles")]
 	[DataRow("<Wrong/>", "Definition XML root")]
 	[DataRow("<Definition>", "Invalid Wearable XML")]
@@ -94,7 +94,7 @@ public class IndustrialisedClothingPhysicalBindingsTests
 		Failure(() => IndustrialisedClothingPhysicalBindings.Bind(components, [Profile()], [], Source), diagnostic);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<LayerWeightConsumption>-1</LayerWeightConsumption>", "negative layer")]
 	[DataRow("<LayerWeightConsumption>NaN</LayerWeightConsumption>", "finite")]
 	[DataRow("<LayerWeightConsumption>Infinity</LayerWeightConsumption>", "finite")]
@@ -120,7 +120,7 @@ public class IndustrialisedClothingPhysicalBindingsTests
 
 	private static void Failure(Action action, string diagnostic)
 	{
-		var exception = Assert.ThrowsException<InvalidDataException>(action);
+		var exception = Assert.ThrowsExactly<InvalidDataException>(action);
 		StringAssert.Contains(exception.Message, Source.ToString());
 		StringAssert.Contains(exception.Message, diagnostic);
 	}

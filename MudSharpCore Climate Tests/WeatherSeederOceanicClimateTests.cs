@@ -845,28 +845,28 @@ public class WeatherSeederClimateTests
 		AssertLightMultiplier(context, PrecipitationLevel.Sleet, null, 0.3);
 	}
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(GetMaritimeAndTropicalClimateExpectations), DynamicDataSourceType.Method)]
     public void WeatherSeeder_MaritimeAndTropicalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
     {
         AssertClimateExpectation(expectation);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(GetWarmTemperateClimateExpectations), DynamicDataSourceType.Method)]
     public void WeatherSeeder_WarmTemperateKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
     {
         AssertClimateExpectation(expectation);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(GetHotAndMonsoonalContinentalClimateExpectations), DynamicDataSourceType.Method)]
     public void WeatherSeeder_HotAndMonsoonalContinentalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
     {
         AssertClimateExpectation(expectation);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(GetSevereContinentalClimateExpectations), DynamicDataSourceType.Method)]
     public void WeatherSeeder_SevereContinentalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
     {

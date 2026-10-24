@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ClothingWearablePersistenceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("en-AU")]
 	[DataRow("fr-FR")]
 	[DataRow("de-DE")]

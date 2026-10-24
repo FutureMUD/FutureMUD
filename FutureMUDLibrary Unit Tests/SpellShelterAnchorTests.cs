@@ -9,7 +9,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellShelterAnchorTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellShelterKind.SpringHaven)]
 	[DataRow(SpellShelterKind.BurrowRefuge)]
 	[DataRow(SpellShelterKind.SandShelter)]
@@ -21,14 +21,14 @@ public class SpellShelterAnchorTests
 		Assert.AreEqual(ordinary, SpellShelterAnchor.Load(ordinary.Save()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Shelter version='2' />")]
 	[DataRow("<Definition><Room>9</Room></Definition>")]
 	[DataRow("<Shelter version='1'><Kind>SandShelter</Kind><AnchorRoom>1</AnchorRoom><AnchorRoom>2</AnchorRoom><FallbackRoom>3</FallbackRoom><MaximumOccupants>1</MaximumOccupants></Shelter>")]
 	[DataRow("<Shelter version='1'><Kind>SandShelter</Kind><AnchorRoom>1</AnchorRoom><FallbackRoom>3</FallbackRoom><MaximumOccupants>1</MaximumOccupants><GuessedRoomId>999</GuessedRoomId></Shelter>")]
 	public void TypedAnchor_RejectsForeignAndAmbiguousSchemas(string definition)
 	{
-		Assert.ThrowsException<FormatException>(() => SpellShelterAnchor.Load(definition));
+		Assert.ThrowsExactly<FormatException>(() => SpellShelterAnchor.Load(definition));
 	}
 
 	[TestMethod]
@@ -39,6 +39,6 @@ public class SpellShelterAnchorTests
 			valid with { MaximumOccupants = 0 }, valid with { MaximumOccupants = 129 },
 			valid with { AnchorRoutePosition = double.NaN }, valid with { AnchorRoutePosition = double.PositiveInfinity },
 			valid with { AnchorRoutePosition = -1 }, valid with { Kind = (SpellShelterKind)99 } })
-			Assert.ThrowsException<ArgumentException>(() => invalid.Save());
+			Assert.ThrowsExactly<ArgumentException>(() => invalid.Save());
 	}
 }

@@ -23,7 +23,7 @@ public class ArmageddonNeedHarmDefinitionTests
 			Assert.AreEqual(fire ? "arm.capability.fire" : "arm.capability.water", contribution.NativeCapabilityKey);
 			Assert.AreEqual("7*grade", contribution.Content.CostRow(1).Expression);
 			Assert.AreEqual("0", contribution.Content.DurationFormula);
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(1, 0, 0));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(1, 0, 0));
 			var definition = contribution.Content.BuildDefinition(1, 2, 0);
 			Assert.AreEqual("character", (string?)definition.Element("Trigger")!.Attribute("type"));
 			var effects = definition.Element("Effects")!.Elements().ToArray();

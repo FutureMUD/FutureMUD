@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NpcAccentSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("nosuchlanguage")]
 	[DataRow("999")]
 	public void BuildingCommandAccent_UnknownLanguage_RejectsWithoutMutation(string language)

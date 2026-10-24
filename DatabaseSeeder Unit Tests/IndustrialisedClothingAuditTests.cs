@@ -126,14 +126,14 @@ public class IndustrialisedClothingAuditTests
 		AssertSourcesUnchanged(before, fixture.SourceBytes());
 		File.AppendAllText(fixture.ClothingAuditPath, "stale\n");
 		var stale = File.ReadAllBytes(fixture.ClothingAuditPath);
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() =>
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() =>
 			IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, true, compiledCatalogue: false)).Message, IndustrialisedClothingAudit.RelativePath);
 		CollectionAssert.AreEqual(stale, File.ReadAllBytes(fixture.ClothingAuditPath));
 		AssertSourcesUnchanged(before, fixture.SourceBytes());
 		IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false);
 		IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, true, compiledCatalogue: false);
 		File.Delete(fixture.ClothingAuditPath);
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, true, compiledCatalogue: false));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, true, compiledCatalogue: false));
 	}
 
 	[TestMethod]
@@ -146,7 +146,7 @@ public class IndustrialisedClothingAuditTests
 		var dependencyAudit = File.ReadAllBytes(fixture.DependencyAuditPath);
 		var path = Path.Combine(fixture.CataloguePath, "Clothing", "craft-phases.tsv");
 		File.WriteAllText(path, File.ReadAllText(path).Replace("$p1", "$p99", StringComparison.Ordinal));
-		var ex = Assert.ThrowsException<InvalidDataException>(() => IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false));
+		var ex = Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false));
 		StringAssert.Contains(ex.Message, "Clothing/craft-phases.tsv:3:");
 		CollectionAssert.AreEqual(itemAudit, File.ReadAllBytes(fixture.ItemAuditPath));
 		CollectionAssert.AreEqual(clothingAudit, File.ReadAllBytes(fixture.ClothingAuditPath));
@@ -159,7 +159,7 @@ public class IndustrialisedClothingAuditTests
 		using var fixture = new AuditDirectory();
 		IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false);
 		File.AppendAllText(fixture.DependencyAuditPath, "stale\n");
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() =>
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() =>
 			IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, true, compiledCatalogue: false)).Message, IndustrialisedClothingDependencyAudit.RelativePath);
 		IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false);
 		IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, true, compiledCatalogue: false);
@@ -167,7 +167,7 @@ public class IndustrialisedClothingAuditTests
 		var before = paths.ToDictionary(x => x, File.ReadAllBytes);
 		var inventory = Path.Combine(fixture.Root, IndustrialisedClothingDependencyAudit.InventoryPath);
 		File.WriteAllText(inventory, File.ReadAllText(inventory).Replace("| button_drawers |", "| unapproved_drawers |", StringComparison.Ordinal));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedCatalogueAudit.RefreshOrCheck(fixture.Root, false, compiledCatalogue: false));
 		foreach (var path in paths) CollectionAssert.AreEqual(before[path], File.ReadAllBytes(path));
 	}
 

@@ -348,7 +348,7 @@ public class NoiseEmissionTests
 		});
 		target.InstallHook(hook.Object);
 
-		Assert.ThrowsException<InvalidOperationException>(() => target.HandleEvent(EventType.NoiseEmitted, target));
+		Assert.ThrowsExactly<InvalidOperationException>(() => target.HandleEvent(EventType.NoiseEmitted, target));
 		target.HandleEvent(EventType.NoiseEmitted, target);
 
 		Assert.AreEqual(2, calls);

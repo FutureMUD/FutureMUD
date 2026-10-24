@@ -56,7 +56,7 @@ public class LiquidProductTests
 		var proto = Proto(10, "a sealed amphora", item.Object, hasLiquidContainerPrototype: false).Object;
 		var product = Product(proto, liquid, volume: 3.0);
 
-		var exception = Assert.ThrowsException<ApplicationException>(() =>
+		var exception = Assert.ThrowsExactly<ApplicationException>(() =>
 			product.ProduceProduct(ActiveCraftComponent().Object, ItemQuality.Standard));
 
 		StringAssert.Contains(exception.Message, "is not a liquid container");
@@ -72,7 +72,7 @@ public class LiquidProductTests
 		var proto = Proto(10, "a sealed amphora", item.Object, hasLiquidContainerPrototype: true).Object;
 		var product = Product(proto, liquid, volume: 3.0);
 
-		var exception = Assert.ThrowsException<ApplicationException>(() =>
+		var exception = Assert.ThrowsExactly<ApplicationException>(() =>
 			product.ProduceProduct(ActiveCraftComponent().Object, ItemQuality.Standard));
 
 		StringAssert.Contains(exception.Message, "only has");

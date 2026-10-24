@@ -81,14 +81,14 @@ public class SpellOwnedNpcRetirementTests
 		Assert.IsFalse(SpellOwnedNpcService.TryCaptureForeignCustody(Body(world, first.Object, second.Object), out _, out _, out _));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1001)]
 	public void Retirement_InvalidBound_RefusesBeforeDatabaseAccess(int limit)
 	{
 		var service = new SpellOwnedNpcService(Mock.Of<IFuturemud>());
-		Assert.ThrowsException<ArgumentException>(() => service.ReconcileRetirements(DateTime.UtcNow, limit));
-		Assert.ThrowsException<ArgumentException>(() => service.ReconcileRetirements(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)));
+		Assert.ThrowsExactly<ArgumentException>(() => service.ReconcileRetirements(DateTime.UtcNow, limit));
+		Assert.ThrowsExactly<ArgumentException>(() => service.ReconcileRetirements(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)));
 	}
 
 	[TestMethod]
@@ -120,8 +120,8 @@ public class SpellOwnedNpcRetirementTests
 		var notifications = 0;
 		item.OnDeleted += _ => { notifications++; throw new InvalidOperationException("partial callback"); };
 		item.OnQuit += _ => Assert.Fail("Failed deletion sent quit.");
-		Assert.AreEqual("partial callback", Assert.ThrowsException<InvalidOperationException>(item.Delete).Message);
-		Assert.AreEqual("Deletion observers failed; native removal remains held.", Assert.ThrowsException<InvalidOperationException>(item.Delete).Message);
+		Assert.AreEqual("partial callback", Assert.ThrowsExactly<InvalidOperationException>(item.Delete).Message);
+		Assert.AreEqual("Deletion observers failed; native removal remains held.", Assert.ThrowsExactly<InvalidOperationException>(item.Delete).Message);
 		Assert.IsFalse(item.Deleted); Assert.AreEqual(1, notifications);
 		Assert.IsNotNull(typeof(PerceivedItem).GetField("OnDeleted", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(item));
 		Assert.IsNotNull(typeof(PerceivedItem).GetField("OnQuit", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(item));
@@ -158,13 +158,13 @@ public class SpellOwnedNpcRetirementTests
 		var item = new GameItem(Mock.Of<IGameItemProto>(x => x.Gameworld == world.Object));
 		var calls = 0; item.OnDeleted += _ => calls++;
 		using (ForeignCustodyTransferContext.Enter(Mock.Of<IBody>(), [item], Mock.Of<MudSharp.Construction.IRoom>()))
-			Assert.ThrowsException<InvalidOperationException>(item.Delete);
+			Assert.ThrowsExactly<InvalidOperationException>(item.Delete);
 		Assert.IsFalse(item.Deleted); Assert.AreEqual(0, calls);
 		world.Verify(x => x.Destroy(item), Times.Never); world.Verify(x => x.SaveManager.Abort(item), Times.Never);
 		Assert.IsNotNull(typeof(PerceivedItem).GetField("OnDeleted", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(item));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -197,7 +197,7 @@ public class SpellOwnedNpcRetirementTests
 			case 5: row.RemainsNotificationCompletedUtc = now.AddSeconds(6); break;
 			case 6: row.Mode = (int)SpellLifecycleMode.Permanent; row.DeadlineUtc = null; break;
 		}
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
 	}
 
 	[TestMethod]

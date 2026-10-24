@@ -38,7 +38,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass, DoNotParallelize]
 public class FiniteArmourTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)] [DataRow(4, 1)] [DataRow(7, 4)]
 	public void ShelteringVeil_OutsideWaterConsumesOneRankedClericalUnit(int grade, int rank)
 	{
@@ -86,13 +86,13 @@ public class FiniteArmourTests
 	{
 		var f = new Fixture("sheltering_veil", true, 4);
 		var parent = new MagicSpellParent(f.Victim.Object, f.Spell, f.F.Actor.Object);
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			f.Spell.SpellEffects.Single().GetOrApplyEffect(f.F.Actor.Object, f.Victim.Object,
 				default, SpellPower.Weak, parent, []));
 		Assert.AreEqual(0, f.ComponentWrites); Assert.IsFalse(f.Effects.Any());
 	}
 
-	[DataTestMethod,
+	[TestMethod,
 	 DataRow("flame_mantle", 1),
 	 DataRow("flame_mantle", 7),
 	 DataRow("sheltering_veil", 1),
@@ -162,14 +162,14 @@ public class FiniteArmourTests
 		Assert.AreSame(incoming, armour.PreviewDamage(incoming), "Exhausted retained references do not refill.");
 		Assert.IsTrue(guard.Calls >= 6);
 	}
-	[DataTestMethod, DataRow(false), DataRow(true)]
+	[TestMethod, DataRow(false), DataRow(true)]
 	public void NativePenetrationCallback_BodyOrGuardDriftCannotSpendBudgetOrCreateWound(bool guardDrift)
 	{
 		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
 		var check = new Mock<ICheck>(); var guard = new CountGuard(); var reached = false; f.F.World.Setup(x => x.GetCheck(CheckType.PenetrationDefenseCheck)).Returns(check.Object);
 		check.Setup(x => x.Check(f.Victim.Object, Difficulty.Normal, (IPerceivable)null!, (IUseTrait)null!, 0.0, TraitUseType.Practical, It.IsAny<(string, object)[]>()))
 			.Callback(() => { reached = true; if (guardDrift) guard.Reject = true; else f.Victim.SetupGet(x => x.Body).Returns(Mock.Of<IBody>()); }).Returns(CheckOutcome.SimpleOutcome(CheckType.PenetrationDefenseCheck, Outcome.Pass));
-		Assert.ThrowsException<InvalidOperationException>(() => f.Body.PassiveSufferDamage(f.Packet(8, guard)).ToArray());
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Body.PassiveSufferDamage(f.Packet(8, guard)).ToArray());
 		Assert.IsTrue(reached, "The actual native ArmourType penetration check ran its callback.");
 		Assert.AreEqual(0, armour.TotalDamageAbsorbed); Assert.IsFalse(f.Body.Wounds.Any());
 	}
@@ -177,7 +177,7 @@ public class FiniteArmourTests
 	public void NativeMutationGuard_StalePacketCannotSpendProtectionOrWound()
 	{
 		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
-		Assert.ThrowsException<InvalidOperationException>(() => f.Body.PassiveSufferDamage(f.Packet(8, new CountGuard { Reject = true })).ToArray());
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Body.PassiveSufferDamage(f.Packet(8, new CountGuard { Reject = true })).ToArray());
 		Assert.AreEqual(0, armour.TotalDamageAbsorbed); Assert.IsFalse(f.Body.Wounds.Any());
 	}
 	[TestMethod]
@@ -201,7 +201,7 @@ public class FiniteArmourTests
 		var wounds = new List<IWound>(); Assert.AreEqual(50, effect.PassiveSufferDamage(f.Packet(100), ref wounds).DamageAmount);
 		Assert.AreEqual(50, effect.PassiveSufferDamage(f.Packet(100), ref wounds).DamageAmount); Assert.AreEqual(100, effect.TotalDamageAbsorbed);
 	}
-	[DataTestMethod, DataRow(true), DataRow(false)]
+	[TestMethod, DataRow(true), DataRow(false)]
 	public void NativeCompleteMitigation_NullPacketsStillSpendAndClampFiniteCapacity(bool dissipate)
 	{
 		var f = new Fixture(); f.Cast(1); var effect = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
@@ -227,7 +227,7 @@ public class FiniteArmourTests
 		Assert.AreSame(damage, effect.PassiveSufferDamage(damage, ref wounds)); Assert.AreEqual(0, effect.TotalDamageAbsorbed);
 	}
 
-	[DataTestMethod,
+	[TestMethod,
 	 DataRow("flame_mantle"),
 	 DataRow("sheltering_veil"),
 	 DataRow("unyielding_veil"),
@@ -256,7 +256,7 @@ public class FiniteArmourTests
 		Assert.AreEqual(9L, (long)definition.Element("Effects")!.Elements().First().Element("ArmourMaterial")!);
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true)]
+	[TestMethod, DataRow(false), DataRow(true)]
 	public void NativePenetrationCallback_RemovedChildOrParentCannotAttenuateOrSpend(bool removeParent)
 	{
 		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
@@ -286,14 +286,14 @@ public class FiniteArmourTests
 		Assert.IsTrue(f.Victim.Object.EffectsChanged, "Character.Save writes retained children only when this native dirty flag is set.");
 		Assert.AreEqual(4.0, (double)parent.SaveToXml([]).Descendants("TotalDamageAbsorbed").Single());
 	}
-	[DataTestMethod, DataRow("-5", false), DataRow("NaN", false), DataRow("Infinity", false),
+	[TestMethod, DataRow("-5", false), DataRow("NaN", false), DataRow("Infinity", false),
 	 DataRow("-5", true), DataRow("NaN", true), DataRow("Infinity", true)]
 	public void ColdMalformedFiniteState_IsRejectedBeforeDamageOrNativeRoll(string spent, bool maximum)
 	{
 		var f = new Fixture(); f.Cast(1); var saved = f.Effects.OfType<MagicSpellParent>().Single().SaveToXml([]);
 		saved.Descendants(maximum ? "MaximumDamageAbsorbed" : "TotalDamageAbsorbed").Single().Value = spent;
 		MagicSpellParent.InitialiseEffectType(); SpellArmourProtectionEffect.InitialiseEffectType();
-		Assert.ThrowsException<InvalidOperationException>(() => Effect.LoadEffect(saved, f.Victim.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Effect.LoadEffect(saved, f.Victim.Object));
 		Assert.IsFalse(f.Body.Wounds.Any());
 		f.F.Check.Verify(x => x.Check(f.Victim.Object, Difficulty.Normal, (IPerceivable)null!, (IUseTrait)null!, 0.0, TraitUseType.Practical, It.IsAny<(string, object)[]>()), Times.Never);
 	}
@@ -308,13 +308,13 @@ public class FiniteArmourTests
 		Assert.AreEqual(15, ((SpellArmourProtectionEffect)parent.SpellEffects.Single()).TotalDamageAbsorbed);
 	}
 
-	[DataTestMethod, DataRow(-5.0), DataRow(double.NaN), DataRow(double.PositiveInfinity)]
+	[TestMethod, DataRow(-5.0), DataRow(double.NaN), DataRow(double.PositiveInfinity)]
 	public void RuntimeMalformedSpent_IsRejectedBeforeNativeRollOrDirtyFlag(double spent)
 	{
 		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
 		typeof(SpellArmourProtectionEffect).GetProperty(nameof(SpellArmourProtectionEffect.TotalDamageAbsorbed))!.SetValue(armour, spent);
 		f.Victim.Object.EffectsChanged = false;
-		Assert.ThrowsException<InvalidOperationException>(() => f.Hit(8));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Hit(8));
 		Assert.IsFalse(f.Body.Wounds.Any()); Assert.IsFalse(f.Victim.Object.EffectsChanged);
 		f.F.Check.Verify(x => x.Check(f.Victim.Object, Difficulty.Normal, (IPerceivable)null!, (IUseTrait)null!, 0.0, TraitUseType.Practical, It.IsAny<(string, object)[]>()), Times.Never);
 	}

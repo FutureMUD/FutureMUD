@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class IndustrialisedClothingReuseTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("builder-name", "already uses")]
 	[DataRow("wrong-owner-id", "ownership conflict")]
 	[DataRow("duplicate-marker", "Multiple outfit templates")]
@@ -50,16 +50,16 @@ public partial class IndustrialisedClothingReuseTests
 		context.ChangeTracker.Clear();
 		var before = OutfitOwnershipState(context);
 		var seeder = new ItemSeeder(catalogue);
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/outfits.tsv:3");
 		StringAssert.Contains(error.Message, diagnostic);
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(before, OutfitOwnershipState(context));
 		Assert.AreEqual(0, seeder.GetCapturedManifestEntriesForTesting().Count);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("exact-unmanaged")]
 	[DataRow("custom-name")]
 	[DataRow("custom-description")]
@@ -119,7 +119,7 @@ public partial class IndustrialisedClothingReuseTests
 			Outfits = original.Clothing.Outfits.Select(x => x with { Name = "Same prospective name" }).ToArray()
 		} };
 		var before = OutfitOwnershipState(context);
-		var error = Assert.ThrowsException<InvalidDataException>(() => new ItemSeeder(catalogue).ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => new ItemSeeder(catalogue).ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "already uses");
 		Assert.AreEqual(0, context.GameItemProtos.Count());
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
@@ -156,7 +156,7 @@ public partial class IndustrialisedClothingReuseTests
 		}
 		var method = typeof(ItemSeeder).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
 			.Single(x => x.Name == "UpsertOutfitManifests" && x.GetParameters().Length == 1);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(seeder, [specs]));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(seeder, [specs]));
 		StringAssert.Contains(error.InnerException!.Message, "Unmanaged outfit conflict");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(before, OutfitOwnershipState(context));

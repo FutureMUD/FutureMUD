@@ -178,6 +178,6 @@ public class RegionalGatheringTests
 		Assert.AreEqual(3.0, parsed.Contribution(5));
 		Assert.AreEqual(5.0, parsed.Contribution(2));
 		Assert.AreEqual(0.0, parsed.Contribution(3));
-		Assert.ThrowsException<FormatException>(() => RegionalGatheringProfile.Parse(1, "Bad", 1, "<RegionalGathering version='2' contribution='3' recovery='.1'/>"));
+		Assert.ThrowsExactly<FormatException>(() => RegionalGatheringProfile.Parse(1, "Bad", 1, "<RegionalGathering version='2' contribution='3' recovery='.1'/>"));
 	}
 }

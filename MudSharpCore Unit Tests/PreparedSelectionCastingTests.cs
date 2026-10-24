@@ -56,7 +56,7 @@ public class PreparedSelectionCastingTests
     [TestCleanup]
     public void RemoveFactory() => ((IDictionary<string, Func<XElement, IMagicSpell, IMagicSpellEffectTemplate>>)
         typeof(SpellEffectFactory).GetField("_loadTimeFactories", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!).Remove("preparedselectiontest");
-    [DataTestMethod, DataRow("success"), DataRow("drift"), DataRow("partial")]
+    [TestMethod, DataRow("success"), DataRow("drift"), DataRow("partial")]
     public void FullCast_ReusesFirstChoiceAcrossBothPreparations_AndPreservesPaidUncertainty(string scenario)
     {
         var state = new State { PartialFailure = scenario == "partial" };
@@ -82,7 +82,7 @@ public class PreparedSelectionCastingTests
             Assert.AreEqual(95.0, f.Balances[f.Resources[1]]); Assert.AreEqual(1, state.Mutations);
         }
     }
-    [DataTestMethod, DataRow("count"), DataRow("side"), DataRow("type"), DataRow("configuration"), DataRow("index")]
+    [TestMethod, DataRow("count"), DataRow("side"), DataRow("type"), DataRow("configuration"), DataRow("index")]
     public void SelectionPairing_RefusesChangedEffectStructure(string change)
     {
         var f = new MagicCastingFixture();
@@ -99,7 +99,7 @@ public class PreparedSelectionCastingTests
             effects.Add(sourceEffects[1].Clone()); effects.Reverse();
         }
         var method = typeof(MagicCastingService).GetMethod("ReusePreparedSelections", BindingFlags.Static | BindingFlags.NonPublic)!;
-        var error = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(null, [fresh, original, f.Actor.Object, new[] { f.Actor.Object }.Cast<IPerceivable>()]));
+        var error = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(null, [fresh, original, f.Actor.Object, new[] { f.Actor.Object }.Cast<IPerceivable>()]));
         Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
     }
 }

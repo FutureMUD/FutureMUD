@@ -24,17 +24,17 @@ public class ArmageddonWardBaneContentTests
 		Assert.AreEqual("2", (string?)XElement.Parse(refuge.Save()).Attribute("version"));
 		Assert.AreEqual(refuge.Save(), SpellShelterAnchor.Load(refuge.Save()).Save());
 		var downgrade = XElement.Parse(refuge.Save()); downgrade.SetAttributeValue("version", 1);
-		Assert.ThrowsException<FormatException>(() => SpellShelterAnchor.Load(downgrade.ToString()));
-		Assert.ThrowsException<ArgumentException>(() => (refuge with { Ward = null }).Save());
-		Assert.ThrowsException<ArgumentException>(() => (legacy with { Ward = refuge.Ward }).Save());
+		Assert.ThrowsExactly<FormatException>(() => SpellShelterAnchor.Load(downgrade.ToString()));
+		Assert.ThrowsExactly<ArgumentException>(() => (refuge with { Ward = null }).Save());
+		Assert.ThrowsExactly<ArgumentException>(() => (legacy with { Ward = refuge.Ward }).Save());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Ward version='1'><Coverage>Both</Coverage><IncludesSubschools>true</IncludesSubschools><Room>99</Room></Ward>")]
 	[DataRow("<Ward version='1'><Coverage>Both</Coverage><Coverage>Both</Coverage><IncludesSubschools>true</IncludesSubschools><School>1</School></Ward>")]
 	[DataRow("<Ward version='2' />")]
 	public void WardRejectsUnknownAndAmbiguousSchemas(string xml) =>
-		Assert.ThrowsException<FormatException>(() => SpellShelterWardConfiguration.Load(XElement.Parse(xml)));
+		Assert.ThrowsExactly<FormatException>(() => SpellShelterWardConfiguration.Load(XElement.Parse(xml)));
 
 	[TestMethod]
 	public void WardRejectsEmptyDuplicateOrInvalidSelectors()
@@ -43,7 +43,7 @@ public class ArmageddonWardBaneContentTests
 			new([0], [], MagicInterdictionCoverage.Both), new([1, 1], [], MagicInterdictionCoverage.Both),
 			new([], ["fire", "FIRE"], MagicInterdictionCoverage.Both), new([], [" "], MagicInterdictionCoverage.Both),
 			new([1], [], (MagicInterdictionCoverage)99) })
-			Assert.ThrowsException<ArgumentException>(() => ward.Save());
+			Assert.ThrowsExactly<ArgumentException>(() => ward.Save());
 	}
 
 	[TestMethod]
@@ -60,9 +60,9 @@ public class ArmageddonWardBaneContentTests
 		Assert.AreEqual(ArmageddonBaneContent.Key, definition.Element("StockIdentity")!.Value);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, 1.0)][DataRow(-1.0, 1.0)][DataRow(double.NaN, 1.0)]
 	[DataRow(double.PositiveInfinity, 1.0)][DataRow(1.0, 0.0)][DataRow(1.0, double.PositiveInfinity)]
 	public void BaneRejectsUnboundedOrNonPositiveDamage(double amount, double maximum) =>
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonBaneContent.Create(1, Difficulty.Normal, amount, maximum, DamageType.Arcane));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonBaneContent.Create(1, Difficulty.Normal, amount, maximum, DamageType.Arcane));
 }

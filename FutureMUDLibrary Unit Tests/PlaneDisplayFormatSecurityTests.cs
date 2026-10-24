@@ -9,7 +9,7 @@ namespace FutureMUDLibrary_UnitTests;
 [TestClass]
 public class PlaneDisplayFormatSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Astral Plane {0}", "Astral Plane Room")]
 	[DataRow("{{{0}}}", "{Room}")]
 	[DataRow("{0} {0,-8}", "Room Room    ")]
@@ -19,7 +19,7 @@ public class PlaneDisplayFormatSecurityTests
 		Assert.AreEqual(expected, result);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{0}{0,9999999}")]
 	[DataRow("{0}{0,-9999999}")]
 	[DataRow("{0}{0,2147483648}")]

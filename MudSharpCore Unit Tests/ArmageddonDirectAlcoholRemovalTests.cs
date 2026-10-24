@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public partial class ArmageddonDirectAlcoholRemovalTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0.1, 0.09)]
 	[DataRow(7, 0.1, 0.03)]
 	[DataRow(7, 0.005, 0.0)]
@@ -43,7 +43,7 @@ public partial class ArmageddonDirectAlcoholRemovalTests
 		Assert.AreEqual(expected, restored.AlcoholLitres, 1e-12);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ExactAlcohol_NonPersistingModelsDoNotPretendMutation(bool passive)
@@ -91,7 +91,7 @@ public partial class ArmageddonDirectAlcoholRemovalTests
 			if (needs.AlcoholLitres < 0.1) f.Actor.Object.OutputHandler.Send("native status callback");
 			return 5.0;
 		});
-		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object,
 			OpposedOutcomeDegree.None, SpellPower.ExtremelyStrong, null!, []));
 		Assert.AreEqual(0.03, needs.AlcoholLitres, 1e-12);
 		Assert.IsTrue(f.Actor.Object.Changed);
@@ -102,7 +102,7 @@ public partial class ArmageddonDirectAlcoholRemovalTests
 		Assert.AreEqual(0.03, needs.AlcoholLitres, 1e-12, "An uncertain old-body write must not be replayed.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("NaN", "0", "0")]
 	[DataRow("0.01", "0", "0")]
 	[DataRow("-0.01", "1", "0")]

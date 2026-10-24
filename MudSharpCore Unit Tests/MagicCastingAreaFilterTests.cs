@@ -7,7 +7,7 @@ namespace MudSharp_Unit_Tests;
 public partial class MagicCastingAreaTests
 {
 	private delegate bool TargetPolicyExecutor(out object result,object[] arguments);
-	[DataTestMethod][DataRow("compile")][DataRow("null")][DataRow("failed")][DataRow("missing")]
+	[TestMethod][DataRow("compile")][DataRow("null")][DataRow("failed")][DataRow("missing")]
 	public void AreaTargetPolicy_InvalidationRefusesWithoutPaymentOrDamage(string failure)
 	{
 		var a=new AreaFixture();a.Target();var prog=CastingTargetFilterTests.Policy(72,failure);

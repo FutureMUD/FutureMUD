@@ -40,23 +40,23 @@ public class ArmageddonNativeReserveContentTests
 			}
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 5.0)]
 	[DataRow(7, 35.0)]
 	public void ExternalGrade_Boundaries_ProduceFiniteApprovedBudgets(int grade, double expected) =>
 		Assert.AreEqual(expected, ArmageddonNativeReserveSpellContent.AmountForGrade(grade));
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(8)]
 	[DataRow(int.MaxValue)]
 	public void ExternalGrade_InvalidIndices_RejectInsteadOfInventingPower(int grade) =>
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.AmountForGrade(grade));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.AmountForGrade(grade));
 	[TestMethod]
 	public void NativeBindings_MissingOrUnresolvedIds_RejectBeforeProducingDefinitions()
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.Create(new(0)));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.EmptyAura(-1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.SecondBreath().Content.BuildDefinition(0, 11, 0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.StealBreath().Content.BuildDefinition(10, 0, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.Create(new(0)));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.EmptyAura(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.SecondBreath().Content.BuildDefinition(0, 11, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonNativeReserveSpellContent.StealBreath().Content.BuildDefinition(10, 0, 0));
 	}
 }

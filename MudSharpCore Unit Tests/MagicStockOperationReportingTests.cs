@@ -38,7 +38,7 @@ public class MagicStockOperationReportingTests
 		factories.Remove("reportingtestprepared");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(MagicEffectOperationStatus.Applied, 3)]
 	[DataRow(MagicEffectOperationStatus.NoChange, 2)]
 	[DataRow(MagicEffectOperationStatus.Rejected, 2)]
@@ -84,7 +84,7 @@ public class MagicStockOperationReportingTests
 		f.Acquire(); return f;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(8.0, 3.0, MagicEffectOperationStatus.Applied)]
 	[DataRow(0.0, 3.0, MagicEffectOperationStatus.NoChange)]
 	[DataRow(8.0, 0.0, MagicEffectOperationStatus.NoChange)]
@@ -112,7 +112,7 @@ public class MagicStockOperationReportingTests
 		Assert.AreEqual(MagicEffectOperationStatus.Rejected, effect.Apply(f.Actor.Object, Mock.Of<IPerceivable>(), default, default, parent, []).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, MagicEffectOperationStatus.NoChange)]
 	[DataRow(true, MagicEffectOperationStatus.Applied)]
 	public void Dispel_OnlyActualMatchedRemovalReportsApplied(bool removes, MagicEffectOperationStatus expected)
@@ -131,7 +131,7 @@ public class MagicStockOperationReportingTests
 		Assert.AreEqual(MagicEffectOperationStatus.Rejected, effect.Apply(f.Actor.Object, null, default, default, null!, []).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, false, MagicEffectOperationStatus.NoChange)]
 	[DataRow(1, false, MagicEffectOperationStatus.Unknown)]
 	[DataRow(1, true, MagicEffectOperationStatus.Unknown)]
@@ -148,7 +148,7 @@ public class MagicStockOperationReportingTests
 		Assert.AreEqual(expected, effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, MagicEffectOperationStatus.NoChange)]
 	[DataRow(true, MagicEffectOperationStatus.Applied)]
 	public void PreparedContainerFill_ReportsOnlyVolumeActuallyMerged(bool merges, MagicEffectOperationStatus expected)
@@ -167,7 +167,7 @@ public class MagicStockOperationReportingTests
 		var application = (IMagicSpellEffectApplicationOperation)Activator.CreateInstance(applicationType, effect, f.Actor.Object, target.Object, 6.0, liquid)!;
 		Assert.AreEqual(expected, application.Apply(null!).Status); Assert.AreEqual(merges ? 6 : 0, mixture?.TotalVolume ?? 0);
 		container.SetupGet(x => x.IsOpen).Returns(false);
-		Assert.ThrowsException<InvalidOperationException>(() => application.Apply(null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application.Apply(null!));
 	}
 
 	[TestMethod]
@@ -184,7 +184,7 @@ public class MagicStockOperationReportingTests
 		owned.Verify(x => x.Create(prototype, f.Actor.Object, ItemQuality.Standard, It.IsAny<SpellLifecycleOrigin>()), Times.Once);
 		target.Verify(x => x.Insert(item.Object, true), Times.Once);
 		owned.Setup(x => x.Create(prototype, f.Actor.Object, ItemQuality.Standard, It.IsAny<SpellLifecycleOrigin>())).Throws(new InvalidOperationException("creation failed"));
-		Assert.ThrowsException<InvalidOperationException>(() => Application([Guid.NewGuid()]).Apply(null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Application([Guid.NewGuid()]).Apply(null!));
 	}
 
 	private sealed class PreparedTemplate(IMagicSpell spell, MagicEffectOperationStatus status, bool throws) : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission

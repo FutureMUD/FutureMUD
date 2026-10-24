@@ -42,7 +42,7 @@ public class KindleItemEnchantmentTests
 		foreach (var row in rows) for (var grade = 1; grade <= 7; grade++) yield return [row.Name, grade, row.Values[grade-1]];
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(SourceBonuses), DynamicDataSourceType.Method)]
 	public void SelectedSourceBonus_AllGradesFreezeAndReloadExactly_ZeroBonusesRefuse(string choice, int grade, int expected)
 	{
@@ -70,7 +70,7 @@ public class KindleItemEnchantmentTests
 		Assert.IsTrue(XNode.DeepEquals(baseline, spell.SpellEffects.Single().SaveToXml()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("casting", 1)] [DataRow("strength", 1)] [DataRow("mana-missing", 7)]
 	public void UnsupportedOrZeroChoice_RefusesBeforePaymentRollOrEffect(string choice, int grade)
 	{
@@ -104,7 +104,7 @@ public class KindleItemEnchantmentTests
 		Assert.AreEqual(0.0, EquippedItemBonuses.BonusFor(f.Actor.Object, EquippedItemBonusKind.Trait, 91), "Stale external inventory membership cannot give another holder a bonus.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(typeof(SimpleLivingHealthStrategy))] [DataRow(typeof(ComplexLivingHealthStrategy))]
 	[DataRow(typeof(RobotHealthStrategy))] [DataRow(typeof(ConstructHealthStrategy))]
 	[DataRow(typeof(BrainConstructHealthStrategy))] [DataRow(typeof(BrainHitpointsStrategy))]
@@ -129,7 +129,7 @@ public class KindleItemEnchantmentTests
 		if (type == typeof(ConstructHealthStrategy)) Assert.AreEqual(HealthTickResult.Dead, strategy.EvaluateStatus(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void MagicCapacity_UsesSamePrimaryHolderForBothApis_AndNeverRefillsBalances(bool attributeCapacity)
 	{

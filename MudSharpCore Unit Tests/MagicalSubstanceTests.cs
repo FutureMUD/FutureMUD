@@ -163,7 +163,7 @@ public class MagicalSubstanceTests
 		MagicalExposure.Liquid(f.Actor.Object, mix.Clone(), DrugVector.Ingested);
 		Assert.AreEqual(10, f.Stamina, 1e-9);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SubstanceStacking.Aggregate)]
 	[DataRow(SubstanceStacking.Strongest)]
 	public void RepeatedSurfacePortions_BoundLotsAndContributions_AndScanSurfaceOncePerTick(SubstanceStacking stacking)
@@ -391,7 +391,7 @@ public class MagicalSubstanceTests
 		parent.SetRemaining(TimeSpan.Zero);
 		Assert.IsFalse(f.Effects.OfType<SubstanceExposureEffect>().Any());
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SubstanceStacking.Aggregate, 4.0, 1)]
 	[DataRow(SubstanceStacking.Replace, 3.0, 1)]
 	[DataRow(SubstanceStacking.Strongest, 3.0, 1)]
@@ -452,7 +452,7 @@ public class MagicalSubstanceTests
 		item.Verify(x => x.Delete(), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("heal")]
 	[DataRow("mend")]
 	[Timeout(3000)]
@@ -491,7 +491,7 @@ public class MagicalSubstanceTests
 		Assert.AreEqual(0, f.Stamina);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DamageDose_ScalesIndependentChannelsAndPreservesLegacyDefaults(bool independent)
@@ -512,7 +512,7 @@ public class MagicalSubstanceTests
 		Assert.AreEqual("10", f.Spell.SpellEffects.Single().SaveToXml().Element("DamageExpression")!.Value);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("PainExpression")]
 	[DataRow("StunExpression")]
 	public void DamageReadiness_RejectsCasterDependentIndependentChannels(string field)
@@ -532,7 +532,7 @@ public class MagicalSubstanceTests
 			new SubstanceResolutionContext(item, f.Substance.Object, 1), new MagicSpellParent(item, f.Spell, null!), 1));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SubstanceStacking.Strongest, SubstanceScaling.Duration)]
 	[DataRow(SubstanceStacking.Replace, SubstanceScaling.Duration)]
 	[DataRow(SubstanceStacking.Aggregate, SubstanceScaling.Magnitude)]

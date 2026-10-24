@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NetworkWorkflowTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public async Task AttemptCommand_FailureClosesOnlyOffendingConnectionEvenIfLoggingFails(bool loggingFails)
@@ -333,7 +333,7 @@ public class NetworkWorkflowTests
 		server.Bind(new List<IPlayerConnection>(), _ => { });
 		await server.StartAsync();
 
-		await Assert.ThrowsExceptionAsync<ApplicationException>(async () => await server.StartAsync());
+		await Assert.ThrowsExactlyAsync<ApplicationException>(async () => await server.StartAsync());
 		await server.StopAsync();
 		await server.StopAsync();
 

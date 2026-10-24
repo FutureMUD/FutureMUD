@@ -79,7 +79,7 @@ public class VirtualCashLedgerCompatibilityTests
 		Assert.AreEqual("legacy reference", entry.Reference);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(5)]
 	public void Debit_InsufficientBankFunds_RejectsBeforeMutation(int virtualBalance)

@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ZeroGravityTetherSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)]
 	[DataRow(false, true)]
 	public void MissingSavedAnchorOrTether_IsRejectedAndSafeToInspect(bool missingAnchor, bool missingTether)
@@ -41,7 +41,7 @@ public class ZeroGravityTetherSecurityTests
 		Assert.IsNotNull(effect.SaveToXml(new Dictionary<IEffect, System.TimeSpan>()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DeletingLiveAnchorOrTether_RemovesEffectAndReleasesHandlers(bool deleteTether)

@@ -196,7 +196,7 @@ public class StructuredNoisePropagationTests
 		var fixture = new NoiseGraphFixture();
 		var origin = fixture.Room();
 
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => fixture.Subject.Find(
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => fixture.Subject.Find(
 			fixture.Location(origin),
 			1.0,
 			(AudioPropagationMode)99));

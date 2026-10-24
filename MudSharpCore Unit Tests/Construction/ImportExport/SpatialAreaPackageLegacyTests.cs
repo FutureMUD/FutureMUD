@@ -15,7 +15,7 @@ public class SpatialAreaPackageLegacyTests
 	private static string Fixture(int version) => File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
 		"Construction", "ImportExport", "Fixtures", $"legacy-v{version}.json"));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, "12d3e8316ac244409021aaba2ee0eeb170026420f502ea8847eccb935bd686eb")]
 	[DataRow(2, "bff02a1deec8d987a339f5481dffc8d5ff79a79ca5993576eecf30162ec0f082")]
 	[DataRow(3, "7443b506d3cc331bae679142eb05833827f38fab376bf94d67265ca761429293")]
@@ -42,7 +42,7 @@ public class SpatialAreaPackageLegacyTests
 		Assert.IsTrue(SpatialAreaPackageSerializer.Deserialize(currentJson).Success);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)]
 	public void FrozenPriorBinaryPackage_TamperingFailsOriginalChecksum(int version)
 	{

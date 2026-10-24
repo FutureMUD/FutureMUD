@@ -139,7 +139,7 @@ public class EnvironmentalMagicModelTests
 		using var context = CreateContext();
 		var operationId = Guid.NewGuid();
 		context.EnvironmentalMagicOperations.Add(new EnvironmentalMagicOperation { Id = operationId, RoomId = 1 });
-		Assert.ThrowsException<InvalidOperationException>(() => context.EnvironmentalMagicOperations.Add(
+		Assert.ThrowsExactly<InvalidOperationException>(() => context.EnvironmentalMagicOperations.Add(
 			new EnvironmentalMagicOperation { Id = operationId, RoomId = 2 }));
 	}
 }

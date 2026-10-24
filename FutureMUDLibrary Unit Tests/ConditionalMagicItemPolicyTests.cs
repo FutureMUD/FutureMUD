@@ -62,7 +62,7 @@ public class ConditionalMagicItemPolicyTests
 		Assert.AreEqual(40, new ItemConsequence(HealthFraction: 1, DestroyItem: true).HealthLoss(40, 100), 0.00001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(8, 1, 1, 0, 11)]
 	[DataRow(18, 50, 50, 0, 18)]
 	[DataRow(18, 90, 90, 3, 14)]

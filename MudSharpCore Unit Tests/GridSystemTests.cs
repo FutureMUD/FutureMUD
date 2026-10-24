@@ -128,7 +128,7 @@ public class GridSystemTests
 	private static XElement SaveFaxDefinition(FaxMachineGameItemComponent fax) => XElement.Parse((string)typeof(FaxMachineGameItemComponent)
 		.GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fax, null)!);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("full")]
 	[DataRow("protected")]
 	[DataRow("removed")]
@@ -171,7 +171,7 @@ public class GridSystemTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("segments", 10, 2)]
 	[DataRow("characters", 10, 2)]
 	[DataRow("characters", 21, 0)]
@@ -1235,7 +1235,7 @@ public class GridSystemTests
         Assert.IsFalse(component.SwitchedOn);
         Assert.AreEqual(5, component.AutoAnswerRings);
         Assert.IsNotNull(component.Medium);
-        Assert.AreEqual(tape.Item.Object, component.Contents.Single());
+        Assert.AreSame(tape.Item.Object, component.Contents.Single());
     }
 
 	[TestMethod]
@@ -1549,7 +1549,7 @@ public class GridSystemTests
         call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
     }
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unlinked")]
 	[DataRow("unpowered")]
 	[DataRow("noaudio")]

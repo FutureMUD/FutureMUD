@@ -8,7 +8,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BodyFormLifecyclePolicyTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false, false, false, 0)]
 	[DataRow(false, true, false, false, 2)]
 	[DataRow(false, false, true, false, 3)]
@@ -34,7 +34,7 @@ public class BodyFormLifecyclePolicyTests
 
 		Assert.AreEqual(BodyFormDeletionBlocker.CurrentForm, blocker);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
 	public void ShouldAttachApparentAge_DoesNotDuplicatePersistentMetadata(bool alreadyAttached, bool expected)
@@ -42,7 +42,7 @@ public class BodyFormLifecyclePolicyTests
 		Assert.AreEqual(expected, BodyFormLifecyclePolicy.ShouldAttachApparentAge(alreadyAttached));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(180.0, 170.0, 160.0, 180.0)]
 	[DataRow(double.NaN, 170.0, 160.0, 170.0)]
 	[DataRow(0.0, double.PositiveInfinity, 160.0, 160.0)]

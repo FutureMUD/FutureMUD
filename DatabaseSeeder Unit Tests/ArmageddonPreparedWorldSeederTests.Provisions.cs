@@ -61,7 +61,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.CharactersMagicResources.Count());
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("sorcerer", ArmageddonReviewedProvisionContent.SustainMealKey)]
 	[DataRow("preserver", ArmageddonReviewedProvisionContent.SustainMealKey)]
 	[DataRow("defiler", ArmageddonReviewedProvisionContent.SustainMealKey)]
@@ -87,7 +87,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			}
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonInstallCheckpoint.ContentCreated)]
 	[DataRow(ArmageddonInstallCheckpoint.BeforeCommit)]
 	public void ProvisionInterruptionPreservesCompletePolicyAndResumes(ArmageddonInstallCheckpoint boundary)

@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [DoNotParallelize]
 public class DefinitionEditorTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Standard")]
 	[DataRow("OGL")]
 	[DataRow("Timebound")]
@@ -95,7 +95,7 @@ public class DefinitionEditorTests
 		Assert.AreEqual((int)checkType, row.Type);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("SimpleNumeric")]
 	[DataRow("CurrentMax")]
 	[DataRow("Percentage")]
@@ -115,7 +115,7 @@ public class DefinitionEditorTests
 		Assert.AreEqual("Copy", DecoratorBase.GetDecorator(rows[1], false).Name);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Suffix")]
 	[DataRow("Pile")]
 	[DataRow("Bites")]

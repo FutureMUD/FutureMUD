@@ -30,7 +30,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)] [DataRow(2, 0)] [DataRow(3, 1)] [DataRow(4, 2)]
 	[DataRow(5, 3)] [DataRow(6, 4)] [DataRow(7, 5)]
 	public void ExchangePlaces_StockPaidCastSwapsExactlyTwoBodiesAndLayersWithRankedMaterials(int grade, int rank)
@@ -47,7 +47,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(MagicCastingStatus.Refused, retry.Status); Assert.AreEqual(before, f.Moves);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("contact")] [DataRow("indoors")] [DataRow("staff")] [DataRow("restrictedSource")]
 	[DataRow("restrictedDestination")] [DataRow("populated")] [DataRow("samePosition")]
 	[DataRow("mounted")] [DataRow("retained")] [DataRow("consumed")] [DataRow("plane")]
@@ -74,7 +74,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(0, f.Moves); Assert.IsNull(result.OperationId);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("target")] [DataRow("contact")] [DataRow("component")]
 	public void ExchangePlaces_FinalAdmissionRejectsFrozenInputChangesBeforePayment(string change)
 	{
@@ -140,7 +140,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(2, f.AlterationQuantity);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("open")] [DataRow("closed")] [DataRow("foreign")] [DataRow("room")]
 	[DataRow("moved")] [DataRow("closing")] [DataRow("consumedPouch")]
 	public void ExchangePlaces_RetainedComponentRequiresExactAccessibleCarriedPouch(string condition)
@@ -197,7 +197,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(67.0, f.F.Balances[f.F.Resources[1]]); Assert.AreEqual(2, f.AlterationQuantity);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("outdoors")] [DataRow("roomtag")]
 	public void ExchangePlaces_WardCallbackCannotChangeAnAlreadyCheckedRoomPolicyBeforePayment(string change)
 	{

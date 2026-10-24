@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PlanetFromMoonTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(CurrentPositionRegressionCases), DynamicDataSourceType.Method)]
     public void CurrentPosition_RegressionMatchesExpectedValues(
         string date,

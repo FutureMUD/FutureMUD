@@ -239,7 +239,7 @@ public class CelestialSeederTests
         SeedPrerequisites(context);
         CelestialSeeder seeder = new();
 
-        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        InvalidOperationException exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             seeder.SeedData(context, BuildAnswers(installMoon: true)));
 
         StringAssert.Contains(exception.Message, "requires a matching Earth-facing Sun");

@@ -29,7 +29,7 @@ public class WaterBreathingAdapterTests
 	private const string Group = "armageddon.water_breathing";
 	private const string Definition = "<Effect type='sourcewaterbreathing'><WaterScope version='1'><Liquid id='51'/></WaterScope><LifetimePolicy version='1' mode='accumulate' group='armageddon.water_breathing' unitSeconds='600' maximumUnits='36' retainStrongestGrade='true'/></Effect>";
 
-	[DataTestMethod, DataRow(1, 0, 600), DataRow(1, 3, 1800), DataRow(7, 3, 1800), DataRow(7, 21, 12600)]
+	[TestMethod, DataRow(1, 0, 600), DataRow(1, 3, 1800), DataRow(7, 3, 1800), DataRow(7, 21, 12600)]
 	public void PaidCasts_SelectSourceDurationOnceAcrossAllPreparations(int grade, int draw, int seconds)
 	{
 		using var f = new Fixture(); using var random = Constants.PushRandom(f.Random); f.Random.Value = draw;
@@ -113,7 +113,7 @@ public class WaterBreathingAdapterTests
 		Assert.AreEqual(65.0, f.F.Balances[f.F.Resources[1]]); Assert.IsTrue(f.Applied(result));
 	}
 
-	[DataTestMethod, DataRow("BeforePayment"), DataRow("Committed")]
+	[TestMethod, DataRow("BeforePayment"), DataRow("Committed")]
 	public void CallbackCohortDrift_RefusesBeforeDebitOrQuarantinesPaidUncertainty(string stage)
 	{
 		using var f = new Fixture(); using var random = Constants.PushRandom(f.Random); var old = f.Seed(3000, 4, SpellPower.Weak);
@@ -132,11 +132,11 @@ public class WaterBreathingAdapterTests
 		using var f = new Fixture(); using var random = Constants.PushRandom(f.Random); var old = f.Seed(3000, 4, SpellPower.Weak);
 		var copy = f.Copy(1); copy.EffectDurationExpression = new CallbackExpression(f.F.World.Object,
 			() => f.Scheduler.Reschedule(old, TimeSpan.FromSeconds(3600)));
-		Assert.ThrowsException<InvalidOperationException>(() => copy.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.ExtremelyWeak));
+		Assert.ThrowsExactly<InvalidOperationException>(() => copy.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.ExtremelyWeak));
 		Assert.AreSame(old, f.Parent); Assert.AreEqual(1, f.Random.Draws); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
 	}
 
-	[DataTestMethod, DataRow("missing"), DataRow("unavailable"), DataRow("scope"), DataRow("permanent"), DataRow("mixed"), DataRow("formula"), DataRow("childprog")]
+	[TestMethod, DataRow("missing"), DataRow("unavailable"), DataRow("scope"), DataRow("permanent"), DataRow("mixed"), DataRow("formula"), DataRow("childprog")]
 	public void InvalidConfigurationOrCohort_RefusesBeforePayment(string scenario)
 	{
 		using var f = new Fixture(); using var random = Constants.PushRandom(f.Random);

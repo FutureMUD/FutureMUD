@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests.CharacterCreation;
 [TestClass]
 public class RerollableCharacteristicPickerScreenTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("")]
 	[DataRow("lock ")]
 	[DataRow("basiclock ")]
@@ -102,7 +102,7 @@ public class RerollableCharacteristicPickerScreenTests
 		Assert.AreNotEqual(ChargenScreenState.Complete, fixture.Screen.State);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SimplePicker_NullRandomValueOrMissingProfile_DisplaysNotSelected(bool missingProfile)

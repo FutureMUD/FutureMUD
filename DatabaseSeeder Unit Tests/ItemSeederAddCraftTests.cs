@@ -530,7 +530,7 @@ public class ItemSeederAddCraftTests
 		Assert.AreEqual("501", XElement.Parse(craft.CraftProducts.Single().Definition).Element("Skin")!.Value);
 		Assert.IsNull(context.GameItemSkins.Single().Quality);
 		var before = context.Crafts.Count();
-		Assert.ThrowsException<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(context, "missing skin", "Tailoring", BasicPhases(), BasicInputs(), BasicTools(),
+		Assert.ThrowsExactly<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(context, "missing skin", "Tailoring", BasicPhases(), BasicInputs(), BasicTools(),
 			["SimpleVariableProduct - 1x @coat; skin @absent; fixedvariable Colour=red"], []));
 		Assert.AreEqual(before, context.Crafts.Count());
 	}
@@ -545,7 +545,7 @@ public class ItemSeederAddCraftTests
 	{
 		using var context = BuildContext();
 		SeedPrerequisites(context);
-		Assert.ThrowsException<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(context,
+		Assert.ThrowsExactly<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(context,
 			"test invalid mixed colour craft", "Testing", BasicPhases(), BasicInputs(), BasicTools(),
 			[$"SimpleVariableProduct - 1x a variable test product (#103); {options}"], []));
 		Assert.AreEqual(0, context.Crafts.Local.Count);
@@ -989,7 +989,7 @@ public class ItemSeederAddCraftTests
 		using FuturemudDatabaseContext context = BuildContext();
 		SeedPrerequisites(context);
 
-		var exception = Assert.ThrowsException<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(
+		var exception = Assert.ThrowsExactly<ApplicationException>(() => new ItemSeeder().AddCraftFromImportsForTesting(
 			context,
 			"test invalid craft",
 			"Testing",

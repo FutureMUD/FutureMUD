@@ -132,12 +132,12 @@ public class AuthoredCelestialWorldTests
 		Assert.AreEqual(0L, MudInstant.FromMudDateTime(ctx.Calendar.StartOfCalendarDay(ctx.Calendar.GetDate("1/jan/2010"))).Ticks);
 		var otherClock = new Mock<IClock>(); otherClock.SetupGet(x => x.Id).Returns(9);
 		((All<IClock>)ctx.Gameworld.Clocks).Add(otherClock.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => ctx.Calendar.ClockID = 9);
+		Assert.ThrowsExactly<InvalidOperationException>(() => ctx.Calendar.ClockID = 9);
 		Assert.AreEqual(1L, ctx.Calendar.ClockID); Assert.AreSame(ctx.Clock, ctx.Calendar.FeedClock);
 		var unavailable = new Mock<ICalendar>(); unavailable.SetupGet(x => x.Id).Returns(99); unavailable.SetupGet(x => x.FeedClock).Returns(ctx.Clock);
 		unavailable.SetupGet(x => x.CurrentInstant).Returns(MudInstant.Never); ((All<ICalendar>)ctx.Gameworld.Calendars).Add(unavailable.Object);
 		var invalid = c.Compiled.CopyDefinition(); invalid.CalendarId = 99; var original = c.Compiled.Serialize(); var state = c.LiveState;
-		Assert.ThrowsException<ArgumentException>(() => c.Activate(invalid));
+		Assert.ThrowsExactly<ArgumentException>(() => c.Activate(invalid));
 		Assert.AreEqual(original, c.Compiled.Serialize()); Assert.AreEqual(state, c.LiveState);
 		ctx.Calendar.SetDate("1/jan/2100"); Assert.AreEqual(c.EvaluateAt(ctx.Calendar.CurrentInstant), c.LiveState);
 		ctx.Calendar.SetDate("1/jan/2000"); Assert.AreEqual(c.EvaluateAt(ctx.Calendar.CurrentInstant), c.LiveState);

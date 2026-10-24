@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class LiverClearanceMeritTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1.0, true, 0.2)]
 	[DataRow(0.25, true, 0.05)]
 	[DataRow(0.0, true, 0.0)]

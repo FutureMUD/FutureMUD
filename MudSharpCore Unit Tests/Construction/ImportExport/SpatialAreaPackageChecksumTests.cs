@@ -44,7 +44,7 @@ public class SpatialAreaPackageChecksumTests
 		return node.ToJsonString(new JsonSerializerOptions { WriteIndented = true, NewLine = unixChecksum ? "\r\n" : "\n" });
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, false)] [DataRow(1, true)]
 	[DataRow(2, false)] [DataRow(2, true)]
 	[DataRow(3, false)] [DataRow(3, true)]
@@ -62,7 +62,7 @@ public class SpatialAreaPackageChecksumTests
 		Assert.AreEqual(Description, result.Package.Rooms[0].Overlay.RoomDescription);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, false)] [DataRow(1, true)]
 	[DataRow(2, false)] [DataRow(2, true)]
 	[DataRow(3, false)] [DataRow(3, true)]

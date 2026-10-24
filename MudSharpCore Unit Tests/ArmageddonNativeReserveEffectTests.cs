@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonNativeReserveEffectTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(5.0, 40.0, 100.0, 45.0)]
 	[DataRow(35.0, 40.0, 100.0, 75.0)]
 	[DataRow(35.0, 90.0, 100.0, 100.0)]
@@ -112,7 +112,7 @@ public class ArmageddonNativeReserveEffectTests
 		var effect = Stamina(f, -35);
 		effect.CapturePreparedSelection(f.Actor.Object, f.Actor.Object);
 		saves.Setup(x => x.Add(body)).Callback(() => f.Actor.SetupGet(x => x.Body).Returns(f.Body.Object));
-		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []));
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []));
 		Assert.AreEqual(5.0, body.CurrentStamina);
 		Assert.IsTrue(body.StaminaChanged); Assert.IsTrue(body.Changed); Assert.IsTrue(f.Actor.Object.Changed);
 		Assert.AreEqual(MagicEffectOperationStatus.Rejected, effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []).Status);
@@ -131,7 +131,7 @@ public class ArmageddonNativeReserveEffectTests
 			nativeQueue.Add(body);
 		});
 		var effect = Stamina(f, -35);
-		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []));
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []));
 		Assert.AreEqual(5.0, body.CurrentStamina, "The uncertain native write is retained for staff reconciliation.");
 		Assert.AreEqual(35.0, (double)Raw(body, "_staminaSpentInCurrentPeriod")!, "Repairing dirty state must not replay the signed delta.");
 		Assert.IsTrue(body.StaminaChanged, "The native save must still include its changed stamina field.");
@@ -140,7 +140,7 @@ public class ArmageddonNativeReserveEffectTests
 		Assert.AreEqual(2, registrations, "The native dirty-flag setter retries the lost registration exactly once.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 40.0, 35.0)]
 	[DataRow(7, 40.0, 5.0)]
 	[DataRow(7, 3.0, 0.0)]
@@ -213,7 +213,7 @@ public class ArmageddonNativeReserveEffectTests
 		var effect = Reserve(f, -35);
 		effect.CapturePreparedSelection(f.Actor.Object, character);
 		saves.Setup(x => x.Add(character)).Callback(() => f.Resources.RemoveAll(x => x.Id == 11));
-		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, character, default, default, null!, []));
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.Apply(f.Actor.Object, character, default, default, null!, []));
 		Assert.AreEqual(5.0, balances[effect.Resource!]); Assert.IsTrue(character.ResourcesChanged);
 		Assert.AreEqual(80.0, balances[f.Resources.Single(x => x.Id == 12)]);
 		Assert.AreEqual(MagicEffectOperationStatus.Rejected, effect.Apply(f.Actor.Object, character, default, default, null!, []).Status);
@@ -239,7 +239,7 @@ public class ArmageddonNativeReserveEffectTests
 		Assert.AreEqual(5.0, balances[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("NaN")]
 	[DataRow("1e309")]
 	[DataRow("0/0")]

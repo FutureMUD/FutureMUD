@@ -132,7 +132,7 @@ public sealed class EndpointSecurityIntegrationTests
 		Assert.AreEqual(HttpStatusCode.RequestEntityTooLarge, response.StatusCode);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("/downloads/!/latest/win-x64")]
 	[DataRow("/downloads/INVALID/latest/win-x64")]
 	[DataRow("/downloads/!/1.2.3/file.zip")]

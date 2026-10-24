@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitAccentTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("classical", "antiquity", true)]
 	[DataRow("liturgical", "antiquity", false)]
 	[DataRow("liturgical", "darkages", true)]
@@ -76,7 +76,7 @@ public class CultureToolkitAccentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SyntheticLearnerSupportsLanguageOnlyFullAndRepeatedLanguageOnlyOrdering(bool repairStockFalse)

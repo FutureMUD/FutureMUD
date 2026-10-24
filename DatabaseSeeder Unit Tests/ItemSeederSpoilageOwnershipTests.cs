@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederSpoilageOwnershipTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Spoilage_FirstFlushBindsGeneratedIdentity(bool autoDetect)
@@ -49,7 +49,7 @@ public class ItemSeederSpoilageOwnershipTests
 		Assert.AreEqual(1, context.CommoditySpoilageRules.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("customized")]
 	[DataRow("missing")]
 	[DataRow("competing-owner")]
@@ -76,7 +76,7 @@ public class ItemSeederSpoilageOwnershipTests
 		context.SaveChanges();
 		var priorId = record.LogicalId;
 		var priorCount = context.CommoditySpoilageRules.Count();
-		Assert.ThrowsException<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueSpoilageForTesting(context));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueSpoilageForTesting(context));
 		Assert.AreEqual(priorId, record.LogicalId);
 		Assert.AreEqual(priorCount, context.CommoditySpoilageRules.Count());
 		Assert.IsFalse(context.CommoditySpoilageRules.Local.Any(x => context.Entry(x).State == Microsoft.EntityFrameworkCore.EntityState.Added));
@@ -89,7 +89,7 @@ public class ItemSeederSpoilageOwnershipTests
 		using var context = ItemSeederUnifiedCatalogueTests.Fixture();
 		var rule = new CommoditySpoilageRule { Name = "Fixture spoilage", Description = "Builder's pending rule" };
 		context.CommoditySpoilageRules.Add(rule);
-		Assert.ThrowsException<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueSpoilageForTesting(context));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueSpoilageForTesting(context));
 		Assert.AreEqual("Builder's pending rule", rule.Description);
 		Assert.AreEqual(0, context.SeederManagedRecords.Local.Count);
 	}
@@ -107,7 +107,7 @@ public class ItemSeederSpoilageOwnershipTests
 		Assert.AreEqual("Builder's renamed rule", rule.Name);
 		context.CommoditySpoilageRules.Add(new CommoditySpoilageRule { Name = "Fixture spoilage", Description = "A conflicting target" });
 		context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueSpoilageForTesting(context));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueSpoilageForTesting(context));
 		Assert.AreEqual(2, context.CommoditySpoilageRules.Count());
 		Assert.AreEqual("Builder's renamed rule", rule.Name);
 	}

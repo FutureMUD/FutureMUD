@@ -85,7 +85,7 @@ public class ArmageddonInstallationSettingsTests
 		return () => new FuturemudDatabaseContext(options);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -113,9 +113,9 @@ public class ArmageddonInstallationSettingsTests
 	{
 		using var db = Fixture();
 		ArmageddonInstallation.Prepare(Factory(db), ArmageddonProgressionMode.Simple);
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), ArmageddonProgressionMode.Classic));
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), capacityAttribute: 123));
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), nativeOverrides: new Dictionary<ArmageddonNativeBinding, long> { [ArmageddonNativeBinding.Wood] = 2 }));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), ArmageddonProgressionMode.Classic));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), capacityAttribute: 123));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), nativeOverrides: new Dictionary<ArmageddonNativeBinding, long> { [ArmageddonNativeBinding.Wood] = 2 }));
 		Assert.AreEqual(1, db.SeederManagedRecords.Count()); Assert.AreEqual(4, db.SeederChoices.Count());
 	}
 
@@ -125,7 +125,7 @@ public class ArmageddonInstallationSettingsTests
 		using var db = Fixture();
 		db.ChargenScreenStoryboards.Single().StageDefinition = "<Screen><RoleTypes><RoleType Type=\"Class\" CanSelectNone=\"true\" /></RoleTypes></Screen>";
 		db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
 		Assert.AreEqual(0, db.SeederManagedRecords.Count()); Assert.AreEqual(1, db.SeederChoices.Count());
 	}
 
@@ -134,11 +134,11 @@ public class ArmageddonInstallationSettingsTests
 	{
 		using var db = Fixture();
 		db.SeederChoices.Add(new SeederChoice { Seeder = "__shared__", Choice = "use-classes", Answer = "no" }); db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
 		Assert.AreEqual(0, db.SeederManagedRecords.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unit")][DataRow("prog")][DataRow("body")][DataRow("check")][DataRow("names")][DataRow("cultureprog")]
 	public void MissingOrIncompatibleTypedFoundation_StopsBeforeSettings(string failure)
 	{
@@ -153,7 +153,7 @@ public class ArmageddonInstallationSettingsTests
 			case "cultureprog": db.FutureProgs.Single(x => x.Id == 9000).ReturnType = (long)ProgVariableTypes.Boolean; db.FutureProgs.Single(x => x.Id == 9000).FunctionText = "return true"; break;
 		}
 		db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
 		Assert.AreEqual(0, db.SeederManagedRecords.Count()); Assert.AreEqual(1, db.SeederChoices.Count());
 	}
 
@@ -163,13 +163,13 @@ public class ArmageddonInstallationSettingsTests
 		using var db = Fixture();
 		db.Materials.Add(new Material { Id = 3, Name = "wood", BehaviourType = (int)MaterialBehaviourType.Wood, Density = 800 }); db.SaveChanges();
 		Assert.AreEqual(0L, ArmageddonInstallation.ResolveNativeBindings(db)[ArmageddonNativeBinding.Wood]);
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
 		ArmageddonInstallation.Prepare(Factory(db), nativeOverrides: new Dictionary<ArmageddonNativeBinding, long> { [ArmageddonNativeBinding.Wood] = 3 });
 		db.Materials.Single(x => x.Id == 3).Name = "Builder renamed"; db.SaveChanges();
 		Assert.AreEqual(3L, ArmageddonInstallation.Prepare(Factory(db)).NativeBindings[ArmageddonNativeBinding.Wood]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")][DataRow("corrupt")][DataRow("retired")][DataRow("mirror")][DataRow("competition")][DataRow("duplicate")]
 	public void DamagedOwnershipOrMirrors_FailClosed(string failure)
 	{
@@ -185,17 +185,17 @@ public class ArmageddonInstallationSettingsTests
 			case "duplicate": db.SeederChoices.Add(new SeederChoice { Seeder = "__shared__", Choice = ArmageddonInstallation.ModeAnswerKey, Answer = "Classic" }); break;
 		}
 		db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Read(db));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Read(db));
 	}
 
 	[TestMethod]
 	public void FailureBeforeSave_WritesNothing_LostAcknowledgementPreservesFixedDirection()
 	{
 		using var db = Fixture();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), checkpoint: c =>
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), checkpoint: c =>
 		{ if (c == ArmageddonInstallCheckpoint.ContentCreated) throw new InvalidOperationException("before save"); }));
 		Assert.AreEqual(0, db.SeederManagedRecords.Count()); Assert.AreEqual(1, db.SeederChoices.Count());
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), ArmageddonProgressionMode.Simple, checkpoint: c =>
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db), ArmageddonProgressionMode.Simple, checkpoint: c =>
 		{ if (c == ArmageddonInstallCheckpoint.AfterCommit) throw new InvalidOperationException("lost acknowledgement"); }));
 		using var fresh = Factory(db)();
 		Assert.AreEqual(ArmageddonProgressionMode.Simple, ArmageddonInstallation.Read(fresh)!.Mode);
@@ -216,7 +216,7 @@ public class ArmageddonInstallationSettingsTests
 		Assert.AreEqual("builder baseline", db.SeederManagedRecords.Single(x => x.LogicalId == 9).AppliedFingerprint);
 		Assert.AreEqual("Builder renamed", db.MagicSchools.Single().Name);
 		db.MagicSchools.RemoveRange(db.MagicSchools); db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(Factory(db)));
 	}
 
 	[TestMethod]
@@ -263,9 +263,9 @@ public class ArmageddonInstallationSettingsTests
 		Assert.IsTrue(ArmageddonStockManifest.Validate(cross.ToJsonString()).Count > 0);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{\"Wood\":1,\"wood\":2}")][DataRow("{\"Characters\":1}")][DataRow("{\"Wood\":0}")][DataRow("{\"8\":1}")]
-	public void NativeOverrides_OnlyKnownUniquePositiveFields(string json) => Assert.ThrowsException<FormatException>(() => ArmageddonInstallation.ParseOverrides(json));
+	public void NativeOverrides_OnlyKnownUniquePositiveFields(string json) => Assert.ThrowsExactly<FormatException>(() => ArmageddonInstallation.ParseOverrides(json));
 
 	[TestMethod]
 	public void NativeQuestionValidator_RejectsWrongTypedExplicitBinding()

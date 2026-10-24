@@ -84,7 +84,7 @@ public class EmotionalCombatHooksTests
 		finally { recovery.SetValue(null, previous); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RangedWrapper_AdmissionRefusalPreservesAimAndCostUnlessAnEarlierShotCommitted(bool earlierShotCommitted)
@@ -145,7 +145,7 @@ public class EmotionalCombatHooksTests
 		Assert.AreEqual(3, seen.Count); Assert.AreEqual(3, seen.Select(x => x.OperationIdentity).Distinct().Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("before-target-aba")]
 	[DataRow("before-combat-aba")]
 	[DataRow("during-target-aba")]
@@ -204,7 +204,7 @@ public class EmotionalCombatHooksTests
 		Assert.IsTrue(f.A.Effects.Any(x => ReferenceEquals(x, probe)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("target")]
 	[DataRow("combat")]
 	[DataRow("new-incoming")]
@@ -219,7 +219,7 @@ public class EmotionalCombatHooksTests
 		Assert.AreSame(f.Combat, f.B.Combat); Assert.AreEqual(0, callbacks);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("leave-event")]
 	[DataRow("aim-release")]
 	[DataRow("effect-removal")]
@@ -279,7 +279,7 @@ public class EmotionalCombatHooksTests
 	{
 		var f = new Fixture(); var ticket = f.Combat.PrepareCessation(f.B, f.A, f.Combat)!;
 		f.B.OnLeaveCombat += _ => throw new InvalidOperationException("observer");
-		Assert.ThrowsException<InvalidOperationException>(() => f.Combat.CeaseCombatFor(ticket));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Combat.CeaseCombatFor(ticket));
 		Assert.IsNull(f.B.Combat); Assert.IsFalse(f.Combat.Combatants.Any(x => ReferenceEquals(x, f.B)));
 		Assert.AreEqual(TimeSpan.MinValue, f.Scheduler.RemainingDuration(f.B, ScheduleType.Combat)); Assert.IsFalse(ticket.IsCurrent);
 	}
@@ -290,7 +290,7 @@ public class EmotionalCombatHooksTests
 		var f = new Fixture(); var oldAim = new Mock<IAimInformation>(); f.B.Aim = oldAim.Object;
 		f.B.AddEffect(new RemovalProbe(f.B, () => throw new InvalidOperationException("effect removal")));
 		var ticket = f.Combat.PrepareCessation(f.B, f.A, f.Combat)!;
-		Assert.ThrowsException<InvalidOperationException>(() => f.Combat.CeaseCombatFor(ticket));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Combat.CeaseCombatFor(ticket));
 		oldAim.Verify(x => x.ReleaseEvents(), Times.Once); Assert.IsNull(f.B.Aim); Assert.IsNull(f.B.Combat); Assert.IsFalse(ticket.IsCurrent);
 	}
 

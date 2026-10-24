@@ -32,7 +32,7 @@ public class ArmageddonRetainedUtilityContentTests
 {
 	private static ArmageddonRetainedUtilityBindings Bindings => new(9, 10, 11);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void AllDefinitions_GradeLifetimeCostAndFactoryRoundTripAreExact(int grade)
@@ -55,7 +55,7 @@ public class ArmageddonRetainedUtilityContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, SpellPower.ExtremelyStrong)]
 	[DataRow(7, SpellPower.ExtremelyWeak)]
 	public void Trail_NativeTrackingHookAndColdChildUseSelectedGrade(int grade, SpellPower power)
@@ -79,7 +79,7 @@ public class ArmageddonRetainedUtilityContentTests
 			f.Traits[0], grade, power, Difficulty.Normal).SpellEffects.Single()).VisualTrackIntensityMultiplier);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void ReflectionCandidate_NativeLoopFenceExistsButCandidateIsExcludedFromCanonicalBatch(int grade)
@@ -105,7 +105,7 @@ public class ArmageddonRetainedUtilityContentTests
 			"The native second-reflection fence converts another ward to rejection, preventing loops.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void Identify_RecipientRetainedPermissionAndBlankInformationColdReload(int grade)
@@ -125,7 +125,7 @@ public class ArmageddonRetainedUtilityContentTests
 		Assert.AreEqual(child.CasterInstanceId, loaded.CasterInstanceId);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void Echo_ActualLanguageOutputUsesAuthorisedSpeakerAndNeverDispatchesCommands(int grade)
@@ -180,10 +180,10 @@ public class ArmageddonRetainedUtilityContentTests
 	[TestMethod]
 	public void Bindings_RejectMissingTypedDependenciesAndTrailInfinityBeforePayment()
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.CreateReflectionCandidate(0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.Create(Bindings with { IdentifyTextProgId = 0 }));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.Create(Bindings with { ReciteLinkProgId = -1 }));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.Create(Bindings with { DeadSpeakLinkProgId = 0 }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.CreateReflectionCandidate(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.Create(Bindings with { IdentifyTextProgId = 0 }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.Create(Bindings with { ReciteLinkProgId = -1 }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonRetainedUtilityContent.Create(Bindings with { DeadSpeakLinkProgId = 0 }));
 		var f = new MagicCastingFixture(); f.Acquire(); var content = ArmageddonRetainedUtilityContent.Create(Bindings)[0].Content;
 		var row = Load(f, content).SnapshotModel(); var xml = XElement.Parse(row.Definition);
 		xml.Element("ControlledPower")!.Element("ScalarBindings")!.Elements().Single().Value = "1/0";

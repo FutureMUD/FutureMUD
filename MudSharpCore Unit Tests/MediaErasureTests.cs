@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 public class MediaErasureTests
 {
 	// 0: physical digital command; 1: implant internal storage; 2: implant selected drive.
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, "notes.txt")]
 	[DataRow(0, "NOTES.TXT")]
 	[DataRow(1, "notes.txt")]
@@ -39,7 +39,7 @@ public class MediaErasureTests
 		fixture.AssertRejectedWithoutChanges(name);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -52,7 +52,7 @@ public class MediaErasureTests
 		fixture.AssertRejectedWithoutChanges("CLIP");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, "clip")]
 	[DataRow(1, "clip")]
 	[DataRow(2, "clip")]
@@ -73,7 +73,7 @@ public class MediaErasureTests
 		fixture.AssertRejectedWithoutChanges(name);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, "audio.wav", "AUDIO.WAV", 1L)]
 	[DataRow(1, "audio.wav", "AUDIO.WAV", 1L)]
 	[DataRow(2, "audio.wav", "AUDIO.WAV", 1L)]

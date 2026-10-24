@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class QueuedCommandAuthorityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unload", "throw")]
 	[DataRow("unload", "foreign")]
 	[DataRow("unload", "recovery-throw")]

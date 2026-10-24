@@ -68,12 +68,12 @@ public class ForeignCustodySaveJournalTests
 		row.GameItemsMagicResources.Add(new() { GameItemId = row.Id, MagicResourceId = f.Resource.Id, Amount = 80 });
 		Assert.IsTrue(f.Item.UseResource(f.Resource, 13));
 		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [f.Item], Mock.Of<IRoom>());
-		Assert.ThrowsException<InvalidOperationException>(() => f.Item.SaveMagic(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Item.SaveMagic(row));
 		Assert.AreEqual(80, row.GameItemsMagicResources.Single().Amount);
 		Assert.IsTrue(f.Item.ResourcesChanged);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NeedsSave_Rollback_RestoresConsumedCounterAndPreservesLaterPendingProgress(bool laterPending)
@@ -99,9 +99,9 @@ public class ForeignCustodySaveJournalTests
 		var saves = new SaveManager(); var sentinel = new Mock<ISaveable>(); var initialiser = new Mock<ILateInitialisingItem>();
 		saves.Add(sentinel.Object); saves.AddInitialisation(initialiser.Object);
 		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [], Mock.Of<IRoom>());
-		Assert.ThrowsException<InvalidOperationException>(saves.Flush);
-		Assert.ThrowsException<InvalidOperationException>(() => saves.DirectInitialise(initialiser.Object));
-		Assert.ThrowsException<InvalidOperationException>(() => saves.FlushLazyLoad(TimeSpan.FromSeconds(1)));
+		Assert.ThrowsExactly<InvalidOperationException>(saves.Flush);
+		Assert.ThrowsExactly<InvalidOperationException>(() => saves.DirectInitialise(initialiser.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => saves.FlushLazyLoad(TimeSpan.FromSeconds(1)));
 		Assert.IsFalse(saves.Flushing); Assert.IsTrue(saves.IsQueued(sentinel.Object)); Assert.IsTrue(saves.IsQueued(initialiser.Object));
 		sentinel.Verify(x => x.Save(), Times.Never); initialiser.Verify(x => x.InitialiseItem(), Times.Never);
 	}

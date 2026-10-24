@@ -92,10 +92,10 @@ public class S4ExistingFactoryContentTests
 	{
 		var items = Items(); var content = ArmageddonSandKnifeStock.Content(items); items[7] = 999;
 		Assert.AreEqual(107L, (long)content.BuildDefinition(31, 32, 0).Descendants("Output").Single(x => (int)x.Attribute("grade")! == 7).Element("Prototype")!);
-		items.Remove(1); Assert.ThrowsException<ArgumentException>(() => ArmageddonSandKnifeStock.Content(items));
-		items = Items(); items[7] = items[1]; Assert.ThrowsException<ArgumentException>(() => ArmageddonStormSpearStock.Content(items));
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonRaiseServitorStock.Content(new(1, 2, 2)));
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonProjectionStock.WalkingShadowContent(0));
+		items.Remove(1); Assert.ThrowsExactly<ArgumentException>(() => ArmageddonSandKnifeStock.Content(items));
+		items = Items(); items[7] = items[1]; Assert.ThrowsExactly<ArgumentException>(() => ArmageddonStormSpearStock.Content(items));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonRaiseServitorStock.Content(new(1, 2, 2)));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonProjectionStock.WalkingShadowContent(0));
 	}
 	[TestMethod]
 	public void NativeFactoryEffects_SaveAndClone_RetainCanonicalDefinitionsAndTypedReferences()

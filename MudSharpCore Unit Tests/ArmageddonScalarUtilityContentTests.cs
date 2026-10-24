@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonScalarUtilityContentTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, SpellPower.ExtremelyStrong)]
 	[DataRow(7, SpellPower.ExtremelyWeak)]
 	[DataRow(3, SpellPower.VeryStrong)]
@@ -74,7 +74,7 @@ public class ArmageddonScalarUtilityContentTests
 		Assert.AreEqual(-0.5,((RoomTemperatureEffect)copy.SpellEffects.Last()).TemperatureDeltaPerPower);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0,"1/0")] [DataRow(1,"sqrt(-1)")]
 	public void CoolingShade_InvalidScalarEvaluationRefusesBeforePayment(int index,string formula)
 	{

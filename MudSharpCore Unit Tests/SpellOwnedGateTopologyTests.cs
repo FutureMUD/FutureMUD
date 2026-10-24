@@ -54,7 +54,7 @@ public class SpellOwnedGateTopologyTests
 		var creation = new SpellOwnedCreation(context, 42);
 		creation.StageGateTopology(new Room { Temporary = true }, new RoomOverlay(),
 			new Room { Temporary = true }, new RoomOverlay(), 100, 101, 200, 201);
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			creation.StageShelterTopology(new Room { Temporary = true }, new RoomOverlay(), 100, 101, "shelter"));
 	}
 
@@ -82,7 +82,7 @@ public class SpellOwnedGateTopologyTests
 		creation.DebitMarkedRoomUse(51, 91, identity, 81, 200, 3);
 		creation.ValidateBeforeSave();
 		Assert.AreEqual(2, (int)XElement.Parse(item.EffectData).Descendants("RemainingUses").Single());
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			creation.DebitMarkedRoomUse(51, 91, identity, 81, 200, 3));
 		Assert.AreEqual(2, (int)XElement.Parse(item.EffectData).Descendants("RemainingUses").Single());
 	}
@@ -98,7 +98,7 @@ public class SpellOwnedGateTopologyTests
 		var creation = new SpellOwnedCreation(context, 42);
 		creation.StageGateTopology(new Room { Temporary = true }, new RoomOverlay(),
 			new Room { Temporary = true }, new RoomOverlay(), 100, 101, 200, 201);
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			creation.DebitMarkedRoomUse(51, 91, identity, 81, 200, 1));
 		Assert.AreEqual(1, (int)XElement.Parse(item.EffectData).Descendants("RemainingUses").Single());
 	}
@@ -119,7 +119,7 @@ public class SpellOwnedGateTopologyTests
 		creation.DebitMarkedRoomUse(51, 91, identity, 81, 200, 1);
 		creation.ValidateBeforeSave();
 		Assert.AreEqual(0, XElement.Parse(item.EffectData).Elements("Effect").Count());
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			creation.DebitMarkedRoomUse(51, 91, identity, 81, 200, 1));
 	}
 }

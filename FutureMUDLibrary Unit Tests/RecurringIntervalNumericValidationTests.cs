@@ -9,7 +9,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class RecurringIntervalNumericValidationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("every 2147483648 days")]
 	[DataRow("every 2147483648 months on day 15")]
 	[DataRow("every 2147483648 months on last day")]
@@ -28,7 +28,7 @@ public class RecurringIntervalNumericValidationTests
 		AssertRejected(text);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("every {0} days")]
 	[DataRow("every {0} months on day 15")]
 	[DataRow("every {0} months on last weekday 0")]
@@ -51,7 +51,7 @@ public class RecurringIntervalNumericValidationTests
 		Assert.AreEqual(1, interval.IntervalAmount);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("every 2147483647 days", IntervalType.Daily, int.MaxValue, 0, OrdinalFallbackMode.ExactOnly)]
 	[DataRow("every 2147483647 months on day 15", IntervalType.OrdinalDayOfMonth, int.MaxValue, 15, OrdinalFallbackMode.ExactOnly)]
 	[DataRow("every 2147483647 months on last day", IntervalType.OrdinalDayOfMonth, int.MaxValue, -1, OrdinalFallbackMode.ExactOnly)]
@@ -85,7 +85,7 @@ public class RecurringIntervalNumericValidationTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("every 0 days")]
 	[DataRow("every 0 months on day 15")]
 	[DataRow("every 0 months on last weekday 0")]
@@ -99,7 +99,7 @@ public class RecurringIntervalNumericValidationTests
 		AssertRejected(text);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("every 2147483648 days")]
 	[DataRow("every month on day 2147483648")]
 	[DataRow("every month on the 2147483648th weekday 0")]
@@ -109,7 +109,7 @@ public class RecurringIntervalNumericValidationTests
 		Assert.IsNull(interval);
 		Assert.IsFalse(RecurringInterval.TryParse(text, null, out interval));
 		Assert.IsNull(interval);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => RecurringInterval.Parse(text));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => RecurringInterval.Parse(text));
 	}
 
 	private static void AssertRejected(string text)

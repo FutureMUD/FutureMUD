@@ -133,16 +133,16 @@ public class VancianCapabilityTests
 		var xml = XElement.Parse(model.Definition); xml.Descendants("Rule").Single().Value = Guid.NewGuid().ToString(); model.Definition = xml.ToString();
 		Assert.IsTrue(new VancianMagicCapability(model,f.World.Object).ConfigurationErrors().Any(x => x.Contains("missing repertoire")));
 		xml.Element("Vancian")!.SetAttributeValue("version",77); model.Definition = xml.ToString(); capability = new(model,f.World.Object);
-		Assert.IsTrue(capability.ConfigurationErrors().Any(x => x.Contains("version"))); Assert.ThrowsException<InvalidOperationException>(() => capability.SaveToXml());
+		Assert.IsTrue(capability.ConfigurationErrors().Any(x => x.Contains("version"))); Assert.ThrowsExactly<InvalidOperationException>(() => capability.SaveToXml());
 		model.Definition = "<broken"; capability = new(model,f.World.Object); Assert.IsTrue(capability.ConfigurationErrors().Count > 0);
-		Assert.AreEqual(0,capability.InherentPowers(f.Actor.Object).Count()); Assert.ThrowsException<InvalidOperationException>(() => capability.SaveToXml());
+		Assert.AreEqual(0,capability.InherentPowers(f.Actor.Object).Count()); Assert.ThrowsExactly<InvalidOperationException>(() => capability.SaveToXml());
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN)] [DataRow(double.PositiveInfinity)] [DataRow(-1.0)] [DataRow(2147483648.0)]
 	public void InvalidProgressionNeverGrantsCapacity(double value)
 	{
 		var f = new VancianTestFixture(); var prog = f.Prog("count",_ => value);
-		Assert.ThrowsException<InvalidOperationException>(() => VancianPolicy.Number(prog.Object,f.Actor.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => VancianPolicy.Number(prog.Object,f.Actor.Object));
 		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Text); Assert.IsFalse(VancianPolicy.ValidSignature(prog.Object,"count"));
 	}
 	[TestMethod]

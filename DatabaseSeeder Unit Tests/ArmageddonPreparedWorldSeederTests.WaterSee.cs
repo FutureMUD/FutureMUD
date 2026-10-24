@@ -112,7 +112,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("sorcerer", ArmageddonWaterSeeInstaller.WaterBreathingKey)]
 	[DataRow("preserver", ArmageddonWaterSeeInstaller.WaterBreathingKey)]
 	[DataRow("defiler", ArmageddonWaterSeeInstaller.SeeTheUnbodiedKey)]

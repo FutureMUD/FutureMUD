@@ -51,7 +51,7 @@ public partial class RemainsRuntimeBoundaryTests
 		return body;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -123,7 +123,7 @@ public partial class RemainsRuntimeBoundaryTests
 		surgeonBody.Verify(x => x.Take(item.Object), Times.Never); implant.VerifySet(x => x.TargetBodypart = It.IsAny<IBodypart>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Give_UnresolvedCorpse_RefusesBeforeItemsOrCurrencyArePrepared(bool currency)
@@ -150,7 +150,7 @@ public partial class RemainsRuntimeBoundaryTests
 		f.Item.Verify(x => x.Get(It.IsAny<IBody>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -167,7 +167,7 @@ public partial class RemainsRuntimeBoundaryTests
 		current.Verify(x => x.Dress(It.IsAny<IGameItem>(), It.IsAny<ICharacter>(), It.IsAny<IWearProfile>(), It.IsAny<IEmote>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -218,7 +218,7 @@ public partial class RemainsRuntimeBoundaryTests
 		validItem.Verify(x => x.Delete(), Times.Once); f.Item.Verify(x => x.Delete(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]

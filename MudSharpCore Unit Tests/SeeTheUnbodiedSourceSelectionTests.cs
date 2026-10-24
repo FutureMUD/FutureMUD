@@ -34,7 +34,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 	private const string Reference = "see.divination";
 	private const string Group = "armageddon.detect_ethereal";
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)] [DataRow(4, 1)] [DataRow(7, 4)]
 	public void OwnedScope_OutsideShadowConsumesDirectRankedComponent(int grade, int rank)
 	{
@@ -53,7 +53,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.AreEqual(0, f.ConsumptionWrites);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)] [DataRow(false, true)] [DataRow(true, true)]
 	public void OwnedScope_OnlyTerrainDescendantSiltRefusesEvenInShadow(bool room, bool terrain)
 	{
@@ -84,7 +84,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)] [DataRow(2, 0)] [DataRow(3, 0)] [DataRow(4, 1)]
 	[DataRow(5, 2)] [DataRow(6, 3)] [DataRow(7, 4)] [DataRow(7, 5)]
 	public void PaidCast_GradeBoundRankConsumesExactlyOneAndPreservesAuthoredPlan(int grade, int rank)
@@ -99,7 +99,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.IsNull(f.Material.ScoutTarget(f.F.Actor.Object), "Authored rank binding must remain unbound.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(7)]
 	public void OutsideShadow_MissingOrInsufficientComponentRefusesBeforePayment(int grade)
 	{
@@ -110,7 +110,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.IsFalse(f.F.Store.Operations.Any()); Assert.IsFalse(f.F.Actor.Object.Effects.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(7)]
 	public void Shadow_ExemptsOnlyDedicatedActionAndDoesNotNeedAComponent(int grade)
 	{
@@ -123,7 +123,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.AreEqual(before, f.Spell.InventoryPlanTemplate.SaveToXml().ToString());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void Silt_PrecedesShadowIncludingOverlappingMappings(bool overlap)
 	{
@@ -135,7 +135,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.AreEqual(0, f.ConsumptionWrites);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "BeforePayment")] [DataRow(true, "BeforePayment")]
 	[DataRow(false, "PaymentMutated")] [DataRow(true, "PaymentMutated")]
 	[DataRow(false, "Committed")] [DataRow(true, "Committed")]
@@ -154,7 +154,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		else f.AssertColdRetry(result, 95);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("custody")] [DataRow("quantity")] [DataRow("rank")]
 	[DataRow("plan")] [DataRow("environment")]
 	public void PreservedSelector_AfterDebitCannotHideRawMutation(string change)
@@ -184,7 +184,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		f.AssertColdRetry(result, 65);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("environment")] [DataRow("quantity")]
 	public void ScoutingCallbacks_CannotRefreshFrozenEnvironmentOrCandidateQuantity(string change)
 	{
@@ -222,7 +222,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.AreEqual(0, f.F.Samples); f.AssertColdRetry(result, 95);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void WholeItemConsumption_ObservedDisappearanceIsAcceptedButFalseDeletionQuarantines(bool refuseDeletion)
 	{
@@ -277,7 +277,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 	public void DirectFactory_SourceScopeCannotBypassPreparedMaterialExecution()
 	{
 		using var f = new Fixture(); var parent = new MagicSpellParent(f.F.Actor.Object, f.Spell, f.F.Actor.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => ((IMagicSpellEffectTemplate)f.Effect)
+		Assert.ThrowsExactly<InvalidOperationException>(() => ((IMagicSpellEffectTemplate)f.Effect)
 			.GetOrApplyEffect(f.F.Actor.Object, f.F.Actor.Object, default, SpellPower.Weak, parent, []));
 		Assert.IsFalse(parent.SpellEffects.Any()); Assert.IsFalse(f.Parents.Any()); Assert.AreEqual(0, f.ConsumptionWrites);
 	}
@@ -307,7 +307,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.IsTrue(result.Message.Contains("fitness")); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("reference")] [DataRow("duplicate")]
 	public void DedicatedReference_MissingOrDuplicateRefusesBeforePayment(string change)
 	{

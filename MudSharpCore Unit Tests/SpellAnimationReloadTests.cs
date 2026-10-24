@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellAnimationReloadTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SavedParent_LoadAndEarlyLogin_DeferRecoveryUntilBootEndsAndCorpseIsRegistered(bool expired)

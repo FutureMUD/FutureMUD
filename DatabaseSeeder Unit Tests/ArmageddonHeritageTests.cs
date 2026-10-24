@@ -187,7 +187,7 @@ public class ArmageddonHeritageTests
 			foreach (var (factor, index) in new[] { 24.0, 42.0, 54.0 }.Select((x, i) => (x, i)))
 				Assert.AreEqual(hourly[index], ArmageddonHeritage.SweatRateForProfile(key) * factor, 1e-12);
 		}
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonHeritage.SweatRateForProfile("unknown"));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonHeritage.SweatRateForProfile("unknown"));
 		// Reproduce the former recorded stock, then upgrade only through the normal installer.
 		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
 		var record = db.SeederManagedRecords.Single(x => x.StableKey == "arm.race.half_giant");
@@ -283,7 +283,7 @@ public class ArmageddonHeritageTests
 		db.Races.Single(x => x.Name == "Human").DefaultHeightWeightModelNonBinaryId = 999;
 		db.SaveChanges();
 		var before = db.SeederManagedRecords.Count();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
 		Assert.AreEqual(before, db.SeederManagedRecords.Count());
 		Assert.AreEqual(1, db.Languages.Count());
 	}
@@ -294,7 +294,7 @@ public class ArmageddonHeritageTests
 		using var db = Fixture();
 		db.Cultures.Add(new Culture { Name = "Armageddon Tuluki" }); db.SaveChanges();
 		var before = db.SeederManagedRecords.Count();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
 		Assert.AreEqual(before, db.SeederManagedRecords.Count());
 		Assert.AreEqual(0, db.Races.Count(x => x.Name.StartsWith("Armageddon ")));
 		Assert.AreEqual(1, db.Languages.Count());

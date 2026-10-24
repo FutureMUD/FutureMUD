@@ -64,7 +64,7 @@ public class ArmageddonItemConditionHydrationTests
 		fixture.Actor.SetupGet(x => x.Identity).Returns(identity.Object);
 		var item = new Mock<IGameItem>();
 		var effect = spell.SpellEffects.OfType<PossessCorpseSpellEffect>().Single();
-		Assert.ThrowsException<System.InvalidOperationException>(() =>
+		Assert.ThrowsExactly<System.InvalidOperationException>(() =>
 			effect.CapturePreparedSelection(fixture.Actor.Object, item.Object));
 	}
 

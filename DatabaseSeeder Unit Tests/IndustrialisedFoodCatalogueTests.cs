@@ -26,7 +26,7 @@ public class IndustrialisedFoodCatalogueTests
 	{
 		var food = IndustrialisedItemCatalogue.LoadForTesting().Food;
 		Assert.IsNotNull(food);
-		var exception = Assert.ThrowsException<InvalidDataException>(() => food.EnsureProductionReadyForSeeding());
+		var exception = Assert.ThrowsExactly<InvalidDataException>(() => food.EnsureProductionReadyForSeeding());
 		StringAssert.Contains(exception.Message, "464");
 		StringAssert.Contains(exception.Message, "not ProductionReady");
 	}

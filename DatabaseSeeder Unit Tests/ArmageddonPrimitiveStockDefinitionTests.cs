@@ -30,7 +30,7 @@ public class ArmageddonPrimitiveStockDefinitionTests
 		var effect = definition.Element("Effects")!.Elements().Single();
 		Assert.AreEqual("invisibility", (string?)effect.Attribute("type"));
 		Assert.AreEqual(103L, (long)effect.Element("FilterProg")!);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.FalsePresence(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.FalsePresence(0));
 	}
 
 	[TestMethod]
@@ -88,7 +88,7 @@ public class ArmageddonPrimitiveStockDefinitionTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("borrowed_tongues", "comprehendlanguage")]
 	[DataRow("hush_hearing", "deafness")]
 	[DataRow("seal_voice", "silence")]
@@ -135,21 +135,21 @@ public class ArmageddonPrimitiveStockDefinitionTests
 		Assert.IsTrue(contents.Where(x => x.Key != "arm.spell.still_limbs").All(x => x.Value.ResistingTraitId is null));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L)]
 	[DataRow(-1L)]
 	public void Create_UnresolvedNativeBindingsRefuseWithoutFallback(long invalid)
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { StrengthTraitId = invalid }));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { ResistanceTraitId = invalid }));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { InvisibilityApplicabilityProgId = invalid }));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { EmptyAuraResourceId = invalid }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { StrengthTraitId = invalid }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { ResistanceTraitId = invalid }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { InvisibilityApplicabilityProgId = invalid }));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.Create(Bindings with { EmptyAuraResourceId = invalid }));
 		foreach (var contribution in ArmageddonPrimitiveSpellContent.Create(Bindings))
 		{
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(invalid, 202, 203));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, invalid, 203));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(invalid, 202, 203));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, invalid, 203));
 			if (invalid < 0)
-				Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, 202, invalid));
+				Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, 202, invalid));
 		}
 	}
 

@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class BuilderDiscoveryTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("+12", 1L)]
 	[DataRow("-12", 12L)]
 	public void CatalogueFilters_NumericKeywordsRetainInclusionAndExclusionMeaning(string input, long expectedId)
@@ -38,7 +38,7 @@ public class BuilderDiscoveryTests
 		Assert.AreEqual(expectedId, matches.Single().Id);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("+port -closed", "1")]
 	[DataRow("zone \"South Coast\"", "1,2")]
 	[DataRow("zone 10 -closed", "1")]
@@ -62,7 +62,7 @@ public class BuilderDiscoveryTests
 		Assert.AreEqual(3, markets.Length);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("bogus")]
 	[DataRow("+")]
 	[DataRow("- ")]
@@ -93,7 +93,7 @@ public class BuilderDiscoveryTests
 		Assert.IsFalse(output.Single().Contains("Closed"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 120)]
 	[DataRow(true, 120)]
 	[DataRow(true, 40)]

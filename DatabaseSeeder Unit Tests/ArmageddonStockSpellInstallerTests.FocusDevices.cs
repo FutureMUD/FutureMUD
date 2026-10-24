@@ -13,7 +13,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockSpellInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void FocusDevices_LockedTwelveHaveNativeRecipesRealAllowListsAndDisabledGates(ArmageddonProgressionMode mode)

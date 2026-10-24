@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PlaneDisplayFormatSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("roomname")]
 	[DataRow("tag")]
 	public void PlaneBuilder_RejectsExpansionAndPreservesExistingFormat(string command)

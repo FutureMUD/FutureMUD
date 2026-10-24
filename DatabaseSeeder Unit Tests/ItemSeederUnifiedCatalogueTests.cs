@@ -189,12 +189,12 @@ public class ItemSeederUnifiedCatalogueTests
 			File.WriteAllText(Path.Combine(after, "definitions.ndjson"), text.Replace("Retain this note", "lost"));
 			Assert.IsTrue(CatalogueCaptureCommand.Compare(before, after).Any(x => x.EndsWith("supplement", StringComparison.Ordinal)));
 			File.WriteAllText(Path.Combine(after, "definitions.ndjson"), text + "\n" + text);
-			Assert.ThrowsException<InvalidDataException>(() => CatalogueCaptureCommand.Compare(before, after));
+			Assert.ThrowsExactly<InvalidDataException>(() => CatalogueCaptureCommand.Compare(before, after));
 			File.WriteAllText(Path.Combine(after, "definitions.ndjson"), text);
 			File.WriteAllText(Path.Combine(after, "source-graphs.json"), "{\"design\":\"retained\"}");
 			Assert.IsTrue(CatalogueCaptureCommand.Compare(before, after).Contains("source-only catalogue graphs differ"));
 			File.WriteAllText(Path.Combine(after, "definitions.ndjson"), "");
-			Assert.ThrowsException<InvalidDataException>(() => CatalogueCaptureCommand.Compare(before, after));
+			Assert.ThrowsExactly<InvalidDataException>(() => CatalogueCaptureCommand.Compare(before, after));
 		}
 		finally { Directory.Delete(root, true); }
 	}
@@ -220,9 +220,9 @@ public class ItemSeederUnifiedCatalogueTests
 	public void InvalidAndDevelopmentDefinitions_FailBeforeApplication()
 	{
 		var item = RepresentativeCatalogue.Braies();
-		Assert.ThrowsException<InvalidDataException>(() => CatalogueValidator.Validate(item with { WeightInGrams = double.NaN }));
-		Assert.ThrowsException<InvalidDataException>(() => CatalogueValidator.Validate(item.Metadata with { Readiness = CatalogueReadiness.DependencyReviewed }));
-		Assert.ThrowsException<InvalidDataException>(() => CatalogueValidator.Validate(RepresentativeCatalogue.WickerBeehive() with { FailPhase = 8 }));
+		Assert.ThrowsExactly<InvalidDataException>(() => CatalogueValidator.Validate(item with { WeightInGrams = double.NaN }));
+		Assert.ThrowsExactly<InvalidDataException>(() => CatalogueValidator.Validate(item.Metadata with { Readiness = CatalogueReadiness.DependencyReviewed }));
+		Assert.ThrowsExactly<InvalidDataException>(() => CatalogueValidator.Validate(RepresentativeCatalogue.WickerBeehive() with { FailPhase = 8 }));
 	}
 
 	[TestMethod]

@@ -27,7 +27,7 @@ public class DetectEtherealLifetimeTests
 	private const string Group = "armageddon.detect_ethereal";
 	private const string Definition = "<Effect type='detectethereal'><LifetimePolicy version='1' mode='accumulate' group='armageddon.detect_ethereal' unitSeconds='600' maximumUnits='36' retainStrongestGrade='true'/></Effect>";
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SameGroup_WrongConcreteDetectionChildRefusesBeforePayment(bool invisibleInvocation)
@@ -88,7 +88,7 @@ public class DetectEtherealLifetimeTests
 		Assert.IsFalse(f.Parents.Any()); Assert.IsFalse(f.Handler.Effects.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void MixedTargetOrCasterEffects_RefuseBeforePayment(bool casterEffect)
@@ -102,7 +102,7 @@ public class DetectEtherealLifetimeTests
 		Assert.IsFalse(f.F.Store.Operations.Any()); Assert.IsFalse(f.Handler.Effects.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 2400)]
 	[DataRow(599, 2400)]
 	[DataRow(600, 2400)]
@@ -133,7 +133,7 @@ public class DetectEtherealLifetimeTests
 		Assert.AreEqual(1.0, Math.Ceiling(1.0 / 600));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(7, SpellPower.ExtremelyWeak, 1, SpellPower.ExtremelyStrong, 7, SpellPower.ExtremelyWeak)]
 	[DataRow(1, SpellPower.ExtremelyStrong, 7, SpellPower.ExtremelyWeak, 7, SpellPower.ExtremelyWeak)]
 	public void Recast_RetainsStrongestSourceGradeIndependentlyOfEditablePower(int oldGrade, SpellPower oldPower,
@@ -161,7 +161,7 @@ public class DetectEtherealLifetimeTests
 		Assert.IsFalse(f.Parents.Any()); Assert.IsFalse(f.Handler.Effects.OfType<SpellDetectEtherealEffect>().Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CasterOnlyPolicy_EmptyPrimaryPhasePreservesAdmittedCohort(bool prepared)
@@ -183,7 +183,7 @@ public class DetectEtherealLifetimeTests
 		Assert.AreEqual(1, current.SpellEffects.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void PreparedCallback_AfterAdmissionCannotChangeTargetOrCasterCohort(bool casterOnly)
@@ -197,7 +197,7 @@ public class DetectEtherealLifetimeTests
 		var old = f.AddExisting(6000, 7, SpellPower.Strong); var copy = f.Copy(1, SpellPower.Weak);
 		copy.EffectDurationExpression = new CallbackExpression(f.F.World.Object,
 			() => f.Scheduler.Reschedule(old, TimeSpan.FromSeconds(6600)));
-		Assert.ThrowsException<InvalidOperationException>(() => copy.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Weak));
+		Assert.ThrowsExactly<InvalidOperationException>(() => copy.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Weak));
 		Assert.AreSame(old, f.Parents.Single()); Assert.AreEqual(1, old.SpellEffects.Count());
 		Assert.AreEqual(f.Clock.Now.AddSeconds(6600), f.Scheduler.ScheduledExpiry(old));
 		Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
@@ -223,7 +223,7 @@ public class DetectEtherealLifetimeTests
 		Assert.AreEqual(f.Clock.Now.AddSeconds(8000), f.Scheduler.ScheduledExpiry(different));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, false)]
 	[DataRow(1, true)]
 	public void AtCap_ReportsActualDeadlineAndStrengthInsteadOfOriginalDuration(int elapsed, bool changed)
@@ -257,7 +257,7 @@ public class DetectEtherealLifetimeTests
 		Assert.AreEqual(7, f.Parents.Single().LifetimeState!.Grade);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(7, false)]
 	[DataRow(0, true)]
 	public void ParentMetadata_ReloadsStrengthOrPreservesInvalidBytesWithoutSilentDeletion(int grade, bool invalid)
@@ -281,7 +281,7 @@ public class DetectEtherealLifetimeTests
 		else Assert.AreEqual(7, f.Parents.Single().LifetimeState!.Grade);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0")]
 	[DataRow("-600")]
 	[DataRow("1/0")]
@@ -295,7 +295,7 @@ public class DetectEtherealLifetimeTests
 		Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]); Assert.IsFalse(f.F.Store.Operations.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void PermanentOrConflictingMetadata_RefusesWithoutDeletingParent(bool permanent)
@@ -370,13 +370,13 @@ public class DetectEtherealLifetimeTests
 	{
 		using var f = new Fixture(); var old = f.AddExisting(3000, 1, SpellPower.Weak);
 		f.OnChildAdded = _ => throw new InvalidOperationException("after retention");
-		Assert.ThrowsException<InvalidOperationException>(() => f.Copy(7, SpellPower.Strong)
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Copy(7, SpellPower.Strong)
 			.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Strong));
 		Assert.AreEqual(2, f.Parents.Count()); Assert.IsTrue(f.Handler.Effects.Contains(old));
 		Assert.IsTrue(f.Parents.All(x => f.Scheduler.IsScheduled(x) && x.SpellEffects.Count() == 1));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("version='2' mode='accumulate' group='x' unitSeconds='600' maximumUnits='36' retainStrongestGrade='true'")]
 	[DataRow("version='1' mode='accumulate' group='x' unitSeconds='0' maximumUnits='36' retainStrongestGrade='true'")]
 	[DataRow("version='1' mode='accumulate' group='' unitSeconds='600' maximumUnits='36' retainStrongestGrade='true'")]

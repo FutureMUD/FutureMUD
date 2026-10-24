@@ -32,7 +32,7 @@ public class PhysicalReferenceGuardTests
 	private static PhysicalReferenceTargets Targets(PhysicalEntityKind kind, long id = 17) => new([new(kind, id, "candidate")]);
 	private static string Effect(string type, string fields) => $"<Effects><Effect><Type>{type}</Type><Effect>{fields}</Effect></Effect></Effects>";
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("BodyBackup", "<BackupBodyId>17</BackupBodyId>")]
 	[DataRow("SpellBodyBackup", "<BackupBodyId>&#49;&#55;</BackupBodyId>")]
 	[DataRow("ForcedTransformationBaseline", "<BaselineBodyId>17</BaselineBodyId>")]
@@ -45,7 +45,7 @@ public class PhysicalReferenceGuardTests
 		Assert.IsFalse(refs.Any(Targets(PhysicalEntityKind.Character).Includes));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("HasLegalCounsel", "<Lawyer>17</Lawyer>")]
 	[DataRow("InCustodyOfEnforcer", "<Enforcer>17</Enforcer>")]
 	[DataRow("Lawyering", "<EngagedBy>17</EngagedBy>")]
@@ -78,7 +78,7 @@ public class PhysicalReferenceGuardTests
 		Assert.IsTrue(refs.Any(Targets(PhysicalEntityKind.Body, 23).Includes));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("RecentSpeechContext")]
 	[DataRow("PsychometricHistory")]
 	[DataRow("ItemHidden")]
@@ -94,7 +94,7 @@ public class PhysicalReferenceGuardTests
 	[TestMethod]
 	public void Effects_MalformedActualField_ReportsExactCodecField()
 	{
-		var error = Assert.ThrowsException<FormatException>(() =>
+		var error = Assert.ThrowsExactly<FormatException>(() =>
 			PhysicalReferenceCodecs.Effects(Effect("BodyBackup", "<BackupBodyId>broken</BackupBodyId>")).ToArray());
 		StringAssert.Contains(error.Message, "BodyBackup/BackupBodyId");
 	}
@@ -106,7 +106,7 @@ public class PhysicalReferenceGuardTests
 			targets: Targets(PhysicalEntityKind.Body)).Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Character", true)]
 	[DataRow("Body", false)]
 	[DataRow("Room:v2", false)]
@@ -127,7 +127,7 @@ public class PhysicalReferenceGuardTests
 		Assert.AreEqual(0, PhysicalReferenceCodecs.Component("Container", value, _ => throw new AssertFailedException()).Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, true)]
 	[DataRow(1, false)]
 	public void Component_LegacyFinalDeathOnly_ResolvesBodyThroughExactCanonicalOwner(int context, bool expected)
@@ -137,7 +137,7 @@ public class PhysicalReferenceGuardTests
 		Assert.AreEqual(expected, refs.Any(Targets(PhysicalEntityKind.Body).Includes));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Member character='17' instance='23' role='1'/>")]
 	[DataRow("<Member id='17'/>")]
 	[DataRow("<Legacy>17</Legacy>")]
@@ -245,7 +245,7 @@ public class PhysicalReferenceGuardTests
 		StringAssert.Contains(diagnostic, "Character.EffectData 23");
 		StringAssert.Contains(diagnostic, "BodyBackup/BackupBodyId");
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("AstralProjection", "ProjectionBodyId")]
 	[DataRow("MagicalCopy", "CopyBodyId")]
 	[DataRow("PhysicalClone", "CloneBodyId")]
@@ -261,7 +261,7 @@ public class PhysicalReferenceGuardTests
 		Assert.IsFalse(refs.Any(Targets(PhysicalEntityKind.CharacterInstance).Includes));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("SpellCorpsePossession")]
 	[DataRow("SpellAnimatedCorpse")]
 	[DataRow("SpellDeadSpeak")]
@@ -332,7 +332,7 @@ public class PhysicalReferenceGuardTests
 		StringAssert.Contains(diagnostic, "VariableDefault.DefaultValue");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void DeletedPrincipal_ActualIncomingForeignKey_HoldsUntilTheDependentIsInTheDeletionSet(bool instance)

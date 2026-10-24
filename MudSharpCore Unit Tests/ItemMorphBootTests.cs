@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemMorphBootTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(240)]
 	[DataRow(0)]
 	public void StartMorphTimer_ColdItem_PreservesDurationWithoutRenderingDescription(int seconds)
@@ -41,7 +41,7 @@ public class ItemMorphBootTests
 		Assert.AreEqual(TimeSpan.FromSeconds(30), scheduler.RemainingDuration(item, ScheduleType.MorphSaving));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1e-300)]
 	[DataRow(1e-7)]
 	[DataRow(double.NaN)]
@@ -77,7 +77,7 @@ public class ItemMorphBootTests
 		public override DateTimeOffset GetUtcNow() => new(2042, 1, 1, 0, 0, 0, TimeSpan.Zero);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "NaN")]
 	[DataRow(false, "Infinity")]
 	[DataRow(false, "-Infinity")]

@@ -131,19 +131,19 @@ public class ChargedMagicDeviceTests
 		using (admission.OpenScope())
 		{
 			Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var live, out _)); Assert.AreEqual(45, live);
-			Assert.ThrowsException<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(
+			Assert.ThrowsExactly<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(
 				mismatch == "holder" ? otherHolder.Object : holder.Object, mismatch == "resource" ? otherResource.Object : resource.Object, mismatch == "amount" ? 11 : 10));
-			Assert.ThrowsException<InvalidOperationException>(() => new MagicResourceCapacityAdmission([]).OpenScope());
+			Assert.ThrowsExactly<InvalidOperationException>(() => new MagicResourceCapacityAdmission([]).OpenScope());
 			using (MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10))
 			{
 				Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var frozen, out _)); Assert.AreEqual(100, frozen);
 				Assert.IsFalse(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out _, out _));
 			}
-			Assert.ThrowsException<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
+			Assert.ThrowsExactly<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
 		}
 		Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var after, out _)); Assert.AreEqual(45, after);
 		Assert.AreEqual(2, calls); Assert.IsNull(MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
-		Assert.ThrowsException<InvalidOperationException>(() => admission.OpenScope());
+		Assert.ThrowsExactly<InvalidOperationException>(() => admission.OpenScope());
 	}
 	[TestMethod]
 	public void CapacityAdmission_ExceptionAndConcurrentEscape_DoNotLeakCachedCapacity()
@@ -153,7 +153,7 @@ public class ChargedMagicDeviceTests
 		try
 		{
 			using var batch = new MagicResourceCapacityAdmission([new(holder.Object, resource.Object, 10, 100)]).OpenScope();
-			System.Threading.Tasks.Task.Run(() => Assert.ThrowsException<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10))).GetAwaiter().GetResult();
+			System.Threading.Tasks.Task.Run(() => Assert.ThrowsExactly<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10))).GetAwaiter().GetResult();
 			using var debit = MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10);
 			throw new ApplicationException("Owned fixture failure");
 		}
@@ -412,7 +412,7 @@ public class ChargedMagicDeviceTests
 		Assert.AreEqual(90.0, f.F.Balances[f.F.Resources[1]]); Assert.AreEqual(1, f.F.SkillUses);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, 1)]
 	[DataRow(3, 1)]
 	[DataRow(2, 0)]
@@ -521,7 +521,7 @@ public class ChargedMagicDeviceTests
 		Assert.AreEqual(0, f.Device.Charges); Assert.AreEqual(90.0, f.F.Balances[f.F.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("DevicePaying")]
 	[DataRow("DevicePaid")]
 	public void ProductionFailure_RestartRefusesReplayAndRefund(string boundary)
@@ -533,7 +533,7 @@ public class ChargedMagicDeviceTests
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Begin().Status); Assert.AreEqual(0, f.Device.Charges);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("DeviceFilling")]
 	[DataRow("DeviceFilled")]
 	public void FillingFailure_UsableChargesRemainQuarantinedAfterRestart(string boundary)
@@ -556,7 +556,7 @@ public class ChargedMagicDeviceTests
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Begin().Status); Assert.AreEqual(0, f.Device.Charges);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("DeviceConsuming")]
 	[DataRow("DeviceConsumed")]
 	public void ActivationFailure_ChargeTombstonePreventsReplayAfterRestart(string boundary)
@@ -623,7 +623,7 @@ public class ChargedMagicDeviceTests
 		Assert.IsNotNull(disabled.DataError); Assert.AreEqual(invalid, VancianItemTests.Serialize(disabled));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ChargedRelease_LiveWardOrResistance_BlocksPayloadAfterOneCharge(bool useResistance)

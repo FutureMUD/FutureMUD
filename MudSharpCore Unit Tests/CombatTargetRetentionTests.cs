@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CombatTargetRetentionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(CharacterState.Unconscious, false, true)]
 	[DataRow(CharacterState.Paralysed, false, true)]
 	[DataRow(CharacterState.Awake, false, true)]

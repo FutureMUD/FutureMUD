@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class TerrainLayerModelTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rooftopsonly")]
 	[DataRow("rooftoponly")]
 	[DataRow("rooftops-only")]
@@ -35,7 +35,7 @@ public class TerrainLayerModelTests
 		Assert.IsFalse(terrain.TerrainLayers.Contains(RoomLayer.GroundLevel));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rooftops")]
 	[DataRow("rooftop")]
 	public void RooftopsModelAliases_RetainGroundLevelForExistingTerrain(string behaviour)

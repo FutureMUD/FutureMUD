@@ -89,7 +89,7 @@ public class ExceptionReporterTests
 		var owner = new Mock<IPerceivable>();
 		owner.SetupGet(x => x.Id).Returns(123);
 		owner.SetupGet(x => x.FrameworkItemType).Returns("Character");
-		var error = Assert.ThrowsException<ApplicationException>(() =>
+		var error = Assert.ThrowsExactly<ApplicationException>(() =>
 			Effect.LoadEffect(XElement.Parse("<Effect><Type>ReporterTestMissingEffect</Type></Effect>"), owner.Object));
 
 		Assert.IsInstanceOfType(error.InnerException, typeof(System.Collections.Generic.KeyNotFoundException));
@@ -112,7 +112,7 @@ public class ExceptionReporterTests
 		var scheduler = new EffectScheduler(new Mock<IFuturemud>().Object);
 		scheduler.AddSchedule(new EffectSchedule(effect.Object, TimeSpan.Zero));
 
-		Assert.AreSame(failure, Assert.ThrowsException<InvalidOperationException>(scheduler.CheckSchedules));
+		Assert.AreSame(failure, Assert.ThrowsExactly<InvalidOperationException>(scheduler.CheckSchedules));
 		Assert.AreEqual(0, scheduler.ScheduleCount);
 		Assert.IsFalse(scheduler.IsScheduled(effect.Object));
 		var report = ExceptionReporter.Format(failure, "schedule", true);
@@ -126,7 +126,7 @@ public class ExceptionReporterTests
 		var failure = new InvalidOperationException("callback failed");
 		var scheduler = new Scheduler();
 		scheduler.AddSchedule(new Schedule(() => throw failure, ScheduleType.System, TimeSpan.Zero, "fixture"));
-		Assert.AreSame(failure, Assert.ThrowsException<InvalidOperationException>(scheduler.CheckSchedules));
+		Assert.AreSame(failure, Assert.ThrowsExactly<InvalidOperationException>(scheduler.CheckSchedules));
 		Assert.AreEqual(0, scheduler.ScheduleCount);
 		StringAssert.Contains(ExceptionReporter.Format(failure, "schedule", true), "Schedule.Fire:");
 	}
@@ -189,7 +189,7 @@ public class ExceptionReporterTests
 		row.Secret = "replacement-secret";
 		context.ChangeTracker.DetectChanges();
 		// Updating a tracked row absent from the isolated store produces a real concurrency exception.
-		var error = Assert.ThrowsException<DbUpdateConcurrencyException>(() => context.SaveChanges());
+		var error = Assert.ThrowsExactly<DbUpdateConcurrencyException>(() => context.SaveChanges());
 
 		var report = ExceptionReporter.Format(new Exception("wrapper", error), "save", true);
 

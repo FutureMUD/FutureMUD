@@ -17,7 +17,7 @@ public partial class QueuedCommandAuthorityTests
 		public override CombatMoveResult ResolveMove(ICombatMove defenderMove) => resolve();
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid", true)]
 	[DataRow("initial", false)]
 	[DataRow("inside", false)]

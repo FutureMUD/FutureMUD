@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DraggingTimeoutSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]

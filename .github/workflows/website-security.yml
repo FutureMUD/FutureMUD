@@ -89,7 +89,8 @@ jobs:
             exit 1
           fi
           bouncy_lines="$(grep -Ei 'BouncyCastle' <<< "$dependency_graph" || true)"
-          if [[ -n "$bouncy_lines" ]] && grep -Eiv '^[[:space:]>]*BouncyCastle\.Cryptography[[:space:]]+2\.6\.2([[:space:]]|$)' <<< "$bouncy_lines" | grep -q .; then
+          # Keep the approved version aligned with FutureMUD.Web.csproj when upgrading it.
+          if [[ -n "$bouncy_lines" ]] && grep -Eiv '^[[:space:]>]*BouncyCastle\.Cryptography[[:space:]]+2\.7\.0([[:space:]]|$)' <<< "$bouncy_lines" | grep -q .; then
             echo "::error::The website dependency graph contains an unapproved cryptography package."
             exit 1
           fi

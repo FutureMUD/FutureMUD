@@ -26,7 +26,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellNpcMissionRuntimeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("wrong-character", false)]
 	[DataRow("wrong-instance", false)]
 	[DataRow("ambiguous", false)]

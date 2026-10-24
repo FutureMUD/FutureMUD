@@ -107,7 +107,7 @@ public class CoreDataSeederColourLookupTests
 		Assert.AreEqual(populated, Snapshot(context));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-value")]
 	[DataRow("duplicate-value")]
 	[DataRow("case-value")]
@@ -127,7 +127,7 @@ public class CoreDataSeederColourLookupTests
 		}
 		context.SaveChanges();
 		var before = Snapshot(context);
-		Assert.ThrowsException<InvalidOperationException>(() => CoreDataSeeder.EnsureClothingColourProfiles(context));
+		Assert.ThrowsExactly<InvalidOperationException>(() => CoreDataSeeder.EnsureClothingColourProfiles(context));
 		Assert.AreEqual(before, Snapshot(context));
 		Assert.IsFalse(context.ChangeTracker.Entries().Any(x => x.State != EntityState.Unchanged));
 	}
@@ -185,7 +185,7 @@ public class CoreDataSeederColourLookupTests
 		Assert.AreEqual("^finecolou?r(ed)?$", context.CharacteristicDefinitions.Single(x => x.Name == "Fine Colour").Pattern);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("name")]
 	[DataRow("default")]
 	[DataRow("pluralisation")]

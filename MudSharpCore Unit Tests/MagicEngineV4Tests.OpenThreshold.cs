@@ -43,7 +43,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsTrue(leftTarget.Parameters.SequenceEqual(rightTarget.Parameters), $"Selectors differ: {leftTarget.Parameters[0].Item} / {rightTarget.Parameters[0].Item}");
 		Assert.IsTrue((bool)typeof(MagicCastingService).GetMethod("Equivalent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.Invoke(null, [first, second])!);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void OpenThreshold_AllGradesCreateOnePairedExitAndExpireWithoutRemovingOccupants(int grade)
 	{
@@ -59,7 +59,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreSame(f.Pair.Source.Object, f.Pair.CasterLocation); Assert.AreSame(f.Pair.Destination.Object, f.Pair.TargetLocation);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("restricted")] [DataRow("temporary")] [DataRow("same")] [DataRow("recognition")] [DataRow("changed")]
 	public void OpenThreshold_InvalidOrChangedEndpointRefusesBeforePayment(string condition)
 	{
@@ -99,7 +99,7 @@ public partial class MagicEngineV4Tests
 		loaded.RemovalEffect(); f.Clock.Now = loaded.ExpiryUtc!.Value; loaded.Login(); Assert.AreEqual(0, f.Exits.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void OpenThreshold_ArcaneMarkUseCommitsBeforePortalAndUncertaintyNeverReplays(bool uncertain)
 	{
@@ -126,8 +126,8 @@ public partial class MagicEngineV4Tests
 		xml.Add(new XElement("Unrelated", "keep")); var item = new MudSharp.Models.GameItem { Id = 500, EffectData = xml.ToString() };
 		db.GameItems.Add(item); db.BodiesGameItems.Add(new() { BodyId = 91, GameItemId = 500 }); db.SaveChanges();
 		SpellMarkedRoomDebit.Apply(db, 500, 91, identity, 81, 200, 2); Assert.AreEqual("keep", XElement.Parse(item.EffectData).Element("Unrelated")!.Value);
-		Assert.ThrowsException<InvalidOperationException>(() => SpellMarkedRoomDebit.Apply(db, 500, 91, identity, 81, 200, 2));
-		item.ContainerId = 33; Assert.ThrowsException<InvalidOperationException>(() => SpellMarkedRoomDebit.Apply(db, 500, 91, identity, 81, 200, 1));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellMarkedRoomDebit.Apply(db, 500, 91, identity, 81, 200, 2));
+		item.ContainerId = 33; Assert.ThrowsExactly<InvalidOperationException>(() => SpellMarkedRoomDebit.Apply(db, 500, 91, identity, 81, 200, 1));
 	}
 
 	private sealed class ThresholdFixture

@@ -32,7 +32,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class QueuedCommandAuthorityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("reacquired")]
 	[DataRow("relocated")]
@@ -84,7 +84,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(change == "reacquired", sourceItems.Contains(item));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid", false)]
 	[DataRow("valid", true)]
 	[DataRow("ordinary", false)]
@@ -140,7 +140,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(change is "still-member" or "reacquired", sourceItems.Contains(item));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("direct-holder")]
 	[DataRow("other-container")]
@@ -171,7 +171,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreSame(gun, body.HeldItems.Single());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("before-expire")]
 	[DataRow("before-claim")]
@@ -213,7 +213,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsTrue(calls > 0);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("before-expire")]
 	[DataRow("before-claim")]
@@ -256,7 +256,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsTrue(calls > 0, "Real native containment did not invoke the callback seam.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("expire")]
 	[DataRow("claimed")]
@@ -286,7 +286,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreSame(change == "valid" ? destination.Object : change == "claimed" ? foreign.Object : null, f.Item.Object.ContainedIn);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("SimpleWound", "instance", 30L)]
 	[DataRow("BoneFracture", "instance", 30L)]
 	[DataRow("HealingSimpleWound", "instance", 30L)]
@@ -317,7 +317,7 @@ public partial class QueuedCommandAuthorityTests
 		f.World.Verify(x => x.TryGetCharacter(expected, true), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void InventoryPlanGet_ReportsUnknownWhenUnwieldDidNotActuallyProduceHeldCustody(bool completes)
@@ -345,7 +345,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(completes ? DesiredItemState.Held : DesiredItemState.Unknown, result.ActionState);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("expire")]
 	[DataRow("replacement")]
@@ -380,7 +380,7 @@ public partial class QueuedCommandAuthorityTests
 		if (change == "replacement") Assert.AreSame(replacement, container.Object.LiquidMixture);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("dead")]
 	[DataRow("stasis")]
@@ -423,7 +423,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsFalse(accepted.MayExecute(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("expire")]
 	[DataRow("rebind")]
@@ -468,7 +468,7 @@ public partial class QueuedCommandAuthorityTests
 		occupied.Verify(x => x.CanGrab(It.IsAny<IGameItem>(), It.IsAny<MudSharp.Body.IInventory>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "valid")]
 	[DataRow(true, "valid")]
 	[DataRow(false, "refused")]
@@ -501,7 +501,7 @@ public partial class QueuedCommandAuthorityTests
 		if (change == "relocated") Assert.AreNotSame(destination, f.Item.Object.ContainedIn);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("relocated")]
 	[DataRow("deleted")]
@@ -527,7 +527,7 @@ public partial class QueuedCommandAuthorityTests
 		f.Body.Verify(x => x.Take(It.IsAny<IGameItem>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DelayedOwnedContinuation_RetainsOriginalGrantAndCombatBinding(bool departure)
@@ -543,7 +543,7 @@ public partial class QueuedCommandAuthorityTests
 		using (CommandExecutionScope.EnterIndependent()) Assert.IsTrue(CommandExecutionScope.TryContinue());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ReusedChild_AutonomousParentAndIndependentCounterDoNotRetainAnExpiredOrder(bool counter)
@@ -575,7 +575,7 @@ public partial class QueuedCommandAuthorityTests
 		return bow;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("expire")]
 	[DataRow("rebind")]
 	public void NativeBowFire_OutputCallbackCannotConsumeTheLoadedProjectileAfterAuthorityLoss(string change)
@@ -684,7 +684,7 @@ public partial class QueuedCommandAuthorityTests
 		second.Verify(x => x.ResolveMove(It.IsAny<ICombatMove>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("stand", "stand", "", true)]
 	[DataRow("sit", "stand", "", false)]
 	[DataRow("stand", "position", "", true)]
@@ -738,7 +738,7 @@ public partial class QueuedCommandAuthorityTests
 			Assert.AreSame(CombatMoveResult.Irrelevant, move.ResolveMove(null), type.FullName);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("expire")]
 	[DataRow("rebind")]
 	public void QueuedWear_RealBodyEligibilityCannotMutateAfterAuthorityLoss(string change)
@@ -789,7 +789,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsFalse(body.InventoryChanged);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void OwnedChild_OriginalPrincipalControlsChildWhileIndependentResponseHasNoGrant(bool independent)

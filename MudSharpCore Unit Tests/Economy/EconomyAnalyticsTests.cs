@@ -186,7 +186,7 @@ public class EconomyAnalyticsTests
 		world.VerifyGet(x => x.Currencies, Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EconomicActivityType.CashGift, true)]
 	[DataRow(EconomicActivityType.BankTransfer, false)]
 	public void RecordActivity_OptedInGiftOrOtherTransfer_PreservesTheLedger(EconomicActivityType type, bool giftsEnabled)

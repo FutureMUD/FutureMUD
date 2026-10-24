@@ -62,7 +62,7 @@ public sealed class ReleaseStoreTests
 				Sha256 = index == 0 ? new string('0', 64) : artifact.Sha256
 			}).ToList()
 		};
-		var conflict = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => _store.CreateOrResumeAsync(conflictingRequest, CancellationToken.None));
+		var conflict = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => _store.CreateOrResumeAsync(conflictingRequest, CancellationToken.None));
 		Assert.AreEqual(StatusCodes.Status409Conflict, conflict.StatusCode);
 
 		await using var body = new MemoryStream(bytes);
@@ -90,9 +90,9 @@ public sealed class ReleaseStoreTests
 		var request = CreateTerrainPlannerRequest("1.2.3", bytes, 'b');
 		var release = await _store.CreateOrResumeAsync(request, CancellationToken.None);
 
-		await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => _store.PutChunkAsync(
+		await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => _store.PutChunkAsync(
 			release.UploadId, "win-x64", 0, 1, 2, 3, sha, new MemoryStream(bytes), CancellationToken.None));
-		await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => _store.PutChunkAsync(
+		await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => _store.PutChunkAsync(
 			release.UploadId, "win-x64", 0, 0, 2, 3, new string('0', 64), new MemoryStream(bytes), CancellationToken.None));
 		Assert.IsFalse(Directory.EnumerateFiles(_root, "*.tmp", SearchOption.AllDirectories).Any());
 	}
@@ -140,7 +140,7 @@ public sealed class ReleaseStoreTests
 		await _store.PutChunkAsync(release.UploadId, "documentation", 0, 0, documentationBytes.Length - 1,
 			documentationBytes.Length, documentationSha, new MemoryStream(documentationBytes), CancellationToken.None);
 
-		var exception = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+		var exception = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 			_store.CompleteAsync(release.UploadId, CancellationToken.None));
 		Assert.AreEqual(StatusCodes.Status422UnprocessableEntity, exception.StatusCode);
 		Assert.IsFalse(Directory.Exists(Path.Combine(_store.LiveRoot, "engine")));
@@ -164,10 +164,10 @@ public sealed class ReleaseStoreTests
 				Sha256 = valid.Artifacts[0].Sha256
 			}]
 		};
-		await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => _store.CreateOrResumeAsync(wrongName, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => _store.CreateOrResumeAsync(wrongName, CancellationToken.None));
 
 		var noDiskStore = CreateStore(new FutureMudWebOptions { DataRoot = _root, MinimumFreeBytes = long.MaxValue });
-		var diskException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => noDiskStore.CreateOrResumeAsync(valid, CancellationToken.None));
+		var diskException = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => noDiskStore.CreateOrResumeAsync(valid, CancellationToken.None));
 		Assert.AreEqual(StatusCodes.Status507InsufficientStorage, diskException.StatusCode);
 	}
 
@@ -188,7 +188,7 @@ public sealed class ReleaseStoreTests
 
 		foreach (var fileName in unsafeFileNames)
 		{
-			var exception = Assert.ThrowsException<ReleaseStoreException>(() =>
+			var exception = Assert.ThrowsExactly<ReleaseStoreException>(() =>
 				_store.GetLiveArtifactPath("terrainplanner", fileName));
 			Assert.AreEqual(StatusCodes.Status400BadRequest, exception.StatusCode, fileName);
 		}
@@ -207,7 +207,7 @@ public sealed class ReleaseStoreTests
 				SourceCommit = $"{valid.SourceCommit}{lineTerminator}",
 				Artifacts = valid.Artifacts
 			};
-			var commitException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+			var commitException = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 				_store.CreateOrResumeAsync(invalidCommit, CancellationToken.None));
 			Assert.AreEqual(StatusCodes.Status400BadRequest, commitException.StatusCode, Escape(lineTerminator));
 
@@ -218,7 +218,7 @@ public sealed class ReleaseStoreTests
 				SourceCommit = valid.SourceCommit,
 				Artifacts = valid.Artifacts
 			};
-			var versionException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+			var versionException = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 				_store.CreateOrResumeAsync(invalidVersion, CancellationToken.None));
 			Assert.AreEqual(StatusCodes.Status400BadRequest, versionException.StatusCode, Escape(lineTerminator));
 
@@ -237,11 +237,11 @@ public sealed class ReleaseStoreTests
 					Sha256 = index == 0 ? $"{item.Sha256}{lineTerminator}" : item.Sha256
 				}).ToList()
 			};
-			var shaException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+			var shaException = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 				_store.CreateOrResumeAsync(invalidSha, CancellationToken.None));
 			Assert.AreEqual(StatusCodes.Status400BadRequest, shaException.StatusCode, Escape(lineTerminator));
 
-			var uploadIdException = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+			var uploadIdException = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 				_store.GetAsync($"{new string('a', 32)}{lineTerminator}", CancellationToken.None));
 			Assert.AreEqual(StatusCodes.Status400BadRequest, uploadIdException.StatusCode, Escape(lineTerminator));
 		}
@@ -286,7 +286,7 @@ public sealed class ReleaseStoreTests
 			DraftLifetime = TimeSpan.Zero
 		});
 		var release = await expiringStore.CreateOrResumeAsync(CreateTerrainPlannerRequest("1.2.3", new byte[] { 4, 5, 6 }, 'd'), CancellationToken.None);
-		await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => expiringStore.CompleteAsync(release.UploadId, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => expiringStore.CompleteAsync(release.UploadId, CancellationToken.None));
 
 		expiringStore.Cleanup(DateTimeOffset.UtcNow.AddMinutes(1));
 		Assert.IsNull(await expiringStore.GetAsync(release.UploadId, CancellationToken.None));
@@ -456,7 +456,7 @@ public sealed class ReleaseStoreTests
 		pausingBody.ResumeReading.TrySetResult();
 
 		await firstUpload;
-		var exception = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() => secondUpload);
+		var exception = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => secondUpload);
 		Assert.AreEqual(StatusCodes.Status507InsufficientStorage, exception.StatusCode);
 	}
 
@@ -513,7 +513,7 @@ public sealed class ReleaseStoreTests
 
 		foreach (var rejectedVersion in new[] { "1.2.3", "1.2.2" })
 		{
-			var exception = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+			var exception = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 				_store.CreateOrResumeAsync(
 					CreateTerrainPlannerRequest(rejectedVersion, bytes, 'b'),
 					CancellationToken.None));
@@ -567,7 +567,7 @@ public sealed class ReleaseStoreTests
 			Artifacts = null!
 		};
 
-		var exception = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+		var exception = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 			_store.CreateOrResumeAsync(request, CancellationToken.None));
 
 		Assert.AreEqual(StatusCodes.Status400BadRequest, exception.StatusCode);
@@ -590,7 +590,7 @@ public sealed class ReleaseStoreTests
 			]
 		};
 
-		var exception = await Assert.ThrowsExceptionAsync<ReleaseStoreException>(() =>
+		var exception = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() =>
 			_store.CreateOrResumeAsync(request, CancellationToken.None));
 
 		Assert.AreEqual(StatusCodes.Status410Gone, exception.StatusCode);

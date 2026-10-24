@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellOwnedShelterTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellShelterKind.SpringHaven, "arm.spell.spring_haven", "Spring Haven")]
 	[DataRow(SpellShelterKind.BurrowRefuge, "arm.spell.burrow_refuge", "Burrow Refuge")]
 	[DataRow(SpellShelterKind.SandShelter, "arm.spell.sand_shelter", "Sand Shelter")]
@@ -52,7 +52,7 @@ public class SpellOwnedShelterTests
 		Assert.IsNotNull(new CreateShelterEffect(root, Mock.Of<IMagicSpell>()).DefinitionError);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, 8)]
 	[DataRow(-1.0, 8)]
 	[DataRow(double.NaN, 8)]
@@ -156,7 +156,7 @@ public class SpellOwnedShelterTests
 		Assert.AreEqual("123", root.Elements("Effect").Single(x => x.Element("Type")!.Value == "Unknown").Element("Effect")!.Element("Cell")!.Value);
 		Assert.AreEqual(cleaned, SpellOwnedShelterService.RemoveRoomPermitData(cleaned, 123));
 		Assert.AreEqual(data, SpellOwnedShelterService.RemoveRoomPermitData(data, 999));
-		Assert.ThrowsException<FormatException>(() => SpellOwnedShelterService.RemoveRoomPermitData("<Effects><Effect><Type>PermitWork</Type><Effect><Cell>bad</Cell></Effect></Effect></Effects>", 123));
+		Assert.ThrowsExactly<FormatException>(() => SpellOwnedShelterService.RemoveRoomPermitData("<Effects><Effect><Type>PermitWork</Type><Effect><Cell>bad</Cell></Effect></Effect></Effects>", 123));
 	}
 
 	[TestMethod]
@@ -172,7 +172,7 @@ public class SpellOwnedShelterTests
 		Assert.IsFalse(result.Result); Assert.AreEqual("That shelter is full or closing.", result.ErrorMessage);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("BodyBackup", "<DestinationCellId>123</DestinationCellId>")]
 	[DataRow("SpellBodyBackup", "<DestinationCellId>123</DestinationCellId>")]
 	[DataRow("AnimalHunt", "<Origin>123</Origin><LastCell>124</LastCell>")]
@@ -183,7 +183,7 @@ public class SpellOwnedShelterTests
 	public void ConsequentialRoomReferences_HoldOnlyExactKnownEffectFields(string type, string fields)
 	{
 		var data = $"<Effects><Effect><Type>{type}</Type><Effect>{fields}</Effect></Effect></Effects>";
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireNoForeignRoomEffectData(data, 123));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireNoForeignRoomEffectData(data, 123));
 		SpellOwnedShelterService.RequireNoForeignRoomEffectData(data, 999);
 		SpellOwnedShelterService.RequireNoForeignRoomEffectData(data.Replace(type, "Unknown"), 123);
 	}
@@ -195,7 +195,7 @@ public class SpellOwnedShelterTests
 		foreach (var type in new[] { "MagicSpellParent", "SubstanceExposure" })
 		{
 			var data = $"<Effects><Effect><Type>{type}</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
-			Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireNoForeignRoomEffectData(data, 123));
+			Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireNoForeignRoomEffectData(data, 123));
 			SpellOwnedShelterService.RequireNoForeignRoomEffectData(data, 124);
 			SpellOwnedShelterService.RequireNoForeignRoomEffectData(data.Replace(type, "Unknown"), 123);
 		}
@@ -226,15 +226,15 @@ public class SpellOwnedShelterTests
 		context.SaveChanges();
 		SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123);
 		context.RoomsGameItems.Add(new MudSharp.Models.RoomsGameItems { GameItemId = 70001, RoomId = 124 }); context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123));
 		Assert.AreEqual(2, context.RoomsGameItems.Count()); Assert.IsNotNull(context.GameItems.Find(70001L));
 		context.RoomsGameItems.Remove(context.RoomsGameItems.Single(x => x.RoomId == 124)); context.SaveChanges();
 		var inventory = new MudSharp.Models.BodiesGameItems { GameItemId = 70001, BodyId = 90001 };
 		context.BodiesGameItems.Add(inventory); context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123));
 		context.BodiesGameItems.Remove(inventory); context.SaveChanges();
 		context.GameItems.Add(new MudSharp.Models.GameItem { Id = 70002, ContainerId = 70001 }); context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireSupplyPersistence(context, 70001, 123));
 		Assert.IsNotNull(context.GameItems.Find(70002L));
 	}
 
@@ -248,7 +248,7 @@ public class SpellOwnedShelterTests
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 		using var context = new MudSharp.Database.FuturemudDatabaseContext(new DbContextOptionsBuilder<MudSharp.Database.FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-		Assert.ThrowsException<InvalidOperationException>(() => new SpellOwnedShelterService(world.Object).RequireNoForeignRoomEffectReferences(context, room.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new SpellOwnedShelterService(world.Object).RequireNoForeignRoomEffectReferences(context, room.Object));
 		occupant.Verify(x => x.SaveEffects(), Times.Once);
 	}
 
@@ -286,7 +286,7 @@ public class SpellOwnedShelterTests
 		source.Setup(x => x.Leave(actor.Object)).Callback(() => location = other.Object);
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 		var service = new SpellOwnedShelterService(world.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => service.Evacuate(actor.Object, source.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => service.Evacuate(actor.Object, source.Object,
 			new SpatialLocation(target.Object, RoomLayer.GroundLevel)));
 		Assert.AreSame(other.Object, actor.Object.Location);
 		actor.Verify(x => x.MoveTo(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<MudSharp.Construction.Boundary.IRoomExit>(), It.IsAny<bool>()), Times.Never);
@@ -320,7 +320,7 @@ public class SpellOwnedShelterTests
 		var itemNotifications = 0; var componentNotifications = 0;
 		item.IdRegistered += _ => { itemNotifications++; throw new InvalidOperationException("Injected publication interruption"); };
 		component.IdRegistered += _ => componentNotifications++;
-		Assert.ThrowsException<InvalidOperationException>(() => item.ActivateCommittedOrdinaryItem(row, [(component, model)]));
+		Assert.ThrowsExactly<InvalidOperationException>(() => item.ActivateCommittedOrdinaryItem(row, [(component, model)]));
 		Assert.IsTrue(item.IdHasBeenRegistered); Assert.IsFalse(component.IdHasBeenRegistered);
 		item.ActivateCommittedOrdinaryItem(row, [(component, model)]);
 		item.ActivateCommittedOrdinaryItem(row, [(component, model)]);
@@ -351,7 +351,7 @@ public class SpellOwnedShelterTests
 		source.As<ICustodyRollbackLocation>().Setup(x => x.CaptureCustodyMembershipRollback(It.IsAny<System.Collections.Generic.IReadOnlyCollection<IGameItem>>())).Returns(() => () => { });
 		IRoom location = source.Object; var item = new Mock<IGameItem>(); item.SetupGet(x => x.Location).Returns(() => location);
 		source.Setup(x => x.Extract(item.Object)).Callback(() => location = other);
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.EvacuateForeignItem(item.Object, source.Object, new SpatialLocation(target.Object, RoomLayer.GroundLevel)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.EvacuateForeignItem(item.Object, source.Object, new SpatialLocation(target.Object, RoomLayer.GroundLevel)));
 		Assert.AreSame(other, item.Object.Location);
 		item.Verify(x => x.MoveTo(It.IsAny<SpatialLocation>(), It.IsAny<MudSharp.Construction.Boundary.IRoomExit>(), It.IsAny<bool>()), Times.Never);
 		target.Verify(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()), Times.Never);

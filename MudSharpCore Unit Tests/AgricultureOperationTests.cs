@@ -86,7 +86,7 @@ public class AgricultureOperationTests
 		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Field_ConsumeYield_NotifiesOnlySuccessfulNonZeroDebits(bool woodland)
@@ -601,7 +601,7 @@ public class AgricultureOperationTests
 		npc.Verify(x => x.Quit(It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("untrusted")]
 	[DataRow("template-less")]
 	[DataRow("mismatch")]
@@ -623,7 +623,7 @@ public class AgricultureOperationTests
 		Assert.AreEqual(0, fixture.Field.Herds.Sum(x => x.HeadCount));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void AbsorbNpcIntoHerd_AnimalAllyOrAdministrator_AddsMatchingStock(bool administrator)

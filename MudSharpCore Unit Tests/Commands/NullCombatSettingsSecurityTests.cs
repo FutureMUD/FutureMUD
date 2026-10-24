@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class NullCombatSettingsSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Combat", "combat show")]
 	[DataRow("Combat", "combat set")]
 	[DataRow("Combat", "combat config name New")]
@@ -37,7 +37,7 @@ public class NullCombatSettingsSecurityTests
 		actor.VerifySet(x => x.CombatSettings = It.IsAny<ICharacterCombatSettings>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("combat config help", "You can edit")]
 	[DataRow("combat clone", "Which combat setting")]
 	[DataRow("combat list", "Combat Settings")]

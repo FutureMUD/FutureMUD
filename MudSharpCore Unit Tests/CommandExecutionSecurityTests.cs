@@ -108,7 +108,7 @@ public class CommandExecutionSecurityTests
 		target.Setup(x => x.ExecuteCommand("explode"))
 		      .Throws(new InvalidOperationException("Command failed."));
 
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			CommandExecutionGuards.ExecuteForcedCommand(target.Object, "explode"));
 
 		Assert.AreEqual(PermissionLevel.SeniorAdmin, permission.Value);

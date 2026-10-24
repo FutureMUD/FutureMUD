@@ -23,7 +23,7 @@ namespace MudSharp_Unit_Tests;
 public class S4ExistingFactoryGradeBoundaryTests
 {
 	private sealed class ItemEffect(XElement root, IMagicSpell spell) : CreateItemEffect(root, spell);
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void CanonicalEmotions_ExternalGrade_UsesExactBonusAndSixtySecondsPerGrade(int grade)
 	{
@@ -38,7 +38,7 @@ public class S4ExistingFactoryGradeBoundaryTests
 			Assert.IsTrue(XNode.DeepEquals(profile.SaveToXml(), EmotionalStockProfile.Read(profile.SaveToXml()).SaveToXml()));
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unknown policy")] [DataRow("wrong seconds")] [DataRow("unknown namespace")] [DataRow("wrong units")]
 	public void CanonicalEmotions_MalformedPolicy_Refuses(string mutation)
 	{
@@ -50,9 +50,9 @@ public class S4ExistingFactoryGradeBoundaryTests
 			case "unknown namespace": xml.SetAttributeValue(XName.Get("gradepolicy", "urn:foreign"), "Canonical"); break;
 			case "wrong units": xml.SetAttributeValue("units", 2); break;
 		}
-		Assert.ThrowsException<ArgumentException>(() => EmotionalStockProfile.Read(xml));
+		Assert.ThrowsExactly<ArgumentException>(() => EmotionalStockProfile.Read(xml));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void CanonicalWeaponOutput_RequestedGrade_SelectsExactNativePrototype(int grade)
 	{
@@ -69,7 +69,7 @@ public class S4ExistingFactoryGradeBoundaryTests
 			Assert.AreEqual(100L + grade, selected.Id); Assert.AreEqual(1, effect.GradeOutputs[grade].Length);
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(7)]
 	public void WalkingShadow_ResolvedGradeRangeAndColdXml_KeepOriginalBoundaries(int grade)
 	{
@@ -109,10 +109,10 @@ public class S4ExistingFactoryGradeBoundaryTests
 		Assert.IsFalse(SpellOwnedProjectionService.HasClaims(life with { Origin = origin with { Grade = 6 } }));
 		Assert.IsFalse(SpellOwnedProjectionService.HasClaims(life with { Origin = origin with { DeadlineUtc = now.AddSeconds(421) } }));
 		var changed = anchor.Save(); changed.Element("Policy")!.Element("RequestedGradeRange")!.SetAttributeValue("grade", 6);
-		Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
 		changed = anchor.Save(); changed.Element("Policy")!.Element("RequestedGradeRange")!.SetAttributeValue("perGrade", 11);
-		Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
 		changed = anchor.Save(); changed.Element("Policy")!.Add(new XElement(XName.Get("RequestedGradeRange", "urn:foreign")));
-		Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
 	}
 }

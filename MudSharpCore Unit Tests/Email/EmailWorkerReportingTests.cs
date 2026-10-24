@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests.Email;
 [TestClass]
 public class EmailWorkerReportingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public async Task Worker_UnexpectedQueueFailure_ReportsOnceAndContainsLoggerFailure(bool brokenLogger)

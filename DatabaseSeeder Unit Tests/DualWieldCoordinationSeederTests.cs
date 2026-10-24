@@ -122,7 +122,7 @@ public class DualWieldCoordinationSeederTests
 			x.SettingName == DualWieldCoordinationSeederHelper.EnabledSetting).Definition);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("50")]
 	[DataRow("custom:10{nobranch}+5")]
 	public void ExistingCustomConfiguration_IsPreservedWithoutAnyMutation(string formula)
@@ -153,7 +153,7 @@ public class DualWieldCoordinationSeederTests
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("dualwield:10{nobranch}+again:10{nobranch}")]
 	[DataRow("dualwield:10{nobranch}+unknown")]
 	[DataRow("dualwield:10{nobranch}+")]
@@ -196,7 +196,7 @@ public class DualWieldCoordinationSeederTests
 		Assert.AreEqual(customFormula, check.TraitExpression.Expression);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(999L, 0, 1)]
 	[DataRow(10L, 1, 1)]
 	[DataRow(10L, 0, 0)]
@@ -219,7 +219,7 @@ public class DualWieldCoordinationSeederTests
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void BothGeneralSkillRoutes_CreateUnboundPlaceholderAndPreserveSubsequentBinding(bool package)
@@ -268,7 +268,7 @@ public class DualWieldCoordinationSeederTests
 		Assert.IsFalse(Coordination(context).CheckTemplate.CanBranchIfTraitMissing);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void UniversalCombatSkills_EnsureCoordinationBeforeEveryWeaponPackage(bool gerund)

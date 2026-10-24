@@ -83,7 +83,7 @@ try:
         time.sleep(.5)
     else: raise RuntimeError('Owned MySQL startup exceeded 60 seconds.')
     identity()
-    connection = f'server=127.0.0.1;port={port};database=authored_celestial_smoke;uid=root;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=600;'
+    connection = f'server=127.0.0.1;port={port};database=authored_celestial_smoke;uid=root;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=600;'
     env = os.environ.copy()
     password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'DatabaseSeeder/DebugSeederReplay.cs').read_text(encoding='utf-8-sig')).group(1)
     env['AUTHORED_SMOKE_CONNECTION'] = connection; env['AUTHORED_SMOKE_PASSWORD'] = password

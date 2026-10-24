@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederDecimalOwnershipTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("6.0", "6.0000000000000000000000000000")]
 	[DataRow("8.0", "8.000000000000000000000000000")]
 	[DataRow("24", "24.000000000000000000000000000")]
@@ -60,7 +60,7 @@ public class ItemSeederDecimalOwnershipTests
 		Assert.AreEqual(item.Id, Owner(context).LogicalId);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void ProviderCostScale_DoesNotHideNumericPriceOrDescriptionCustomisation(bool changePrice)
@@ -81,7 +81,7 @@ public class ItemSeederDecimalOwnershipTests
 		Assert.AreEqual(fingerprint, Owner(context).AppliedFingerprint);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ProviderCostScale_AllowsOnlyCompleteUniqueUnmanagedAdoption(bool legacyName)
@@ -112,7 +112,7 @@ public class ItemSeederDecimalOwnershipTests
 		context.SeederManagedRecords.Remove(Owner(context));
 		item.CostInBaseCurrency = 6.01m;
 		context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueItemForTesting(context, definition));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ItemSeeder().InstallCatalogueItemForTesting(context, definition));
 		Assert.AreEqual(0, context.SeederManagedRecords.Count());
 		Assert.AreEqual(6.01m, item.CostInBaseCurrency);
 	}

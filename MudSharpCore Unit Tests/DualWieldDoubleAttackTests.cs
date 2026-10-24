@@ -42,7 +42,7 @@ public class DualWieldDoubleAttackTests
 		Assert.IsFalse(CheckType.DualWieldCoordinationCheck.IsVisionInfluencedCheck());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-supplement")][DataRow("duplicate-learning")][DataRow("branching")][DataRow("syntax")]
 	public void Coordination_UnsafeCustomBinding_DisablesPairWithoutEvaluation(string cause)
 	{
@@ -55,7 +55,7 @@ public class DualWieldDoubleAttackTests
 		Assert.AreEqual(0, f.CoordinationCalls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)][DataRow(true)]
 	public void Coordination_NativeLearningPolicy_MissingSkillMajorFailsWithoutAcquisitionAndKnownSkillImprovesOnce(bool trained)
 	{
@@ -190,7 +190,7 @@ public class DualWieldDoubleAttackTests
 		public void Dispose() => typeof(CombatBase).GetProperty("PowerMoveStaminaCost", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, _oldPower);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Outcome.MajorPass, Difficulty.Easy)]
 	[DataRow(Outcome.Pass, Difficulty.Normal)]
 	[DataRow(Outcome.MinorPass, Difficulty.Normal)]
@@ -209,7 +209,7 @@ public class DualWieldDoubleAttackTests
 		Assert.AreEqual(50, f.Stamina, "Planning/coordination must not precharge unexecuted strikes.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("disabled")][DataRow("unbound")][DataRow("stamina")][DataRow("twohands")]
 	public void Prepare_FailedPreflight_PerformsNoCheckOrCharge(string cause)
 	{
@@ -221,7 +221,7 @@ public class DualWieldDoubleAttackTests
 		Assert.IsFalse(f.Pair().TryPrepare()); Assert.AreEqual(0, f.CoordinationCalls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("target")][DataRow("counter")][DataRow("disarm")][DataRow("destroy")]
 	[DataRow("leave")][DataRow("retarget")][DataRow("move")][DataRow("arm")][DataRow("drain")]
 	public void Continue_FirstExchangeInvalidatesParticipant_SkipsSecond(string cause)
@@ -296,7 +296,7 @@ public class DualWieldDoubleAttackTests
 		Assert.IsTrue(both.CompleteResolution().MoveWasSuccessful); Assert.AreEqual(3, both.BaseDelay);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("normal")][DataRow("scheduled")][DataRow("interrupt")][DataRow("body-replaced")][DataRow("onuse-leaves")][DataRow("lethal")]
 	public void SequenceHost_ChildCompletionBeforeNextDefence_ChargesAndFiresOnce(string mode)
 	{

@@ -134,7 +134,7 @@ public class ArmageddonPocketTests
 		Assert.IsNotNull(SpellPocketContainment.AdmissionError(morph.Object, f.Carrier.Object));
 		var item = Item(4).Object; Assert.IsFalse(SpellPocketContainment.TryGraph([item, item], out _, out _));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("paid")][DataRow("refused")][DataRow("drift")]
 	public void PocketCasting_AdmitsBeforePaymentAndCreatesOnceAfterPayment(string scenario)
 	{
@@ -183,11 +183,11 @@ public class ArmageddonPocketTests
 		var now = DateTime.UtcNow;
 		var origin = new SpellLifecycleOrigin(Guid.NewGuid(), 1, 2, 10, SpellPocketAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(60), anchor.Save());
 		component.Bind(origin, anchor); Assert.AreEqual(origin.Id, component.LifecycleId);
-		Assert.ThrowsException<InvalidOperationException>(() => component.Bind(origin, anchor));
+		Assert.ThrowsExactly<InvalidOperationException>(() => component.Bind(origin, anchor));
 		var copy = (FoldedPocketGameItemComponent)component.Copy(Item(2).Object, true);
 		Assert.AreEqual(Guid.Empty, copy.LifecycleId); Assert.IsNull(copy.Anchor); Assert.IsFalse(copy.CanPut(Item(3).Object));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellPocketAccess.Bearer, true)][DataRow(SpellPocketAccess.Creator, false)]
 	public void RetiringPocket_WithdrawalRemainsAuthorized_DepositsAndForeignCreatorRefuse(SpellPocketAccess access, bool otherAllowed)
 	{

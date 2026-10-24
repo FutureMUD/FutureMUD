@@ -36,7 +36,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public partial class QueuedCommandAuthorityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid", true)]
 	[DataRow("same-identity-repeated-roots", true)]
 	[DataRow("expired", false)]
@@ -149,7 +149,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsNull(CommandExecutionAuthority.Capture(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("remove-ai")]
 	[DataRow("replace-prog")]
 	public void PolicyCallbackRevokesConfiguration_MoveConstructionCannotMutateTarget(string change)
@@ -179,7 +179,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsFalse(f.Actor.Invocations.Any(x => x.Method.Name == "AddEffect"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("grant")]
 	[DataRow("combat")]
 	public void ManualMultiTargetAction_DefensiveRevocationPreventsEveryChildResolution(string revocation)
@@ -267,7 +267,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsNull(f.Queued!.GetMove(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("get", "expire")]
 	[DataRow("stand", "expire")]
 	[DataRow("change", "expire")]
@@ -357,7 +357,7 @@ public partial class QueuedCommandAuthorityTests
 	private static void Set(object target, string name, object value) =>
 		target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(target, value);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("expire")]
 	[DataRow("leave")]
 	[DataRow("replace")]

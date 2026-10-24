@@ -25,7 +25,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonWardBaneTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(MagicInterdictionCoverage.Incoming, true, false)]
 	[DataRow(MagicInterdictionCoverage.Outgoing, false, true)]
 	[DataRow(MagicInterdictionCoverage.Both, true, true)]
@@ -60,19 +60,19 @@ public class ArmageddonWardBaneTests
 		var saved = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>());
 		Assert.IsTrue(XNode.DeepEquals(envelope, saved));
 		SpellOwnedShelterService.RequirePersistedWardAuthority(new XElement("Effects", saved).ToString(), origin, configuration);
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireWardAuthority(room.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireWardAuthority(room.Object,
 			origin with { Id = Guid.NewGuid() }, configuration, true));
 		room.SetupGet(x => x.Effects).Returns([]);
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireWardAuthority(room.Object, origin, configuration, true));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireWardAuthority(room.Object, origin, configuration, true));
 		SpellOwnedShelterService.RequireRetirementEffects(room.Object, origin, configuration);
 		room.SetupGet(x => x.Effects).Returns([effect, Mock.Of<IEffect>()]);
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequireRetirementEffects(room.Object, origin, configuration));
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedShelterService.RequirePersistedWardAuthority(
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequireRetirementEffects(room.Object, origin, configuration));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedShelterService.RequirePersistedWardAuthority(
 			new XElement("Effects", envelope, new XElement("Effect", new XElement("Type", "Foreign"))).ToString(), origin, configuration));
 	}
 
 	private delegate bool ExecutePolicy(out object value, object[] parameters);
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("hit")][DataRow("ineligible")][DataRow("drift")][DataRow("ward")][DataRow("resist")]
 	public void BaneCasting_EligibilityFencesPayment_EligibleWardAndResistanceStayPaid(string scenario)
 	{
@@ -131,7 +131,7 @@ public class ArmageddonWardBaneTests
 		else { Assert.AreEqual(MagicCastingStatus.Refused, f.Service.Cast(intent).Status); Assert.AreEqual(95.0, f.Balances[f.Resources[1]]); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 8.0)][DataRow(2, 16.0)][DataRow(3, 24.0)][DataRow(4, 32.0)]
 	[DataRow(5, 40.0)][DataRow(6, 40.0)][DataRow(7, 40.0)]
 	public void BaneDamage_BindsSelectedGradeAndHonoursAuthoredCap(int grade, double expected)

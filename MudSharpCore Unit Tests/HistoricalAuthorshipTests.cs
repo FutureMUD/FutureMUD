@@ -58,7 +58,7 @@ public class HistoricalAuthorshipTests
 			new SimpleWriting(Model(false), World.Object);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Copy_ArchivedAuthors_PreservesIdsAndNarrativeWithoutLoadingActors(bool composite)
@@ -73,7 +73,7 @@ public class HistoricalAuthorshipTests
 		fixture.World.Verify(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Author_AnotherProcessArchivesCachedIdentity_DurableAttributionWins(bool composite)

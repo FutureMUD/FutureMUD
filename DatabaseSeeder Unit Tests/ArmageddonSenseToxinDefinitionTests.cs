@@ -19,8 +19,8 @@ public class ArmageddonSenseToxinDefinitionTests
 		Assert.AreEqual(ArmageddonSenseToxinSpellContent.Key, content.Key);
 		Assert.AreEqual(7.0, content.MinimumEnergy);
 		Assert.AreEqual("60*grade", content.DurationFormula);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(0, 11, 0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(10, 0, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(0, 11, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(10, 0, 0));
 		var definition = content.BuildDefinition(10, 11, 0);
 		Assert.AreEqual("character", definition.Element("Trigger")!.Attribute("type")!.Value);
 		Assert.AreEqual("7*grade", content.CostRow(1).Expression);

@@ -56,7 +56,7 @@ public class MagicCastingTests
 		Assert.AreEqual(2, f.Service.Acquisition(f.Actor.Object, 1)!.ControlledGrade);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("1/0")]
 	[DataRow("sqrt(-1)")]
 	[DataRow("undefinedfunction(grade)")]
@@ -70,7 +70,7 @@ public class MagicCastingTests
 		Assert.AreEqual(100.0, f.Balances[f.Resources[1]]); Assert.AreEqual(0, f.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("self")]
 	[DataRow("outcome")]
 	[DataRow("degrees")]
@@ -179,7 +179,7 @@ public class MagicCastingTests
 		Assert.AreEqual("-grade", reload.GradeProfile!.ScalarBindings.Single().Expression);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("target 7 boost Bonus -grade")]
 	[DataRow("target 0 damage Bonus -grade")]
 	[DataRow("target 0 boost Arbitrary -grade")]
@@ -222,7 +222,7 @@ public class MagicCastingTests
 		Assert.AreEqual(0, f.Store.Operations.Count); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(100.0, f.Balances[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Paying")]
 	[DataRow("PaymentMutated")]
 	[DataRow("Committed")]

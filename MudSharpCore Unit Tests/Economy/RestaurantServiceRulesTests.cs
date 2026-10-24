@@ -211,7 +211,7 @@ public class RestaurantServiceRulesTests
 		Assert.IsTrue(plan.All(x => x.Sum(y => y.Weight) <= 10));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	public void TakeawayBagPacking_ExhaustedSearchBudget_ReturnsACompleteGreedyPlan(int budget)

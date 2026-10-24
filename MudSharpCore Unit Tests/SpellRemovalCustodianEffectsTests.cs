@@ -77,7 +77,7 @@ public class SpellRemovalCustodianEffectsTests
 		Assert.IsTrue(new Fixture().Admitted);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("sense")]
 	[DataRow("invisible")]
 	[DataRow("ethereal")]
@@ -98,7 +98,7 @@ public class SpellRemovalCustodianEffectsTests
 		f.Owner.Verify(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unknown")]
 	[DataRow("unsafe-sibling")]
 	[DataRow("missing-wrapper")]

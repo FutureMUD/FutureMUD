@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonPocketPreparedTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("quantity")][DataRow("deleted")][DataRow("registry")][DataRow("held")]
 	[DataRow("custody")][DataRow("prototype-revision")][DataRow("fallback-overlay")][DataRow("body")]
 	public void PreparedPocket_PhysicalSourceAndTypedBindingsDrift_RefuseBeforePayment(string change)
@@ -39,7 +39,7 @@ public class ArmageddonPocketPreparedTests
 			It.IsAny<SpellLifecycleOrigin>(), It.IsAny<Func<bool>>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("confirm")][DataRow("reuse")]
 	public void PreparedPocket_AdmissionCallbackChangesBorrowedSource_PostCallbackFenceRefuses(string phase)
 	{
@@ -63,13 +63,13 @@ public class ArmageddonPocketPreparedTests
 		var origin = new SpellLifecycleOrigin(Guid.NewGuid(), f.Spell.Id, 1, 100, SpellPocketAnchor.Family,
 			SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(300), new SpellPocketAnchor(9, 1, f.Configuration).Save());
 		var native = new SpellOwnedPocketService(f.Cast.World.Object);
-		var error = Assert.ThrowsException<InvalidOperationException>(() => native.CreatePrepared(
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() => native.CreatePrepared(
 			f.Cast.Actor.Object, f.Source.Object, f.Configuration, origin, () => false));
 		StringAssert.Contains(error.Message, "changed during native creation");
 		f.Cast.World.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("temporary")][DataRow("water")][DataRow("no-ground")][DataRow("shelter")][DataRow("draft")]
 	public void PocketFallback_UnsafeNativeDestinationRefuses(string change)
 	{

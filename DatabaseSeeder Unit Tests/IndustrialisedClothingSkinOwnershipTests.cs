@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class IndustrialisedClothingReuseTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmanaged-drift", "Unmanaged item-skin conflict")]
 	[DataRow("wrong-owner-id", "ownership conflict")]
 	[DataRow("duplicate-current", "ambiguous current skin")]
@@ -60,16 +60,16 @@ public partial class IndustrialisedClothingReuseTests
 		context.ChangeTracker.Clear();
 		var before = SkinState(context);
 		var seeder = new ItemSeeder(catalogue);
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/skins.tsv:3");
 		StringAssert.Contains(error.Message, diagnostic);
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(before, SkinState(context));
 		Assert.AreEqual(0, seeder.GetCapturedManifestEntriesForTesting().Count);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("exact-unmanaged")]
 	[DataRow("custom-name")]
 	[DataRow("custom-description")]
@@ -154,7 +154,7 @@ public partial class IndustrialisedClothingReuseTests
 		}
 		var method = typeof(ItemSeeder).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
 			.Single(x => x.Name == "SeedDocumentedClothingSkins" && x.GetParameters()[0].ParameterType.GenericTypeArguments.Single() == specType);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(seeder, [specs]));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(seeder, [specs]));
 		StringAssert.Contains(error.InnerException!.Message, "Unmanaged item-skin conflict");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(before, SkinState(context));

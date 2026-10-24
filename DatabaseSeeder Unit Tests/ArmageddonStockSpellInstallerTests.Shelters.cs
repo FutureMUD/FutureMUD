@@ -62,7 +62,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(nameof(Room), alias.NativeType); Assert.AreEqual(73L, alias.NativeId);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-template")]
 	[DataRow("retired-template")]
 	[DataRow("wrong-type")]

@@ -32,7 +32,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCombatPowerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("1e308", "2")]
 	[DataRow("1", "1e308")]
 	[DataRow("1001", "2")]
@@ -67,7 +67,7 @@ public class MagicCombatPowerTests
 		Assert.AreEqual(MagicAttackEffect.MaximumDurationSeconds, (double)saved.Element("AttackEffects")!.Element("Effect")!.Element("DurationSeconds")!);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1e308)]
 	[DataRow(double.PositiveInfinity)]
 	[DataRow(double.NaN)]
@@ -490,7 +490,7 @@ public class MagicCombatPowerTests
 		f.Actor.Verify(x => x.RemoveEffect(effect, true), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(MagicAttackEffectType.Knockdown)]
 	[DataRow(MagicAttackEffectType.Stagger)]
 	[DataRow(MagicAttackEffectType.Pushback)]
@@ -525,7 +525,7 @@ public class MagicCombatPowerTests
 		if (type == MagicAttackEffectType.Disarm) Mock.Get(f.Actor.Object.Body).Verify(x => x.Take(item.Object), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("-1")]
 	[DataRow("NaN")]
 	[DataRow("Infinity")]
@@ -533,6 +533,6 @@ public class MagicCombatPowerTests
 	{
 		var f = new Fixture(); var model = Fixture.Model(PsionicStockContent.CombatPowers.Last());
 		var xml = XElement.Parse(model.Definition); xml.SetElementValue("MaximumCapacity", capacity); model.Definition = xml.ToString();
-		Assert.ThrowsException<ApplicationException>(() => new MagicDefensePower(model, f.World.Object));
+		Assert.ThrowsExactly<ApplicationException>(() => new MagicDefensePower(model, f.World.Object));
 	}
 }

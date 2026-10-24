@@ -308,7 +308,7 @@ public class LootTableDefinitionTests
 	{
 		var rolledBack = new List<int>();
 		var commits = 0;
-		Assert.ThrowsException<InvalidOperationException>(() => LootAtomicBatch.Execute(
+		Assert.ThrowsExactly<InvalidOperationException>(() => LootAtomicBatch.Execute(
 			new[] { 1, 2, 3 },
 			x => new[] { x * 10, x * 10 + 1 },
 			_ => throw new InvalidOperationException("preflight"),
@@ -328,7 +328,7 @@ public class LootTableDefinitionTests
 			if (value == 2) throw new InvalidOperationException("creation");
 		}
 
-		Assert.ThrowsException<InvalidOperationException>(() => LootAtomicBatch.Execute(
+		Assert.ThrowsExactly<InvalidOperationException>(() => LootAtomicBatch.Execute(
 			new[] { 1, 2, 3 }, Create, _ => { }, _ => { }, items => rolledBack.AddRange(items)));
 		CollectionAssert.AreEqual(new[] { 1, 2 }, rolledBack);
 	}
@@ -336,7 +336,7 @@ public class LootTableDefinitionTests
 	[TestMethod]
 	public void AtomicBatch_RollbackFailure_PreservesOriginalOperationFailure()
 	{
-		var error = Assert.ThrowsException<InvalidOperationException>(() => LootAtomicBatch.Execute(
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() => LootAtomicBatch.Execute(
 			new[] { 1 }, _ => new[] { 1 }, _ => throw new InvalidOperationException("creation"), _ => { },
 			_ => throw new InvalidOperationException("rollback")));
 

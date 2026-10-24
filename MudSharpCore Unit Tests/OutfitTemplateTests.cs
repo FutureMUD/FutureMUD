@@ -356,7 +356,7 @@ public class OutfitTemplateTests
 		var template = new TemplateOutfit(new Mock<IFuturemud>().Object, "Travel Kit", "Road gear.", OutfitExclusivity.NonExclusive, new[] { item });
 		var target = Target(System.Array.Empty<IOutfit>(), out _, out _, out _);
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() => template.Materialise(target.Object));
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() => template.Materialise(target.Object));
 
 		StringAssert.Contains(exception.Message, "cannot use its skin");
 		Mock.Get(prototype).Verify(x => x.CreateNew(It.IsAny<ICharacter>(), It.IsAny<IGameItemSkin>(), 1, It.IsAny<string>()), Times.Never);

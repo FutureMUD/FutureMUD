@@ -106,7 +106,7 @@ public class ItemSeederCatalogueBindingTests
 		Assert.AreEqual("Market / Clothing / Standard Clothing", owned[0].StableKey);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RecipeProduct_RequiresPermanentSelectorIdentityBeforeSerialising(bool cooked)
@@ -119,7 +119,7 @@ public class ItemSeederCatalogueBindingTests
 			? new CatalogueProgCookedRecipeProduct(prog.FunctionName, false, [])
 			: new CatalogueProgRecipeProduct(prog.FunctionName);
 		var write = typeof(ItemSeeder).GetMethod("BuildRecipeProduct", Hidden)!;
-		var error = Assert.ThrowsException<TargetInvocationException>(() => write.Invoke(seeder, new object[] { new Craft(), product }));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => write.Invoke(seeder, new object[] { new Craft(), product }));
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		StringAssert.Contains(error.InnerException!.Message, "permanent database identity");
 		prog.Id = 123;
@@ -163,7 +163,7 @@ public class ItemSeederCatalogueBindingTests
 		context.SaveChanges();
 		context.SeederManagedRecords.Single(x => x.StableKey == "New Root").LogicalId = 99999;
 		context.SaveChanges();
-		var error = Assert.ThrowsException<TargetInvocationException>(() => Ensure(Initialise(context), path));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => Ensure(Initialise(context), path));
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		StringAssert.Contains(error.InnerException!.Message, "ownership conflict for tag:New Root");
 	}

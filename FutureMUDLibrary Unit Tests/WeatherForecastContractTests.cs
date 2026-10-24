@@ -32,7 +32,7 @@ public class WeatherForecastContractTests
 		Assert.AreEqual(configured, WeatherHazardSettings.FromXml(configured.ToXml()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Lightning", "1.01")]
 	[DataRow("AtmosphericLightning", "-1")]
 	[DataRow("GroundDamageFactor", "2")]
@@ -41,6 +41,6 @@ public class WeatherForecastContractTests
 	[DataRow("Atmosphere", "-1")]
 	public void HazardXml_InvalidValues_AreRejected(string field, string value)
 	{
-		Assert.ThrowsException<FormatException>(() => WeatherHazardSettings.FromXml(new XElement("Hazards", new XElement(field, value))));
+		Assert.ThrowsExactly<FormatException>(() => WeatherHazardSettings.FromXml(new XElement("Hazards", new XElement(field, value))));
 	}
 }

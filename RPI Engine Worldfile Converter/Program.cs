@@ -82,7 +82,7 @@ internal sealed record ShopBaselineLoadResult(
 internal static class Program
 {
 #if DEBUG
-	private const string DebugDefaultConnectionString = "server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+	private const string DebugDefaultConnectionString = "server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
 #endif
 
 	private static readonly JsonSerializerOptions JsonOptions = new()

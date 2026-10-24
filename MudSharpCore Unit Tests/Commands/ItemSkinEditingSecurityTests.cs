@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class ItemSkinEditingSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("edit 1", RevisionStatus.UnderDesign)]
 	[DataRow("edit PublicSkin", RevisionStatus.PendingRevision)]
 	[DataRow("edit 1 1", RevisionStatus.UnderDesign)]
@@ -39,7 +39,7 @@ public class ItemSkinEditingSecurityTests
 		f.Skin.Verify(x => x.ChangeStatus(It.IsAny<RevisionStatus>(), It.IsAny<string>(), It.IsAny<IAccount>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Edit_AuthorisedOwnerOrAdministrator_CanOpenAndChangeDraft(bool admin)
@@ -51,7 +51,7 @@ public class ItemSkinEditingSecurityTests
 		f.Skin.Verify(x => x.BuildingCommand(f.Actor.Object, It.Is<StringStack>(s => s.RemainingArgument == "sdesc a new description")), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("set sdesc changed", RevisionStatus.UnderDesign)]
 	[DataRow("set name Changed", RevisionStatus.UnderDesign)]
 	[DataRow("edit submit", RevisionStatus.UnderDesign)]
@@ -79,7 +79,7 @@ public class ItemSkinEditingSecurityTests
 		f.Skin.Verify(x => x.BuildingCommand(It.IsAny<ICharacter>(), It.IsAny<StringStack>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false, RevisionStatus.PendingRevision, true)]
 	[DataRow(true, false, RevisionStatus.Current, false)]
 	[DataRow(false, false, RevisionStatus.UnderDesign, false)]

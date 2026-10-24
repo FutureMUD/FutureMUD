@@ -13,7 +13,7 @@ public class ArmageddonMovementTempoStockDefinitionTests
 	[TestMethod]
 	public void MovementTempo_ThreeLockedDefaultsUseNativeMovementEffectAndSelectedGradePolicy()
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonMovementTempoSpellContent.Create(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonMovementTempoSpellContent.Create(0));
 		var rows = ArmageddonMovementTempoSpellContent.Create(42).ToDictionary(x => x.Content.Key);
 		Assert.AreEqual(3, rows.Count);
 		foreach (var (key, school, minimum, slow, selfOnly) in new[]
@@ -29,8 +29,8 @@ public class ArmageddonMovementTempoStockDefinitionTests
 			Assert.AreEqual(minimum, content.MinimumEnergy);
 			Assert.AreEqual("60*grade", content.DurationFormula);
 			Assert.AreEqual(selfOnly ? "return @target == @caster" : null, content.EligibilitySource);
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(1, 2, -1));
-			if (selfOnly) Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(1, 2, 0));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(1, 2, -1));
+			if (selfOnly) Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(1, 2, 0));
 			var definition = content.BuildDefinition(1, 2, selfOnly ? 3 : 0);
 			Assert.AreEqual("character", (string?)definition.Element("Trigger")!.Attribute("type"));
 			var effects = definition.Element("Effects")!.Elements().ToArray();

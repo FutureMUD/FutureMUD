@@ -85,7 +85,7 @@ public class PhysiologyMeritTypeTests
 		Assert.IsFalse((object)loaded is INeedRateChangingMerit);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("NaN", "1")]
 	[DataRow("0", "Infinity")]
 	[DataRow("0", "-1")]
@@ -93,7 +93,7 @@ public class PhysiologyMeritTypeTests
 	{
 		StaminaCapacityMerit.RegisterMeritInitialiser();
 		var (world, _) = World();
-		Assert.ThrowsException<InvalidOperationException>(() => MeritFactory.LoadMerit(
+		Assert.ThrowsExactly<InvalidOperationException>(() => MeritFactory.LoadMerit(
 			Row(StaminaCapacityMerit.MeritTypeName, new XElement("Bonus", bonus), new XElement("Multiplier", multiplier)), world.Object));
 	}
 
@@ -146,7 +146,7 @@ public class PhysiologyMeritTypeTests
 		wrongSignature.Verify(x => x.ExecuteDouble(It.IsAny<double>(), It.IsAny<object[]>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("777")]
 	[DataRow("-1")]
 	[DataRow("invalid")]

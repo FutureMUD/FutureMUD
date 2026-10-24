@@ -320,7 +320,7 @@ public class RouteSpatialServiceTests
 		Assert.AreEqual(25.0, previous?.RoutePositionMetres);
 		Assert.AreEqual(75.0, current?.RoutePositionMetres);
 		Assert.AreEqual(75.0, item.RoutePositionMetres);
-		Assert.ThrowsException<ArgumentException>(() => item.SetRoutePosition(101.0));
+		Assert.ThrowsExactly<ArgumentException>(() => item.SetRoutePosition(101.0));
 		Assert.AreEqual(75.0, item.RoutePositionMetres);
 		RouteSpatialService.Instance.UntrackPerceivable(item);
 	}
@@ -330,7 +330,7 @@ public class RouteSpatialServiceTests
 	{
 		var invalid = new RouteSpatialConfiguration(3.0, 3.0, 100.0, 500.0, 100.0);
 
-		Assert.ThrowsException<InvalidOperationException>(invalid.Validate);
+		Assert.ThrowsExactly<InvalidOperationException>(invalid.Validate);
 	}
 
 	private static (Mock<IRoom> Room, Mock<IRouteRoomDefinition> Definition) CreateRouteRoom(

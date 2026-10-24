@@ -53,7 +53,7 @@ public class S4GatherPuddleTests
 			Effect = new(ArmageddonGradedWeaponSpellContent.GatherPuddle(34).BuildDefinition(41, 42, 0).Descendants("Effect").Single(), F.Spell);
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0.25)] [DataRow(7, 1.75)]
 	public void NativeRoomPuddle_GradeLitresAndTopUp_PreservesNativeSurfaceCustody(int grade, double litres)
 	{
@@ -65,7 +65,7 @@ public class S4GatherPuddleTests
 		Assert.AreEqual(litres, f.Transferred * f.Conversion, 1e-9);
 		Assert.AreEqual(100 + litres / f.Conversion, f.Surface.LiquidVolume, 1e-9);
 		Assert.IsTrue(f.Surface.ContaminatingLiquid.Instances.All(x => ReferenceEquals(x.Liquid, f.Water.Object)));
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!));
 		f.Room.Verify(x => x.AddLiquidToSurface(It.IsAny<LiquidMixture>(), RoomLayer.GroundLevel, f.F.Actor.Object), Times.Once);
 	}
 	[TestMethod]
@@ -79,7 +79,7 @@ public class S4GatherPuddleTests
 		item.Verify(x => x.GetItemType<ILiquidContainer>(), Times.Never);
 		container.Verify(x => x.MergeLiquid(It.IsAny<LiquidMixture>(), It.IsAny<MudSharp.Character.ICharacter>(), It.IsAny<string>()), Times.Never);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("room")] [DataRow("layer")] [DataRow("point")] [DataRow("conversion")] [DataRow("registry")]
 	public void CapturedPuddleFrame_DriftBeforePayment_RefusesOriginalSelection(string drift)
 	{
@@ -93,7 +93,7 @@ public class S4GatherPuddleTests
 			case "registry": f.F.World.SetupGet(x => x.Rooms).Returns(MagicCastingFixture.Collection<IRoom>(() => [Mock.Of<IRoom>(x => x.Id == 11)])); break;
 		}
 		Assert.IsFalse(((IMagicSpellEffectPreparedSelectionRawToken)token).IsCurrent);
-		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.F.Actor.Object, f.Room.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.F.Actor.Object, f.Room.Object));
 		Assert.IsFalse(f.Effect.TryReusePreparedSelection(token, f.F.Actor.Object, f.Room.Object, out _));
 		Assert.IsFalse(f.Effect.TryPrepareApplication(f.F.Actor.Object, f.Room.Object, default, default, TimeSpan.Zero, out _, out _));
 		Assert.AreEqual(0, f.Surface.LiquidVolume); f.Room.Verify(x => x.AddLiquidToSurface(It.IsAny<LiquidMixture>(), It.IsAny<RoomLayer>(), It.IsAny<IPerceivable>()), Times.Never);
@@ -106,7 +106,7 @@ public class S4GatherPuddleTests
 		Assert.IsFalse(f.Effect.TryPrepareApplication(f.F.Actor.Object, f.Room.Object, default, default, TimeSpan.Zero, out _, out _));
 		Assert.AreEqual(0, f.Surface.LiquidVolume);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("room")] [DataRow("capacity")]
 	public void NativeTransferCallback_ChangesPaidFrame_RetainsPaidWaterAndRefusesReplay(string mutation)
 	{
@@ -118,11 +118,11 @@ public class S4GatherPuddleTests
 				if (mutation == "room") f.F.Actor.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 				else f.Capacity *= 2;
 			});
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!)); Assert.AreEqual(250, f.Surface.LiquidVolume, 1e-9);
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!)); Assert.AreEqual(250, f.Surface.LiquidVolume, 1e-9);
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!));
 		f.Room.Verify(x => x.AddLiquidToSurface(It.IsAny<LiquidMixture>(), RoomLayer.GroundLevel, f.F.Actor.Object), Times.Once);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("namespace")] [DataRow("duplicate")] [DataRow("version")] [DataRow("litres")] [DataRow("container")]
 	public void PuddlePolicy_MalformedColdXml_StaysRefusedAndPreserved(string mutation)
 	{
@@ -149,7 +149,7 @@ public class S4GatherPuddleTests
 		Assert.IsFalse(cold.IsCompatibleWithTrigger(Mock.Of<IMagicTrigger>(x => x.TargetTypes == "item")));
 		Assert.IsFalse(cold.IsCompatibleWithTrigger(Mock.Of<IMagicTrigger>(x => x.TargetTypes == "character")));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("configuration")] [DataRow("grade")] [DataRow("liquid")]
 	public void AdoptedPuddleSelection_ReceivingCopyMutation_RefusesWithoutChangingOriginalToken(string mutation)
 	{

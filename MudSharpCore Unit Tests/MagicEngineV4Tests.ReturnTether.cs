@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void ReturnTether_AllGradesRecordAbsoluteDeadlineAndReturnExactlyOnce(int grade)
 	{
@@ -40,7 +40,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsFalse(f.Pair.CasterEffects.Contains(child)); Assert.AreEqual(0, f.Rows[child.Binding.Id].Entities.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("body")] [DataRow("endpoint")] [DataRow("dispel")] [DataRow("logout")]
 	public void ReturnTether_InvalidatedIdentityEndpointOrAttachmentCancelsWithoutMovement(string reason)
 	{
@@ -99,12 +99,12 @@ public partial class MagicEngineV4Tests
 		};
 		SpellOwnedLifecycleStore.ValidateReturnJournal(SpellOwnedLifecycleStore.Read(row).Origin);
 		row.CreatorId = 99;
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
 		row.CreatorId = 1; row.Family = "ordinary-owned-spell";
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
 		row.Family = SpellReturnAnchor.Family;
 		row.Entities.Add(new() { Kind = (int)SpellOwnedEntityKind.Body, EntityId = 3, Role = (int)SpellOwnedEntityRole.CreatedEntity });
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
 	}
 
 	[TestMethod]

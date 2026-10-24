@@ -118,7 +118,7 @@ public class HumanSeederIndustrialisedWearProfileTests
 		CollectionAssert.AreEqual(before, fixture.Signatures());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)]
 	[DataRow(false, false)]
 	[DataRow(true, true)]
@@ -188,7 +188,7 @@ public class HumanSeederIndustrialisedWearProfileTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Split Drawers", "groin")]
 	[DataRow("Split Drawers", "penis")]
 	[DataRow("Backless Shoes", "rheel")]
@@ -208,7 +208,7 @@ public class HumanSeederIndustrialisedWearProfileTests
 		Assert.IsFalse(XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting[profile]).Elements()
 			.Any(x => (string?)x.Attribute("Bodypart") == bodypart), $"{profile} must not cover {bodypart}.");
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Hairnet")]
 	[DataRow("Net Skirt")]
 	[DataRow("Braces")]
@@ -255,7 +255,7 @@ public class HumanSeederIndustrialisedWearProfileTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)]
 	[DataRow(false, false)]
 	[DataRow(true, true)]
@@ -284,7 +284,7 @@ public class HumanSeederIndustrialisedWearProfileTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true, false)]
 	[DataRow(false, false, false)]
 	[DataRow(true, true, false)]
@@ -487,7 +487,7 @@ public class HumanSeederIndustrialisedWearProfileTests
 		fixture.Context.GameItemComponentProtos.Single(x => x.Name == "Wear_Vest").Type = "Holdable";
 		fixture.Context.SaveChanges();
 		var before = fixture.Signatures();
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => HumanSeeder.RefreshHumanWearProfilesForTesting(fixture.Context)).Message, "Wear_Vest");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => HumanSeeder.RefreshHumanWearProfilesForTesting(fixture.Context)).Message, "Wear_Vest");
 		CollectionAssert.AreEqual(before, fixture.Signatures());
 		Assert.AreEqual(0, fixture.Context.ChangeTracker.Entries().Count(x => x.State is EntityState.Added or EntityState.Modified));
 	}

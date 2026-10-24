@@ -182,7 +182,7 @@ public class ReadAttunementTests
 		Assert.IsTrue(saved.Any(x => x.Kind == PhysicalEntityKind.CharacterInstance && x.Id == 23));
 		Assert.IsFalse(saved.Any(x => x.Id == 91 || x.Kind == PhysicalEntityKind.Body));
 		var missing = "<Effects><Effect><Type>SpellReadAttunement</Type><Effect><CasterInstanceId>23</CasterInstanceId></Effect></Effect></Effects>";
-		Assert.ThrowsException<FormatException>(() => PhysicalReferenceCodecs.Effects(missing).ToArray());
+		Assert.ThrowsExactly<FormatException>(() => PhysicalReferenceCodecs.Effects(missing).ToArray());
 	}
 
 	[TestMethod]
@@ -215,7 +215,7 @@ public class ReadAttunementTests
 		Assert.AreEqual(rolls, f.Rolls); Assert.AreEqual(count, children.Count); Assert.AreEqual(0.0, f.Balances[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)][DataRow(2)][DataRow(3)][DataRow(4)][DataRow(5)][DataRow(6)][DataRow(7)]
 	public void CanonicalStock_AllGradesUseApprovedEfficiencyDurationAndPaidParent(int grade)
 	{

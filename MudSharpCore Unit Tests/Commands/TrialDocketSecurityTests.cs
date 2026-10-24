@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class TrialDocketSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)]
 	[DataRow(false, false)]
 	[DataRow(true, true)]

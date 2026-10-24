@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class RoomWireCompatibilityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CraftReservation_FrozenStationAndEnvelope_PreserveLocationAndReservation(bool envelope)
@@ -142,6 +142,6 @@ public class RoomWireCompatibilityTests
 		Assert.IsFalse(saved.RootElement.TryGetProperty("RoomId", out _));
 		Assert.AreEqual(loaded.PendingRequest, DatabaseEnvironmentalMagicOperationStore.ReadTreatment(row).PendingRequest);
 		row.RoomId = 9001;
-		Assert.ThrowsException<InvalidOperationException>(() => DatabaseEnvironmentalMagicOperationStore.ReadTreatment(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => DatabaseEnvironmentalMagicOperationStore.ReadTreatment(row));
 	}
 }

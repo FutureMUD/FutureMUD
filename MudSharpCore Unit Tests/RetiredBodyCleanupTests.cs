@@ -50,7 +50,7 @@ public class RetiredBodyCleanupTests
 		var borrowed = RetirementBody(17);
 		var character = RetirementCharacter(current.Object, current.Object);
 		borrowed.SetupGet(x => x.Actor).Returns(character);
-		var exception = Assert.ThrowsException<TargetInvocationException>(() => Retire(character, borrowed.Object));
+		var exception = Assert.ThrowsExactly<TargetInvocationException>(() => Retire(character, borrowed.Object));
 		Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException));
 		Assert.IsNull(Pending(character));
 		Assert.AreSame(current.Object, character.Forms.Single().Body);
@@ -61,7 +61,7 @@ public class RetiredBodyCleanupTests
 	{
 		var current = RetirementBody(18);
 		var character = RetirementCharacter(current.Object, current.Object);
-		var exception = Assert.ThrowsException<TargetInvocationException>(() => Retire(character, current.Object));
+		var exception = Assert.ThrowsExactly<TargetInvocationException>(() => Retire(character, current.Object));
 		Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException));
 		Assert.IsNull(Pending(character));
 		Assert.AreSame(current.Object, character.Forms.Single().Body);

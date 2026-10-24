@@ -42,7 +42,7 @@ internal sealed record SeederReplayRunResult(
 internal static class DebugSeederConnection
 {
 	internal const string DefaultConnectionString =
-		"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+		"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
 
 	internal static bool TryCreateConnectionString(string? databaseName, out string connectionString,
 		out string error)

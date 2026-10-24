@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonGradeLightTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 20.0)]
 	[DataRow(7, 140.0)]
 	public void GradedLight_ValidCreationBoundary_ProvidesExpectedLuxAndRetainsOffSwitch(int grade, double expected)
@@ -38,7 +38,7 @@ public class ArmageddonGradeLightTests
 		world.VerifyGet(x => x.SpellOwnedItems, Times.Never, "Reading illumination must use the loaded immutable origin without database lookups.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(-1)]
 	[DataRow(0)]
 	[DataRow(8)]
@@ -58,7 +58,7 @@ public class ArmageddonGradeLightTests
 		Assert.AreEqual(0.0, light.CurrentIllumination);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void GradedLight_ComponentCopy_CannotBorrowParentOriginEvenAfterXmlReload(bool temporary)
@@ -77,7 +77,7 @@ public class ArmageddonGradeLightTests
 		Assert.AreEqual(140.0, original.CurrentIllumination);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void OrdinaryLight_DisabledOrLegacyScaling_PreservesFixedIlluminationAndCopies(bool omitFlag)

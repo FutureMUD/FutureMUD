@@ -103,7 +103,7 @@ public class ItemSeederCompiledStockTests
 		finally { Directory.Delete(root, true); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)]
 	[DataRow(false, true)]
 	[DataRow(false, false)]
@@ -138,7 +138,7 @@ public class ItemSeederCompiledStockTests
 		Assert.AreEqual("Builder-authored note.", retained.BuilderNotes);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("neutral")]
 	[DataRow("northamerican")]
 	[DataRow("continentaleuropean")]

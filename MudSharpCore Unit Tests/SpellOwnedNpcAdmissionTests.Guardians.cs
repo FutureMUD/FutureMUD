@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class SpellOwnedNpcAdmissionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0", "true")]
 	[DataRow("129", "true")]
 	[DataRow("rand(1,7)", "true")]
@@ -44,7 +44,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Store.Operations.Count); Assert.AreEqual(0, f.Flushes);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("count grade")]
 	[DataRow("count 2")]
 	[DataRow("guardcaster")]
@@ -58,7 +58,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.IsFalse(token.IsCurrent);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Cast_FirstGuardianOnLoadQuitsOrUnloadsCreator_StopsGroupWithoutRefundOrReplay(bool stasis)

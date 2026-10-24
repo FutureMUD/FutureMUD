@@ -31,7 +31,7 @@ public class VancianRecoveryTests
 		f.HasCapability = false; Assert.IsFalse(f.Service.CanCast(f.Actor.Object,f.Capability.Object,f.Rules[0].Key,f.Allowances[0].Key,f.Spells[1],2).Available);
 		f.HasCapability = true; Assert.AreEqual(VancianSlotStatus.Spent,f.State.Slots[0].Status);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(CharacterState.Unconscious)]
 	[DataRow(CharacterState.Stasis)]
 	[DataRow(CharacterState.Dead)]
@@ -108,7 +108,7 @@ public class VancianRecoveryTests
 		f.Policies["canchangeknown"] = f.Prog("canchangeknown",args =>
 		{
 			calls++; Assert.AreSame(f.Actor.Object,args[0]);
-			Assert.ThrowsException<NotSupportedException>(() => ((IList<MudSharp.Magic.IMagicSpell>)args[3]).Clear());
+			Assert.ThrowsExactly<NotSupportedException>(() => ((IList<MudSharp.Magic.IMagicSpell>)args[3]).Clear());
 			return true;
 		}).Object.Id;
 		Assert.IsTrue(f.Service.CommitKnown(projection.Object,f.Capability.Object,0,new Dictionary<Guid,IReadOnlyList<long>> { [f.Rules[0].Key] = [1,2] }).Success);

@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonCatalogueAnatomyTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -80,7 +80,7 @@ public class ArmageddonCatalogueAnatomyTests
 		CollectionAssert.AreEquivalent(speeds, db.MoveSpeeds.Where(x => x.BodyProtoId == first.Identities["arm.race.air_guardian.body"]).Select(x => x.Id).ToArray());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -198,7 +198,7 @@ public class ArmageddonCatalogueAnatomyTests
 		Assert.IsTrue(rerun.Messages.Any(x => x.Contains("preserved builder edit")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")][DataRow("retired")][DataRow("competition")]
 	public void Anatomy_InvalidOwnedPartFailsWithoutRecreation(string damage)
 	{

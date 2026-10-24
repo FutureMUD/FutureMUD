@@ -135,7 +135,6 @@ public class SystemDateTimeTests
     /// Tests cultures with invalid date patterns.
     /// </summary>
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void GetDateOrder_InvalidPattern_ThrowsException()
     {
         // Arrange
@@ -144,10 +143,7 @@ public class SystemDateTimeTests
         invalidCulture.DateTimeFormat.MonthDayPattern = "HH:mm"; // Time pattern without date components
         invalidCulture.DateTimeFormat.YearMonthPattern = "HH:mm"; // Time pattern without date components
 
-        // Act
-        DateUtilities.GetDateOrder(invalidCulture);
-
-        // Assert is handled by ExpectedException
+        Assert.ThrowsExactly<InvalidOperationException>(() => DateUtilities.GetDateOrder(invalidCulture));
     }
 
     /// <summary>

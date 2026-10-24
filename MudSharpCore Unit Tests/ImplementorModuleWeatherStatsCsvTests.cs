@@ -19,7 +19,7 @@ public class ImplementorModuleWeatherStatsCsvTests
         Assert.AreEqual("\"# Controller\",\"Planet (#1, \"\"WeatherController\"\")\"", result);
     }
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("=1+1")]
 	[DataRow("+SUM(1,1)")]
 	[DataRow("-10+20")]

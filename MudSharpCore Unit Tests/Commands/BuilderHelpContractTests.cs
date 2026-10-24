@@ -44,7 +44,7 @@ public class BuilderHelpContractTests
 		Assert.AreEqual(0, fixture.Effects.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("timezone set offset")]
 	[DataRow("timezone set offset invalid")]
 	[DataRow("timezone set offset 2 invalid")]

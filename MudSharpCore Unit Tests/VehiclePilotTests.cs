@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehiclePilotTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(20, 20, 60, true, 1, 0)]
 	[DataRow(20, 60, 20, false, 2, 1)]
 	[DataRow(60, 60, 60, true, 1, 0)]

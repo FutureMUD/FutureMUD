@@ -8,6 +8,10 @@ The build projects their `BuildTargetModel` bodies into `MudSharp.MigrationModel
 
 ## Adding or removing migrations
 
+`MudSharp.sln` must include every migration batch project and `BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj`. Visual Studio's NuGet restore uses loaded solution projects; a command-line restore can succeed with missing solution entries while the IDE reports `NU1105`. Keep these projects loaded and enabled in every solution build configuration, mapping the game-specific Debug configurations to ordinary Debug and all platforms to Any CPU. The same batching optimisation is used by Visual Studio and CI.
+
+After restore, design-time compilation explicitly builds the compiler tool before generating migration sources for IntelliSense. Visual Studio normally resolves project-reference paths without building their outputs during design-time compilation, so relying only on the reference would fail on the first load of a clean checkout. Normal builds retain their existing project-reference dependency order.
+
 Use the normal EF workflow to generate the migration, designer and snapshot. Then refresh the checked-in partition inventory before the next build:
 
 ```text
@@ -15,7 +19,7 @@ dotnet run --project BuildTools/MigrationModelCompiler/MigrationModelCompiler.cs
 dotnet run --project BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj -- check .
 ```
 
-Run these commands from the repository root. Commit the manifest and any generated batch project files with the migration. If removing a migration makes a batch obsolete, remove that obsolete batch project as reported by `check`. Do not manually edit generated historical designers to fit a batch. A single designer exceeding the limit or a new EF designer shape requires an explicit build-tool update and verification.
+Run these commands from the repository root. Commit the manifest and any generated batch project files with the migration. Add new batches to the solution with `dotnet sln MudSharp.sln add --solution-folder MigrationModels MigrationModels/BatchNNNN/BatchNNNN.csproj`, and verify their configuration mappings. If removing a migration makes a batch obsolete, remove that obsolete batch project as reported by `check` and remove its solution entry with `dotnet sln MudSharp.sln remove MigrationModels/BatchNNNN/BatchNNNN.csproj`. Commit the solution changes too. Do not manually edit generated historical designers to fit a batch. A single designer exceeding the limit or a new EF designer shape requires an explicit build-tool update and verification.
 
 ## Verification and future growth
 

@@ -298,7 +298,7 @@ public class HistoricalClothingColourTests
 				new Dictionary<string, string> { ["colour"] = value }, location)).ToArray();
 			Assert.AreEqual(values.Length, arguments.Distinct().Count(), expected.Reference);
 			Assert.IsTrue(arguments.Length >= 3, expected.Reference);
-			Assert.ThrowsException<System.IO.InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(bound,
+			Assert.ThrowsExactly<System.IO.InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(bound,
 				new Dictionary<string, string> { ["colour"] = "blue" }, location));
 			Assert.IsFalse(context.ChangeTracker.Entries().Any(x => x.State != EntityState.Unchanged));
 		}
@@ -322,7 +322,7 @@ public class HistoricalClothingColourTests
 		Assert.AreEqual("medieval_plain_leather_belt", ItemSeeder.FindHistoricalClothingSource("preindustrial_clothing_plain_leather_belt")!.LegacyAliasReference);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")]
 	[DataRow("duplicate")]
 	[DataRow("case")]
@@ -345,7 +345,7 @@ public class HistoricalClothingColourTests
 			default: Assert.Fail(mutation); break;
 		}
 		context.SaveChanges();
-		var exception = Assert.ThrowsException<InvalidOperationException>(() => new UsefulSeeder().SeedVariablesForTesting(context));
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() => new UsefulSeeder().SeedVariablesForTesting(context));
 		StringAssert.Contains(exception.Message, "Clothing_Lacquer_Colours");
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count());
 		Assert.IsFalse(context.ChangeTracker.Entries().Any(x => x.State != EntityState.Unchanged));

@@ -30,7 +30,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public partial class SpellOwnedNpcAdmissionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("direct")]
 	[DataRow("role")]
 	[DataRow("combo")]
@@ -65,7 +65,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.IsTrue(f.Service.Quote(f.Intent()).Allowed);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("withdrawn", "not approved")]
 	[DataRow("world", "different gameworld")]
 	[DataRow("service", "unavailable")]
@@ -110,7 +110,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		AssertConstructorGuard([Merit<IAdditionalBodyFormMerit>(1, MeritScope.Character)], false, null);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("account")]
 	[DataRow("prosthesis")]
 	[DataRow("role-trait")]
@@ -182,7 +182,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		SetField(actor, "_merits", effective.ToList()); SetField(actor, "_deferredNativeInitialisation", deferred);
 		var guard = typeof(MudSharp.Character.Character).GetMethod("EnsureNativeCreationHasNoAdditionalForms", BindingFlags.NonPublic | BindingFlags.Instance)!;
 		if (expected is null) { guard.Invoke(actor, null); return; }
-		var exception = Assert.ThrowsException<TargetInvocationException>(() => guard.Invoke(actor, null));
+		var exception = Assert.ThrowsExactly<TargetInvocationException>(() => guard.Invoke(actor, null));
 		Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException)); Assert.AreEqual(expected, exception.InnerException!.Message);
 	}
 

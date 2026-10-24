@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehicleExitBarrierTraversalTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(DamageType.Burning)]
 	[DataRow(DamageType.Piercing)]
 	[DataRow(DamageType.Slashing)]

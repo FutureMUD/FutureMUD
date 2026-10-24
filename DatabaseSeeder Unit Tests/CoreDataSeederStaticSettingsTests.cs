@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CoreDataSeederStaticSettingsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null)]
 	[DataRow("false")]
 	[DataRow("true")]
@@ -84,7 +84,7 @@ public class CoreDataSeederStaticSettingsTests
 		return context;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false, null)]
 	[DataRow(true, false, "false")]
 	[DataRow(true, true, "false")]
@@ -143,7 +143,7 @@ public class CoreDataSeederStaticSettingsTests
 		Assert.AreEqual("Test MUD", context.StaticStrings.Single(x => x.Id == "MudName").Text);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("", false)]
 	[DataRow("false", false)]
 	[DataRow("false", true)]

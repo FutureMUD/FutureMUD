@@ -77,7 +77,7 @@ public class S4ExistingFactoryDurationTests
 		typeof(GameItemProto).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(prototype, new List<IGameItemComponentProto> { holdable, weapon });
 		prototype.OnLoadProgs = []; return prototype;
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("fury")] [DataRow("calm")] [DataRow("storm")]
 	public void CanonicalWholeSpell_OrdinaryDurationIsZero_ReadyAndColdRowsRetainProfileTiming(string kind)
 	{
@@ -108,7 +108,7 @@ public class S4ExistingFactoryDurationTests
 		public override int Next(int minValue, int maxValue)
 		{ Calls++; Assert.AreEqual(1, minValue); Assert.AreEqual(7, maxValue); return upper ? maxValue - 1 : minValue; }
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, false)] [DataRow(1, true)] [DataRow(7, false)] [DataRow(7, true)]
 	public void StormNativeAdmission_ZeroOrdinaryDurationAndCachedOwnedLifetime_DrawExactlyOnce(int grade, bool upper)
 	{
@@ -125,7 +125,7 @@ public class S4ExistingFactoryDurationTests
 		Assert.AreEqual((24 + (upper ? 6 : 1)) * 90.0 * grade * 0.75, seconds);
 		Assert.AreEqual(0, copy.EffectDurationExpression.Evaluate(f.F.Actor.Object)); Assert.AreEqual(1, random.Calls);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(7)]
 	public void CanonicalEmotion_ZeroOrdinaryDuration_ProfileOwnsSixtySecondsPerGrade(int grade)
 	{

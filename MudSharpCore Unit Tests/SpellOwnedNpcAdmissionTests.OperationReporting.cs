@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class SpellOwnedNpcAdmissionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 1)]
 	[DataRow(3, 3)]
 	public void PaidNativeCreation_CompletedGroupReportsAppliedWithoutRetainedEffect(int count, int grade)

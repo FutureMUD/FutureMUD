@@ -74,7 +74,7 @@ public class CultureToolkitNativeReviewTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("darkages")]
 	[DataRow("medieval")]
 	[DataRow("renaissance")]
@@ -96,7 +96,7 @@ public class CultureToolkitNativeReviewTests
 		Assert.AreEqual(0, errors.Count, string.Join(Environment.NewLine, errors));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("antiquity")]
 	[DataRow("darkages")]
 	[DataRow("medieval")]
@@ -123,7 +123,7 @@ public class CultureToolkitNativeReviewTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("antiquity", "earthantiquity", "Antiquity")]
 	[DataRow("medieval", "earthrenaissanceeurope", "MedievalEurope")]
 	[DataRow("renaissance", "earthrenaissanceeurope", "MedievalEurope")]
@@ -179,7 +179,7 @@ public class CultureToolkitNativeReviewTests
 		Assert.AreEqual(0, generated.AssociatedLanguages.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DeferredMissingLanguagesClearOnlyStockNativeDefaults(bool builderEdited)
@@ -231,7 +231,7 @@ public class CultureToolkitNativeReviewTests
 		Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Coptic", "Greek", "Greek", 1)]
 	[DataRow("Latin", "Greek", "Greek", 1)]
 	[DataRow("Koine Greek", "Doric", "Greek", 1)]

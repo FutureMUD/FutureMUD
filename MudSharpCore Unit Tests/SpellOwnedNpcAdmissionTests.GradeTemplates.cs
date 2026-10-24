@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class SpellOwnedNpcAdmissionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(2)]
 	[DataRow(3)]
@@ -60,7 +60,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Store.Operations.Count); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Flushes);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<GradeTemplates version='2'><Template grade='1'>101</Template></GradeTemplates>")]
 	[DataRow("<GradeTemplates xmlns='urn:unsupported' version='1'><Template grade='1'>101</Template></GradeTemplates>")]
 	[DataRow("<GradeTemplates version='1'/>")]
@@ -89,7 +89,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Store.Operations.Count); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Flushes);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")]
 	[DataRow("withdrawn")]
 	[DataRow("unsupported")]
@@ -105,7 +105,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Store.Operations.Count); Assert.AreEqual(0, f.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("grade")]
 	[DataRow("mapping")]
 	[DataRow("registry")]
@@ -127,7 +127,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Store.Operations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("npcgrade 3 107")]
 	[DataRow("npcgrade clear")]
 	public void PreparedNpc_PolicyEditAfterApplicationPreparation_RefusesCreationBeforeMutation(string edit)
@@ -139,7 +139,7 @@ public partial class SpellOwnedNpcAdmissionTests
 			spell.GradeProfile!.Grades.Single(x => x.Grade == 3).Power, TimeSpan.Zero, out var application, out var error), error);
 		Assert.IsTrue(effect.BuildingCommand(f.Actor.Object, new StringStack(edit)));
 		Assert.IsFalse(token.IsCurrent);
-		var exception = Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!));
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!));
 		StringAssert.Contains(exception.Message, "changed during group creation");
 		Assert.AreEqual(0, f.Store.Operations.Count);
 	}

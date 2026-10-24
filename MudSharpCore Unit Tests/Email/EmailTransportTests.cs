@@ -59,7 +59,7 @@ public class EmailTransportTests
 		using var cancellation = new CancellationTokenSource();
 		cancellation.Cancel();
 
-		await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => transport.SendAsync(CreateMessage(), cancellation.Token));
+		await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => transport.SendAsync(CreateMessage(), cancellation.Token));
 	}
 
 	[TestMethod]

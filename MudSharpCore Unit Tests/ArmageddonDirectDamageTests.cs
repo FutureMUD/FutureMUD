@@ -49,7 +49,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass, DoNotParallelize]
 public partial class ArmageddonDirectDamageTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("arm.spell.ember_lance", 1, 5, 2, 20)]
 	[DataRow("arm.spell.ember_lance", 7, 5, 2, 20)]
 	[DataRow("arm.spell.pillar_of_flame", 1, 8, 3, 7)]
@@ -74,7 +74,7 @@ public partial class ArmageddonDirectDamageTests
 		Assert.AreEqual(1, f.Body.Wounds.Count());
 	}
 
-	[DataTestMethod, DataRow("trait"), DataRow("bodypart")]
+	[TestMethod, DataRow("trait"), DataRow("bodypart")]
 	public void PaidExpressionOrBodypartCallback_CannotRebindFrozenVictim(string callback)
 	{
 		var f = new Fixture(); var committed = false; var invalidated = false;
@@ -114,7 +114,7 @@ public partial class ArmageddonDirectDamageTests
 		Assert.AreEqual(MagicCastingStatus.Refused, f.F.Service.Cast(intent).Status);
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true)]
+	[TestMethod, DataRow(false), DataRow(true)]
 	public void NativeGearPositiveControl_UsesActualItemWounds(bool prosthetic)
 	{
 		var f = new Fixture(); var gear = f.InstallNativeGear(prosthetic);
@@ -126,7 +126,7 @@ public partial class ArmageddonDirectDamageTests
 		Assert.AreEqual(prosthetic ? 0.0 : 2.5, f.Body.Wounds.Sum(x => x.CurrentDamage), 0.000001);
 	}
 
-	[DataTestMethod, DataRow(false, "body"), DataRow(false, "gear"), DataRow(true, "body"), DataRow(true, "gear")]
+	[TestMethod, DataRow(false, "body"), DataRow(false, "gear"), DataRow(true, "body"), DataRow(true, "gear")]
 	public void NativeItemFinalAuthorityCallback_CannotRedirectBodyOrGear(bool prosthetic, string change)
 	{
 		var f = new Fixture(); var gear = f.InstallNativeGear(prosthetic); var checkpoints = 0; var invalidated = false;
@@ -157,7 +157,7 @@ public partial class ArmageddonDirectDamageTests
 		Assert.AreEqual(DamageType.Arcane, ((DamageEffect)f.Spell.SpellEffects.Single()).DamageType);
 	}
 
-	[DataTestMethod, DataRow("body"), DataRow("location"), DataRow("layer"), DataRow("registry")]
+	[TestMethod, DataRow("body"), DataRow("location"), DataRow("layer"), DataRow("registry")]
 	public void FrozenSelectionBeforePayment_RefusesWithoutDebitOrWounds(string drift)
 	{
 		var f = new Fixture();
@@ -168,7 +168,7 @@ public partial class ArmageddonDirectDamageTests
 		Assert.IsFalse(f.Body.Wounds.Any());
 	}
 
-	[DataTestMethod, DataRow("body"), DataRow("location"), DataRow("layer"), DataRow("registry")]
+	[TestMethod, DataRow("body"), DataRow("location"), DataRow("layer"), DataRow("registry")]
 	public void FrozenSelectionAfterPayment_QuarantinesWithoutMutationOrReplay(string drift)
 	{
 		var f = new Fixture();
@@ -184,7 +184,7 @@ public partial class ArmageddonDirectDamageTests
 		Assert.AreEqual("NeedsReview", f.F.Store.Operation(result.OperationId!.Value)!.Stage);
 	}
 
-	[DataTestMethod, DataRow("-1"), DataRow("1/0"), DataRow("0/0")]
+	[TestMethod, DataRow("-1"), DataRow("1/0"), DataRow("0/0")]
 	public void FixedInvalidIndependentPain_RefusesBeforePayment(string formula)
 	{
 		var f = new Fixture();
@@ -230,7 +230,7 @@ public partial class ArmageddonDirectDamageTests
 	public void UnsupportedPolicyVersion_FailsClosedDuringFactoryLoad()
 	{
 		var f = new Fixture();
-		Assert.ThrowsException<FormatException>(() => f.F.NewSpell(9, "unknown policy",
+		Assert.ThrowsExactly<FormatException>(() => f.F.NewSpell(9, "unknown policy",
 			"<Effect type='damage'><DamageType>22</DamageType><DamageExpression>5</DamageExpression><IdentitySafeDamage schema='1' version='2'/></Effect>"));
 	}
 

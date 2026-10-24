@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureLatin1Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("François", "François")]
 	[DataRow("Þórðr", "Þórðr")]
 	[DataRow("Æthelred", "Æthelred")]

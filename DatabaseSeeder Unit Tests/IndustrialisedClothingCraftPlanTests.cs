@@ -106,7 +106,7 @@ public class IndustrialisedClothingCraftPlanTests
 		}
 		d = d with { CraftPhases = phases };
 		var before = phases.Select(x => x.Echo + x.FailEcho).ToArray();
-		var ex = Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single()));
+		var ex = Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single()));
 		StringAssert.Contains(ex.Message, "Clothing/");
 		CollectionAssert.AreEqual(before, phases.Select(x => x.Echo + x.FailEcho).ToArray());
 	}
@@ -118,7 +118,7 @@ public class IndustrialisedClothingCraftPlanTests
 	{
 		var d = Document();
 		d = d with { CraftInputs = d.CraftInputs.Select(x => x with { Kind = Enum.Parse<ClothingInputKind>(kind) }).ToArray() };
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single())).Message, "cannot transmit");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single())).Message, "cannot transmit");
 	}
 
 	[TestMethod]
@@ -143,6 +143,6 @@ public class IndustrialisedClothingCraftPlanTests
 	public void Compile_UnusedCommodityInput_IsNotPretendedToBeMassRecovery()
 	{
 		var d = IndustrialisedClothingCatalogueTests.Load(IndustrialisedClothingCatalogueTests.Fixture());
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single())).Message, "not liquid/commodity mass");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCraftPlan.Compile(d, d.Crafts.Single())).Message, "not liquid/commodity mass");
 	}
 }

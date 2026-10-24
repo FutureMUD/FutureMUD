@@ -194,7 +194,7 @@ public class CollectionExtensionsMoreTests
     {
         int[,] grid = new int[1, 1];
         grid[0, 0] = 5;
-        Assert.ThrowsException<InvalidOperationException>(() => grid.GetCoordsOfElement(3));
+        Assert.ThrowsExactly<InvalidOperationException>(() => grid.GetCoordsOfElement(3));
     }
 
     [TestMethod]

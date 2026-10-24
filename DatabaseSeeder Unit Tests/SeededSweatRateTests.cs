@@ -62,7 +62,7 @@ public class SeededSweatRateTests
 		Assert.IsTrue(source.Contains("SweatLiquid = SeededSweatRates.Mythical(template.Name) > 0.0 ? _sweat : null"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.02, 0.48, 0.84, 1.08)]
 	[DataRow(0.20, 4.8, 8.4, 10.8)]
 	[DataRow(0.003, 0.072, 0.126, 0.162)]
@@ -112,7 +112,7 @@ public class SeededSweatRateTests
 			SeededSweatRates.Orc, SeededSweatRates.Troll });
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Werewolf")]
 	[DataRow("Werewolf Hybrid")]
 	[DataRow("Vampire")]
@@ -188,7 +188,7 @@ public class SeededSweatRateTests
 		Assert.AreEqual(0.0, race.SweatRateInLitresPerMinute, 1e-12);
 		race.SweatRateInLitresPerMinute = 0.007;
 		context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => SeededSweatRates.SaveNewRace(context, race));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SeededSweatRates.SaveNewRace(context, race));
 		Assert.AreEqual(0.007, race.SweatRateInLitresPerMinute, 1e-12);
 	}
 

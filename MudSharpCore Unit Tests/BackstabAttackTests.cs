@@ -197,7 +197,7 @@ public partial class BackstabAttackTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SpecificProficiency_RequiresKnowledgeAndUsesSkillOnlyForItsOwnAttack(bool natural)
@@ -229,7 +229,7 @@ public partial class BackstabAttackTests
 		public void OnAdmittedHostileAttack(AdmittedHostileAttack attack) => callback();
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void HostileCallbackRemovingProficiency_StopsBeforeOpeningConsumptionAndCheck(bool natural)
@@ -253,7 +253,7 @@ public partial class BackstabAttackTests
 		f.Target.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DefenseCallbackRemovingProficiency_StopsDamageButRetainsAttemptCost(bool natural)
@@ -306,7 +306,7 @@ public partial class BackstabAttackTests
 		Assert.IsTrue(copy.IsAttackType<IBackstabAttack>());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("reel -1")]
 	[DataRow("reel NaN")]
 	[DataRow("penetration Infinity")]
@@ -324,7 +324,7 @@ public partial class BackstabAttackTests
 		Assert.AreEqual(before, f.Attack.SaveConfiguration().ToString());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Facing.Front, false)]
 	[DataRow(Facing.LeftFlank, false)]
 	[DataRow(Facing.RightFlank, false)]
@@ -379,7 +379,7 @@ public partial class BackstabAttackTests
 		Assert.IsFalse(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RealBackstabResolution_ConsumesOpeningAndMakesOneBoostedPenetrationCheck(bool natural)
@@ -402,7 +402,7 @@ public partial class BackstabAttackTests
 		Assert.AreEqual(7.0, rolls[0].Arguments[4]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ManualSelectionAndFactory_ProduceCorrectSingleTargetMove(bool natural)
@@ -417,7 +417,7 @@ public partial class BackstabAttackTests
 		Assert.IsFalse(move is MultiTargetCombatMove);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void AutomaticSelection_ConsidersAuthoredBackstab(bool natural)
@@ -429,7 +429,7 @@ public partial class BackstabAttackTests
 		Assert.IsInstanceOfType(move, natural ? typeof(BackstabAttackUnarmedMove) : typeof(BackstabAttackMove));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rear", true)]
 	[DataRow("unseen", true)]
 	[DataRow("detected", false)]
@@ -454,7 +454,7 @@ public partial class BackstabAttackTests
 		if (scenario == "unseen") Assert.IsTrue(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ManualBinding_UsesTheSharedBackstabFactory(bool natural)
@@ -467,7 +467,7 @@ public partial class BackstabAttackTests
 		Assert.IsInstanceOfType(result.Move, natural ? typeof(BackstabAttackUnarmedMove) : typeof(BackstabAttackMove));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void BackstabCommand_CanInitiateUnseenAndQueueSelectedAttack(bool natural)
@@ -496,7 +496,7 @@ public partial class BackstabAttackTests
 		Assert.IsInstanceOfType(queued!.GetMove(f.Actor.Object), natural ? typeof(BackstabAttackUnarmedMove) : typeof(BackstabAttackMove));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void OrdinaryAttacks_StillConsumeOpeningAndDoNotAcquireBackstabArmourBenefits(bool natural)
@@ -517,7 +517,7 @@ public partial class BackstabAttackTests
 		Assert.IsFalse(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, Outcome.MajorFail)]
 	[DataRow(true, Outcome.MajorFail)]
 	[DataRow(false, Outcome.MinorPass)]
@@ -571,7 +571,7 @@ public partial class BackstabAttackTests
 		Assert.IsFalse(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "facing")]
 	[DataRow(false, "equipment")]
 	[DataRow(false, "target")]
@@ -597,7 +597,7 @@ public partial class BackstabAttackTests
 		f.Actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void QueuedBackstab_MovedTargetCancelsBeforeConstructingContactMove(bool natural)
@@ -612,7 +612,7 @@ public partial class BackstabAttackTests
 		f.Actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Outcome.MinorFail, 1)]
 	[DataRow(Outcome.Fail, 2)]
 	[DataRow(Outcome.MajorFail, 3)]
@@ -642,7 +642,7 @@ public partial class BackstabAttackTests
 		Assert.AreEqual(1, f.Resistance.Invocations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("armour")]
 	[DataRow("self")]
 	[DataRow("zero")]
@@ -662,7 +662,7 @@ public partial class BackstabAttackTests
 		Assert.AreEqual(0, f.Resistance.Invocations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, false)]
 	[DataRow(1.0, true)]
 	public void ArmourModifiers_OnlyChangeVictimCopyAndPreserveCopies(double chance, bool expected)
@@ -698,7 +698,7 @@ public partial class BackstabAttackTests
 		Assert.IsFalse(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true, false)]
 	[DataRow(false, true, true)]
 	[DataRow(true, false, true)]

@@ -21,7 +21,7 @@ public class CardinalDirectionExtensionsTests
 		Assert.AreEqual("nw", CardinalDirection.NorthWest.DescribeBrief());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("nw")]
 	[DataRow("northwest")]
 	[DataRow("north-west")]
@@ -32,7 +32,7 @@ public class CardinalDirectionExtensionsTests
 		Assert.AreEqual(CardinalDirection.NorthWest, direction);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("nor")]
 	[DataRow("northw")]
 	[DataRow("northwe")]

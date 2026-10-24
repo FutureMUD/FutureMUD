@@ -8,7 +8,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PatrolEnforcementPolicyTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false, true, false, false, false, false, true)]
 	[DataRow(false, true, true, false, false, false, false, false)]
 	[DataRow(false, false, false, false, false, false, false, false)]
@@ -38,7 +38,7 @@ public class PatrolEnforcementPolicyTests
 
 		Assert.IsFalse(result);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false, 0)]
 	[DataRow(true, false, 0)]
 	[DataRow(false, true, 2)]
@@ -49,7 +49,7 @@ public class PatrolEnforcementPolicyTests
 		Assert.AreEqual(expected, (int)PatrolEnforcementPolicy.SelectCandidateAction(beingDragged, hasCrime));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false, false)]
 	[DataRow(false, true, false)]
 	[DataRow(true, false, false)]
@@ -60,7 +60,7 @@ public class PatrolEnforcementPolicyTests
 		Assert.AreEqual(expected, PatrolEnforcementPolicy.ShouldBeginCustody(arrestable, helpless));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, true)]
 	public void ShouldWaitForSurrender_TracksWarningState(bool warned, bool expected)

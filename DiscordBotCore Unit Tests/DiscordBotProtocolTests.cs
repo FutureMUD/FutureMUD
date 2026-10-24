@@ -119,7 +119,7 @@ public class DiscordBotProtocolTests
 		Assert.IsFalse(command.RequiresAuthentication);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("request 42 who")]
 	[DataRow("shutdown Admin false")]
 	[DataRow("broadcast hello")]
@@ -183,7 +183,7 @@ public class DiscordBotProtocolTests
 		Assert.AreEqual(1_000, ids.Distinct().Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("secret-value", "secret-value", true)]
 	[DataRow("Secret-Value", "secret-value", false)]
 	public void AuthenticationPolicy_RequiresAnExactConfiguredSecret(string presented, string configured,
@@ -192,7 +192,7 @@ public class DiscordBotProtocolTests
 		Assert.AreEqual(expected, DiscordAuthenticationPolicy.IsValid(presented, configured));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{\"Port\":4000,\"Token\":\"token\",\"Prefixes\":[\"!\"],\"ServerAuth\":\"secret\",\"AnnounceChannelId\":1,\"AdminAnnounceChannelId\":2,\"DebugAnnounceChannelId\":3,\"GameName\":\"Game\",\"AdminUsers\":[],\"CustomGlobalReactions\":[]}", true)]
 	[DataRow("{not json", false)]
 	public void SettingsStore_ValidatesConfigurationWithoutThrowing(string json, bool expected)

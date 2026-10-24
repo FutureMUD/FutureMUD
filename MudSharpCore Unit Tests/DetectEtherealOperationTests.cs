@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DetectEtherealOperationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Operation_InvalidTargetOrParentOwnerRejectsWithoutAttachment(bool wrongOwner)
@@ -47,7 +47,7 @@ public class DetectEtherealOperationTests
 		Assert.IsFalse(parent.SpellEffects.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false, MagicEffectOperationStatus.Applied)]
 	[DataRow(false, false, MagicEffectOperationStatus.NoChange)]
 	[DataRow(false, true, MagicEffectOperationStatus.Unknown)]
@@ -72,7 +72,7 @@ public class DetectEtherealOperationTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false, 3)]
 	[DataRow(false, false, 2)]
 	[DataRow(false, true, 2)]
@@ -93,7 +93,7 @@ public class DetectEtherealOperationTests
 		Assert.AreEqual(1, f.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Recast_ExclusiveCleansOldChildrenAndNonexclusivePreservesStacking(bool exclusive)
@@ -116,7 +116,7 @@ public class DetectEtherealOperationTests
 		Assert.IsTrue((bool)XElement.Parse(f.Store.Operations[refreshed.OperationId!.Value].Definition).Attribute("applied")!);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void TriggeredPreparedRoute_PreservesExclusiveCleanupAndNonexclusiveStacking(bool exclusive)
@@ -159,7 +159,7 @@ public class DetectEtherealOperationTests
 		Assert.IsTrue(effects.OfType<MagicSpellParent>().All(x => x.SpellEffects.Count() == 1));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void AttachmentFailure_AfterPaymentKeepsOnlyRetainedOwnershipWithoutMasteryOrReplay(bool retained)

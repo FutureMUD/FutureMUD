@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests.PerceptionEngine;
 [TestClass]
 public class EmoteFormatTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0}")]
@@ -40,7 +40,7 @@ public class EmoteFormatTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0}")]
@@ -56,7 +56,7 @@ public class EmoteFormatTests
 		Assert.AreEqual($"you gesture toward {text}.", emote.ParseFor(source.Object).RawText());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0}")]
@@ -83,7 +83,7 @@ public class EmoteFormatTests
 		StringAssert.Contains(rendered, $"Remember {text}.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void ParseFor_MalformedNestedEmote_ReturnsAnErrorInsteadOfThrowing(bool targetPresent)

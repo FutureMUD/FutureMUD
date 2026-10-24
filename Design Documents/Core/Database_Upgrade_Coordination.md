@@ -8,6 +8,8 @@ EF design-time tooling uses `FUTUREMUD_EF_CONNECTION_STRING` when explicitly sup
 
 ## Settings
 
+The MySql.Data client boundary accepts the legacy `SslMode=None` connection option and translates it to `Disabled`, which preserves its existing no-TLS meaning after Connector/NET removed the old spelling. Parsing is option-aware so quoted passwords and other values are preserved. Other TLS modes and the driver's default remain unchanged, and saved connection configuration is not rewritten.
+
 `DatabaseBackupSettings.json` controls the backup directory, retained SQL backup count, automatic pre-migration backups, and automatic rollback recovery. Missing settings create the defaults. Invalid retained-count or directory values are repaired in memory. Malformed JSON is replaced on disk with usable defaults so one damaged configuration file does not permanently prevent startup.
 
 ## Upgrade lifecycle

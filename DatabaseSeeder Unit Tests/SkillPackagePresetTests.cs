@@ -26,7 +26,7 @@ public class SkillPackagePresetTests
 		? new() { ["skillpreset"] = label }
 		: new() { ["skillpreset"] = label, ["skillcapmodel"] = "flat", ["skillgainmodel"] = "labmud", ["branching"] = "yes" };
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Simple-Gerund", "Carrying", true, false, false)]
 	[DataRow("Simple-NonGerund", "Armour Use", true, false, false)]
 	[DataRow("Simple-Gerund-Modern", "Carrying", true, false, true)]
@@ -148,7 +148,7 @@ public class SkillPackagePresetTests
 		Assert.AreEqual("Complex-Gerund-Modern", stale, "The shared memory layer prefers an existing explicit answer.");
 		Assert.IsFalse(question.Validator(stale!, db).Success, "Console workflow must reject the stale default.");
 		Assert.IsTrue(question.Validator("Simple-NonGerund", db).Success);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(db, Answers(stale!)));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(db, Answers(stale!)));
 		Assert.IsFalse(db.TraitDefinitions.Any(x => x.Type == 0));
 	}
 
@@ -174,7 +174,7 @@ public class SkillPackagePresetTests
 		Assert.AreEqual("87", retained.Expression.Expression);
 		Assert.AreEqual(57.0, db.CharacterTraits.Single().Value);
 		Assert.AreEqual(3.0, db.CharacterTraits.Single().AdditionalValue);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(db, Answers("Simple-Gerund")));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(db, Answers("Simple-Gerund")));
 	}
 
 	[TestMethod]
@@ -184,8 +184,8 @@ public class SkillPackagePresetTests
 		var seeder = new SkillPackageSeeder();
 		var answers = Answers("Complex-Gerund");
 		answers["gerund"] = "no";
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(db, answers));
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(db,
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(db, answers));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(db,
 			new Dictionary<string, string> { ["skillpreset"] = "Simple-Gerund" }));
 		Assert.IsFalse(db.TraitDefinitions.Any(x => x.Type == 0));
 		Assert.IsFalse(db.Checks.Any());

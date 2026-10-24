@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehicleExitVisibilitySecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)]
 	[DataRow(false, false)]
 	[DataRow(true, true)]

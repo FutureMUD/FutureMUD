@@ -28,9 +28,9 @@ public class SurfaceLiquidSpatialRulesTests
 		Assert.AreEqual(7_150.123, SurfaceLiquidSpatialRules.Normalise(route.Object, 7_150.1234));
 		Assert.IsNull(SurfaceLiquidSpatialRules.Normalise(route.Object, null));
 		Assert.IsNull(SurfaceLiquidSpatialRules.Normalise(null, null));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
 			SurfaceLiquidSpatialRules.Normalise(route.Object, 10_001.0));
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 			SurfaceLiquidSpatialRules.Normalise(null, 1.0));
 	}
 }

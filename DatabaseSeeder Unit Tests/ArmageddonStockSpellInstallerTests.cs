@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public partial class ArmageddonStockSpellInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -85,7 +85,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual("90*grade", db.TraitExpressions.Single(x => x.Id == durationId).Expression);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("name")][DataRow("identity")]
 	public void Install_UnownedCollisionRefusesWithoutClaimingOrCreatingChildren(string collision)
 	{
@@ -96,7 +96,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(count, db.SeederManagedRecords.Count()); Assert.AreEqual(expressions, db.TraitExpressions.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("retired")][DataRow("deleted")][DataRow("child")][DataRow("identity")][DataRow("module")]
 	public void Rerun_InvalidRetainedOwnershipHoldsWithoutResurrection(string corruption)
 	{

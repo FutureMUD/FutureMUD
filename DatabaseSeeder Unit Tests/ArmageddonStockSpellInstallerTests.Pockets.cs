@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockSpellInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void PocketAndUnravel_ExactOwnedBindingsAndLockedDefaults_NoPlayerOrRoomCreation(ArmageddonProgressionMode mode)
@@ -47,7 +47,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(rooms, db.Rooms.Count()); Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-carrier")][DataRow("retired-carrier")][DataRow("wrong-component")]
 	[DataRow("unapproved-component")][DataRow("small-capacity")][DataRow("small-size")][DataRow("tag-filter")][DataRow("closable")]
 	public void Pocket_UnsafeTypedCarrier_HoldsWithoutAllocatingItsContribution(string change)

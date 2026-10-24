@@ -9,7 +9,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PersistedRoomReferenceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("RoomOverlay","CellOverlay")]
 	[DataRow("RoomOverlayPackage","CellOverlayPackage")]
 	[DataRow("RouteRoomLandmark","RouteCellLandmark")]
@@ -22,7 +22,7 @@ public class PersistedRoomReferenceTests
 		Assert.IsTrue(item.Object.FrameworkItemEquals(9000,current));
 		Assert.IsFalse(item.Object.FrameworkItemEquals(8101,legacy));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Cell", true)]
 	[DataRow("Room:v2", true)]
 	[DataRow("Room", false)]

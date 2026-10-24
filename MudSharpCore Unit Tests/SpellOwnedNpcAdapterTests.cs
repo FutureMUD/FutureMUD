@@ -53,7 +53,7 @@ public class SpellOwnedNpcAdapterTests
 		Assert.AreSame(item, character.Die());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("99", "TemporaryCleanup")]
 	[DataRow("invalid", "TemporaryCleanup")]
 	[DataRow("1", "invalid")]
@@ -83,14 +83,14 @@ public class SpellOwnedNpcAdapterTests
 		Assert.IsTrue(XNode.DeepEquals(xml, effect.SaveToXml()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1001)]
 	public void Reconcile_InvalidBound_RefusesBeforeDatabaseRead(int limit)
 	{
 		var service = new SpellOwnedNpcService(Mock.Of<IFuturemud>());
-		Assert.ThrowsException<ArgumentException>(() => service.ReconcilePersistedDeaths(DateTime.UtcNow, limit));
-		Assert.ThrowsException<ArgumentException>(() => service.ReconcilePersistedDeaths(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Local)));
+		Assert.ThrowsExactly<ArgumentException>(() => service.ReconcilePersistedDeaths(DateTime.UtcNow, limit));
+		Assert.ThrowsExactly<ArgumentException>(() => service.ReconcilePersistedDeaths(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Local)));
 	}
 
 	[TestMethod]
@@ -101,7 +101,7 @@ public class SpellOwnedNpcAdapterTests
 		Assert.IsFalse(item.IdHasBeenRegistered);
 		item.Complete(73L);
 		Assert.AreEqual(1, notifications);
-		Assert.ThrowsException<InvalidOperationException>(() => item.Complete(74L));
+		Assert.ThrowsExactly<InvalidOperationException>(() => item.Complete(74L));
 		Assert.AreEqual(73L, item.Id);
 	}
 

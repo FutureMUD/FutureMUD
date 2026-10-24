@@ -69,7 +69,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")]
 	[DataRow("ambiguous")]
 	[DataRow("derived")]
@@ -116,9 +116,9 @@ public partial class ArmageddonPreparedWorldSeederTests
 			var json = ArmageddonSettingSeeder.SerializeBindings(bindings); Assert.IsTrue(ArmageddonSettingSeeder.ValidateBindings(json, db).Success);
 			var parsed = ArmageddonSettingSeeder.ParseBindings(json); Assert.AreEqual(100L, parsed.Emotions!.FuryAttribute);
 			var node = JsonNode.Parse(json)!.AsObject(); node["Emotions"]!["CalmSaves"]![0] = 3;
-			Assert.ThrowsException<JsonException>(() => ArmageddonSettingSeeder.ParseBindings(node.ToJsonString()));
+			Assert.ThrowsExactly<JsonException>(() => ArmageddonSettingSeeder.ParseBindings(node.ToJsonString()));
 			node = JsonNode.Parse(json)!.AsObject(); node["Emotions"]!["GuessedSetting"] = 10;
-			Assert.ThrowsException<JsonException>(() => ArmageddonSettingSeeder.ParseBindings(node.ToJsonString()));
+			Assert.ThrowsExactly<JsonException>(() => ArmageddonSettingSeeder.ParseBindings(node.ToJsonString()));
 			node = JsonNode.Parse(json)!.AsObject(); node.Remove("Emotions"); Assert.IsNull(ArmageddonSettingSeeder.ParseBindings(node.ToJsonString()).Emotions);
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), parsed));
 			var spellId = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonEmotionalInstaller.FuryKey).LogicalId;
@@ -151,7 +151,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("retired")]
 	[DataRow("deleted")]
 	[DataRow("version")]

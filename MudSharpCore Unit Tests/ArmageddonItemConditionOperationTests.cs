@@ -43,7 +43,7 @@ public class ArmageddonItemConditionOperationTests
 		Assert.AreEqual(DamageType.Crushing, packets[0].DamageType);
 		f.Item.SetupGet(x => x.InInventoryOf).Returns(new Mock<IBody>().Object);
 		Assert.IsFalse(f.Effect.TryReusePreparedSelection(token, f.Cast.Actor.Object, f.Item.Object, out _));
-		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.Apply(f.Cast.Actor.Object, f.Item.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Effect.Apply(f.Cast.Actor.Object, f.Item.Object,
 			OpposedOutcomeDegree.None, SpellPower.ExtremelyWeak, null!, []));
 		Assert.AreEqual(1, packets.Count);
 	}
@@ -52,10 +52,10 @@ public class ArmageddonItemConditionOperationTests
 	public void ErodeObject_RefusesNonOrganicMaterialAndContainedItemsBeforeMutation()
 	{
 		var f = new Fixture(ArmageddonItemConditionSpellContent.ErodeObjectKey, 1, MaterialBehaviourType.Metal, false);
-		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
 		f.Material.SetupGet(x => x.Organic).Returns(true);
 		f.Item.SetupGet(x => x.ShallowItems).Returns(new[] { f.Item.Object, new Mock<IGameItem>().Object });
-		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
 		f.Item.Verify(x => x.SufferDamage(It.IsAny<IDamage>()), Times.Never);
 	}
 
@@ -63,10 +63,10 @@ public class ArmageddonItemConditionOperationTests
 	public void WitherGrowth_AcceptsOnlyLocalOrganicPlantItemsAndBoundsNativeDamage()
 	{
 		var f = new Fixture(ArmageddonItemConditionSpellContent.WitherGrowthKey, 4, MaterialBehaviourType.Wood, true);
-		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
 		f.Material.SetupGet(x => x.BehaviourType).Returns(MaterialBehaviourType.Plant);
 		f.Material.SetupGet(x => x.Organic).Returns(false);
-		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
 		f.Material.SetupGet(x => x.Organic).Returns(true);
 		f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object);
 		IDamage? delivered = null;
@@ -104,7 +104,7 @@ public class ArmageddonItemConditionOperationTests
 		Assert.AreEqual(35.0, f.Destroyable.Object.GetActualDamage(delivered).DamageAmount, 1e-7);
 		var fragile = new Fixture(ArmageddonItemConditionSpellContent.ShatterStoneKey, 7, MaterialBehaviourType.Stone, false);
 		fragile.MaximumDamage = 35;
-		Assert.ThrowsException<InvalidOperationException>(() => fragile.Effect.CapturePreparedSelection(fragile.Cast.Actor.Object, fragile.Item.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => fragile.Effect.CapturePreparedSelection(fragile.Cast.Actor.Object, fragile.Item.Object));
 		fragile.Item.Verify(x => x.SufferDamage(It.IsAny<IDamage>()), Times.Never);
 	}
 

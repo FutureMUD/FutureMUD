@@ -69,7 +69,7 @@ public class StormSpearComponentTests
 	private static void Bind(InventoryPlanActionConsume action, int grade) =>
 		typeof(InventoryPlanActionConsume).GetMethod("BindSelectedGrade", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(action, [grade]);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)]
 	[DataRow(2, 0)]
 	[DataRow(3, 0)]
@@ -110,9 +110,9 @@ public class StormSpearComponentTests
 	public void ConfigureGradeRanks_InvalidReplacement_PreservesPreviousDefinition()
 	{
 		var f = new Fixture(); var action = f.Action(); var before = action.SaveToXml().ToString();
-		Assert.ThrowsException<FormatException>(() => action.ConfigureGradeRanks(-2, f.Ranks));
+		Assert.ThrowsExactly<FormatException>(() => action.ConfigureGradeRanks(-2, f.Ranks));
 		Assert.AreEqual(before, action.SaveToXml().ToString());
-		Assert.ThrowsException<InvalidOperationException>(() => action.ConfigureGradeRanks(-3, f.Ranks.Reverse().ToArray()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => action.ConfigureGradeRanks(-3, f.Ranks.Reverse().ToArray()));
 		Assert.AreEqual(before, action.SaveToXml().ToString());
 		action.ClearGradeRanks();
 		Assert.IsNull(action.SaveToXml().Element("GradeRank"));
@@ -125,11 +125,11 @@ public class StormSpearComponentTests
 		var f = new Fixture(); var xml = f.Action().SaveToXml();
 		xml.Element("GradeRank")!.Elements("Rank").Last().SetAttributeValue("tag", 999);
 		var action = new InventoryPlanActionConsume(xml, f.World);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => Bind(action, 1));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => Bind(action, 1));
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("scope")]
 	[DataRow("rank")]
 	[DataRow("contained")]
@@ -148,7 +148,7 @@ public class StormSpearComponentTests
 		}
 		var plan = new InventoryPlanTemplate(f.World, action);
 		var method = typeof(InventoryPlanTemplate).GetMethod("TakeAction", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		var error = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(plan,
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(plan,
 			[f.Actor.Object, item.Object, null, DesiredItemState.Consumed, action, true]));
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		item.Verify(x => x.Delete(), Times.Never);
@@ -165,7 +165,7 @@ public class StormSpearComponentTests
 		Assert.AreSame(loose.Object, loaded.ScoutTarget(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)]
 	[DataRow(7, 4)]
 	public void CastingService_GradeBoundMaterial_QuotesAndPaysUsingInvocationPlan(int grade, int rank)
@@ -194,7 +194,7 @@ public class StormSpearComponentTests
 		Assert.IsNull(action.ScoutTarget(f.Actor.Object), "The shared template must remain unbound after casting.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("get")]
 	[DataRow("wield")]
 	public void PrimaryHandPlacement_CallbackChangesCustody_RefusesAtBoundary(string boundary)
@@ -224,13 +224,13 @@ public class StormSpearComponentTests
 		var effect = new PlacementEffect(XElement.Parse("<Effect><ItemQuality>base</ItemQuality><ItemPrototypeId>0</ItemPrototypeId><ItemSkinId>0</ItemSkinId><Quantity>1</Quantity><LoadString/></Effect>"), spell);
 		typeof(CreateItemEffect).GetProperty(nameof(CreateItemEffect.PrimaryHand))!.SetValue(effect, true);
 		var method = typeof(CreateItemEffect).GetMethod("PlaceOwnedItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		var error = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(effect, [item.Object, actor, actor]));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(effect, [item.Object, actor, actor]));
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		body.Verify(x => x.Wield(item.Object, hand, null, true, ItemCanWieldFlags.None), boundary == "get" ? Times.Never() : Times.Once());
 		item.Verify(x => x.Delete(), Times.Never, "A changed-custody output retains its exact lifecycle claim for safe reconciliation.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CastingService_RuntimeSelector_PreservesItsMaterialFilterForLegacyAndRankPlans(bool ranked)

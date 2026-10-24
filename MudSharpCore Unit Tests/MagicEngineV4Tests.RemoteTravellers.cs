@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1)] [DataRow(false, 2)] [DataRow(false, 3)] [DataRow(false, 4)] [DataRow(false, 5)] [DataRow(false, 6)] [DataRow(false, 7)]
 	[DataRow(true, 1)] [DataRow(true, 2)] [DataRow(true, 3)] [DataRow(true, 4)] [DataRow(true, 5)] [DataRow(true, 6)] [DataRow(true, 7)]
 	public void RemoteTravellers_AllGradesMoveExactlyOneRecognisedBodyAndConsumeOneSourceComponent(bool draw, int grade)
@@ -35,7 +35,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(1, f.Pair.Moves);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1)] [DataRow(false, 6)] [DataRow(true, 1)] [DataRow(true, 6)]
 	public void RemoteTravellers_JoinStrictAndDrawInclusiveSourcePathBoundsRemainDistinct(bool draw, int grade)
 	{
@@ -47,7 +47,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(100.0, beyond.Pair.F.Balances[beyond.Pair.F.Resources[1]]); Assert.AreEqual(0, beyond.Pair.Moves);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void RemoteTravellers_GradeSevenRetainsItsSourceRangeExceptionWithoutBypassingEndpoints(bool draw)
 	{
@@ -58,7 +58,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(1, f.Pair.Moves);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "indoors")] [DataRow(true, "indoors")] [DataRow(false, "restricted")] [DataRow(true, "restricted")]
 	[DataRow(false, "unverified")] [DataRow(true, "unverified")] [DataRow(false, "material")] [DataRow(true, "material")]
 	public void RemoteTravellers_RequiredSourceAuthorityAndMaterialsRefuseBeforePayment(bool draw, string reason)
@@ -73,7 +73,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(3, f.Pair.AlterationQuantity); Assert.AreEqual(3, f.Pair.TeleportationQuantity);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0)] [DataRow(2, 0)] [DataRow(3, 1)] [DataRow(4, 2)] [DataRow(5, 3)] [DataRow(6, 4)] [DataRow(7, 6)]
 	public void RemoteTravellers_DrawUsesExplicitExistingConjurationRanksIncludingSparseHighestSupply(int grade, int rank)
 	{

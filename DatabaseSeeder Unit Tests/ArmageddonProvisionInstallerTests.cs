@@ -95,7 +95,7 @@ public class ArmageddonProvisionInstallerTests
 			Assert.AreEqual(definition, db.MagicSpells.Find(spell.Id)!.Definition); Assert.AreEqual("9*grade", db.TraitExpressions.Find(cost.Id)!.Expression); Assert.IsTrue(db.MagicSpells.Any(x => x.Name == "Unowned food clone"));
 		}
 	}
-	[DataTestMethod] [DataRow(false)] [DataRow(true)] public void DeletedOrRetiredOwnedRowsBlockWholeModule(bool retire)
+	[TestMethod] [DataRow(false)] [DataRow(true)] public void DeletedOrRetiredOwnedRowsBlockWholeModule(bool retire)
 	{
 		var (db, plan, _) = Fixture(); using (db)
 		{
@@ -104,7 +104,7 @@ public class ArmageddonProvisionInstallerTests
 			Assert.AreEqual(ArmageddonInstallStatus.Blocked, Run(db, plan).Status); Assert.AreEqual(178, db.SeederManagedRecords.Count());
 		}
 	}
-	[DataTestMethod] [DataRow("revision")] [DataRow("bites")] [DataRow("eatprog")] [DataRow("predicate")] [DataRow("fallback")] [DataRow("wine")] [DataRow("plane")] [DataRow("sharedskill")]
+	[TestMethod] [DataRow("revision")] [DataRow("bites")] [DataRow("eatprog")] [DataRow("predicate")] [DataRow("fallback")] [DataRow("wine")] [DataRow("plane")] [DataRow("sharedskill")]
 	public void MalformedOrMissingSelectionsFailClosedBeforeAnyModuleWrites(string fault)
 	{
 		var (db, plan, _) = Fixture(); using (db)

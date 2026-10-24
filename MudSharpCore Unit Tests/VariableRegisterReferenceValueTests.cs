@@ -167,7 +167,7 @@ public class VariableRegisterReferenceValueTests
 			         (ProgVariableTypes.AgricultureOperation, operation.Object)
 		         })
 		{
-			Assert.AreSame(item, Resolve(gameworld.Object, type, item.Id), type.Describe());
+			Assert.AreSame<object>(item, Resolve(gameworld.Object, type, item.Id), type.Describe());
 		}
 
 		var output = new Mock<IOutputHandler>();
@@ -236,7 +236,7 @@ public class VariableRegisterReferenceValueTests
 			         (ProgVariableTypes.Channel, channel.Object)
 		         })
 		{
-			Assert.AreSame(item, Resolve(gameworld.Object, type, item.Id), type.Describe());
+			Assert.AreSame<object>(item, Resolve(gameworld.Object, type, item.Id), type.Describe());
 		}
 		Assert.AreSame(expiredPropertyLease.Object,
 			Resolve(gameworld.Object, ProgVariableTypes.PropertyLease, expiredPropertyLease.Object.Id));

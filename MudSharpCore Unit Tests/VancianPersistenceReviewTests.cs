@@ -64,7 +64,7 @@ public class VancianPersistenceReviewTests
 		return target;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Known", "success")]
 	[DataRow("Known", "save")]
 	[DataRow("Known", "completion")]
@@ -134,7 +134,7 @@ public class VancianPersistenceReviewTests
 		Assert.AreEqual(f.State.Generation, reloadedStore.Read(10, 20).Generation);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Restart_AbandonedPrecommitWritingReleasesExactSlotAndItemOnce(bool transcription)
@@ -160,7 +160,7 @@ public class VancianPersistenceReviewTests
 		Assert.IsFalse(service.CompleteWriting(f.Actor.Object, start.OperationId.Value).Success);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Committing")]
 	[DataRow("Consumed")]
 	[DataRow("NeedsReview")]

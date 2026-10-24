@@ -29,7 +29,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DirectionSenseMovementTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("north", "")]
 	[DataRow("north north", "north")]
 	public void CharacterMove_RawCompassResolvedByFirstParser_RunsOrientationOnceAndMakesNoProgress(string command, string target)
@@ -48,7 +48,7 @@ public class DirectionSenseMovementTests
 		f.Output.Verify(x => x.Send(DirectionSenseMovement.NoProgressMessage, true, false), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Outcome.Pass)]
 	[DataRow(Outcome.Fail)]
 	public void CharacterMove_GuardChallenge_StillChecksOrientationBeforeAnyGuardRoll(Outcome recovery)

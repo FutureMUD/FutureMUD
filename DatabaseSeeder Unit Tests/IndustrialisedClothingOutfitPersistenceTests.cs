@@ -66,7 +66,7 @@ public class IndustrialisedClothingOutfitPersistenceTests
 		StringAssert.Contains(reconciled.Description, "Updated stock description.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("colour")]
 	[DataRow("wear-profile")]
 	[DataRow("placement")]
@@ -98,7 +98,7 @@ public class IndustrialisedClothingOutfitPersistenceTests
 		Assert.AreSame(entry, outfit.OutfitTemplateItems.Single(x => x.Id == entry.Id));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-profile")]
 	[DataRow("missing-container")]
 	[DataRow("cycle")]
@@ -121,7 +121,7 @@ public class IndustrialisedClothingOutfitPersistenceTests
 			_ => entries[0]
 		};
 		if (defect == "missing-container") entries[1] = entries[1] with { ContainerKey = null };
-		Assert.ThrowsException<InvalidOperationException>(() => Apply(context, entries));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Apply(context, entries));
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		CollectionAssert.AreEqual(before, context.OutfitTemplateItems.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
@@ -135,7 +135,7 @@ public class IndustrialisedClothingOutfitPersistenceTests
 		Assert.AreEqual(1, context.OutfitTemplateItems.Select(x => x.GameItemProtoId).Distinct().Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void LegacyOutfitFingerprint_UpgradesOnlyUnchangedDefaultComposition(bool customized)

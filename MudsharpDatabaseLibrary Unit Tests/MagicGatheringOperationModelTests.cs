@@ -82,7 +82,7 @@ public class MagicGatheringOperationModelTests
 		using FuturemudDatabaseContext context = CreateContext();
 		Guid id = Guid.NewGuid();
 		context.MagicGatheringOperations.Add(new MagicGatheringOperation { Id = id });
-		Assert.ThrowsException<InvalidOperationException>(() => context.MagicGatheringOperations.Add(
+		Assert.ThrowsExactly<InvalidOperationException>(() => context.MagicGatheringOperations.Add(
 			new MagicGatheringOperation { Id = id }));
 	}
 

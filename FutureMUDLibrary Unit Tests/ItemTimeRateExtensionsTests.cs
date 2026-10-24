@@ -82,7 +82,7 @@ public class ItemTimeRateExtensionsTests
 		Assert.IsNull(ItemTimeRateMath.WallDuration(effective, 0.0));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1e-300)]
 	[DataRow(double.Epsilon)]
 	[DataRow(double.NaN)]

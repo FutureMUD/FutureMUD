@@ -82,7 +82,7 @@ public class MagicPersistentSensoryCombatTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 2.0)]
 	[DataRow(7, 14.0)]
 	public void BurningEffect_SelectedExternalGrade_DeterminesPersistentTickDamage(int grade, double expected)

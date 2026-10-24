@@ -56,7 +56,7 @@ public sealed class MudClientUpdateManifestVerifierTests
 			ContentBase64 = request.ContentBase64,
 			SignatureBase64 = Convert.ToBase64String(new byte[64])
 		};
-		Assert.ThrowsException<ReleaseStoreException>(() =>
+		Assert.ThrowsExactly<ReleaseStoreException>(() =>
 			MudClientUpdateManifestVerifier.Verify(request, options, product, "1.2.0", new string('b', 40), [artifact]));
 	}
 

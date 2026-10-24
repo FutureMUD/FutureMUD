@@ -102,7 +102,7 @@ public class ArenaLifecycleServiceTests
     [TestMethod]
     public void Transition_NullEvent_Throws()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => _service.Transition(null!, ArenaEventState.Live));
+        Assert.ThrowsExactly<ArgumentNullException>(() => _service.Transition(null!, ArenaEventState.Live));
     }
 
     private static Mock<IArenaEvent> BuildEvent(ArenaEventState initialState)

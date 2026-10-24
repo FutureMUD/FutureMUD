@@ -73,7 +73,7 @@ public class CellSpatialRegexFailureInterceptorTests
 		StringAssert.Contains(CellSpatialRegexFailureInterceptor.FormatFailure(original)!, original.ToString());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Definition", false)]
 	[DataRow("TemplateType", true)]
 	[DataRow("ownerTYPE", true)]
@@ -91,7 +91,7 @@ public class CellSpatialRegexFailureInterceptorTests
 		Assert.AreEqual(column, context.RootElement.GetProperty("Column").GetString());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Capture_MissingOrClosedConnectionNeverOpensAnother(bool missing)
@@ -143,7 +143,7 @@ public class CellSpatialRegexFailureInterceptorTests
 		Assert.AreEqual(original.ToString(), CellSpatialRegexFailureInterceptor.FormatFailure(original));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -180,7 +180,7 @@ public class CellSpatialRegexFailureInterceptorTests
 		Assert.IsFalse(CellSpatialRegexFailureInterceptor.FormatFailure(original)!.Contains("SECRET_RAW_DEFINITION"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1042, CellSpatialRegexFailureInterceptor.ExpansionCall)]
 	[DataRow(3699, "CALL `fm_cell_spatial_contract_20261006161646`(FALSE);")]
 	[DataRow(3699, "SELECT SECRET_RAW_DEFINITION")]

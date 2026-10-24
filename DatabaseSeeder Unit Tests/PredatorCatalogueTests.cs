@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PredatorCatalogueTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Giant Spider", "Beast Skirmisher", "Beast Clincher")]
 	[DataRow("Giant Spider", "My Custom Spider", "My Custom Spider")]
 	[DataRow("Leopard", "Beast Skirmisher", "Beast Brawler")]
@@ -75,7 +75,7 @@ public class PredatorCatalogueTests
 		Assert.IsFalse(context.RacesBreathableGases.Any(x => x.RaceId == 2));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Viper", false)]
 	[DataRow("Cobra", false)]
 	[DataRow("Rattlesnake", false)]
@@ -105,7 +105,7 @@ public class PredatorCatalogueTests
 		Assert.AreEqual(3, context.RacesWeaponAttacks.Count(x => x.BodypartId == 1));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Beast Dropper", CombatStrategyMode.Dropper)]
 	[DataRow("Beast Drowner", CombatStrategyMode.Drowner)]
 	public void PredatorStrategy_LegacyRangeRepair_PreservesDifferentAuthoredApproach(string name, CombatStrategyMode mode)
@@ -122,7 +122,7 @@ public class PredatorCatalogueTests
 		Assert.AreEqual((int)CombatStrategyMode.FullAdvance, setting.PreferredRangedMode);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Leopard", "Ambush", "Extract", "Desperate", "Balanced")]
 	[DataRow("Tiger", "Ambush", "Fight", "Desperate", "Balanced")]
 	[DataRow("Crocodile", "Ambush", "Extract", "Eligible", "Balanced")]

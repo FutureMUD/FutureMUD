@@ -89,7 +89,7 @@ public partial class RemainsRuntimeBoundaryTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Exposure_UnresolvedCorpse_RefreshAndRegistrationRetainOrdinaryItemTracking(bool refresh)
@@ -103,7 +103,7 @@ public partial class RemainsRuntimeBoundaryTests
 		Assert.AreEqual(0, remains.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)]
 	[DataRow(false, false)]
 	[DataRow(true, true)]
@@ -124,7 +124,7 @@ public partial class RemainsRuntimeBoundaryTests
 		f.Part.VerifySet(x => x.EatenWeight = It.IsAny<double>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]
@@ -158,7 +158,7 @@ public partial class RemainsRuntimeBoundaryTests
 		f.Item.VerifySet(x => x.RoomLayer = It.IsAny<RoomLayer>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Eating_ResolvedAnatomy_StillConsumesAndDispatchesEvents(bool corpse)

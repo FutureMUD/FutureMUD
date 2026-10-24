@@ -51,7 +51,7 @@ public class IndustrialisedClothingColourBindingsTests
 			new Dictionary<string, string> { ["colour"] = "cream" }, Source));
 		Assert.AreEqual("blue", bindings["colour"].DefaultValue);
 		Assert.AreEqual(0, context.ChangeTracker.Entries().Count());
-		Assert.ThrowsException<InvalidDataException>(() => snapshot.Bind(Channels(), [], Source));
+		Assert.ThrowsExactly<InvalidDataException>(() => snapshot.Bind(Channels(), [], Source));
 		Assert.AreEqual(0, context.ChangeTracker.Entries().Count());
 	}
 
@@ -62,7 +62,7 @@ public class IndustrialisedClothingColourBindingsTests
 		var complete = snapshot.Bind(Channels(), [Component()], Source)["colour"];
 		snapshot.ValidateUnrestrictedCraftInheritance(complete, Source);
 		var narrowed = complete with { Values = complete.Values.Where(x => x.Key != "black").ToDictionary(x => x.Key, x => x.Value) };
-		var error = Assert.ThrowsException<InvalidDataException>(() => snapshot.ValidateUnrestrictedCraftInheritance(narrowed, Source));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => snapshot.ValidateUnrestrictedCraftInheritance(narrowed, Source));
 		StringAssert.Contains(error.Message, "outside this product palette");
 		StringAssert.Contains(error.Message, "Clothing/colours.tsv:2");
 	}
@@ -72,7 +72,7 @@ public class IndustrialisedClothingColourBindingsTests
 	{
 		var snapshot = new IndustrialisedClothingColourBindings([Definition], [Profile()], Values());
 		var channels = Channels().ToDictionary(x => x.Key, x => x.Value with { AllowedValues = ["blue", "cream"] });
-		var error = Assert.ThrowsException<InvalidDataException>(() => snapshot.Bind(channels, [Component()], Source));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => snapshot.Bind(channels, [Component()], Source));
 		StringAssert.Contains(error.Message, "Standalone");
 		StringAssert.Contains(error.Message, "black");
 		StringAssert.Contains(error.Message, "Clothing/colours.tsv:2");
@@ -95,12 +95,12 @@ public class IndustrialisedClothingColourBindingsTests
 		var skin = snapshot.Bind(channels, [Component()], Source, requireStandaloneProfile: false);
 		Assert.AreEqual("colour=22", IndustrialisedClothingColourBindings.LoadArguments(skin,
 			new Dictionary<string, string> { ["colour"] = "cream" }, Source));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(skin,
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(skin,
 			new Dictionary<string, string> { ["colour"] = "black" }, Source));
 		Assert.AreEqual(3, snapshot.Bind(Channels(), [Component()], Source)["colour"].Values.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("", "explicitly select")]
 	[DataRow("colour=:31", "not a random")]
 	[DataRow("colour=999", "missing, ambiguous or incompatible")]
@@ -111,7 +111,7 @@ public class IndustrialisedClothingColourBindingsTests
 	{
 		var snapshot = new IndustrialisedClothingColourBindings([Definition], [Profile()], Values());
 		var binding = snapshot.Bind(Channels(), [Component()], Source);
-		var error = Assert.ThrowsException<InvalidDataException>(() =>
+		var error = Assert.ThrowsExactly<InvalidDataException>(() =>
 			snapshot.ValidatePersistedLoadArguments(arguments, [Component()], Source, binding));
 		StringAssert.Contains(error.Message, diagnostic);
 		StringAssert.Contains(error.Message, Source.ToString());
@@ -126,7 +126,7 @@ public class IndustrialisedClothingColourBindingsTests
 		snapshot.ValidatePersistedLoadArguments("colour=cream", [Component()], Source, binding);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("standard", "<Values><Value>21</Value><Value>cream</Value><Value>23</Value></Values>")]
 	[DataRow("weighted", "<Values><Value weight=\"1\">21</Value><Value weight=\"2\">22</Value><Value weight=\"1\">23</Value></Values>")]
 	[DataRow("compound", "<Definition><Profile>32</Profile></Definition>")]
@@ -139,7 +139,7 @@ public class IndustrialisedClothingColourBindingsTests
 		Assert.AreEqual(3, snapshot.Bind(Channels(), [Component()], Source)["colour"].Values.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-definition")]
 	[DataRow("ambiguous-definition")]
 	[DataRow("ambiguous-value")]
@@ -195,7 +195,7 @@ public class IndustrialisedClothingColourBindingsTests
 			case "ongoing-prog": values[0].OngoingValidityProgId = 1; break;
 		}
 		var snapshot = new IndustrialisedClothingColourBindings(definitions, profiles, values);
-		var ex = Assert.ThrowsException<InvalidDataException>(() => snapshot.Bind(Channels(), [component], Source));
+		var ex = Assert.ThrowsExactly<InvalidDataException>(() => snapshot.Bind(Channels(), [component], Source));
 		StringAssert.Contains(ex.Message, "Clothing/colours.tsv:2");
 	}
 
@@ -217,7 +217,7 @@ public class IndustrialisedClothingColourBindingsTests
 		Assert.AreEqual("coat_entry", bound.EntryKey);
 		Assert.IsNull(bound.SkinStableReference);
 		wearProfile.Id = 52;
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() =>
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() =>
 			ItemSeeder.BindClothingOutfitEntry(document, entry, [Component(), wearable], colours, [wearProfile])).Message,
 			"not supported by this garment");
 	}
@@ -232,9 +232,9 @@ public class IndustrialisedClothingColourBindingsTests
 		profile.Definition = "<broken";
 		var bindings = snapshot.Bind(Channels(), [Component()], Source);
 		Assert.AreEqual(21, bindings["colour"].Values["blue"]);
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(bindings,
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(bindings,
 			new Dictionary<string, string> { ["colour"] = "red" }, Source));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(bindings,
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourBindings.LoadArguments(bindings,
 			new Dictionary<string, string>(), Source));
 	}
 }

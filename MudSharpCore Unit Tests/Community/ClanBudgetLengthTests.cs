@@ -36,7 +36,7 @@ namespace MudSharp_Unit_Tests.Community;
 [DoNotParallelize]
 public class ClanBudgetLengthTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(200, true)]
 	[DataRow(201, false)]
 	public void BudgetCreate_NameBoundary_ValidatesBeforePersistence(int length, bool accepted)
@@ -54,13 +54,13 @@ public class ClanBudgetLengthTests
 	public void BudgetConstructor_OversizedName_RejectsBeforePersistence()
 	{
 		using var fixture = new BudgetFixture();
-		Assert.ThrowsException<ArgumentException>(() => new ClanBudget(fixture.Clan, fixture.Appointment.Object,
+		Assert.ThrowsExactly<ArgumentException>(() => new ClanBudget(fixture.Clan, fixture.Appointment.Object,
 			null, fixture.Currency.Object, new string('n', 201), 10M,
 			new RecurringInterval { Type = IntervalType.Daily, IntervalAmount = 1 }));
 		Assert.AreEqual(0, fixture.Context.ClanBudgets.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1000, true)]
 	[DataRow(false, 1001, false)]
 	[DataRow(true, 1000, true)]
@@ -79,7 +79,7 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual(1, fixture.Context.ClanBudgetTransactions.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, 255, false)]
 	[DataRow(0, 256, false)]
 	[DataRow(5, 255, false)]
@@ -106,7 +106,7 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void BudgetDraw_ChangingCurrencyFormatting_FormatsOnceAndPersistsTheExactDescription(bool databaseLedger)
@@ -128,7 +128,7 @@ public class ClanBudgetLengthTests
 			fixture.PersistBankTransaction().TransactionDescription);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(5)]
 	[DataRow(10)]
 	public void BudgetDraw_OriginalBankContract_SupportsBankAndVirtualFunding(int virtualBalance)
@@ -164,7 +164,7 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, 1000, true, false)]
 	[DataRow(0, 1001, false, false)]
 	[DataRow(5, 1000, true, false)]
@@ -190,7 +190,7 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("\U0001F600")]
 	[DataRow("e\u0301")]
 	[DataRow("\U0001F469\u200D\U0001F4BB")]
@@ -207,7 +207,7 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void BudgetDraw_FormattingFailure_LeavesFundsLedgersAndPayoutUntouched(bool databaseLedger)
@@ -216,7 +216,7 @@ public class ClanBudgetLengthTests
 		fixture.UseDatabaseLedger(databaseLedger);
 		fixture.AddBudget("office budget", true, 5M);
 		fixture.AmountDescription = _ => throw new InvalidOperationException("format failed");
-		Assert.ThrowsException<InvalidOperationException>(() => fixture.Draw("supplies"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => fixture.Draw("supplies"));
 		Assert.AreEqual(5M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
 		Assert.AreEqual(1000M, fixture.BankAccount.CurrentBalance);
 		Assert.AreEqual(0, fixture.BankTransactions.Count);
@@ -227,7 +227,7 @@ public class ClanBudgetLengthTests
 		Assert.IsFalse(fixture.BankAccount.Changed);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(255)]
 	[DataRow(256)]
 	public void BankWithdrawal_OriginalTwoArgumentMethod_PersistsTheBoundedDescription(int descriptionLength)
@@ -248,12 +248,12 @@ public class ClanBudgetLengthTests
 	{
 		using var fixture = new BudgetFixture();
 		fixture.AddBudget("office budget", false, 10M);
-		Assert.ThrowsException<ArgumentException>(() => new ClanBudgetTransaction(
+		Assert.ThrowsExactly<ArgumentException>(() => new ClanBudgetTransaction(
 			fixture.Budget.Object, fixture.Actor.Object, 10M, new string('r', 1001)));
 		Assert.AreEqual(0, fixture.Context.ClanBudgetTransactions.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]

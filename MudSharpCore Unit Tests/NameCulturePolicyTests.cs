@@ -189,7 +189,7 @@ public class NameCulturePolicyTests
 		Assert.IsFalse(profile.IsReady); Assert.AreEqual("0", profile.NameUsageDiceExpressions[NameUsage.BirthName]);
 		model.RandomNameProfilesDiceExpressions.Single().DiceExpression = "1d2";
 		Assert.IsFalse(new RandomNameProfile(model, culture).IsReady, "Unsupported variable counts remain stored but unready.");
-		Assert.ThrowsException<InvalidOperationException>(() => profile.GetRandomPersonalName(true));
+		Assert.ThrowsExactly<InvalidOperationException>(() => profile.GetRandomPersonalName(true));
 	}
 
 	[TestMethod]

@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class IndustrialisedClothingReuseTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-item", "exactly one current item prototype")]
 	[DataRow("invalid-key", "invalid or duplicate entry key")]
 	[DataRow("missing-profile", "missing or unsupported wear profile")]
@@ -50,7 +50,7 @@ public partial class IndustrialisedClothingReuseTests
 		context.SaveChanges();
 		context.ChangeTracker.Clear();
 		var before = OutfitOwnershipState(context);
-		var error = Assert.ThrowsException<InvalidDataException>(() =>
+		var error = Assert.ThrowsExactly<InvalidDataException>(() =>
 			new ItemSeeder(catalogue).ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/outfits.tsv:2");
 		StringAssert.Contains(error.Message, diagnostic);

@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public partial class ArmageddonStockProgressionRuntimeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, "earth")]
 	[DataRow(ArmageddonProgressionMode.Classic, "sorcerer")]
 	[DataRow(ArmageddonProgressionMode.Simple, "earth")]
@@ -77,7 +77,7 @@ public partial class ArmageddonStockProgressionRuntimeTests
 		Assert.AreEqual(0, f.SkillUses);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unrelated-role")]
 	[DataRow("no-permanent-merit")]
 	[DataRow("disabled")]

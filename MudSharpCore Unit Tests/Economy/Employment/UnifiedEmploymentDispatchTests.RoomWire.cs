@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests.Economy.Employment;
 
 public partial class UnifiedEmploymentDispatchTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void EmploymentPersistence_FrozenLocationPayloads_PreservePlanOrderAndNullableTargets(bool hasOptionalTargets)

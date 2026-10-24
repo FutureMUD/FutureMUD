@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonTurnElementsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void Content_NativeFactoryGradeLifetimeAndOptionalLegacySchema(int grade)
@@ -40,7 +40,7 @@ public class ArmageddonTurnElementsTests
 		var legacy = template.SaveToXml(); legacy.Element("OneUse")!.Remove();
 		var oldTemplate = (PersonalWardEffect)SpellEffectFactory.LoadEffect(legacy, x.WardSpell);
 		Assert.IsFalse(oldTemplate.OneUse); Assert.IsNull(oldTemplate.SaveToXml().Element("OneUse"));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonTurnElementsContent.Create(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonTurnElementsContent.Create(0));
 		Assert.AreEqual(7.0, ArmageddonTurnElementsContent.Create(1).Content.MinimumEnergy);
 	}
 
@@ -77,7 +77,7 @@ public class ArmageddonTurnElementsTests
 		Assert.IsFalse(x.TargetEffects.Contains(cold)); Assert.IsFalse(x.TargetEffects.Contains(child));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("detach")]
 	[DataRow("body")]
 	[DataRow("source-body")]
@@ -106,7 +106,7 @@ public class ArmageddonTurnElementsTests
 	{
 		var x = new Fixture(1);
 		x.Target.SetupSet(a => a.EffectsChanged = true).Callback(() => x.TargetEffects.Remove(x.Parent));
-		Assert.ThrowsException<InvalidOperationException>(() => MagicInterdictionHelper.TryCommitReflection(x.Query()!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => MagicInterdictionHelper.TryCommitReflection(x.Query()!));
 		Assert.IsTrue(x.Ward.Used); Assert.IsNull(x.Query());
 		Assert.AreEqual("true", x.Ward.SaveToXml(new()).Element("Effect")!.Element("Used")!.Value);
 	}
@@ -127,7 +127,7 @@ public class ArmageddonTurnElementsTests
 		Assert.IsTrue(x.F.Balances[x.F.Resources[1]] < balance);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void PaidCallback_StaleAuthorityHoldsRecipientAndPostWriteUncertaintyRetainsPayment(bool afterWrite)
@@ -152,14 +152,14 @@ public class ArmageddonTurnElementsTests
 		foreach (var value in new[] { "maybe", "-1" })
 		{
 			var definition = x.WardSpell.SpellEffects.Single().SaveToXml(); definition.SetElementValue("OneUse", value);
-			Assert.ThrowsException<FormatException>(() => SpellEffectFactory.LoadEffect(definition, x.WardSpell));
+			Assert.ThrowsExactly<FormatException>(() => SpellEffectFactory.LoadEffect(definition, x.WardSpell));
 		}
 		var invalid = x.WardSpell.SpellEffects.Single().SaveToXml(); invalid.SetElementValue("Mode", "Fail");
-		Assert.ThrowsException<FormatException>(() => SpellEffectFactory.LoadEffect(invalid, x.WardSpell));
+		Assert.ThrowsExactly<FormatException>(() => SpellEffectFactory.LoadEffect(invalid, x.WardSpell));
 		Assert.AreEqual(100.0, x.F.Balances[x.F.Resources[1]]); Assert.AreEqual(0, x.F.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void PaidReflectionOutputCallback_HoldsPayloadAfterAuthorityChangesAndRetainsSpentUse(bool bodyChange)

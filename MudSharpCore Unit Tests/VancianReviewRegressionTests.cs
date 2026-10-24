@@ -128,7 +128,7 @@ public class VancianReviewRegressionTests
 		Assert.AreEqual(ledgerEntries, f.Store.Log.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)] [DataRow(false)]
 	public void SpellBackedPower_LegacyRouteChecksPaymentBeforeApplyingEffects(bool paymentAccepted)
 	{
@@ -147,7 +147,7 @@ public class VancianReviewRegressionTests
 		Assert.AreEqual(0, f.Store.Log.Count); Assert.AreEqual(0, f.State.Slots.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(VancianAllowanceMode.Memorised)]
 	[DataRow(VancianAllowanceMode.Spontaneous)]
 	[DataRow(VancianAllowanceMode.AtWill)]
@@ -183,7 +183,7 @@ public class VancianReviewRegressionTests
 		Assert.IsFalse(items.Spell.CharacterKnowsSpell(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CombinedMaterials_TwoCostsConsumeTwoUnitsExactlyOnce(bool stack)
@@ -232,7 +232,7 @@ public class VancianReviewRegressionTests
 		first.Verify(x => x.Delete(), Times.Never); second.Verify(x => x.Delete(), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(VancianAllowanceMode.Memorised, 3, 16)]
 	[DataRow(VancianAllowanceMode.AtWill, 1, 12)]
 	public void SpellHelp_UsesTheSameRouteContextAsActualExpenditure(VancianAllowanceMode mode, int level, int cost)

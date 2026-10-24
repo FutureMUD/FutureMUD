@@ -39,7 +39,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VitalTransferTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 5.0)]
 	[DataRow(5, 25.0)]
 	[DataRow(7, 35.0)]
@@ -56,7 +56,7 @@ public class VitalTransferTests
 		f.Saves.Verify(x => x.AddInitialisation(It.IsAny<ILateInitialisingItem>()), Times.AtLeastOnce);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, 0.0)]
 	[DataRow(0.25, 5.0)]
 	[DataRow(1.0, 20.0)]
@@ -112,7 +112,7 @@ public class VitalTransferTests
 		Assert.AreEqual(95, f.SourceWound.CurrentDamage);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Siphon_WoundCallbackSwapsBody_NoHealingRedirect(bool source)
@@ -160,7 +160,7 @@ public class VitalTransferTests
 		Assert.AreEqual(50, wound.Object.CurrentDamage);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0.1)]
 	[DataRow(5, 0.5)]
 	[DataRow(7, 0.5)]
@@ -173,7 +173,7 @@ public class VitalTransferTests
 		Assert.AreEqual(20, f.Body.Wounds.Single().CurrentDamage);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("miss")]
 	[DataRow("block")]
 	[DataRow("zero")]
@@ -273,10 +273,10 @@ public class VitalTransferTests
 			Assert.IsTrue(XNode.DeepEquals(xml, loaded.SaveToXml()));
 		}
 		Assert.AreEqual("60*grade", ArmageddonVitalTransferSpellContent.LeechingEdge().DurationFormula);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonVitalTransferSpellContent.VitalSiphon(0, "return true"));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonVitalTransferSpellContent.VitalSiphon(0, "return true"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1.25)]
 	[DataRow(true, 0.625)]
 	public void NativeDamage_OrderedPolicyAggravatesMeasuredWound_OnlyFrozenDeltaHeals(bool edge, double healed)
@@ -302,7 +302,7 @@ public class VitalTransferTests
 		Assert.AreEqual(100 - healed, f.SourceWound.CurrentDamage, 0.000001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "victim")]
 	[DataRow(true, "victim")]
 	[DataRow(true, "enchantment")]

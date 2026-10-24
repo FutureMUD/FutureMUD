@@ -396,13 +396,13 @@ public class UsefulSeederAutobuilderTests
         var tag = context.Tags.Single(x => x.Name == UsefulSeeder.StockAutobuilderTagNamesForTesting.Last());
         context.Tags.Remove(tag);
         context.SaveChanges();
-        var error = Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context));
+        var error = Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context));
         StringAssert.Contains(error.Message, "missing");
         Assert.IsFalse(context.Tags.Any(x => x.Id == tag.Id));
         Assert.AreEqual("<Template><Descriptions /></Template>", room.Definition);
         Assert.IsFalse(context.AutobuilderAreaTemplates.Any(x => x.Id == area.Id || x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single()));
         context.Tags.Add(tag); context.SaveChanges();
-        error = Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context));
+        error = Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context));
         StringAssert.Contains(error.Message, "Missing owned autobuilder template");
         Assert.IsFalse(context.AutobuilderAreaTemplates.Any(x => x.Id == area.Id || x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single()));
     }
@@ -430,11 +430,11 @@ public class UsefulSeederAutobuilderTests
         {
             var record = context.SeederManagedRecords.Single(x => x.EntityType == type);
             record.Retired = true; context.SaveChanges();
-            StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context)).Message, "Invalid autobuilder ownership");
+            StringAssert.Contains(Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context)).Message, "Invalid autobuilder ownership");
             record.Retired = false; context.SaveChanges();
         }
         context.AutobuilderRoomTemplates.Remove(room); context.SaveChanges();
-        StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context)).Message, "Missing owned autobuilder template");
+        StringAssert.Contains(Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context)).Message, "Missing owned autobuilder template");
         Assert.IsFalse(context.AutobuilderRoomTemplates.Any(x => x.Id == room.Id || x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single()));
     }
 }

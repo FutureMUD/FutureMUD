@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonMovementTempoSpellTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("arm.spell.fleet_step", 1, SpellPower.ExtremelyStrong, 1.0 / 1.05)]
 	[DataRow("arm.spell.lightning_pace", 7, SpellPower.ExtremelyWeak, 1.0 / 1.35)]
 	[DataRow("arm.spell.leadfoot", 1, SpellPower.ExtremelyStrong, 1.05)]
@@ -45,12 +45,12 @@ public class ArmageddonMovementTempoSpellTests
 		Assert.IsTrue(XNode.DeepEquals(definition, authored.SpellEffects.First().SaveToXml()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(8)]
 	public void SelectedGradeOutsideLockedRangeRefuses(int grade)
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
 			MovementTempoSpellEffect.MultiplierForGrade(grade, false, 0.05));
 	}
 

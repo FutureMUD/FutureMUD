@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SownSicknessNativeMechanicsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NegativeInfinity, 1)]
 	[DataRow(0.0, 1)]
 	[DataRow(1.0, 1)]

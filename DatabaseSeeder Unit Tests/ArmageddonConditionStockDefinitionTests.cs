@@ -56,25 +56,25 @@ public class ArmageddonConditionStockDefinitionTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L)]
 	[DataRow(-1L)]
 	[DataRow(1L)]
 	[DataRow(4L)]
 	public void DiseasePair_OnlyExactResolvedNativeS3KindIsAccepted(long invalidKind) =>
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonConditionSpellContent.Create(new(invalidKind, 102)));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonConditionSpellContent.Create(new(invalidKind, 102)));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L)]
 	[DataRow(-1L)]
 	public void DiseasePair_UnresolvedTraitsResourcesExpressionsRefuseWithoutFallback(long invalid)
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonConditionSpellContent.Create(new(5, invalid)));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonConditionSpellContent.Create(new(5, invalid)));
 		foreach (var contribution in ArmageddonConditionSpellContent.Create(new(5, 102)))
 		{
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(invalid, 202, 0));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, invalid, 0));
-			if (invalid < 0) Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, 202, invalid));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(invalid, 202, 0));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, invalid, 0));
+			if (invalid < 0) Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, 202, invalid));
 		}
 	}
 }

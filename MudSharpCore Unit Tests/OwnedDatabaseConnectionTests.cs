@@ -33,7 +33,7 @@ public class OwnedDatabaseConnectionTests
 				Assert.AreEqual(System.Data.ConnectionState.Closed, candidate.State);
 				throw new InvalidOperationException("owned gate");
 			};
-			Assert.AreEqual("owned gate", Assert.ThrowsException<InvalidOperationException>(() => new FMDB()).Message);
+			Assert.AreEqual("owned gate", Assert.ThrowsExactly<InvalidOperationException>(() => new FMDB()).Message);
 			Assert.IsNull(FMDB.Context);
 		}
 		finally { field.SetValue(null, session); FMDB.ConnectionString = connection; FMDB.ConnectionValidator = previous; }
@@ -59,7 +59,7 @@ public class OwnedDatabaseConnectionTests
 				Assert.AreEqual("reuse-explicit", boundary); Assert.AreSame(connection, candidate);
 				throw new InvalidOperationException("stale session gate");
 			};
-			Assert.AreEqual("stale session gate", Assert.ThrowsException<InvalidOperationException>(() => new FMDB()).Message);
+			Assert.AreEqual("stale session gate", Assert.ThrowsExactly<InvalidOperationException>(() => new FMDB()).Message);
 			Assert.AreEqual(0u, type.GetProperty("InstanceCount")!.GetValue(session));
 		}
 		finally { field.SetValue(null, saved); FMDB.ConnectionValidator = previous; }
@@ -81,7 +81,7 @@ public class OwnedDatabaseConnectionTests
 			Assert.AreEqual(System.Data.ConnectionState.Closed, candidate.State);
 			throw new InvalidOperationException(boundary);
 		});
-		Assert.AreEqual("ef-opening", Assert.ThrowsException<InvalidOperationException>(() => context.Database.OpenConnection()).Message);
-		Assert.AreEqual("ef-opening-async", (await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => context.Database.OpenConnectionAsync())).Message);
+		Assert.AreEqual("ef-opening", Assert.ThrowsExactly<InvalidOperationException>(() => context.Database.OpenConnection()).Message);
+		Assert.AreEqual("ef-opening-async", (await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => context.Database.OpenConnectionAsync())).Message);
 	}
 }

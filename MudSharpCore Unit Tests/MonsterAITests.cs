@@ -237,7 +237,7 @@ public class MonsterAITests
 		Assert.AreEqual("outside the active calendar dates", rule.InactiveReason(f.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Calendar>999</Calendar>")]
 	[DataRow("<Moon>999</Moon>")]
 	[DataRow("<ConditionProg>999</ConditionProg>")]

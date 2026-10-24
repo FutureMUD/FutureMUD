@@ -19,7 +19,7 @@ public class WeatherControllerBuilderTests
 	public void WeatherController_NoPermittedInitialEvent_RejectsBeforeSubscriptionsOrPersistence()
 	{
 		var (world, climate, zone, clock, _) = NoInitialWeatherFixture();
-		var error = Assert.ThrowsException<ArgumentException>(() =>
+		var error = Assert.ThrowsExactly<ArgumentException>(() =>
 			new WeatherController(world.Object, "Test Weather", climate.Object, zone.Object));
 		Assert.AreEqual("climate", error.ParamName);
 		clock.VerifyAdd(x => x.MinutesUpdated += It.IsAny<ClockEventHandler>(), Times.Never);

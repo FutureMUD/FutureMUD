@@ -23,7 +23,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class RacialPhysiologyRuntimeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(5.0, 3.75, 3.75)]
 	[DataRow(5.0, 7.0, 5.0)]
 	[DataRow(0.0, 3.75, 0.0)]
@@ -154,7 +154,7 @@ public class RacialPhysiologyRuntimeTests
 		Assert.AreEqual(120, PhysiologyMeritEffects.StaminaCapacity(100, actor, giant.Object), 1e-9);
 		Assert.AreSame(human.Object, actor.Body);
 		reserve.Setup(x => x.Applies(actor)).Throws(new InvalidOperationException("fixture failure"));
-		Assert.ThrowsException<InvalidOperationException>(() => PhysiologyMeritEffects.StaminaCapacity(100, actor, giant.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => PhysiologyMeritEffects.StaminaCapacity(100, actor, giant.Object));
 		Assert.AreSame(human.Object, actor.Body);
 	}
 

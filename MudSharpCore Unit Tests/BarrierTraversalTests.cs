@@ -61,7 +61,7 @@ public class BarrierTraversalTests
 		Assert.IsTrue(movement.Cancelled); Assert.IsFalse(f.Body.Wounds.Any());
 		f.Victim.Verify(x => x.ExecuteMove(It.IsAny<IMovement>(), It.IsAny<IMoveSpeed>()), Times.Never);
 	}
-	[DataTestMethod, DataRow(false, "body"), DataRow(false, "exit"), DataRow(false, "gear"),
+	[TestMethod, DataRow(false, "body"), DataRow(false, "exit"), DataRow(false, "gear"),
 		DataRow(true, "body"), DataRow(true, "exit"), DataRow(true, "gear")]
 	public void NativeItemFinalAuthorityCheckpoint_StaleContactCannotWoundGearOrBody(bool prosthetic, string change)
 	{
@@ -89,7 +89,7 @@ public class BarrierTraversalTests
 		Assert.IsFalse(gear.Wounds.Any()); Assert.IsFalse(f.Body.Wounds.Any());
 		f.Victim.Verify(x => x.ExecuteMove(It.IsAny<IMovement>(), It.IsAny<IMoveSpeed>()), Times.Never);
 	}
-	[DataTestMethod, DataRow(false), DataRow(true)]
+	[TestMethod, DataRow(false), DataRow(true)]
 	public void NativeDestroyableContactGear_PositiveControlProducesNativeItemWound(bool prosthetic)
 	{
 		var f = new Fixture(); Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.Cast(f.Intent(1)).Status);
@@ -102,7 +102,7 @@ public class BarrierTraversalTests
 		Assert.AreEqual(prosthetic ? 0.0 : 1.5, f.Body.Wounds.Sum(x => x.CurrentDamage), 0.000001);
 		f.Victim.Verify(x => x.ExecuteMove(It.IsAny<IMovement>(), It.IsAny<IMoveSpeed>()), Times.Never);
 	}
-	[DataTestMethod, DataRow(DamageType.Burning, 1), DataRow(DamageType.Burning, 7), DataRow(DamageType.Piercing, 1), DataRow(DamageType.Piercing, 7), DataRow(DamageType.Slashing, 1), DataRow(DamageType.Slashing, 7)]
+	[TestMethod, DataRow(DamageType.Burning, 1), DataRow(DamageType.Burning, 7), DataRow(DamageType.Piercing, 1), DataRow(DamageType.Piercing, 7), DataRow(DamageType.Slashing, 1), DataRow(DamageType.Slashing, 7)]
 	public void PaidBarrier_NativeMovementInflictsExactGradeThenBlocksOnce(DamageType type, int grade)
 	{
 		var f = new Fixture(type); var intent = f.Intent(grade);
@@ -121,7 +121,7 @@ public class BarrierTraversalTests
 		Assert.AreEqual(100.0 - 5 * grade, f.F.Balances[f.F.Resources[1]]);
 		f.Move().IntermediateStep(); Assert.AreEqual(6.0 * grade, f.Body.Wounds.Sum(x => x.CurrentDamage));
 	}
-	[DataTestMethod, DataRow("door"), DataRow("guard"), DataRow("movement"), DataRow("legacy")]
+	[TestMethod, DataRow("door"), DataRow("guard"), DataRow("movement"), DataRow("legacy")]
 	public void OrdinaryDeniedAttemptAndQueries_NeverInflictContactDamage(string reason)
 	{
 		var f = new Fixture(); Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.Cast(f.Intent(1)).Status);
@@ -133,7 +133,7 @@ public class BarrierTraversalTests
 		var movement = f.Move(); movement.IntermediateStep(); movement.IntermediateStep();
 		Assert.IsTrue(movement.Cancelled); Assert.IsFalse(f.Body.Wounds.Any());
 	}
-	[DataTestMethod, DataRow("body"), DataRow("world"), DataRow("opposite"), DataRow("remote")]
+	[TestMethod, DataRow("body"), DataRow("world"), DataRow("opposite"), DataRow("remote")]
 	public void InvalidBarrierTarget_RefusesBeforePayment(string cause)
 	{
 		var f = new Fixture();
@@ -144,7 +144,7 @@ public class BarrierTraversalTests
 		var result = f.F.Service.Cast(f.Intent(1)); Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
 		Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]); Assert.IsFalse(f.ExitEffects.Any());
 	}
-	[DataTestMethod, DataRow("BeforePayment"), DataRow("Committed")]
+	[TestMethod, DataRow("BeforePayment"), DataRow("Committed")]
 	public void PaidExitSelectionDrift_RefusesOrQuarantinesWithoutReplay(string stage)
 	{
 		var f = new Fixture(); var reached = false;
@@ -154,7 +154,7 @@ public class BarrierTraversalTests
 		Assert.AreEqual(stage == "BeforePayment" ? 100.0 : 95.0, f.F.Balances[f.F.Resources[1]]); Assert.IsFalse(f.ExitEffects.Any());
 		if (stage == "Committed") Assert.AreEqual(MagicCastingStatus.Refused, f.F.Service.Cast(intent).Status);
 	}
-	[DataTestMethod, DataRow("body"), DataRow("exit"), DataRow("door")]
+	[TestMethod, DataRow("body"), DataRow("exit"), DataRow("door")]
 	public void NativePreMutationCallback_CannotRedirectOrRepeatContact(string cause)
 	{
 		var f = new Fixture(); Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.Cast(f.Intent(1)).Status);
@@ -186,7 +186,7 @@ public class BarrierTraversalTests
 			Assert.AreEqual(3 * pass, f.Body.Wounds.Sum(x => x.CurrentDamage), 0.000001);
 			if (pass > 0)
 			{
-				Assert.ThrowsException<InvalidOperationException>(() => f.Body.PassiveSufferDamage(new Damage
+				Assert.ThrowsExactly<InvalidOperationException>(() => f.Body.PassiveSufferDamage(new Damage
 				{ ActorOrigin = f.F.Actor.Object, Bodypart = f.Part.Object, DamageType = DamageType.Burning, DamageAmount = 3, MutationGuard = new RejectGuard() }).ToArray());
 				Assert.AreEqual(3 * pass, f.Body.Wounds.Sum(x => x.CurrentDamage), 0.000001);
 			}
@@ -230,7 +230,7 @@ public class BarrierTraversalTests
 		var movement = f.Move(); movement.IntermediateStep(); movement.IntermediateStep();
 		Assert.IsTrue(invalidated); Assert.IsTrue(movement.Cancelled); Assert.IsFalse(f.Body.Wounds.Any());
 	}
-	[DataTestMethod, DataRow(false), DataRow(true)]
+	[TestMethod, DataRow(false), DataRow(true)]
 	public void NativePlanarBypassOrDifferentLayer_HasNoPhysicalContact(bool differentLayer)
 	{
 		var f = new Fixture(); Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.Cast(f.Intent(1)).Status);
@@ -320,7 +320,7 @@ public class BarrierTraversalTests
 		f.Destination.Verify(x => x.Insert(item.Object, It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, 6.0)] [DataRow(false, 0.0)]
 	public void VehicleExposure_NativeOccupantInjuryFollowsPrototypePolicy(bool exposed, double expectedDamage)
 	{

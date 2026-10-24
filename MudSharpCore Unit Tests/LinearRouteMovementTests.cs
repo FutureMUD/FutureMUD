@@ -49,11 +49,11 @@ public class LinearRouteMovementTests
 
 		Assert.AreEqual(RouteRoomDirection.Negative, segment.Direction);
 		Assert.AreEqual(50.0, segment.PositionAt(TimeSpan.FromSeconds(15.0)).RoutePositionMetres);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new LinearRouteMovementSegment(
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LinearRouteMovementSegment(
 			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 0.0),
 			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 101.0),
 			1.0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new LinearRouteMovementSegment(
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new LinearRouteMovementSegment(
 			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 0.0),
 			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 50.0),
 			0.0));

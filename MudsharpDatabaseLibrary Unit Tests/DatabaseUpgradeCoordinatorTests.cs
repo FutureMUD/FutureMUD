@@ -56,7 +56,7 @@ public class DatabaseUpgradeCoordinatorTests
 			document.RootElement.GetProperty(nameof(DatabaseBackupSettings.BackupDirectory)).GetString());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("", "working", "Engine")]
 	[DataRow("server=localhost;database=dbo;uid=test;password=test", "", "Engine")]
 	[DataRow("server=localhost;database=dbo;uid=test;password=test", "working", "")]
@@ -74,17 +74,20 @@ public class DatabaseUpgradeCoordinatorTests
 		};
 		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), new FakeBackupService(harness.DirectoryPath));
 
-		Assert.ThrowsException<ArgumentException>(() => coordinator.PrepareForStartup(request));
+		Assert.ThrowsExactly<ArgumentException>(() => coordinator.PrepareForStartup(request));
 	}
 
 	[TestMethod]
-	public void PrepareForStartup_WithoutPendingMigrations_DoesNotCreateBackupOrState()
+	[DataRow("")]
+	[DataRow("SslMode=None")]
+	[DataRow("SslMode=Required")]
+	public void PrepareForStartup_WithoutPendingMigrations_DoesNotCreateBackupOrState(string sslMode)
 	{
 		using var harness = new TemporaryDirectoryHarness();
 		var backupService = new FakeBackupService(harness.DirectoryPath);
 		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
 
-		var preparation = coordinator.PrepareForStartup(CreateRequest(harness.DirectoryPath));
+		var preparation = coordinator.PrepareForStartup(CreateRequest(harness.DirectoryPath, sslMode: sslMode));
 
 		Assert.IsFalse(preparation.HasPendingMigrations);
 		Assert.AreEqual(0, backupService.CreateBackupCalls);
@@ -207,13 +210,13 @@ public class DatabaseUpgradeCoordinatorTests
 		var coordinator = new DatabaseUpgradeCoordinator(migrationService, new FakeBackupService(harness.DirectoryPath));
 		var preparation = coordinator.PrepareForStartup(CreateRequest(harness.DirectoryPath));
 
-		Assert.ThrowsException<InvalidOperationException>(() => coordinator.ApplyPreparedMigrations(preparation));
+		Assert.ThrowsExactly<InvalidOperationException>(() => coordinator.ApplyPreparedMigrations(preparation));
 
 		Assert.IsTrue(File.Exists(preparation.StateFilePath));
 		StringAssert.Contains(File.ReadAllText(preparation.StateFilePath), "\"MigrationAttempted\": true");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RollbackPreparedUpgrade_RestoresBackupAndArchivesState(bool captureRegexContext)
@@ -244,7 +247,7 @@ public class DatabaseUpgradeCoordinatorTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RollbackPreparedUpgrade_RestoreFailure_PreservesFailureStateForNextStartup(bool captureRegexContext)
@@ -256,7 +259,7 @@ public class DatabaseUpgradeCoordinatorTests
 
 		var original = new InvalidOperationException("migration failed");
 		if (captureRegexContext) CellSpatialRegexFailureInterceptorTests.AttachCapture(original);
-		Assert.ThrowsException<InvalidOperationException>(() => coordinator.RollbackPreparedUpgrade(preparation, original));
+		Assert.ThrowsExactly<InvalidOperationException>(() => coordinator.RollbackPreparedUpgrade(preparation, original));
 
 		Assert.IsTrue(File.Exists(preparation.StateFilePath));
 		var state = File.ReadAllText(preparation.StateFilePath);
@@ -269,7 +272,7 @@ public class DatabaseUpgradeCoordinatorTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false, "ConnectionUnavailable")]
 	[DataRow(false, true, "DiagnosticReadFailed")]
 	public void RollbackPreparedUpgrade_UnavailableDiagnosticsStillRestoreAndArchiveOriginalError(
@@ -340,7 +343,7 @@ public class DatabaseUpgradeCoordinatorTests
 		var backupService = new FakeBackupService(harness.DirectoryPath) { ThrowOnCreateBackup = true };
 		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
 
-		Assert.ThrowsException<InvalidOperationException>(() => coordinator.CreateBlankDatabaseSnapshot(
+		Assert.ThrowsExactly<InvalidOperationException>(() => coordinator.CreateBlankDatabaseSnapshot(
 			CreateRequest(harness.DirectoryPath),
 			Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql"),
 			"__FUTUREMUD_DATABASE__"));
@@ -392,7 +395,7 @@ public class DatabaseUpgradeCoordinatorTests
 		StringAssert.Contains(backupService.LastExecutedScript, "LatestMigration");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("ordinary_database")]
 	[DataRow("database with spaces")]
 	[DataRow("target`; DROP TABLE victim; -- ")]
@@ -412,7 +415,7 @@ public class DatabaseUpgradeCoordinatorTests
 		Assert.AreEqual("-- EF-generated idempotent delta for LatestMigration\nUSE " + identifier + ";\n", backupService.LastExecutedScript);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("")]
 	[DataRow("name\nDELIMITER $$")]
 	[DataRow("name\rUSE other")]
@@ -422,7 +425,7 @@ public class DatabaseUpgradeCoordinatorTests
 		var backupService = new FakeBackupService(harness.DirectoryPath);
 		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
 		var connectionString = new MySqlConnectionStringBuilder { Server = "localhost", Database = databaseName }.ConnectionString;
-		Assert.ThrowsException<ArgumentException>(() => coordinator.ImportBlankDatabaseSnapshot(connectionString, "unused.sql", "__FUTUREMUD_DATABASE__"));
+		Assert.ThrowsExactly<ArgumentException>(() => coordinator.ImportBlankDatabaseSnapshot(connectionString, "unused.sql", "__FUTUREMUD_DATABASE__"));
 		Assert.AreEqual(0, backupService.RestoreBackupCalls);
 		Assert.AreEqual(0, backupService.ExecuteSqlScriptCalls);
 	}
@@ -439,7 +442,7 @@ public class DatabaseUpgradeCoordinatorTests
 			"-- EF-generated idempotent delta for LatestMigration\r\n" +
 			"INSERT INTO `__efmigrationshistory` VALUES ('LatestMigration');\r\n");
 
-		Assert.ThrowsException<InvalidOperationException>(() => coordinator.ImportBlankDatabaseSnapshot(
+		Assert.ThrowsExactly<InvalidOperationException>(() => coordinator.ImportBlankDatabaseSnapshot(
 			CreateRequest(harness.DirectoryPath).ConnectionString,
 			snapshotPath,
 			"__FUTUREMUD_DATABASE__"));
@@ -457,7 +460,7 @@ public class DatabaseUpgradeCoordinatorTests
 		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
 		File.WriteAllText(snapshotPath, "CREATE DATABASE `__FUTUREMUD_DATABASE__`;");
 
-		Assert.ThrowsException<InvalidOperationException>(() => coordinator.ImportBlankDatabaseSnapshot(
+		Assert.ThrowsExactly<InvalidOperationException>(() => coordinator.ImportBlankDatabaseSnapshot(
 			CreateRequest(harness.DirectoryPath).ConnectionString,
 			snapshotPath,
 			"__FUTUREMUD_DATABASE__"));
@@ -466,7 +469,7 @@ public class DatabaseUpgradeCoordinatorTests
 		Assert.IsFalse(Directory.Exists(Path.GetDirectoryName(backupService.LastRestorePath)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]
@@ -483,7 +486,7 @@ public class DatabaseUpgradeCoordinatorTests
 			"-- EF-generated idempotent delta for LatestMigration\nUSE `__FUTUREMUD_DATABASE__`;\n"));
 		void Import() => coordinator.ImportBlankDatabaseSnapshot(
 			CreateRequest(harness.DirectoryPath).ConnectionString, stream, "__FUTUREMUD_DATABASE__");
-		if (restoreFails || deltaFails) Assert.ThrowsException<InvalidOperationException>(Import);
+		if (restoreFails || deltaFails) Assert.ThrowsExactly<InvalidOperationException>(Import);
 		else Import();
 		Assert.IsTrue(stream.CanRead, "Import must leave the caller-owned source open on every exit path.");
 		stream.Position = 0;
@@ -522,11 +525,12 @@ public class DatabaseUpgradeCoordinatorTests
 		CollectionAssert.AreEqual(new[] { "futuremud-tests-03.sql", "futuremud-tests-04.sql" }, remaining);
 	}
 
-	private static DatabaseUpgradeRequest CreateRequest(string workingDirectory, string database = "futuremud_tests")
+	private static DatabaseUpgradeRequest CreateRequest(string workingDirectory, string database = "futuremud_tests",
+		string sslMode = "")
 	{
 		return new DatabaseUpgradeRequest
 		{
-			ConnectionString = $"server=localhost;port=3306;database={database};uid=futuremud;password=tests;Default Command Timeout=300000;",
+			ConnectionString = $"server=localhost;port=3306;database={database};uid=futuremud;password=tests;Default Command Timeout=300000;{sslMode}",
 			WorkingDirectory = workingDirectory,
 			ExecutableType = "UnitTests"
 		};

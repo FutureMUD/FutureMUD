@@ -111,7 +111,7 @@ public class RpiShopConversionTests
 		Assert.AreEqual("9001|9002", baseline.ResolvedShopKey(definition));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")]
 	[DataRow("source-mismatch")]
 	[DataRow("not-created")]
@@ -172,7 +172,7 @@ public class RpiShopConversionTests
 	[TestMethod]
 	public void ShopRoomMapping_DryRunOrUnversionedAudit_RejectsBinding()
 	{
-		Assert.ThrowsException<InvalidDataException>(() => FutureMudShopRoomMapping.FromAudit(
+		Assert.ThrowsExactly<InvalidDataException>(() => FutureMudShopRoomMapping.FromAudit(
 			JsonSerializer.SerializeToElement(new { Execute = false, Rooms = RoomEntries() }), SourceRooms()));
 		var unknown = JsonSerializer.SerializeToElement(new { Execute = true, Rooms = new[]
 		{

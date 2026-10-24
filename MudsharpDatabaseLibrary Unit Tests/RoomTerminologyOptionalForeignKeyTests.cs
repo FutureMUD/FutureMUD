@@ -49,7 +49,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("absent",false)]
 	[DataRow("valid",false)]
 	[DataRow("restrict-update",false)]
@@ -73,7 +73,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 		Assert.AreEqual(refuses,Convert.ToBoolean(new DataTable().Compute(expression,"")),variant);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("NO ACTION")]
 	[DataRow("RESTRICT")]
 	public void Naming_ValidPresence_RecreatesTheExactCapturedActions(string updateRule)
@@ -85,7 +85,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 			SelectStatement(changes[1].Sql,1,updateRule,"SET NULL"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0,"NO ACTION",null)]
 	[DataRow(0,null,"SET NULL")]
 	[DataRow(1,null,"SET NULL")]
@@ -104,7 +104,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("absent",0,null,null,false)]
 	[DataRow("valid",1,"NO ACTION","SET NULL",false)]
 	[DataRow("restrict-update",1,"RESTRICT","SET NULL",false)]

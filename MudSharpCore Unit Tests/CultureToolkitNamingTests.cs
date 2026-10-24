@@ -107,7 +107,7 @@ public class CultureToolkitNamingTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Bar Sauma", "", "Bar Sauma")]
 	[DataRow("e\u0301mile", "de la Roche", "émile de la Roche")]
 	public void NamePickerUsesEthnicityFirstAndPreservesStructuredCaseWithUnicodeOff(string birth, string byname, string full)

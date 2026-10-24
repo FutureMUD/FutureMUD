@@ -48,7 +48,7 @@ public partial class ArmageddonConditionSpellContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void SowSickness_PaidRouteCreatesOneRealNativeInfectionAtSelectedGrade(int grade)
@@ -132,7 +132,7 @@ public partial class ArmageddonConditionSpellContentTests
 		Assert.IsFalse((bool)XElement.Parse(f.Base.Store.Operations.Values.Single().Definition).Attribute("applied")!);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("IntensityFormula", "0")]
 	[DataRow("IntensityFormula", "8")]
 	[DataRow("IntensityFormula", "grade/0")]

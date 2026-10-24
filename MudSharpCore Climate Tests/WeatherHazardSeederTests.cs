@@ -64,7 +64,7 @@ public class WeatherHazardSeederTests
 		Assert.AreEqual(0, context.Gases.Count(x => x.Name == "dusty air"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("air")]
 	[DataRow("Breathable Atmosphere")]
 	public void FreshInstall_HazardsHaveValidReferencesAndAppropriateClimateTransitions(string gasName)

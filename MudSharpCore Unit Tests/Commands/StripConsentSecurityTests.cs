@@ -25,7 +25,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class StripConsentSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void StripOther_AcceptedRequest_GrantsNoInventoryConsentDuringDelay(bool hasClothing)
@@ -109,7 +109,7 @@ public class StripConsentSecurityTests
 	public void StripConsent_RemovalThrows_AlwaysRevokesConsent()
 	{
 		var (actor, target, body, selected, _, _, effects) = NativeFixture();
-		Assert.ThrowsException<InvalidOperationException>(() => InventoryModule.WithStripItemConsent(
+		Assert.ThrowsExactly<InvalidOperationException>(() => InventoryModule.WithStripItemConsent(
 			actor.Object, target.Object, selected, true, () => throw new InvalidOperationException("Test removal failure")));
 		Assert.AreEqual(0, effects.Count);
 		Assert.IsFalse(body.CanBeRemoved(selected, actor.Object));

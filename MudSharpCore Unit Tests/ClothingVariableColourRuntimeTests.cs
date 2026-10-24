@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ClothingVariableColourRuntimeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("colour=\"oak-gall black\"", "oak-gall black")]
 	[DataRow("colour=blue-green", "blue-green")]
 	[DataRow("colour=\"banana yellow (stock colour 284)\"", "banana yellow (stock colour 284)")]
@@ -42,7 +42,7 @@ public class ClothingVariableColourRuntimeTests
 		profile.Verify(x => x.GetRandomCharacteristic(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("banana yellow", 284L, 6, 255, 255, 0)]
 	[DataRow("ebony", 25L, 0, 0, 0, 0)]
 	[DataRow("cerulean", 91L, 11, 0, 75, 255)]

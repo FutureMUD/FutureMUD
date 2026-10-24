@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NetworkSwitchStateTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(2)]
 	[DataRow(3)]
@@ -36,7 +36,7 @@ public class NetworkSwitchStateTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(2)]
 	[DataRow(3)]
@@ -72,7 +72,7 @@ public class NetworkSwitchStateTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(2)]
 	[DataRow(5)]
@@ -93,7 +93,7 @@ public class NetworkSwitchStateTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
@@ -152,7 +152,7 @@ public class NetworkSwitchStateTests
 		Assert.IsFalse(item.NetworkTransportReady);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void StateQueries_FailingUpstreamQuery_ClearsBothGuardsBeforeRetry(bool transportQuery)
@@ -191,7 +191,7 @@ public class NetworkSwitchStateTests
 		}
 		SetUplink(second, endpoint.Object);
 
-		Assert.ThrowsException<InvalidOperationException>(() => _ = first.NetworkTransportReady);
+		Assert.ThrowsExactly<InvalidOperationException>(() => _ = first.NetworkTransportReady);
 		Assert.AreSame(grid, first.TelecommunicationsGrid);
 		Assert.IsTrue(first.NetworkTransportReady);
 		Assert.IsTrue(first.NetworkTransportReady);

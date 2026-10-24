@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonNamingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NamingComposition_PreservesCompatibleToonAndAnyParameterDelegates(bool anyParameters)
@@ -48,7 +48,7 @@ public class ArmageddonNamingTests
 		var storyboard = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectName);
 		var xml = XElement.Parse(storyboard.StageDefinition); xml.SetElementValue("NameCultureOptionsProg", 1); storyboard.StageDefinition = xml.ToString(); db.SaveChanges();
 		var before = db.SeederManagedRecords.Count();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
 		Assert.AreEqual(before, db.SeederManagedRecords.Count()); Assert.AreEqual(0, db.NameCultures.Count());
 	}
 	[TestMethod]

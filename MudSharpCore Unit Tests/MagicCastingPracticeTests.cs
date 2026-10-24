@@ -31,7 +31,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCastingPracticeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void OriginReceipt_CompletedPracticeOrManifest_CannotBeOverwrittenByReplayedPractice(bool priorManifest)
@@ -69,7 +69,7 @@ public class MagicCastingPracticeTests
 	private static MagicCastingIntent Intent(MagicCastingFixture f, int grade = 2, bool overreach = true) =>
 		new(f.Actor.Object, f.Earth.Id, f.Spell.Id, grade, overreach, "", MagicCastingMode.Practice);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Practice_PaidCompletion_AutomaticallyAcquiresBranchAfterRawOrGradeProgress(bool gradePrerequisite)
@@ -151,7 +151,7 @@ public class MagicCastingPracticeTests
 			It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("quit")]
 	[DataRow("death")]
 	[DataRow("state")]
@@ -186,7 +186,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(0, f.Store.Unresolved().Count); Assert.AreEqual(0, effects.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("speech")]
 	[DataRow("hand")]
 	[DataRow("capability")]
@@ -269,7 +269,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(1, f.SkillUses); Assert.AreEqual(1, f.Samples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Practice_AndManifestation_ShareSkillAndMasteryOpportunities(bool practiceFirst)
@@ -320,7 +320,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Samples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Practice_StaleAction_CannotOverwriteDurableFinalisation(bool cancel)
@@ -336,7 +336,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Samples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("BeforePayment", false, 100.0)]
 	[DataRow("Paying", false, 100.0)]
 	[DataRow("PaymentMutated", false, 85.0)]
@@ -363,7 +363,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(balance, f.Balances[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("enabled false")]
 	[DataRow("max 1")]
 	[DataRow("duration 0")]
@@ -403,7 +403,7 @@ public class MagicCastingPracticeTests
 		Assert.IsNotNull(reload.PracticeInventoryPlanTemplate); Assert.AreEqual(0, reload.GradeConfigurationErrors().Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Practice_ExplicitMaterialPlan_ExecutesOnceAndFinalisesAfterCompletionOrInterruption(bool cancel)
@@ -466,7 +466,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Samples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Practice_PhysicalInputEvents_CancelBriefLossEvenIfRestoredBeforeHeartbeat(bool speech)
@@ -511,7 +511,7 @@ public class MagicCastingPracticeTests
 		return (actor, body);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true, false)]
 	[DataRow(true, false, false)]
 	[DataRow(true, true, true)]
@@ -547,7 +547,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(requiresSpeech ? 0 : 1, f.Samples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("CheckingPractice", 0)]
 	[DataRow("PracticeChecked", 1)]
 	public void Practice_NativeSilenceDuringCompletion_LatchesLossBeforeCheckOrProgress(string stage, int checks)
@@ -572,7 +572,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(masteryDeadline, f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)]
 	[DataRow(true, true)]
 	[DataRow(false, false)]
@@ -602,7 +602,7 @@ public class MagicCastingPracticeTests
 		Assert.AreEqual(masteryDeadline, f.Service.Acquisition(f.Actor.Object, 1)!.NextMasteryUtc);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Practice_NativeParalysisBetweenHealthUpdates_CancelsBeforeStateRefresh(bool bodyOwner)

@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public partial class ArmageddonStockSupportInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	public void Supports_ExactNativeGraphsStableRerunAndUnchangedLockedInventory(ArmageddonProgressionMode mode, bool classes)
@@ -91,7 +91,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual("a custom staff", db.GameItemProtos.Single(x => x.Id == item.Id).ShortDescription); Assert.AreEqual(9.0, db.WeaponAttacks.Single(x => x.Id == attackId).StaminaCost);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("affinity")][DataRow("staff_revision")][DataRow("defiler_claim")]
 	public void Supports_MissingOrIncompatibleExactDependenciesBlockBeforeNewRows(string failure)
 	{
@@ -128,7 +128,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		}
 		StringAssert.Contains(definitions[ArmageddonStockSupportInstaller.MagicalEligibilityKey].FunctionText, "hasmagictag(@target, \"armageddon.magical_creature\")");
 		Assert.IsFalse(definitions[ArmageddonStockSupportInstaller.TargetEligibilityKey].FunctionText.Contains("species"));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonStockSupportInstaller.ProgDefinitions(new(0, 12, 21, 22, 31, 47, 32, 23, 33, new[] { 41L, 42, 43, 44, 45, 46, 47 })));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonStockSupportInstaller.ProgDefinitions(new(0, 12, 21, 22, 31, 47, 32, 23, 33, new[] { 41L, 42, 43, 44, 45, 46, 47 })));
 	}
 
 	[TestMethod]

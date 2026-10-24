@@ -38,7 +38,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass, DoNotParallelize]
 public class VitalTransferPaidTests
 {
-	[DataTestMethod, DataRow(false, 1), DataRow(false, 7), DataRow(true, 1), DataRow(true, 7)]
+	[TestMethod, DataRow(false, 1), DataRow(false, 7), DataRow(true, 1), DataRow(true, 7)]
 	public void PaidNativeCast_GradesApplyOnceAndOriginCannotReplay(bool edge, int grade)
 	{
 		var f = new Fixture(edge);
@@ -65,7 +65,7 @@ public class VitalTransferPaidTests
 		Assert.AreEqual(100.0 - 5 * grade, f.F.Balances[f.F.Resources[1]]);
 	}
 
-	[DataTestMethod, DataRow("self"), DataRow("wrongworld"), DataRow("wrongbody"), DataRow("nonweapon"), DataRow("destroyed")]
+	[TestMethod, DataRow("self"), DataRow("wrongworld"), DataRow("wrongbody"), DataRow("nonweapon"), DataRow("destroyed")]
 	public void InvalidNativeRecipient_RefusesBeforeAnyDebit(string cause)
 	{
 		var edge = cause is "nonweapon" or "destroyed";
@@ -81,7 +81,7 @@ public class VitalTransferPaidTests
 		Assert.IsFalse(f.Body.Wounds.Any()); Assert.IsFalse(f.ItemEffects.Any());
 	}
 
-	[DataTestMethod, DataRow(false, "BeforePayment"), DataRow(false, "Committed"), DataRow(true, "BeforePayment"), DataRow(true, "Committed")]
+	[TestMethod, DataRow(false, "BeforePayment"), DataRow(false, "Committed"), DataRow(true, "BeforePayment"), DataRow(true, "Committed")]
 	public void CapturedNativeSelectionDrifts_ZeroDebitOrPaidUncertaintyWithoutReplay(bool edge, string stage)
 	{
 		var f = new Fixture(edge);
@@ -144,7 +144,7 @@ public class VitalTransferPaidTests
 		});
 		using var scope = CommandExecutionScope.EnterDispatch(authority, source.Object);
 		using var receipt = new VitalTransferReceipt(source.Object, f.Victim.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => f.Body.PassiveSufferDamage(new Damage
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Body.PassiveSufferDamage(new Damage
 		{
 			ActorOrigin = source.Object, TargetBody = f.Body, Bodypart = f.Part.Object,
 			DamageType = DamageType.Arcane, DamageAmount = 5, VitalTransfer = receipt

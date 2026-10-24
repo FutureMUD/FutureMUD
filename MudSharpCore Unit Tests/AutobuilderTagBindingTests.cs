@@ -63,7 +63,7 @@ public class AutobuilderTagBindingTests
 		var template = new Template(world.Object, XElement.Parse("<Template><ApplyAutobuilderTagsAsFrameworkTags>true</ApplyAutobuilderTagsAsFrameworkTags></Template>"));
 		template.Load();
 		var room = new Mock<IRoom>();
-		var error = Assert.ThrowsException<ApplicationException>(() => template.Apply(room.Object, "Road", "Mineral Resource"));
+		var error = Assert.ThrowsExactly<ApplicationException>(() => template.Apply(room.Object, "Road", "Mineral Resource"));
 		StringAssert.Contains(error.Message, "ambiguous legacy selector");
 		room.Verify(x => x.AddTag(It.IsAny<ITag>()), Times.Never);
 	}
@@ -74,7 +74,7 @@ public class AutobuilderTagBindingTests
 		var tag = Tag(10, "Road");
 		var world = World(tag);
 		var invalid = new Template(world.Object, XElement.Parse("<Template><FrameworkTagBindings><Binding selector='Road' id='99'/></FrameworkTagBindings></Template>"));
-		Assert.ThrowsException<ApplicationException>(() => invalid.Load());
+		Assert.ThrowsExactly<ApplicationException>(() => invalid.Load());
 		var legacy = new Template(world.Object, XElement.Parse("<Template><ApplyAutobuilderTagsAsFrameworkTags>true</ApplyAutobuilderTagsAsFrameworkTags></Template>"));
 		legacy.Load();
 		var room = new Mock<IRoom>();

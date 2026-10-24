@@ -31,7 +31,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class PhysicalImpactTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]
@@ -83,7 +83,7 @@ public partial class PhysicalImpactTests
 		Assert.AreEqual(invalidatesWard, f.Check.Invocations.Any(x => ReferenceEquals(x.Arguments[0], f.Actor.Object)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(2.0, 3.0, 1.0)]
 	[DataRow(0.0, 3.0, 0.0)]
 	public void ShieldPartial_UsesDefenderAwareArmourAndPreservesAllRemainderChannels(double amount, double stun, double pain)
@@ -125,7 +125,7 @@ public partial class PhysicalImpactTests
 		finally { for (var i = 0; i < properties.Length; i++) properties[i].SetValue(null, previous[i]); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(30.0, false)]
 	[DataRow(3.0, true)]
 	public void RealBarrier_FiltersDamageBeforeBashContactControl(double capacity, bool contact)

@@ -57,7 +57,7 @@ public sealed class SpellShelterAutobuilderTests
 		f.World.Verify(x => x.Add(It.IsAny<IRoom>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")]
 	[DataRow("dual")]
 	[DataRow("unsupported")]
@@ -83,7 +83,7 @@ public sealed class SpellShelterAutobuilderTests
 		Assert.IsNull(row); f.World.Verify(x => x.Add(It.IsAny<IRoom>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(2)]
 	[DataRow(3)]
@@ -121,7 +121,7 @@ public sealed class SpellShelterAutobuilderTests
 		Assert.AreEqual(grade, roundTrip.CapacityForGrade(grade));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("definition")]
 	[DataRow("registry")]
 	[DataRow("terrain-name")]
@@ -163,7 +163,7 @@ public sealed class SpellShelterAutobuilderTests
 		Assert.AreEqual(0, cast.Store.Operations.Count); Assert.AreEqual(0, cast.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("CapacityByGrade")]
 	[DataRow("AutobuilderTemplate")]
 	[DataRow("MaximumOccupants")]
@@ -177,7 +177,7 @@ public sealed class SpellShelterAutobuilderTests
 		Assert.IsTrue(XNode.DeepEquals(xml, effect.Clone().SaveToXml()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("confirmation")]
 	[DataRow("native-creation")]
 	public void PreparedShelter_AdmissionCallbackChangesValidPresentation_RefusesBeforeTopology(string phase)
@@ -211,7 +211,7 @@ public sealed class SpellShelterAutobuilderTests
 			var metadata = new SpellShelterAnchor(SpellShelterKind.SandShelter, 1, 2, null, 3, 31);
 			var origin = new SpellLifecycleOrigin(Guid.NewGuid(), 2, 3, 100, SpellShelterAnchor.Family,
 				SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(900), metadata.Save());
-			var error = Assert.ThrowsException<InvalidOperationException>(() =>
+			var error = Assert.ThrowsExactly<InvalidOperationException>(() =>
 				native.CreatePrepared(cast.Actor.Object, f.Anchor.Object, f.Configuration, origin, () => token.IsCurrent));
 			StringAssert.Contains(error.Message, "changed during native creation");
 		}
@@ -220,7 +220,7 @@ public sealed class SpellShelterAutobuilderTests
 		Assert.AreEqual(0, cast.Store.Operations.Count); Assert.AreEqual(0, cast.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellShelterKind.SpringHaven, 7.0)]
 	[DataRow(SpellShelterKind.BurrowRefuge, 20.0)]
 	[DataRow(SpellShelterKind.SandShelter, 7.0)]

@@ -106,7 +106,7 @@ public class RuntimeSchedulerTests
 		Assert.AreEqual(3, count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	public void CheckSchedules_SelfReschedulingJobAlwaysDue_ReturnsAndRetainsNextRepetition(int intervalMilliseconds)

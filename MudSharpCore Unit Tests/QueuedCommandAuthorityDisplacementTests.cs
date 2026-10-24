@@ -33,7 +33,7 @@ public partial class QueuedCommandAuthorityTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("guard")] [DataRow("body")] [DataRow("retirement")]
 	public void SoloDisplacement_RechecksExactBodyAndGuardBeforeDeparture(string change)
 	{
@@ -93,7 +93,7 @@ public partial class QueuedCommandAuthorityTests
 		shelters.Verify(x => x.CanEnter(room, d.F.Actor.Object), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("source", "expire")]
 	[DataRow("source", "replacement-grant")]
 	[DataRow("source", "body-replacement")]

@@ -58,7 +58,7 @@ public class VancianSnapshotTests
 		numeric.Capture("x",expression,f.Actor.Object,f.Trait.Object);
 		Assert.IsNotNull(numeric.Save().Element("Expression"));
 		f.Actor.Setup(x => x.TraitValue(f.Trait.Object,TraitBonusContext.None)).Returns(double.NaN);
-		Assert.ThrowsException<InvalidOperationException>(() => numeric.Capture("y",expression,f.Actor.Object,f.Trait.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => numeric.Capture("y",expression,f.Actor.Object,f.Trait.Object));
 	}
 	[TestMethod]
 	public void NumericContextsAreIsolated_AndExtendedOptionsAreStored()
@@ -71,7 +71,7 @@ public class VancianSnapshotTests
 		Assert.AreEqual(16,first.Evaluate("x",expression,f.Actor.Object,f.Trait.Object,TraitBonusContext.None,[]));
 		Assert.AreEqual(34,second.Evaluate("x",expression,f.Actor.Object,f.Trait.Object,TraitBonusContext.None,[]));
 		Assert.IsTrue(first.Save().Descendants("Binding").Any(x => (string?)x.Attribute("name") == "flag"));
-		Assert.ThrowsException<InvalidOperationException>(() => first.ValidateBinding("missing",expression));
+		Assert.ThrowsExactly<InvalidOperationException>(() => first.ValidateBinding("missing",expression));
 	}
 	[TestMethod]
 	public void SnapshotRoundTripPreservesSourceConfigurationAndCreatorNumbersAfterEdits()
@@ -86,7 +86,7 @@ public class VancianSnapshotTests
 		Assert.AreEqual(1,restored.SpellLevel); Assert.AreEqual(31,restored.EffectDurationExpression.Evaluate(f.Actor.Object,f.Trait.Object,TraitBonusContext.SpellDuration));
 		f.World.Verify(x => x.TryGetCharacter(It.IsAny<long>(),It.IsAny<bool>()),Times.Never);
 		spell.ScrollInscriptionAllowed = false;
-		Assert.ThrowsException<InvalidOperationException>(() => snapshot.CreateSpell(f.World.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => snapshot.CreateSpell(f.World.Object));
 		Assert.AreEqual(31,snapshot.CreateSpell(f.World.Object,false).EffectDurationExpression.Evaluate(f.Actor.Object,f.Trait.Object,TraitBonusContext.SpellDuration));
 	}
 	[TestMethod]
@@ -95,7 +95,7 @@ public class VancianSnapshotTests
 		var f = new VancianTestFixture(); var spell = Spell(f); spell.EffectDurationExpression = new TraitExpression("variable",f.World.Object);
 		var xml = StoredSpellSnapshot.Capture(spell,f.Actor.Object,f.Capability.Object,1,SpellPower.Standard,3,f.Clock.Now.UtcDateTime).Save();
 		xml.Element("Numbers")!.RemoveNodes();
-		Assert.ThrowsException<InvalidOperationException>(() => StoredSpellSnapshot.Load(xml).CreateSpell(f.World.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => StoredSpellSnapshot.Load(xml).CreateSpell(f.World.Object));
 	}
 	[TestMethod]
 	public void CompatibilityManifestCoversEveryRegisteredTypeAndRequiredFamilies()

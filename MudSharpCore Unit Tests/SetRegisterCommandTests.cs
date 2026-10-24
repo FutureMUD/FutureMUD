@@ -40,7 +40,7 @@ public class SetRegisterCommandTests
 		_register.Setup(x => x.SetValue(_cell.Object, It.IsAny<string>(), It.IsAny<IProgVariable>())).Returns(true);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("25", "number", "25")]
 	[DataRow("The gate is closed.", "text", "The gate is closed.")]
 	[DataRow("\"The gate is closed.\"", "text", "The gate is closed.")]
@@ -54,7 +54,7 @@ public class SetRegisterCommandTests
 			It.Is<IProgVariable>(v => v.GetObject.ToString() == expected)), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("(\"first value\" \"second value\")")]
 	[DataRow("\"first value\" \"second value\"")]
 	public void SetRegister_TextCollection_PreservesElementQuotes(string input)
@@ -78,7 +78,7 @@ public class SetRegisterCommandTests
 			It.Is<IProgVariable>(v => ((IProgVariable)((IDictionary)v.GetObject)["key"]!).GetObject.Equals("value with spaces"))), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("RegisterDefault")]
 	[DataRow("RoomSetRegister")]
 	public void RegisterCommands_Collections_PreserveQuotedElements(string method)
@@ -125,7 +125,7 @@ public class SetRegisterCommandTests
 			It.Is<IProgVariable>(v => v.Type == ProgVariableTypes.Location && v.GetObject == null)), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("setregister location null \"test variable\" 25")]
 	[DataRow("setregister location 999999 \"test variable\" 25")]
 	[DataRow("setregister location here unknown 25")]

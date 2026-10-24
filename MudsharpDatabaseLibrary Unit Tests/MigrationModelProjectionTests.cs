@@ -37,13 +37,13 @@ public class MigrationModelProjectionTests
 		Assert.IsNull(result.Helper);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("protected override void BuildTargetModel(ModelBuilder modelBuilder) { base.BuildTargetModel(modelBuilder); }")]
 	[DataRow("protected override void BuildTargetModel(ModelBuilder modelBuilder) { this.Other(); }")]
 	[DataRow("private int state; protected override void BuildTargetModel(ModelBuilder modelBuilder) { }")]
 	[DataRow("protected override void BuildTargetModel(ModelBuilder modelBuilder) => modelBuilder.HasAnnotation(\"a\", \"b\");")]
 	public void Projection_UnsupportedShape_FailsClosed(string members) =>
-		Assert.ThrowsException<InvalidDataException>(() => ModelProjection.Create(Source(members), "Batch0001", "example"));
+		Assert.ThrowsExactly<InvalidDataException>(() => ModelProjection.Create(Source(members), "Batch0001", "example"));
 
 	[TestMethod]
 	public void Manifest_RejectsDuplicateAssignments()
@@ -52,7 +52,7 @@ public class MigrationModelProjectionTests
 		{
 			var path = Path.Combine(directory, "manifest.json");
 			File.WriteAllText(path, "{\"Files\":{\"one.Designer.cs\":\"Batch0001\",\"one.Designer.cs\":\"Batch0002\"}}");
-			Assert.ThrowsException<InvalidDataException>(() => PartitionManifest.Load(path));
+			Assert.ThrowsExactly<InvalidDataException>(() => PartitionManifest.Load(path));
 		});
 	}
 
@@ -68,14 +68,14 @@ public class MigrationModelProjectionTests
 			File.WriteAllText(path, Model(Body));
 			CollectionAssert.AreEqual(manifest.Files.ToArray(), PartitionManifest.Partition(directory).Files.ToArray());
 			manifest.Files.Clear();
-			Assert.ThrowsException<InvalidDataException>(() => manifest.Validate(directory));
+			Assert.ThrowsExactly<InvalidDataException>(() => manifest.Validate(directory));
 			manifest.Files.Add("one.Designer.cs", "Batch0001");
 			manifest.Files.Add("missing.Designer.cs", "Batch0001");
-			Assert.ThrowsException<InvalidDataException>(() => manifest.Validate(directory));
+			Assert.ThrowsExactly<InvalidDataException>(() => manifest.Validate(directory));
 			manifest.Files.Remove("missing.Designer.cs");
 			File.WriteAllText(path, new string(' ', PartitionManifest.MaximumBatchBytes + 1));
-			Assert.ThrowsException<InvalidDataException>(() => manifest.Validate(directory));
-			Assert.ThrowsException<InvalidDataException>(() => PartitionManifest.Partition(directory));
+			Assert.ThrowsExactly<InvalidDataException>(() => manifest.Validate(directory));
+			Assert.ThrowsExactly<InvalidDataException>(() => PartitionManifest.Partition(directory));
 		});
 	}
 

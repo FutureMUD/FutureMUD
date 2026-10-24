@@ -85,7 +85,7 @@ public class CultureToolkitLanguageSeederTests
 		var catalogue = new CultureToolkitCatalogue();
 		var pack = catalogue.Compose("medieval");
 		var count = context.TraitExpressions.Count();
-		var exception = Assert.ThrowsException<InvalidOperationException>(() => CultureToolkitLanguageSeeder.Upsert(context,
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() => CultureToolkitLanguageSeeder.Upsert(context,
 			catalogue, pack, new Dictionary<string, FuturemudDatabaseContext>(), new Dictionary<string, Language>(), prerequisites, []));
 		StringAssert.Contains(exception.Message, "Missing retained source definition");
 		Assert.AreEqual(0, context.Languages.Count());
@@ -121,7 +121,7 @@ public class CultureToolkitLanguageSeederTests
 			new Dictionary<string, Language> { ["latin"] = existing }, prerequisites, []);
 		if (builderEdited)
 		{
-			StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(Install).Message, "explicit source binding");
+			StringAssert.Contains(Assert.ThrowsExactly<InvalidOperationException>(Install).Message, "explicit source binding");
 			Assert.IsTrue(context.Accents.Any(x => x.Description == "Independent builder edit"));
 			return;
 		}
@@ -133,7 +133,7 @@ public class CultureToolkitLanguageSeederTests
 		Assert.AreEqual(1, context.Accents.Count(x => x.Description == "Second retained source"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("medieval", false)]
 	[DataRow("medieval", true)]
 	[DataRow("renaissance", false)]

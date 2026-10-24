@@ -77,7 +77,7 @@ public class EnvironmentalMagicPersistenceBoundaryTests
 		var reads = world.Operations.Reads;
 		Assert.IsFalse(world.Coordinator.ApplyOperation(room, Request(damage: 4.0)).Success);
 		Assert.AreEqual(reads, world.Operations.Reads);
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			world.Coordinator.SetBinding(room, EnvironmentalMagicBindingMode.Disabled, null));
 		Assert.AreEqual(0.0, room.EnvironmentState.ScarDamage);
 		Assert.AreEqual(1, world.Operations.Commits);
@@ -189,7 +189,7 @@ public class EnvironmentalMagicPersistenceBoundaryTests
 		persisted.Revision += 100;
 		persisted.ScarDamage = 77.0;
 
-		var error = Assert.ThrowsException<TargetInvocationException>(() => world.Snapshot(room));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => world.Snapshot(room));
 
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		Assert.AreEqual(77.0, persisted.ScarDamage);
@@ -243,7 +243,7 @@ public class EnvironmentalMagicPersistenceBoundaryTests
 		Assert.AreEqual(2, world.Operations.Commits);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1e-16, 10)]
 	[DataRow(1e-17, 20)]
 	[TestCategory("E-P21")]
@@ -264,7 +264,7 @@ public class EnvironmentalMagicPersistenceBoundaryTests
 		Assert.AreEqual(1.0 - rate * minutes, room.EnvironmentState.ScarDamage, 1.2e-16);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("full")]
 	[DataRow("zero rate")]
 	[DataRow("fault")]
@@ -329,7 +329,7 @@ public class EnvironmentalMagicPersistenceBoundaryTests
 		Assert.AreEqual(23.5, world.Snapshot(loaded).RoomsMagicResources.Single().Amount);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EnvironmentalMagicBindingMode.Explicit)]
 	[DataRow(EnvironmentalMagicBindingMode.Inherit)]
 	[TestCategory("E-T02")]
@@ -347,7 +347,7 @@ public class EnvironmentalMagicPersistenceBoundaryTests
 		resource.Verify(x => x.StartingResourceAmount(It.IsAny<IHaveMagicResource>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L)]
 	[DataRow(-1L)]
 	[TestCategory("E-T02")]

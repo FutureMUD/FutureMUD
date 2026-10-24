@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitGroupSeederTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("antiquity")]
 	[DataRow("darkages")]
 	[DataRow("medieval")]

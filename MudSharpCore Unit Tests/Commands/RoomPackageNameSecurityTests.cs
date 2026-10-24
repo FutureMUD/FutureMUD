@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class RoomPackageNameSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("RoomPackageNew")]
 	[DataRow("RoomPackageRename")]
 	public void PackageCommand_OverlongName_RejectsBeforeLookupOrMutation(string method)

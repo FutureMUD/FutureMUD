@@ -71,7 +71,7 @@ public class ArmageddonBurningDraughtTests
 		var parent = new Mock<IMagicSpellEffectParent>();
 		parent.SetupGet(x => x.Owner).Returns(f.Actor.Object);
 		f.Actor.SetupGet(x => x.Body).Returns(new Mock<IBody>().Object);
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(parent.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(parent.Object));
 	}
 
 	[TestMethod]

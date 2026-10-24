@@ -62,7 +62,7 @@ public class ProgArgumentResolverTests
 		.Where(x => x.IsExactType && x != ProgVariableTypes.Void)
 		.Select(x => new object[] { x.Describe() });
 
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(ConcreteTypes), DynamicDataSourceType.Property)]
 	public void GetArgument_EveryCurrentConcreteValueType_HasResolver(string name)
 	{
@@ -71,7 +71,7 @@ public class ProgArgumentResolverTests
 		Assert.IsFalse(_messages.Any(x => x.Contains("not yet supported", StringComparison.OrdinalIgnoreCase)), name);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("void")]
 	[DataRow("error")]
 	[DataRow("anything")]
@@ -84,7 +84,7 @@ public class ProgArgumentResolverTests
 		Assert.IsFalse(ProgModule.GetArgument(FutureProg.GetTypeByName(name), "number 5", 1, _actor.Object).success);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("location")]
 	[DataRow("zone")]
 	[DataRow("shard")]
@@ -100,7 +100,7 @@ public class ProgArgumentResolverTests
 		Assert.IsNull(result.result);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(ConcreteTypes), DynamicDataSourceType.Property)]
 	public void GetArgument_ExplicitNull_HasDocumentedTypeSemantics(string name)
 	{
@@ -142,7 +142,7 @@ public class ProgArgumentResolverTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("\"\" next", "", "next")]
 	[DataRow("() next", "", "next")]
 	[DataRow("(\"a)b\" (c d)) next", "\"a)b\" (c d)", "next")]
@@ -155,7 +155,7 @@ public class ProgArgumentResolverTests
 		Assert.AreEqual(next, input.RemainingArgument);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("(one two")]
 	[DataRow("\"unclosed")]
 	[DataRow("(\"unclosed)")]
@@ -191,7 +191,7 @@ public class ProgArgumentResolverTests
 		StringAssert.Contains(ProgModule.DescribeProgVariable(_actor.Object, type, variable), "group:");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("a 1 a 2")]
 	[DataRow("a")]
 	[DataRow("a invalid")]
@@ -292,7 +292,7 @@ public class ProgArgumentResolverTests
 		Assert.IsFalse(ProgModule.GetArgument(ProgVariableTypes.LiquidMixture, "\"Example Name\" invalid", 1, _actor.Object).success);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("\"\" 5", true, false)]
 	[DataRow("\"\" invalid", false, false)]
 	[DataRow("\"\" 5 extra", false, false)]

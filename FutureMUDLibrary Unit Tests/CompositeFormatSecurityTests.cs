@@ -8,7 +8,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CompositeFormatSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0")]
@@ -21,7 +21,7 @@ public class CompositeFormatSecurityTests
 		Assert.IsFalse(text.IsValidFormatString(new[] { false }));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("")]
 	[DataRow("No replacement")]
 	[DataRow("{{escaped braces}}")]

@@ -31,7 +31,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class FuryCalmCastingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 2400)]
 	[DataRow(7, 16800)]
 	public void PaidFury_UsesCasterTerrainAndExplicitGrade_ProducesOwnedScheduledAttributeBonus(int grade, int seconds)
@@ -62,7 +62,7 @@ public class FuryCalmCastingTests
 		Assert.IsFalse(f.Applied(capped), "An unchanged capped deadline is not a useful mastery operation.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury, 3, 5, 2)]
 	[DataRow(EmotionalSpellKind.Calm, 3, 5, 2)]
 	public void StrongerOpposingEmotion_IsReducedWithoutSaveNewChildOrCessation(EmotionalSpellKind incoming, int grade, int opposingGrade, int remaining)
@@ -78,7 +78,7 @@ public class FuryCalmCastingTests
 		Assert.AreEqual(0, f.SaveCalls); Assert.IsTrue(f.Applied(result));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury)]
 	[DataRow(EmotionalSpellKind.Calm)]
 	public void EqualCounter_RemovesOnlyAdmittedOpposingParent_NoSaveOrNewEffect(EmotionalSpellKind incoming)
@@ -145,7 +145,7 @@ public class FuryCalmCastingTests
 		selective.Verify(x => x.CeaseCombatFor(ticket), Times.Once); combat.Verify(x => x.EndCombat(It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("BeforePayment", MagicCastingStatus.Refused)]
 	[DataRow("Paying", MagicCastingStatus.NeedsReview)]
 	public void DeadlineChangedAfterPreparation_PreservesReplacementScheduleAndNeverDebits(string checkpoint, MagicCastingStatus status)
@@ -183,7 +183,7 @@ public class FuryCalmCastingTests
 		Assert.AreSame(head, f.Parents.Single()); Assert.AreSame(sibling, head.SpellEffects.Single()); Assert.IsTrue(f.Scheduler.IsScheduled(head));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury)]
 	[DataRow(EmotionalSpellKind.Calm)]
 	public void ParentAndChildReload_RetainsSourceStatePowerOwnershipAndRemainingDeadline(EmotionalSpellKind kind)
@@ -275,7 +275,7 @@ public class FuryCalmCastingTests
 		Assert.IsFalse(f.Parents.Any()); Assert.AreEqual(1, f.SaveCalls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury)]
 	[DataRow(EmotionalSpellKind.Calm)]
 	public void NativeSchedulerExpiry_RemovesOwnedParentAndChild(EmotionalSpellKind kind)
@@ -337,7 +337,7 @@ public class FuryCalmCastingTests
 	public void PreparedPayload_RefusesWithoutEffectsOrChecks()
 	{
 		using var f = new Fixture(EmotionalSpellKind.Fury);
-		Assert.ThrowsException<InvalidOperationException>(() => f.Spell.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Standard));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Spell.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Standard));
 		Assert.IsFalse(f.Parents.Any()); Assert.AreEqual(0, f.F.Rolls);
 	}
 

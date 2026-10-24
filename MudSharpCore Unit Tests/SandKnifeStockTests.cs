@@ -22,7 +22,7 @@ public class SandKnifeStockTests
 	[ClassInitialize]
 	public static void Initialise(TestContext _) => FutureProgTestBootstrap.EnsureInitialised();
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Desert", false, 0L, true)]
 	[DataRow("Earth Plane", false, 0L, true)]
 	[DataRow("Silt", false, 0L, true)]

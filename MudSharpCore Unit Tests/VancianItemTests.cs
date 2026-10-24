@@ -169,7 +169,7 @@ public class VancianItemTests
 		Assert.IsFalse(GameItemComponentPrototypeExclusivity.CanAddComponent([stackable.Object],scroll,out _));
 		Assert.AreEqual(1,GameItemComponentPrototypeExclusivity.FindConflicts([scroll,container.Object]).Count);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("state")] [DataRow("combat")] [DataRow("quit")] [DataRow("death")]
 	public void RealActionEventsCancelInscriptionAndReleaseExactReservation(string interruption)
 	{
@@ -186,7 +186,7 @@ public class VancianItemTests
 		Assert.IsNull(f.F.Action); Assert.IsNull(scroll.Component.Reservation); Assert.IsTrue(scroll.Component.IsBlank);
 		Assert.AreEqual(VancianSlotStatus.Prepared,f.F.State.Slots.Single().Status); Assert.AreEqual("Cancelled",f.F.Store.Operation(start.OperationId!.Value)!.Status);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("hidden")] [DataRow("closed")] [DataRow("unreadable")] [DataRow("full")]
 	public void UnusableOrFullBooksRefuseWithoutFormulaOrPayment(string constraint)
 	{

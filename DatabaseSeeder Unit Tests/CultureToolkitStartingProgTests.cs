@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitStartingProgTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("antiquity")]
 	[DataRow("darkages")]
 	[DataRow("medieval")]

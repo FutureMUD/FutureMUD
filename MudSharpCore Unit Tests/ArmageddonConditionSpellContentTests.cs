@@ -43,7 +43,7 @@ public partial class ArmageddonConditionSpellContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void SowSickness_CreatesRealNativeNonspreadingInfectionWithoutIdentityFlush(int grade)
@@ -82,7 +82,7 @@ public partial class ArmageddonConditionSpellContentTests
 		var token = prepared.CapturePreparedSelection(f.Base.Actor.Object, f.Base.Actor.Object)!;
 		f.ChangeBody();
 		Assert.IsFalse(prepared.TryReusePreparedSelection(token, f.Base.Actor.Object, f.Base.Actor.Object, out _));
-		Assert.ThrowsException<InvalidOperationException>(() => template.GetOrApplyEffect(f.Base.Actor.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => template.GetOrApplyEffect(f.Base.Actor.Object,
 			f.Base.Actor.Object, OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, []));
 		f.Base.Body.Verify(x => x.AddInfection(It.IsAny<IInfection>()), Times.Never);
 	}
@@ -97,7 +97,7 @@ public partial class ArmageddonConditionSpellContentTests
 		template.IntensityExpression = new MudSharp.Body.Traits.TraitExpression("1", f.Base.World.Object);
 		var effect = (SpellDiseaseEffect)template.GetOrApplyEffect(f.Base.Actor.Object,
 			f.Base.Actor.Object, OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, [])!;
-		Assert.ThrowsException<InvalidOperationException>(effect.InitialEffect);
+		Assert.ThrowsExactly<InvalidOperationException>(effect.InitialEffect);
 		Assert.AreSame(f.Infections.Single(), effect.AppliedInfection);
 		Assert.AreSame(f.Base.Body.Object, effect.OwnedBody);
 		Assert.IsTrue(f.Base.Body.Object.Changed);
@@ -133,9 +133,9 @@ public partial class ArmageddonConditionSpellContentTests
 		template.IntensityExpression = new MudSharp.Body.Traits.TraitExpression("1", f.Base.World.Object);
 		var effect = (SpellDiseaseEffect)template.GetOrApplyEffect(f.Base.Actor.Object, f.Base.Actor.Object,
 			OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, [])!;
-		Assert.ThrowsException<InvalidOperationException>(effect.InitialEffect);
+		Assert.ThrowsExactly<InvalidOperationException>(effect.InitialEffect);
 		Assert.AreSame(replacement.Object, ((Infection)f.Infections.Single()).Owner);
-		Assert.ThrowsException<InvalidOperationException>(effect.RemovalEffect);
+		Assert.ThrowsExactly<InvalidOperationException>(effect.RemovalEffect);
 		f.Base.Body.Verify(x => x.RemoveInfection(It.IsAny<IInfection>()), Times.Never);
 		Assert.IsTrue(f.Base.Body.Object.Changed);
 	}
@@ -150,7 +150,7 @@ public partial class ArmageddonConditionSpellContentTests
 		template.IntensityExpression = new MudSharp.Body.Traits.TraitExpression("1", f.Base.World.Object);
 		var effect = (SpellDiseaseEffect)template.GetOrApplyEffect(f.Base.Actor.Object, f.Base.Actor.Object,
 			OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, [])!;
-		Assert.ThrowsException<InvalidOperationException>(effect.InitialEffect);
+		Assert.ThrowsExactly<InvalidOperationException>(effect.InitialEffect);
 		Assert.AreSame(f.Infections.Single(), effect.AppliedInfection); Assert.AreSame(f.Base.Body.Object, effect.OwnedBody);
 		Assert.IsTrue(f.Base.Body.Object.Changed); f.Base.Body.Verify(x => x.StartHealthTick(false), Times.Once);
 	}
@@ -162,7 +162,7 @@ public partial class ArmageddonConditionSpellContentTests
 		f.Base.Body.Setup(x => x.RemoveInfection(It.IsAny<IInfection>())).Callback<IInfection>(x =>
 		{ f.Infections.Remove(x); f.ChangeBody(); });
 		var cure = (IMagicSpellEffectOperation)f.Template("purge_disease");
-		Assert.ThrowsException<InvalidOperationException>(() => cure.Apply(f.Base.Actor.Object, f.Base.Actor.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => cure.Apply(f.Base.Actor.Object, f.Base.Actor.Object,
 			OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, []));
 		Assert.AreEqual(0, f.Infections.Count); Assert.AreEqual(1, f.Deleted.Count);
 		Assert.IsTrue(f.Base.Body.Object.Changed);
@@ -175,7 +175,7 @@ public partial class ArmageddonConditionSpellContentTests
 		var saved = original.SaveToXml(new Dictionary<IEffect, TimeSpan>()); f.Infections.Clear();
 		var loaded = (SpellDiseaseEffect)Effect.LoadEffect(saved, f.Base.Actor.Object);
 		loaded.ParentEffect = f.Parent;
-		Assert.ThrowsException<InvalidOperationException>(loaded.InitialEffect);
+		Assert.ThrowsExactly<InvalidOperationException>(loaded.InitialEffect);
 		f.Base.Body.Verify(x => x.AddInfection(It.IsAny<IInfection>()), Times.Never);
 	}
 
@@ -186,7 +186,7 @@ public partial class ArmageddonConditionSpellContentTests
 		var saved = original.SaveToXml(new Dictionary<IEffect, TimeSpan>()); f.ChangeBody();
 		var loaded = (SpellDiseaseEffect)Effect.LoadEffect(saved, f.Base.Actor.Object); loaded.ParentEffect = f.Parent;
 		Assert.IsNull(loaded.OwnedBody); Assert.IsNull(loaded.AppliedInfection);
-		Assert.ThrowsException<InvalidOperationException>(loaded.InitialEffect);
+		Assert.ThrowsExactly<InvalidOperationException>(loaded.InitialEffect);
 		Assert.AreEqual(200L, (long)loaded.SaveToXml(new Dictionary<IEffect, TimeSpan>()).Element("Effect")!.Element("OwnedBodyId")!);
 		Assert.AreEqual(1, f.Infections.Count);
 	}
@@ -201,7 +201,7 @@ public partial class ArmageddonConditionSpellContentTests
 		Assert.IsTrue(f.Base.Body.Object.Changed);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0")]
 	[DataRow("8")]
 	[DataRow("-1")]
@@ -210,7 +210,7 @@ public partial class ArmageddonConditionSpellContentTests
 	{
 		var f = new Fixture(); var template = (DiseaseEffect)f.Template("sow_sickness");
 		template.IntensityExpression = new MudSharp.Body.Traits.TraitExpression(formula, f.Base.World.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => template.GetOrApplyEffect(f.Base.Actor.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => template.GetOrApplyEffect(f.Base.Actor.Object,
 			f.Base.Actor.Object, OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, []));
 		Assert.AreEqual(0, f.Infections.Count);
 	}

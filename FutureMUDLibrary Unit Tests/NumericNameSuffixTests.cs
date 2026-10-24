@@ -8,7 +8,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NumericNameSuffixTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("item", "item1")]
 	[DataRow("item5", "item6")]
 	[DataRow("item009", "item10")]

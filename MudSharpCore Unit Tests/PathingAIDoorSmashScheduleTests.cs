@@ -331,7 +331,7 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.AreEqual(1, foci.Count(x => ReferenceEquals(x.Exit, otherExit.Object)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true, true, true)]
 	[DataRow(false, true, true, false)]
 	[DataRow(true, false, true, false)]
@@ -428,7 +428,7 @@ public class PathingAIDoorSmashScheduleTests
 		prog.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void DoorRemovedOrReplacedOpen_CleansFocusAndContinuesEpisode(bool replacement)
@@ -455,7 +455,7 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.AreEqual(0, ai.SmashCount);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(CharacterState.Dead)]
 	[DataRow(CharacterState.Stasis)]
 	[DataRow(CharacterState.Paralysed)]
@@ -473,7 +473,7 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.IsFalse(fixture.Effects.Contains(fixture.Focus));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void MultiplePathingAIs_ProcessOnlyTheirOwnEpisodeRegardlessOfOrder(bool siblingFirst)
@@ -583,7 +583,7 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.IsTrue(fixture.Effects.Contains(siblingFocus));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void InvalidOriginOrOpenDoorClearsOnlyOwningEpisode(bool openDoor)
@@ -698,7 +698,7 @@ public class PathingAIDoorSmashScheduleTests
         prog.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Exactly(2));
     }
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ConfiguredCallback_MaximumDecimal_SafelySaturatesAtTheLastTimestamp(bool nearBoundary)

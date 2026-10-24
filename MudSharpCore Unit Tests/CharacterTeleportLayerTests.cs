@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CharacterTeleportLayerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(RoomLayer.InTrees)]
 	[DataRow(RoomLayer.HighInAir)]
 	[DataRow(RoomLayer.Underwater)]
@@ -36,7 +36,7 @@ public class CharacterTeleportLayerTests
 		Assert.AreEqual(layer, actor.RoomLayer);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]

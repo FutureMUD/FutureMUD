@@ -129,7 +129,7 @@ public class MagicCastingOwnershipTests
 		Assert.IsFalse(actor.CanUseResource(f.Resources[1], 11));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN)]
 	[DataRow(double.PositiveInfinity)]
 	[DataRow(-1.0)]
@@ -193,7 +193,7 @@ public class MagicCastingOwnershipTests
 		Assert.IsTrue(actor.RemoveMerit(merit.Object)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(70.0, 150.0)]
 	[DataRow(-10.0, 120.0)]
 	public void NativeReserve_LoadRestorationDefersPartialInventoryAndEffectCaps_ThenClampsOnce(double secondBonus, double finalBalance)
@@ -216,7 +216,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(finalBalance, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NativeReserve_LabourHoursChangeClampsAtActivationThreshold(bool projectHours)
@@ -231,7 +231,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(100.0, f.Resources[1].ResourceCap(actor)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false, 5.0, 90.0, 90.0)]
 	[DataRow(false, false, 5.0, 90.0, 90.0)]
 	[DataRow(true, true, 5.0, 90.0, 90.0)]
@@ -264,7 +264,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]], "Reconciliation cannot refill after removal.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("cast", true, -5.0, 90.0)]
 	[DataRow("cast", false, -5.0, 90.0)]
 	[DataRow("cast", true, -8.0, 70.0)]
@@ -309,7 +309,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(expectedBalance, actor.MagicResourceAmounts[f.Resources[1]], "A capacity rise cannot restore lost energy.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NativeReserve_CompoundSpellApplication_ExceptionReleasesNestedScopeAndClampsRemainingState(bool nested)
@@ -323,7 +323,7 @@ public class MagicCastingOwnershipTests
 		((List<IMagicSpellEffectTemplate>)spell.SpellEffects).Add(failure.Object);
 		using (nested ? actor.DeferCastingCapacityReconciliation() : null)
 		{
-			Assert.ThrowsException<InvalidOperationException>(() => spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard));
+			Assert.ThrowsExactly<InvalidOperationException>(() => spell.ResolveTriggeredSpell(actor, actor, SpellPower.Standard));
 			Assert.AreEqual(nested ? 90.0 : 50.0, actor.MagicResourceAmounts[f.Resources[1]]);
 			Assert.AreEqual(nested, actor.CastingCapacityRestorationActive);
 		}
@@ -353,7 +353,7 @@ public class MagicCastingOwnershipTests
 			actor.AddEffect(parent);
 		}
 		actor.AddResource(f.Resources[1], 90);
-		Assert.ThrowsException<InvalidOperationException>(() => actor.RemoveEffect(parent, true));
+		Assert.ThrowsExactly<InvalidOperationException>(() => actor.RemoveEffect(parent, true));
 		Assert.IsFalse((bool)typeof(MagicSpellParent).GetField("_removingSpellEffects", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(parent)!);
 		Assert.IsFalse(actor.CastingCapacityRestorationActive);
 		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]], "The interrupted operation retains a genuine lower remaining maximum.");
@@ -362,7 +362,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NativeReserve_CompoundSpellApplication_NestedCompletionWaitsForOutermostScope(bool restoration)
@@ -405,7 +405,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(24.0, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("generic", true)]
 	[DataRow("generic", false)]
 	[DataRow("predicate", true)]
@@ -433,7 +433,7 @@ public class MagicCastingOwnershipTests
 		Assert.IsFalse(actor.Effects.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("cast", true, 5.0, -5.0, 7.0, 97.0)]
 	[DataRow("cast", false, 5.0, -5.0, 7.0, 97.0)]
 	[DataRow("target", true, 5.0, -5.0, 7.0, 97.0)]
@@ -485,7 +485,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(Math.Min(expectedBalance, 100), actor.MagicResourceAmounts[f.Resources[1]], "Cleanup clamps a genuine decrease without refilling.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, 7.0)]
 	[DataRow(false, 7.0)]
 	[DataRow(true, 60.0)]
@@ -509,7 +509,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(90 - amount, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN)]
 	[DataRow(double.PositiveInfinity)]
 	[DataRow(-1.0)]
@@ -526,7 +526,7 @@ public class MagicCastingOwnershipTests
 		Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(150, false, 200.0)]
 	[DataRow(70, true, 130.0)]
 	public void NativeReserve_NestedSpellPayment_UsesCapAndPreservesOuterProvisionalBalance(int cost, bool accepted,

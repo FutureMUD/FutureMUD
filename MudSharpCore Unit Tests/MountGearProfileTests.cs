@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MountGearProfileTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(CheckType.MountControlCheck)]
 	[DataRow(CheckType.AvoidMountFallCheck)]
 	public void RidingControl_UsesItsDedicatedCheckInsteadOfFlee(CheckType type)

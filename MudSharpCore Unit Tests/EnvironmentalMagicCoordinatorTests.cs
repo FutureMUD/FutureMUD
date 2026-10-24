@@ -1187,7 +1187,7 @@ public class EnvironmentalMagicCoordinatorTests
 		Assert.AreEqual(55.0, room.MagicResourceAmounts[resource]);
 		Assert.AreEqual(1000.0, resource.ResourceCap(room));
 		Assert.IsFalse(world.Coordinator.ApplyOperation(room, Request(damage: 1)).Success);
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 			world.Coordinator.SetBinding(room, EnvironmentalMagicBindingMode.Explicit, 1));
 		world.RunSeconds(120);
 		Assert.AreEqual(55.0, room.MagicResourceAmounts[resource]);
@@ -1301,7 +1301,7 @@ public class EnvironmentalMagicCoordinatorTests
 		Assert.AreEqual(10.0, old.MagicResourceAmounts[resource]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EnvironmentalMagicBindingMode.Inherit)]
 	[DataRow(EnvironmentalMagicBindingMode.Disabled)]
 	[TestCategory("E-T02")]

@@ -43,7 +43,7 @@ public class IndustrialisedClothingWearProfileTests
 		Assert.AreEqual(2L, result.BodyId);
 		CollectionAssert.AreEqual(new long[] { 11, 12 }, result.Locations.Select(x => x.TargetId).ToArray());
 		Assert.IsTrue(result.Locations.All(x => x.Count == 1 && x.Mandatory && !x.Transparent && x.NoArmour && x.PreventsRemoval && x.HidesSevered));
-		Assert.ThrowsException<NotSupportedException>(() => ((IList<ClothingWearLocationBinding>)result.Locations).Clear());
+		Assert.ThrowsExactly<NotSupportedException>(() => ((IList<ClothingWearLocationBinding>)result.Locations).Clear());
 	}
 
 	[TestMethod]
@@ -59,7 +59,7 @@ public class IndustrialisedClothingWearProfileTests
 		Assert.AreEqual(2, snapshot.Bind(Profile(), Source).Locations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Leg")]
 	[DataRow("21")]
 	public void Shape_ResolvesNamesAndIdsWithExactCountsAndLegacyHidesSeveredDefault(string target)
@@ -72,7 +72,7 @@ public class IndustrialisedClothingWearProfileTests
 		Assert.IsFalse(result.Locations.Single().HidesSevered);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("empty", "nonempty Profile")]
 	[DataRow("wrong-root", "Profiles geometry root")]
 	[DataRow("mixed-elements", "unknown location elements")]
@@ -115,7 +115,7 @@ public class IndustrialisedClothingWearProfileTests
 		Failure(() => new IndustrialisedClothingWearProfiles(bodies, parts, shapes).Bind(profile, Source), diagnostic);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("99", "1", "true", "missing or ambiguous shape")]
 	[DataRow("21", "0", "true", "positive shape count")]
 	[DataRow("21", "-1", "true", "positive shape count")]
@@ -143,7 +143,7 @@ public class IndustrialisedClothingWearProfileTests
 		Assert.IsFalse(IndustrialisedClothingWearProfiles.IsExternalLocation((BodypartTypeEnum)999));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Direct")]
 	[DataRow("Shape")]
 	public void BoundGeometry_AgreesWithRuntimeProfileLoader(string type)
@@ -218,7 +218,7 @@ public class IndustrialisedClothingWearProfileTests
 		Failure(() => new IndustrialisedClothingWearProfiles(Bodies(), rows, Shapes()).Bind(profile, Source), "requires non-wearable");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(BodypartTypeEnum.Liver)]
 	[DataRow(BodypartTypeEnum.Bone)]
 	public void OptionalInternalLocation_RemainsInvalidForRuntimeDirectLoader(BodypartTypeEnum type)
@@ -250,7 +250,7 @@ public class IndustrialisedClothingWearProfileTests
 		Failure(() => IndustrialisedClothingWearProfiles.MaximumLayerWeight([setting], Source), "Missing exact");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("-1")]
 	[DataRow("NaN")]
 	[DataRow("Infinity")]
@@ -284,7 +284,7 @@ public class IndustrialisedClothingWearProfileTests
 
 	private static void Failure(Action action, string diagnostic)
 	{
-		var error = Assert.ThrowsException<InvalidDataException>(action);
+		var error = Assert.ThrowsExactly<InvalidDataException>(action);
 		StringAssert.Contains(error.Message, Source.ToString());
 		StringAssert.Contains(error.Message, diagnostic);
 	}

@@ -9,13 +9,29 @@ Edit [CelestialSeeder.cs](../../../DatabaseSeeder/Seeders/CelestialSeeder/Celest
 Sets up Suns, Moons, etc.
 Baseline availability: **Enabled**. The entrypoint is [CelestialSeeder.cs](../../../DatabaseSeeder/Seeders/CelestialSeeder/CelestialSeeder.cs); `SeederQuestions`, `SeedData` and `ShouldSeedData` define operator filtering/validation, execution and legacy readiness. No manual Program registration is needed.
 
-Operator question IDs: `installsun`, `suncalendar`, `sunname`, `sunepoch`, `installmoon`, `mooncalendar`, `moonname`, `moonepoch`, `installgasgiantmoon`, `gasgiantcalendar`, `gasgiantsunepoch`, `gasgiantmoonepoch`, `installauthored`, `authoredcalendar`. Exact accepted values, conditional visibility and defaults are defined in the linked `SeederQuestions`; the trace below explains the relevant choice path.
+Operator question IDs: `installsun`, `suncalendar`, `sunname`, `sunepoch`, `installmoon`, `mooncalendar`, `moonname`, `moonepoch`, `installgasgiantmoon`, `gasgiantcalendar`, `gasgiantsunepoch`, `gasgiantmoonepoch`, `installauthored`, `authoredcalendar`, `installarmageddon`. Exact accepted values, conditional visibility and defaults are defined in the linked `SeederQuestions`; the trace below explains the relevant choice path.
 
 Metadata prerequisite descriptions from [SeederMetadataRegistry](../../../DatabaseSeeder/SeederMetadataRegistry.cs):
 
 - The Core seeder must have created at least one account.
 
 These predicates supplement concrete `ShouldSeedData` and helper preflights; declared ordering types are listed in the [dependency map](Dependency_Map.md).
+
+## Armageddon option
+
+After choosing `Armageddon` in Time Seeder, choose yes for `installarmageddon`. Its default is yes when that calendar exists, otherwise no; the Earth sun/moon defaults become no for an Armageddon calendar. Existing package questions remain independent. The three bodies install together: Suk-Krath (`ScriptedSun`), Jihae and Lirathu (`ScriptedMoon`). No additional calendar or epoch question is needed: the canonical Armageddon calendar drives all three and midnight opening year 1 anchors the schedule.
+
+The package requires a midnight-based, fixed-month, epoch-year-1 calendar of three 231-day months and a nine-hour 60-by-60 clock. Incompatible builder customisations fail validation and direct execution before any requested celestial installation writes. Clock speed and year-name edits do not invalidate the sky schedule. The package has no implicit shard attachment; builders select all three, placing Suk-Krath first if it should supply time of day, through `shard set <shard> celestials <ids...>`.
+
+Stable `SeederPreset` markers `ArmageddonSun`, `ArmageddonJihae` and `ArmageddonLirathu` identify package members independently of display names. Reruns preserve existing IDs/definitions and restore only missing members. Any partial authored package reports additional packages available. Removing a seeder marker relinquishes that member's stock identity, as with other authored presets.
+
+All three apparent paths repeat over 693 days using sparse fifteen-minute source keys and authoritative minute samples. They share a seasonal inclined track; turn rates are 1, 6/7 and 10/11 per day. The sun has a seven-hour horizon interval (dawn at hour 1, sunset at hour 8), two hours below the horizon and editable maximum elevations descending 60 to 30 degrees, remaining low at 30, then ascending to 60. This is a global authored fantasy sky; latitude/longitude do not change it. Local room/weather/perception modifiers still apply. The original's seven lit/twilight hours are represented as seven geometric above-horizon hours; native dawn/dusk classifications still use the existing altitude thresholds.
+
+Exact common keyframes coincide at midnight every 77 days, below the horizon. `custom:conjunction` on each body exposes the shared schedule; it is a named authored event, not physical geometric-solver support. Months have three occurrences in `(month start, next month start]`, avoiding double-counting their opening instant. The full annual compiled-sample regression checks nine intended coincidences and no additional ones.
+
+Moon phase channels preserve the source day bands independently of positions, using representative native phase fractions and jumps at day boundaries. Lirathu is full on days 115-118 and new on 1-2/230-231; Jihae is full on 106-109/222-225 and new on 49-51/164-167. Both crescent thicknesses retain distinct fractions within the native crescent phase. Sun peak 98,000 lux and moon peak 0.3/0.6 lux are editable starter tuning; moon light is phase-scaled once and zero below the horizon. These are not recovered physical measurements. No Echri is installed.
+
+See [source evidence and accepted adaptation](../../Armageddon/Armageddon_Time_And_Celestial_Proposal.md). `ArmageddonTimeAndSkyTests` covers annual compiled geometry, daylight, phase dates, prerequisites and preserving partial reruns.
 
 ## Inputs, representative trace and practical authoring guide
 
@@ -37,6 +53,10 @@ Adds missing stock physical packages and optional authored celestial examples.
 Authored examples use stable preset identities; reruns preserve existing IDs and builder-edited definitions and add missing members. Physical packages retain their existing detection rules.
 
 Those are metadata declarations. The source trace above identifies actual lookup/field/transaction behavior; matching names alone do not prove field ownership or preservation. [The shared executor](README.md#shared-execution-contract) handles exceptions and answer persistence but supplies no cross-seeder transaction.
+
+## Armageddon verification result
+
+The full DatabaseSeeder suite passed 2,204 cases with three Unix-only launcher permission cases skipped on Windows. The annual compiled-sample, phase and preserving-rerun regressions passed. Native MySQL run `run-37bf80360bf1` installed all three objects, reloaded definitions in fresh contexts, preserved retained IDs/customisations and restored only the deleted member. Its complete baseline replay/nonblank-refusal checksum gate and owned-instance shutdown also passed. No game-server/Telnet or climate calibration is claimed. See [the full evidence and remaining climate-template boundary](../../Armageddon/Armageddon_Time_And_Celestial_Proposal.md#implementation-verification).
 
 ## Verification and related references
 

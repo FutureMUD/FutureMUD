@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 
 [TestClass]
 [TestCategory("ClimateSeeder")]
-public class WeatherSeederClimateTests
+public partial class WeatherSeederClimateTests
 {
     private static readonly InMemoryDatabaseRoot DatabaseRoot = new();
     private static readonly object SeededContextLock = new();
@@ -1054,14 +1054,16 @@ public class WeatherSeederClimateTests
 
     private static void SeedWeatherContext(FuturemudDatabaseContext context)
     {
+        context.Calendars.Add(new MudSharp.Models.Calendar { Id = 1, FeedClockId = 1, Definition = "<Calendar />", Date = "1/test/1" });
+        context.Clocks.Add(new Clock { Id = 1, Definition = "<Clock><HoursPerDay>24</HoursPerDay><MinutesPerHour>60</MinutesPerHour><SecondsPerMinute>60</SecondsPerMinute></Clock>" });
         context.Celestials.Add(new Celestial
         {
-            Definition = "<Celestial />",
+            Definition = "<SunV2><Calendar>1</Calendar><Orbital><CelestialDaysPerYear>365</CelestialDaysPerYear></Orbital></SunV2>",
             Minutes = 0,
             FeedClockId = 1,
             CelestialYear = 0,
             LastYearBump = 0,
-            CelestialType = "test"
+            CelestialType = "Sun"
         });
         context.SaveChanges();
 
@@ -1104,6 +1106,13 @@ public class WeatherSeederClimateTests
     {
         using FuturemudDatabaseContext context = CreateSeededWeatherContext();
 
+        return AnalyzeSeededClimate(context, regionalClimateName, controllerName, years, burnInYears);
+    }
+
+    private static WeatherStatisticsResult AnalyzeSeededClimate(FuturemudDatabaseContext context, string regionalClimateName,
+        string controllerName, int years, int burnInYears, int hours = 24, int minutes = 60, int yearDays = 365,
+        int seed = 123456, bool includeFluctuation = false)
+    {
         MudSharp.Models.RegionalClimate regionalClimate = context.RegionalClimates
             .Include(x => x.RegionalClimatesSeasons)
             .ThenInclude(x => x.Season)
@@ -1126,34 +1135,39 @@ public class WeatherSeederClimateTests
             x => x.Id,
             CreateSeasonMock);
         CircularRange<ISeason> seasonRotation = new(
-            365.0,
+            yearDays,
             seasons.Select(x => (seasonMocks[x.Id], (double)x.CelestialDayOnset)));
         Dictionary<(long SeasonId, int Hour), double> baseTemperatures = regionalClimate.RegionalClimatesSeasons
             .SelectMany(x => ParseTemperatures(x.SeasonId, x.TemperatureInfo))
             .ToDictionary(x => (x.SeasonId, x.Hour), x => x.Temp);
         WeatherTransitionSnapshot snapshot = BuildSnapshot(climateModel, eventMap);
-        SeederSimulationClock clock = new();
+        SeederSimulationClock clock = new(hours, minutes, yearDays);
         WeatherStatisticsAnalyzer analyzer = new();
         return analyzer.AnalyzeSimulation(new WeatherStatisticsSimulationRequest
         {
             Years = years,
             BurnInYears = burnInYears,
-            Seed = 123456,
+            Seed = seed,
             SeasonInfo = seasonMocks.ToDictionary(x => x.Key, x => x.Value),
             TransitionSnapshot = snapshot,
             SimulationContext = new WeatherSimulationContext
             {
                 Geography = new GeographicCoordinate(51.5074, -0.1278, 11.0, 6_371_000.0),
                 SeasonRotation = seasonRotation,
-                FeedHoursPerDay = 24,
-                FeedMinutesPerHour = 60,
-                YearLengthDays = 365.0,
+                FeedHoursPerDay = hours,
+                FeedMinutesPerHour = minutes,
+                YearLengthDays = yearDays,
                 GetCelestialDay = () => clock.CelestialDay,
                 GetCurrentTimeOfDay = () => clock.GetTimeOfDay(),
                 GetFeedLocalHour = () => clock.Hour,
                 AdvanceOneFeedMinute = clock.AdvanceMinute,
                 ConsumeYearBoundary = clock.ConsumeYearBoundary,
-                GetBaseTemperature = (seasonId, hour) => baseTemperatures[(seasonId, hour)]
+                GetBaseTemperature = (seasonId, hour) => baseTemperatures[(seasonId, hour)],
+                AdvanceTemperatureFluctuation = includeFluctuation
+                    ? (offset, tick, random) => WeatherClimateUtilities.AdvanceTemperatureFluctuation(offset,
+                        regionalClimate.TemperatureFluctuationStandardDeviation,
+                        TimeSpan.FromMinutes(regionalClimate.TemperatureFluctuationPeriodMinutes), tick, random)
+                    : null
             },
             InitialSeasonId = seasonMocks.Values.First().Id,
             InitialWeatherEventId = null,
@@ -1367,7 +1381,7 @@ public class WeatherSeederClimateTests
             : seasonRows.Sum(x => x.Percent * x.SeasonMinutes) / totalMinutes;
     }
 
-    private sealed class SeederSimulationClock
+    private sealed class SeederSimulationClock(int hours = 24, int minutes = 60, int yearDays = 365)
     {
         private int _minute;
         private int _day;
@@ -1375,24 +1389,24 @@ public class WeatherSeederClimateTests
 
         public int Hour { get; private set; }
 
-        public double CelestialDay => _day + ((Hour * 60 + _minute) / 1_440.0);
+        public double CelestialDay => _day + ((Hour * minutes + _minute) / (double)(hours * minutes));
 
         public void AdvanceMinute()
         {
             _yearBoundary = false;
-            if (++_minute < 60)
+            if (++_minute < minutes)
             {
                 return;
             }
 
             _minute = 0;
-            if (++Hour < 24)
+            if (++Hour < hours)
             {
                 return;
             }
 
             Hour = 0;
-            if (++_day < 365)
+            if (++_day < yearDays)
             {
                 return;
             }
@@ -1410,6 +1424,11 @@ public class WeatherSeederClimateTests
 
         public TimeOfDay GetTimeOfDay()
         {
+            if (hours == 9) return Hour switch
+            {
+                0 => TimeOfDay.Night, 1 => TimeOfDay.Dawn, < 4 => TimeOfDay.Morning,
+                < 8 => TimeOfDay.Afternoon, 8 => TimeOfDay.Dusk, _ => TimeOfDay.Night
+            };
             return Hour switch
             {
                 < 5 => TimeOfDay.Night,

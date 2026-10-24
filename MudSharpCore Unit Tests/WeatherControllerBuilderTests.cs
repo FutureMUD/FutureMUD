@@ -27,6 +27,32 @@ public class WeatherControllerBuilderTests
 	}
 
 	[TestMethod]
+	public void WeatherController_UsesClimateCelestialClockBeforeSelectingInitialWeather()
+	{
+		var (world, climate, zone, firstClock, model) = NoInitialWeatherFixture();
+		var nativeClock = new Mock<IClock>();
+		nativeClock.SetupGet(x => x.Id).Returns(2);
+		nativeClock.SetupGet(x => x.HoursPerDay).Returns(9);
+		nativeClock.SetupGet(x => x.PrimaryTimezone).Returns(Mock.Of<IMudTimeZone>());
+		var source = new Mock<ICelestialObject>();
+		source.SetupGet(x => x.Id).Returns(2);
+		source.SetupGet(x => x.CelestialDaysPerYear).Returns(693);
+		source.Setup(x => x.CurrentTimeOfDay(It.IsAny<GeographicCoordinate>())).Returns(TimeOfDay.Dawn);
+		source.As<ICelestialTimeContext>().SetupGet(x => x.Clock).Returns(nativeClock.Object);
+		var season = Mock.Of<ISeason>(x => x.Id == 2 && x.Name == "Descending Sun" && x.Celestial == source.Object);
+		climate.SetupGet(x => x.Seasons).Returns([season]);
+		climate.SetupGet(x => x.SeasonRotation).Returns(new CircularRange<ISeason>(693, new[] { (season, 0.0) }));
+		world.SetupGet(x => x.Clocks).Returns(new All<IClock> { firstClock.Object, nativeClock.Object });
+		world.SetupGet(x => x.CelestialObjects).Returns(new All<ICelestialObject> { Mock.Of<ICelestialObject>(x => x.Id == 1), source.Object });
+		// Stop before persistence; native qualification also exercises successful creation at a
+		// first-global-clock hour outside the nine-hour table.
+		Assert.ThrowsExactly<ArgumentException>(() => new WeatherController(world.Object, "Test", climate.Object, zone.Object));
+		nativeClock.VerifyGet(x => x.PrimaryTimezone, Times.Once);
+		firstClock.VerifyGet(x => x.PrimaryTimezone, Times.Never);
+		model.Verify(x => x.HandleWeatherTick(null, season, TimeOfDay.Dawn, 0), Times.Once);
+	}
+
+	[TestMethod]
 	public void WeatherControllerBuilder_NoPermittedInitialEvent_ReturnsErrorWithoutRegistration()
 	{
 		var (world, _, _, clock, model) = NoInitialWeatherFixture();

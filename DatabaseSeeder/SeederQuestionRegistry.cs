@@ -20,7 +20,11 @@ public static class SeederQuestionRegistry
     private static readonly IReadOnlyDictionary<string, SeederQuestionEnhancement> Enhancements =
         new Dictionary<string, SeederQuestionEnhancement>(StringComparer.OrdinalIgnoreCase)
         {
-			[BuildKey(nameof(SkillPackageSeeder), "skillpreset")] = new(
+			[BuildKey(nameof(WeatherSeeder), "weathercelestial")] = new(
+                DefaultAnswerResolver: (context, _) => SeederWeatherTiming.Eligible(context).FirstOrDefault()?.CelestialId.ToString(),
+                DisplayResolver: SeederWeatherTiming.Display
+            ),
+            [BuildKey(nameof(SkillPackageSeeder), "skillpreset")] = new(
 				DefaultAnswerResolver: (context, _) => SkillPackageSeeder.RecordedPreset(context)
 			),
 			[BuildKey(nameof(ChargenSeeder), "class")] = new(SharedAnswerKey: "use-classes"),
@@ -95,6 +99,12 @@ public static class SeederQuestionRegistry
             [BuildKey(nameof(CelestialSeeder), "installsun")] = new(
                 DefaultAnswerResolver: CelestialSeeder.ResolveInstallSunDefault,
                 DisplayResolver: CelestialSeeder.ResolveInstallSunDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "installarmageddon")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveInstallArmageddonDefault
+            ),
+            [BuildKey(nameof(TimeSeeder), "startyear")] = new(
+                DefaultAnswerResolver: (_, answers) => answers.TryGetValue("mode", out var mode) && mode.Equals("armageddon", StringComparison.OrdinalIgnoreCase) ? "1" : null
             ),
             [BuildKey(nameof(CelestialSeeder), "installauthored")] = new(
                 DefaultAnswerResolver: (_, _) => "no"

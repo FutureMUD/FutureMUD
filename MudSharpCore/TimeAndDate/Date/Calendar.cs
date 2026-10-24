@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Currency;
 using MudSharp.Celestial;
@@ -13,7 +13,7 @@ using System.Xml;
 
 namespace MudSharp.TimeAndDate.Date;
 
-public class Calendar : SaveableItem, ICalendar
+public partial class Calendar : SaveableItem, ICalendar
 {
     public override string FrameworkItemType => "Calendar";
 
@@ -245,6 +245,7 @@ public class Calendar : SaveableItem, ICalendar
         LoadDayBoundary(root.Element("dayboundary"));
         _algorithm = CalendarAlgorithmFactory.LoadFromXml(root.Element("algorithm"), AuthorityLocation);
         LoadRegnalPeriods(root.Element("regnalperiods"));
+        LoadNamedYearCycle(root.Element("namedyearcycle"));
     }
 
     public XElement SaveToXml()
@@ -282,7 +283,7 @@ public class Calendar : SaveableItem, ICalendar
                     from period in _regnalPeriods
                     select period.SaveToXml()
                 }
-            ), Algorithm.SaveToXml(), SaveDayBoundaryToXml());
+            ), Algorithm.SaveToXml(), SaveDayBoundaryToXml(), SaveNamedYearCycle());
     }
 
     private void LoadDayBoundary(XElement element)
@@ -1981,11 +1982,20 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
     public string DisplayDate(MudDate theDate, string mask)
     {
         var regnalDate = GetRegnalDate(theDate);
+        var namedYear = YearCycle?.GetYear(theDate.Year);
         var expandedMask = ExpandRegnalConditionals(mask, regnalDate is not null);
         return DateRegex.Replace(expandedMask, m =>
                         {
                             switch (m.Groups["code"].Value)
                             {
+                                case "yn":
+                                    return namedYear?.Name ?? "";
+                                case "yi":
+                                    return namedYear?.YearInCycle.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "";
+                                case "ya":
+                                    return namedYear?.CycleNumber.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "";
+                                case "yc":
+                                    return YearCycle?.Name ?? "";
                                 case "dd":
                                     return theDate.Day.ToString();
                                 case "DD":
@@ -2297,6 +2307,7 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 	#3epoch <year> <weekday>#0 - sets the epoch year and first weekday
 	#3short|long|wordy <mask>#0 - changes display masks
 	#3era <ancient|modern> <short|long> <text>#0 - changes era text
+	#3yearcycle create|add|set|remove|epoch|name|clear|show ...#0 - edits an ordered named year cycle
 	#3regnal list|add|close|name|start|end|remove|preview ...#0 - edits regnal period metadata
 	#3weekday add|rename|remove ...#0 - edits weekdays
 	#3month add|rename|alias|short|days|order|remove|nonweekday|special ...#0 - edits months
@@ -2346,6 +2357,8 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                 return BuildingCommandWordyMask(actor, command);
             case "era":
                 return BuildingCommandEra(actor, command);
+            case "yearcycle":
+                return BuildingCommandYearCycle(actor, command);
             case "regnal":
             case "regnalperiod":
             case "regnalperiods":
@@ -3644,6 +3657,7 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
             sb.AppendLine($"Authority Location: {AuthorityLocation.Latitude.RadiansToDegrees().ToString("N3", actor).ColourValue()}, {AuthorityLocation.Longitude.RadiansToDegrees().ToString("N3", actor).ColourValue()}");
         }
         sb.AppendLine($"Epoch: {EpochYear.ToStringN0(actor).ColourValue()} / {(Weekdays.Count > FirstWeekdayAtEpoch ? Weekdays[FirstWeekdayAtEpoch].ColourValue() : "Invalid".ColourError())}");
+        sb.AppendLine($"Named Year Cycle: {YearCycle?.Name.ColourName() ?? "None"} ({(YearCycle?.YearNames.Count ?? 0).ToStringN0(actor)} years)");
         sb.AppendLine($"Short Mask: {ShortString.ColourCommand()}");
         sb.AppendLine($"Long Mask: {LongString.ColourCommand()}");
         sb.AppendLine($"Wordy Mask: {WordyString.ColourCommand()}");

@@ -155,3 +155,8 @@ The compiler and production load/edit/seeding share the 16 MiB default source bu
 The optional CelestialSeeder authored package installs RailSun, RailMoon, ScriptedSun, ScriptedMoon, MorningStar and MorningGlow examples. `installauthored` defaults to no interactively; Debug replay profiles explicitly include yes and `authoredcalendar`. All six remain unattached. `SeederPreset` identifies managed examples: reruns add missing members and preserve existing definitions, names and stable IDs. Builder clones clear this marker. MorningStar rises only to two degrees, so it produces Dawn/Dusk without Morning/Afternoon; MorningGlow stays below the horizon and uses explicit glow lighting and sky narrative.
 
 See [verification coverage](Celestial_System_Tests.md), [seeder contract](Celestial_System_Seeder.md), and the [implementation handover](Authored_Celestials_Handover.md) for measured results and native transcripts.
+
+
+## Armageddon stock sky
+
+CelestialSeeder's separate `installarmageddon` choice installs Suk-Krath, Jihae and Lirathu as one preserving, additive package tied to the Armageddon Time Seeder calendar/clock. Its sparse annual source paths implement the approved lore-led adaptation, with independent source-backed lunar phase bands and a shared `custom:conjunction` event every 77 days. Bodies remain unattached until selected by a builder. It uses the existing authored types, limits, serialization and event APIs; there is no additional celestial runtime type. See [the package contract](../Seeding/Seeders/CelestialSeeder.md#armageddon-option).

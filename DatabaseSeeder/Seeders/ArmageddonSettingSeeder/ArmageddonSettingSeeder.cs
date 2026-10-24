@@ -20,6 +20,7 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 		"along with its races, languages and equipment. Skills follow Armageddon's class-based branching system, " +
 		"and powers of the Way are granted through class rules. " +
 		"Use the Armageddon skill package with classes and subclasses enabled; the separate Psionics seeder is not required. " +
+		"Optional regional weather templates use Armageddon time, Suk-Krath and shared weather foundations. " +
 		"Builders create the world's cities, rooms and stories.";
 	public bool SafeToRunMoreThanOnce => true;
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
@@ -63,7 +64,12 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 		if (FullConsent(questionAnswers))
 		{
 			if (questionAnswers.TryGetValue(InstallQuestion, out var partial) && IsYes(partial)) throw new InvalidOperationException("Choose the package settings stage or the retained prepared-world API, not both.");
-			var factory = ContextFactory(context);
+			var installWeather = questionAnswers.TryGetValue(WeatherQuestion, out var weatherAnswer)
+                ? IsYes(weatherAnswer) : ArmageddonWeatherInstaller.DefaultAnswer(context, questionAnswers) == "yes";
+            if (questionAnswers.TryGetValue(WeatherQuestion, out weatherAnswer) && !IsYes(weatherAnswer) && !weatherAnswer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Answer yes or no for armageddon-weather.");
+            if (installWeather) _ = ArmageddonWeatherInstaller.Require(context);
+            var factory = ContextFactory(context);
 			var prior = ArmageddonInstallation.Read(context);
 			ArmageddonProgressionMode? mode = null;
 			if (questionAnswers.TryGetValue(ModeQuestion, out var modeText))
@@ -119,6 +125,12 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 				else templarMessages.Add("Templar classes require the canonical Armageddon skill package; the existing magic-only installation was retained.");
 				completeProgressionReport += "\n" + string.Join("\n", templarMessages);
 			}
+            if (installWeather)
+            {
+                var weather = ArmageddonWeatherInstaller.Install(factory);
+                completeProgressionReport += "\n" + string.Join("\n", weather.Messages);
+            }
+
 			return $"Armageddon setting content installed. Magic progression: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Existing characters and builder customisations have been preserved.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nMagic and gathering content installed. Availability: {(settings.StockAvailabilityByDefault ? "enabled for new installations" : "existing settings retained")}; preserved builder overrides are reported above. Builders must configure land-based gathering and grant access to existing characters.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))

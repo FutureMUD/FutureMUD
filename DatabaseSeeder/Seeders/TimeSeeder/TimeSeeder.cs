@@ -15,6 +15,7 @@ public partial class TimeSeeder : IDatabaseSeeder
 {
     private static readonly string[] StockCalendarAliases =
     [
+        "armageddon",
         "gregorian",
         "julian",
         "middle-earth",
@@ -52,13 +53,13 @@ public partial class TimeSeeder : IDatabaseSeeder
 
 #BLabMUD#0 used a #22:1#0 ratio
 #BSOI#0, #BHarshlands#0 and #BAtonement#0 all use/used a #24:1#0 ratio
-#BArmageddon#0 used a #224:1#0 ratio
+#BArmageddon#0 uses #26:1#0 with its nine-hour clock (90 real minutes/day)
 
 What whole number of in-game seconds should be added for every 1 real second that passes? ",
                 (context, answers) => true,
                 (answer, context) =>
                 {
-                    if (!uint.TryParse(answer, out uint value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
+                    if (!int.TryParse(answer, out int value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
                 }),
             ("mode",
                 @"Choose a stock calendar. You can customise it later in game.
@@ -75,6 +76,7 @@ Read down each column; enter the option name.
 	#Bmiddle-earth#F: Multiple Middle-earth calendars
 	#Btranquility#F: 13 x 28 days; Moon Landing epoch
 	#Brepublicain#F: French Revolution; decimal clock
+	#BArmageddon#F: Zalanthan: 9 hours/day; 693 days/year; named 77-year cycle
 	#Bmission#F: Ship: 360-day year, 36-day month, 6-day week
 	#Bseasonal-360#F: 360 days; Early/Mid/Late seasons; 6-day week
 	#Bislamic-hijri#F: Crescent approximation; sunset days
@@ -103,6 +105,7 @@ Lunisolar and crescent approximations use deterministic rules.", (context, answe
                         case "middle-earth":
                         case "republicain":
                         case "tranquility":
+                        case "armageddon":
                         case "mission":
                         case "seasonal-360":
                         case "islamic-hijri":
@@ -125,7 +128,7 @@ Lunisolar and crescent approximations use deterministic rules.", (context, answe
             ("startyear", "What starting year do you want to set up for the calendar? ", (context, answers) => true,
                 (answer, context) =>
                 {
-                    if (!uint.TryParse(answer, out uint value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
+                    if (!int.TryParse(answer, out int value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
                 }),
             ("ardaage", @"Which age do you want your calendars set up for? 
 
@@ -142,6 +145,11 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
+        if (questionAnswers["mode"].EqualTo("armageddon"))
+        {
+            return SeedArmageddonTime(context, questionAnswers);
+        }
+
         context.Database.BeginTransaction();
         Clock clock = EnsureClock(
             context,
@@ -288,7 +296,8 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
         bool hasUtcClock = context.Clocks
             .Select(x => x.Definition)
             .AsEnumerable()
-            .Any(x => string.Equals(ClockAlias(x), "UTC", StringComparison.OrdinalIgnoreCase));
+            .Any(x => (string.Equals(ClockAlias(x), "UTC", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals(ClockAlias(x), "Armageddon", StringComparison.OrdinalIgnoreCase)));
         bool hasStockCalendar = context.Calendars
             .Select(x => x.Definition)
             .AsEnumerable()
@@ -297,7 +306,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
         return SeederRepeatabilityHelper.ClassifyByPresence(
         [
             hasUtcClock,
-            context.Timezones.Any(x => x.Name == "UTC"),
+            context.Timezones.Any(x => x.Name == "UTC" || x.Name == "ZST"),
             hasStockCalendar
         ]);
     }

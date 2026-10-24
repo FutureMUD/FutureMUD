@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Moq" Version="4.21.0" />
 		<ProjectReference Include="../../DatabaseSeeder/DatabaseSeeder.csproj" />
 		<ProjectReference Include="../../MudSharpCore/MudSharpCore.csproj" Aliases="EngineCompiler" />
 	</ItemGroup>

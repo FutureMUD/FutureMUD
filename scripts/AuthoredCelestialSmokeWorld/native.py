@@ -74,6 +74,8 @@ def main() -> int:
                         help='Resume a previously provisioned, still-running instance with a passing replay receipt.')
     resume.add_argument('--restart-owned', type=pathlib.Path,
                         help='Restart a stopped owned instance with a passing replay and verified prior cleanup.')
+    parser.add_argument('--armageddon-time-sky-only', action='store_true',
+                        help='Fresh full replay/refusal plus native Armageddon time/sky reload and preserving rerun; no gameplay smoke.')
     parser.add_argument('--no-build', action='store_true', help='Use already built Debug engine and harness binaries.')
     parser.add_argument('--smoke-script', type=pathlib.Path,
                         help='Repository-owned alternate scenario to run against this same disposable seeded world.')
@@ -82,6 +84,8 @@ def main() -> int:
     parser.add_argument('--smoke-timeout-seconds', type=int, default=960,
                         help='Bounded wall-clock limit for the scenario, including its cleanup (60-3600 seconds).')
     args = parser.parse_args()
+    if args.armageddon_time_sky_only and (args.reuse_owned or args.restart_owned or args.smoke_script or args.qualification_marker):
+        parser.error('Armageddon time/sky qualification requires a fresh owned instance and cannot use smoke/reuse options.')
     if not 60 <= args.smoke_timeout_seconds <= 3600:
         parser.error('Smoke timeout must be between 60 and 3600 seconds.')
     if args.qualification_marker and not re.fullmatch(r'[a-z0-9][a-z0-9._-]*\.json', args.qualification_marker):
@@ -238,35 +242,53 @@ def main() -> int:
             env = os.environ.copy()
             env['AUTHORED_SMOKE_CONNECTION'] = connection
             env['AUTHORED_SMOKE_PASSWORD'] = password
+            env['AUTHORED_SMOKE_SNAPSHOT'] = str(repo / 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql')
             with (root / 'native-replay.log').open('w', encoding='utf-8') as output:
                 replay = run(['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net10.0/AuthoredCelestialSmokeWorld.dll'),
-                              instance['data'], str(root / 'native-replay.json')], env=env, timeout=1800,
+                              instance['data'], str(root / 'native-replay.json')] +
+                             (['--armageddon-time-sky'] if args.armageddon_time_sky_only else []), env=env, timeout=1800,
                              stdout=output, stderr=subprocess.STDOUT)
             log = (root / 'native-replay.log').read_text(encoding='utf-8')
             (root / 'native-replay.log').write_text(log.replace(password, '[REDACTED]').replace(connection, '[REDACTED]'), encoding='utf-8')
             if replay.returncode:
                 raise RuntimeError('Native replay failed; completed seeder commits remain. Inspect native-replay.log.')
         identity()
-        smoke_env = os.environ.copy()
-        smoke_env['PYTHONIOENCODING'] = 'utf-8'
-        with (invocation_root / 'smoke.log').open('w', encoding='utf-8') as output:
-            smoke = run([sys.executable, '-B', '-u', str(smoke_script),
-                         '--run-dir', str(root)], timeout=args.smoke_timeout_seconds, env=smoke_env, stdout=output, stderr=subprocess.STDOUT)
-        (root / 'smoke.log').write_bytes((invocation_root / 'smoke.log').read_bytes())
-        result_code = smoke.returncode
-        if not latest_receipt.exists():
-            result_code = 1
-            latest_receipt.write_text(json.dumps(dict(status='FAIL', milestoneQualified=False,
-                error='Smoke process exited without a fresh receipt.', exitCode=smoke.returncode,
-                log=str(invocation_root / 'smoke.log')), indent=2), encoding='utf-8')
-        receipt = json.loads(latest_receipt.read_text(encoding='utf-8'))
-        if receipt.get('status') != 'PASS':
-            result_code = result_code or 1
-        if args.qualification_marker and receipt.get('qualificationMarker') != args.qualification_marker:
-            result_code = 1
-            receipt['markerError'] = 'The fresh scenario receipt does not match the requested phase marker.'
+        if args.armageddon_time_sky_only:
+            qualified = json.loads((root / 'armageddon-time-sky.json').read_text(encoding='utf-8'))
+            weather_qualified = json.loads((root / 'armageddon-weather.json').read_text(encoding='utf-8'))
+            if weather_qualified.get('status') != 'PASS':
+                raise RuntimeError('Armageddon weather native receipt did not pass.')
+            if qualified.get('status') != 'PASS':
+                raise RuntimeError('Armageddon native receipt did not pass.')
+            result_code = 0
+            receipt = dict(status='PASS', scenario='Armageddon time/sky native qualification',
+                           milestoneQualified=False, gameplaySmoke='NOT_RUN',
+                           nativeReplay=str(root / 'native-replay.json'),
+                           armageddonVerification=str(root / 'armageddon-time-sky.json'),
+                           weatherVerification=str(root / 'armageddon-weather.json'))
             latest_receipt.write_text(json.dumps(receipt, indent=2), encoding='utf-8')
-        (invocation_root / 'receipt.json').write_bytes(latest_receipt.read_bytes())
+            (invocation_root / 'receipt.json').write_bytes(latest_receipt.read_bytes())
+        else:
+            smoke_env = os.environ.copy()
+            smoke_env['PYTHONIOENCODING'] = 'utf-8'
+            with (invocation_root / 'smoke.log').open('w', encoding='utf-8') as output:
+                smoke = run([sys.executable, '-B', '-u', str(smoke_script),
+                             '--run-dir', str(root)], timeout=args.smoke_timeout_seconds, env=smoke_env, stdout=output, stderr=subprocess.STDOUT)
+            (root / 'smoke.log').write_bytes((invocation_root / 'smoke.log').read_bytes())
+            result_code = smoke.returncode
+            if not latest_receipt.exists():
+                result_code = 1
+                latest_receipt.write_text(json.dumps(dict(status='FAIL', milestoneQualified=False,
+                    error='Smoke process exited without a fresh receipt.', exitCode=smoke.returncode,
+                    log=str(invocation_root / 'smoke.log')), indent=2), encoding='utf-8')
+            receipt = json.loads(latest_receipt.read_text(encoding='utf-8'))
+            if receipt.get('status') != 'PASS':
+                result_code = result_code or 1
+            if args.qualification_marker and receipt.get('qualificationMarker') != args.qualification_marker:
+                result_code = 1
+                receipt['markerError'] = 'The fresh scenario receipt does not match the requested phase marker.'
+                latest_receipt.write_text(json.dumps(receipt, indent=2), encoding='utf-8')
+            (invocation_root / 'receipt.json').write_bytes(latest_receipt.read_bytes())
     finally:
         if cleanup_needed:
             stop_owned_mysql(instance, process, identity, run, root)

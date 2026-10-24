@@ -539,6 +539,12 @@ Time-zone editing supports name/alias, description, and offset hours/minutes. Ex
 
 Calendar editing supports metadata, display masks, feed clock, current date, epoch year and first weekday, era display text, weekday and month editing, normal special/non-weekday days, intercalary days/months, generated-year preview, validation, algorithm selection, day-boundary selection, authority-location editing, and regnal-period editing. Structural edits clear generated-year caches, normalize the current date, and mark the calendar changed.
 
+Calendars may also have one optional **named year cycle**: a display name, an integer epoch year, and an ordered list of unique, nonblank year names. The epoch is year one of cycle one. Names wrap in both directions using floor division; the year immediately before the epoch is the last named year of cycle zero. Arithmetic uses a widened year difference, including extreme integer years. This is display metadata: canonical years remain continuous, date parsing and recurrence arithmetic retain their existing numeric-year semantics, and no name-combination rules are part of the model.
+
+The optional XML is `<namedyearcycle name="Great Age" epochyear="1"><year>First Light</year><year>Long Night</year></namedyearcycle>`. Old calendars load with no cycle, and saving/cloning preserves configured cycles. Its date masks are `$yn` (year name), `$yi` (one-based year within cycle), `$ya` (cycle number) and `$yc` (cycle display name). They expand to empty text without a cycle and work alongside regnal conditional branches.
+
+Use `calendar set yearcycle create 1 "Great Age" "First Light" "Long Night"`, quoting names containing spaces. `yearcycle add <name>`, `set <number> <name>`, `remove <number>`, `epoch <year>`, `name <name>`, `show` and `clear` edit it through the normal calendar workflow. Year numbers are one-based. Invalid mutations leave the existing cycle intact; removing the last year is refused (use `clear`). Removing an earlier year shifts later indices and changes the cycle length deliberately. These metadata edits do not change the live date.
+
 Calendar display masks support ordinary date tokens plus regnal tokens:
 
 - `$rk`: regnal key with `@`, such as `@charles-iii`
@@ -578,7 +584,7 @@ time event visiblecrescent <sun> <moon> [occurrence]
 Builders changing live calendars or clocks should preview and validate before closing the edit session, then watch for Discord fallback notifications after reboot/load cycles. Those notifications identify affected saved objects so humans can repair data that was made invalid by the definition change.
 
 ## Seeder Support
-`TimeSeeder` installs the initial clock, UTC time zone, and selected stock calendar package.
+`TimeSeeder` installs the initial clock, time zone, and selected stock calendar package. Conventional packages use UTC; Armageddon uses a nine-hour Zalanthan clock and ZST.
 
 It asks for:
 
@@ -586,6 +592,8 @@ It asks for:
 - the calendar mode/package
 - starting year
 - additional package-specific choices, such as Middle-earth age selection
+
+The `Armageddon` mode installs eleven weekdays, three 231-day months and a literal ordered list of 77 year names in the generic named year cycle. Year 1 begins on Ocandra, day 1 of Descending Sun, in Jihae's Anger, Year 1 of King's Age 1. The starting year is configurable (interactive default 1). Its clock has nine named hours, 60 minutes/hour and 60 seconds/minute; select speed 6 to reproduce ten real minutes/hour and 90 real minutes/day. The preset does not synchronise dates to Unix time. Unlike the legacy repair paths, its reruns preserve existing definitions, clock state, date and bindings, adding missing package members only. See [the source and adaptation](../Armageddon/Armageddon_Time_And_Celestial_Proposal.md).
 
 The seeder includes stock calendars such as Gregorian, Julian, Roman, Tranquility, French Republican, Mission, Seasonal 360, and several Tolkien-inspired calendars.
 

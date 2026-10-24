@@ -172,6 +172,10 @@ For the stock gas giant package, use the start-of-year epoch for your chosen cal
 The stock package uses an epoch-aligned default at the start of the selected calendar year.",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon") && !HasGasGiantPackage(context),
             ValidateDate),
+        ("installarmageddon",
+            "Install Armageddon: Suk-Krath, Jihae and Lirathu together? Requires the Armageddon Time Seeder option. These remain unattached until a builder selects them. Answer yes or no: ",
+            (context, answers) => !HasArmageddonPackage(context),
+            ValidateArmageddonInstall),
         ("installauthored",
             "Install the six geography-independent authored celestial examples (rails, scripts, Morning Star and Morning Glow)? These remain unattached until a builder selects them. Answer yes or no: ",
             (context, answers) => !HasAuthoredPackage(context),
@@ -187,6 +191,11 @@ The stock package uses an epoch-aligned default at the start of the selected cal
         context.Database.BeginTransaction();
         try
         {
+            if (AnswerIsYes(questionAnswers, "installarmageddon"))
+            {
+                EnsureArmageddonPackage(context);
+            }
+
             Celestial? earthSun = null;
             if (AnswerIsYes(questionAnswers, "installsun"))
             {
@@ -230,12 +239,13 @@ The stock package uses an epoch-aligned default at the start of the selected cal
         bool hasEarthMoon = HasEarthMoonPackage(context);
         bool hasGasGiant = HasGasGiantPackage(context);
         bool hasAuthored = HasAuthoredPackage(context);
-        if (!hasEarthSun && !hasEarthMoon && !hasGasGiant && !hasAuthored)
+        bool hasArmageddon = HasArmageddonPackage(context);
+        if (!hasEarthSun && !hasEarthMoon && !hasGasGiant && !AuthoredPresetsInstalled(context).Any())
         {
             return ShouldSeedResult.ReadyToInstall;
         }
 
-        return hasEarthSun && hasEarthMoon && hasGasGiant && hasAuthored
+        return hasEarthSun && hasEarthMoon && hasGasGiant && hasAuthored && hasArmageddon
             ? ShouldSeedResult.MayAlreadyBeInstalled
             : ShouldSeedResult.ExtraPackagesAvailable;
     }
@@ -243,12 +253,12 @@ The stock package uses an epoch-aligned default at the start of the selected cal
     public int SortOrder => 6;
     public string Name => "Celestial Seeder";
     public string Tagline => "Sets up Suns, Moons, etc";
-    public string FullDescription => "This seeder sets up stock physical celestial packages and optional geography-independent authored examples. Reruns add missing package members and preserve builder customisation. Authored examples are not automatically attached to shards.";
+    public string FullDescription => "This seeder sets up stock physical celestial packages and optional Armageddon sky and geography-independent authored examples. Reruns add missing package members and preserve builder customisation. Authored examples are not automatically attached to shards.";
 
     internal static string? ResolveInstallSunDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers)
     {
-        return HasEarthSunPackage(context) ? "no" : "yes";
+        return HasEarthSunPackage(context) || ArmageddonCalendar(context) is not null ? "no" : "yes";
     }
 
     internal static ConsoleQuestionDisplay ResolveInstallSunDisplay(FuturemudDatabaseContext context,
@@ -303,7 +313,7 @@ Your choice:",
     internal static string? ResolveInstallMoonDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers)
     {
-        return HasEarthMoonPackage(context) ? "no" : "yes";
+        return HasEarthMoonPackage(context) || ArmageddonCalendar(context) is not null ? "no" : "yes";
     }
 
     internal static ConsoleQuestionDisplay ResolveInstallMoonDisplay(FuturemudDatabaseContext context,

@@ -25,6 +25,7 @@ public class TimeSeederTests
 {
     private static readonly string[] Modes =
     [
+        "armageddon",
         "gregorian-us",
         "gregorian-uk",
         "gregorian-us-ce",

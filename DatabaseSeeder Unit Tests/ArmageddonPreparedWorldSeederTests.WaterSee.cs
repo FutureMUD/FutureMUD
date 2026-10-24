@@ -58,7 +58,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			Assert.AreEqual(8, result.Modules.Single(x => x.Module == ArmageddonWaterSeeInstaller.Module).Identities.Count);
 			Assert.IsTrue(result.Availability.All(x => x.StoredAdmissions.Count == 9 && x.WithoutStoredAdmission.Count == 73));
 			Assert.IsTrue(db.SeederManagedRecords.AsNoTracking().AsEnumerable().Where(x => before.ContainsKey(x.StableKey)).All(x => before[x.StableKey] == x.LogicalId));
-			foreach (var cap in db.MagicCapabilities.Where(x => x.Name.StartsWith("Armageddon partial ")))
+			foreach (var cap in db.MagicCapabilities.Where(x => x.Name.StartsWith("Partial ")))
 			{
 				var admissions = XElement.Parse(cap.Definition).Element("Casting")!.Elements("Admission").ToArray();
 				foreach (var (key, parent) in new[] { (ArmageddonWaterSeeInstaller.WaterBreathingKey, ArmageddonReviewedProvisionContent.DrawWineKey),
@@ -122,7 +122,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		{
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
 			var spell = db.SeederManagedRecords.Single(x => x.StableKey == key).LogicalId!.Value;
-			var cap = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial " + variant); var xml = XElement.Parse(cap.Definition);
+			var cap = db.MagicCapabilities.Single(x => x.Name == "Partial " + variant); var xml = XElement.Parse(cap.Definition);
 			xml.Element("Casting")!.Elements("Admission").Single(x => (long?)x.Attribute("spell") == spell).Remove();
 			cap.Definition = xml.ToString(); db.SaveChanges(); var policy = CapabilityMeritPolicy(db);
 			foreach (var selection in new[] { bindings, bindings with { WaterSee = null, Provisions = null } })

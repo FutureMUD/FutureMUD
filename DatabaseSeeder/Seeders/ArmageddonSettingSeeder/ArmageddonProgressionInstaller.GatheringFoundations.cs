@@ -35,11 +35,11 @@ public static partial class ArmageddonProgressionInstaller
 			if (messages.Count > 0) return new(ArmageddonInstallStatus.Blocked, messages, ids);
 			var records = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package)
 				.ToDictionary(x => x.StableKey, StringComparer.Ordinal);
-			var specs = new[] { new Spec(typeof(TraitExpression), GatheringTraitKey + ".cap", "Armageddon Gathering cap"),
-				new Spec(typeof(Improver), GatheringImproverKey, "Armageddon Gathering practice"),
-				new Spec(typeof(TraitDefinition), GatheringTraitKey, "Armageddon Gathering"),
-				new Spec(typeof(MagicResource), LandMarkerResourceKey, "Armageddon land accounting marker"),
-				new Spec(typeof(MagicGenerator), LandProfileKey, "Armageddon living land") };
+			var specs = new[] { new Spec(typeof(TraitExpression), GatheringTraitKey + ".cap", "Gathering cap"),
+				new Spec(typeof(Improver), GatheringImproverKey, "Gathering practice"),
+				new Spec(typeof(TraitDefinition), GatheringTraitKey, "Gathering"),
+				new Spec(typeof(MagicResource), LandMarkerResourceKey, "Land Accounting Marker"),
+				new Spec(typeof(MagicGenerator), LandProfileKey, "Living Land") };
 			foreach (var spec in specs)
 			{
 				if (records.TryGetValue(spec.Key, out var claim))
@@ -69,22 +69,22 @@ public static partial class ArmageddonProgressionInstaller
 				ids.Add(key, (long)db.Entry(row).Property("Id").CurrentValue!);
 				return row;
 			}
-			var cap = Put(GatheringTraitKey + ".cap", new TraitExpression { Name = "Armageddon Gathering cap", Expression = "90" });
-			var improver = Put(GatheringImproverKey, new Improver { Name = "Armageddon Gathering practice", Type = "classic",
+			var cap = Put(GatheringTraitKey + ".cap", new TraitExpression { Name = "Gathering cap", Expression = "90" });
+			var improver = Put(GatheringImproverKey, new Improver { Name = "Gathering practice", Type = "classic",
 				Definition = "<Definition Chance='0.3333333333333333' Expression='1' ImproveOnFail='true' ImproveOnSuccess='false' DifficultyThresholdInterval='0' NoGainSecondsDiceExpression='0' ImprovementProg='0'/>" });
-			Put(GatheringTraitKey, new TraitDefinition { Name = "Armageddon Gathering", Type = 0, OwnerScope = 1,
+			Put(GatheringTraitKey, new TraitDefinition { Name = "Gathering", Type = 0, OwnerScope = 1,
 				DecoratorId = settings.NativeBindings[ArmageddonNativeBinding.SkillDecorator], ImproverId = improver.Id,
-				ExpressionId = cap.Id, TraitGroup = "Armageddon Support", Hidden = false, ShowInScoreCommand = true,
-				ChargenBlurb = "Required native gathering support; source opening10/cap90 on legitimate enrolment. A skill alone grants no capability.",
+				ExpressionId = cap.Id, TraitGroup = "Support", Hidden = false, ShowInScoreCommand = true,
+				ChargenBlurb = "Draw magical energy from yourself or the living land to replenish a sorcerous reserve.",
 				AvailabilityProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg],
 				LearnableProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg],
 				TeachableProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg],
 				BranchMultiplier = 0, Alias = "", ValueExpression = "", TeachDifficulty = 7, LearnDifficulty = 7 });
-			var marker = Put(LandMarkerResourceKey, new MagicResource { Name = "Armageddon land accounting marker", ShortName = "armland_marker",
+			var marker = Put(LandMarkerResourceKey, new MagicResource { Name = "Land Accounting Marker", ShortName = "armland_marker",
 				Type = "simple", MagicResourceType = 4, BottomColour = "red", MidColour = "yellow", TopColour = "green",
 				Definition = Resource(settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg], zero, capacity,
 					settings.CapacityAttribute, false).ToString() });
-			Put(LandProfileKey, new MagicGenerator { Name = "Armageddon living land", Type = "environmental",
+			Put(LandProfileKey, new MagicGenerator { Name = "Living Land", Type = "environmental",
 				Definition = new XElement("Definition", new XAttribute("version", 1), new XElement("PressureHalfLifeSeconds", 3600),
 					new XElement("NaturalRepairPerMinute", 0), new XElement("Outputs", new XElement("Output", new XAttribute("resource", marker.Id),
 						new XAttribute("basecapacity", 0), new XAttribute("baserate", 0), new XElement("Maximum", "0"), new XElement("Rate", "0"))),

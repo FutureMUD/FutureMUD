@@ -122,7 +122,7 @@ internal static partial class GNHProgram
 		Require(InstallTraditions(database, plan with { Install = false }).Status == ArmageddonInstallStatus.Declined && players == TraditionPlayers(database), "Decline changed players.");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var collision = new Db.TraitExpression { Name = "Armageddon heal cap", Expression = "55" }; db.TraitExpressions.Add(collision); db.SaveChanges();
+			var collision = new Db.TraitExpression { Name = "heal cap", Expression = "55" }; db.TraitExpressions.Add(collision); db.SaveChanges();
 			Require(InstallTraditions(database, plan).Status == ArmageddonInstallStatus.Blocked && !db.SeederManagedRecords.Any(x => x.Module == ArmageddonTraditionInstaller.Module), "Collision was adopted or partially installed.");
 			db.Remove(collision); db.SaveChanges();
 		}

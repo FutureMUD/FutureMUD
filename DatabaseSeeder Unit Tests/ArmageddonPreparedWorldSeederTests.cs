@@ -142,7 +142,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		var (db, bindings) = Fixture(); using (db)
 		{
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
-			var owned = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial defiler"); var xml = XElement.Parse(owned.Definition);
+			var owned = db.MagicCapabilities.Single(x => x.Name == "Partial defiler"); var xml = XElement.Parse(owned.Definition);
 			xml.Element("Casting")!.Elements("Admission").Last().Remove(); owned.Definition = xml.ToString(); db.SaveChanges();
 			var result = ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings); Completed(result);
 			Assert.AreEqual(3, result.Availability.Single(x => x.Variant == "defiler").StoredAdmissions.Count);

@@ -28,7 +28,7 @@ internal static partial class GNHProgram
 		("half_elf", 22, 87), ("half_giant", 36, 145), ("mul", 15, 60)
 	];
 
-	private static void RequirePhysicalAdmissionHeld(TestDatabase database)
+	private static void RequirePhysicalAdmissionDefaults(TestDatabase database)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
 		var keys = DatabaseSeeder.Seeders.ArmageddonHeritage.Profiles.Select(x => "arm.race." + x.Key)
@@ -39,9 +39,11 @@ internal static partial class GNHProgram
 			!x.Retired && x.EntityType == nameof(Db.Race) && keys.Contains(x.StableKey)).ToArray();
 		var ids = records.Where(x => x.LogicalId.HasValue).Select(x => x.LogicalId!.Value).Distinct().ToArray();
 		var never = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse").Id;
+		var available = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id;
 		var held = db.Races.Count(x => ids.Contains(x.Id) && x.AvailabilityProgId == never);
-		Require(new HashSet<string>(records.Select(x => x.StableKey), StringComparer.Ordinal).SetEquals(keys) && ids.Length == 8 && held == 8,
-			$"Required heritage admission inventory differs: {records.Length} managed records, {ids.Length} distinct race IDs, {held} unavailable rows; expected all eight exact keys.");
+		var enabled = records.Where(x => x.StableKey != "arm.race.elf" && x.StableKey != "arm.race.half_elf").Select(x => x.LogicalId!.Value).ToArray();
+		Require(new HashSet<string>(records.Select(x => x.StableKey), StringComparer.Ordinal).SetEquals(keys) && ids.Length == 8 && held == 2 && enabled.Length == 6 && db.Races.Count(x => enabled.Contains(x.Id) && x.AvailabilityProgId == available) == 6,
+			$"Required heritage admission inventory differs: {records.Length} managed records, {ids.Length} distinct race IDs, {held} unavailable rows; expected six enabled profiles and two held ancestry rows.");
 	}
 
 	private static string PhysicalAttributes(IBody body) => BaseValueHash(body.Traits.OrderBy(x => x.Definition.Id)
@@ -51,7 +53,7 @@ internal static partial class GNHProgram
 
 	private static SettingPhysicalReceipt[] QualifySettingPhysical(TestDatabase database, IFuturemud world)
 	{
-		RequirePhysicalAdmissionHeld(database);
+		RequirePhysicalAdmissionDefaults(database);
 		var ids = SettingQualificationIds(database);
 		var receipts = new List<SettingPhysicalReceipt>();
 		using var session = new FMDB();
@@ -105,7 +107,7 @@ internal static partial class GNHProgram
 				character.Birthday.GetDateString(), PhysicalAttributes(character.Body), PhysicalCharacteristics(character),
 				needs.FoodSatiatedHours, needs.DrinkSatiatedHours, needs.WaterLitres, character.Body.CurrentBloodVolumeLitres, character.Body.CurrentStamina));
 		}
-		RequirePhysicalAdmissionHeld(database);
+		RequirePhysicalAdmissionDefaults(database);
 		Console.WriteLine("SETTING-physical=PASS seven-real-profile-characters native-age-picker native-bodies descriptions health styling needs stamina saved-admission-gates-unchanged");
 		return receipts.ToArray();
 	}
@@ -129,7 +131,7 @@ internal static partial class GNHProgram
 			Require(app.SelectedRace.Id == receipt.Race && app.SelectedBirthday.GetDateString() == receipt.Birthday &&
 				app.SelectedCharacteristics.All(x => x.Item2 is not null), "Native chargen profile save/resume changed race, birthday or appearance.");
 		}
-		RequirePhysicalAdmissionHeld(database);
-		Console.WriteLine("SETTING-physical-cold=PASS seven-profile-bodies birthdays attributes appearance needs blood stamina chargen-resume admission-held");
+		RequirePhysicalAdmissionDefaults(database);
+		Console.WriteLine("SETTING-physical-cold=PASS seven-profile-bodies birthdays attributes appearance needs blood stamina chargen-resume six-playable-profiles");
 	}
 }

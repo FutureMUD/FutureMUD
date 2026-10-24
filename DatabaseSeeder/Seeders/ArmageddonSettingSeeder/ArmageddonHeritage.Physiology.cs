@@ -27,11 +27,11 @@ public static partial class ArmageddonHeritage
 	private sealed record NeedsTerrainBindings(long[] Severe, long[] Moderate, long[] Shelter);
 	private static readonly (string Key, string Name)[] PhysiologyIdentities =
 	[
-		(NormalEnvironmentKey, "Armageddon Environmental Thirst"),
-		(DesertEnvironmentKey, "Armageddon Desert Elf Hydration"),
-		(GiantMetabolismKey, "Armageddon Giant Metabolism"),
-		(DesertStaminaKey, "Armageddon Desert Elf Stamina"),
-		(ReserveStaminaKey, "Armageddon Stamina Reserve")
+		(NormalEnvironmentKey, "Environmental Thirst"),
+		(DesertEnvironmentKey, "Desert Elf Hydration"),
+		(GiantMetabolismKey, "Giant Metabolism"),
+		(DesertStaminaKey, "Desert Elf Stamina"),
+		(ReserveStaminaKey, "Stamina Reserve")
 	];
 
 	private static void PreflightPhysiology(FuturemudDatabaseContext db)

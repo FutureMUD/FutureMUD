@@ -88,13 +88,13 @@ public class ArmageddonNamingTests
 	}
 
 	[TestMethod]
-	public void NamingInstall_StoresExactDescriptionsAndPersonalOnlyGenderProfilesWithoutNewRaces()
+	public void NamingInstall_UsesSimplePromptsAndPersonalOnlyGenderProfilesWithoutNewRaces()
 	{
 		using var db = ArmageddonHeritageTests.Fixture();
 		ArmageddonHeritage.Install(db, new List<string>());
 		db.ChangeTracker.Clear();
 		Assert.AreEqual(16, db.NameCultures.Count()); Assert.AreEqual(75, db.RandomNameProfiles.Count());
-		Assert.AreEqual(10, db.Races.Count()); Assert.AreEqual(6, db.Languages.Count());
+		Assert.AreEqual(10, db.Races.Count()); Assert.AreEqual(11, db.Languages.Count());
 		Assert.IsFalse(db.Races.Any(x => x.Name.Contains("Pterran") || x.Name.Contains("Thri-kreen") || x.Name.Contains("Halfling")));
 		foreach (var culture in ArmageddonNaming.Cultures)
 		{
@@ -103,16 +103,21 @@ public class ArmageddonNamingTests
 			Assert.AreEqual("true", xml.Element("PreserveNameCase")!.Value);
 			Assert.AreEqual("true", xml.Element("ExactRandomProfileGender")!.Value);
 			var personal = culture.GetProperty("elements").EnumerateArray().Single(x => x.GetProperty("id").GetString() == "personal_name");
-			var sourceElements = culture.GetProperty("elements").EnumerateArray().ToArray();
+			var sourceElements = ArmageddonNaming.Elements(culture);
 			var nativeElements = xml.Element("Elements")!.Elements().Select(x => new NameCultureElement(x)).ToArray();
 			Assert.AreEqual(sourceElements.Length, nativeElements.Length);
 			foreach (var source in sourceElements)
 			{
 				var component = nativeElements.Single(x => x.Usage == ArmageddonNaming.Usage(source.GetProperty("id").GetString()!));
-				Assert.AreEqual(source.GetProperty("description").GetString(), component.ChargenBlurb);
+				Assert.IsTrue(component.ChargenBlurb.Length > 60);
+				Assert.IsNull(component.ConfirmationPrompt);
+				Assert.IsNull(component.DisplayChoicePrompt);
+				Assert.AreEqual(1, component.MaximumCount);
 				Assert.AreEqual(source.GetProperty("id").GetString() == "personal_name" ? 1 : 0, component.MinimumCount);
 			}
-			Assert.AreEqual(-1, nativeElements.Single(x => x.Usage == NameUsage.Nickname).MaximumCount);
+			Assert.AreEqual(3, nativeElements.Length);
+			Assert.AreEqual("Given Name", nativeElements.Single(x => x.Usage == NameUsage.BirthName).Name);
+			StringAssert.Contains(nativeElements.Single(x => x.Usage == NameUsage.BirthName).ChargenBlurb, "address you in everyday life");
 			Assert.AreEqual("true", xml.Element("UseStructuredEntry")!.Value);
 			using var curated = JsonDocument.Parse(xml.Element("CuratedNamingDefinition")!.Value);
 			Assert.AreEqual(JsonSerializer.Serialize(culture), JsonSerializer.Serialize(curated.RootElement.GetProperty("culture")));
@@ -139,14 +144,14 @@ public class ArmageddonNamingTests
 	{
 		using var db = ArmageddonHeritageTests.Fixture();
 		var messages = new List<string>(); ArmageddonHeritage.Install(db, messages);
-		var profile = db.RandomNameProfiles.Single(x => x.Name == "Armageddon Thri-kreen naming tradition - 2");
+		var profile = db.RandomNameProfiles.Single(x => x.Name == "Thri-kreen naming tradition - 2");
 		var profileId = profile.Id; profile.Name = "Builder profile";
 		db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profile.Id && x.Name == "Ka’Cha").Weighting = 9;
 		db.RandomNameProfilesElements.Remove(db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profile.Id && x.Name == "Ka’Ka’Kyl"));
 		db.RandomNameProfilesElements.Add(new RandomNameProfilesElements { RandomNameProfileId = profile.Id, NameUsage = 0, Name = "Builder’Name", Weighting = 3 });
 		db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == profile.Id && x.NameUsage == 0).DiceExpression = "0";
 		var native = db.NameCultures.Single(x => x.Id == profile.NameCultureId);
-		native.Definition = native.Definition.Replace("Required one personal name.", "Builder guidance.", StringComparison.Ordinal);
+		native.Definition = native.Definition.Replace("Your given name is the name people use to address you in everyday life.", "Builder guidance.", StringComparison.Ordinal);
 		var definition = native.Definition;
 		var storyboard = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectName);
 		var xml = XElement.Parse(storyboard.StageDefinition); xml.SetElementValue("AllowUnicodeNames", "false"); storyboard.StageDefinition = xml.ToString();

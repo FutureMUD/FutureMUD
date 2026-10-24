@@ -66,6 +66,7 @@ public static partial class ArmageddonTemplarInstaller
 		var poster = db.Accounts.OrderBy(x => x.Id).Select(x => x.Id).First();
 		var no = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse");
 		var skills = ArmageddonSkillPackage.Resolve(db).ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
+		ArmageddonLanguages.AddInstalledSkills(db, skills);
 		using var transaction = db.Database.IsRelational() && db.Database.CurrentTransaction is null ? db.Database.BeginTransaction() : null;
 		foreach (var skill in manifest.Roles.SelectMany(x => x.Skills).Where(x => x.InferredTrait))
 		{
@@ -96,20 +97,35 @@ public static partial class ArmageddonTemplarInstaller
 			skills.Add(key, trait);
 		}
 
-		var tatlum = (Language)Put(db, "arm.language.tatlum", new Language { Name = "Tatlum", LinkedTraitId = skills["arm.skill.tatlum"].Id,
-			DifficultyModel = db.Languages.OrderBy(x => x.Id).First().DifficultyModel, UnknownLanguageDescription = "an unfamiliar language", LanguageObfuscationFactor = 0.1 },
-			[nameof(Language.Name), nameof(Language.LinkedTraitId), nameof(Language.DifficultyModel), nameof(Language.UnknownLanguageDescription), nameof(Language.LanguageObfuscationFactor)], messages);
-		foreach (var learner in new[] { false, true })
-			Put(db, "arm.accent.tatlum." + (learner ? "learner" : "standard"), new Accent { LanguageId = tatlum.Id, Name = learner ? "Learner" : "Standard",
-				Role = learner ? 2 : 0, Difficulty = learner ? 6 : 5, Group = "Templar language scaffold", Suffix = learner ? "with a learner's accent" : "",
-				VagueSuffix = learner ? "with an unfamiliar accent" : "", Description = "Authored native accent scaffold; no historical accent corpus is asserted.",
-				ChargenAvailabilityProgId = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id },
-				[nameof(Accent.LanguageId), nameof(Accent.Name), nameof(Accent.Role), nameof(Accent.Difficulty), nameof(Accent.Group), nameof(Accent.Suffix), nameof(Accent.VagueSuffix), nameof(Accent.Description), nameof(Accent.ChargenAvailabilityProgId)], messages);
+		// Heritage owns the complete language catalogue. Reuse its Tatlum records (or
+		// legacy Templar identities reconciled by Heritage) without reverting their accent policies.
+		if (db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == "arm.language.tatlum"))
+		{
+			var language = Owned<Language>(db, "arm.language.tatlum");
+			if (language.LinkedTraitId != skills["arm.skill.tatlum"].Id ||
+				new[] { "standard", "learner" }.Any(x => Owned<Accent>(db, "arm.accent.tatlum." + x).LanguageId != language.Id))
+				throw new InvalidOperationException("Tatlum language/accent bindings are incompatible; preserve and resolve them before Templar installation.");
+		}
+		else
+		{
+			var tatlum = (Language)Put(db, "arm.language.tatlum", new Language { Name = "Tatlum", LinkedTraitId = skills["arm.skill.tatlum"].Id,
+				DifficultyModel = db.Languages.OrderBy(x => x.Id).First().DifficultyModel, UnknownLanguageDescription = ArmageddonLanguages.Profiles.Single(x => x.Slug == "tatlum").UnknownSpeech, LanguageObfuscationFactor = 0.1 },
+				[nameof(Language.Name), nameof(Language.LinkedTraitId), nameof(Language.DifficultyModel), nameof(Language.UnknownLanguageDescription), nameof(Language.LanguageObfuscationFactor)], messages);
+			foreach (var learner in new[] { false, true })
+				Put(db, "arm.accent.tatlum." + (learner ? "learner" : "standard"), new Accent { LanguageId = tatlum.Id, Name = learner ? "Learner" : "Standard",
+					Role = learner ? 2 : 0, Difficulty = learner ? 6 : 5, Group = "Templar language scaffold", Suffix = learner ? "with a learner's accent" : "",
+					VagueSuffix = learner ? "with an unfamiliar accent" : "", Description = learner ? "The pronunciation of someone learning Tatlum as an additional language." : "The usual pronunciation of Tatlum.",
+					ChargenAvailabilityProgId = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id },
+					[nameof(Accent.LanguageId), nameof(Accent.Name), nameof(Accent.Role), nameof(Accent.Difficulty), nameof(Accent.Group), nameof(Accent.Suffix), nameof(Accent.VagueSuffix), nameof(Accent.Description), nameof(Accent.ChargenAvailabilityProgId)], messages);
+		}
 		var resolvedRoles = new Dictionary<string, ChargenRole>(StringComparer.Ordinal);
 		foreach (var sourceRole in manifest.Roles)
 		{
 			var desired = new ChargenRole { Name = sourceRole.Name, Type = 0, PosterId = poster, AvailabilityProgId = AvailabilityProg(db, sourceRole, messages).Id,
-				ChargenBlurb = $"{sourceRole.Name}: native Armageddon Templar progression; role selection and associated powers require builder configuration.",
+				ChargenBlurb = ArmageddonPresentation.RoleDescription(sourceRole.Name,
+				(sourceRole.ProgressionFrom is not null
+					? ArmageddonMundaneProgression.Roles.Single(x => x.Name == "Warrior").Skills.Where(x => x.Parent is null && x.Opening > 0).Select(x => skills[x.Key].Name)
+					: sourceRole.Skills.Where(x => x.Parent is null && x.Opening > 0).Select(x => skills[x.Trait].Name))),
 				Expired = false, MaximumNumberAlive = 0, MaximumNumberTotal = 0, MinimumAuthorityToApprove = 0, MinimumAuthorityToView = 0 };
 			var actual = (ChargenRole)Put(db, sourceRole.Key, desired, RoleFields, messages);
 			resolvedRoles.Add(sourceRole.Key, actual);
@@ -144,7 +160,7 @@ public static partial class ArmageddonTemplarInstaller
 				new XAttribute("role", x.RoleId), new XAttribute("trait", x.TraitId), new XAttribute("primary", true), new XAttribute("opening", x.Opening),
 				new XAttribute("cap", x.Cap), x.ParentTraitId is { } parent ? new XAttribute("parent", parent) : null,
 				new XAttribute("threshold", x.Threshold), new XAttribute("bonus", x.OverlapBonus)))));
-		var progression = (Merit)Put(db, ProgressionKey, new Merit { Name = "Armageddon Templar Role Progression", Type = "Role Skill Progression", MeritType = 0,
+		var progression = (Merit)Put(db, ProgressionKey, new Merit { Name = "Templar Role Progression", Type = "Role Skill Progression", MeritType = 0,
 			MeritScope = 2, Definition = definition.ToString() }, ["Name", "Type", "MeritType", "MeritScope", "Definition"], messages);
 		db.SaveChanges(); // The cap compiler reads the newly recorded source ownership baseline.
 		ArmageddonMundaneProgression.ReconcileSkillCaps(db, skills, messages);
@@ -278,6 +294,7 @@ public static partial class ArmageddonTemplarInstaller
 	private static T Put<T>(FuturemudDatabaseContext db, string key, T desired, string[] fields, ICollection<string> messages) where T : class
 	{
 		var type = desired.GetType(); var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
+		ArmageddonSettingOwnership.RequireNameAvailable(db, desired, record);
 		if (record is null)
 		{
 			var nameField = db.Model.FindEntityType(type)!.FindProperty("Name")?.Name ?? db.Model.FindEntityType(type)!.FindProperty("FunctionName")?.Name;

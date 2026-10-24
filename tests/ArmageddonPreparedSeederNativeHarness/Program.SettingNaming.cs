@@ -40,39 +40,27 @@ internal static partial class GNHProgram
 		var selected = (INameCulture)screen.GetType().GetField("NameCulture", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(screen)!;
 		Require(selected.Id == target, "Native naming style selection failed: " + selection);
 		screen.HandleCommand("Agis");
-		screen.HandleCommand("");
-		screen.HandleCommand("\"Silt Runner\" Dust-Cutter");
-		screen.HandleCommand("Captain");
-		Require(screen.HandleCommand("Night Runner Tribe").Contains("confirm", StringComparison.OrdinalIgnoreCase), "Native tribal declaration missing.");
+		screen.HandleCommand("Siltwalker");
 		SaveNamingApplication(app);
 		var row = FMDB.Context.Chargens.AsNoTracking().Single(x => x.Id == app.Id);
 		app = new Chargen(row, world, account);
 		screen = storyboard.GetScreen(app);
-		Require(screen.Display().Contains("tribal membership"), "Native Chargen hydration lost pending tribal confirmation.");
-		Require(screen.HandleCommand("yes").Contains("display", StringComparison.OrdinalIgnoreCase), "Native explicit tribe-display choice missing.");
-		SaveNamingApplication(app);
-		row = FMDB.Context.Chargens.AsNoTracking().Single(x => x.Id == app.Id);
-		app = new Chargen(row, world, account);
-		screen = storyboard.GetScreen(app);
-		Require(screen.Display().Contains("display", StringComparison.OrdinalIgnoreCase), "Native Chargen hydration lost display choice.");
-		screen.HandleCommand("yes");
-		Require(screen.HandleCommand("Fire Bow").Contains("selected parent"), "Native clan picker accepted another tribe's clan.");
-		screen.HandleCommand("Dark Moons");
-		Require(screen.State == ChargenScreenState.Complete && app.SelectedName.GetName(NameStyle.FullName) == "Agis Night Runner Tribe", "Native composed tribal name differs.");
-		Require(app.SelectedName.GetName(NameStyle.FullWithNickname).EndsWith("\"Silt Runner\" \"Dust-Cutter\""), "Native alias boundaries were lost.");
+		Require(screen.Display().Contains("Nickname"), "Native Chargen hydration lost the optional nickname step.");
+		screen.HandleCommand("\"Silt Runner\"");
+		Require(screen.State == ChargenScreenState.Complete && app.SelectedName.GetName(NameStyle.FullName) == "Agis Siltwalker", "Native given/family name differs.");
+		Require(app.SelectedName.GetName(NameStyle.FullWithNickname) == "Agis Siltwalker \"Silt Runner\"", "Native multiword nickname was lost.");
 		SaveNamingApplication(app);
 
 		var pterran = world.NameCultures.Get(FMDB.Context.SeederManagedRecords.Single(x => x.StableKey == "arm.naming.pterran").LogicalId!.Value);
-		var earned = pterran.GetPersonalName("/elements birthname Ptek earnedname Aandu confirm earnedname affiliation \"Pterran Vale\"", true);
-		Require(earned?.GetName(NameStyle.FullName) == "Aandu Ptek", "Native earned-name prefix differs.");
-		Require(pterran.GetPersonalName("/elements birthname Ptek earnedname Aandu", true) is null, "Native parser accepted unconfirmed earned name.");
-		var earnedApp = NewSettingQualificationApplication(world, account.Id, cultureId, "QualificationEarned");
-		earnedApp.SelectedName = earned!;
-		SaveNamingApplication(earnedApp);
+		var given = pterran.GetPersonalName("/elements birthname Ptek", true);
+		Require(given?.GetName(NameStyle.FullName) == "Ptek" && given.GetName(NameStyle.SurnameOnly) == "Ptek", "Optional names did not fall back to the given name.");
+		var givenApp = NewSettingQualificationApplication(world, account.Id, cultureId, "QualificationGiven");
+		givenApp.SelectedName = given!;
+		SaveNamingApplication(givenApp);
 		world.SaveManager.Flush();
 		using var db = NewIndependentContext(database.ConnectionString);
 		CheckExecutableNamingRows(database, db);
-		Console.WriteLine("SETTING-executable-naming=PASS native-NamePicker optional-entry explicit-confirmations display-choice clan-parent alias-boundaries actual-Chargen-save-hydration earned-prefix no-profile-activation");
+		Console.WriteLine("SETTING-executable-naming=PASS native-NamePicker given-family-nickname actual-Chargen-save-hydration optional-name-fallback");
 	}
 
 	private static void CheckExecutableNamingRows(TestDatabase database, FuturemudDatabaseContext db)
@@ -92,13 +80,9 @@ internal static partial class GNHProgram
 			var name = new PersonalName(culture, xml);
 			Require(name.EntryProgress is null, "Completed native application retained unfinished naming progress.");
 			if (name.GetName(NameStyle.GivenOnly) == "Agis")
-			{
-				Require(name.GetName(NameStyle.FullName) == "Agis Night Runner Tribe" && name.GetName(NameStyle.FullWithNickname) == "Agis Night Runner Tribe \"Silt Runner\" \"Dust-Cutter\"", "Cold native tribal/display/alias formatting differs.");
-				Require(xml.Elements("Element").Any(x => x.Attribute("usage")!.Value == "ClanName" && x.Value == "Dark Moons") &&
-					xml.Elements("Element").Any(x => x.Attribute("usage")!.Value == "Title" && x.Value == "Captain"), "Cold native metadata components were lost.");
-			}
-			else Require(name.GetName(NameStyle.FullName) == "Aandu Ptek" && xml.Elements("Element").Any(x => x.Attribute("usage")!.Value == "Affiliation" && x.Value == "Pterran Vale"), "Cold native earned-name/community formatting differs.");
+				Require(name.GetName(NameStyle.FullName) == "Agis Siltwalker" && name.GetName(NameStyle.FullWithNickname) == "Agis Siltwalker \"Silt Runner\"", "Cold native given/family/nickname formatting differs.");
+			else Require(name.GetName(NameStyle.FullName) == "Ptek" && name.GetName(NameStyle.SurnameOnly) == "Ptek", "Cold native optional-name fallback differs.");
 		}
-		Console.WriteLine("SETTING-executable-naming-cold=PASS two-native-applications exact-metadata confirmations display alias-boundaries earned-prefix");
+		Console.WriteLine("SETTING-executable-naming-cold=PASS two-native-applications given-family-nickname optional-name-fallback");
 	}
 }

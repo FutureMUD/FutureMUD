@@ -22,12 +22,14 @@ public partial class HumanSeeder : IDatabaseSeeder
 	internal static (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) HumanBaselineSatiationLimitsForTesting =>
 		HumanBaselineSatiationLimits;
 
-	private static readonly string[] HumanSatiationRaceNames =
-	[
-		"Humanoid",
-		"Organic Humanoid",
-		"Human"
-	];
+	internal static List<Race> HumanFoundationRaces(FuturemudDatabaseContext context)
+	{
+		// Setting packages may supply a different playable Human. The Admin ethnicity
+		// retains the bootstrap's identity even when its display name changes.
+		var humanId = context.Ethnicities.Where(x => x.Name == "Admin").Select(x => x.ParentRaceId).SingleOrDefault()
+			?? context.Races.Where(x => x.Name == "Human").Select(x => (long?)x.Id).FirstOrDefault();
+		return context.Races.Where(x => x.Name == "Humanoid" || x.Name == "Organic Humanoid" || x.Id == humanId).ToList();
+	}
 
     private FuturemudDatabaseContext _context = null!;
     private HeightWeightModel _humanFemaleHWModel = null!;
@@ -217,7 +219,7 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => !HasHumanFoundation(co
         if (_context.Races.Any(x => x.Name == "Humanoid"))
         {
             RefreshExistingHumanCombatBalance();
-			bool updatedSatiationLimits = RefreshExistingHumanSatiationLimits();
+			bool updatedSatiationLimits = RefreshHumanSatiationLimits(_context);
 			bool updatedAdminAvatarLanguageTraits = RefreshExistingAdminAvatarLanguageTraits();
 			bool updatedWearProfiles = false;
 			BodyProto? existingBaseBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
@@ -953,21 +955,17 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
 	private static bool HasHumanSatiationLimitUpdates(FuturemudDatabaseContext context)
 	{
-		return HumanSatiationRaceNames
-			.Select(name => context.Races.FirstOrDefault(x => x.Name == name))
-			.OfType<Race>()
+		return HumanFoundationRaces(context)
 			.Any(race => !SatiationLimitSeederHelper.MatchesLimits(
 				race,
 				HumanBaselineSatiationLimits.MaximumFoodSatiatedHours,
 				HumanBaselineSatiationLimits.MaximumDrinkSatiatedHours));
 	}
 
-	private bool RefreshExistingHumanSatiationLimits()
+	internal static bool RefreshHumanSatiationLimits(FuturemudDatabaseContext context)
 	{
 		bool dirty = false;
-		foreach (Race race in HumanSatiationRaceNames
-			         .Select(name => _context.Races.FirstOrDefault(x => x.Name == name))
-			         .OfType<Race>())
+		foreach (Race race in HumanFoundationRaces(context))
 		{
 			dirty |= SatiationLimitSeederHelper.ApplyLimits(
 				race,
@@ -977,7 +975,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
 		if (dirty)
 		{
-			_context.SaveChanges();
+			context.SaveChanges();
 		}
 
 		return dirty;

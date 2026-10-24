@@ -100,19 +100,20 @@ public class ArmageddonHeritageTests
 	}
 
 	[TestMethod]
-	public void HeritageInstall_CompilesGrantGraphKeepsProfilesInactiveAndPreservesRerunEdits()
+	public void HeritageInstall_CompilesGrantGraphEnablesRequestedProfilesAndPreservesRerunEdits()
 	{
 		using var db = Fixture();
 		var messages = new List<string>();
 		var original = db.FutureProgs.Single(x => x.FunctionName == "CustomFreeSkills");
 		var originalBody = original.FunctionText;
 		ArmageddonHeritage.Install(db, messages);
-		Assert.AreEqual(8, db.Races.Count(x => x.Name.StartsWith("Armageddon ")));
-		Assert.IsTrue(db.Races.Where(x => x.Name.StartsWith("Armageddon ")).All(x => x.AvailabilityProgId == 2));
-		Assert.AreEqual(7, db.Ethnicities.Count(x => x.Name.StartsWith("Armageddon ")));
-		Assert.AreEqual(5, db.Cultures.Count(x => x.Name.StartsWith("Armageddon ")));
-		Assert.AreEqual(6, db.Languages.Count());
-		Assert.AreEqual(15, db.Accents.Count(x => x.Language.Name != "Admin Speech"));
+		Assert.AreEqual(8, db.Races.Count(x => x.Id != 100 && x.Id != 101));
+		Assert.IsTrue(db.Races.Where(x => x.Id != 100 && x.Id != 101).All(x => x.AvailabilityProgId == ((x.Name == "Elf" || x.Name == "Half-Elf") ? 2 : 1)));
+		Assert.AreEqual("Admin Human", db.Races.Single(x => x.Id == 101).Name);
+		Assert.AreEqual(7, db.Ethnicities.Count(x => x.Name != "Admin"));
+		Assert.AreEqual(5, db.Cultures.Count(x => x.Name != "Admin"));
+		Assert.AreEqual(11, db.Languages.Count());
+		Assert.AreEqual(30, db.Accents.Count(x => x.Language.Name != "Admin Speech"));
 		Assert.AreEqual(75, db.RandomNameProfiles.Count());
 		Assert.AreEqual(0, db.Scripts.Count());
 		Assert.AreEqual(originalBody, original.FunctionText);
@@ -121,27 +122,27 @@ public class ArmageddonHeritageTests
 		Assert.AreEqual("Preserve this builder text", definition.Element("Blurb")!.Value);
 		var wrapper = db.FutureProgs.Single(x => x.Id == long.Parse(definition.Element("FreeSkillsProg")!.Value));
 		StringAssert.Contains(wrapper.FunctionText, "@CustomFreeSkills(@ch)");
-		var dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
+		var dwarf = db.Races.Single(x => x.Name == "Dwarf");
 		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.physical.dwarf.model").LogicalId, dwarf.DefaultHeightWeightModelMaleId);
 		Assert.AreEqual(dwarf.DefaultHeightWeightModelMaleId, dwarf.DefaultHeightWeightModelNonBinaryId);
-		var elfParent = db.Races.Single(x => x.Name == "Armageddon Elf");
-		Assert.AreEqual(elfParent.Id, db.Races.Single(x => x.Name == "Armageddon City Elf").ParentRaceId);
-		var dwarfEthnicity = db.Ethnicities.Single(x => x.Name == "Armageddon Dwarf");
+		var elfParent = db.Races.Single(x => x.Name == "Elf");
+		Assert.AreEqual(elfParent.Id, db.Races.Single(x => x.Name == "City Elf").ParentRaceId);
+		var dwarfEthnicity = db.Ethnicities.Single(x => x.Name == "Dwarf");
 		Assert.AreEqual(dwarf.Id, dwarfEthnicity.ParentRaceId);
 		Assert.AreEqual(db.Languages.Single(x => x.Name == "Mirukkim").Id, dwarfEthnicity.NativeLanguageId);
 		Assert.AreEqual(0, db.EthnicitiesNameCultures.Count(x => x.EthnicityId == dwarfEthnicity.Id));
 		Assert.AreEqual(5, db.EthnicitiesCharacteristics.Count(x => x.EthnicityId == dwarfEthnicity.Id));
 		var ids = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => x.LogicalId);
 		dwarf.Name = "Builder Dwarf"; dwarf.SweatRateInLitresPerMinute = 0.01;
-		db.Races.Single(x => x.Name == "Human").SweatRateInLitresPerMinute = 99; // Bootstrap changes must not become new stock defaults.
-		var culture = db.Cultures.Single(x => x.Name == "Armageddon Allanaki");
+		db.Races.Single(x => x.Id == 101).SweatRateInLitresPerMinute = 99; // Bootstrap changes must not become new stock defaults.
+		var culture = db.Cultures.Single(x => x.Name == "Allanaki");
 		culture.PersonWordMale = "Builder person";
 		db.CulturesNameCultures.Remove(db.CulturesNameCultures.Single(x => x.CultureId == culture.Id && x.Gender == 0));
 		db.SaveChanges();
 		ArmageddonHeritage.Install(db, messages);
 		Assert.AreEqual("Builder Dwarf", dwarf.Name);
 		Assert.AreEqual(0.01, dwarf.SweatRateInLitresPerMinute);
-		Assert.AreEqual(0.03, db.Races.Single(x => x.Name == "Armageddon Mul").SweatRateInLitresPerMinute);
+		Assert.AreEqual(0.03, db.Races.Single(x => x.Name == "Mul").SweatRateInLitresPerMinute);
 		Assert.AreEqual("Builder person", culture.PersonWordMale);
 		Assert.AreEqual(4, db.CulturesNameCultures.Count(x => x.CultureId == culture.Id));
 		Assert.AreEqual(originalBody, original.FunctionText);
@@ -155,7 +156,7 @@ public class ArmageddonHeritageTests
 	{
 		using var db = Fixture();
 		var messages = new List<string>();
-		var human = db.Races.Single(x => x.Name == "Human");
+		var human = db.Races.Single(x => x.Id == 101);
 		db.Liquids.AddRange(new Liquid { Id = 901, Name = "Test sweat" }, new Liquid { Id = 902, Name = "Custom sweat" });
 		human.SweatLiquidId = 901;
 		db.SaveChanges();
@@ -170,10 +171,10 @@ public class ArmageddonHeritageTests
 		db.ChangeTracker.Clear();
 		foreach (var (name, rate) in expected)
 		{
-			var race = db.Races.Single(x => x.Name == "Armageddon " + name);
+			var race = db.Races.Single(x => x.Name == name);
 			Assert.AreEqual(rate, race.SweatRateInLitresPerMinute);
 			Assert.AreEqual(901L, race.SweatLiquidId);
-			Assert.AreEqual(2L, race.AvailabilityProgId);
+			Assert.AreEqual(race.Name is "Elf" or "Half-Elf" ? 2L : 1L, race.AvailabilityProgId);
 		}
 		foreach (var (key, rate) in ArmageddonHeritage.Profiles.Select(x => (x.Key, expected[x.Name])))
 		{
@@ -189,7 +190,7 @@ public class ArmageddonHeritageTests
 		}
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonHeritage.SweatRateForProfile("unknown"));
 		// Reproduce the former recorded stock, then upgrade only through the normal installer.
-		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
+		var giant = db.Races.Single(x => x.Name == "Half-Giant");
 		var record = db.SeederManagedRecords.Single(x => x.StableKey == "arm.race.half_giant");
 		var oldBaseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
 		oldBaseline[nameof(Race.SweatRateInLitresPerMinute)] = "0.8";
@@ -197,10 +198,10 @@ public class ArmageddonHeritageTests
 		giant.SweatRateInLitresPerMinute = 0.8;
 		db.SaveChanges(); db.ChangeTracker.Clear();
 		ArmageddonHeritage.Install(db, messages); db.ChangeTracker.Clear();
-		Assert.AreEqual(0.10, db.Races.Single(x => x.Name == "Armageddon Half-Giant").SweatRateInLitresPerMinute);
-		var dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
-		dwarf.SweatRateInLitresPerMinute = 0.007; dwarf.SweatLiquidId = 902; dwarf.AvailabilityProgId = 1;
-		var mul = db.Races.Single(x => x.Name == "Armageddon Mul");
+		Assert.AreEqual(0.10, db.Races.Single(x => x.Name == "Half-Giant").SweatRateInLitresPerMinute);
+		var dwarf = db.Races.Single(x => x.Name == "Dwarf");
+		dwarf.SweatRateInLitresPerMinute = 0.007; dwarf.SweatLiquidId = 902; dwarf.AvailabilityProgId = 2;
+		var mul = db.Races.Single(x => x.Name == "Mul");
 		mul.SweatRateInLitresPerMinute = 0.0; mul.SweatLiquidId = null;
 		db.SaveChanges();
 		for (var attempt = 0; attempt < 2; attempt++)
@@ -208,12 +209,12 @@ public class ArmageddonHeritageTests
 			db.ChangeTracker.Clear();
 			ArmageddonHeritage.Install(db, messages);
 			db.ChangeTracker.Clear();
-			dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
-			mul = db.Races.Single(x => x.Name == "Armageddon Mul");
+			dwarf = db.Races.Single(x => x.Name == "Dwarf");
+			mul = db.Races.Single(x => x.Name == "Mul");
 			Assert.AreEqual(0.007, dwarf.SweatRateInLitresPerMinute);
-			Assert.AreEqual(902L, dwarf.SweatLiquidId); Assert.AreEqual(1L, dwarf.AvailabilityProgId);
+			Assert.AreEqual(902L, dwarf.SweatLiquidId); Assert.AreEqual(2L, dwarf.AvailabilityProgId);
 			Assert.AreEqual(0.0, mul.SweatRateInLitresPerMinute); Assert.IsNull(mul.SweatLiquidId);
-			Assert.AreEqual(0.8, db.Races.Single(x => x.Name == "Human").SweatRateInLitresPerMinute);
+			Assert.AreEqual(0.8, db.Races.Single(x => x.Id == 101).SweatRateInLitresPerMinute);
 			Assert.AreEqual(adminCultureCount, db.Cultures.Count(x => x.Name == "Admin"));
 			Assert.AreEqual(characterCount, db.Characters.Count());
 		}
@@ -224,7 +225,7 @@ public class ArmageddonHeritageTests
 	public void ApprovedLifecycles_PersistAndPreserveBuilderChangesAcrossReruns()
 	{
 		using var db = Fixture();
-		var human = db.Races.Single(x => x.Name == "Human");
+		var human = db.Races.Single(x => x.Id == 101);
 		human.ChildAge = 3;
 		human.YouthAge = 10;
 		human.YoungAdultAge = 16;
@@ -234,8 +235,8 @@ public class ArmageddonHeritageTests
 		db.SaveChanges();
 		var messages = new List<string>();
 		ArmageddonHeritage.Install(db, messages);
-		var ids = db.Races.Where(x => x.Name.StartsWith("Armageddon ")).Select(x => x.Id).ToArray();
-		var dwarfId = db.Races.Single(x => x.Name == "Armageddon Dwarf").Id;
+		var ids = db.Races.Where(x => x.Id != 100 && x.Id != 101).Select(x => x.Id).ToArray();
+		var dwarfId = db.Races.Single(x => x.Name == "Dwarf").Id;
 		var baseline = db.Races.Where(x => ids.Contains(x.Id)).ToDictionary(x => x.Id,
 			x => new[] { x.ChildAge, x.YouthAge, x.YoungAdultAge, x.AdultAge, x.ElderAge, x.VenerableAge });
 		static int[] Ages(Race race) =>
@@ -247,7 +248,7 @@ public class ArmageddonHeritageTests
 		foreach (var race in db.Races.Where(x => ids.Contains(x.Id)))
 		{
 			CollectionAssert.AreEqual(baseline[race.Id], Ages(race));
-			Assert.AreEqual(2L, race.AvailabilityProgId);
+			Assert.AreEqual(race.Name is "Elf" or "Half-Elf" ? 2L : 1L, race.AvailabilityProgId);
 		}
 
 		// These are deliberately authored test overrides, not proposed Armageddon ages.
@@ -258,7 +259,7 @@ public class ArmageddonHeritageTests
 		dwarf.AdultAge = 31;
 		dwarf.ElderAge = 62;
 		dwarf.VenerableAge = 82;
-		db.Races.Single(x => x.Name == "Human").YoungAdultAge = 18;
+		db.Races.Single(x => x.Id == 101).YoungAdultAge = 18;
 		db.SaveChanges();
 		for (var attempt = 0; attempt < 2; attempt++)
 		{
@@ -269,9 +270,9 @@ public class ArmageddonHeritageTests
 			{
 				CollectionAssert.AreEqual(race.Id == dwarfId ? new[] { 5, 12, 21, 31, 62, 82 } : baseline[race.Id],
 					Ages(race), $"Lifecycle override/baseline changed for {race.Name} on rerun {attempt}.");
-				Assert.AreEqual(2L, race.AvailabilityProgId);
+				Assert.AreEqual(race.Name is "Elf" or "Half-Elf" ? 2L : 1L, race.AvailabilityProgId);
 			}
-			Assert.AreEqual(18, db.Races.Single(x => x.Name == "Human").YoungAdultAge);
+			Assert.AreEqual(18, db.Races.Single(x => x.Id == 101).YoungAdultAge);
 		}
 		Assert.IsTrue(messages.Any(x => x.Contains("builder edit")));
 	}
@@ -280,7 +281,7 @@ public class ArmageddonHeritageTests
 	public void MissingScaffoldModel_BlocksBeforeHeritageWrites()
 	{
 		using var db = Fixture();
-		db.Races.Single(x => x.Name == "Human").DefaultHeightWeightModelNonBinaryId = 999;
+		db.Races.Single(x => x.Id == 101).DefaultHeightWeightModelNonBinaryId = 999;
 		db.SaveChanges();
 		var before = db.SeederManagedRecords.Count();
 		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
@@ -292,11 +293,11 @@ public class ArmageddonHeritageTests
 	public void HeritageNameCollision_BlocksBeforeAnyHeritageWrite()
 	{
 		using var db = Fixture();
-		db.Cultures.Add(new Culture { Name = "Armageddon Tuluki" }); db.SaveChanges();
+		db.Cultures.Add(new Culture { Name = "Tuluki" }); db.SaveChanges();
 		var before = db.SeederManagedRecords.Count();
 		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
 		Assert.AreEqual(before, db.SeederManagedRecords.Count());
-		Assert.AreEqual(0, db.Races.Count(x => x.Name.StartsWith("Armageddon ")));
+		Assert.AreEqual(0, db.Races.Count(x => x.Id != 100 && x.Id != 101));
 		Assert.AreEqual(1, db.Languages.Count());
 	}
 }

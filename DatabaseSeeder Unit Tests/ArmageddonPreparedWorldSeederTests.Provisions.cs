@@ -75,7 +75,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings)); bindings = ProvisionSelections(db, bindings);
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
 			var spell = db.SeederManagedRecords.Single(x => x.StableKey == key).LogicalId!.Value;
-			var cap = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial " + variant); var xml = XElement.Parse(cap.Definition);
+			var cap = db.MagicCapabilities.Single(x => x.Name == "Partial " + variant); var xml = XElement.Parse(cap.Definition);
 			xml.Element("Casting")!.Elements("Admission").Single(x => (long?)x.Attribute("spell") == spell).Remove(); cap.Definition = xml.ToString(); db.SaveChanges();
 			var policy = CapabilityMeritPolicy(db); var provisions = ProvisionPolicy(db);
 			for (var i = 0; i < 2; i++)
@@ -132,7 +132,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			db.MagicSpells.Single(x => x.Id == meal).Name = "builder meal";
 			var cost = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonReviewedProvisionContent.SustainMealKey + ".cost").LogicalId!.Value;
 			db.TraitExpressions.Single(x => x.Id == cost).Expression = "9*grade";
-			var cap = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial preserver"); var xml = XElement.Parse(cap.Definition);
+			var cap = db.MagicCapabilities.Single(x => x.Name == "Partial preserver"); var xml = XElement.Parse(cap.Definition);
 			xml.Element("Casting")!.SetAttributeValue("enabled", false); cap.Definition = xml.ToString(); db.SaveChanges();
 			var policy = CapabilityMeritPolicy(db); var provisions = ProvisionPolicy(db);
 			for (var i = 0; i < 2; i++)

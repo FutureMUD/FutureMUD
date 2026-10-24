@@ -81,7 +81,7 @@ public class ArmageddonPhysicalPolicyTests
 		var race = db.Races.Single(x => x.Id == id);
 		CollectionAssert.AreEqual(new[] { 3, youth, youngAdult, adult, elder, venerable },
 			new[] { race.ChildAge, race.YouthAge, race.YoungAdultAge, race.AdultAge, race.ElderAge, race.VenerableAge });
-		Assert.AreEqual(2L, race.AvailabilityProgId);
+		Assert.AreEqual(key == "half_elf" ? 2L : 1L, race.AvailabilityProgId);
 		Assert.IsNotNull(race.AgeDescriptionProgId);
 		var screen = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectBirthday);
 		var xml = XElement.Parse(screen.StageDefinition);
@@ -99,7 +99,7 @@ public class ArmageddonPhysicalPolicyTests
 		using var db = ArmageddonHeritageTests.Fixture();
 		var messages = new List<string>();
 		ArmageddonHeritage.Install(db, messages);
-		var dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
+		var dwarf = db.Races.Single(x => x.Name == "Dwarf");
 		var customModel = db.HeightWeightModels.Single(x => x.Id == dwarf.DefaultHeightWeightModelMaleId);
 		customModel.Name = "Builder physical model";
 		var customDescription = db.FutureProgs.Single(x => x.Id == dwarf.AgeDescriptionProgId);
@@ -139,7 +139,7 @@ public class ArmageddonPhysicalPolicyTests
 		ArmageddonHeritage.Install(db, new List<string>());
 		foreach (var name in new[] { "Dwarf", "Mul" })
 		{
-			var ethnicity = db.Ethnicities.Single(x => x.Name == "Armageddon " + name);
+			var ethnicity = db.Ethnicities.Single(x => x.Name == name);
 			foreach (var definition in new long[] { 112, 113 })
 			{
 				var id = db.EthnicitiesCharacteristics.Single(x => x.EthnicityId == ethnicity.Id && x.CharacteristicDefinitionId == definition).CharacteristicProfileId;

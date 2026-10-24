@@ -27,18 +27,18 @@ public static partial class ArmageddonTraditionInstaller
 		[typeof(Merit)] = ["Name", "Type", "MeritType", "MeritScope", "Definition"]
 	};
 	private static List<Definition> Definitions() =>
-		new[] { new Definition(typeof(Improver), "arm.improver.spell_practice", "Armageddon spell practice", []) }
+		new[] { new Definition(typeof(Improver), "arm.improver.spell_practice", "Spell Practice", []) }
 		.Concat(SourceRows.Where(x => x.Kind == "spell").SelectMany(x => new[]
 		{
-			new Definition(typeof(TraitExpression), x.Key + ".skill.cap", "Armageddon " + x.HistoricalName + " cap", []),
-			new Definition(typeof(TraitDefinition), x.Key + ".skill", "Armageddon " + x.HistoricalName,
+			new Definition(typeof(TraitExpression), x.Key + ".skill.cap", x.HistoricalName + " cap", []),
+			new Definition(typeof(TraitDefinition), x.Key + ".skill", x.HistoricalName,
 				[x.Key + ".skill.cap", "arm.improver.spell_practice", "external.decorator", "external.progs"])
 		}))
 		.Concat(Variants.SelectMany(x => new[]
 		{
-			new Definition(typeof(MagicCapability), "arm.capability." + x, "Armageddon partial " + x,
+			new Definition(typeof(MagicCapability), "arm.capability." + x, "Partial " + x,
 				["external.school", "external.mana", "external.gathering", "external.implemented_spells", "external.support_skills"]),
-			new Definition(typeof(Merit), "arm.merit." + x, "Armageddon partial " + x + " caster", ["arm.capability." + x, "external.progs"])
+			new Definition(typeof(Merit), "arm.merit." + x, "Partial " + x + " caster", ["arm.capability." + x, "external.progs"])
 		})).ToList();
 
 	public static ArmageddonTraditionInstallResult Install(FuturemudDatabaseContext db, ArmageddonTraditionInstallPlan plan,
@@ -92,7 +92,7 @@ public static partial class ArmageddonTraditionInstaller
 				Apply(db, spec, new Merit { Name = spec.Name, Type = "Magic Capability", MeritScope = 2, MeritType = 0,
 					Definition = new XElement("Definition", new XElement("ChargenAvailableProg", plan.AlwaysFalseProg),
 						new XElement("ApplicabilityProg", plan.AlwaysTrueProg), new XElement("ChargenBlurb", "Partial source tradition; explicit builder attachment and enrolment required."),
-						new XElement("DescriptionText", "@ have|has an Armageddon magic capability."),
+						new XElement("DescriptionText", "@ have|has the capacity to channel magic."),
 						new XElement("Capabilities", new XElement("Capability", capability.Id))).ToString() }, records, plan, messages);
 			}
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.ContentCreated);

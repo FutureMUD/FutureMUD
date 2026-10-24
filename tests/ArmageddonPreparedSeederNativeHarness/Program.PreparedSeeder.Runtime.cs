@@ -25,7 +25,7 @@ internal static partial class GNHProgram
 			"Prepared native capacity did not resolve persisted body attribute/expression or refilled balance.");
 		foreach (var variant in ArmageddonTraditionInstaller.Variants)
 		{
-			var capability = (SkillLevelBasedMagicCapability)native.World.MagicCapabilities.GetByName("Armageddon partial " + variant);
+			var capability = (SkillLevelBasedMagicCapability)native.World.MagicCapabilities.Get(db.SeederManagedRecords.Single(x => x.StableKey == "arm.capability." + variant).LogicalId!.Value);
 			capability.BuildingCommand(native.Actor, new StringStack("casting validate")); Require(capability.CastingConfigurationErrors().Count == 0, "Guide casting validate native errors.");
 		}
 		var spell = (MagicSpell)native.World.MagicSpells.Get(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonReviewedUtilityContent.SenseEnchantmentKey).LogicalId!.Value);

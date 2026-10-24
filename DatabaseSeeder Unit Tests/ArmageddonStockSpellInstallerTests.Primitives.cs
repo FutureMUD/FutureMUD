@@ -35,7 +35,7 @@ public partial class ArmageddonStockSpellInstallerTests
 			var root = XElement.Parse(spell.Definition);
 			Assert.AreEqual(claim.StableKey, (string?)root.Element("StockIdentity"), claim.StableKey);
 			var entry = entries[claim.StableKey];
-			Assert.AreEqual("Armageddon " + entry.GetProperty("native_school").GetString(), db.MagicSchools.Single(x => x.Id == spell.MagicSchoolId).Name, claim.StableKey);
+			Assert.AreEqual(entry.GetProperty("native_school").GetString(), db.MagicSchools.Single(x => x.Id == spell.MagicSchoolId).Name, claim.StableKey);
 			var minimum = entry.GetProperty("minimum_energy").GetDouble();
 			Assert.AreEqual(minimum, (double)root.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!, claim.StableKey);
 			var expectedTarget = entry.GetProperty("target_type").GetString();
@@ -325,7 +325,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.IsTrue((bool)Effect("second_breath").Element("DirectStaminaAdjustment")!);
 		Assert.IsTrue((bool)Effect("steal_breath").Element("DirectStaminaAdjustment")!);
 		Assert.IsTrue((bool)Effect("empty_aura").Element("ExactResourceDepletion")!);
-		Assert.AreEqual("Armageddon Lightning", db.MagicSchools.Single(x => x.Id == spells["arm.spell.steal_breath"].MagicSchoolId).Name);
+		Assert.AreEqual("Lightning", db.MagicSchools.Single(x => x.Id == spells["arm.spell.steal_breath"].MagicSchoolId).Name);
 		var resistanceKey = mode == ArmageddonProgressionMode.Classic ? ArmageddonStockSpellContent.ReadAttunementKey + ".skill" : "arm.skill.water_casting";
 		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == resistanceKey).LogicalId, spells["arm.spell.sow_sickness"].ResistingTraitDefinitionId);
 		Assert.AreEqual(5L, (long)Effect("sow_sickness").Element("InfectionType")!);

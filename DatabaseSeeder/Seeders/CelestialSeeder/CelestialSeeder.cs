@@ -93,117 +93,80 @@ public partial class CelestialSeeder : IDatabaseSeeder
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
         Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
     [
-        ("installsun",
-            @"Do you want to install an Earth-facing Sun? This option assumes that your world is based on an Earth-like planet orbiting Sol.
-
-Please answer #3yes#F or #3no#F: ",
-            (context, answers) => !HasEarthSunPackage(context),
-            ValidateYesNo),
+        ("packages", PackageSelectionPrompt, (_, _) => true, ValidatePackages),
         ("suncalendar",
             @"Which calendar would you like your Earth-facing sun to be tied to, for the purposes of working out where it should be in the sky?
 
 Please specify a calendar name or ID (if not known, use 1 for ID): ",
-            (context, answers) => AnswerIsYes(answers, "installsun") && !HasEarthSunPackage(context),
+            (context, answers) => PackageSelected(answers, "EarthSun") && !HasEarthSunPackage(context) && context.Calendars.Count() != 1,
             ValidateCalendar),
-        ("sunname",
-            @"What name would you like to give to your Earth-facing sun? For example, for Earth's sun you would enter 'The Sun' or 'Sol'.
-
-Your choice: ",
-            (context, answers) => AnswerIsYes(answers, "installsun") && !HasEarthSunPackage(context),
-            (answer, context) => (true, string.Empty)),
         ("sunepoch",
             @"You must now enter a valid date for the 'epoch' of your Earth-facing sun.
 
 Generally you'll want this to be whatever date is equivalent to the 1st of January in your calendar, and the same year that your game's current date is.
 
 What epoch date do you want to use?",
-            (context, answers) => AnswerIsYes(answers, "installsun") && !HasEarthSunPackage(context),
+            (context, answers) => PackageSelected(answers, "EarthSun") && !HasEarthSunPackage(context),
             ValidateDate),
-        ("installmoon",
-            @"Do you want to install an Earth Moon package? This option assumes an Earth-like planet with a single large natural satellite, and installs the moon plus the linked Earth and Sun objects needed for moon-surface sky views.
-
-Use this if your game should have lunar phases, full/new moon event helpers, or areas that can be viewed from the moon looking back at the parent planet and sun.
-
-Please answer #3yes#F or #3no#F: ",
-            (context, answers) => !HasEarthMoonPackage(context) &&
-                                  (AnswerIsYes(answers, "installsun") || HasSingleEarthSunCandidate(context)),
-            ValidateYesNo),
         ("mooncalendar",
             @"Which calendar should the Earth Moon package be tied to for lunar phase and orbital calculations?
 
 This should usually be the same calendar used by your Earth-facing sun, so solar and lunar events are expressed in the same date system. Please specify a calendar name or ID: ",
-            (context, answers) => AnswerIsYes(answers, "installmoon") && !HasEarthMoonPackage(context),
+            (context, answers) => PackageSelected(answers, "EarthMoon") && !HasEarthMoonPackage(context) && context.Calendars.Count() != 1,
             ValidateCalendar),
-        ("moonname",
-            @"What name would you like to give to the Earth-facing moon? For example, for Earth's moon you might enter 'The Moon', 'Luna', or another setting-specific name.
-
-Your choice: ",
-            (context, answers) => AnswerIsYes(answers, "installmoon") && !HasEarthMoonPackage(context),
-            (answer, context) => (true, string.Empty)),
         ("moonepoch",
             @"What epoch date should be used for the Earth-facing moon? This is the full-moon reference date used to line up lunar phase calculations.
 
 For the stock Earth moon package, the suggested default is the 21st day of the year in the calendar you selected.",
-            (context, answers) => AnswerIsYes(answers, "installmoon") && !HasEarthMoonPackage(context),
+            (context, answers) => PackageSelected(answers, "EarthMoon") && !HasEarthMoonPackage(context),
             ValidateDate),
-        ("installgasgiantmoon",
-            @"Do you want to install the Gas Giant Moon package? This option models a habitable viewpoint on Ganymede, with Jupiter dominating the sky and Sol appearing as the distant sun.
-
-It installs four linked objects: a Jupiter-facing Sun, Ganymede as the local moon/world, Jupiter-from-Ganymede, and Sol-from-Ganymede. Use it for science-fiction or alien sky examples rather than an Earth surface.
-
-Please answer #3yes#F or #3no#F: ",
-            (context, answers) => !HasGasGiantPackage(context),
-            ValidateYesNo),
         ("gasgiantcalendar",
             @"Which calendar should the Gas Giant Moon package be tied to for the Jupiter-facing sun, Ganymede phase, and moon-surface sky calculations?
 
 All four linked objects in this package use the same calendar. Please specify a calendar name or ID: ",
-            (context, answers) => AnswerIsYes(answers, "installgasgiantmoon") && !HasGasGiantPackage(context),
+            (context, answers) => PackageSelected(answers, "Jupiter") && !HasGasGiantPackage(context) && context.Calendars.Count() != 1,
             ValidateCalendar),
         ("gasgiantsunepoch",
             @"What epoch date should be used for the Jupiter-facing Sun? This aligns the distant solar orbit with the selected calendar.
 
 For the stock gas giant package, use the start-of-year epoch for your chosen calendar unless you have a custom astronomy reference date.",
-            (context, answers) => AnswerIsYes(answers, "installgasgiantmoon") && !HasGasGiantPackage(context),
+            (context, answers) => PackageSelected(answers, "Jupiter") && !HasGasGiantPackage(context),
             ValidateDate),
         ("gasgiantmoonepoch",
             @"What epoch date should be used for Ganymede? This is the phase reference for Ganymede as seen from Jupiter, and it keeps the linked Jupiter and Sol views coherent.
 
 The stock package uses an epoch-aligned default at the start of the selected calendar year.",
-            (context, answers) => AnswerIsYes(answers, "installgasgiantmoon") && !HasGasGiantPackage(context),
+            (context, answers) => PackageSelected(answers, "Jupiter") && !HasGasGiantPackage(context),
             ValidateDate),
-        ("installauthored",
-            "Install the six geography-independent authored celestial examples (rails, scripts, Morning Star and Morning Glow)? These remain unattached until a builder selects them. Answer yes or no: ",
-            (context, answers) => !HasAuthoredPackage(context),
-            ValidateYesNo),
         ("authoredcalendar",
             "Which calendar should drive the authored examples? Specify a calendar name or ID: ",
-            (context, answers) => AnswerIsYes(answers, "installauthored") && !HasAuthoredPackage(context),
+            (context, answers) => HasMissingSelectedAuthoredPresets(context, answers) && context.Calendars.Count() != 1,
             ValidateCalendar)
     ];
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
+        questionAnswers = ResolveAutomaticAnswers(context, questionAnswers);
         context.Database.BeginTransaction();
         try
         {
             Celestial? earthSun = null;
-            if (AnswerIsYes(questionAnswers, "installsun"))
+            if (PackageSelected(questionAnswers, "EarthSun"))
             {
                 earthSun = EnsureEarthSunPackage(context, questionAnswers);
             }
 
-            if (AnswerIsYes(questionAnswers, "installmoon"))
+            if (PackageSelected(questionAnswers, "EarthMoon"))
             {
                 EnsureEarthMoonPackage(context, questionAnswers, earthSun);
             }
 
-            if (AnswerIsYes(questionAnswers, "installgasgiantmoon"))
+            if (PackageSelected(questionAnswers, "Jupiter"))
             {
                 EnsureGasGiantPackage(context, questionAnswers);
             }
 
-            if (AnswerIsYes(questionAnswers, "installauthored"))
+            if (HasSelectedAuthoredPackages(questionAnswers))
             {
                 EnsureAuthoredPackage(context, questionAnswers);
             }
@@ -230,7 +193,7 @@ The stock package uses an epoch-aligned default at the start of the selected cal
         bool hasEarthMoon = HasEarthMoonPackage(context);
         bool hasGasGiant = HasGasGiantPackage(context);
         bool hasAuthored = HasAuthoredPackage(context);
-        if (!hasEarthSun && !hasEarthMoon && !hasGasGiant && !hasAuthored)
+        if (!hasEarthSun && !hasEarthMoon && !hasGasGiant && !AuthoredPresetsInstalled(context).Any())
         {
             return ShouldSeedResult.ReadyToInstall;
         }
@@ -244,26 +207,6 @@ The stock package uses an epoch-aligned default at the start of the selected cal
     public string Name => "Celestial Seeder";
     public string Tagline => "Sets up Suns, Moons, etc";
     public string FullDescription => "This seeder sets up stock physical celestial packages and optional geography-independent authored examples. Reruns add missing package members and preserve builder customisation. Authored examples are not automatically attached to shards.";
-
-    internal static string? ResolveInstallSunDefault(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return HasEarthSunPackage(context) ? "no" : "yes";
-    }
-
-    internal static ConsoleQuestionDisplay ResolveInstallSunDisplay(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return new ConsoleQuestionDisplay(
-            @"#DCelestial Package: Earth-facing Sun#F
-
-Installs #BEarthSun#F, a root #6Sun#F for Earth-like worlds orbiting Sol. This is the usual daylight package for conventional fantasy, historical, and modern Earth-like games.
-
-#ARecommended:#F choose #3yes#F for most new worlds. Choose #3no#F only if you plan to build a custom star package later.
-
-Please answer #3yes#F or #3no#F:",
-            ResolveInstallSunDefault(context, answers));
-    }
 
     internal static string? ResolveSunCalendarDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers)
@@ -282,48 +225,6 @@ Please answer #3yes#F or #3no#F:",
             ResolveSunCalendarDefault(context, answers));
     }
 
-    internal static string? ResolveSunNameDefault(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return "The Sun";
-    }
-
-    internal static ConsoleQuestionDisplay ResolveSunNameDisplay(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return new ConsoleQuestionDisplay(
-            @"#DName: Earth-facing Sun#F
-
-This is the display name for the root Sun record. Use #3The Sun#F for a familiar Earth-like presentation, or #3Sol#F if your setting names the star directly.
-
-Your choice:",
-            ResolveSunNameDefault(context, answers));
-    }
-
-    internal static string? ResolveInstallMoonDefault(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return HasEarthMoonPackage(context) ? "no" : "yes";
-    }
-
-    internal static ConsoleQuestionDisplay ResolveInstallMoonDisplay(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        string linkText = AnswerIsYes(answers, "installsun")
-            ? "It will link to the Earth-facing Sun you are installing in this same run."
-            : "It will link to the existing Earth-facing Sun already in the database.";
-
-        return new ConsoleQuestionDisplay(
-            $@"#DCelestial Package: Earth's Moon#F
-
-Installs #BEarthMoonView#F: a #6PlanetaryMoon#F, the matching #6PlanetFromMoon#F view, and the #6SunFromPlanetaryMoon#F view. {linkText}
-
-#ARecommended:#F choose #3yes#F for an Earth-like world with a visible moon and lunar phases. Choose #3no#F for worlds without an Earth-style moon.
-
-Please answer #3yes#F or #3no#F:",
-            ResolveInstallMoonDefault(context, answers));
-    }
-
     internal static string? ResolveMoonCalendarDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers)
     {
@@ -339,44 +240,6 @@ Please answer #3yes#F or #3no#F:",
             "Calendar: Earth's Moon",
             "Use the same calendar as the Earth-facing Sun unless you deliberately want the Moon package to parse epoch dates against a different calendar.",
             ResolveMoonCalendarDefault(context, answers));
-    }
-
-    internal static string? ResolveMoonNameDefault(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return "The Moon";
-    }
-
-    internal static ConsoleQuestionDisplay ResolveMoonNameDisplay(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return new ConsoleQuestionDisplay(
-            @"#DName: Earth's Moon#F
-
-This is the display name for the planetary moon. Use #3The Moon#F for a familiar Earth-like presentation, or enter a setting-specific name if your world uses one.
-
-Your choice:",
-            ResolveMoonNameDefault(context, answers));
-    }
-
-    internal static string? ResolveInstallGasGiantDefault(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return "no";
-    }
-
-    internal static ConsoleQuestionDisplay ResolveInstallGasGiantDisplay(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers)
-    {
-        return new ConsoleQuestionDisplay(
-            @"#DOptional Package: Gas Giant Moon#F
-
-Installs #BGasGiantMoonView#F, a self-contained Jupiter/Ganymede example with #6Sol#F, #6Ganymede#F, #6Jupiter-from-Ganymede#F, and #6Sol-from-Ganymede#F.
-
-#ARecommended:#F choose #3no#F for a normal Earth-like game. Choose #3yes#F if your game is set on a gas giant moon, or if you want a working template for moon-view celestial packages.
-
-Please answer #3yes#F or #3no#F:",
-            ResolveInstallGasGiantDefault(context, answers));
     }
 
     internal static string? ResolveGasGiantCalendarDefault(FuturemudDatabaseContext context,
@@ -474,16 +337,6 @@ Please answer #3yes#F or #3no#F:",
             "The seeded default uses the first day of the first month so the package lines up with the authored epoch constants.",
             1,
             example => $"For this calendar, an epoch-aligned example would look like #3{example}#F.");
-    }
-
-    private static bool AnswerIsYes(IReadOnlyDictionary<string, string> answers, string key)
-    {
-        return answers.TryGetValue(key, out string? value) && value.EqualToAny("yes", "y");
-    }
-
-    private static (bool Success, string error) ValidateYesNo(string answer, FuturemudDatabaseContext context)
-    {
-        return answer.EqualToAny("yes", "y", "no", "n") ? (true, string.Empty) : (false, "Please choose yes or no.");
     }
 
     private static (bool Success, string error) ValidateDate(string answer, FuturemudDatabaseContext context)
@@ -652,6 +505,7 @@ Enter the epoch date in this calendar's date format.",
         out CalendarPromptInfo info)
     {
         info = null!;
+        answers = ResolveAutomaticAnswers(context, answers);
         if (!answers.TryGetValue(calendarAnswerKey, out string? calendarAnswer) ||
             !TryGetCalendar(context, calendarAnswer, out Calendar? calendar) ||
             string.IsNullOrWhiteSpace(calendar?.Definition) ||

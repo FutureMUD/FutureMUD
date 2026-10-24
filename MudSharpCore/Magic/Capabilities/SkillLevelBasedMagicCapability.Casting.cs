@@ -150,22 +150,109 @@ public partial class SkillLevelBasedMagicCapability
 	private void AppendCastingShow(StringBuilder sb, ICharacter actor)
 	{
 		if (!HasCastingPolicy) return;
-		sb.AppendLine("Casting Policy:");
+		sb.AppendLine("Casting Policy:\n");
 		if (CastingPolicy is { } p)
 		{
-			sb.AppendLine($"  Enabled: {p.Enabled.ToColouredString()} Identity: {p.Identity} Trait: {p.DefaultTraitId.ToString("N0", actor).ColourValue()}");
-			sb.AppendLine($"  Energy: {p.SourceResourceId} -> {p.ReserveResourceId}; passive: {p.PassiveEntitlement.ToColouredString()}; starting version: {p.StartingGrantVersion}");
-			sb.AppendLine($"  Enrol after new-character Class selection: {p.EnrolOnClassSelection.ToColouredString()}");
+			sb.AppendLine($"\tIdentity: {p.Identity.ToString().ColourName()}");
+			sb.AppendLine($"\tEnabled: {p.Enabled.ToColouredString()}");
+			var trait = Gameworld.Traits.Get(p.DefaultTraitId);
+			sb.AppendLine($"\tTrait: {trait?.NameAndId(actor) ?? "None".ColourError()}");
+			var sourceResource = Gameworld.MagicResources.Get(p.SourceResourceId);
+			sb.AppendLine($"\tSource Energy: {sourceResource?.NameAndId(actor) ?? "None".ColourError()}");
+			var reserveResource = Gameworld.MagicResources.Get(p.ReserveResourceId);
+			sb.AppendLine($"\tReserve Energy: {reserveResource?.NameAndId(actor) ?? "None".ColourError()}");
+			sb.AppendLine($"\tPassive Entitlement: {p.PassiveEntitlement.ToColouredString()}");
+			sb.AppendLine($"\tStarting Grant Version: {p.StartingGrantVersion.ToStringN0Colour(actor, Telnet.Green)}");
+			sb.AppendLine($"\tEnrol After Class Selection: {p.EnrolOnClassSelection.ToColouredString()}");
+			sb.AppendLine();
+			sb.AppendLine("Spells:");
+			sb.AppendLine();
 			foreach (var a in p.Admissions)
 			{
-				sb.AppendLine($"  {a.Key}: spell {a.SpellId}, trait {a.TraitId ?? p.DefaultTraitId}, grades {a.MinimumGrade}-{a.MaximumGrade}, starting {a.Starting.ToColouredString()}");
-				sb.AppendLine($"    Opening: {a.OpeningSkill?.ToString("N2", actor) ?? "profile default"}; raw improvement cap: {a.RawSkillCap?.ToString("N2", actor) ?? "native"}; proficiency gates: {(a.CapRelativeProficiency ? "percent of route cap" : "absolute raw skill")}");
-				foreach (var e in a.Prerequisites) sb.AppendLine($"    {e.Key}: {e.Kind} {e.SourceId}, grade {e.MinimumGrade}, raw skill {e.MinimumProficiency.ToString("N2", actor)}");
+				var spell = Gameworld.MagicSpells.Get(a.SpellId);
+				if (spell is null)
+				{
+					continue;
+				}
+
+				sb.AppendLine($"{spell.NameAndId(actor, false)}".GetLineWithTitleInner(actor, School.PowerListColour, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine($"\tIdentity: {a.Key.ToString().ColourName()}");
+				trait = Gameworld.Traits.Get(a.TraitId ?? p.DefaultTraitId);
+				sb.AppendLine($"\tTrait: {trait?.NameAndId(actor) ?? "None".ColourError()}");
+				sb.AppendLine($"\tGrades: {a.MinimumGrade}-{a.MaximumGrade}");
+				sb.AppendLine($"\tStarting Spell: {a.Starting.ToColouredString()}");
+				sb.AppendLine($"\tOpens At: {a.OpeningSkill?.ToStringN2Colour(actor, Telnet.Green) ?? "Profile Default".ColourCommand()}");
+				sb.AppendLine($"\tCaps At: {a.RawSkillCap?.ToStringN2Colour(actor, Telnet.Green) ?? "Native Skill Value".ColourCommand()}");
+				sb.AppendLine($"\tProficiency Gates: {(a.CapRelativeProficiency ? "Percent of Route Cap" : "Absolute Raw Skill").ColourValue()}");
+				sb.AppendLine();
+				sb.AppendLine("Prerequisites:");
+				sb.AppendLine();
+				sb.AppendLine(StringUtilities.GetTextTable(
+					from e in a.Prerequisites
+					let sourcetext = (e.Kind == MagicCastingPrerequisiteKind.Spell ?
+						Gameworld.MagicSpells.Get(e.SourceId)?.NameAndId(actor, false) :
+						Gameworld.Traits.Get(e.SourceId)?.NameAndId(actor, false)) ?? "None".ColourError()
+					select new List<string> {
+						e.Kind.DescribeEnum(),
+						sourcetext,
+						e.MinimumGrade.ToStringN0(actor),
+						e.MinimumProficiency.ToStringN2(actor),
+						e.Key.ToString()
+						},
+						[
+							"Kind",
+							"Source",
+							"Min Grade",
+							"Min Proficiency",
+							"Identity"
+						],
+					actor,
+					Telnet.Red
+				));
 			}
+			sb.AppendLine();
+			sb.AppendLine("Supports:");
+			sb.AppendLine();
+			
 			foreach (var s in p.Supports)
 			{
-				sb.AppendLine($"  Support {s.Key}: skill {s.TraitId}, opening {s.OpeningSkill.ToString("N2", actor)}, cap {s.RawSkillCap?.ToString("N2", actor) ?? "native"}, starting {s.Starting.ToColouredString()}");
-				foreach (var e in s.Prerequisites) sb.AppendLine($"    {e.Key}: {e.Kind} {e.SourceId}, raw {e.MinimumProficiency.ToString("N2", actor)}");
+				var supportTrait = Gameworld.Traits.Get(s.TraitId);
+				if (supportTrait is null)
+				{
+					continue;
+				}
+				sb.AppendLine($"{supportTrait.NameAndId(actor, false)}".GetLineWithTitleInner(actor, School.PowerListColour, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine($"\tIdentity: {s.Key.ToString().ColourName()}");
+				sb.AppendLine($"\tOpens At: {s.OpeningSkill.ToStringN2Colour(actor, Telnet.Green)}");
+				sb.AppendLine($"\tCaps At: {s.RawSkillCap?.ToStringN2Colour(actor, Telnet.Green) ?? "Native Skill Value".ColourCommand()}");
+				sb.AppendLine($"\tStarting Skill: {s.Starting.ToColouredString()}");
+				sb.AppendLine();
+				sb.AppendLine("Prerequisites:");
+				sb.AppendLine();
+				sb.AppendLine(StringUtilities.GetTextTable(
+					from e in s.Prerequisites
+					let sourcetext = (e.Kind == MagicCastingPrerequisiteKind.Spell ?
+						Gameworld.MagicSpells.Get(e.SourceId)?.NameAndId(actor, false) :
+						Gameworld.Traits.Get(e.SourceId)?.NameAndId(actor, false)) ?? "None".ColourError()
+					select new List<string> {
+						e.Kind.DescribeEnum(),
+						sourcetext,
+						e.MinimumGrade.ToStringN0(actor),
+						e.MinimumProficiency.ToStringN2(actor),
+						e.Key.ToString()
+						},
+						[
+							"Kind",
+							"Source",
+							"Min Grade",
+							"Min Proficiency",
+							"Identity"
+						],
+					actor,
+					Telnet.Red
+				));
 			}
 		}
 		foreach (var error in CastingConfigurationErrors()) sb.AppendLine(error.ColourError());

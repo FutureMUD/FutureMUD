@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockSupportInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(TraitOwnerScope.Body, TraitOwnerScope.Body)]
 	[DataRow(TraitOwnerScope.Character, TraitOwnerScope.Body)]
 	[DataRow(TraitOwnerScope.Body, TraitOwnerScope.Character)]
@@ -56,7 +56,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(0, db.GameItems.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void MasterIntegration_UnknownCombatSkillOwnershipStillRefusesWeapons(bool invalidAttack)

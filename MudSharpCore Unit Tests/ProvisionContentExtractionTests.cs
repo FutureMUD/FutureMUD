@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ProvisionContentExtractionTests
 {
-	[DataTestMethod] [DataRow(false)] [DataRow(true)]
+	[TestMethod] [DataRow(false)] [DataRow(true)]
 	public void FoodDefinition_MatchesReviewedFactory(bool threeFoods)
 	{
 		var ids = threeFoods ? new long[] { 11, 12, 13 } : new long[] { 11 };
@@ -20,14 +20,14 @@ public class ProvisionContentExtractionTests
 		Assert.IsTrue(XNode.DeepEquals(reviewed, ArmageddonSustainMealStock.Definition(19, 23, ids)));
 		Assert.IsTrue(XNode.DeepEquals(reviewed, ArmageddonReviewedProvisionContent.SustainMeal(ids).BuildDefinition(19, 23, 0)));
 	}
-	[DataTestMethod] [DataRow(false)] [DataRow(true)]
+	[TestMethod] [DataRow(false)] [DataRow(true)]
 	public void WineDefinition_MatchesReviewedFactory(bool bonusPlane)
 	{
 		long? plane = bonusPlane ? 29 : null; var reviewed = ReviewedDrawWine(19, 23, 31, 37, plane);
 		Assert.IsTrue(XNode.DeepEquals(reviewed, ArmageddonDrawWineStock.Definition(19, 23, 31, 37, plane)));
 		Assert.IsTrue(XNode.DeepEquals(reviewed, ArmageddonReviewedProvisionContent.DrawWine(37, plane).BuildDefinition(19, 23, 31)));
 	}
-	[DataTestMethod] [DataRow(false)] [DataRow(true)]
+	[TestMethod] [DataRow(false)] [DataRow(true)]
 	public void SharedMetadata_MatchesReviewedFactory(bool food)
 	{
 		var content = food ? ArmageddonReviewedProvisionContent.SustainMeal([11,12,13]) : ArmageddonReviewedProvisionContent.DrawWine(37,29);

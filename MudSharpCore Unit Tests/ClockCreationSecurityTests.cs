@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class ClockCreationSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ClockCreation_NewOrClonedClock_PersistsReloadableDefinitionFromFirstInsert(bool clone)

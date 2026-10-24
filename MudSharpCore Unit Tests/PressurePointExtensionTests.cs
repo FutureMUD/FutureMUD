@@ -26,7 +26,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PressurePointExtensionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("stomach", "stomach")]
 	[DataRow("leftarm", "leftarm")]
 	[DataRow("left arm", "leftarm")]
@@ -43,7 +43,7 @@ public class PressurePointExtensionTests
 		Assert.AreEqual(expected, selection);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("")]
 	[DataRow("left")]
 	[DataRow("arm")]
@@ -53,7 +53,7 @@ public class PressurePointExtensionTests
 	public void ParseSelection_InvalidOrExcessArguments_Rejects(string input) =>
 		Assert.IsFalse(PressurePointAnatomy.TryParseSelection(new StringStack(input), out _));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("leftarm", "lupperarm", LimbType.Arm, Alignment.Left)]
 	[DataRow("rightarm", "rupperarm", LimbType.Arm, Alignment.Right)]
 	[DataRow("leftleg", "lthigh", LimbType.Leg, Alignment.Left)]
@@ -135,7 +135,7 @@ public class PressurePointExtensionTests
 		Assert.IsFalse(effect.TryParseContext(fixture.Actor.Object, fixture.Target.Object, new StringStack("stomach"), out _, out _));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("LEFTARM")]
 	[DataRow("STOMACH")]
 	public void UppercaseContext_UsesBodyStorageForPhysicalEffects(string location)

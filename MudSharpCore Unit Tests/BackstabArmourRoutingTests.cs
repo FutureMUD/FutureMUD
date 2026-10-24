@@ -31,7 +31,7 @@ public class BackstabArmourRoutingTests
 	private delegate (IDamage, IDamage) PassNaturalArmour(IDamage damage, ItemQuality quality, IMaterial material,
 		IHaveWounds owner, ref List<IWound> wounds);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 9.0)]
 	[DataRow(true, 11.0)]
 	public void BodyDamage_SkipsOnlyWornLayersAndRetainsMagicAndBothNaturalArmours(bool bypass, double expected)

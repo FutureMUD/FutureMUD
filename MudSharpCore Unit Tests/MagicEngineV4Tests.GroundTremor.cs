@@ -28,7 +28,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void GroundTremor_AllGradesApplyFullLocalDamageAndCasterThirdExactlyOnce(int grade)
 	{
@@ -43,7 +43,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(1, f.TargetDamage.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1)] [DataRow(true, 0)]
 	public void GroundTremor_ProtectedLocalCasterDoesNotPreventIndependentNearbyAgilityFall(bool agilityPass, int falls)
 	{
@@ -54,7 +54,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(0, f.CasterDamage.Count); Assert.AreEqual(0, f.TargetDamage.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("grade1")] [DataRow("silt")] [DataRow("water")] [DataRow("void")] [DataRow("wind")]
 	public void GroundTremor_NearbyTraversalHonoursSourceDepthAndTypedTerrainPlaneStops(string stop)
 	{
@@ -73,7 +73,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(0, f.Falls); Assert.AreEqual(0, f.AgilityChecks);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("staff")] [DataRow("flying")] [DataRow("ethereal")] [DataRow("stoneskin")]
 	public void GroundTremor_NearbyProtectedBodiesReceiveNoDamageOrFall(string protection)
 	{
@@ -116,7 +116,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(1, f.AgilityChecks); Assert.AreEqual(0, f.Falls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void GroundTremor_IndividualIncomingWardProtectsLocalHarmAndNearbyFalls(bool local)
 	{

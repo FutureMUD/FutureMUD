@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class RoomBuilderModuleExitLookupTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("north Normal", CardinalDirection.North, "Normal")]
 	[DataRow("n Normal", CardinalDirection.North, "Normal")]
 	[DataRow("nw Normal", CardinalDirection.NorthWest, "Normal")]

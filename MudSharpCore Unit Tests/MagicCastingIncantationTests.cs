@@ -94,7 +94,7 @@ public class MagicCastingIncantationTests
 			typeof(CommunicationsModule).GetMethod(method, BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [F.Actor.Object, method.ToLowerInvariant() + " " + text]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, "wek")][DataRow(2, "yuqa")][DataRow(3, "kral")][DataRow(4, "een")]
 	[DataRow(5, "pav")][DataRow(6, "sul")][DataRow(7, "mon")]
 	public void PowerWords_ExplicitExternalGradeCoordinate(int grade, string word)
@@ -124,7 +124,7 @@ public class MagicCastingIncantationTests
 			entries.SelectMany((x, i) => Permute(entries.Where((_, j) => i != j).ToArray()).Select(rest => new[] { x }.Concat(rest).ToArray()));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("kral unknown on self via Earth")][DataRow("kral fm-near fm-earth fm-protect fm-protect on self via Earth")]
 	[DataRow("kral yuqa stone on self via Earth")][DataRow("kral stone")][DataRow("kral stone on self area via Earth")]
 	[DataRow("kral stone on self via Earth extra")][DataRow("kral stone on self")]
@@ -137,7 +137,7 @@ public class MagicCastingIncantationTests
 		Assert.AreEqual(100.0, s.F.Balances[s.F.Resources[1]]); Assert.AreEqual(0, s.F.Rolls); Assert.AreEqual(0, s.Utterances.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("character")][DataRow("item")]
 	public void CompleteTargetText_NativeCharacterAndItemParsersRemainUsable(string trigger)
 	{
@@ -217,7 +217,7 @@ public class MagicCastingIncantationTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("named")][DataRow("formula")][DataRow("speech")][DataRow("alias")]
 	public void NativeAdapters_OneLanguageAwareUtterance_OnePaidOperation(string adapter)
 	{
@@ -238,7 +238,7 @@ public class MagicCastingIncantationTests
 		Assert.AreEqual("Completed", op.Stage);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("named")][DataRow("formula")][DataRow("speech")]
 	public void Quiet_IsNativeWhisper_AndModifiersApplyOnceToDesignatedEnergy(string adapter)
 	{
@@ -370,7 +370,7 @@ public class MagicCastingIncantationTests
 		Assert.IsTrue(broken.GradeConfigurationErrors().Any()); Assert.AreEqual("999", (string)XElement.Parse(broken.SnapshotModel().Definition).Descendants("Incantation").Single().Attribute("schema")!);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("reach")][DataRow("element")][DataRow("sphere")][DataRow("mood")][DataRow("provenance")][DataRow("method-name")]
 	public void MissingRequiredIncantationAttribute_PreservesUnreadableXmlAndReportsError(string attribute)
 	{

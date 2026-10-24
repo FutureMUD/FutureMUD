@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class PreparedCurrencyTransferTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("tuple")]
 	[DataRow("pair")]
 	[DataRow("value-tuple")]
@@ -70,9 +70,9 @@ public class PreparedCurrencyTransferTests
 	public void DeferredSpellConstructor_ApplicableHooksStillRejectInsteadOfUsingCurrencyPreview()
 	{
 		using var fixture = new CurrencyPreviewFixture();
-		Assert.ThrowsException<InvalidOperationException>(() => new GameItem(fixture.Prototype, null, ItemQuality.Standard, true));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new GameItem(fixture.Prototype, null, ItemQuality.Standard, true));
 		fixture.Hook.Verify(x => x.Applies(It.IsAny<IProgVariable>(), "GameItem"), Times.Once);
-		Assert.ThrowsException<ArgumentException>(() => new GameItem(fixture.Prototype, null, ItemQuality.Standard, true, true));
+		Assert.ThrowsExactly<ArgumentException>(() => new GameItem(fixture.Prototype, null, ItemQuality.Standard, true, true));
 		Assert.AreEqual(0, fixture.Save.Invocations.Count);
 		fixture.LoadProg.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
 	}

@@ -30,7 +30,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellNpcControlTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Haunt_RefusesFearWhenResistanceCallbackMakesExactTargetInvisible(bool configuredResistance)
@@ -87,7 +87,7 @@ public class SpellNpcControlTests
 		target.Verify(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CachedFearRemoval_DoesNotIntroduceABroadSaveButPreservesPriorQueuedChanges(bool priorQueue)
@@ -377,11 +377,11 @@ public class SpellNpcControlTests
 		var unknown = new SpellNpcMissionEffect(owner.Object, "seek", target.Object).SaveToXml(new());
 		unknown.Element("Effect")!.Element("Phase")!.Value = "attack-tree";
 		SpellNpcMissionEffect.InitialiseEffectType();
-		Assert.ThrowsException<FormatException>(() => Effect.LoadEffect(unknown, owner.Object));
+		Assert.ThrowsExactly<FormatException>(() => Effect.LoadEffect(unknown, owner.Object));
 
 		var incompleteHaunt = new SpellNpcMissionEffect(owner.Object, "haunt", target.Object, expiryUtc: DateTime.UtcNow.AddMinutes(2)).SaveToXml(new());
 		incompleteHaunt.Element("Effect")!.Element("Phase")!.Value = "haunting";
-		Assert.ThrowsException<FormatException>(() => Effect.LoadEffect(incompleteHaunt, owner.Object));
+		Assert.ThrowsExactly<FormatException>(() => Effect.LoadEffect(incompleteHaunt, owner.Object));
 	}
 
 	[TestMethod]

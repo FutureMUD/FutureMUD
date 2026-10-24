@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class S4ExistingFactoryFuryStaminaTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 7)] [DataRow(7, 1)]
 	public void CanonicalFuryInPlaceUpdate_StrongerOrWeaker_ConservesStaminaAndReloadsGrade(int oldGrade, int newGrade)
 	{

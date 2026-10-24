@@ -20,7 +20,7 @@ public class OwnedInMemorySeederContextTests
 		new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), Stores, x => x.EnableNullChecks(false)).Options;
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public async Task OwnerDisposal_ReleasesOnlyItsStore_WhileBorrowersSharePersistedChanges(bool asynchronous)
@@ -62,6 +62,6 @@ public class OwnedInMemorySeederContextTests
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql("Server=127.0.0.1;Database=must_not_connect", new MySqlServerVersion(new Version(8, 0, 45)))
 			.Options;
-		Assert.ThrowsException<ArgumentException>(() => new OwnedInMemorySeederContext(options));
+		Assert.ThrowsExactly<ArgumentException>(() => new OwnedInMemorySeederContext(options));
 	}
 }

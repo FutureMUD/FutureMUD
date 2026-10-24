@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BodyRemainsExtensionsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, false)]
 	[DataRow(1, false)]
 	[DataRow(2, false)]
@@ -27,7 +27,7 @@ public class BodyRemainsExtensionsTests
 		corpse.SetupGet(x => x.RepresentsFinalCharacterDeath).Returns(state != 3);
 		corpse.SetupGet(x => x.OriginalCharacter).Returns(state == 0 ? null! : owner.Object);
 		corpse.SetupGet(x => x.OriginalBody).Returns(state == 1 ? null! : body.Object);
-		Assert.AreEqual(valid ? owner.Object : null, corpse.Object.GetOriginalCharacterWithMatchingBody());
+		Assert.AreSame(valid ? owner.Object : null, corpse.Object.GetOriginalCharacterWithMatchingBody());
 	}
 
 	[TestMethod]

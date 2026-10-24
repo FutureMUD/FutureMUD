@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehicleServiceAuditTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(RevisionStatus.Current, true)]
 	[DataRow(RevisionStatus.Revised, true)]
 	[DataRow(RevisionStatus.UnderDesign, false)]

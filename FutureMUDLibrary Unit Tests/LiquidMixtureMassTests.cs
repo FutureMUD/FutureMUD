@@ -10,7 +10,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class LiquidMixtureMassTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1000.0, 1.0, 0.001, 1.0, 1000.0)]
 	[DataRow(990.0, 1.0, 0.001, 1.0, 990.0)]
 	[DataRow(8000.0, 0.001, 0.001, 125.0, 1000.0)]

@@ -23,7 +23,7 @@ public class VehicleBarrierExposureTests
 		Assert.IsFalse(CreatePrototype().ExposesOccupantsToExitBarriers);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("exposed", true)]
 	[DataRow("sheltered", false)]
 	public void BuilderExposure_SaveAndRevisionCopyRoundTripRetainsExplicitPolicy(string text, bool expected)

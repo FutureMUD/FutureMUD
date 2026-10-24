@@ -23,7 +23,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellAnimationSchedulerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(30, false)]
 	[DataRow(180, false)]
 	[DataRow(180, true)]
@@ -42,7 +42,7 @@ public class SpellAnimationSchedulerTests
 		Assert.IsNull(f.Scheduler.NextTriggerUtc);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(15)]
 	[DataRow(60)]
 	public void ParentRemoval_BeforeOrAfterOrdinaryExpiry_DispelsDurableChild(int seconds)
@@ -151,7 +151,7 @@ public class SpellAnimationSchedulerTests
 			Glow = new SpellGlowEffect(Owner.Object, Parent, null, 10, "glowing", "glowing", Telnet.White);
 			Parent.AddSpellEffect(Animation); Parent.AddSpellEffect(Glow);
 			if (parentFirst) Handler.AddEffect(Parent, TimeSpan.FromSeconds(parentSeconds));
-			if (throwingEcho) Assert.ThrowsException<InvalidOperationException>(() => Handler.AddEffect(Animation));
+			if (throwingEcho) Assert.ThrowsExactly<InvalidOperationException>(() => Handler.AddEffect(Animation));
 			else Handler.AddEffect(Animation);
 			Handler.AddEffect(Glow);
 			if (!parentFirst) Handler.AddEffect(Parent, TimeSpan.FromSeconds(parentSeconds));

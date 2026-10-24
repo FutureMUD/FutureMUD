@@ -123,8 +123,8 @@ public class RandomUtilitiesTests
         List<int> actual = result.OrderBy(x => x).ToList();
         CollectionAssert.AreEqual(expected, actual);
 
-        Assert.ThrowsException<ArgumentException>(() => data.PickRandom(6));
-        Assert.ThrowsException<ArgumentException>(() => data.PickRandom(0));
+        Assert.ThrowsExactly<ArgumentException>(() => data.PickRandom(6));
+        Assert.ThrowsExactly<ArgumentException>(() => data.PickRandom(0));
     }
 
     [TestMethod]
@@ -138,7 +138,7 @@ public class RandomUtilitiesTests
         List<int> all = data.PickUpToRandom(10).ToList();
         CollectionAssert.AreEquivalent(data, all);
 
-        Assert.ThrowsException<ArgumentException>(() => data.PickUpToRandom(0));
+        Assert.ThrowsExactly<ArgumentException>(() => data.PickUpToRandom(0));
     }
 
     [TestMethod]

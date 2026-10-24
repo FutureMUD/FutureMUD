@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests.Community;
 [TestClass]
 public class ClanRemoveSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rank")]
 	[DataRow("paygrade")]
 	[DataRow("appointment")]
@@ -36,7 +36,7 @@ public class ClanRemoveSecurityTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rank", false)]
 	[DataRow("paygrade", false)]
 	[DataRow("appointment", false)]

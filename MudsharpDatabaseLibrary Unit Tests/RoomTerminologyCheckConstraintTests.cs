@@ -130,7 +130,7 @@ public class RoomTerminologyCheckConstraintTests
 		Assert.IsFalse(sql.Contains("`)<>10 OR EXISTS"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("YES", " ENFORCED")]
 	[DataRow("NO", " NOT ENFORCED")]
 	public void Naming_EachCheckRestore_PreservesBothSupportedEnforcementStates(string flag, string suffix)
@@ -148,7 +148,7 @@ public class RoomTerminologyCheckConstraintTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null, true, true)]
 	[DataRow("MAYBE", true, true)]
 	[DataRow("yes", true, true)]
@@ -159,7 +159,7 @@ public class RoomTerminologyCheckConstraintTests
 		foreach (var sql in Restores()) Assert.IsNull(RestoreStatement(sql.Sql, flag, exists, recreate));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("model", "YES", null, false)]
 	[DataRow("native", "NO", null, false)]
 	[DataRow("case-space", "YES", null, false)]
@@ -193,7 +193,7 @@ public class RoomTerminologyCheckConstraintTests
 		Assert.AreEqual(refused, EmittedShapeRefuses(expression, flag, original, original is not null));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("model")]
 	[DataRow("native")]
 	public void Naming_Postflight_RequiresRenamedColumnsAndExactCapturedEnforcement(string variant)
@@ -240,7 +240,7 @@ public class RoomTerminologyCheckConstraintTests
 			"Removing the emitted guard must reproduce the postflight bug.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "`TopologyVersion` >= 1", false)]
 	[DataRow(false, "TopologyVersion >= 1", false)]
 	[DataRow(false, "(`TopologyVersion` >= 1)", false)]
@@ -273,7 +273,7 @@ public class RoomTerminologyCheckConstraintTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("fixture", "VehicleRouteSteps", PayloadName, "CHECK", true)]
 	[DataRow("fixture", "vehicleroutesteps", PayloadName, "CHECK", true)]
 	[DataRow("other", "VehicleRouteSteps", PayloadName, "CHECK", false)]
@@ -315,7 +315,7 @@ public class RoomTerminologyCheckConstraintTests
 		Assert.IsFalse(Captures.Value.ContainsKey("CK_Custom_CellReference"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, 1, 1, 1, true)]
 	[DataRow(0, -1, 1, 1, true)]
 	[DataRow(0, 0, 1, 1, false)]

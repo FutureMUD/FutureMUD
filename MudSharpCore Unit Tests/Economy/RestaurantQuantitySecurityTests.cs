@@ -64,7 +64,7 @@ public class RestaurantQuantitySecurityTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(int.MaxValue, RestaurantOrderType.DineIn)]
 	[DataRow(int.MaxValue, RestaurantOrderType.Takeaway)]
 	[DataRow(101, RestaurantOrderType.DineIn)]
@@ -89,7 +89,7 @@ public class RestaurantQuantitySecurityTests
 		Assert.AreEqual(0, f.Orders.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 100)]
 	[DataRow(100, 100)]
 	[DataRow(500, 500)]
@@ -125,7 +125,7 @@ public class RestaurantQuantitySecurityTests
 		Assert.AreEqual(1, f.Orders.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(int.MaxValue)]
 	[DataRow(0)]
 	public void RestaurantHeartbeat_UnsafePersistedQuantity_FailsForRecoveryBeforeAnyCreation(int quantity)

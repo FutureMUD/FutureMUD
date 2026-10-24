@@ -88,7 +88,7 @@ public class ItemSkinBulkRenameSecurityTests
 		Assert.IsTrue(f.Messages.Exists(x => x.Contains("under-design revision", StringComparison.Ordinal)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, RevisionStatus.UnderDesign)]
 	[DataRow(true, RevisionStatus.Current)]
 	public void Rename_AuthorisedDraftOrAdministratorMaintenance_PreservesSupportedBehaviour(bool admin, RevisionStatus status)

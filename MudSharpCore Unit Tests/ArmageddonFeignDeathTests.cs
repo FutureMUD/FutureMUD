@@ -72,7 +72,7 @@ public class ArmageddonFeignDeathTests
 		var parent = new Mock<IMagicSpellEffectParent>();
 		parent.SetupGet(x => x.Owner).Returns(f.Actor.Object);
 		f.Actor.SetupGet(x => x.Body).Returns(new Mock<IBody>().Object);
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(parent.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(parent.Object));
 	}
 
 	[TestMethod]
@@ -139,7 +139,7 @@ public class ArmageddonFeignDeathTests
 		f.Actor.Verify(x => x.RemoveEffect(parent.Object, true), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("lo")]
 	[DataRow("loo")]
 	[DataRow("sc")]

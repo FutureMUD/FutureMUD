@@ -23,7 +23,7 @@ public class AutobuilderFeatureMaskTests
 		CollectionAssert.AreEqual(new long[] { 41 }, result[3].Select(tag => tag.Id).ToArray());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("road", "not a positive tag ID")]
 	[DataRow("0", "not a positive tag ID")]
 	[DataRow("99", "unknown tag ID 99")]

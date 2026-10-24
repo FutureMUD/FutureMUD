@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class QueuedCommandAuthorityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("post-candidate", false, false, false)]
 	[DataRow("post-candidate", true, false, false)]
 	[DataRow("post-candidate", true, true, false)]

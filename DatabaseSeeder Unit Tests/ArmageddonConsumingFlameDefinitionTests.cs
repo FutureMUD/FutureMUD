@@ -34,6 +34,6 @@ public class ArmageddonConsumingFlameDefinitionTests
 	[TestMethod]
 	public void ConsumingFlame_RequiresAnExactNativeComponentTag()
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonDirectDamageSpellContent.ConsumingFlame(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonDirectDamageSpellContent.ConsumingFlame(0));
 	}
 }

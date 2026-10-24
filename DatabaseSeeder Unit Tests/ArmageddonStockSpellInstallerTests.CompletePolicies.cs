@@ -13,7 +13,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockSpellInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true, false)]
 	[DataRow(ArmageddonProgressionMode.Simple, false, false)]
@@ -113,7 +113,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("deleted")][DataRow("retired")][DataRow("type")][DataRow("identity")]
 	public void CompletePolicy_MissingCanonicalIdentityHoldsWithoutDowngrade(string corruption)
 	{

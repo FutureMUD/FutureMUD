@@ -161,7 +161,7 @@ public class ItemOwnershipCommandTests
 		Assert.IsFalse(f.Output.Invocations.Any(x => x.Method.Name == "Send" && x.Arguments[0] is IOutput));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void Junk_CreatorOrStaff_UsesExistingPocketDeletionWithoutTaking(bool staff)
 	{

@@ -55,8 +55,8 @@ public class RoomReferenceCompatibilityTests
 		var f = Fixture();
 		Assert.AreSame(f.Room, f.World.Object.GetPerceivable("Cell", 9000));
 		Assert.AreSame(f.Room, f.World.Object.GetPerceivable("Room:v2", 9000));
-		Assert.ThrowsException<InvalidOperationException>(() => f.World.Object.GetPerceivable("Room", 9000));
-		Assert.ThrowsException<NotSupportedException>(() => f.World.Object.GetPerceivable("Room:v3", 9000));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.World.Object.GetPerceivable("Room", 9000));
+		Assert.ThrowsExactly<NotSupportedException>(() => f.World.Object.GetPerceivable("Room:v3", 9000));
 		Assert.IsNull(f.World.Object.GetPerceivable("Cell", 8101));
 	}
 
@@ -72,7 +72,7 @@ public class RoomReferenceCompatibilityTests
 		xml.Element("Effect")!.Element("AnchorType")!.Value = "Cell";
 		Assert.AreSame(f.Room, ((ZeroGravityTether)Effect.LoadEffect(xml, f.Owner)).Anchor);
 		xml.Element("Effect")!.Element("AnchorType")!.Value = "Room";
-		Assert.ThrowsException<InvalidOperationException>(() => Effect.LoadEffect(xml, f.Owner));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Effect.LoadEffect(xml, f.Owner));
 	}
 
 	[TestMethod]
@@ -111,7 +111,7 @@ public class RoomReferenceCompatibilityTests
 		xml.Elements("Token").Single().Attribute("TargetType")!.Value = "Cell";
 		Assert.AreSame(f.Room, Emote.LoadEmote(xml,f.World.Object,f.Owner).Targets.Single());
 		xml.Elements("Token").Single().Attribute("TargetType")!.Value = "Room";
-		Assert.ThrowsException<InvalidOperationException>(() => Emote.LoadEmote(xml,f.World.Object,f.Owner));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Emote.LoadEmote(xml,f.World.Object,f.Owner));
 	}
 
 	[TestMethod]
@@ -126,7 +126,7 @@ public class RoomReferenceCompatibilityTests
 		token.Attribute("OtherType")!.Value="Cell";
 		Assert.IsTrue(Emote.LoadEmote(xml,f.World.Object,f.Owner).Valid);
 		token.Attribute("OtherType")!.Value="Room";
-		Assert.ThrowsException<InvalidOperationException>(()=>Emote.LoadEmote(xml,f.World.Object,f.Owner));
+		Assert.ThrowsExactly<InvalidOperationException>(()=>Emote.LoadEmote(xml,f.World.Object,f.Owner));
 	}
 
 	[TestMethod]
@@ -138,7 +138,7 @@ public class RoomReferenceCompatibilityTests
 		Assert.AreEqual("Room:v2",xml.Element("Effect")!.Element("AnchorType")!.Value);
 		Assert.AreSame(f.Room,((SpellZeroGravityTetherEffect)Effect.LoadEffect(xml,f.Owner)).Anchor);
 		xml.Element("Effect")!.Element("AnchorType")!.Value="Room";
-		Assert.ThrowsException<InvalidOperationException>(()=>Effect.LoadEffect(xml,f.Owner));
+		Assert.ThrowsExactly<InvalidOperationException>(()=>Effect.LoadEffect(xml,f.Owner));
 	}
 
 	[TestMethod]
@@ -149,14 +149,14 @@ public class RoomReferenceCompatibilityTests
 		var xml=new OverrideSDescFromProg(f.Owner,"description","tag",(IPerceiver)f.Room).SaveToXml(new Dictionary<IEffect,TimeSpan>());
 		var reference=xml.Element("Effect")!.Element("FixedPerceiver")!;
 		Assert.AreEqual("Room:v2",reference.Attribute("type")!.Value);
-		Assert.AreSame(f.Room,((OverrideSDescFromProg)Effect.LoadEffect(xml,f.Owner)).FixedPerceiver);
+		Assert.AreSame<object>(f.Room,((OverrideSDescFromProg)Effect.LoadEffect(xml,f.Owner)).FixedPerceiver);
 		reference.Attribute("type")!.Value="Cell";
-		Assert.AreSame(f.Room,((OverrideSDescFromProg)Effect.LoadEffect(xml,f.Owner)).FixedPerceiver);
+		Assert.AreSame<object>(f.Room,((OverrideSDescFromProg)Effect.LoadEffect(xml,f.Owner)).FixedPerceiver);
 		reference.Attribute("type")!.Value="Room";
-		Assert.ThrowsException<InvalidOperationException>(()=>_ = ((OverrideSDescFromProg)Effect.LoadEffect(xml,f.Owner)).FixedPerceiver);
+		Assert.ThrowsExactly<InvalidOperationException>(()=>_ = ((OverrideSDescFromProg)Effect.LoadEffect(xml,f.Owner)).FixedPerceiver);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Cell")]
 	[DataRow("Room:v2")]
 	public void Crime_LoadingThirdParty_RestoresIdAndTypeBeforeResolving(string type)

@@ -136,6 +136,9 @@ public class SeederReplayTests
 		Assert.AreEqual(template.UserID, builder.UserID);
 		Assert.AreEqual(template.Password, builder.Password);
 		Assert.AreEqual(template.SslMode, builder.SslMode);
+		Assert.AreEqual(MySqlSslMode.Disabled, builder.SslMode);
+		Assert.AreEqual(MySqlConnector.MySqlSslMode.Disabled,
+			new MySqlConnector.MySqlConnectionStringBuilder(connectionString).SslMode);
 		Assert.AreEqual(template.AllowPublicKeyRetrieval, builder.AllowPublicKeyRetrieval);
 		Assert.AreEqual(template.DefaultCommandTimeout, builder.DefaultCommandTimeout);
 

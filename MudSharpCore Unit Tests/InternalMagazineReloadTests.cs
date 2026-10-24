@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class InternalMagazineReloadTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("chamber")]
 	[DataRow("magazine")]
 	[DataRow("casing")]
@@ -64,7 +64,7 @@ public class InternalMagazineReloadTests
 
 public partial class QueuedCommandAuthorityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unknown-held")]
 	[DataRow("held-floor")]
 	[DataRow("held-valid")]
@@ -118,7 +118,7 @@ public partial class QueuedCommandAuthorityTests
 				.Callback(() => { rebound = true; floorItems.Add(round.Object); }).Returns(true);
 		if (scenario == "capacity-changed") plan.Setup(x => x.ExecuteWholePlan()).Callback(() => proto.InternalMagazineCapacity = 0)
 			.Returns(new[] { new InventoryPlanActionResult { OriginalReference = "loaditem", PrimaryTarget = round.Object, ActionState = DesiredItemState.Held } });
-		if (scenario == "take-throw") Assert.AreSame(expectedError, Assert.ThrowsException<InvalidOperationException>(() => gun.Load(f.Actor.Object)));
+		if (scenario == "take-throw") Assert.AreSame(expectedError, Assert.ThrowsExactly<InvalidOperationException>(() => gun.Load(f.Actor.Object)));
 		else gun.Load(f.Actor.Object);
 		var accepted = scenario == "held-valid";
 		var detached = accepted || scenario is "output-rebind" or "take-refill" or "take-throw";
@@ -134,7 +134,7 @@ public partial class QueuedCommandAuthorityTests
 		round.Verify(x => x.Delete(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("expire")]
 	[DataRow("replace")]

@@ -75,7 +75,7 @@ public class HeartbeatPerformanceTests
 		heartbeat.SecondHeartbeat += () => throw new InvalidOperationException();
 		heartbeat.SecondHeartbeat += () => fired = true;
 
-		Assert.ThrowsException<InvalidOperationException>(heartbeat.ManuallyFireHeartbeatSecond);
+		Assert.ThrowsExactly<InvalidOperationException>(heartbeat.ManuallyFireHeartbeatSecond);
 		Assert.IsFalse(fired);
 	}
 

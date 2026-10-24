@@ -23,7 +23,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BodyShutdownHealthTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Shutdown_ColdDeadSpinalBody_DoesNotManufactureEffectsAndUnregistersOnce(bool archival)

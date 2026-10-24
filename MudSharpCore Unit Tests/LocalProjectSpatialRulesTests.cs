@@ -32,17 +32,17 @@ public class LocalProjectSpatialRulesTests
 			null,
 			11L);
 		Assert.IsNull(ordinarySite.RoutePositionMetres);
-		Assert.ThrowsException<InvalidDataException>(() => LocalProjectSpatialRules.ValidateLoadedSite(
+		Assert.ThrowsExactly<InvalidDataException>(() => LocalProjectSpatialRules.ValidateLoadedSite(
 			ordinary.Object,
 			RoomLayer.GroundLevel,
 			1.0,
 			12L));
-		Assert.ThrowsException<InvalidDataException>(() => LocalProjectSpatialRules.ValidateLoadedSite(
+		Assert.ThrowsExactly<InvalidDataException>(() => LocalProjectSpatialRules.ValidateLoadedSite(
 			routeRoom.Object,
 			RoomLayer.GroundLevel,
 			null,
 			13L));
-		Assert.ThrowsException<InvalidDataException>(() => LocalProjectSpatialRules.ValidateLoadedSite(
+		Assert.ThrowsExactly<InvalidDataException>(() => LocalProjectSpatialRules.ValidateLoadedSite(
 			routeRoom.Object,
 			RoomLayer.GroundLevel,
 			10_000.001,

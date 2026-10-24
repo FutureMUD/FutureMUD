@@ -2722,7 +2722,7 @@ public partial class UnifiedEmploymentDispatchTests
 		var manager = Character(2, "Manager").Object;
 
 		host.Hire(clerk, Offer(currency.Object, EmploymentRole.Employee), null);
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			host.Employment.CreateJobOpening(Opening(currency.Object), clerk));
 
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
@@ -2738,7 +2738,7 @@ public partial class UnifiedEmploymentDispatchTests
 			])),
 			1,
 			TimeSpan.FromMinutes(10));
-		Assert.ThrowsException<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(goal, manager));
+		Assert.ThrowsExactly<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(goal, manager));
 	}
 
 	[TestMethod]
@@ -2926,7 +2926,7 @@ public partial class UnifiedEmploymentDispatchTests
 				new MoneyAmount(currency.Object, 10.0M),
 				PaymentSource.HostCash);
 
-			var contractException = Assert.ThrowsException<InvalidOperationException>(() => state.Hire(employee, new EmploymentOffer(
+			var contractException = Assert.ThrowsExactly<InvalidOperationException>(() => state.Hire(employee, new EmploymentOffer(
 				EmploymentRole.Employee,
 				compensation,
 				WorkSchedule.AnyTime,
@@ -2935,7 +2935,7 @@ public partial class UnifiedEmploymentDispatchTests
 				EmploymentAuthoritySet.Empty), null));
 			StringAssert.Contains(contractException.Message, "explicit earning records");
 
-			var openingException = Assert.ThrowsException<InvalidOperationException>(() => state.CreateJobOpening(
+			var openingException = Assert.ThrowsExactly<InvalidOperationException>(() => state.CreateJobOpening(
 				new JobOpeningDefinition(
 					EmploymentRole.Employee,
 					JobRequirementSet.None,
@@ -3907,7 +3907,7 @@ public partial class UnifiedEmploymentDispatchTests
 			fullManager);
 		var plan = new EmploymentActionPlan([new BoardPostActionStep("Expression", "Expression task spawned.")]);
 
-		var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+		var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			host.TaskBoard.CreateScheduledRule("expression restock", "expression-restock",
 				[],
 				EmploymentConditionExpression.Predicate("wrapper"),
@@ -5484,7 +5484,7 @@ public partial class UnifiedEmploymentDispatchTests
 		var destination = Room(50, "shopfront").Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.AssignTasks), null);
 
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 			host.TaskBoard.CreateActiveTask("move stock",
 				new EmploymentActionPlan([new DeliverItemsActionStep(destination)]),
 				manager));
@@ -5693,7 +5693,7 @@ public partial class UnifiedEmploymentDispatchTests
 			1,
 			TimeSpan.Zero);
 
-		Assert.ThrowsException<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(definition, limited));
+		Assert.ThrowsExactly<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(definition, limited));
 		host.ManagerGoalBoard.CreateGoal(definition, manager);
 		var tasks = host.ManagerGoalBoard.EvaluateGoals(new EmploymentTaskContext(host), DateTimeOffset.UtcNow);
 
@@ -5759,7 +5759,7 @@ public partial class UnifiedEmploymentDispatchTests
 			1,
 			TimeSpan.Zero);
 
-		Assert.ThrowsException<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(definition, limited));
+		Assert.ThrowsExactly<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(definition, limited));
 	}
 
 	[TestMethod]
@@ -5781,7 +5781,7 @@ public partial class UnifiedEmploymentDispatchTests
 			TimeSpan.Zero,
 			new ManagerGoalPolicy([new MoneyAmount(currency.Object, 10.0M)]));
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			host.ManagerGoalBoard.CreateGoal(definition, manager));
 
 		StringAssert.Contains(exception.Message, "budget");
@@ -5808,7 +5808,7 @@ public partial class UnifiedEmploymentDispatchTests
 			TimeSpan.Zero,
 			new ManagerGoalPolicy(null, new ManagerGoalRiskLimits(MaximumActionSteps: 1)));
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			host.ManagerGoalBoard.CreateGoal(definition, manager));
 
 		StringAssert.Contains(exception.Message, "risk limit");
@@ -5940,7 +5940,7 @@ public partial class UnifiedEmploymentDispatchTests
 			1,
 			TimeSpan.Zero);
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			host.ManagerGoalBoard.CreateGoal(definition, manager));
 
 		StringAssert.Contains(exception.Message, "does not exist");
@@ -6580,7 +6580,7 @@ public partial class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(firstApplication.Id, reloadedContract.OriginApplicationId);
 			Assert.AreEqual(1, reloadedOpening.OccupiedPositions);
 			Assert.IsFalse(reloadedOpening.AcceptsApplications);
-			var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+			var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
 				reloaded.AcceptApplication(reloadedSecondApplication, manager));
 			StringAssert.Contains(ex.Message, "capacity");
 		}
@@ -6631,7 +6631,7 @@ public partial class UnifiedEmploymentDispatchTests
 			Assert.IsNotNull(profile);
 			Assert.AreEqual(40.0, profile!.Skills["haggling"]);
 			Assert.IsTrue(profile.AcceptedPaymentMethods.Contains(PaymentMethodKind.Cash));
-			var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+			var ex = Assert.ThrowsExactly<InvalidOperationException>(() =>
 				reloaded.AcceptApplication(reloadedApplication, manager));
 			StringAssert.Contains(ex.Message, "terms have changed");
 		}

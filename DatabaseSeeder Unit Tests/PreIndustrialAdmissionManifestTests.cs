@@ -37,7 +37,7 @@ public class PreIndustrialAdmissionManifestTests
 		"preindustrial_trade_cotton_bale"
 	];
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Medieval")]
 	[DataRow("Renaissance")]
 	[DataRow("Early Modern")]

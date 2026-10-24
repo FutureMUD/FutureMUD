@@ -8,7 +8,14 @@
 		<ProjectReference Include="$(MigrationCompilerProject)" ReferenceOutputAssembly="false" Private="false" PrivateAssets="all"
 			GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained;PublishSelfContained;PublishSingleFile;IncludeNativeLibrariesForSelfExtract;PublishTrimmed;DebugType" />
 	</ItemGroup>
-	<Target Name="GenerateMigrationModels" BeforeTargets="CoreCompile" DependsOnTargets="ResolveProjectReferences">
+	<!-- IDE design-time builds resolve reference paths without building their projects.
+	     The generator must still be executable on the first load after restore. -->
+	<Target Name="BuildMigrationCompilerForDesignTime" Condition="'$(DesignTimeBuild)' == 'true'">
+		<MSBuild Projects="$(MigrationCompilerProject)" Targets="Build" BuildInParallel="false"
+			Properties="Configuration=$(Configuration);DesignTimeBuild=false;BuildingInsideVisualStudio=false;BuildProjectReferences=true;SkipCompilerExecution=false;ProvideCommandLineArgs=false"
+			RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained;PublishSelfContained;PublishSingleFile;IncludeNativeLibrariesForSelfExtract;PublishTrimmed;DebugType" />
+	</Target>
+	<Target Name="GenerateMigrationModels" BeforeTargets="CoreCompile" DependsOnTargets="ResolveProjectReferences;BuildMigrationCompilerForDesignTime">
 		<PropertyGroup>
 			<MigrationGeneratedDirectory>$([System.IO.Path]::GetFullPath('$(IntermediateOutputPath)migration-models'))</MigrationGeneratedDirectory>
 		</PropertyGroup>

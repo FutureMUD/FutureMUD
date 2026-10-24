@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class RoomLookupExtensionsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null, null), DataRow("", null), DataRow("  \t", null), DataRow("  Mirandola:Gate  ", "Mirandola:Gate")]
 	public void Normalisation_TrimsOnlyEdges(string? input, string? expected) =>
 		Assert.AreEqual(expected, RoomLookupExtensions.NormaliseUniqueName(input));
@@ -36,7 +36,7 @@ public class RoomLookupExtensionsTests
 		Assert.IsNull(rooms.FindByUniqueName(" "));
 		Assert.IsNull(rooms.GetUniqueNameConflict("mirandola:gate", 1));
 		Assert.AreSame(a, rooms.GetUniqueNameConflict("mirandola:gate", 2));
-		Assert.ThrowsException<InvalidOperationException>(() => new[] { a, Room(4, "mirandola:gate") }.FindByUniqueName("Mirandola:Gate"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new[] { a, Room(4, "mirandola:gate") }.FindByUniqueName("Mirandola:Gate"));
 	}
 
 	[TestMethod]

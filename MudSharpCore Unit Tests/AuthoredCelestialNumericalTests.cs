@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AuthoredCelestialNumericalTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("R1")][DataRow("R2")][DataRow("R3")][DataRow("S1")][DataRow("S2")][DataRow("S3")]
 	[DataRow("H1")][DataRow("H2")][DataRow("H3")][DataRow("M1")][DataRow("M2")][DataRow("M3")][DataRow("C1")][DataRow("A1")]
 	public void SuppliedFixture_ProductionCompilation_MatchesIndependentExpectedValues(string id)

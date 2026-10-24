@@ -75,7 +75,7 @@ public class PowerToolComponentTests
 		Assert.IsFalse(component.CanDrawdownSpike(19.0, TimeSpan.FromSeconds(1)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(typeof(PowerSupplyGameItemComponent), "_connectedPowerSource")]
 	[DataRow(typeof(PowerSocketGameItemComponent), "_connectedPowerSource")]
 	[DataRow(typeof(ElectricGridFeederGameItemComponent), "_connectedPowerSource")]
@@ -102,7 +102,7 @@ public class PowerToolComponentTests
 		source.Verify(x => x.DrawdownSpike(It.IsAny<double>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("socket")]
 	[DataRow("implant")]
 	[DataRow("answering machine")]

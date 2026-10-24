@@ -232,7 +232,7 @@ def main() -> int:
 
         if not resume_root:
             identity()
-            connection = f"server=127.0.0.1;port={instance['port']};database=authored_celestial_smoke;uid=root;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=600;"
+            connection = f"server=127.0.0.1;port={instance['port']};database=authored_celestial_smoke;uid=root;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=600;"
             source = (repo / 'DatabaseSeeder/DebugSeederReplay.cs').read_text(encoding='utf-8-sig')
             password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', source).group(1)
             env = os.environ.copy()

@@ -19,7 +19,7 @@ public class AuthoredCelestialValidationTests
 	{
 		var definition = AuthoredCelestialNumericalTests.Basic();
 		definition.Description = new string('a', 16 * 1024 * 1024);
-		Assert.ThrowsException<ArgumentException>(() => new CompiledAuthoredCelestial(definition, 60, 60, 24));
+		Assert.ThrowsExactly<ArgumentException>(() => new CompiledAuthoredCelestial(definition, 60, 60, 24));
 		var compiled = new CompiledAuthoredCelestial(definition, 60, 60, 24, new(SourceBytes: 17 * 1024 * 1024));
 		Assert.AreEqual(definition.Description.Length, compiled.CopyDefinition().Description.Length);
 	}
@@ -54,7 +54,7 @@ public class AuthoredCelestialValidationTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(InvalidDefinitions), DynamicDataSourceType.Method)]
 	public void InvalidSources_AreRejectedWithoutActivation(string category, AuthoredCelestialDefinition definition)
 	{
@@ -70,7 +70,7 @@ public class AuthoredCelestialValidationTests
 		{
 			var d = AuthoredCelestialPresets.Create("ScriptedMoon", 1, 60, 24);
 			edit(d);
-			Assert.ThrowsException<ArgumentException>(() => new CompiledAuthoredCelestial(d, 60, 60, 24));
+			Assert.ThrowsExactly<ArgumentException>(() => new CompiledAuthoredCelestial(d, 60, 60, 24));
 		}
 		Reject(d => d.Path.Keys.Add(new(0, 0, 0)));
 		Reject(d => d.Path.Keys[^1] = new(1440, 0, 80));
@@ -85,18 +85,18 @@ public class AuthoredCelestialValidationTests
 		Reject(d => { d.Phase!.CrescentSunId = 99; d.Phase.CrescentMilestones.Add("custom:missing"); });
 		Reject(d => { d.LightProfile.Clear(); d.LightTrack = new() { Period = 10, Keys = [new(0, 1), new(10, 2)] }; });
 		var rail = AuthoredCelestialNumericalTests.Basic(); rail.Path.Mode = AuthoredPathMode.ThreePointRail; rail.Path.SetBearing = rail.Path.RiseBearing;
-		Assert.ThrowsException<ArgumentException>(() => new CompiledAuthoredCelestial(rail, 60, 60, 24));
-		Assert.ThrowsException<ArgumentException>(() => new CompiledAuthoredCelestial(AuthoredCelestialNumericalTests.Basic(), 0, 60, 24));
+		Assert.ThrowsExactly<ArgumentException>(() => new CompiledAuthoredCelestial(rail, 60, 60, 24));
+		Assert.ThrowsExactly<ArgumentException>(() => new CompiledAuthoredCelestial(AuthoredCelestialNumericalTests.Basic(), 0, 60, 24));
 	}
 
 	[TestMethod]
 	public void ResourceAndImportGuards_RejectBeforeExpansion_AndBoundOverflow()
 	{
 		var d = AuthoredCelestialNumericalTests.Basic();
-		Assert.ThrowsException<ArgumentException>(() => new CompiledAuthoredCelestial(d, 60, 60, 24, new(SourceBytes: 100)));
-		Assert.ThrowsException<ArgumentException>(() => new CompiledAuthoredCelestial(d, 60, 60, 24, new(Entries: 1)));
-		Assert.ThrowsException<JsonException>(() => AuthoredCelestialFormat.Parse("<!DOCTYPE x [<!ENTITY e SYSTEM 'file:///missing'>]><x>&e;</x>"));
-		Assert.ThrowsException<JsonException>(() => AuthoredCelestialFormat.Parse("{\"NotAField\":1}"));
+		Assert.ThrowsExactly<ArgumentException>(() => new CompiledAuthoredCelestial(d, 60, 60, 24, new(SourceBytes: 100)));
+		Assert.ThrowsExactly<ArgumentException>(() => new CompiledAuthoredCelestial(d, 60, 60, 24, new(Entries: 1)));
+		Assert.ThrowsExactly<JsonException>(() => AuthoredCelestialFormat.Parse("<!DOCTYPE x [<!ENTITY e SYSTEM 'file:///missing'>]><x>&e;</x>"));
+		Assert.ThrowsExactly<JsonException>(() => AuthoredCelestialFormat.Parse("{\"NotAField\":1}"));
 		var c = new CompiledAuthoredCelestial(d, 60, 60, 24);
 		Assert.AreEqual(CelestialEventStatus.OutOfRange, c.FindNext(new(MudInstant.CurrentEpoch, 0, 1, 1), new(AstronomicalEventType.Sunrise, long.MaxValue)).Status);
 		Assert.AreEqual(CelestialEventStatus.Found, c.FindNext(new(MudInstant.CurrentEpoch, 0, 1, 1), new(AstronomicalEventType.Sunrise, 1000000)).Status);

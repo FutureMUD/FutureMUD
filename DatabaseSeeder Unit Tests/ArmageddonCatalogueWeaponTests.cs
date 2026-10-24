@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonCatalogueWeaponTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]

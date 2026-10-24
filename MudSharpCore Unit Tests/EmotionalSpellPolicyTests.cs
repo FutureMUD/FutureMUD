@@ -26,7 +26,7 @@ public class EmotionalSpellPolicyTests
 	private static EmotionalRetainedState State(int grade, SpellPower power = SpellPower.Standard,
 		double intensity = 6, double endurance = 1) => new(grade, power, intensity, endurance);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 7, 0, 6, false)]
 	[DataRow(7, 7, 0, 0, true)]
 	[DataRow(7, 1, 6, 0, true)]
@@ -47,7 +47,7 @@ public class EmotionalSpellPolicyTests
 		Assert.AreEqual(7, result.RemainingIncomingGrade); Assert.IsFalse(result.ChangesOpposing);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 1, 1)]
 	[DataRow(2, 2, 2)]
 	[DataRow(3, 3, 4)]
@@ -65,10 +65,10 @@ public class EmotionalSpellPolicyTests
 	public void EnduranceRoll_EarthPlane_AddsResidualGradeAfterRandomDraw()
 	{
 		Assert.AreEqual(31, EmotionalSpellPolicy.RollEndurance(7, new(4, 1, 1), (_, to) => to));
-		Assert.ThrowsException<InvalidOperationException>(() => EmotionalSpellPolicy.RollEndurance(7, Ordinary, (_, _) => 25));
+		Assert.ThrowsExactly<InvalidOperationException>(() => EmotionalSpellPolicy.RollEndurance(7, Ordinary, (_, _) => 25));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(2, 1, 7, 14)]
 	[DataRow(5, 2, 7, 17)]
 	[DataRow(7, 2, 7, 24)]
@@ -99,7 +99,7 @@ public class EmotionalSpellPolicyTests
 		Assert.AreSame(previous, result.State); Assert.AreEqual(TimeSpan.FromSeconds(4 * 600), result.Duration);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury, 36)]
 	[DataRow(EmotionalSpellKind.Calm, 24)]
 	public void LifetimeRecast_ClampsDistinctSourceCaps(EmotionalSpellKind kind, int cap)
@@ -110,7 +110,7 @@ public class EmotionalSpellPolicyTests
 		Assert.AreEqual(TimeSpan.FromSeconds(cap * 600), result.Duration);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 3)]
 	[DataRow(599, 3)]
 	[DataRow(600, 3)]
@@ -125,12 +125,12 @@ public class EmotionalSpellPolicyTests
 	[TestMethod]
 	public void Lifetime_InvalidOrConflictingMetadata_RefusesInsteadOfGuessing()
 	{
-		Assert.ThrowsException<ArgumentException>(() => EmotionalSpellPolicy.ResolveLifetime(
+		Assert.ThrowsExactly<ArgumentException>(() => EmotionalSpellPolicy.ResolveLifetime(
 			EmotionalSpellKind.Calm, 1, Ordinary, 600, 24, State(1), TimeSpan.Zero, State(1)));
-		Assert.ThrowsException<ArgumentException>(() => EmotionalSpellPolicy.ResolveLifetime(
+		Assert.ThrowsExactly<ArgumentException>(() => EmotionalSpellPolicy.ResolveLifetime(
 			EmotionalSpellKind.Calm, 1, Ordinary, 600, 24, State(1), TimeSpan.FromSeconds(600), State(1, SpellPower.Weak)));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => EmotionalSpellPolicy.Counter(0, null));
-		Assert.ThrowsException<ArgumentException>(() => new EmotionalTerrainRule(1, 0, 0).DurationUnits(1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => EmotionalSpellPolicy.Counter(0, null));
+		Assert.ThrowsExactly<ArgumentException>(() => new EmotionalTerrainRule(1, 0, 0).DurationUnits(1));
 	}
 
 	[TestMethod]
@@ -163,7 +163,7 @@ public class EmotionalSpellPolicyTests
 		var expected = xml.Element("Effect")!.ToString();
 		var loaded = (SpellSourceCalmEffect)Effect.LoadEffect(xml, f.Actor.Object);
 		Assert.IsNotNull(loaded.DefinitionError); Assert.AreEqual(expected, loaded.SaveToXml(new()).Element("Effect")!.ToString());
-		Assert.ThrowsException<ArgumentException>(() => loaded.ReduceSourceGrade(1));
+		Assert.ThrowsExactly<ArgumentException>(() => loaded.ReduceSourceGrade(1));
 	}
 
 	[TestMethod]
@@ -188,7 +188,7 @@ public class EmotionalSpellPolicyTests
 		var f = new MagicCastingFixture(); var trait = new Mock<ITraitDefinition>();
 		trait.SetupGet(x => x.TraitType).Returns(TraitType.Attribute);
 		var parent = new MagicSpellParent(f.Actor.Object, f.Spell, f.Actor.Object);
-		Assert.ThrowsException<ArgumentException>(() => new SpellSourceFuryEffect(f.Actor.Object, parent,
+		Assert.ThrowsExactly<ArgumentException>(() => new SpellSourceFuryEffect(f.Actor.Object, parent,
 			"test.emotion", 600, 36, State(7, endurance: 24), trait.Object, double.MaxValue));
 	}
 
@@ -196,7 +196,7 @@ public class EmotionalSpellPolicyTests
 	public void EmotionalChild_InvalidGroup_UsesExistingLifetimeDescriptorValidation()
 	{
 		var f = new MagicCastingFixture(); var parent = new MagicSpellParent(f.Actor.Object, f.Spell, f.Actor.Object);
-		Assert.ThrowsException<ArgumentException>(() => new SpellSourceCalmEffect(f.Actor.Object, parent,
+		Assert.ThrowsExactly<ArgumentException>(() => new SpellSourceCalmEffect(f.Actor.Object, parent,
 			"invalid group", 600, 24, State(1, endurance: 0)));
 	}
 }

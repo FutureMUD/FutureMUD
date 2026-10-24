@@ -137,7 +137,7 @@ public class VancianIntegrationTests
 		Assert.AreEqual("Completed", f.Store.Operation(operation)!.Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ScrollGroupWithFirstTargetResistedOrWardedStillAffectsLaterTargetsAndConsumesOnce(bool warded)
@@ -291,7 +291,7 @@ public class VancianIntegrationTests
 		f.World.Verify(x => x.GetCheck(It.IsAny<CheckType>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void EffectFailureAfterCommitLeavesDiagnosticAndNeverReplaysFiniteOrScrollCasting(bool scrollCast)

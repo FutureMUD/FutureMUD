@@ -36,7 +36,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(0, db.VariableValues.Count());
 		Assert.IsFalse(db.MagicCapabilities.AsEnumerable().Any(x => x.Definition.Contains("<Gathering")));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1.0)] [DataRow(100.0)]
 	public void SourceGathering_ScarIsOneTotalPerAction_ConversionConsumesOneLifeUnit(double amount)
 	{
@@ -53,7 +53,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(1.0, amount * ratio.ExecuteDouble(null!, null!, null!, "land", amount, null!, "pasture"), 0.0000001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("register_type")] [DataRow("register_claim")] [DataRow("default")]
 	[DataRow("policy_signature")] [DataRow("policy_body")] [DataRow("gate")]
 	public void SourceGathering_InvalidRetainedContractsBlockBeforeWrites(string corruption)

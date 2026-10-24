@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CastingTargetFilterTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("character", "compile")][DataRow("item", "compile")]
 	[DataRow("character", "missing")][DataRow("item", "missing")]
 	[DataRow("character", "null")][DataRow("item", "null")]
@@ -47,7 +47,7 @@ public class CastingTargetFilterTests
 		var saved=f.Spell.Trigger.SaveToXml();Assert.AreEqual(72L,(long)saved.Element("TargetFilterProg")!);
 		Assert.AreEqual(72L,(long)f.Spell.Trigger.Clone().SaveToXml().Element("TargetFilterProg")!);
 	}
-	[DataTestMethod][DataRow("character",0L)][DataRow("item",0L)][DataRow("character",72L)][DataRow("item",72L)]
+	[TestMethod][DataRow("character",0L)][DataRow("item",0L)][DataRow("character",72L)][DataRow("item",72L)]
 	public void AbsentOrHealthyPolicies_PreserveNativeAndDeviceTargetResolution(string type,long id)
 	{
 		var f=new MagicCastingFixture();var prog=Policy(72,"healthy");

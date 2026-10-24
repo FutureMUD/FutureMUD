@@ -53,7 +53,7 @@ public sealed class DocumentationCatalogueExporterTests
 	public async Task FileExportRequiresACompleteCommitSha()
 	{
 		var path = Path.Combine(Path.GetTempPath(), $"futuremud-documentation-{Guid.NewGuid():N}.json");
-		await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+		await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
 			DocumentationCatalogueExporter.ExportAsync(path, "development"));
 		Assert.IsFalse(File.Exists(path));
 	}

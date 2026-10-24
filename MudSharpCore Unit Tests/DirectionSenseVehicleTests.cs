@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DirectionSenseVehicleTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Outcome.Pass, Outcome.Fail, CardinalDirection.North, 0)]
 	[DataRow(Outcome.Fail, Outcome.Pass, CardinalDirection.Unknown, 1)]
 	[DataRow(Outcome.Fail, Outcome.Fail, CardinalDirection.East, 1)]
@@ -61,7 +61,7 @@ public class DirectionSenseVehicleTests
 		f.Vehicle.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void ManualDrive_HiddenOrFallAlternative_MakesNoProgressWithoutResourceCommit(bool falling)

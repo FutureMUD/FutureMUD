@@ -32,7 +32,7 @@ public class WaterBreathingStockTests
 		Assert.IsTrue(prog.Compile(), "Normal stock construction requires its compiled Standing filter: " + prog.CompileError);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L, false), DataRow(1L, true), DataRow(2L, false), DataRow(3L, false), DataRow(4L, false),
 	 DataRow(5L, false), DataRow(6L, false), DataRow(7L, false), DataRow(8L, false), DataRow(9L, true),
 	 DataRow(10L, true), DataRow(11L, true), DataRow(12L, false), DataRow(13L, true), DataRow(14L, true),
@@ -112,7 +112,7 @@ public class WaterBreathingStockTests
 		Assert.AreEqual(51L, (long)reload.SpellEffects.Single().SaveToXml().Element("WaterScope")!.Elements().Single().Attribute("id")!);
 	}
 
-	[DataTestMethod, DataRow("empty"), DataRow("duplicate"), DataRow("unavailable"), DataRow("replacement")]
+	[TestMethod, DataRow("empty"), DataRow("duplicate"), DataRow("unavailable"), DataRow("replacement")]
 	public void StockConstruction_InvalidExplicitMappingsRefuseBeforeDatabaseWrites(string scenario)
 	{
 		var f = new MagicCastingFixture();
@@ -123,7 +123,7 @@ public class WaterBreathingStockTests
 			"empty" => [], "duplicate" => [water, water], "unavailable" => [Mock.Of<ILiquid>(x => x.Id == 52)],
 			_ => [Mock.Of<ILiquid>(x => x.Id == 51)]
 		};
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonWaterBreathingStock.Create(f.World.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonWaterBreathingStock.Create(f.World.Object,
 			f.School, f.Traits[0], f.Resources[0], selected));
 		Assert.AreEqual(1, f.Spells.Count);
 		Assert.AreEqual(0, f.Store.Writes);

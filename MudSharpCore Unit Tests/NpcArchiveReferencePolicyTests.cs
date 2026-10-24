@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NpcArchiveReferencePolicyTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Effects />", true)]
 	[DataRow(" ", true)]
 	[DataRow("<Effects><Effect /></Effects>", false)]
@@ -21,13 +21,13 @@ public class NpcArchiveReferencePolicyTests
 	public void Effects_OnlyProvenEmptyContainer_PermitsCompaction(string value, bool expected) =>
 		Assert.AreEqual(expected, NpcArchiveReferencePolicy.IsEmptyEffects(value));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void CharacterConstructor_ArchivedOrMissingBody_RefusesBeforeWorldCalls(bool archived)
 	{
 		var world = new Mock<IFuturemud>(MockBehavior.Strict);
-		Assert.ThrowsException<System.InvalidOperationException>(() => new MudSharp.Character.Character(new Db.Character
+		Assert.ThrowsExactly<System.InvalidOperationException>(() => new MudSharp.Character.Character(new Db.Character
 		{
 			Id = 107, IsArchived = archived, BodyId = archived ? 209 : null
 		}, world.Object));

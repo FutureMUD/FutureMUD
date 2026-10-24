@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CorpseRestorationSpatialTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]

@@ -44,7 +44,7 @@ public partial class BackstabAttackTests
 		return blind;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
 	public void PhysicalMeleeResolution_AssessesEachParticipantsCurrentSight(bool natural, bool attackerUnseen)
@@ -105,7 +105,7 @@ public partial class BackstabAttackTests
 		Assert.IsFalse(ordinary.Invocations.Any(x => x.Method.Name == nameof(ICheck.CheckAgainstAllDifficulties)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("ward")]
 	[DataRow("grapple")]
 	public void InitialContactAndWardContests_UseTheSameSightConstraints(string contest)

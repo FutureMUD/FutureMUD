@@ -15,7 +15,7 @@ public class WaterBreathingSourceSelectionTests
 {
 	private static readonly MagicSpellLifetimePolicy Policy = new("test.water.source", 600, 36);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0, 3, 1, 3)]
 	[DataRow(2, 1, 6, 1, 6)]
 	[DataRow(3, 1, 9, 1, 9)]
@@ -64,13 +64,13 @@ public class WaterBreathingSourceSelectionTests
 		foreach (var property in typeof(WaterBreathingDurationSelection).GetProperties()) Assert.IsFalse(property.CanWrite);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(8)]
 	public void Selection_InvalidGrade_RefusesWithoutDrawing(int grade)
 	{
 		var calls = 0;
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => WaterBreathingDurationSelection.Select(grade,
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => WaterBreathingDurationSelection.Select(grade,
 			SpellPower.Standard, Policy, (_, _) => { calls++; return 1; }));
 		Assert.AreEqual(0, calls);
 	}
@@ -79,20 +79,20 @@ public class WaterBreathingSourceSelectionTests
 	public void Selection_InvalidPowerOrPolicy_RefusesWithoutDrawing()
 	{
 		var calls = 0; int Sample(int _, int __) { calls++; return 1; }
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => WaterBreathingDurationSelection.Select(1, (SpellPower)999, Policy, Sample));
-		Assert.ThrowsException<ArgumentException>(() => WaterBreathingDurationSelection.Select(1, SpellPower.Standard, Policy with { Group = "invalid group" }, Sample));
-		Assert.ThrowsException<ArgumentException>(() => WaterBreathingDurationSelection.Select(1, SpellPower.Standard, Policy with { UnitSeconds = 0 }, Sample));
-		Assert.ThrowsException<ArgumentException>(() => WaterBreathingDurationSelection.Select(1, SpellPower.Standard, Policy with { MaximumUnits = 0 }, Sample));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => WaterBreathingDurationSelection.Select(1, (SpellPower)999, Policy, Sample));
+		Assert.ThrowsExactly<ArgumentException>(() => WaterBreathingDurationSelection.Select(1, SpellPower.Standard, Policy with { Group = "invalid group" }, Sample));
+		Assert.ThrowsExactly<ArgumentException>(() => WaterBreathingDurationSelection.Select(1, SpellPower.Standard, Policy with { UnitSeconds = 0 }, Sample));
+		Assert.ThrowsExactly<ArgumentException>(() => WaterBreathingDurationSelection.Select(1, SpellPower.Standard, Policy with { MaximumUnits = 0 }, Sample));
 		Assert.AreEqual(0, calls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, -1)]
 	[DataRow(1, 4)]
 	[DataRow(7, 2)]
 	[DataRow(7, 22)]
 	public void Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues(int grade, int draw)
-		=> Assert.ThrowsException<InvalidOperationException>(() => WaterBreathingDurationSelection.Select(grade, SpellPower.Standard, Policy, (_, _) => draw));
+		=> Assert.ThrowsExactly<InvalidOperationException>(() => WaterBreathingDurationSelection.Select(grade, SpellPower.Standard, Policy, (_, _) => draw));
 
 	[TestMethod]
 	public void FluidScope_OnlyExplicitWaterReferences_AreGrantedWithoutGasOrAliasFallback()
@@ -114,7 +114,7 @@ public class WaterBreathingSourceSelectionTests
 		var scope = new WaterBreathingFluidScope(configured); configured[0] = acid.Object;
 		Assert.IsTrue(scope.Allows(water.Object)); Assert.IsFalse(scope.Allows(acid.Object)); Assert.IsFalse(scope.Allows(replacement.Object));
 		Assert.IsTrue(scope.MatchesConfiguredLiquids([water.Object])); Assert.IsFalse(scope.MatchesConfiguredLiquids([replacement.Object]));
-		Assert.ThrowsException<NotSupportedException>(() => ((IList<long>)scope.LiquidIds)[0] = 3);
+		Assert.ThrowsExactly<NotSupportedException>(() => ((IList<long>)scope.LiquidIds)[0] = 3);
 		water.SetupGet(x => x.Id).Returns(99);
 		Assert.IsFalse(scope.Allows(water.Object)); Assert.IsFalse(scope.MatchesConfiguredLiquids([water.Object])); Assert.AreEqual(1L, scope.LiquidIds[0]);
 	}
@@ -122,10 +122,10 @@ public class WaterBreathingSourceSelectionTests
 	[TestMethod]
 	public void FluidScope_EmptyUnresolvedOrDuplicateIds_Refuses()
 	{
-		Assert.ThrowsException<ArgumentException>(() => new WaterBreathingFluidScope([]));
-		Assert.ThrowsException<ArgumentException>(() => new WaterBreathingFluidScope([null!]));
-		Assert.ThrowsException<ArgumentException>(() => new WaterBreathingFluidScope([Liquid(0).Object]));
-		Assert.ThrowsException<ArgumentException>(() => new WaterBreathingFluidScope([Liquid(1).Object, Liquid(1).Object]));
+		Assert.ThrowsExactly<ArgumentException>(() => new WaterBreathingFluidScope([]));
+		Assert.ThrowsExactly<ArgumentException>(() => new WaterBreathingFluidScope([null!]));
+		Assert.ThrowsExactly<ArgumentException>(() => new WaterBreathingFluidScope([Liquid(0).Object]));
+		Assert.ThrowsExactly<ArgumentException>(() => new WaterBreathingFluidScope([Liquid(1).Object, Liquid(1).Object]));
 	}
 
 	private static Mock<ILiquid> Liquid(long id)

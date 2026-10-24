@@ -19,7 +19,7 @@ public class CultureToolkitBindingPreflightTests
 	{
 		var catalogue = new CultureToolkitCatalogue();
 		var row = CultureToolkitNativeBindings.ExactSource(catalogue, "antiquity", "earthantiquity", "Achaean")!.Value;
-		var duplicate = Assert.ThrowsException<InvalidOperationException>(() =>
+		var duplicate = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			CultureToolkitNativeBindings.ExactSource([row, row], "antiquity", "earthantiquity", "Achaean"));
 		StringAssert.Contains(duplicate.Message, "earthantiquity:Achaean:antiquity");
 		var invalid = CultureToolkitNativeBindings.Resolve("source.earthantiquity.ethnicity.Achaean", null, "fixture", ["greeek"], new Dictionary<string, Language>());
@@ -30,7 +30,7 @@ public class CultureToolkitBindingPreflightTests
 		Assert.AreEqual(0, unrelated.LanguageIds.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SourceAccentContextDistinguishesAStoredRenameFromUnrelatedSameLabelLanguage(bool unrelated)

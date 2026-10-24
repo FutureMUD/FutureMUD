@@ -37,7 +37,7 @@ public class BlindFightingTests
 	public void RestoreBonusScale() => typeof(StandardCheck)
 		.GetField("_bonusesPerDifficultyLevel", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, _originalBonusScale);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("single")]
 	[DataRow("all")]
 	[DataRow("multi")]
@@ -88,7 +88,7 @@ public class BlindFightingTests
 			It.IsAny<TraitUseType>(), It.IsAny<IEnumerable<Tuple<string, double>>>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null)]
 	[DataRow("false")]
 	[DataRow("invalid")]
@@ -203,7 +203,7 @@ public class BlindFightingTests
 			TraitUseType.Practical, It.IsAny<IEnumerable<Tuple<string, double>>>()), Times.Exactly(2));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(70.0, 40.0)]
 	[DataRow(120.0, 70.0)]
 	public void Check_ConstantHundred_SkipsAuxiliaryRollButRetainsDifficultyAndHundredCap(double ordinary, double expected)
@@ -297,7 +297,7 @@ public class BlindFightingTests
 			It.IsAny<TraitUseType>(), It.IsAny<IEnumerable<Tuple<string, double>>>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Difficulty.Normal, null)]
 	[DataRow(Difficulty.Hard, Difficulty.Easy)]
 	[DataRow(Difficulty.VeryHard, Difficulty.Normal)]
@@ -312,7 +312,7 @@ public class BlindFightingTests
 		Assert.AreEqual(expected, CombatCheck.SightDifficulty(f.Actor.Object, f.Opponent.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1.0)]
 	[DataRow(true, 0.0)]
 	public void SightDifficulty_UnseenOrBlind_UsesConfigurableUnseenDifficulty(bool canSee, double vision)
@@ -354,7 +354,7 @@ public class BlindFightingTests
 		Assert.AreEqual(Difficulty.Automatic, CombatCheck.MeritDifficulty(f.Actor.Object, f.Opponent.Object, Difficulty.Normal));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(-10, Difficulty.Hard, 30.0)]
 	[DataRow(2, Difficulty.Impossible, -10.0)]
 	public void Check_MeritStages_AppliesBeforeComparisonWithOrdinaryDifficulty(int stages, Difficulty expectedDifficulty, double expectedTarget)
@@ -369,7 +369,7 @@ public class BlindFightingTests
 		Assert.AreEqual(expectedTarget, result.TargetNumber);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(-3)]
 	[DataRow(2)]
 	public void BlindFightingMerit_SignedXmlConfiguration_LoadsStages(int stages)
@@ -429,7 +429,7 @@ public class BlindFightingTests
 		f.World.Verify(x => x.GetCheck(CheckType.BlindFightingCheck), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("standard", 10.0)]
 	[DataRow("static", 10.0)]
 	[DataRow("bonus absent", 10.0)]
@@ -476,7 +476,7 @@ public class BlindFightingTests
 			It.IsAny<TraitUseType>(), It.IsAny<IEnumerable<Tuple<string, double>>>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("preview", true, Difficulty.ExtremelyHard)]
 	[DataRow("single", true, Difficulty.ExtremelyHard)]
 	[DataRow("multi", true, Difficulty.ExtremelyHard)]
@@ -520,7 +520,7 @@ public class BlindFightingTests
 			"Innate and shared effect/merit bonuses already lower the ordinary OGL DC. Only blind-exclusive bonuses may also stage its floor.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void TimeboundCheck_BlindFightingContext_BypassesExistingCacheAndDoesNotPopulateCache(bool useTool)

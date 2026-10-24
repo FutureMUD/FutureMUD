@@ -49,14 +49,14 @@ public class TerrainImmersionTests
 		Assert.AreEqual(shallows.Immersion, f.Load(shallows.TerrainBehaviourString).Immersion);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("veryshallowwater 999 Small")]
 	[DataRow("veryshallowwater 42 invalidsize")]
 	[DataRow("silt 99")]
 	[DataRow("silt Small nonsense")]
 	public void MalformedPersistedModels_RefuseInsteadOfSilentlyBecomingDryGround(string model)
 	{
-		Assert.ThrowsException<FormatException>(() => new Fixture().Load(model));
+		Assert.ThrowsExactly<FormatException>(() => new Fixture().Load(model));
 	}
 
 	[TestMethod]
@@ -232,7 +232,7 @@ public class TerrainImmersionTests
 		Assert.IsTrue(vehicle.Object.CanTraverseEnvironment(f.Room.Object, RoomLayer.GroundLevel, out _));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("silt Small norun", "outdoors", "wading", "stroll")]
 	[DataRow("veryshallowwater 42 Small opaque norun", "outdoors", "wading", "stroll")]
 	[DataRow("outdoors", "silt Small norun", "strolling", "wade")]

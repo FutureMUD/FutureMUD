@@ -70,7 +70,7 @@ public class SpellNpcGuardianTests
 		Assert.AreEqual("room", xml.Element("Trigger")!.Attribute("type")!.Value);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Restart_SavedSuspensionOrDurableRetirementIntent_PreventsBondReactivation(bool savedSuspension)
@@ -100,7 +100,7 @@ public class SpellNpcGuardianTests
 		lifecycle.Verify(x => x.HasPendingRetirement(guardian.Object, 17), savedSuspension ? Times.Never() : Times.Once());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Retirement_ReleasesOnlyExactOwnedFollowAndStopsEngagement(bool ownFollow)
@@ -130,7 +130,7 @@ public class SpellNpcGuardianTests
 		guardian.Verify(x => x.Engage(It.IsAny<ICharacter>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]

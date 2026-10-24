@@ -31,7 +31,7 @@ public partial class GatheringAuthoringSupportTests
 		Assert.AreEqual(ProgVariableTypes.Number, compiler.Compile(1).ReturnType);
 		definition.FunctionText = "return getregister(@actor, \"undeclared_register\")";
 		using var missing = new OfflineProgCompilation([definition], registers);
-		Assert.ThrowsException<InvalidOperationException>(() => missing.Compile(1));
+		Assert.ThrowsExactly<InvalidOperationException>(() => missing.Compile(1));
 	}
 
 	[TestMethod]

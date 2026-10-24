@@ -51,7 +51,7 @@ public class ConditionalMagicItemPersistenceTests
 			new MudSharp.Models.GameItemComponent { Id = 42, Definition = "<Definition charges=\"6\" />" }, parent);
 		Assert.AreEqual(3, component.Charges);
 		Assert.IsTrue(component.Changed);
-		Assert.ThrowsException<FormatException>(() => proto.LoadComponent(
+		Assert.ThrowsExactly<FormatException>(() => proto.LoadComponent(
 			new MudSharp.Models.GameItemComponent { Id = 43, Definition = "<Definition charges=\"-1\" />" }, parent));
 	}
 

@@ -25,7 +25,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class QueuedCommandAuthorityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid", true)]
 	[DataRow("expired", false)]
 	[DataRow("improver", false)]
@@ -74,7 +74,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsFalse(CommandExecutionScope.HasCommitted, "Learning must not mark the enclosing action committed.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]
@@ -105,7 +105,7 @@ public partial class QueuedCommandAuthorityTests
 		prog.Verify(x => x.ExecuteDouble(It.IsAny<object[]>()), revokeAfterCooldown ? Times.Once : Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(TraitUseType.Practical, false)]
 	[DataRow(TraitUseType.Theoretical, false)]
 	[DataRow(TraitUseType.Practical, true)]
@@ -124,7 +124,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(valid, skill.Changed);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("learnability")]
 	[DataRow("branch-check")]
@@ -155,7 +155,7 @@ public partial class QueuedCommandAuthorityTests
 			It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()), change == "learnability" ? Times.Never : Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NativeBranchingImprover_CappedSkillStillBranchesOnlyUnderValidAuthority(bool valid)
@@ -178,7 +178,7 @@ public partial class QueuedCommandAuthorityTests
 		f.Actor.Verify(x => x.AddTrait(branch, 10), valid ? Times.Once : Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NativeBranchCheck_RevokedMeritCannotCreateOrIncrementBranchChance(bool existing)
@@ -202,7 +202,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(1, counter.GetAttemptsForSkill(def));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("improver-direct")]
 	[DataRow("improver-independent")]
 	[DataRow("cap-direct")]
@@ -237,7 +237,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(callback == "independent-skill-use" ? 45.0 : 60.0, skill.RawValue);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("single")]
 	[DataRow("all")]
 	[DataRow("multi")]

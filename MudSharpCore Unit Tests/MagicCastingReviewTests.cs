@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCastingReviewTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(59.0)]
 	[DataRow(60.0)]
 	public void CappedSkill_ExactCapNativeBranch_RemainsAvailableWithoutImplicitSpellAcquisition(double initial)
@@ -47,7 +47,7 @@ public class MagicCastingReviewTests
 		Assert.IsNull(f.Service.Acquisition(f.Actor.Object, 3), "Native trait branching never grants spell knowledge.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CappedTheoreticalBinding_UnsupportedRawBasis_RefusesEnrolmentAndReloadWhileUncappedRemainsCompatible(bool support)

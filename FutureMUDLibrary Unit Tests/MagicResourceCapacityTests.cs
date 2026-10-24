@@ -9,7 +9,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicResourceCapacityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, true)]
 	[DataRow(42.0, true)]
 	[DataRow(-1.0, false)]

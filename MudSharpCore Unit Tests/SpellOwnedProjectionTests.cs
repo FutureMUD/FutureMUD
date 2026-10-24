@@ -70,7 +70,7 @@ public class SpellOwnedProjectionTests
 		Assert.IsFalse(SpellOwnedProjectionService.HasClaims(life with { Entities = [new(SpellOwnedEntityKind.Body, 5, SpellOwnedEntityRole.GeneratedPossession), life.Entities[1]] }));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellProjectionKind.SandEffigy, "arm.spell.sand_effigy")]
 	[DataRow(SpellProjectionKind.WalkingShadow, "arm.spell.walking_shadow")]
 	[DataRow(SpellProjectionKind.UnbodiedJourney, "arm.spell.unbodied_journey")]
@@ -122,7 +122,7 @@ public class SpellOwnedProjectionTests
 		Assert.IsNotNull(boundary.TravelError(new(rooms[1].Object, RoomLayer.GroundLevel, 1), true));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellProjectionKind.SandEffigy)]
 	[DataRow(SpellProjectionKind.WalkingShadow)]
 	[DataRow(SpellProjectionKind.UnbodiedJourney)]

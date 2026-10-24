@@ -12,6 +12,15 @@ namespace MudSharp_Unit_Tests;
 public class ExpressionEngineTests
 {
 	[TestMethod]
+	public void CustomFunctions_PreserveNestedArgumentsAndCurrentParameters()
+	{
+		var expression = new Expression("dice(count, not(0)) + rand(minimum, minimum) + drand(maximum, maximum)");
+
+		Assert.AreEqual(7.5, expression.EvaluateDoubleWith(("count", 3), ("minimum", 4), ("maximum", 0.5)));
+		Assert.AreEqual(10.5, expression.EvaluateDoubleWith(("count", 7), ("minimum", 2), ("maximum", 1.5)));
+	}
+
+	[TestMethod]
 	public void EvaluateDoubleWith_OverridesVariablesForEachEvaluation()
 	{
 		var arithmetic = new Expression("20+(str*3)");
@@ -25,7 +34,7 @@ public class ExpressionEngineTests
 		Assert.AreEqual(60.0, maximum.EvaluateDoubleWith(("str", 60.0), ("dex", 40.0)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rand(1,10)", 1.0, 10.0, true)]
 	[DataRow("dice(3,6)", 3.0, 18.0, true)]
 	[DataRow("3d6+5", 8.0, 23.0, true)]
@@ -74,7 +83,7 @@ public class ExpressionEngineTests
 		CollectionAssert.AreEqual(first, second);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("not(0)", 1.0)]
 	[DataRow("not(1)", 0.0)]
 	[DataRow("not(-3.5)", 0.0)]
@@ -84,7 +93,7 @@ public class ExpressionEngineTests
 		Assert.AreEqual(expected, new Expression(expression).EvaluateDouble());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rand(1)")]
 	[DataRow("drand(1)")]
 	[DataRow("not(1,2)")]

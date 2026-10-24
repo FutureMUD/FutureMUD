@@ -26,7 +26,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class SecurityCommandBoundaryTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1.0, true)]
 	[DataRow(1.0, false)]
 	[DataRow(0.0, false)]
@@ -75,7 +75,7 @@ public class SecurityCommandBoundaryTests
 		Assert.IsTrue(CombatForcedMovementUtilities.IsInRange(actor.Object, target.Object, ForcedMovementRange.Melee));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(TrialPhase.Introduction, false, false)]
 	[DataRow(TrialPhase.Charges, false, true)]
 	[DataRow(TrialPhase.Introduction, true, true)]

@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class StealthPlanarInventorySecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("owner")]
 	[DataRow("container")]
 	[DataRow("item")]
@@ -39,7 +39,7 @@ public class StealthPlanarInventorySecurityTests
 		Assert.AreEqual(blocked == "none", result);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("StealItemFromContainer", "owner")]
 	[DataRow("StealItemFromContainer", "container")]
 	[DataRow("StealItemFromContainer", "item")]

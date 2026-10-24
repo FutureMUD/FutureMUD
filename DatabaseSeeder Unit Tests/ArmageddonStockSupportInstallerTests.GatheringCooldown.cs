@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockSupportInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(10, 0, 599)]
 	[DataRow(10, 1, 1199)]
 	[DataRow(10, 2, 1799)]

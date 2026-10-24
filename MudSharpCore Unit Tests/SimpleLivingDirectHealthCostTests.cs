@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SimpleLivingDirectHealthCostTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DirectHealthContract_DispatchesOrganicImplementationThroughIHealthStrategy(bool complex)
@@ -40,7 +40,7 @@ public class SimpleLivingDirectHealthCostTests
 			typeof(SimpleOrganicWound));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DirectHealthPlan_UsesNativeModifiersAndUpdatesAnExistingCellularWound(bool complex)
@@ -78,7 +78,7 @@ public class SimpleLivingDirectHealthCostTests
 			"Increasing an existing cellular wound must not queue a duplicate wound record.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void DirectHealthPlan_RefusesANearCapPartBeforeMutatingAnyNativeWound(bool complex)
@@ -98,7 +98,7 @@ public class SimpleLivingDirectHealthCostTests
 		Assert.AreEqual(0.0, wound.CurrentStun, 0.000001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ConfiguredConsequence_OverwhelmsExistingStunWhilePreservingOtherChannelsAndHealthFloor(bool complex)
@@ -120,7 +120,7 @@ public class SimpleLivingDirectHealthCostTests
 		Assert.AreEqual(90, wound.CurrentDamage, 0.000001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ConfiguredConsequence_FullHealthDamageExceedsInitialPartCapWithoutDuplicatingStun(bool complex)
@@ -140,7 +140,7 @@ public class SimpleLivingDirectHealthCostTests
 		fixture.Saves.Verify(x => x.AddInitialisation((ILateInitialisingItem)wound), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ConfiguredConsequence_AttachesNewWoundsAndReusesThemOnRepeatedConsequences(bool complex)

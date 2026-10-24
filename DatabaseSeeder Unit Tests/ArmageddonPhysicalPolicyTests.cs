@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonPhysicalPolicyTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void EarlierRaceBaseline_AdoptsNewUnsetAgeDescriberButPreservesCustomReference(bool custom)
@@ -64,7 +64,7 @@ public class ArmageddonPhysicalPolicyTests
 		var id = long.Parse(XElement.Parse(screen.StageDefinition).Element("MinimumAgeProg")!.Value);
 		Assert.AreEqual((long)MudSharp.FutureProg.ProgVariableTypes.Chargen, db.FutureProgsParameters.Single(x => x.FutureProgId == id).ParameterType);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("human", 10, 20, 30, 61, 81, 80)]
 	[DataRow("city_elf", 12, 24, 35, 71, 94, 93)]
 	[DataRow("desert_elf", 12, 24, 35, 71, 94, 93)]

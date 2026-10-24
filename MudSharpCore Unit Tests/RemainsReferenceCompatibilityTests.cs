@@ -102,7 +102,7 @@ public class RemainsReferenceCompatibilityTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Load_MissingPositiveBody_PresentsAndReleasesWithoutRedirecting(bool corpse)
@@ -125,7 +125,7 @@ public class RemainsReferenceCompatibilityTests
 		f.Inventory.Verify(x => x.Delete(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Load_MissingOwner_DoesNotBindCachedBodyOrCrash(bool corpse)
@@ -139,7 +139,7 @@ public class RemainsReferenceCompatibilityTests
 		f.Inventory.Verify(x => x.Delete(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Load_NonFinalCorpseCachedCurrentOrForeignBody_RefusesAndPreservesInventory(bool foreign)
@@ -159,7 +159,7 @@ public class RemainsReferenceCompatibilityTests
 		f.Owner.Verify(x => x.TryCleanupRetiredBody(It.IsAny<IBody>(), It.IsAny<IGameItem>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void Load_ExactInactiveCachedBody_UsesReferenceWithoutChangingItsId(bool corpse)
@@ -273,7 +273,7 @@ public class RemainsReferenceCompatibilityTests
 		f.Owner.Verify(x => x.Resurrect(It.IsAny<MudSharp.Construction.IRoom>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SurgeryCommand_UnresolvedFinalCorpse_RefusesBeforeSelectingCurrentBody(bool missingOwner)

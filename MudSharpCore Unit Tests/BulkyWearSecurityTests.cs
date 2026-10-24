@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BulkyWearSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true, true, false)]
 	[DataRow(true, true, true, false)]
 	[DataRow(false, false, true, true)]
@@ -43,7 +43,7 @@ public class BulkyWearSecurityTests
 		Assert.AreEqual(WhyCannotDrapeReason.TooBulky, candidate.WhyCannotWear(body, profile));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void MissingProfileMapping_RejectsComponentAndDiagnosticWithoutException(bool bulky)

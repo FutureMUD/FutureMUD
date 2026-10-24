@@ -108,7 +108,7 @@ public class SimpleVariableProductTests
 		var product = fixture.Product(false, xml);
 		Assert.IsFalse(product.IsValid());
 		Assert.IsFalse(string.IsNullOrWhiteSpace(product.WhyNotValid()));
-		Assert.ThrowsException<ApplicationException>(() => product.ProduceProduct(fixture.Active.Object, ItemQuality.Good));
+		Assert.ThrowsExactly<ApplicationException>(() => product.ProduceProduct(fixture.Active.Object, ItemQuality.Good));
 		Assert.IsNull(fixture.Supplied);
 		fixture.Gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);
 		Assert.IsFalse(fixture.Product(false, product.Xml()).IsValid(), "Saving must not silently discard invalid configured rules.");
@@ -124,7 +124,7 @@ public class SimpleVariableProductTests
 		if (fault == "unconsumed") fixture.Consumed.Clear();
 		else fixture.Input.Setup(x => x.GetValueForVariable(fixture.Colour.Object, It.IsAny<ICraftInputData>()))
 			.Returns(fault == "missing-value" ? null! : fixture.White.Object);
-		var error = Assert.ThrowsException<ApplicationException>(() => fixture.Product().ProduceProduct(fixture.Active.Object, ItemQuality.Good));
+		var error = Assert.ThrowsExactly<ApplicationException>(() => fixture.Product().ProduceProduct(fixture.Active.Object, ItemQuality.Good));
 		StringAssert.Contains(error.Message, "$i1");
 		Assert.IsNull(fixture.Supplied);
 		fixture.Gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);

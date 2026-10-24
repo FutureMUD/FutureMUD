@@ -106,7 +106,7 @@ public class PsionicsSeederTests
 		var power = context.MagicPowers.First();
 		power.PowerModel = "custom-conflict";
 		context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(context, answers));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(context, answers));
 		Assert.AreEqual("custom-conflict", power.PowerModel);
 	}
 	[TestMethod]
@@ -163,7 +163,7 @@ public class PsionicsSeederTests
 		using var context = Context();
 		context.Races.Remove(context.Races.Single(x => x.Name == "Human"));
 		context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" }));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" }));
 		Assert.AreEqual(0, context.MagicPowers.Count());
 	}
 

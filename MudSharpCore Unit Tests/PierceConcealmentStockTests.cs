@@ -40,7 +40,7 @@ public class PierceConcealmentStockTests
 			((IMagicSpellEffectLifetimePolicy)reload.SpellEffects.Single()).LifetimePolicy);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 3000.0)]
 	[DataRow(7, 21000.0)]
 	public void SelectedGrade_BindsSourceFiveHourLifetime(int grade, double seconds)

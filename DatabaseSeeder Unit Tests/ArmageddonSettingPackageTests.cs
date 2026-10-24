@@ -48,7 +48,7 @@ public class ArmageddonSettingPackageTests
 		var cap = db.SeederManagedRecords.Single(x => x.Module == AgricultureSeeder.FarmingModule && x.EntityType == nameof(MudSharp.Models.TraitExpression));
 		cap.Retired = true;
 		db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => AgricultureSeeder.EnsureFarmingTrait(db));
+		Assert.ThrowsExactly<InvalidOperationException>(() => AgricultureSeeder.EnsureFarmingTrait(db));
 	}
 
 	[TestMethod]
@@ -192,7 +192,7 @@ public class ArmageddonSettingPackageTests
 		StringAssert.Contains(db.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)CheckType.VehicleChargeCheck).TraitExpression.Expression,
 			$":{owned["arm.skill.pilot"].Id}");
 		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, new ArmageddonSettingSeeder().ShouldSeedData(db));
-		Assert.ThrowsException<InvalidOperationException>(() => new SkillSeeder().SeedData(db, new Dictionary<string, string>()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new SkillSeeder().SeedData(db, new Dictionary<string, string>()));
 		foreach (var binding in ArmageddonSkillPackage.StaticTraitBindings)
 			Assert.AreEqual(owned[binding.Value].Id.ToString(), db.StaticConfigurations.Find(binding.Key)!.Definition);
 		foreach (var key in new[] { "VehiclePilotEnabled", "DirectionSenseEnabled", "ArmageddonHostileGuardAttemptsEnabled", "HagglingEnabled" })
@@ -244,7 +244,7 @@ public class ArmageddonSettingPackageTests
 		using var db = Fixture();
 		db.TraitDefinitions.Add(new TraitDefinition { Name = "Custom skill", Type = 0 });
 		db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => new SkillPackageSeeder().SeedData(db, Answers));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new SkillPackageSeeder().SeedData(db, Answers));
 		Assert.AreEqual(8, db.TraitDefinitions.Count());
 		Assert.AreEqual(0, db.CheckTemplates.Count());
 		Assert.AreEqual(0, db.SeederManagedRecords.Count());

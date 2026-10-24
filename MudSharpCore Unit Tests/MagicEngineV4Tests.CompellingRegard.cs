@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1)] [DataRow(false, 2)] [DataRow(false, 3)] [DataRow(false, 4)] [DataRow(false, 5)] [DataRow(false, 6)] [DataRow(false, 7)]
 	[DataRow(true, 1)] [DataRow(true, 7)]
 	public void CompellingRegard_GradesAndPcNpcBindingsExpireAtAbsoluteDeadline(bool pc, int grade)
@@ -36,7 +36,7 @@ public partial class MagicEngineV4Tests
 		f.Base.Clock.Now = f.Child.ExpiryUtc!.Value; Assert.IsFalse(f.Child.CanControl(f.Pair.F.Actor.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("pcs")] [DataRow("undead")] [DataRow("staff")] [DataRow("self")] [DataRow("duplicate")] [DataRow("changed")]
 	public void CompellingRegard_IneligibleAndChangedTargetsRefuseBeforePayment(string condition)
 	{
@@ -52,7 +52,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Base.Cast(2).Status); Assert.AreEqual(balance, f.Pair.F.Balances[f.Pair.F.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("l")] [DataRow("lo")] [DataRow("alias look")] [DataRow("quit")] [DataRow("force all look")] [DataRow("prog 1")]
 	[DataRow("north")] [DataRow("kill traveller")] [DataRow("look\nquit")]
 	public void CompellingRegard_OrdersRejectAliasesIndirectPrivilegedAndQueuedCommands(string input)

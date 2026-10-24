@@ -135,7 +135,7 @@ public partial class PhysicalImpactTests
 		f.World.Setup(x => x.GetStaticLong("DefaultAuxiliaryMoveTraitId")).Returns(f.Skill.Id);
 		var row = new MudSharp.Models.CombatAction { Id = 100, Name = "Configured", TraitDefinitionId = 999,
 			RequiredPositionStateIds = "1", AdditionalInfo = new XElement("Root", f.Profile.Save()).ToString() };
-		Assert.ThrowsException<InvalidOperationException>(() => new AuxiliaryCombatAction(row, f.World.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new AuxiliaryCombatAction(row, f.World.Object));
 		row.TraitDefinitionId = f.Skill.Id;
 		var action = new AuxiliaryCombatAction(row, f.World.Object);
 		Assert.AreEqual(f.Profile.Save().ToString(), action.PhysicalImpact!.Save().ToString());
@@ -144,7 +144,7 @@ public partial class PhysicalImpactTests
 		Assert.AreEqual(f.Profile.Save().ToString(), XElement.Parse(saved.AdditionalInfo).Element("PhysicalImpact")!.ToString());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void PreResolutionBodyReplacement_RejectsWithoutChargingEitherBody(bool actor)
@@ -202,7 +202,7 @@ public partial class PhysicalImpactTests
 		Assert.AreEqual(0, f.Damage.Count + f.ActorSeats + f.Check.Invocations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void SuccessfulImpact_DeliversIndependentDamageStunAndOnlyBashSeatsTarget(bool bash)
@@ -220,7 +220,7 @@ public partial class PhysicalImpactTests
 		f.Scheduler.Verify(x => x.DelayScheduleType(f.Target.Object, ScheduleType.Combat, It.IsAny<TimeSpan>()), bash ? Times.Once() : Times.Never());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void ImpactInjuryFence_AllowsCapturedBodyInternalInjuriesButRejectsForeignParts(bool bone)
@@ -263,7 +263,7 @@ public partial class PhysicalImpactTests
 		Assert.IsTrue(validated);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void OrdinaryMiss_OnlyBashSeatsAttackerWithoutDamage(bool bash)
@@ -276,7 +276,7 @@ public partial class PhysicalImpactTests
 		Assert.AreEqual(0, f.Damage.Count + f.SelfDamage.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void StrongCounter_SeatsAttackerAndOnlyBashCounterDamages(bool bash)
@@ -291,7 +291,7 @@ public partial class PhysicalImpactTests
 		if (bash) { Assert.AreEqual(3.0, f.SelfDamage[0].DamageAmount); Assert.AreEqual(4.0, f.SelfDamage[0].StunAmount); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("mounted")]
 	[DataRow("tired")]
 	[DataRow("down")]
@@ -339,6 +339,6 @@ public partial class PhysicalImpactTests
 		var xml = f.Profile.Save();
 		Assert.AreEqual(xml.ToString(), PhysicalImpactProfile.Load(xml, f.World.Object).Save().ToString());
 		xml.SetAttributeValue("countertrait", 999);
-		Assert.ThrowsException<FormatException>(() => PhysicalImpactProfile.Load(xml, f.World.Object));
+		Assert.ThrowsExactly<FormatException>(() => PhysicalImpactProfile.Load(xml, f.World.Object));
 	}
 }

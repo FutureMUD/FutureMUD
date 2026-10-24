@@ -22,7 +22,7 @@ public class SpellLifecyclePolicyTests
 		var lifecycle = Lifecycle(SpellLifecycleMode.Permanent);
 		lifecycle.Origin.Validate();
 		Assert.IsFalse(lifecycle.MayRemoveOwnedEntities);
-		Assert.ThrowsException<InvalidOperationException>(() => SpellLifecycleTransitions.BeginRetirement(lifecycle,
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellLifecycleTransitions.BeginRetirement(lifecycle,
 			SpellRetirementReason.Expiry, Created.AddHours(1)));
 	}
 
@@ -30,13 +30,13 @@ public class SpellLifecyclePolicyTests
 	public void BeginRetirement_AbsoluteDeadline_PreventsEarlyExpiry()
 	{
 		var lifecycle = Lifecycle();
-		Assert.ThrowsException<InvalidOperationException>(() => SpellLifecycleTransitions.BeginRetirement(lifecycle,
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellLifecycleTransitions.BeginRetirement(lifecycle,
 			SpellRetirementReason.Expiry, Created.AddSeconds(119)));
 		Assert.AreEqual(SpellLifecycleState.Retiring, SpellLifecycleTransitions.BeginRetirement(lifecycle,
 			SpellRetirementReason.Expiry, Created.AddMinutes(2)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellRetirementReason.Dispel)]
 	[DataRow(SpellRetirementReason.Dismissal)]
 	[DataRow(SpellRetirementReason.CapabilityLoss)]
@@ -46,7 +46,7 @@ public class SpellLifecyclePolicyTests
 		Assert.AreEqual(SpellLifecycleState.Retiring, SpellLifecycleTransitions.BeginRetirement(Lifecycle(), reason, Created));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellLifecycleState.Retiring)]
 	[DataRow(SpellLifecycleState.RemainsPending)]
 	[DataRow(SpellLifecycleState.Completed)]
@@ -68,17 +68,17 @@ public class SpellLifecyclePolicyTests
 	public void Origin_InvalidOrNonUtcDeadline_RejectsAmbiguousLifetime()
 	{
 		var origin = Lifecycle().Origin;
-		Assert.ThrowsException<ArgumentException>(() => (origin with { DeadlineUtc = Created }).Validate());
-		Assert.ThrowsException<ArgumentException>(() => (origin with { DeadlineUtc = null }).Validate());
-		Assert.ThrowsException<ArgumentException>(() => (origin with { DeadlineUtc = DateTime.SpecifyKind(Created.AddHours(1), DateTimeKind.Unspecified) }).Validate());
-		Assert.ThrowsException<ArgumentException>(() => (origin with { Grade = 8 }).Validate());
-		Assert.ThrowsException<ArgumentException>(() => (origin with { Provenance = new string('a', 2049) }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (origin with { DeadlineUtc = Created }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (origin with { DeadlineUtc = null }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (origin with { DeadlineUtc = DateTime.SpecifyKind(Created.AddHours(1), DateTimeKind.Unspecified) }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (origin with { Grade = 8 }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (origin with { Provenance = new string('a', 2049) }).Validate());
 	}
 
 	[TestMethod]
 	public void BeginRetirement_EarlyDeathReason_RequiresPostDeathCorrelation()
 	{
-		Assert.ThrowsException<ArgumentException>(() => SpellLifecycleTransitions.BeginRetirement(Lifecycle(),
+		Assert.ThrowsExactly<ArgumentException>(() => SpellLifecycleTransitions.BeginRetirement(Lifecycle(),
 			SpellRetirementReason.EarlyDeath, Created));
 	}
 
@@ -88,8 +88,8 @@ public class SpellLifecyclePolicyTests
 		var item = Lifecycle() with { Entities = [new(SpellOwnedEntityKind.GameItem, 91)] };
 		Assert.AreEqual(SpellLifecycleState.Retiring,
 			SpellLifecycleTransitions.BeginRetirement(item, SpellRetirementReason.EarlyItemRemoval, Created));
-		Assert.ThrowsException<ArgumentException>(() => SpellLifecycleTransitions.BeginRetirement(Lifecycle(), SpellRetirementReason.EarlyItemRemoval, Created));
-		Assert.ThrowsException<ArgumentException>(() => SpellLifecycleTransitions.BeginRetirement(item with
+		Assert.ThrowsExactly<ArgumentException>(() => SpellLifecycleTransitions.BeginRetirement(Lifecycle(), SpellRetirementReason.EarlyItemRemoval, Created));
+		Assert.ThrowsExactly<ArgumentException>(() => SpellLifecycleTransitions.BeginRetirement(item with
 		{ Entities = [new(SpellOwnedEntityKind.GameItem, 91), new(SpellOwnedEntityKind.GameItem, 92)] }, SpellRetirementReason.EarlyItemRemoval, Created));
 		Assert.IsFalse((item with { State = SpellLifecycleState.Retiring }).RequiresNativeDeath);
 	}

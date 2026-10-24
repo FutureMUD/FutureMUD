@@ -111,7 +111,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
 	}
 
-	[DataTestMethod, DataRow(true), DataRow(false), TestCategory("R-T03"), TestCategory("R-I06"), TestCategory("R-I07")]
+	[TestMethod, DataRow(true), DataRow(false), TestCategory("R-T03"), TestCategory("R-I06"), TestCategory("R-I07")]
 	public void Treatment_ExampleB_FinalHalfMinuteIsAccountedOnce(bool parentExpiresFirst)
 	{
 		using var f = new Fixture();
@@ -181,7 +181,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(85.0, f.Environment.Coordinator.Inspect(f.Room).Outputs.Single().Maximum);
 	}
 
-	[DataTestMethod, DataRow(100.0, 100.0, "1"), DataRow(0.0, 0.0, "1"), DataRow(100.0, 30.0, "0"), TestCategory("R-I01")]
+	[TestMethod, DataRow(100.0, 100.0, "1"), DataRow(0.0, 0.0, "1"), DataRow(100.0, 30.0, "0"), TestCategory("R-I01")]
 	public void Treatment_FullZeroCapacityAndDormantRooms_AdvanceWithoutResourceProduction(double maximum, double balance, string rate)
 	{
 		using var f = new Fixture();
@@ -216,7 +216,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(1.0, f.Progress.TotalRepaired);
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I02")]
+	[TestMethod, DataRow(false), DataRow(true), TestCategory("R-I02")]
 	public void Admission_InvalidRepairPolicyOrScalarState_PreservesEvidenceWithoutInstallation(bool invalidState)
 	{
 		using var f = new Fixture();
@@ -258,7 +258,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(5.0, f.Scar);
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I19")]
+	[TestMethod, DataRow(false), DataRow(true), TestCategory("R-I19")]
 	public void NaturalZeroThenDamage_BeforePump_TerminatesOldTreatment(bool failTerminationSave)
 	{
 		using var f = new Fixture(scar: 1);
@@ -319,7 +319,7 @@ public class LandRejuvenationTests
 		Assert.IsFalse(f.Environment.Profile.BuildingCommand(f.Environment.Builder, new StringStack("magicalrepaircap NaN")));
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I05")]
+	[TestMethod, DataRow(false), DataRow(true), TestCategory("R-I05")]
 	public void Binding_DisableOrReplaceThenRestore_DoesNotReviveTreatment(bool replace)
 	{
 		using var f = new Fixture();
@@ -380,7 +380,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
 	}
 
-	[DataTestMethod, DataRow("0", "1", 600), DataRow("-1", "1", 600), DataRow("1", "0", 600),
+	[TestMethod, DataRow("0", "1", 600), DataRow("-1", "1", 600), DataRow("1", "0", 600),
 	 DataRow("1 / 0", "1", 600), DataRow("12", "1", 0), DataRow("1e308", "1e308", 600000), TestCategory("R-T01"), TestCategory("R-T02")]
 	public void Admission_InvalidValuesDoNotAttachOrRepair(string budget, string rate, int seconds)
 	{
@@ -419,7 +419,7 @@ public class LandRejuvenationTests
 			}
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I15"), TestCategory("R-I16")]
+	[TestMethod, DataRow(false), DataRow(true), TestCategory("R-I15"), TestCategory("R-I16")]
 	public void AtomicStep_RollbackOrLostAck_ReconcilesExactIdentityWithoutDoubleRepair(bool committed)
 	{
 		using var f = new Fixture();
@@ -543,7 +543,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(10.0, f.Progress.TotalRepaired);
 	}
 
-	[DataTestMethod, DataRow(true), DataRow(false), TestCategory("J-C01"), TestCategory("J-C02")]
+	[TestMethod, DataRow(true), DataRow(false), TestCategory("J-C01"), TestCategory("J-C02")]
 	public void RepeatedParentSaves_PreserveRepairCadence_InEitherPumpOrder(bool saveBeforePump)
 	{
 		using var f = new Fixture();
@@ -625,7 +625,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(2L, f.Progress.AcknowledgedSequence);
 	}
 
-	[DataTestMethod, DataRow(true), DataRow(false), TestCategory("J-C05")]
+	[TestMethod, DataRow(true), DataRow(false), TestCategory("J-C05")]
 	public void RepeatedParentSaves_FinalHalfMinuteIsAccountedOnce_InEitherExpiryOrder(bool parentExpiresFirst)
 	{
 		using var f = new Fixture();
@@ -808,7 +808,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(1, next.Environment.SecondSubscriptions);
 	}
 
-	[DataTestMethod, DataRow(false), DataRow(true), TestCategory("R-I04")]
+	[TestMethod, DataRow(false), DataRow(true), TestCategory("R-I04")]
 	public void Expressions_CaptureCastingTraitAndSustainedBonusContext(bool vancianContext)
 	{
 		using var f = new Fixture();
@@ -826,7 +826,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(1.0, f.Progress.RemainingBudget);
 	}
 
-	[DataTestMethod, DataRow("none"), DataRow("0"), DataRow("1.25"), TestCategory("R-I03")]
+	[TestMethod, DataRow("none"), DataRow("0"), DataRow("1.25"), TestCategory("R-I03")]
 	public void ProfileCeiling_RoundTripsIndependentlyFromNaturalRepair(string value)
 	{
 		using var f = new Fixture();
@@ -863,7 +863,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(35.0, f.Room.MagicResourceAmounts[resource], 1e-9);
 	}
 
-	[DataTestMethod, DataRow("move"), DataRow("layer"), DataRow("plane"), DataRow("death"), DataRow("stasis"), DataRow("instance"), TestCategory("R-I09")]
+	[TestMethod, DataRow("move"), DataRow("layer"), DataRow("plane"), DataRow("death"), DataRow("stasis"), DataRow("instance"), TestCategory("R-I09")]
 	public void LocalMaintenance_OriginalInstanceEligibilityLossEndsTreatment(string change)
 	{
 		using var f = new Fixture(count: 2);
@@ -908,7 +908,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
 	}
 
-	[DataTestMethod, DataRow("any"), DataRow("supertype"), DataRow("return"), DataRow("static"), DataRow("compile"), TestCategory("R-I10")]
+	[TestMethod, DataRow("any"), DataRow("supertype"), DataRow("return"), DataRow("static"), DataRow("compile"), TestCategory("R-I10")]
 	public void Policy_BuilderLoadAndEvaluationRejectInexactOrInvalidSignature(string invalid)
 	{
 		using var f = new Fixture();
@@ -964,7 +964,7 @@ public class LandRejuvenationTests
 		Assert.AreEqual(1L, f.Progress.AcknowledgedSequence);
 	}
 
-	[DataTestMethod, DataRow("version"), DataRow("versiontext"), DataRow("budget"), DataRow("pending"), TestCategory("R-I12")]
+	[TestMethod, DataRow("version"), DataRow("versiontext"), DataRow("budget"), DataRow("pending"), TestCategory("R-I12")]
 	public void MalformedLoadedProgress_RemainsInspectableWithoutWork(string malformed)
 	{
 		var store = new EnvironmentalMagicTestOperationStore();

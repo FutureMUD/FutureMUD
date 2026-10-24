@@ -87,7 +87,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsFalse(CastingTriggerMindContactCharacter.IsCurrentContact(actor.Object, target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0")]
@@ -189,7 +189,7 @@ public partial class MagicEngineV4Tests
 		StringAssert.Contains(speech.GetAppropriateTargetEmote(actor.Object, target.Object, "Legacy message."), "Legacy message.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0}")]
@@ -239,7 +239,7 @@ public partial class MagicEngineV4Tests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
 	[DataRow("{0}")]
@@ -287,7 +287,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual($"You broadcast: Remember {text}.", rendered);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void MindBarrier_ApplicabilityUsesProgTruth(bool applies)
@@ -304,7 +304,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(applies, new MindBarrierEffect(owner.Object, -20, power).Applies(intruder.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("-1")]
 	[DataRow("NaN")]
 	[DataRow("Infinity")]
@@ -425,7 +425,7 @@ public partial class MagicEngineV4Tests
 			MagicSchoolId = 1, PowerModel = stock.Type, Definition = definition.ToString() };
 		var world = CreateGameworld();
 		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock<IMagicResource>().Object);
-		Assert.ThrowsException<ApplicationException>(() => MagicPowerFactory.LoadPower(model, world.Object));
+		Assert.ThrowsExactly<ApplicationException>(() => MagicPowerFactory.LoadPower(model, world.Object));
 	}
 
 	[TestMethod]

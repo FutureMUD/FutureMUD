@@ -160,7 +160,7 @@ public class ForagingRuntimeTests
 		Assert.IsFalse(depleted.YieldsChanged);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("cell")]
 	[DataRow("zone")]
 	[DataRow("terrain")]
@@ -361,7 +361,7 @@ public class ForagingRuntimeTests
 		environment.Verify(x => x.MarkDirty(room, EnvironmentalMagicDirtyReason.Forage), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.3, 0.1, 3)]
 	[DataRow(1.0, 0.1, 10)]
 	[TestCategory("Y-T05")]
@@ -784,7 +784,7 @@ public class ForagingRuntimeTests
 		Assert.IsFalse(reloadedRoom.TryConsumeYield("junk", 1.0));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("item")]
 	[DataRow("commodity")]
 	public void Room_DiscreteItemAndCommodityRequireAWholeYield(string yieldType)
@@ -863,7 +863,7 @@ public class ForagingRuntimeTests
 		Assert.IsFalse(room.TryConsumeYield("food", 1.0));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	[DoNotParallelize]

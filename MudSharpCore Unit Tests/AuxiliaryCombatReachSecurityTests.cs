@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AuxiliaryCombatReachSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("distant")]
 	[DataRow("layer")]
 	[DataRow("ranged")]

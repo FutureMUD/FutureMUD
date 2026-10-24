@@ -42,7 +42,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [DoNotParallelize]
 public class BuilderWorkflowRegressionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("+tavern", true)]
 	[DataRow("-tavern", false)]
 	public void ItemGroupFilter_CombinesNamesAndAllFormsWithoutDroppingEmptyGroups(string filter, bool positive)
@@ -67,7 +67,7 @@ public class BuilderWorkflowRegressionTests
 		Assert.AreEqual(!positive, table.Contains("EmptyGroup"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, "first", "second", "first\nsecond")]
 	[DataRow(true, "first\n", "second", "first\nsecond")]
 	[DataRow(true, "first", "", "first")]
@@ -97,7 +97,7 @@ public class BuilderWorkflowRegressionTests
 		prog.Verify(x => x.Compile(), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("10")]
 	[DataRow("Test Route")]
 	[DataRow("\"Test Route\"")]
@@ -130,7 +130,7 @@ public class BuilderWorkflowRegressionTests
 		Assert.AreSame(route, VehicleModule.ResolveVehicleRouteRevisionForApproval([route], "42 Express"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("\"\"")]
 	[DataRow("unknown")]
 	public void Lists_UnsupportedFilters_ReturnWithoutMutation(string filter)
@@ -320,7 +320,7 @@ public class BuilderWorkflowRegressionTests
 		return actor;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SkinClone_PermissionsAndNewPrivateDraft_PersistIndependently(bool owner)
@@ -370,7 +370,7 @@ public class BuilderWorkflowRegressionTests
 		Assert.AreEqual("Original", database.Context.MagicSchools.Single(x => x.Id == 1).Name);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("programming \"control unit\" logic test")]
 	[DataRow("programming item \"control unit\" logic test")]
 	public void Programming_QuotedTarget_PreservesTargetAcrossBothCommandForms(string input)
@@ -382,7 +382,7 @@ public class BuilderWorkflowRegressionTests
 		actor.Verify(x => x.TargetItem("control"), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("accept", true)]
 	[DataRow("reject", false)]
 	[DataRow("expire", false)]

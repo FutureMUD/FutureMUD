@@ -79,7 +79,7 @@ public class PsionicCombatSeederTests
 		using var context = Context(); var seeder = new PsionicsSeeder(); var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
 		seeder.SeedData(context, answers);
 		var power = context.MagicPowers.Single(x => x.Name == "Kinetic Barrier"); power.PowerModel = "mindbarrier"; context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedData(context, answers)); Assert.AreEqual("mindbarrier", power.PowerModel);
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(context, answers)); Assert.AreEqual("mindbarrier", power.PowerModel);
 	}
 
 	[TestMethod]

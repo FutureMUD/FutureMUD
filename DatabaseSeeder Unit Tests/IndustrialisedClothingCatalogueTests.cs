@@ -49,7 +49,7 @@ public class IndustrialisedClothingCatalogueTests
 		Assert.AreEqual(string.Empty, d.CraftProducts.First().SkinReference);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("skins.tsv", 1, "absent", "Skin must identify")]
 	[DataRow("skins.tsv", 6, "Batch", "normal production route")]
 	[DataRow("skins.tsv", 7, "Good", "approval reference")]
@@ -79,7 +79,7 @@ public class IndustrialisedClothingCatalogueTests
 	{
 		var sources = Fixture();
 		ReplaceRoom(sources, file, column, value);
-		var ex = Assert.ThrowsException<InvalidDataException>(() => Load(sources));
+		var ex = Assert.ThrowsExactly<InvalidDataException>(() => Load(sources));
 		StringAssert.Contains(ex.Message, "Clothing/");
 		StringAssert.Contains(ex.Message, diagnostic);
 	}
@@ -89,10 +89,10 @@ public class IndustrialisedClothingCatalogueTests
 	{
 		var fixture = Fixture();
 		fixture.Remove("skins.tsv");
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => Load(fixture)).Message, "required exactly once");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => Load(fixture)).Message, "required exactly once");
 		var sources = Sources(Fixture()).ToArray();
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCatalogue.Load(sources.Append(sources[0])));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCatalogue.Load(sources.Append(new("Clothing/typo.tsv", "test"))));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCatalogue.Load(sources.Append(sources[0])));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCatalogue.Load(sources.Append(new("Clothing/typo.tsv", "test"))));
 	}
 
 	[TestMethod]
@@ -102,7 +102,7 @@ public class IndustrialisedClothingCatalogueTests
 		{
 			var fixture = Fixture();
 			fixture[name] += fixture[name].Split('\n')[1] + "\n";
-			StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => Load(fixture)).Message, "Duplicate key");
+			StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => Load(fixture)).Message, "Duplicate key");
 		}
 	}
 

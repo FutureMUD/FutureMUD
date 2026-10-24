@@ -97,7 +97,7 @@ public partial class IndustrialisedClothingReuseTests
 		Assert.AreSame(attached, result.Single());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing", "missing or ambiguous component 41 revision 1")]
 	[DataRow("ambiguous", "missing or ambiguous component 41 revision 1")]
 	[DataRow("duplicate", "multiple instances or revisions")]
@@ -115,7 +115,7 @@ public partial class IndustrialisedClothingReuseTests
 			case "wrong-item": item.GameItemProtosGameItemComponentProtos.Single().GameItemProtoId++; break;
 			case "wrong-item-revision": item.GameItemProtosGameItemComponentProtos.Single().GameItemProtoRevision++; break;
 		}
-		var error = Assert.ThrowsException<InvalidDataException>(() => ItemSeeder.ResolveReusedClothingComponents(item, components, Source));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => ItemSeeder.ResolveReusedClothingComponents(item, components, Source));
 		StringAssert.Contains(error.Message, Source.ToString());
 		StringAssert.Contains(error.Message, diagnostic);
 	}
@@ -205,7 +205,7 @@ public partial class IndustrialisedClothingReuseTests
 		Assert.AreEqual(1, context.SeederManagedRecords.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
@@ -237,10 +237,10 @@ public partial class IndustrialisedClothingReuseTests
 		var rerun = new ItemSeeder(Catalogue());
 		if (customised)
 		{
-			var error = Assert.ThrowsException<InvalidDataException>(() => rerun.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+			var error = Assert.ThrowsExactly<InvalidDataException>(() => rerun.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 			StringAssert.Contains(error.Message, "exactly one Variable component");
 			Assert.IsFalse(context.ChangeTracker.HasChanges());
-			Assert.ThrowsException<InvalidOperationException>(() => rerun.ApplyClothingReuseForTesting("industrial"));
+			Assert.ThrowsExactly<InvalidOperationException>(() => rerun.ApplyClothingReuseForTesting("industrial"));
 			Assert.AreEqual("A builder's own garment.", context.GameItemProtos.Single().FullDescription);
 		}
 		else
@@ -258,7 +258,7 @@ public partial class IndustrialisedClothingReuseTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ReusePreflight_ReplacesObsoleteComponentsOnlyOnUntouchedManagedStock(bool customised)
@@ -334,7 +334,7 @@ public partial class IndustrialisedClothingReuseTests
 		context.SaveChanges();
 		var count = context.GameItemProtosGameItemComponentProtos.Count();
 		var fingerprint = context.SeederManagedRecords.Single().AppliedFingerprint;
-		var error = Assert.ThrowsException<InvalidOperationException>(() => rerun.ApplyClothingReuseForTesting("industrial"));
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() => rerun.ApplyClothingReuseForTesting("industrial"));
 		StringAssert.Contains(error.Message, "not covered by its stock fingerprint");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(count, context.GameItemProtosGameItemComponentProtos.Count());
@@ -363,7 +363,7 @@ public partial class IndustrialisedClothingReuseTests
 		Assert.AreEqual(1, context.SeederManagedRecords.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmanaged-drift", "Unmanaged historical clothing conflict")]
 	[DataRow("wrong-owner-id", "ownership conflict")]
 	[DataRow("legacy-drift", "Unmanaged legacy item conflict")]
@@ -386,10 +386,10 @@ public partial class IndustrialisedClothingReuseTests
 		context.SaveChanges();
 		context.ChangeTracker.Clear();
 		var seeder = new ItemSeeder(Catalogue());
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, diagnostic);
 		StringAssert.Contains(error.Message, "Clothing/bases.tsv:2");
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(1, context.GameItemProtos.Count());
 	}
@@ -405,14 +405,14 @@ public partial class IndustrialisedClothingReuseTests
 			Colours = [catalogue.Clothing.Colours.Single() with { Definition = "Missing Colour" }]
 		} };
 		var seeder = new ItemSeeder(catalogue);
-		Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(0, context.GameItemProtos.Count());
 		Assert.AreEqual(0, context.SeederManagedRecords.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("empty-profile")]
 	[DataRow("missing-body")]
 	[DataRow("non-wearable-location")]
@@ -428,14 +428,14 @@ public partial class IndustrialisedClothingReuseTests
 		}
 		context.SaveChanges();
 		var seeder = new ItemSeeder(Catalogue());
-		Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(0, context.GameItemProtos.Count());
 		Assert.AreEqual(0, context.SeederManagedRecords.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("remembered")]
 	[DataRow("other-managed-item")]
 	public void EraInference_StillRetainsGenuinelyInstalledHistoricalPackages(string evidence)
@@ -457,7 +457,7 @@ public partial class IndustrialisedClothingReuseTests
 			new Dictionary<string, string> { ["eras"] = "industrial" }).ToArray());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("too-many-layers", "MaximumLayerWeight")]
 	[DataRow("bulky-conflict", "Bulky outfit entries")]
 	[DataRow("unwearable-alone", "Standalone garment exceeds")]
@@ -475,9 +475,9 @@ public partial class IndustrialisedClothingReuseTests
 			context.StaticConfigurations.Add(new StaticConfiguration { SettingName = "MaximumLayerWeight", Definition = "0.5" });
 		context.SaveChanges();
 		var seeder = new ItemSeeder(CatalogueWithOutfit(count));
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, diagnostic);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(0, context.GameItemProtos.Count());
 		Assert.AreEqual(0, context.SeederManagedRecords.Count());

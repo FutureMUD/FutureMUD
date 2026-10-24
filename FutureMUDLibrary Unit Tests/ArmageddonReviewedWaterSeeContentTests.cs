@@ -23,7 +23,7 @@ public class ArmageddonReviewedWaterSeeContentTests
 		? ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(301, 303, [401, 403, 405, 407, 409])
 		: ArmageddonReviewedWaterSeeContent.WaterBreathing([201, 203]);
 
-	[DataTestMethod, DataRow(false), DataRow(true)]
+	[TestMethod, DataRow(false), DataRow(true)]
 	public void PureContribution_MatchesClearedDefinitionEligibilityAndDeclaredContent(bool see)
 	{
 		var content = Content(see);
@@ -83,28 +83,28 @@ public class ArmageddonReviewedWaterSeeContentTests
 		Assert.AreEqual((long)scope.Attribute("silt")!, (long)scope.Attribute("shadow")!);
 	}
 
-	[DataTestMethod, DataRow("empty"), DataRow("zero"), DataRow("negative"), DataRow("duplicate"), DataRow("too many")]
+	[TestMethod, DataRow("empty"), DataRow("zero"), DataRow("negative"), DataRow("duplicate"), DataRow("too many")]
 	public void WaterContribution_InvalidIdShapeRefuses(string scenario)
 	{
 		long[] ids = scenario switch { "empty" => [], "zero" => [0], "negative" => [-1], "duplicate" => [201, 201], _ => Enumerable.Range(1, 129).Select(x => (long)x).ToArray() };
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonReviewedWaterSeeContent.WaterBreathing(ids));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonReviewedWaterSeeContent.WaterBreathing(ids));
 	}
 
-	[DataTestMethod, DataRow("empty"), DataRow("four"), DataRow("six"), DataRow("zero"), DataRow("negative"), DataRow("duplicate")]
+	[TestMethod, DataRow("empty"), DataRow("four"), DataRow("six"), DataRow("zero"), DataRow("negative"), DataRow("duplicate")]
 	public void SeeContribution_InvalidRankShapeRefuses(string scenario)
 	{
 		long[] ids = scenario switch { "empty" => [], "four" => [1, 2, 3, 4], "six" => [1, 2, 3, 4, 5, 6], "zero" => [0, 2, 3, 4, 5], "negative" => [-1, 2, 3, 4, 5], _ => [1, 2, 3, 4, 4] };
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(301, 303, ids));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(301, 303, ids));
 	}
 
-	[DataTestMethod, DataRow(0L, 303L), DataRow(-1L, 303L), DataRow(301L, 0L), DataRow(301L, -1L)]
+	[TestMethod, DataRow(0L, 303L), DataRow(-1L, 303L), DataRow(301L, 0L), DataRow(301L, -1L)]
 	public void SeeContribution_NonpositiveTerrainIdsRefuse(long silt, long shadow) =>
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(silt, shadow, [1, 2, 3, 4, 5]));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(silt, shadow, [1, 2, 3, 4, 5]));
 
 	[TestMethod]
 	public void PureContributions_NullListsRefuse()
 	{
-		Assert.ThrowsException<ArgumentNullException>(() => ArmageddonReviewedWaterSeeContent.WaterBreathing(null!));
-		Assert.ThrowsException<ArgumentNullException>(() => ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(301, 303, null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => ArmageddonReviewedWaterSeeContent.WaterBreathing(null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => ArmageddonReviewedWaterSeeContent.SeeTheUnbodied(301, 303, null!));
 	}
 }

@@ -45,7 +45,7 @@ public class ProvisionFoodAdmissionCastingTests
         typeof(GameItemProto).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(proto, new List<IGameItemComponentProto> { hold, food });
         proto.OnLoadProgs = []; return proto;
     }
-    [DataTestMethod, DataRow("eligibility", false), DataRow("eligibility", true), DataRow("eligibility-prepared-lifetime", false), DataRow("lifetime", false)]
+    [TestMethod, DataRow("eligibility", false), DataRow("eligibility", true), DataRow("eligibility-prepared-lifetime", false), DataRow("lifetime", false)]
     public void ActualFoodAdapter_FinalPreparationCallbackDrift_RefusesBeforePaymentWithoutRedraw(string callback, bool permanent)
     {
         var f = new MagicCastingFixture(); var random = new CountingRandom();
@@ -89,7 +89,7 @@ public class ProvisionFoodAdmissionCastingTests
         owned.Verify(x => x.Create(It.IsAny<IGameItemProto>(), It.IsAny<ICharacter>(), It.IsAny<ItemQuality>(), It.IsAny<SpellLifecycleOrigin>()), Times.Never);
     }
 
-    [DataTestMethod, DataRow(false, "late-cap"), DataRow(false, "selection-balance"), DataRow(false, "selection-cap-definition"),
+    [TestMethod, DataRow(false, "late-cap"), DataRow(false, "selection-balance"), DataRow(false, "selection-cap-definition"),
         DataRow(false, "selection-trait"), DataRow(false, "selection-location"), DataRow(false, "exact-debit"),
         DataRow(true, "late-cap"), DataRow(true, "selection-balance"), DataRow(true, "selection-cap-definition"),
         DataRow(true, "selection-trait"), DataRow(true, "selection-location"), DataRow(true, "exact-debit"),

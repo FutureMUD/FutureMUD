@@ -37,7 +37,7 @@ public class MagicCastingProgressionTests
 		Assert.AreEqual(60.0, f.Skills[1]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(60.0, 57.0)]
 	[DataRow(90.0, 85.5)]
 	public void CapRelativeGate_MaximumGrade_IsAttainableAtApprovedCaps(double cap, double threshold)
@@ -127,7 +127,7 @@ public class MagicCastingProgressionTests
 		Assert.AreEqual(64.0, skill.RawValue);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("casting entry remove 1")]
 	[DataRow("casting entry trait 1 2")]
 	[DataRow("casting entry skill 1 default")]
@@ -183,7 +183,7 @@ public class MagicCastingProgressionTests
 		Assert.AreEqual(80.0, historic.RawValue);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 50.0)]
 	[DataRow(2, 25.0)]
 	[DataRow(7, 7.0)]
@@ -216,7 +216,7 @@ public class MagicCastingProgressionTests
 		Assert.AreEqual(122.5, f.Service.Quote(f.Intent(2)).Invocation!.Costs.Single().Amount);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("casting entry skill 1 61 60 relative")]
 	[DataRow("casting entry skill 1 30 0 relative")]
 	[DataRow("casting entry skill 1 NaN 90 relative")]

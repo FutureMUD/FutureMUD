@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonPrimitiveScalarDefinitionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("daylight", "room", "roomlight", "AddedLuxPerPower", "20*grade/power", "60*grade")]
 	[DataRow("deep_darkness", "room", "roomlight", "AddedLuxPerPower", "-20*grade/power", "60*grade")]
 	[DataRow("quickened_healing", "character", "healingrate", "Multiplier", "1+0.1*grade", "120*grade")]
@@ -53,13 +53,13 @@ public class ArmageddonPrimitiveScalarDefinitionTests
 		Assert.IsNull(profile.Element("Area"));
 		Assert.IsNull(profile.Element("Incantation"));
 		Assert.IsNull(content.EligibilitySource);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(0, 202, 0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(201, 0, 0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(201, 202, -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(0, 202, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(201, 0, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(201, 202, -1));
 		if (trigger == "room")
 		{
 			Assert.IsNull(definition.Element("Trigger")!.Element("TargetFilterProg"));
-			Assert.ThrowsException<ArgumentException>(() => content.BuildDefinition(201, 202, 203));
+			Assert.ThrowsExactly<ArgumentException>(() => content.BuildDefinition(201, 202, 203));
 		}
 		if (effectType == "healingrate") Assert.AreEqual(0, (int)effect.Element("Stages")!);
 	}

@@ -85,7 +85,7 @@ public partial class ArmageddonOneUseReloadTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void ConfirmedNativeDose_ConsumesOnceAndCapsHealingAtBoundGradeBudget(int grade)
 	{
@@ -114,7 +114,7 @@ public partial class ArmageddonOneUseReloadTests
 		unconfirmed.Service.Verify(x => x.TryCommitComponentConsumption(unconfirmed.Component, unconfirmed.Origin), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("body")]
 	[DataRow("room")]
 	public void TargetChangingDuringCarrierDelivery_DoesNotHeal(string changedTarget)

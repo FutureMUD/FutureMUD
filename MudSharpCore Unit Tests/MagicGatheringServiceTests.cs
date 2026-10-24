@@ -841,7 +841,7 @@ public partial class MagicGatheringServiceTests
 		Assert.AreEqual(2.0, fixture.Service.LandDetails(started.OperationId.Value)!["credited"], 0.000001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(2)]
 	[DataRow(3)]
@@ -906,7 +906,7 @@ public partial class MagicGatheringServiceTests
 			$"Local 30,000-cell gathering operations took {elapsed.Elapsed.TotalMilliseconds:N0} ms.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	[TestCategory("L-T35")]
@@ -1020,7 +1020,7 @@ public partial class MagicGatheringServiceTests
 		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.95)]
 	[DataRow(1.10)]
 	public void SelfGathering_ExactQuotedPriceIgnoresOrdinaryStaminaModifiers(double multiplier)

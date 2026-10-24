@@ -23,7 +23,7 @@ public partial class ArmageddonOneUseReloadTests
 		Assert.IsFalse(SpellOwnedItemService.IsBoundPermanentTopicalDose(f.Parent.Object, f.Origin));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("none")] [DataRow("not-topical")] [DataRow("wrong-family")] [DataRow("active")] [DataRow("diagnostic")]
 	[DataRow("wrong-spell")] [DataRow("wrong-creator")] [DataRow("wrong-grade")] [DataRow("future")]
 	[DataRow("deadline")] [DataRow("death")] [DataRow("extra-claim")] [DataRow("foreign-item")]

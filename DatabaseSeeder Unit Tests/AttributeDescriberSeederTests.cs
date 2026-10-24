@@ -30,7 +30,7 @@ public class AttributeDescriberSeederTests
 		return context;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rpi", "Attribute", "Prodigious|Phenomenal|Formidable|Tremendous|Immense|Monumental|Colossal|Titanic|Mythic|Demigodlike|Godlike|Transcendent|Ineffable")]
 	[DataRow("labmud", "Strength Attribute", "Prodigious|Herculean|Trans-Herculean|Towering|Immense|Monumental|Colossal|Titanic|Worldshaking|Demigodlike|Godlike|Worldbreaking|Immeasurable")]
 	[DataRow("labmud", "Dexterity Attribute", "Deft|Uncanny|Preternatural|Sublime|Otherworldly|Transcendent|Celestial|Empyrean|Mythic|Demigodlike|Godlike|Beyond Divine|Ineffable")]
@@ -88,7 +88,7 @@ public class AttributeDescriberSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("soi")]
 	[DataRow("dnd")]
 	[DataRow("labmud")]

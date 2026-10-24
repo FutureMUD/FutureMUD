@@ -428,7 +428,7 @@ public class HealthSeederTests
         CollectionAssert.AreEqual(new long[] { 10, 11 }, targetIds);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("primitive")]
     [DataRow("pre-modern")]
     [DataRow("medieval")]

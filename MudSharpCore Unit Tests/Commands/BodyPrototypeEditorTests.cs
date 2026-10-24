@@ -164,7 +164,7 @@ public class BodyPrototypeEditorTests
 		Assert.AreEqual(speed.Id, loaded.DefaultSpeeds[PositionStanding.Instance].Id);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("broken XML")]
 	[DataRow("<Ratios><Ratio Item=\"2\" Min=\"0\" Max=\"1\" /><Ratio Item=\"3\" Min=\"2\" Max=\"3\" /></Ratios>")]
 	public void Create_InvalidWearRules_LeavesNoPersistedPrototype(string ratios)

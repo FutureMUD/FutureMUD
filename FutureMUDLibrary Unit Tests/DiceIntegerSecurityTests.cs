@@ -8,7 +8,7 @@ namespace FutureMUDLibrary_Unit_Tests;
 [TestClass]
 public class DiceIntegerSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("999999999999999999999999d6")]
 	[DataRow("1d999999999999999999999999")]
 	[DataRow("1d6 e999999999999999999999999")]

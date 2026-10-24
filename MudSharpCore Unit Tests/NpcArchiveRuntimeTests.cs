@@ -37,7 +37,7 @@ public class NpcArchiveRuntimeTests
 		observed.Verify(x => x.RemoveObserver(controller), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void HandleCommand_ContextDisposesController_ReturnsWithoutAdvancing(bool inSubContext)

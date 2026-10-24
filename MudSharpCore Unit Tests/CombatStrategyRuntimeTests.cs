@@ -233,7 +233,7 @@ public class CombatStrategyRuntimeTests
 		Assert.IsInstanceOfType(move, typeof(NaturalAttackMove));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(CombatStrategyMode.Dropper)]
 	[DataRow(CombatStrategyMode.Drowner)]
 	public void PredatorStrategy_ItemTarget_RetainsStandardExhaustionResponse(CombatStrategyMode mode)

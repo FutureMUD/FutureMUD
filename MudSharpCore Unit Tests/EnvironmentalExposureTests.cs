@@ -53,7 +53,7 @@ public class EnvironmentalExposureTests
 		public LiquidMixture Mix(double acid, double water = 0) => new(new[] { new LiquidInstance { Liquid = Acid.Object, Amount = acid }, new LiquidInstance { Liquid = Water.Object, Amount = water } }, World.Object);
 		public IReadOnlyList<ExposureResolution> Run(LiquidMixture mix, double seconds, bool dry = false) => Resolver.Liquid(mix, false, new[] { Patch() }, ExposureSourceKind.Retained, "test", seconds, 20, dryRun: dry);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.25, 12.5)] [DataRow(0.0, 0.0)]
 	public void N06_Resistance_ChangesInjuryWithoutChangingConsumption(double multiplier, double expected)
 	{
@@ -93,7 +93,7 @@ public class EnvironmentalExposureTests
 		Assert.IsTrue(f.Run(mix, 5, true).Sum(x => x.Consumed) > 0);
 		Assert.AreEqual(xml, mix.SaveToXml().ToString()); Assert.AreEqual(0, f.Damage.Count);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Disabled")] [DataRow("Legacy")]
 	public void Modes_OtherThanEnabled_DoNotRunV2OrConsume(string mode)
 	{
@@ -128,7 +128,7 @@ public class EnvironmentalExposureTests
 		var state = new BodySurfaceLiquidState(f.World.Object, () => new[] { left, right }, () => { }, old.SaveToXml());
 		Assert.AreEqual(10, state.ForPart(left).LiquidVolume); Assert.AreEqual(30, state.ForPart(right).LiquidVolume);
 		Assert.AreSame(state.ForPart(left).ContaminatingLiquid.Instances.Single(), state.ContaminatingLiquid.Instances.First());
-		Assert.ThrowsException<InvalidOperationException>(() => state.ContaminatingLiquid.RemoveLiquidVolume(1));
+		Assert.ThrowsExactly<InvalidOperationException>(() => state.ContaminatingLiquid.RemoveLiquidVolume(1));
 		var loaded = new BodySurfaceLiquidState(f.World.Object, () => new[] { left, right }, () => { }, state.SaveToXml());
 		Assert.AreEqual(40, loaded.LiquidVolume); Assert.AreEqual(10, loaded.ForPart(left).LiquidVolume);
 	}

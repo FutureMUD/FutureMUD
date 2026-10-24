@@ -47,7 +47,7 @@ public class WoundFunctionTests
 		AssertBodylessItemDamage(damageType, new NumberVariable(12.0M), 12.0);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("1d1 e1")]
 	[DataRow("1000000000d6")]
 	[DataRow("999999999999999999999999d6")]

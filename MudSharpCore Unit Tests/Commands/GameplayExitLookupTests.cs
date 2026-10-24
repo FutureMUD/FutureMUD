@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class GameplayExitLookupTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("n", CardinalDirection.North)]
 	[DataRow("north", CardinalDirection.North)]
 	[DataRow("nw", CardinalDirection.NorthWest)]

@@ -61,7 +61,7 @@ public class ArmageddonPrimitiveScalarContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("daylight", 1, SpellPower.ExtremelyStrong)]
 	[DataRow("daylight", 7, SpellPower.ExtremelyWeak)]
 	[DataRow("deep_darkness", 3, SpellPower.VeryStrong)]
@@ -130,7 +130,7 @@ public class ArmageddonPrimitiveScalarContentTests
 		return effects;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("daylight", "20*grade/0")]
 	[DataRow("deep_darkness", "sqrt(-1)")]
 	[DataRow("quickened_healing", "1/0")]

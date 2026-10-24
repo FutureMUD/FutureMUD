@@ -95,7 +95,7 @@ public class VehicleServiceScheduleTests
 			IntervalAmount = 0
 		};
 
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
 			new VehicleServiceSchedule(DateTimeAt(12, 30), recurrence));
 	}
 

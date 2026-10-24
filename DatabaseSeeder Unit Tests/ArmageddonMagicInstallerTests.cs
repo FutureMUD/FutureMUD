@@ -80,7 +80,7 @@ public partial class ArmageddonMagicInstallerTests
 			Assert.AreEqual(1, db.GameItemProtosGameItemComponentProtos.Count(x => x.GameItemProtoId == item.Id));
 		}
 	}
-	[DataTestMethod] [DataRow(false)] [DataRow(true)] public void MissingOrRetiredOwnedContentBlocksWithoutResurrection(bool retire)
+	[TestMethod] [DataRow(false)] [DataRow(true)] public void MissingOrRetiredOwnedContentBlocksWithoutResurrection(bool retire)
 	{
 		var (db, plan) = Fixture(); using (db)
 		{
@@ -170,7 +170,7 @@ public partial class ArmageddonMagicInstallerTests
 			CollectionAssert.Contains(ids, 98L); CollectionAssert.Contains(ids, 99L); CollectionAssert.DoesNotContain(ids, 1L);
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 0)] [DataRow(true, 0)] [DataRow(false, 7)] [DataRow(true, 7)]
 	public void FirstInstallReservesForeignDeletedPrototypeIdentitiesAcrossRetirementAndRevisions(bool retired, int revision)
 	{
@@ -194,7 +194,7 @@ public partial class ArmageddonMagicInstallerTests
 			Assert.AreEqual(before, JsonSerializer.Serialize(db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == "ForeignPackage").OrderBy(x => x.Id).ToArray()));
 		}
 	}
-	[DataTestMethod] [DataRow(nameof(MagicSpell), 1L)] [DataRow(nameof(TraitExpression), 1L)] [DataRow(nameof(FutureProg), 3L)]
+	[TestMethod] [DataRow(nameof(MagicSpell), 1L)] [DataRow(nameof(TraitExpression), 1L)] [DataRow(nameof(FutureProg), 3L)]
 	public void EveryNewClaimChecksRetainedOwnershipAfterPreflight(string entityType, long logicalId)
 	{
 		var (db, plan) = Fixture(); using (db)

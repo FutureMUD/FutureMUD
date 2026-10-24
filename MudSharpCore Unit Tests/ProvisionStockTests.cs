@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 public class ProvisionStockTests
 {
 	private sealed class FoodEffect(XElement root, IMagicSpell spell) : CreateItemEffect(root, spell);
-	[DataTestMethod][DataRow("empty")][DataRow("missing")][DataRow("duplicate")][DataRow("version")][DataRow("fallback")]
+	[TestMethod][DataRow("empty")][DataRow("missing")][DataRow("duplicate")][DataRow("version")][DataRow("fallback")]
 	public void MalformedFoodProfiles_RetainAuthoredXmlAndRefuseClone(string failure)
 	{
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
@@ -29,7 +29,7 @@ public class ProvisionStockTests
 		Assert.IsNotNull(effect.DefinitionError); Assert.IsTrue(XNode.DeepEquals(profiles, effect.SaveToXml().Element("Lifecycle")!.Element("FoodProfiles")));
 		Assert.IsNotNull(((CreateItemEffect)effect.Clone()).DefinitionError);
 	}
-	[DataTestMethod][DataRow(false)][DataRow(true)]
+	[TestMethod][DataRow(false)][DataRow(true)]
 	public void EditableStockDefinitions_ReloadNativeProfilesAndSourceContracts(bool food)
 	{
 		var f = new MagicCastingFixture();

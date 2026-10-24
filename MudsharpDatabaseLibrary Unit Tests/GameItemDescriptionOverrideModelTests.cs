@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class GameItemDescriptionOverrideModelTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(nameof(GameItem.OverrideSdesc))]
 	[DataRow(nameof(GameItem.OverrideDesc))]
 	public void GameItemModel_DescriptionOverrides_AreNullableTextWithoutDefaults(string name)

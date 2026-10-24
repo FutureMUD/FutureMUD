@@ -87,7 +87,7 @@ public class BuilderWorkflowImprovementTests
 		Assert.AreEqual("(absent)", changes.Single(x => x.Field == "Added").Before);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RevisionDiff_UsesCurrentRevisionAndRespectsPrivateBaselines(bool mayView)
@@ -106,7 +106,7 @@ public class BuilderWorkflowImprovementTests
 		Assert.IsFalse(output.Any(x => x.Contains("Rejected text")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("normal", "Harbour Time")]
 	[DataRow("intervening", "Someone Else")]
 	[DataRow("collision", "New Alias")]
@@ -143,7 +143,7 @@ public class BuilderWorkflowImprovementTests
 		Assert.AreEqual(1, fixture.Effects.OfType<IBuilderEditingEffect>().Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("my skin", false)]
 	[DataRow("my \"quoted\" skin", false)]
 	[DataRow("my skin", true)]
@@ -167,7 +167,7 @@ public class BuilderWorkflowImprovementTests
 		Assert.AreEqual(approved ? "Replacement" : original, skin.Name);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("craft validate 1")]
 	[DataRow("craft undo")]
 	public void PlayerCraftCommand_DiagnosticsDoNotBypassAdministratorGuard(string input)

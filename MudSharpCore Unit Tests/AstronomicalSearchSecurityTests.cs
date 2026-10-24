@@ -11,7 +11,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AstronomicalSearchSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(-1)]
 	[DataRow(0)]
 	[DataRow(33)]
@@ -27,7 +27,7 @@ public class AstronomicalSearchSecurityTests
 		ephemeris.VerifyNoOtherCalls();
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(33)]
 	[DataRow(int.MaxValue)]
 	public void FindNextForCelestial_ExcessivePhysicalOccurrence_ReturnsInvalidRequestBeforeSampling(int occurrence)

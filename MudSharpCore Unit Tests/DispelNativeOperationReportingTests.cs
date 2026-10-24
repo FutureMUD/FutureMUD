@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DispelNativeOperationReportingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0,false)]
 	[DataRow(0.000000001,false)]
 	[DataRow(10.0,true)]

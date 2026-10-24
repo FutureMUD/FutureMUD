@@ -13,7 +13,7 @@ namespace MudsharpDatabaseLibrary_Unit_Tests;
 [DoNotParallelize]
 public class DesignTimeConnectionSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null)]
 	[DataRow(" ")]
 	public void CreateDbContext_NoDesignTimeConnection_UsesCredentialFreeModelConfiguration(string? configured)

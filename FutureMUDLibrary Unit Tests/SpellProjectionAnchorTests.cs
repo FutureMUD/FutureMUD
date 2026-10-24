@@ -10,7 +10,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellProjectionAnchorTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellProjectionKind.SandEffigy)]
 	[DataRow(SpellProjectionKind.WalkingShadow)]
 	[DataRow(SpellProjectionKind.UnbodiedJourney)]
@@ -32,11 +32,11 @@ public class SpellProjectionAnchorTests
 			x => { x.Attribute("body")!.Remove(); x.SetAttributeValue("GuessedBody", 2); }, x => x.SetAttributeValue("layer", 999) })
 		{
 			var xml = valid.Save(); mutation(xml);
-			Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(xml.ToString()));
+			Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(xml.ToString()));
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN, 2, 1.0)]
 	[DataRow(double.PositiveInfinity, 2, 1.0)]
 	[DataRow(0.0, 2, 1.0)]

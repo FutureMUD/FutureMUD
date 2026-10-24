@@ -29,9 +29,9 @@ public class SpellGateAnchorTests
 	{
 		var original = new SpellGateAnchor(11, 12, 21, 22, 31, Guid.NewGuid(), 41, 51, 60);
 		var future = XElement.Parse(original.Save()); future.SetAttributeValue("version", 2);
-		Assert.ThrowsException<FormatException>(() => SpellGateAnchor.Load(future.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellGateAnchor.Load(future.ToString()));
 		var duplicate = XElement.Parse(original.Save()); duplicate.Add(new XElement("MarkItem", 31));
-		Assert.ThrowsException<FormatException>(() => SpellGateAnchor.Load(duplicate.ToString()));
-		Assert.ThrowsException<ArgumentException>(() => (original with { SourceRoomId = 21 }).Save());
+		Assert.ThrowsExactly<FormatException>(() => SpellGateAnchor.Load(duplicate.ToString()));
+		Assert.ThrowsExactly<ArgumentException>(() => (original with { SourceRoomId = 21 }).Save());
 	}
 }

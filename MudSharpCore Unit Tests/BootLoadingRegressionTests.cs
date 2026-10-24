@@ -51,7 +51,7 @@ public class BootLoadingRegressionTests
         Futuremud futuremud = new(null);
         futuremud.SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Disallowed);
 
-        Assert.ThrowsException<InvalidOperationException>(() => futuremud.TryGetCharacter(123L, true));
+        Assert.ThrowsExactly<InvalidOperationException>(() => futuremud.TryGetCharacter(123L, true));
     }
 
     [TestMethod]

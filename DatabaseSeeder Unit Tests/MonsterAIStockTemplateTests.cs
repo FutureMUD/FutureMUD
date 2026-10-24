@@ -42,7 +42,7 @@ public class MonsterAIStockTemplateTests
 		Assert.IsTrue(recommendations.Single(x => x.Race == "Phoenix").Limitations.Any(x => x.Contains("resurrection")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Mythical", "Supernatural")]
 	[DataRow("Supernatural", "Mythical")]
 	public void Seed_PackOrderAndReruns_PreserveIdsClonesAndLegacyRows(string first, string second)
@@ -70,7 +70,7 @@ public class MonsterAIStockTemplateTests
 		using var context = Context();
 		var custom = new ArtificialIntelligence { Name = MonsterAIStockTemplates.LairGuardian, Type = "Animal", Definition = "<custom/>" };
 		context.ArtificialIntelligences.Add(custom); context.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => MonsterAIStockTemplates.Seed(context, "Mythical"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => MonsterAIStockTemplates.Seed(context, "Mythical"));
 		Assert.AreEqual("Animal", custom.Type); Assert.AreEqual("<custom/>", custom.Definition);
 	}
 

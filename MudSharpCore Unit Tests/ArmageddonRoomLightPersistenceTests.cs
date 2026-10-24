@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonRoomLightPersistenceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(20.0)]
 	[DataRow(-140.0)]
 	public void RoomLight_ChildAndParentNativeReloadRetainAreaLightAndRemainingLifetime(double lux)
@@ -73,7 +73,7 @@ public class ArmageddonRoomLightPersistenceTests
 		Assert.IsFalse(effects.Contains(loadedChild));
 		var historical = new XElement(childXml); historical.Element("Type")!.Value = "SpellGlow";
 		Assert.IsNull(historical.Element("Effect")!.Element("SDescAddendum"));
-		Assert.ThrowsException<NullReferenceException>(() => Effect.LoadEffect(historical, room.Object),
+		Assert.ThrowsExactly<NullReferenceException>(() => Effect.LoadEffect(historical, room.Object),
 			"Historical mislabelled rows are not reinterpreted as part of this correction.");
 	}
 

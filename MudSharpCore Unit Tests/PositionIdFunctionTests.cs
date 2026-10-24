@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PositionIdFunctionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L), DataRow(1L), DataRow(2L), DataRow(3L), DataRow(4L), DataRow(5L), DataRow(6L), DataRow(7L), DataRow(8L),
 	 DataRow(9L), DataRow(10L), DataRow(11L), DataRow(12L), DataRow(13L), DataRow(14L), DataRow(15L), DataRow(16L),
 	 DataRow(17L), DataRow(18L), DataRow(19L), DataRow(20L)]
@@ -50,7 +50,7 @@ public class PositionIdFunctionTests
 		actor.VerifyNoOtherCalls();
 	}
 
-	[DataTestMethod, DataRow("null-character"), DataRow("null-position"), DataRow("wrong-object"), DataRow("null-variable")]
+	[TestMethod, DataRow("null-character"), DataRow("null-position"), DataRow("wrong-object"), DataRow("null-variable")]
 	public void UnavailableInput_ReturnsZeroWithoutEligibilitySideEffects(string scenario)
 	{
 		var actor = new Mock<ICharacter>(MockBehavior.Strict);

@@ -81,7 +81,7 @@ public class S4ExistingFactoryItemProjectionTests
 	}
 	private static void SetProperty(object target, string name, object value) => target.GetType().GetProperty(name)!.SetValue(target, value);
 	private static void SetField(Type type, object target, string name, object value) => type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(target, value);
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(7)]
 	public void ItemPolicy_GradeBoundaries_RequiresRealItemAndKeepsBorrowedSourceInColdJournal(int grade)
 	{
@@ -97,7 +97,7 @@ public class S4ExistingFactoryItemProjectionTests
 		Assert.AreEqual(1, f.Source.Quantity); Assert.AreSame(f.F.Body.Object, f.Source.InInventoryOf);
 		Assert.IsTrue(XNode.DeepEquals(f.Effect.SaveToXml(), f.Effect.Clone().SaveToXml()));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("identity-membership")] [DataRow("registry")] [DataRow("holder")] [DataRow("body")] [DataRow("prototype")] [DataRow("quantity")] [DataRow("destroyed")] [DataRow("world")]
 	public void CapturedBorrowedSource_ExactRawDrift_RefusesBeforeAdoption(string drift)
 	{
@@ -167,11 +167,11 @@ public class S4ExistingFactoryItemProjectionTests
 	{
 		var f = new Fixture(); Assert.IsTrue(f.Effect.TryPrepareApplication(f.Caster.Object, f.Source, default, SpellPower.ExtremelyWeak, TimeSpan.Zero, out var application, out _));
 		f.Hold.HeldBy = Mock.Of<IBody>();
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!));
 		f.Service.Verify(x => x.Create(It.IsAny<ICharacter>(), It.IsAny<SpellProjectionConfiguration>(), It.IsAny<SpellLifecycleOrigin>(), It.IsAny<IGameItem>()), Times.Never);
 		Assert.IsFalse(f.Source.Deleted);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(7)]
 	public void NativeCreationCallback_SourceDrift_RetainsPaidUncertaintyAndRequestsRetirement(int grade)
 	{
@@ -183,7 +183,7 @@ public class S4ExistingFactoryItemProjectionTests
 				Assert.AreSame(f.Source, source); Assert.AreEqual(grade, origin.Grade); Assert.AreEqual(60 * grade, (origin.DeadlineUtc!.Value - origin.CreatedUtc).TotalSeconds);
 				Assert.IsTrue(config.RequiresHeldSourceItem); f.Hold.HeldBy = Mock.Of<IBody>();
 			}).Returns(projection.As<ICharacterInstance>().Object);
-		Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!));
 		f.Service.Verify(x => x.RequestRetirement(projection.Object, SpellRetirementReason.AnchorSevered), Times.Once);
 		Assert.IsFalse(f.Source.Deleted); Assert.AreEqual(1, f.Source.Quantity);
 	}
@@ -204,11 +204,11 @@ public class S4ExistingFactoryItemProjectionTests
 		var source = new SpellProjectionBorrowedSource(91, 93, 0, 80, 100, 1);
 		var anchor = new SpellProjectionAnchor(100, 80, 1, 0, null, Policy(), source);
 		var changed = anchor.Save(); changed.Element("BorrowedSourceItem")!.SetAttributeValue("holderBodyId", 81);
-		Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
 		changed = anchor.Save(); changed.Element("BorrowedSourceItem")!.SetAttributeValue("quantity", 2);
-		Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
 		changed = anchor.Save(); changed.Add(new XElement(XName.Get("BorrowedSourceItem", "urn:foreign")));
-		Assert.ThrowsException<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
+		Assert.ThrowsExactly<FormatException>(() => SpellProjectionAnchor.Load(changed.ToString()));
 		var references = PhysicalReferenceCodecs.Effects("<Effects><OwnedProjection AnchorCharacterId='50' AnchorInstanceId='100' BorrowedSourceItemId='91'/><Narrative>92</Narrative></Effects>", true).ToArray();
 		Assert.IsTrue(references.Any(x => x.Kind == PhysicalEntityKind.GameItem && x.Id == 91)); Assert.IsFalse(references.Any(x => x.Id == 92));
 		var now = new DateTime(2026, 10, 13, 0, 0, 0, DateTimeKind.Utc);

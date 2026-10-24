@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class HealthCapacityFunctionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("health", false, 100.0)]
 	[DataRow("stun", false, 200.0)]
 	[DataRow("pain", false, 300.0)]
@@ -49,7 +49,7 @@ public class HealthCapacityFunctionTests
 		wound.VerifySet(x => x.CurrentDamage = It.IsAny<double>(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN)]
 	[DataRow(double.PositiveInfinity)]
 	[DataRow(double.NegativeInfinity)]

@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class IndustrialisedCatalogueSourceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("\n")]
 	[DataRow("\r\n")]
 	[DataRow("\r")]
@@ -29,13 +29,13 @@ public class IndustrialisedCatalogueSourceTests
 		Assert.AreEqual(prose, row.fields[1]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("key\tProse\na\tb", 1)]
 	[DataRow("Key\tProse\na\tb\tc", 2)]
 	[DataRow("Key\tProse\na", 2)]
 	public void Parser_RejectsHeaderAndColumnDriftWithLocation(string text, int line)
 	{
-		var ex = Assert.ThrowsException<InvalidDataException>(() =>
+		var ex = Assert.ThrowsExactly<InvalidDataException>(() =>
 			new IndustrialisedCatalogueSource("author.tsv", text).Read(["Key", "Prose"], (_, _, row) => row).ToArray());
 		StringAssert.Contains(ex.Message, $"author.tsv:{line}:");
 	}
@@ -46,16 +46,16 @@ public class IndustrialisedCatalogueSourceTests
 		var list = IndustrialisedCatalogueValues.List(" blue ; cream;dark grey ");
 		CollectionAssert.AreEqual(new[] { "blue", "cream", "dark grey" }, list.ToArray());
 		Assert.AreEqual(0, IndustrialisedCatalogueValues.List(string.Empty).Count);
-		Assert.ThrowsException<NotSupportedException>(() => ((System.Collections.Generic.IList<string>)list)[0] = "red");
+		Assert.ThrowsExactly<NotSupportedException>(() => ((System.Collections.Generic.IList<string>)list)[0] = "red");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("blue;Blue")]
 	[DataRow("blue;")]
 	[DataRow("blue;;cream")]
 	[DataRow(" ")]
 	public void Lists_RejectAmbiguousOrEmptyMembers(string text) =>
-		Assert.ThrowsException<FormatException>(() => IndustrialisedCatalogueValues.List(text));
+		Assert.ThrowsExactly<FormatException>(() => IndustrialisedCatalogueValues.List(text));
 
 	[TestMethod]
 	public void Numbers_UseInvariantParsingWithoutThousandsAmbiguity()
@@ -66,8 +66,8 @@ public class IndustrialisedCatalogueSourceTests
 			CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
 			Assert.AreEqual(1.25m, IndustrialisedCatalogueValues.Decimal("1.25"));
 			Assert.AreEqual(125.0, IndustrialisedCatalogueValues.Double("1.25e2"));
-			Assert.ThrowsException<FormatException>(() => IndustrialisedCatalogueValues.Decimal("1,25"));
-			Assert.ThrowsException<FormatException>(() => IndustrialisedCatalogueValues.Decimal("1,000"));
+			Assert.ThrowsExactly<FormatException>(() => IndustrialisedCatalogueValues.Decimal("1,25"));
+			Assert.ThrowsExactly<FormatException>(() => IndustrialisedCatalogueValues.Decimal("1,000"));
 		}
 		finally
 		{
@@ -75,13 +75,13 @@ public class IndustrialisedCatalogueSourceTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("NaN")]
 	[DataRow("Infinity")]
 	[DataRow("1e999")]
 	public void Numbers_RejectNonFiniteValuesWithSourceLocation(string text)
 	{
-		var ex = Assert.ThrowsException<InvalidDataException>(() =>
+		var ex = Assert.ThrowsExactly<InvalidDataException>(() =>
 			new IndustrialisedCatalogueSource("weights.tsv", $"Weight\n{text}\n")
 				.Read(["Weight"], (_, _, row) => IndustrialisedCatalogueValues.Double(row[0])).ToArray());
 		StringAssert.Contains(ex.Message, "weights.tsv:2:");
@@ -91,8 +91,8 @@ public class IndustrialisedCatalogueSourceTests
 	public void Enums_RejectNumericValuesEvenWhenTheyNameAnExistingMember()
 	{
 		Assert.AreEqual(SizeCategory.Small, IndustrialisedCatalogueValues.EnumValue<SizeCategory>("small"));
-		Assert.ThrowsException<FormatException>(() => IndustrialisedCatalogueValues.EnumValue<SizeCategory>("999"));
-		Assert.ThrowsException<FormatException>(() => IndustrialisedCatalogueValues.EnumValue<SizeCategory>(((int)SizeCategory.Small).ToString(CultureInfo.InvariantCulture)));
+		Assert.ThrowsExactly<FormatException>(() => IndustrialisedCatalogueValues.EnumValue<SizeCategory>("999"));
+		Assert.ThrowsExactly<FormatException>(() => IndustrialisedCatalogueValues.EnumValue<SizeCategory>(((int)SizeCategory.Small).ToString(CultureInfo.InvariantCulture)));
 	}
 
 	[TestMethod]
@@ -105,9 +105,9 @@ public class IndustrialisedCatalogueSourceTests
 			disk.Items.Select(x => (x.Source, x.Line, x.StableReference, x.FullDescription)).ToArray());
 		var sources = Directory.EnumerateFiles(directory, "*.tsv", SearchOption.AllDirectories)
 			.Select(path => new IndustrialisedCatalogueSource(Path.GetRelativePath(directory, path).Replace('\\', '/'), File.ReadAllText(path))).ToArray();
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedItemCatalogue.LoadSources(sources.Where(x => x.Name != "crafts.tsv")));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedItemCatalogue.LoadSources(sources.Append(sources[0])));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedItemCatalogue.LoadSources(sources.Append(new("unrecognised.tsv", "Ignored"))));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedItemCatalogue.LoadSources(sources.Where(x => x.Name != "crafts.tsv")));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedItemCatalogue.LoadSources(sources.Append(sources[0])));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedItemCatalogue.LoadSources(sources.Append(new("unrecognised.tsv", "Ignored"))));
 	}
 
 	[TestMethod]

@@ -10,7 +10,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CharacteristicPatternSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("^(hair|eyes)$", "HAIR", true)]
 	[DataRow(@"^(\w+)\1$", "abcabc", true)]
 	[DataRow("^eyes$", "hair", false)]

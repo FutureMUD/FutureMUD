@@ -129,7 +129,7 @@ public class EnvironmentalExposureSeederTests
 		Assert.AreEqual("unsupported/uncertain", ExposureCatalogueAudit.Capture(context).Single(x => x.Name == "builder's unknown stone").Disposition);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CombinedGasUpgrade_SplitsStockRoutesButPreservesCustomisedCombinedRule(bool customised)
@@ -195,7 +195,7 @@ public class EnvironmentalExposureSeederTests
 		StringAssert.Contains(report, "remain inactive until the builder resolves");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 2, 45.0)]
 	[DataRow(true, 5, 10.0)]
 	public void StockChlorine_RespiratoryRatePenetratesSeededOrganArmourWithoutChangingCombat(bool animal, int quality, double expectedPerOrgan)

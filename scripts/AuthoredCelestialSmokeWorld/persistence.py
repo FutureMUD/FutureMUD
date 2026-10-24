@@ -86,7 +86,7 @@ def main():
         raise RuntimeError('MySQL startup exceeded 60 seconds.')
 
     def connection(database):
-        return f"server=127.0.0.1;port={instance['port']};database={database};uid=root;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=600;"
+        return f"server=127.0.0.1;port={instance['port']};database={database};uid=root;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=600;"
 
     def execute(label, command, env):
         print(label, flush=True)

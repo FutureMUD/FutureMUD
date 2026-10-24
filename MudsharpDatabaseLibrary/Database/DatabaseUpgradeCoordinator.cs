@@ -33,7 +33,7 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
 
         DatabaseBackupSettings settings = DatabaseBackupSettings.Load(request.WorkingDirectory);
         string stateFilePath = DatabaseUpgradeState.GetStateFilePath(request.WorkingDirectory);
-        string databaseName = new MySqlConnectionStringBuilder(request.ConnectionString).Database;
+        string databaseName = MySqlConnectionStrings.CreateBuilder(request.ConnectionString).Database;
         bool restoredPreviousFailedUpgrade = false;
 
         if (File.Exists(stateFilePath))
@@ -174,7 +174,7 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
 
 	private void ImportBlankDatabaseSnapshot(string connectionString, Func<StreamReader> openReader, string databaseNamePlaceholder)
 	{
-		MySqlConnectionStringBuilder builder = new(connectionString);
+		MySqlConnectionStringBuilder builder = MySqlConnectionStrings.CreateBuilder(connectionString);
 		if (string.IsNullOrWhiteSpace(builder.Database) || builder.Database.Any(char.IsControl))
 			throw new ArgumentException("A snapshot target database name must be nonempty and contain no control characters.", nameof(connectionString));
 		var escapedDatabaseName = builder.Database.Replace("`", "``", StringComparison.Ordinal);
@@ -212,7 +212,7 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
         try
         {
             string exportedPath = _backupService.CreateBackup(request.ConnectionString, tempDirectory);
-            string databaseName = new MySqlConnectionStringBuilder(request.ConnectionString).Database;
+            string databaseName = MySqlConnectionStrings.CreateBuilder(request.ConnectionString).Database;
             string snapshotContents = File.ReadAllText(exportedPath)
                 .Replace(databaseName, databaseNamePlaceholder, StringComparison.Ordinal);
 			snapshotContents = Regex.Replace(

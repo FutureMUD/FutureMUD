@@ -143,7 +143,7 @@ public class ArmageddonTraditionInstallerTests
 			Assert.IsTrue(db.TraitDefinitions.Any(x => x.Name == "Builder remedy")); Assert.IsTrue(db.MagicCapabilities.Any(x => x.Name == "Unowned clone"));
 		}
 	}
-	[DataTestMethod] [DataRow(false)] [DataRow(true)] public void MissingOrRetiredOwnedIdentityBlocksWholeBatch(bool retired)
+	[TestMethod] [DataRow(false)] [DataRow(true)] public void MissingOrRetiredOwnedIdentityBlocksWholeBatch(bool retired)
 	{
 		var (db, plan) = Fixture(); using (db)
 		{
@@ -187,7 +187,7 @@ public class ArmageddonTraditionInstallerTests
 			db.Improvers.Find(1L)!.Type = "non-improving"; db.SaveChanges(); Assert.AreEqual(ArmageddonInstallStatus.Blocked, Run(db, plan).Status);
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("selector")]
 	[DataRow("scar")]
 	[DataRow("collateral")]

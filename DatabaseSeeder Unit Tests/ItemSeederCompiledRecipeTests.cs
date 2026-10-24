@@ -112,15 +112,15 @@ public class ItemSeederCompiledRecipeTests
 	public void CompiledRecipes_RejectInvalidVolumeAndVariableMappings()
 	{
 		var recipe = Recipes01Stock.PotteryMakeUnlitWorkshopHearth();
-		Assert.ThrowsException<InvalidDataException>(() => CatalogueValidator.Validate(recipe with
+		Assert.ThrowsExactly<InvalidDataException>(() => CatalogueValidator.Validate(recipe with
 		{
 			Products = [new CatalogueLiquidRecipeProduct("vessel", 1, null, "water", 0)]
 		}));
-		Assert.ThrowsException<InvalidDataException>(() => CatalogueValidator.Validate(recipe with
+		Assert.ThrowsExactly<InvalidDataException>(() => CatalogueValidator.Validate(recipe with
 		{
 			Products = [new CatalogueVariableRecipeProduct("item", 1, null, [new("Colour", 0)])]
 		}));
-		Assert.ThrowsException<InvalidDataException>(() => CatalogueValidator.Validate(recipe with
+		Assert.ThrowsExactly<InvalidDataException>(() => CatalogueValidator.Validate(recipe with
 		{
 			Products = [new CatalogueVariableRecipeProduct("item", 1, null, [new("Colour", 1), new("Colour", 1)])]
 		}));

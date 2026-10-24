@@ -29,7 +29,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellCreatedConsumableTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void EmptyInventoryPlan_Finalization_DoesNotAccessActorEffects(bool restore)
@@ -73,7 +73,7 @@ public class SpellCreatedConsumableTests
 		Assert.AreEqual("item", reloaded.TargetTypes);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1.25)]
 	[DataRow(0.0)]
 	public void Food_LoadSavedFractionOrExhaustedRemainder_PreservesQuantityWithoutDeletingDuringLoad(double remaining)
@@ -105,7 +105,7 @@ public class SpellCreatedConsumableTests
 		world.Verify(x => x.SaveManager.Add(food), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, 0.0)]
 	[DataRow(4.0, -1.0)]
 	[DataRow(4.0, double.NaN)]
@@ -117,7 +117,7 @@ public class SpellCreatedConsumableTests
 		Assert.IsFalse(body.CanEat(food, null, null, bites));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0, 10.0, 6.0)]
 	[DataRow(8.0, 10.0, 2.0)]
 	[DataRow(10.0, 10.0, 0.0)]
@@ -141,7 +141,7 @@ public class SpellCreatedConsumableTests
 		Assert.AreSame(original, container.Object.LiquidMixture);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("version")]
 	[DataRow("multiplier")]
 	[DataRow("liquid")]
@@ -157,7 +157,7 @@ public class SpellCreatedConsumableTests
 		Assert.IsFalse(effect.TryPrepareApplication(Mock.Of<ICharacter>(), Mock.Of<IPerceivable>(), default, default, TimeSpan.Zero, out _, out _));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Count", "eight")]
 	[DataRow("Placement", "glow")]
 	public void Item_MalformedCountOrPlacement_ClonesAsRefusedWithoutLegacyFallback(string field, string value)

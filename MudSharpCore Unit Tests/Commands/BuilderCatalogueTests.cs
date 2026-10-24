@@ -17,7 +17,7 @@ public class BuilderCatalogueTests
 {
 	public TestContext TestContext { get; set; } = null!;
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("--limit 0")]
 	[DataRow("--limit 1001")]
 	[DataRow("--page -1")]
@@ -50,7 +50,7 @@ public class BuilderCatalogueTests
 		Assert.AreEqual(3, total);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("a,\"b\"\nc", "\"a,\"\"b\"\"\nc\"")]
 	[DataRow("=HYPERLINK(1)", "\"'=HYPERLINK(1)\"")]
 	[DataRow("  +SUM(1)", "\"'  +SUM(1)\"")]
@@ -82,7 +82,7 @@ public class BuilderCatalogueTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("--limit 1", "First Displayed", "Last Displayed")]
 	[DataRow("--limit 1 --page 2", "Last Displayed", "First Displayed")]
 	[DataRow("--limit 1 --sort id", "Last Displayed", "First Displayed")]

@@ -165,7 +165,7 @@ public class MudDateTimeTests
         var xml = new XElement(_testCalendar.SaveToXml());
         xml.Element("dayboundary")!.SetAttributeValue("type", "AstronomicalEvent");
 
-        var exception = Assert.ThrowsException<XmlException>(() => new Calendar(xml, _gameworld));
+        var exception = Assert.ThrowsExactly<XmlException>(() => new Calendar(xml, _gameworld));
 
         StringAssert.Contains(exception.Message, "not configured");
     }

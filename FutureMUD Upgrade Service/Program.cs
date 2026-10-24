@@ -1,5 +1,5 @@
 
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FutureMUD_Upgrade_Service;
 
@@ -35,19 +35,9 @@ public class Program
                 }
             });
 
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "oauth2"
-                        }
-                    },
-                    new[] { "openid", "profile", "email" }
-                }
+                [new OpenApiSecuritySchemeReference("oauth2", document)] = ["openid", "profile", "email"]
             });
         });
 

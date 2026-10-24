@@ -25,7 +25,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BackstabSeederTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("soi", false)]
 	[DataRow("soi", true)]
 	[DataRow("broad", false)]
@@ -157,7 +157,7 @@ public class BackstabSeederTests
 		context.BodypartShapes.Add(new BodypartShape { Name = "Head" }); // A synthetic generic head is not native Head Back.
 		context.SaveChanges();
 		var expressions = context.TraitExpressions.Count();
-		var error = Assert.ThrowsException<InvalidOperationException>(() =>
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			CombatSeeder.EnsureBackstabAttacks(context, f.Blackjack, f.Normal, f.Good, SeedCombatMessageStyle.Compact));
 		StringAssert.Contains(error.Message, "Head Back");
 		Assert.AreEqual(expressions, context.TraitExpressions.Count());
@@ -241,7 +241,7 @@ public class BackstabSeederTests
 		Assert.AreEqual(0, SupernaturalSeeder.ValidateTemplateCatalogForTesting().Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NaturalBackstabs_ActualRaceReconciliation_FreshAndRepeatedInstallPreservesCustomLinks(bool supernatural)
@@ -312,7 +312,7 @@ public class BackstabSeederTests
 		Assert.AreEqual(bypass, (double)xml.Element("ArmourBypass")!);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void NaturalFormulaRerun_RefreshesCanonicalRandomnessAndPreservesCustomSourceVariants(bool custom)

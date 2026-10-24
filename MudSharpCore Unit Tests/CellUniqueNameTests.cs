@@ -49,12 +49,12 @@ public class RoomUniqueNameTests
 	public void PersistedValidation_ReportsAllRoomIdentitiesAndNeverRepairs()
 	{
 		var rows = new[] { new Db.Room { Id = 41, UniqueName = "Gate" }, new Db.Room { Id = 99, UniqueName = "gate" } };
-		var exception = Assert.ThrowsException<InvalidOperationException>(() => Room.ValidatePersistedUniqueNames(rows));
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() => Room.ValidatePersistedUniqueNames(rows));
 		StringAssert.Contains(exception.Message, "41");
 		StringAssert.Contains(exception.Message, "99");
 		Assert.AreEqual("gate", rows[1].UniqueName);
 		foreach (var value in new[] { "42", " Gate ", new string('x', 256) })
-			Assert.ThrowsException<InvalidOperationException>(() => Room.ValidatePersistedUniqueNames([new Db.Room { Id = 50, UniqueName = value }]));
+			Assert.ThrowsExactly<InvalidOperationException>(() => Room.ValidatePersistedUniqueNames([new Db.Room { Id = 50, UniqueName = value }]));
 		Room.ValidatePersistedUniqueNames([new Db.Room { Id = 1 }, new Db.Room { Id = 2, UniqueName = "" }, new Db.Room { Id = 3, UniqueName = "  " }]);
 	}
 

@@ -28,7 +28,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class SpellOwnedNpcAdmissionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Mission version='2' kind='Seek'/>")]
 	[DataRow("<Mission version='1' kind='unknown'/>")]
 	[DataRow("<Mission xmlns='urn:unsupported' version='1' kind='Seek'/>")]
@@ -59,7 +59,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.IsTrue(f.Balances.Values.All(x => x == 100)); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Store.Operations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("body")]
 	[DataRow("instance")]
 	[DataRow("state")]
@@ -84,7 +84,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Store.Operations.Count); Assert.AreEqual(0, f.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("body")]
 	[DataRow("quantity")]
 	public void InitialMissionBind_VisibilityCallbackChangesExactInputs_RefusesWithoutResampling(string change)
@@ -126,7 +126,7 @@ public partial class SpellOwnedNpcAdmissionTests
 			var callbacks = 0;
 			f.Actor.Setup(x => x.CanSee(parcel.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true)
 				.Callback(() => { callbacks++; parcel.SetupGet(x => x.Quantity).Returns(6); });
-			var exception = Assert.ThrowsException<InvalidOperationException>(() => application!.Create(null!));
+			var exception = Assert.ThrowsExactly<InvalidOperationException>(() => application!.Create(null!));
 			StringAssert.Contains(exception.Message, "changed during group creation");
 			Assert.AreEqual(1, callbacks); Assert.IsFalse(selection.IsCurrent);
 			Assert.AreEqual(0, context.Characters.Count()); Assert.AreEqual(1, context.CharacterInstances.Count());
@@ -135,7 +135,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		finally { property.SetValue(null, previous); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("visibility")]
 	[DataRow("authority")]
 	public void PreparedMission_CallbackChangesPaidPhysicalInput_RefusesBeforeMissionMutation(string callback)
@@ -163,7 +163,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		npc.Verify(x => x.AddEffect(It.IsAny<IEffect>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, "primary")]
 	[DataRow(false, "primary")]
 	[DataRow(true, "deadline")]
@@ -220,7 +220,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		public void Advance(TimeSpan duration) => _now += duration;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellNpcMissionKind.Seek, "target")]
 	[DataRow(SpellNpcMissionKind.Haunt, "target")]
 	[DataRow(SpellNpcMissionKind.Courier, "parcel to target")]
@@ -239,7 +239,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.IsTrue(ScrollSpellCompatibility.Errors(spell).Any(x => x.Contains("dedicated adapter", StringComparison.Ordinal)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void RoomMissionCourier_UsesHandSelectorAndRefusesParcelOutsideHands(bool inHands)
@@ -288,7 +288,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		finally { property.SetValue(null, previous); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SpellNpcMissionKind.Seek, "")]
 	[DataRow(SpellNpcMissionKind.Haunt, "")]
 	[DataRow(SpellNpcMissionKind.Courier, "")]

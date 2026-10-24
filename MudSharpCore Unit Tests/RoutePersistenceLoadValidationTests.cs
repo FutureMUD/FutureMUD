@@ -28,7 +28,7 @@ public class RoutePersistenceLoadValidationTests
 			MudDateTime = "invalid"
 		};
 
-		var exception = Assert.ThrowsException<InvalidDataException>(() => new Track(row, gameworld.Object));
+		var exception = Assert.ThrowsExactly<InvalidDataException>(() => new Track(row, gameworld.Object));
 		StringAssert.Contains(exception.Message, "Track #7");
 		StringAssert.Contains(exception.Message, "0-10,000.000m");
 	}
@@ -50,7 +50,7 @@ public class RoutePersistenceLoadValidationTests
 			CurrentRoutePosition = null
 		};
 
-		var exception = Assert.ThrowsException<InvalidDataException>(() => new Vehicle(row, gameworld.Object));
+		var exception = Assert.ThrowsExactly<InvalidDataException>(() => new Vehicle(row, gameworld.Object));
 		StringAssert.Contains(exception.Message, "Vehicle #9");
 		StringAssert.Contains(exception.Message, "vehicle recovery");
 	}

@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonPrimitiveSpellContentTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L)]
 	[DataRow(1L)]
 	public void NativeFactory_EveryContributionRoundTripsAndEveryGradeBindsWithoutMutation(long filter)
@@ -66,7 +66,7 @@ public class ArmageddonPrimitiveSpellContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0.0, 5.0)]
 	[DataRow(7, 0.0, 35.0)]
 	[DataRow(7, 98.0, 100.0)]
@@ -90,7 +90,7 @@ public class ArmageddonPrimitiveSpellContentTests
 		f.Actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void EmptyAura_SelectedGradeTargetsExactConfiguredReserveWithoutCasterCredit(int grade)

@@ -35,7 +35,7 @@ public class WeatherForecastTests
 	public void Forecast_OversizedClock_ContinuesLiveWeatherAndRejectsOversizedHorizon()
 	{
 		using var fixture = new Fixture(minutes: 10_000, interval: 1);
-		Assert.ThrowsException<InvalidOperationException>(() => fixture.Controller.GetForecast());
+		Assert.ThrowsExactly<InvalidOperationException>(() => fixture.Controller.GetForecast());
 		fixture.Tick(fixture.Controller);
 		Assert.AreEqual(1L, fixture.Controller.ForecastMinute);
 		Assert.AreEqual(0, fixture.Controller.MinuteCounter);

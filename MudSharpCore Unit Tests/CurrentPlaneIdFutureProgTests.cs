@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CurrentPlaneIdFutureProgTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true, 1L)]
 	[DataRow(false, true, 3L)]
 	[DataRow(false, false, 2L)]

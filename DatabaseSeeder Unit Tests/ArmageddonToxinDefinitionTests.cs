@@ -35,6 +35,6 @@ public class ArmageddonToxinDefinitionTests
 	[TestMethod]
 	public void ToxinDefinitions_RejectMissingNativeDrugIdentity()
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonToxinSpellContent.Create(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonToxinSpellContent.Create(0));
 	}
 }

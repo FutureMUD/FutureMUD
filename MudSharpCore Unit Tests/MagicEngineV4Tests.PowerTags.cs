@@ -26,7 +26,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, "psionic", false)]
 	[DataRow(true, "psionic", true)]
 	[DataRow(false, "flame", true)]
@@ -74,7 +74,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsTrue(loaded.PowerTags.Contains("elemental.fire"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void SilenceMind_AllGradesSuppressOnlyPsionicActivationUntilAbsoluteExpiry(int grade)
 	{
@@ -90,7 +90,7 @@ public partial class MagicEngineV4Tests
 		f.Clock.Now = child.ExpiryUtc!.Value; Assert.IsFalse(child.IsActiveFor(f.Pair.Target.Object)); Assert.IsTrue(power.CanInvokePower(f.Pair.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("undead")] [DataRow("staff")] [DataRow("duplicate")] [DataRow("changed")]
 	public void SilenceMind_InvalidOrChangedTargetsRefuseBeforePayment(string condition)
 	{
@@ -129,7 +129,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsTrue(f.Child.IsActiveFor(f.Pair.Target.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)] [DataRow(false)]
 	public void SilenceMind_SeversMatchingReciprocalNativeContactOnly(bool matching)
 	{

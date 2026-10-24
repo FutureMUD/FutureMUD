@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AuthoredCelestialIntegrationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1440)]
 	[DataRow(40000)]
 	public void DenseDefinition_LargerThanLegacyText_LoadsAndCopiesWithProductionBudget(int samples)
@@ -57,7 +57,7 @@ public class AuthoredCelestialIntegrationTests
 		AuthoredCelestialPresets.Create(preset, context.Calendar.Id, context.Clock.MinutesPerHour, context.Clock.HoursPerDay);
 	private static MudInstant Instant(long ticks) => new(MudInstant.CurrentEpoch, ticks, 1, 1);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("RailSun")][DataRow("RailMoon")][DataRow("ScriptedSun")][DataRow("ScriptedMoon")]
 	public void FourTypes_LoadEnvelopeAndEvaluate_IgnoreGeography(string preset)
 	{
@@ -162,7 +162,7 @@ public class AuthoredCelestialIntegrationTests
 		using var c = AuthoredCelestial.Create(50, Definition(ctx), ctx.Clock, ctx.Gameworld);
 		var original = c.Compiled.Serialize(); var live = c.LiveState;
 		var invalid = c.Compiled.CopyDefinition(); invalid.Path.Keys[3] = invalid.Path.Keys[3] with { Elevation = 99 };
-		Assert.ThrowsException<ArgumentException>(() => c.Activate(invalid));
+		Assert.ThrowsExactly<ArgumentException>(() => c.Activate(invalid));
 		Assert.AreEqual(original, c.Compiled.Serialize()); Assert.AreEqual(live, c.LiveState);
 		var valid = c.Compiled.CopyDefinition(); valid.LightTrack!.Keys[3] = valid.LightTrack.Keys[3] with { Value = 80 }; valid.LightTrack.Keys[4] = valid.LightTrack.Keys[4] with { Value = 80 };
 		c.Activate(valid);

@@ -295,7 +295,7 @@ public class CharacterInstanceServiceTests
 			RoutePosition = null
 		};
 
-		var exception = Assert.ThrowsException<InvalidDataException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidDataException>(() =>
 			CharacterInstanceService.ResolvePersistedSpatialLocation(instance, routeRoom.Room.Object));
 
 		StringAssert.Contains(exception.Message, "Character instance #602");

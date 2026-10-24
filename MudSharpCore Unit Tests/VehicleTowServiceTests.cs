@@ -28,7 +28,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehicleTowServiceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]

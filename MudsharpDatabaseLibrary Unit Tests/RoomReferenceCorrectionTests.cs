@@ -32,36 +32,36 @@ public class RoomReferenceCorrectionTests
 		Assert.IsNull(Map().Convert(null, null, "absent"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(44L)]
 	[DataRow(51L)]
 	[DataRow(0L)]
 	[DataRow(-1L)]
 	public void Map_InvalidOrEmptyParent_ReportsOwningReference(long id)
 	{
-		var error = Assert.ThrowsException<InvalidOperationException>(() => Map().Convert("Room", id, "Crimes #19.ThirdPartyId"));
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() => Map().Convert("Room", id, "Crimes #19.ThirdPartyId"));
 		StringAssert.Contains(error.Message, "Crimes #19.ThirdPartyId");
 	}
 
 	[TestMethod]
 	public void Map_AmbiguousOrDeletedMapping_Refuses()
 	{
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMap(new[] { (9L, (long?)81L), (9L, (long?)82L) }, new[] { 81L, 82L }));
-		Assert.ThrowsException<InvalidOperationException>(() => new RoomReferenceMap(new[] { (9L, (long?)81L), (10L, (long?)81L) }, new[] { 81L }));
-		Assert.ThrowsException<InvalidOperationException>(() => Map().Convert(null, 9000L, "missing type"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMap(new[] { (9L, (long?)81L), (9L, (long?)82L) }, new[] { 81L, 82L }));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new RoomReferenceMap(new[] { (9L, (long?)81L), (10L, (long?)81L) }, new[] { 81L }));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Map().Convert(null, 9000L, "missing type"));
 		var map = new RoomReferenceMap(new[] { (9L, (long?)81L), (10L, (long?)82L) }, new[] { 82L });
-		Assert.ThrowsException<InvalidOperationException>(() => map.Resolve(9, "deleted"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => map.Resolve(9, "deleted"));
 		Assert.AreEqual(82L, map.Resolve(10, "live"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("room")]
 	[DataRow(" Room ")]
 	[DataRow("Room:v3")]
 	[DataRow("Room:v2:extra")]
 	public void Map_MalformedRoomDiscriminator_RefusesWithoutNormalising(string type)
 	{
-		Assert.ThrowsException<InvalidOperationException>(() => Map().Convert(type, 9000, "typed column"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => Map().Convert(type, 9000, "typed column"));
 	}
 
 	[TestMethod]
@@ -75,7 +75,7 @@ public class RoomReferenceCorrectionTests
 		Assert.AreEqual(actual, RoomReferenceXml.Rewrite(actual, true, Map(), "rerun"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("ZeroGravityTether", "<AnchorType>Room</AnchorType><AnchorId>9000</AnchorId><PhysicalTetherId>4</PhysicalTetherId><MaximumRooms>8</MaximumRooms>", "<AnchorType>Cell</AnchorType><AnchorId>8101</AnchorId><PhysicalTetherId>4</PhysicalTetherId><MaximumRooms>8</MaximumRooms>")]
 	[DataRow("SpellZeroGravityTether", "<AnchorType><![CDATA[Room]]></AnchorType><AnchorId>9000</AnchorId><MaximumRooms>8</MaximumRooms>", "<AnchorType>Cell</AnchorType><AnchorId>8101</AnchorId><MaximumRooms>8</MaximumRooms>")]
 	[DataRow("OverrideDescFromProg", "<FixedPerceiver id='9000' type='Room'/><ModifiedDescription><![CDATA[Room untouched]]></ModifiedDescription>", "<FixedPerceiver id='8101' type='Cell'/><ModifiedDescription><![CDATA[Room untouched]]></ModifiedDescription>")]
@@ -100,10 +100,10 @@ public class RoomReferenceCorrectionTests
 	public void CheckResult_HistoricalToolTypeBug_RefusesAmbiguousStoredIdentity()
 	{
 		const string xml = "<Effects><Effect><Type>CheckResult</Type><Effect TargetType='Room' TargetId='9000' ToolType='Room' ToolId='8101'/></Effect></Effects>";
-		StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #8.EffectData")).Message, "older writer copied TargetType");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #8.EffectData")).Message, "older writer copied TargetType");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("PrivateProperty")]
 	[DataRow("PermitWork")]
 	public void Controller_HistoricallyUnsupportedParent_IsAnUnchangedInventoryExemption(string kind)
@@ -156,7 +156,7 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Items #1.EffectData"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("SpellReturnTether")]
 	[DataRow("SpellStormLocus")]
 	public void S4ReturnAndHazardAnchors_PreserveExplicitCurrentPlayableRoomNamespace(string factory)
@@ -178,7 +178,7 @@ public class RoomReferenceCorrectionTests
 	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
-		Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));
 		var root = new DirectoryInfo(AppContext.BaseDirectory);
 		while (root is not null && !Directory.Exists(Path.Combine(root.FullName, "MudSharpCore", "Effects"))) root = root.Parent;
 		Assert.IsNotNull(root);
@@ -196,7 +196,7 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("LimbNumbness", "<Limb>9000</Limb>")]
 	[DataRow("MundaneNausea", "<Intensity>4</Intensity>")]
 	[DataRow("MundaneParalysis", "")]
@@ -223,7 +223,7 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Trait")] [DataRow("MagicResource")]
 	public void EquippedItemBonus_DeclaresNoRoomLinksAndPreservesSelectedCatalogueIdentity(string kind)
 	{
@@ -242,7 +242,7 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("HaggleShopNegotiationState")]
 	[DataRow("HaggleShopPriceEffect")]
 	public void HaggleEffects_StableShopIdsAndNarrative_AreNotRoomReferences(string factory)
@@ -251,7 +251,7 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Emote><Token TargetType='Room'/></Emote>")]
 	[DataRow("<Emote><Token TargetId='9000'/></Emote>")]
 	[DataRow("<Emote><Token OtherType='Room' OtherId='wat'/></Emote>")]
@@ -261,17 +261,17 @@ public class RoomReferenceCorrectionTests
 	[DataRow("<!DOCTYPE Emote [<!ENTITY x 'Room'>]><Emote><Token TargetType='&x;' TargetId='9000'/></Emote>")]
 	public void Emote_MalformedUnmappedOrExternalEntity_ReportsRowWithoutPayload(string xml)
 	{
-		StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, true, Map(), "CharacterInstances #21.PositionEmote")).Message, "CharacterInstances #21.PositionEmote");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, true, Map(), "CharacterInstances #21.PositionEmote")).Message, "CharacterInstances #21.PositionEmote");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<AnchorType>Room</AnchorType><AnchorType>Cell</AnchorType><AnchorId>9000</AnchorId>")]
 	[DataRow("<AnchorType>Room</AnchorType><AnchorId>9000</AnchorId><AnchorId>8101</AnchorId>")]
 	[DataRow("<AnchorType>Room<!--ambiguous--></AnchorType><AnchorId>9000</AnchorId>")]
 	public void Effects_DuplicateOrNonScalarReference_Refuses(string payload)
 	{
 		var xml = $"<Effects><Effect><Type>ZeroGravityTether</Type><Effect>{payload}</Effect></Effect></Effects>";
-		Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, false, Map(), "Bodies #3.EffectData"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, false, Map(), "Bodies #3.EffectData"));
 	}
 
 	[TestMethod]
@@ -300,7 +300,7 @@ public class RoomReferenceCorrectionTests
 		var repair = new TargetedLegacyRoomReferences();
 		Assert.AreEqual(RoomReferenceMigrationInterceptor.Repair, ((SqlOperation)repair.UpOperations.Single()).Sql);
 		Assert.IsTrue(((SqlOperation)repair.UpOperations.Single()).SuppressTransaction);
-		Assert.ThrowsException<NotSupportedException>(() => _ = repair.DownOperations);
+		Assert.ThrowsExactly<NotSupportedException>(() => _ = repair.DownOperations);
 	}
 
 	[TestMethod]

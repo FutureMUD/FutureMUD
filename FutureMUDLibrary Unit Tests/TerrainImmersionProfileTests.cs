@@ -10,7 +10,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class TerrainImmersionProfileTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SizeCategory.VerySmall, ImmersionExtent.Full)]
 	[DataRow(SizeCategory.Small, ImmersionExtent.Full)]
 	[DataRow(SizeCategory.Normal, ImmersionExtent.Partial)]
@@ -21,7 +21,7 @@ public class TerrainImmersionProfileTests
 		Assert.AreEqual(expected, new TerrainImmersionProfile(TerrainMedium.Liquid, SizeCategory.Small).ContactFor(subject).Extent);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(SizeCategory.Normal, Orientation.High, true)]
 	[DataRow(SizeCategory.Large, Orientation.Centre, true)]
 	[DataRow(SizeCategory.VeryLarge, Orientation.Low, false)]

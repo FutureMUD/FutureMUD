@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SeeTheUnbodiedStockTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L, false), DataRow(1L, true), DataRow(2L, false), DataRow(3L, false), DataRow(4L, false),
 	 DataRow(5L, false), DataRow(6L, false), DataRow(7L, false), DataRow(8L, false), DataRow(9L, true),
 	 DataRow(10L, true), DataRow(11L, true), DataRow(12L, false), DataRow(13L, true), DataRow(14L, true),
@@ -97,7 +97,7 @@ public class SeeTheUnbodiedStockTests
 		Assert.AreEqual("builder.divination", reload.InventoryPlanTemplate.Phases.Single().Actions.Single().OriginalReference);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 0), DataRow(2, 0), DataRow(3, 0), DataRow(4, 1), DataRow(5, 2), DataRow(6, 3), DataRow(7, 4)]
 	public void StockPlan_EachGradeAdmitsExactThresholdAndHigherDescendant(int grade, int minimum)
 	{
@@ -115,7 +115,7 @@ public class SeeTheUnbodiedStockTests
 		Assert.IsFalse(action.MeetsPersistedSelection(f.Actor.Object, Mock.Of<IGameItem>()));
 	}
 
-	[DataTestMethod, DataRow(1, 1800.0), DataRow(7, 12600.0)]
+	[TestMethod, DataRow(1, 1800.0), DataRow(7, 12600.0)]
 	public void StockDuration_SelectedGradeUsesThreeSourceHours(int grade, double seconds)
 	{
 		var f = new MagicCastingFixture();
@@ -123,7 +123,7 @@ public class SeeTheUnbodiedStockTests
 		Assert.AreEqual(seconds, duration.EvaluateWith(f.Actor.Object, values: [("grade", grade)]));
 	}
 
-	[DataTestMethod, DataRow("missing terrain"), DataRow("replaced terrain"), DataRow("empty ranks"),
+	[TestMethod, DataRow("missing terrain"), DataRow("replaced terrain"), DataRow("empty ranks"),
 	 DataRow("duplicate ranks"), DataRow("missing rank"), DataRow("replaced rank"), DataRow("broken hierarchy")]
 	public void StockConstruction_InvalidNativeBindingsRefuseBeforeDatabaseWrites(string scenario)
 	{
@@ -135,7 +135,7 @@ public class SeeTheUnbodiedStockTests
 		if (scenario == "missing rank") ranks[4] = Mock.Of<ITag>(x => x.Id == 99);
 		if (scenario == "replaced rank") ranks[4] = Mock.Of<ITag>(x => x.Id == 5);
 		if (scenario == "broken hierarchy") Mock.Get(ranks[4]).Setup(x => x.IsA(ranks[3])).Returns(false);
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonSeeTheUnbodiedStock.Create(f.World.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonSeeTheUnbodiedStock.Create(f.World.Object,
 			f.School, f.Traits[0], f.Resources[0], silt, shadow, ranks));
 		Assert.AreEqual(1, f.Spells.Count); Assert.AreEqual(0, f.Store.Writes);
 	}

@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests.RPG.Law;
 [TestClass]
 public class EmptyPatrolRouteTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, 0)]
 	[DataRow(1, 1)]
 	[DataRow(1, 2)]
@@ -39,7 +39,7 @@ public class EmptyPatrolRouteTests
 		Assert.AreEqual(available, pool.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 1)]
 	[DataRow(2, 2)]
 	public void DoorDutiesSelectEnforcers_ValidRoute_PreservesLocalPreferenceAndFallback(int requested, int expected)
@@ -63,7 +63,7 @@ public class EmptyPatrolRouteTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void LegalStatus_ReadyEmptyDoorRouteWithFreeEnforcer_ReportsNodeProblem(bool administrator)
@@ -95,7 +95,7 @@ public class EmptyPatrolRouteTests
 		fixture.VerifySelection(Times.Never());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("crime-targeted routes wait for a matching reported crime")]
 	[DataRow("the current time of day (Morning) is not one of the route's allowed times")]
 	[DataRow("there are no due condemned prisoners")]

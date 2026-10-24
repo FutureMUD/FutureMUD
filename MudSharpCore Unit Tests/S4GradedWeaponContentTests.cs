@@ -80,7 +80,7 @@ public class S4GradedWeaponContentTests
 			CollectionAssert.AreEqual(Staffs(), lifecycle.Element("GradeOutputs")!.Elements("Output").Single(x => (int)x.Attribute("grade")! == 7).Elements("Prototype").Select(x => (long)x).ToArray());
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(6)] [DataRow(7)]
 	public void NativeWeaponOutput_GradeBoundariesAndColdReload_RetainChosenPrototype(int grade)
 	{
@@ -111,12 +111,12 @@ public class S4GradedWeaponContentTests
 		temporary[0] = 999; staffs[0] = 998;
 		var outputs = shadow.BuildDefinition(41, 42, 0).Descendants("Output").ToArray();
 		Assert.AreEqual(101L, (long)outputs[0].Element("Prototype")!); Assert.AreEqual(201L, (long)outputs[^1].Elements("Prototype").First());
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonGradedWeaponSpellContent.ShadowBlade(new(Temporary(), Staffs(), 31, 32, 0)));
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonGradedWeaponSpellContent.SparkLash(new(Temporary(), Staffs()[..7], 31, 32)));
-		Assert.ThrowsException<ArgumentException>(() => ArmageddonGradedWeaponSpellContent.SparkLash(new(Temporary(), Enumerable.Repeat(201L, 8).ToArray(), 31, 32)));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonGradedWeaponSpellContent.GatherPuddle(0));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonGradedWeaponSpellContent.ShadowBlade(new(Temporary(), Staffs(), 31, 32, 0)));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonGradedWeaponSpellContent.SparkLash(new(Temporary(), Staffs()[..7], 31, 32)));
+		Assert.ThrowsExactly<ArgumentException>(() => ArmageddonGradedWeaponSpellContent.SparkLash(new(Temporary(), Enumerable.Repeat(201L, 8).ToArray(), 31, 32)));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonGradedWeaponSpellContent.GatherPuddle(0));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(6)] [DataRow(7)]
 	public void NativeLifetimeBinding_ExternalGradeAndPermanentBoundary_PreserveSourceTiming(int grade)
 	{

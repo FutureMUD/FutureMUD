@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 1)] [DataRow(false, 2)] [DataRow(false, 3)] [DataRow(false, 4)] [DataRow(false, 5)] [DataRow(false, 6)] [DataRow(false, 7)]
 	[DataRow(true, 1)] [DataRow(true, 2)] [DataRow(true, 3)] [DataRow(true, 4)] [DataRow(true, 5)] [DataRow(true, 6)] [DataRow(true, 7)]
 	public void WeightedTravel_AllGradesMoveOneExactBodyAndNeverDrawDuringQuotes(bool banish, int grade)
@@ -41,7 +41,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(3, random.Draws); Assert.AreEqual(1, f.Moves);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(9, true)] [DataRow(10, false)] [DataRow(99, false)]
 	public void WeightedTravel_UrbanTenWildNinetyBoundaryUsesGroupThenZoneThenRoom(int pick, bool urban)
 	{
@@ -50,7 +50,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreSame(urban ? f.Urban.Object : f.Pair.Destination.Object, f.Pair.CasterLocation);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmapped")] [DataRow("overlap")] [DataRow("indoors")] [DataRow("lethal")] [DataRow("changed")]
 	public void WeightedTravel_UnsafeEmptyAmbiguousOrChangedPoolsRefuseWithoutPayment(string reason)
 	{

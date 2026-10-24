@@ -25,7 +25,7 @@ public class SpellAnimationControlTests
 				new XElement("Source", new XElement("Presentation", control is null ? null : new XElement("ControlUntilUtc", control)).ToString())).ToString()),
 		[new(SpellOwnedEntityKind.CharacterInstance, 3)], SpellLifecycleState.Active, null, null, null, Start, 1, "");
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(-1, false)]
 	[DataRow(0, true)]
 	[DataRow(5398, true)]
@@ -35,7 +35,7 @@ public class SpellAnimationControlTests
 	public void CommandGrant_UsesSeparateAbsoluteControlDeadline(int seconds, bool allowed) =>
 		Assert.AreEqual(allowed, SpellOwnedCorpseAnimationService.HasCommandGrant(Life(), 3, 2, Start.AddSeconds(seconds)));
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null)]
 	[DataRow("invalid")]
 	[DataRow("2026-10-04T01:29:59")]
@@ -54,7 +54,7 @@ public class SpellAnimationControlTests
 		Assert.IsFalse(SpellOwnedCorpseAnimationService.HasCommandGrant(Life() with { Entities = [new(SpellOwnedEntityKind.AutonomousCharacter, 3)] }, 3, 2, Start));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 6599, 4199)]
 	[DataRow(2, 7199, 4799)]
 	[DataRow(3, 7799, 5399)]

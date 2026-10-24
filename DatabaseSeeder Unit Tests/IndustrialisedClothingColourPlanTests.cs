@@ -30,11 +30,11 @@ public class IndustrialisedClothingColourPlanTests
 	public void InvalidExplicitChoiceDoesNotSilentlyFallBackToAValidDefault()
 	{
 		var d = IndustrialisedClothingCatalogueTests.Load(IndustrialisedClothingCatalogueTests.Fixture());
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(d, d.OutfitEntries.Single(),
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(d, d.OutfitEntries.Single(),
 			new Dictionary<string, string> { ["colour"] = "red" }));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(d, d.OutfitEntries.Single(),
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(d, d.OutfitEntries.Single(),
 			new Dictionary<string, string> { ["coluor"] = "blue" }));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(d with { OutfitColours = [], Palettes = [] }, d.OutfitEntries.Single()));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(d with { OutfitColours = [], Palettes = [] }, d.OutfitEntries.Single()));
 	}
 
 	[TestMethod]
@@ -46,12 +46,12 @@ public class IndustrialisedClothingColourPlanTests
 		var modified = d with { Colours = new[] { source, narrowed } };
 		IndustrialisedClothingCatalogue.ValidateStructure(modified);
 		Assert.AreEqual("cream", IndustrialisedClothingColourPlan.OutfitValues(modified, d.OutfitEntries.Single())["colour"]);
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(modified, d.OutfitEntries.Single(),
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingColourPlan.OutfitValues(modified, d.OutfitEntries.Single(),
 			new Dictionary<string, string> { ["colour"] = "blue" }));
 		foreach (var invalid in new[] { narrowed with { Definition = "Other Definition" }, narrowed with { Profile = "Other Profile" },
 			narrowed with { Variable = "colour2" }, narrowed with { AllowedValues = new[] { "red" }, DefaultValue = "red" } })
 		{
-			Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with { Colours = new[] { source, invalid } }));
+			Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with { Colours = new[] { source, invalid } }));
 		}
 	}
 
@@ -63,10 +63,10 @@ public class IndustrialisedClothingColourPlanTests
 		Assert.AreEqual(1, IndustrialisedClothingColourPlan.CraftValues(d, d.CraftProducts.First())["colour"].InputOrder);
 		var fixedChoice = d with { CraftColours = new[] { selection with { InputOrder = null, Value = "cream" } } };
 		IndustrialisedClothingCatalogue.ValidateStructure(fixedChoice);
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with { CraftColours = [] }));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with { CraftColours = [] }));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with
 			{ CraftColours = new[] { selection with { InputOrder = null, Value = "red" } } }));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingCatalogue.ValidateStructure(d with
 			{ CraftColours = new[] { selection with { Variable = "unknown" } } }));
 	}
 }

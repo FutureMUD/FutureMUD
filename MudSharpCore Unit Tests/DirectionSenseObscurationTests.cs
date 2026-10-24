@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DirectionSenseObscurationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Difficulty.Hard, false)]
 	[DataRow(Difficulty.VeryHard, true)]
 	[DataRow(Difficulty.Insane, true)]
@@ -33,7 +33,7 @@ public class DirectionSenseObscurationTests
 		Assert.AreEqual(expected, DirectionSenseMovement.IsActive(f.Actor.Object, f.Origin.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.7, false)]
 	[DataRow(0.31, false)]
 	[DataRow(0.3, true)]
@@ -57,7 +57,7 @@ public class DirectionSenseObscurationTests
 		Assert.IsTrue(DirectionSenseMovement.IsActive(f.Actor.Object, f.Origin.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(RoomOutdoorsType.Outdoors, true)]
 	[DataRow(RoomOutdoorsType.Indoors, false)]
 	[DataRow(RoomOutdoorsType.IndoorsWithWindows, false)]

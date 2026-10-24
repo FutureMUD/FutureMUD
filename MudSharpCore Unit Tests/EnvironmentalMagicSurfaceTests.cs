@@ -72,7 +72,7 @@ public class EnvironmentalMagicSurfaceTests
 		Assert.AreEqual(false, present.Result.GetObject);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("environmentcap")]
 	[DataRow("environmentrate")]
 	public void FutureProgResourceQueries_InvalidCalculationReportsError(string name)
@@ -217,7 +217,7 @@ public class EnvironmentalMagicSurfaceTests
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("recorded result")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("damage here NaN 2 81c55c90-4858-4d40-ab53-bb7e3586f840 test")]
 	[DataRow("damage here 2 Infinity 81c55c90-4858-4d40-ab53-bb7e3586f840 test")]
 	[DataRow("damage here -1 2 81c55c90-4858-4d40-ab53-bb7e3586f840 test")]

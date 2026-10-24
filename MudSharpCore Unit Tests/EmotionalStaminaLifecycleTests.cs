@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class EmotionalStaminaLifecycleTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]

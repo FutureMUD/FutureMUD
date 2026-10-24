@@ -32,7 +32,7 @@ public class CultureToolkitCatalogueTests
 		foreach (var missing in CultureToolkitCatalogue.RequiredDocuments)
 		{
 			var names = CultureToolkitCatalogue.RequiredDocuments.Where(x => x != missing).Append("data.unrelated.json");
-			StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => CultureToolkitCatalogue.ValidateRequiredDocuments(names)).Message, missing);
+			StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => CultureToolkitCatalogue.ValidateRequiredDocuments(names)).Message, missing);
 		}
 	}
 
@@ -57,7 +57,7 @@ public class CultureToolkitCatalogueTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("classical", "antiquity", true)]
 	[DataRow("liturgical", "antiquity", false)]
 	[DataRow("liturgical", "darkages", true)]
@@ -87,7 +87,7 @@ public class CultureToolkitCatalogueTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("antiquity")]
 	[DataRow("darkages")]
 	[DataRow("medieval")]
@@ -147,7 +147,7 @@ public class CultureToolkitCatalogueTests
 		var candidates = catalogue.Candidates("zoroastrian-learning", pack);
 		CollectionAssert.AreEqual(new[] { "legacy:Avestan" }, candidates.RetainedSourceReferences.ToArray());
 		CollectionAssert.AreEqual(new[] { "english.middle" }, catalogue.ResolveSelector("english", "medieval", []).ToArray());
-		Assert.ThrowsException<InvalidDataException>(() => catalogue.ResolveSelector("south-slavic", "medieval", []));
-		Assert.ThrowsException<InvalidOperationException>(() => catalogue.FixedGrantFactors("medieval", "unknown", "culture.english-nobility"));
+		Assert.ThrowsExactly<InvalidDataException>(() => catalogue.ResolveSelector("south-slavic", "medieval", []));
+		Assert.ThrowsExactly<InvalidOperationException>(() => catalogue.FixedGrantFactors("medieval", "unknown", "culture.english-nobility"));
 	}
 }

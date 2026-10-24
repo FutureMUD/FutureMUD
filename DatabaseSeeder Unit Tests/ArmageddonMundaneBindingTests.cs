@@ -48,7 +48,7 @@ public class ArmageddonMundaneBindingTests
 			Assert.AreEqual(0, db.SeederManagedRecords.Single(x => x.LogicalId == component.Id && x.EntityType == nameof(GameItemComponentProto)).RevisionNumber);
 		}
 		Assert.IsTrue(db.WeaponTypes.Where(x => x.Name == "Longsword" || x.Name == "Short Spear").All(x => x.AttackTraitId == skills["arm.skill.two_handed"].Id));
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonWeaponFamilies.InstallFresh(db, skills));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonWeaponFamilies.InstallFresh(db, skills));
 	}
 
 	[TestMethod]
@@ -69,7 +69,7 @@ public class ArmageddonMundaneBindingTests
 		Assert.IsFalse(db.SeederChoices.Any(x => x.Seeder == nameof(UsefulSeeder) || x.Seeder == nameof(ItemSeeder)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void SourceImpacts_BindSeparateCanonicalActionsAndManualCommands(bool hasAgility)
@@ -199,7 +199,7 @@ public class ArmageddonMundaneBindingTests
 			CheckTemplateId = db.CheckTemplates.First().Id, MaximumDifficultyForImprovement = (int)Difficulty.Normal };
 		db.Checks.Add(check); db.SaveChanges();
 		var count = db.TraitExpressions.Count();
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonMundaneBindings.EnsureCheck(db,
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonMundaneBindings.EnsureCheck(db,
 			CheckType.SetTrapCheck, "0", check.CheckTemplateId, Difficulty.Impossible, new List<string>(), rejectUnowned: true));
 		Assert.AreEqual(expression.Id, check.TraitExpressionId);
 		Assert.AreEqual("73", expression.Expression);

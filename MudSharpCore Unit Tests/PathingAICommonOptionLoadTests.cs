@@ -196,7 +196,7 @@ public class PathingAICommonOptionLoadTests
 		return root;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(typeof(SemiAggressiveAI), 0L)]
 	[DataRow(typeof(SemiAggressiveAI), 999L)]
 	[DataRow(typeof(TrackingAggressorAI), 0L)]
@@ -209,7 +209,7 @@ public class PathingAICommonOptionLoadTests
 		Assert.AreEqual("0", SavedDefinition(ai).Element("PathingEnabledProg")!.Value);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void IsPathingEnabled_ConfiguredProg_PreservesResult(bool enabled)

@@ -446,7 +446,7 @@ public class RpiItemConversionTests
 			x.Message.Contains("Run apply-clans before apply-items", StringComparison.OrdinalIgnoreCase)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("market-board", "market_board")]
 	[DataRow("abcdefghijklmnopqrstuvwxabcdefghijklmnopqrstuvwx-first", "abcdefghijklmnopqrstuvwxabcdefghijklmnopqrstuvwx-second")]
 	public void BoardIdentifiers_DistinctKeysDoNotCollideAfterSanitisingOrTruncating(string first, string second)

@@ -63,7 +63,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")][DataRow("retired")][DataRow("module")][DataRow("version")][DataRow("type")]
 	[DataRow("revision")][DataRow("withdrawn")][DataRow("controller")][DataRow("purpose")][DataRow("riding")]
 	public void Creatures_InvalidUnselectedGradeDependencyHoldsRetainingEarlierRead(string corruption)

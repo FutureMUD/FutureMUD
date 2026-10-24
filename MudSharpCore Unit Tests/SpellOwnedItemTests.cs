@@ -82,7 +82,7 @@ public class SpellOwnedItemTests
 		return item;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("nested")]
 	[DataRow("attached")]
 	[DataRow("lodged")]
@@ -93,7 +93,7 @@ public class SpellOwnedItemTests
 		host.SetupGet(x => x.AttachedAndConnectedItems).Returns(topology == "attached" ? [item.Object] : []);
 		host.SetupGet(x => x.LodgedItems).Returns(topology == "lodged" ? [item.Object] : []);
 		Assert.IsTrue(SpellOwnedItemValuePolicy.ContainsTemporaryValue(new PerceivableGroup([host.Object])));
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedItemValuePolicy.RequireOrdinaryValue(host.Object, "conversion"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedItemValuePolicy.RequireOrdinaryValue(host.Object, "conversion"));
 		host.Verify(x => x.Delete(), Times.Never); item.Verify(x => x.Delete(), Times.Never);
 	}
 
@@ -116,7 +116,7 @@ public class SpellOwnedItemTests
 		var component = new SalvageableGameItemComponent(proto, Temporary().Object, temporary: true);
 		Assert.IsFalse(component.CanSalvage(out var reason));
 		StringAssert.Contains(reason, "permanent value");
-		Assert.ThrowsException<InvalidOperationException>(() => component.CreateProducts(Mock.Of<ICharacter>(), true));
+		Assert.ThrowsExactly<InvalidOperationException>(() => component.CreateProducts(Mock.Of<ICharacter>(), true));
 		Assert.AreEqual("A temporary weapon.", component.Decorate(null!, "weapon", "A temporary weapon.", DescriptionType.Full, false, default));
 	}
 
@@ -125,8 +125,8 @@ public class SpellOwnedItemTests
 	{
 		var shop = (PermanentShop)RuntimeHelpers.GetUninitializedObject(typeof(PermanentShop)); var item = Temporary();
 		Assert.IsFalse(shop.CanSell(null!, null!, null!, item.Object).Truth);
-		Assert.ThrowsException<InvalidOperationException>(() => shop.Sell(null!, null!, null!, item.Object));
-		Assert.ThrowsException<InvalidOperationException>(() => shop.AddToStock(null!, item.Object, null!));
+		Assert.ThrowsExactly<InvalidOperationException>(() => shop.Sell(null!, null!, null!, item.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => shop.AddToStock(null!, item.Object, null!));
 		Assert.IsFalse(shop.CanBuyExact(null!, null!, 1, null!, [item.Object]).Truth);
 		item.Verify(x => x.SetOwner(It.IsAny<IFrameworkItem>()), Times.Never);
 	}
@@ -135,14 +135,14 @@ public class SpellOwnedItemTests
 	public void Auction_TemporaryLeaf_RefusesDirectListingBeforeAddingLot()
 	{
 		var auction = (AuctionHouse)RuntimeHelpers.GetUninitializedObject(typeof(AuctionHouse));
-		Assert.ThrowsException<InvalidOperationException>(() => auction.AddAuctionItem(new AuctionItem { Asset = Temporary().Object }));
+		Assert.ThrowsExactly<InvalidOperationException>(() => auction.AddAuctionItem(new AuctionItem { Asset = Temporary().Object }));
 	}
 
 	[TestMethod]
 	public void CraftReservation_TemporaryInputInLaterPosition_RefusesBeforeConsumingEarlierOrdinaryInput()
 	{
 		var ordinary = new Mock<IGameItem>(); var temporary = Temporary();
-		Assert.ThrowsException<InvalidOperationException>(() => new BaseInput.SimpleItemInputData([ordinary.Object, temporary.Object], 2));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new BaseInput.SimpleItemInputData([ordinary.Object, temporary.Object], 2));
 		ordinary.Verify(x => x.Quit(), Times.Never); temporary.Verify(x => x.Quit(), Times.Never);
 	}
 
@@ -178,14 +178,14 @@ public class SpellOwnedItemTests
 		var item = (GameItem)RuntimeHelpers.GetUninitializedObject(typeof(GameItem));
 		typeof(GameItem).GetProperty(nameof(GameItem.SpellCreationOrigin))!.SetValue(item, Temporary().Object.SpellCreationOrigin);
 		Assert.IsFalse(item.CanMerge(Mock.Of<IGameItem>()));
-		Assert.ThrowsException<InvalidOperationException>(() => new GameItem(item));
-		Assert.ThrowsException<InvalidOperationException>(() => item.Merge(Mock.Of<IGameItem>()));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new GameItem(item));
+		Assert.ThrowsExactly<InvalidOperationException>(() => item.Merge(Mock.Of<IGameItem>()));
 		Assert.IsFalse(item.CheckPrototypeForUpdate());
 		var proto = (GameItemProto)RuntimeHelpers.GetUninitializedObject(typeof(GameItemProto));
 		Assert.IsNull(proto.LoadDestroyedItem(item)); Assert.IsNull(proto.LoadMorphedItem(item));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("99", "TemporaryCleanup", "7")]
 	[DataRow("1", "DeathOnExpiry", "7")]
 	[DataRow("1", "TemporaryCleanup", "8")]
@@ -213,14 +213,14 @@ public class SpellOwnedItemTests
 		Assert.IsNotNull(application); Assert.IsNull(error);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1001)]
 	public void Service_InvalidReconciliationBound_RefusesBeforeOpeningDatabase(int limit)
 	{
 		var service = new SpellOwnedItemService(Mock.Of<IFuturemud>());
-		Assert.ThrowsException<ArgumentException>(() => service.ReconcileRetirements(DateTime.UtcNow, limit));
-		Assert.ThrowsException<ArgumentException>(() => service.ReconcileRetirements(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Local)));
+		Assert.ThrowsExactly<ArgumentException>(() => service.ReconcileRetirements(DateTime.UtcNow, limit));
+		Assert.ThrowsExactly<ArgumentException>(() => service.ReconcileRetirements(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Local)));
 	}
 
 	private static XElement Definition() => new("Effect", new XAttribute("type", "createitem"), new XElement("ItemQuality", new XCData("base")),

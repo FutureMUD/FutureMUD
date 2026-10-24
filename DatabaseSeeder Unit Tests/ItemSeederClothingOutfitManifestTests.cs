@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederClothingOutfitManifestTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rename")]
 	[DataRow("blank")]
 	[DataRow("status")]
@@ -65,7 +65,7 @@ public class ItemSeederClothingOutfitManifestTests
 		Assert.IsNull(typeof(ItemSeeder).GetField("_batchLiveItemReferences", flags)!.GetValue(seeder), "The batch snapshot must not outlive reconciliation.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("medieval")]
 	[DataRow("renaissance")]
 	[DataRow("earlymodern")]
@@ -277,7 +277,7 @@ public class ItemSeederClothingOutfitManifestTests
 		context.SaveChanges();
 		var shirt = new GameItemProto { Id = 101, Name = "shirt", ShortDescription = "a shirt" };
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			ItemSeeder.UpsertOutfitManifestForTesting(
 				context,
 				"test_manifest",
@@ -351,7 +351,7 @@ public class ItemSeederClothingOutfitManifestTests
 			Name = "test_other_skin",
 			ItemProtoId = 999
 		};
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			ItemSeeder.UpsertOutfitManifestWithSkinsForTesting(
 				context,
 				"test_incompatible_skin_manifest",

@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCastingCapacityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(double.NaN)]
 	[DataRow(double.PositiveInfinity)]
 	[DataRow(-1.0)]
@@ -95,7 +95,7 @@ public class MagicCastingCapacityTests
 		Assert.AreEqual(resource.AttributeCapacity, reload.AttributeCapacity);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(4.0, 48.0)]
 	[DataRow(11.5, 95.5)]
 	[DataRow(19.0, 118.0)]
@@ -108,7 +108,7 @@ public class MagicCastingCapacityTests
 		Assert.AreEqual(100.0, f.Balances[resource]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing-attribute")]
 	[DataRow("missing-expression")]
 	[DataRow("malformed-xml")]

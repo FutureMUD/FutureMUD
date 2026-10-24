@@ -397,7 +397,7 @@ public class HostileGuardChallengeTests
 			guardChallenge: attempt);
 		f.Actor.Setup(x => x.ExecuteMove(movement, It.IsAny<IMoveSpeed>()))
 			.Callback(() => throw new InvalidOperationException("Reached the admitted crossing."));
-		var reached = Assert.ThrowsException<InvalidOperationException>(movement.IntermediateStep);
+		var reached = Assert.ThrowsExactly<InvalidOperationException>(movement.IntermediateStep);
 		Assert.AreEqual("Reached the admitted crossing.", reached.Message);
 		target.Verify(x => x.CanMove(It.IsAny<IRoomExit>(), It.IsAny<CanMoveFlags>()), Times.Never);
 		Assert.AreEqual(1, f.Rolls.Count);

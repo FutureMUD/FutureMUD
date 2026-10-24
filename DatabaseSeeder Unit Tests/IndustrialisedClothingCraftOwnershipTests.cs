@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class IndustrialisedClothingReuseTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmanaged-drift", "Unmanaged craft conflict")]
 	[DataRow("missing-access", "Unmanaged craft conflict")]
 	[DataRow("wrong-owner-id", "ownership conflict")]
@@ -58,16 +58,16 @@ public partial class IndustrialisedClothingReuseTests
 		context.ChangeTracker.Clear();
 		var before = ClothingCraftOwnershipState(context);
 		var seeder = new ItemSeeder(catalogue);
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/crafts.tsv:3");
 		StringAssert.Contains(error.Message, diagnostic);
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(before, ClothingCraftOwnershipState(context));
 		Assert.AreEqual(0, seeder.GetCapturedManifestEntriesForTesting().Count);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmanaged", "Unmanaged craft access prog conflict")]
 	[DataRow("duplicate-name", "Ambiguous craft access prog")]
 	[DataRow("wrong-owner-id", "ownership conflict")]
@@ -103,7 +103,7 @@ public partial class IndustrialisedClothingReuseTests
 		context.ChangeTracker.Clear();
 		var before = ClothingCraftOwnershipState(context);
 		var seeder = new ItemSeeder(catalogue);
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/crafts.tsv:3");
 		StringAssert.Contains(error.Message, diagnostic);
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
@@ -111,7 +111,7 @@ public partial class IndustrialisedClothingReuseTests
 		Assert.AreEqual(0, seeder.GetCapturedManifestEntriesForTesting().Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unchanged")]
 	[DataRow("shared-gates")]
 	[DataRow("exact-unmanaged")]
@@ -197,7 +197,7 @@ public partial class IndustrialisedClothingReuseTests
 		context.Crafts.Add(ConflictingCraft(later.Id + 100, later.Name, later.Category));
 		context.SaveChanges();
 		var before = ClothingCraftOwnershipState(context);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => typeof(ItemSeeder)
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => typeof(ItemSeeder)
 			.GetMethod("SeedIndustrialisedClothingCrafts", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(seeder, ["industrial"]));
 		StringAssert.Contains(error.InnerException!.Message, "Clothing/crafts.tsv:3");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
@@ -220,7 +220,7 @@ public partial class IndustrialisedClothingReuseTests
 				? x with { Trait = "Tailwind", MinimumTraitValue = 0 } : x).ToArray()
 		} };
 		var before = ClothingCraftOwnershipState(context);
-		var error = Assert.ThrowsException<InvalidDataException>(() => new ItemSeeder(catalogue).ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => new ItemSeeder(catalogue).ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/crafts.tsv:3");
 		StringAssert.Contains(error.Message, "Conflicting planned craft access prog");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
@@ -240,7 +240,7 @@ public partial class IndustrialisedClothingReuseTests
 		var seeder = new ItemSeeder(Catalogue());
 		seeder.ValidateClothingPrerequisitesForTesting(context, "industrial");
 		var before = ClothingCraftOwnershipState(context);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => typeof(ItemSeeder)
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => typeof(ItemSeeder)
 			.GetMethod("EnsureTraitGateProgs", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(seeder, [trait.Name, 15]));
 		StringAssert.Contains(error.InnerException!.Message, "Unmanaged craft access prog conflict");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
@@ -273,12 +273,12 @@ public partial class IndustrialisedClothingReuseTests
 		{
 			Crafts = catalogue.Clothing.Crafts.Select(x => x with { EraAdmissions = ["industrial"] }).ToArray()
 		} };
-		var error = Assert.ThrowsException<InvalidDataException>(() => new ItemSeeder(admitted).ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => new ItemSeeder(admitted).ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/crafts.tsv:3");
 		StringAssert.Contains(error.Message, "ownership conflict");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("phase-order", "consecutive one-based phases")]
 	[DataRow("missing-product-item", "missing or ambiguous current item")]
 	[DataRow("wrong-product-skin", "missing, ambiguous or wrong-base skin")]
@@ -338,7 +338,7 @@ public partial class IndustrialisedClothingReuseTests
 		context.SaveChanges();
 		context.ChangeTracker.Clear();
 		var before = ClothingCraftOwnershipState(context);
-		var error = Assert.ThrowsException<InvalidDataException>(() =>
+		var error = Assert.ThrowsExactly<InvalidDataException>(() =>
 			new ItemSeeder(catalogue).ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/crafts.tsv:3");
 		StringAssert.Contains(error.Message, diagnostic);

@@ -52,7 +52,7 @@ public class FuryCalmPreparedTemplateTests
 		}
 		_factorySnapshots.Clear();
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
 	public void Definition_NormalTemplateFactoriesAndClone_PreserveProfileAndControlledPower(EmotionalSpellKind kind)
 	{
@@ -66,7 +66,7 @@ public class FuryCalmPreparedTemplateTests
 		Assert.IsFalse(spell.CasterSpellEffects.Any());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
 	public void Template_BuildersPersistEdits_RejectInvalidEditsWithoutMutation(EmotionalSpellKind kind)
 	{
@@ -96,7 +96,7 @@ public class FuryCalmPreparedTemplateTests
 		Assert.IsTrue(XNode.DeepEquals(saved, restored.SaveToXml())); Assert.IsNull(restored.ProfileError);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
 	public void Template_MalformedPersistedProfile_PreservesRepairBytesAndRefusesAllExecution(EmotionalSpellKind kind)
 	{
@@ -106,17 +106,17 @@ public class FuryCalmPreparedTemplateTests
 		Assert.IsNotNull(effect.ProfileError); Assert.IsNull(effect.Profile);
 		Assert.IsTrue(XNode.DeepEquals(xml, effect.SaveToXml()));
 		Assert.IsTrue(XNode.DeepEquals(xml, effect.Clone().SaveToXml()));
-		Assert.ThrowsException<InvalidOperationException>(() => effect.CapturePreparedSelection(f.Actor.Object, f.Actor.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.CapturePreparedSelection(f.Actor.Object, f.Actor.Object));
 		Assert.IsFalse(effect.TryConfirmPreparedSelection(f.Actor.Object, f.Actor.Object, out var error));
 		Assert.IsNotNull(error);
 		var parent = new MagicSpellParent(f.Actor.Object, spell, f.Actor.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object,
 			OpposedOutcomeDegree.None, SpellPower.Standard, parent, []));
-		Assert.ThrowsException<InvalidOperationException>(() => effect.GetOrApplyEffect(f.Actor.Object, f.Actor.Object,
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.GetOrApplyEffect(f.Actor.Object, f.Actor.Object,
 			OpposedOutcomeDegree.None, SpellPower.Standard, parent, []));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
 	public void CastingPreflight_UnmappedNativeContent_RefusesBeforePaymentJournalOrRoll(EmotionalSpellKind kind)
 	{
@@ -145,7 +145,7 @@ public class FuryCalmPreparedTemplateTests
 			Assert.IsTrue(effect.BuildingCommand(f.Actor.Object, new StringStack($"save {grade} Normal")));
 		Assert.IsNotNull(effect.Profile); Assert.AreEqual(1L, effect.Profile!.TraitId);
 		Assert.IsTrue(effect.Profile.BreakOnAdmittedAttack);
-		Assert.ThrowsException<InvalidOperationException>(() => effect.CapturePreparedSelection(f.Actor.Object, f.Actor.Object));
+		Assert.ThrowsExactly<InvalidOperationException>(() => effect.CapturePreparedSelection(f.Actor.Object, f.Actor.Object));
 	}
 
 	private static MagicSpell Load(MagicCastingFixture f, EmotionalSpellKind kind)

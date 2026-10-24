@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests.RPG.Law;
 [TestClass]
 public class ExecutionPatrolTargetSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("removed")]
 	[DataRow("postponed")]
 	[DataRow("other-authority")]
@@ -36,7 +36,7 @@ public class ExecutionPatrolTargetSecurityTests
 		fixture.Target.Verify(x => x.AddEffect(It.IsAny<ExecutionPatrolNoQuit>(), It.IsAny<TimeSpan>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void PatrolLifecycle_EndingExternally_ClearsTargetProgressAndNoQuit(bool completed)

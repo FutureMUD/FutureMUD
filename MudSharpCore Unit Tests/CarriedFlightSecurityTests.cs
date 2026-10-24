@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CarriedFlightSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("rider")]
 	[DataRow("dragged")]
 	[DataRow("voluntary")]

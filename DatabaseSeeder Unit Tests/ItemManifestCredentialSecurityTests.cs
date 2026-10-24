@@ -10,14 +10,14 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemManifestCredentialSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("--capture-item-manifest", "Server=example;uid=admin;password=example-secret;")]
 	[DataRow("--CAPTURE-ITEM-MANIFEST", "secret-without-connection-syntax")]
 	[DataRow("--capture-item-manifest", "")]
 	public void Capture_PositionalCredential_RejectsBeforeConnectingWithoutEchoingValue(string flag, string supplied)
 	{
 		var method = typeof(Program).GetMethod("TryCaptureItemManifest", BindingFlags.Static | BindingFlags.NonPublic)!;
-		var exception = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(null,
+		var exception = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(null,
 			new object[] { new[] { flag, supplied } }));
 
 		Assert.IsInstanceOfType(exception.InnerException, typeof(InvalidOperationException));

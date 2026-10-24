@@ -12,7 +12,7 @@ namespace FutureMUDLibrary_Unit_Tests;
 public class ArmageddonPocketContentTests
 {
 	private static SpellPocketConfiguration Configuration() => new(9, 2000, SizeCategory.Normal, 300, SpellPocketAccess.Bearer, 4);
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void PocketBinding_AllGradesRoundTripWithoutChangingCapacityOrSource(int grade)
 	{
@@ -20,7 +20,7 @@ public class ArmageddonPocketContentTests
 		var loaded = SpellPocketAnchor.Load(anchor.Save());
 		Assert.AreEqual(anchor, loaded); Assert.AreEqual(2000.0 * grade, loaded.Capacity);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("version")] [DataRow("unknown")] [DataRow("duplicate")] [DataRow("nested")]
 	public void PocketEnvelope_UnknownOrAmbiguousPolicyRefuses(string failure)
 	{
@@ -32,12 +32,12 @@ public class ArmageddonPocketContentTests
 			case "duplicate": xml.Add(new XElement("Access", "Creator")); break;
 			case "nested": xml.Element("CapacityPerGrade")!.Add(new XElement("Id", 12)); break;
 		}
-		Assert.ThrowsException<FormatException>(() => SpellPocketConfiguration.Load(xml));
+		Assert.ThrowsExactly<FormatException>(() => SpellPocketConfiguration.Load(xml));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0)] [DataRow(-1.0)] [DataRow(double.NaN)] [DataRow(double.PositiveInfinity)]
 	public void PocketCapacity_NonPositiveOrNonFiniteRefuses(double capacity) =>
-		Assert.ThrowsException<ArgumentException>(() => (Configuration() with { CapacityPerGrade = capacity }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (Configuration() with { CapacityPerGrade = capacity }).Validate());
 	[TestMethod]
 	public void PocketBinding_InvalidGradeOrIdentityRefuses()
 	{
@@ -47,10 +47,10 @@ public class ArmageddonPocketContentTests
 		Assert.AreEqual(origin.Mode, mode);
 		Assert.AreEqual(origin.DeadlineUtc, deadline);
 		Assert.AreEqual(37L, origin.CreatorId);
-		Assert.ThrowsException<ArgumentException>(() => new SpellPocketAnchor(0, 1, Configuration()).Save());
-		Assert.ThrowsException<ArgumentException>(() => new SpellPocketAnchor(37, 8, Configuration()).Save());
-		Assert.ThrowsException<ArgumentException>(() => (Configuration() with { Access = (SpellPocketAccess)999 }).Validate());
-		Assert.ThrowsException<ArgumentException>(() => (Configuration() with { SecondsPerGrade = double.NaN }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => new SpellPocketAnchor(0, 1, Configuration()).Save());
+		Assert.ThrowsExactly<ArgumentException>(() => new SpellPocketAnchor(37, 8, Configuration()).Save());
+		Assert.ThrowsExactly<ArgumentException>(() => (Configuration() with { Access = (SpellPocketAccess)999 }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (Configuration() with { SecondsPerGrade = double.NaN }).Validate());
 	}
 	[TestMethod]
 	public void PocketDuration_FractionalPolicySurvivesNativeTimestampPrecision()
@@ -65,7 +65,7 @@ public class ArmageddonPocketContentTests
 			Assert.AreEqual(deadline, created + SpellPocketConfiguration.Load(configuration.Save()).DurationForGrade(grade));
 		}
 		Assert.AreEqual(TimeSpan.FromMilliseconds(100), configuration.DurationForGrade(1));
-		Assert.ThrowsException<ArgumentException>(() => (configuration with { SecondsPerGrade = 0.0000001 }).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => (configuration with { SecondsPerGrade = 0.0000001 }).Validate());
 	}
 	[TestMethod]
 	public void PocketStock_UsesItemTriggerAndNativePaidCreationWithoutPortableDelivery()

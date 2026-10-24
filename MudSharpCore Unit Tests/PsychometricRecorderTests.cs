@@ -80,7 +80,7 @@ public class PsychometricRecorderTests
 		Assert.AreEqual(epoch, effects.Single().History.Epoch);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(10000)]
 	[DataRow(100000)]
 	[TestCategory("PsychicBenchmark")]

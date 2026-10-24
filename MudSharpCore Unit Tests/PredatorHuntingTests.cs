@@ -37,7 +37,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PredatorHuntingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void HuntOpening_PrefersBackstabAndRevalidatesWhileCrossLayerKeepsAmbush(bool crossLayer)
@@ -86,7 +86,7 @@ public class PredatorHuntingTests
 		Assert.IsFalse(f.Ai.SelectHuntMove(f.Actor.Object, hunt, out _));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("miss", AnimalHuntPhase.Fighting)]
 	[DataRow("defended", AnimalHuntPhase.Fighting)]
 	[DataRow("hit", AnimalHuntPhase.Fighting)]
@@ -105,7 +105,7 @@ public class PredatorHuntingTests
 		Assert.AreEqual(expected, hunt.Phase);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("flying")]
 	[DataRow("climbing")]
 	[DataRow("swimming")]
@@ -404,7 +404,7 @@ public class PredatorHuntingTests
 		Assert.AreEqual(100, AnimalThreatAssessment.Instance.Assess(new(100, 1, 1, 1, 100, 0, 0, 0), new AnimalHuntingSettings().Weights).Score);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(AnimalPeoplePreyPolicy.Never, NeedsResult.Starving, false)]
 	[DataRow(AnimalPeoplePreyPolicy.Desperate, NeedsResult.Peckish, false)]
 	[DataRow(AnimalPeoplePreyPolicy.Desperate, NeedsResult.Hungry, false)]
@@ -566,7 +566,7 @@ public class PredatorHuntingTests
 		f.Actor.Verify(x => x.RemoveEffect(restored, false), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)] [DataRow(true, true)]
 	public void VenomHunt_OnlyDeliveryReceiptStartsWithdrawal(bool delivered, bool expected)
 	{
@@ -613,7 +613,7 @@ public class PredatorHuntingTests
 		Assert.IsFalse(AmbushAttackMove.CanAmbush(f.Actor.Object, f.Actor.Object, attack.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true, true)]
 	[DataRow(false, true, false)]
 	[DataRow(true, false, false)]
@@ -689,7 +689,7 @@ public class PredatorHuntingTests
 		f.Actor.Verify(x => x.Engage(It.IsAny<IPerceiver>(), It.IsAny<bool>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Inherit", AnimalEngagementPurpose.Hunt, false)]
 	[DataRow("Attack", AnimalEngagementPurpose.Territory, true)]
 	public void ContextualAttack_AtHome_PreservesHuntVersusDefencePurpose(string response, AnimalEngagementPurpose purpose, bool allowed)

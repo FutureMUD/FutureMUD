@@ -6,6 +6,7 @@ using Google.Protobuf;
 using Microsoft.EntityFrameworkCore;
 using Mscc.GenerativeAI;
 using Mscc.GenerativeAI.Google;
+using Mscc.GenerativeAI.Types;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
@@ -68,7 +69,7 @@ internal static class OpenAIHandler
             ],
             systemInstruction: new Content(context)
             {
-                Parts = [new TextData { Text = context }]
+                Parts = [new Part { Text = context }]
             });
         ChatSession chat = api.StartChat();
 #if DEBUG

@@ -91,7 +91,7 @@ public class CommandHelpInfoTests
 	[TestMethod]
 	public void ConditionalHelpInfoAttribute_InvalidPredicateFailsModuleCompile()
 	{
-		Assert.ThrowsException<ApplicationException>(() => new InvalidConditionalHelpTestModule());
+		Assert.ThrowsExactly<ApplicationException>(() => new InvalidConditionalHelpTestModule());
 	}
 
 	[TestMethod]

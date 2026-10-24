@@ -136,7 +136,7 @@ public class VancianStateTests
 	public void InvalidPersistedSchema_DisablesWithoutSilentlyCreatingEmptyState()
 	{
 		var state = VancianCapabilityState.Load(10,20,2,"<VancianState schema='77' />");
-		Assert.IsNotNull(state.DataError); Assert.ThrowsException<InvalidOperationException>(() => state.Save());
+		Assert.IsNotNull(state.DataError); Assert.ThrowsExactly<InvalidOperationException>(() => state.Save());
 	}
 	[TestMethod]
 	public void ScrollCeiling_IgnoresSpentSlotsButRequiresPositiveUsableCapacity()
@@ -173,6 +173,6 @@ public class VancianStateTests
 		f.Policies["scrolldifficulty"] = f.Prog("scrolldifficulty", _ => (int)Difficulty.ExtremelyHard).Object.Id;
 		Assert.AreEqual(Difficulty.ExtremelyHard, f.Service.ScrollControlDifficulty(f.Actor.Object, f.Capability.Object, f.Spells[1], 3, 0));
 		f.Policies["scrolldifficulty"] = f.Prog("scrolldifficulty", _ => 1.5).Object.Id;
-		Assert.ThrowsException<InvalidOperationException>(() => f.Service.ScrollControlDifficulty(f.Actor.Object, f.Capability.Object, f.Spells[1], 3, 0));
+		Assert.ThrowsExactly<InvalidOperationException>(() => f.Service.ScrollControlDifficulty(f.Actor.Object, f.Capability.Object, f.Spells[1], 3, 0));
 	}
 }

@@ -49,7 +49,7 @@ public class BlindFightingSeederTests
 			"Blind Fighting must have its own persisted identity.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void FreshSkillFoundations_DeferBlindFightingUntilCombatCanBindItsSkill(bool useSkillPackage)
@@ -110,7 +110,7 @@ public class BlindFightingSeederTests
 			.Count(x => x.Name.Equals(CombatSeeder.BlindFightingSkillName, StringComparison.OrdinalIgnoreCase)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("100")]
 	[DataRow("min(80, variable) + 5")]
 	public void ExistingCheck_IsPreservedAndDoesNotInventASkill(string formula)

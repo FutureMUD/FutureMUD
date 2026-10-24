@@ -54,7 +54,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsFalse(d.Receipt.BeginEnter(d.F.Actor.Object, d.Destination.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("owner-before")]
 	[DataRow("owner-predicate")]
@@ -121,7 +121,7 @@ public partial class QueuedCommandAuthorityTests
 		else if (change != "valid") Assert.AreSame(f.Actor.Object.Location, sourceLocation, "Complete the already accepted Get with a safe floor fallback.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("source")]
 	[DataRow("survivor")]
 	public void AmmoUnloadMerge_ComponentPrototypeCallbackPreservesBothStacks(string change)
@@ -174,7 +174,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreSame(f.Actor.Object.Location, sourceLocation);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("chamber-refusal")]
 	[DataRow("direct")]
@@ -238,7 +238,7 @@ public partial class QueuedCommandAuthorityTests
 	}
 
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
@@ -256,7 +256,7 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreEqual(accepted, move.UsesStaminaWithResult(result));
 		weapon.Verify(x => x.Ready(f.Actor.Object), Times.Once);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("cleared")]
 	[DataRow("replacement")]
 	[DataRow("foreign")]
@@ -307,7 +307,7 @@ public partial class QueuedCommandAuthorityTests
 		void Fire() => gun.Fire(f.Actor.Object, null!, MudSharp.RPG.Checks.Outcome.MajorFail, MudSharp.RPG.Checks.Outcome.MajorPass, null!, null!, null!, null!);
 		if (scenario.StartsWith("throw"))
 		{
-			Assert.AreSame(failure, Assert.ThrowsException<InvalidOperationException>(Fire));
+			Assert.AreSame(failure, Assert.ThrowsExactly<InvalidOperationException>(Fire));
 			Assert.IsNull(gun.ChamberedCasing); Assert.IsNull(casing.Object.ContainedIn);
 			if (scenario == "throw") Assert.AreSame(f.Actor.Object.Location, casingRoom);
 			else { Assert.AreSame(f.Body.Object, casingHold.Object.HeldBy); Assert.IsNull(casingRoom); }

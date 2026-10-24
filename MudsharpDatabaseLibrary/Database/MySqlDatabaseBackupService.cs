@@ -12,11 +12,11 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
     public string CreateBackup(string connectionString, string backupDirectory)
     {
         Directory.CreateDirectory(backupDirectory);
-        MySqlConnectionStringBuilder builder = new(connectionString);
+        MySqlConnectionStringBuilder builder = MySqlConnectionStrings.CreateBuilder(connectionString);
         string fileName = $"{builder.Database}-DB-Backup-{DateTime.UtcNow:yyyyMMddHHmmss}.sql";
         string destination = Path.Combine(backupDirectory, fileName);
 
-        using MySqlConnection connection = new(connectionString);
+        using MySqlConnection connection = new(builder.ConnectionString);
         using MySqlCommand command = new()
         {
             Connection = connection
@@ -31,7 +31,7 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
 
 	public void RestoreBackup(string connectionString, string backupFilePath)
 	{
-		MySqlConnectionStringBuilder builder = new(connectionString);
+		MySqlConnectionStringBuilder builder = MySqlConnectionStrings.CreateBuilder(connectionString);
 		if (string.IsNullOrWhiteSpace(builder.Database))
 		{
 			throw new InvalidOperationException("Cannot restore a database backup when the connection string has no database name.");
@@ -53,7 +53,7 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
 
     public bool DatabaseLooksBlank(string connectionString)
     {
-        MySqlConnectionStringBuilder builder = new(connectionString);
+        MySqlConnectionStringBuilder builder = MySqlConnectionStrings.CreateBuilder(connectionString);
         string databaseName = builder.Database;
         if (string.IsNullOrWhiteSpace(databaseName))
         {
@@ -104,7 +104,7 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
 
     public void RecreateEmptyDatabase(string connectionString)
     {
-        MySqlConnectionStringBuilder builder = new(connectionString);
+        MySqlConnectionStringBuilder builder = MySqlConnectionStrings.CreateBuilder(connectionString);
         if (string.IsNullOrWhiteSpace(builder.Database))
         {
             throw new InvalidOperationException("Cannot recreate a database when the connection string has no database name.");
@@ -125,7 +125,7 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
 
 	public void ExecuteSqlScript(string connectionString, string scriptContents)
 	{
-		using MySqlConnection connection = new(connectionString);
+		using MySqlConnection connection = new(MySqlConnectionStrings.CreateBuilder(connectionString).ConnectionString);
 		connection.Open();
 		foreach (var batch in MySqlScriptBatchParser.Parse(scriptContents))
 		{
@@ -139,10 +139,8 @@ public sealed class MySqlDatabaseBackupService : IDatabaseBackupService
 
     private static string GetServerConnectionString(string connectionString)
     {
-        MySqlConnectionStringBuilder builder = new(connectionString)
-        {
-            Database = string.Empty
-        };
+        MySqlConnectionStringBuilder builder = MySqlConnectionStrings.CreateBuilder(connectionString);
+        builder.Database = string.Empty;
         return builder.ConnectionString;
     }
 }

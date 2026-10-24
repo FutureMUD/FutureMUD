@@ -176,7 +176,7 @@ public class ItemSeederReworkMetadataTests
 			"Existing builder-maintained note."));
 		context.SaveChanges();
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			new ItemSeeder().CreateReworkItemForTesting(
 				context,
 				"antiquity_short_wool_chiton",
@@ -271,7 +271,7 @@ public class ItemSeederReworkMetadataTests
 			"Builder-owned candidate."));
 		context.SaveChanges();
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			new ItemSeeder().CreateReworkItemForTesting(
 				context,
 				"antiquity_ambiguous_legacy_hammer",

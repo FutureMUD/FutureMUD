@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonCatalogueProvisionsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -129,7 +129,7 @@ public class ArmageddonCatalogueProvisionsTests
 		Assert.AreEqual(2, deferred.Count(x => x.Kind == ArmageddonBlueprintKind.DeviceBlank));
 		Assert.IsTrue(deferred.All(x => x.Recipe is not null));
 		Assert.AreEqual(5.0, ArmageddonCatalogueProvisions.SatiationHours(500));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonCatalogueProvisions.SatiationHours(double.NaN));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonCatalogueProvisions.SatiationHours(double.NaN));
 	}
 
 	internal static Mock<IFuturemud> World(FuturemudDatabaseContext db)

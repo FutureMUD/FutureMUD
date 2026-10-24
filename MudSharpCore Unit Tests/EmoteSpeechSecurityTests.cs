@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class EmoteSpeechSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(PermitLanguageOptions.LanguageIsMuffling)]
 	[DataRow(PermitLanguageOptions.LanguageIsGasping)]
 	[DataRow(PermitLanguageOptions.LanguageIsChoking)]
@@ -36,7 +36,7 @@ public class EmoteSpeechSecurityTests
 		f.VerifySpeech(0);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("@ says, \"secret command\"")]
 	[DataRow("@ says, \"secret command")]
 	public void Emote_SpeechForbidden_RejectsBeforeAnySpeechEvents(string emote)

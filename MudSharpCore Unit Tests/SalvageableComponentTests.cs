@@ -31,7 +31,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SalvageableComponentTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void FullDescriptionDecoration_LifecycleAndMovementVariants_AddOneStableDisclosure(bool preventsMovement)
@@ -184,7 +184,7 @@ public class SalvageableComponentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Eligibility_DoesNotDependOnCarryability(bool preventsMovement)
@@ -241,7 +241,7 @@ public class SalvageableComponentTests
 		source.Verify(x => x.RemoveEffect(It.IsAny<IEffect>(), false), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(Outcome.Pass, true)]
 	[DataRow(Outcome.Fail, false)]
 	public void ItemSalvaging_CompletionConsumesSourceOnSuccessAndFailure(Outcome outcome, bool success)

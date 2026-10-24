@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests.Crafts;
 [TestClass]
 public class CraftPhaseProductRoutingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 3)]
 	[DataRow(true, 1)]
 	public void HandleCraftPhase_ProducesOnlySelectedOutcomeAndDoesNotDuplicateProducts(bool failed, int quantity)

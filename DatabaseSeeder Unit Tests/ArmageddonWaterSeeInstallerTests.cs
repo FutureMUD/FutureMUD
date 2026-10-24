@@ -26,7 +26,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		db.ChangeTracker.Clear(); return ArmageddonWaterSeeInstaller.Install(db, plan, checkpoint);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("empty-water")][DataRow("duplicate-water")][DataRow("missing-water")][DataRow("negative-water")]
 	[DataRow("missing-silt")][DataRow("missing-shadow")][DataRow("missing-tag")][DataRow("duplicate-tag")]
 	[DataRow("wrong-rank-order")][DataRow("missing-ancestor")][DataRow("cycle")][DataRow("null-water")][DataRow("null-tags")]
@@ -71,7 +71,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unowned-skill")][DataRow("wrong-owner-scope")][DataRow("foreign-skill-claim")][DataRow("skill-version")]
 	[DataRow("wine-retired")][DataRow("wine-version")][DataRow("wine-incomplete")][DataRow("false-prog")]
 	public void WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites(string invalid)
@@ -98,7 +98,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("deleted")][DataRow("retired")][DataRow("foreign")][DataRow("version")][DataRow("missing-record")][DataRow("identity")]
 	public void WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection(string invalid)
 	{
@@ -154,7 +154,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		db.Dispose(); Assert.AreEqual(ArmageddonInstallStatus.Declined, ArmageddonWaterSeeInstaller.Install(db, plan with { Install = false }).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")][DataRow("changed")]
 	public void WaterSeeStandaloneRefusesRetainedStockIdentityDamageWithoutRepair(string damage)
 	{

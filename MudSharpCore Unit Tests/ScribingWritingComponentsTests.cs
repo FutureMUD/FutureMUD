@@ -30,7 +30,7 @@ public class ScribingWritingComponentsTests
 {
 	private const long ColourId = 7L;
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("999")]
 	[DataRow("-1")]
 	[DataRow("2147483648")]
@@ -49,7 +49,7 @@ public class ScribingWritingComponentsTests
 		CollectionAssert.AreEqual(new[] { WritingImplementType.Stylus }, surface.AllowedImplementTypes.ToArray());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("quill", WritingImplementType.Quill)]
 	[DataRow("10", WritingImplementType.Charcoal)]
 	public void WritingComponentBuilders_DefinedNamedOrNumericType_PreserveSupportedInput(string input, WritingImplementType expected)

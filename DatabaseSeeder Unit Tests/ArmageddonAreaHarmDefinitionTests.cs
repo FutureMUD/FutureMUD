@@ -56,6 +56,6 @@ public class ArmageddonAreaHarmDefinitionTests
 		var acid = contributions[ArmageddonAreaHarmSpellContent.CausticSprayKey].Content;
 		Assert.AreEqual(8.0, acid.MinimumEnergy);
 		Assert.AreEqual((int)DamageType.Chemical, (int)acid.BuildDefinition(10, 11, 0).Element("Effects")!.Element("Effect")!.Element("DamageType")!);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonAreaHarmSpellContent.Create(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonAreaHarmSpellContent.Create(0));
 	}
 }

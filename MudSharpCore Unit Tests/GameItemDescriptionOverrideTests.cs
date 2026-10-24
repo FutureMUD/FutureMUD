@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class GameItemDescriptionOverrideTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(DescriptionType.Short, "a plain token", "a painted token", "a personal token")]
 	[DataRow(DescriptionType.Full, "A plain token.", "A painted token.", "A personal token.")]
 	[DataRow(DescriptionType.Contents, "A plain token.", "A painted token.", "A personal token.")]
@@ -109,7 +109,7 @@ public class GameItemDescriptionOverrideTests
 		Assert.IsTrue(item.Changed);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null, null)]
 	[DataRow("a custom token", "Custom prose.")]
 	[DataRow("", "")]
@@ -184,7 +184,7 @@ public class GameItemDescriptionOverrideTests
 		Assert.AreEqual(8, stack.Quantity);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null, null, true)]
 	[DataRow("same", "same", true)]
 	[DataRow(null, "custom", false)]

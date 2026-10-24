@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonNeedHarmCastingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonNeedHarmSpellContent.DesiccateKey, 1)]
 	[DataRow(ArmageddonNeedHarmSpellContent.DesiccateKey, 7)]
 	[DataRow(ArmageddonNeedHarmSpellContent.HeadlongRevelKey, 1)]
@@ -39,7 +39,7 @@ public class ArmageddonNeedHarmCastingTests
 		Assert.AreEqual(0.0, ((NeedDeltaEffect)spell.SpellEffects.First()).DrunkDelta);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonNeedHarmSpellContent.DesiccateKey, "-1001")]
 	[DataRow(ArmageddonNeedHarmSpellContent.HeadlongRevelKey, "26")]
 	public void NeedHarm_OutOfRangeNativeNeedAmountRefusesDetachedCastingCopy(string key, string formula)
@@ -50,7 +50,7 @@ public class ArmageddonNeedHarmCastingTests
 		definition.Element("ControlledPower")!.Element("ScalarBindings")!.Elements().Single().Value = formula;
 		row.Definition = definition.ToString();
 		var edited = new MagicSpell(row, fixture.World.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => edited.CastingCopy(
+		Assert.ThrowsExactly<InvalidOperationException>(() => edited.CastingCopy(
 			fixture.Actor.Object, fixture.Traits[0], 7, SpellPower.ExtremelyWeak, Difficulty.Normal));
 	}
 
@@ -127,7 +127,7 @@ public class ArmageddonNeedHarmCastingTests
 		fixture.Body.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
 			.Callback<IEffect, TimeSpan>((_, _) => currentBody = replacement.Object);
 
-		Assert.ThrowsException<InvalidOperationException>(() => needs.FulfilNeedsOnSelectedBody(
+		Assert.ThrowsExactly<InvalidOperationException>(() => needs.FulfilNeedsOnSelectedBody(
 			new NeedFulfiller { AlcoholLitres = 0.01 }, original,
 			() => ReferenceEquals(fixture.Actor.Object.Body, original) && ReferenceEquals(original.NeedsModel, needs)));
 		fixture.Body.Verify(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()), Times.Once);

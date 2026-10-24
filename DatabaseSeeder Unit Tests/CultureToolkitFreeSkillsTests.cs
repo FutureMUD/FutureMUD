@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitFreeSkillsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void EitherSeederOrderWiresStockAndPreservesIndependentGrantsOutsideItsBlock(bool cultureFirst)

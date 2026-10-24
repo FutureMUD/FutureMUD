@@ -137,7 +137,7 @@ public class VehicleTransitLocalityTests
 		Assert.IsFalse(VehicleModule.DepartureIsVisibleAt(service.Object, terminal.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(VehicleJourneyState.Boarding, true)]
 	[DataRow(VehicleJourneyState.Held, true)]
 	[DataRow(VehicleJourneyState.Dwelling, true)]

@@ -70,7 +70,7 @@ public class VehicleComponentBuilderTests
 			.FirstOrDefault(x => x.Name.EqualTo("ElectricEngine")).Help));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Vehicle Exterior", "vehicle <vehicle proto>")]
 	[DataRow("Vehicle Access Point", "vehicle <vehicle proto> <access id>")]
 	[DataRow("Vehicle Cargo Space", "vehicle <vehicle proto> <cargo id>")]

@@ -100,7 +100,7 @@ public class CultureToolkitStartingValueTests
 		Assert.AreEqual(240.0, wrapper.ExecuteDouble(ch.Object, runtimeTraits["welsh"], 0));
 		Assert.AreEqual(180.0, wrapper.ExecuteDouble(ch.Object, runtimeTraits["french.anglonorman"], 0));
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("antiquity")]
 	[DataRow("darkages")]
 	[DataRow("medieval")]

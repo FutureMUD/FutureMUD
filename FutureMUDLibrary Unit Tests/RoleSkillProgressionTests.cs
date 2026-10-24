@@ -39,9 +39,9 @@ public class RoleSkillProgressionTests
 	[TestMethod]
 	public void Rules_RejectMissingParentsCyclesAndDuplicateMemberships()
 	{
-		Assert.ThrowsException<ArgumentException>(() => new RoleSkillProgression([new(1, 11, true, 10, 60, 10, 70)]));
-		Assert.ThrowsException<ArgumentException>(() => new RoleSkillProgression([new(1, 10, true, 10, 60, 11, 50), new(1, 11, true, 10, 60, 10, 50)]));
-		Assert.ThrowsException<ArgumentException>(() => new RoleSkillProgression([new(1, 10, true, 20, 60), new(1, 10, true, 20, 60)]));
-		Assert.ThrowsException<ArgumentException>(() => new RoleSkillProgression([new(1, 10, false, 20, double.NaN)]));
+		Assert.ThrowsExactly<ArgumentException>(() => new RoleSkillProgression([new(1, 11, true, 10, 60, 10, 70)]));
+		Assert.ThrowsExactly<ArgumentException>(() => new RoleSkillProgression([new(1, 10, true, 10, 60, 11, 50), new(1, 11, true, 10, 60, 10, 50)]));
+		Assert.ThrowsExactly<ArgumentException>(() => new RoleSkillProgression([new(1, 10, true, 20, 60), new(1, 10, true, 20, 60)]));
+		Assert.ThrowsExactly<ArgumentException>(() => new RoleSkillProgression([new(1, 10, false, 20, double.NaN)]));
 	}
 }

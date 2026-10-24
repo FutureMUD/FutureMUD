@@ -32,7 +32,7 @@ public class ProvisionProfileTests
 		xml.Element("ContainerFill")!.Element("Recipes")!.AddFirst(new XElement("Recipe", new XAttribute("order", 1), new XAttribute("predicate", 72), new XAttribute("liquid", 2)));
 		return (new(xml, Mock.Of<IMagicSpell>(x => x.Gameworld == world.Object)), world, actor, policy, progs);
 	}
-	[DataTestMethod][DataRow("compile")][DataRow("signature")][DataRow("missing")][DataRow("null")][DataRow("failed")]
+	[TestMethod][DataRow("compile")][DataRow("signature")][DataRow("missing")][DataRow("null")][DataRow("failed")]
 	public void ConfiguredRecipe_RefusesInvalidMissingAndFailedPolicy(string failure)
 	{
 		var f = Recipe(failure); if (failure == "missing") f.Progs.Clear();
@@ -40,7 +40,7 @@ public class ProvisionProfileTests
 		Assert.AreEqual(72L, (long)f.Effect.SaveToXml().Element("ContainerFill")!.Element("Recipes")!.Element("Recipe")!.Attribute("predicate")!);
 		if (failure is "null" or "failed") f.Policy.Verify(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()), Times.Once());
 	}
-	[DataTestMethod][DataRow("true", 2L)][DataRow("false", 1L)]
+	[TestMethod][DataRow("true", 2L)][DataRow("false", 1L)]
 	public void RecipeSelection_OrderedTrueOrFallbackIsFrozenWithLiveRevalidation(string result, long expected)
 	{
 		var f = Recipe(result); Assert.IsTrue(f.Effect.TryPrepareRecipe(f.Actor.Object, out var error), error);
@@ -48,7 +48,7 @@ public class ProvisionProfileTests
 		Assert.AreEqual(expected, ((ILiquid)typeof(CreateLiquidEffect).GetField("_preparedRecipe", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(f.Effect)!).Id);
 		f.Policy.Verify(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()), Times.Exactly(2));
 	}
-	[DataTestMethod][DataRow(true)][DataRow(false)]
+	[TestMethod][DataRow(true)][DataRow(false)]
 	public void RecipeToken_AdoptsChoiceOnlyForOriginalRecipientAndRejectsChangedFirstMatch(bool differentRecipient)
 	{
 		var f = Recipe(); var recipient = Mock.Of<IPerceivable>();
@@ -60,7 +60,7 @@ public class ProvisionProfileTests
 		object value = false; f.Policy.Setup(x => x.ExecuteWithStatus(out value, It.IsAny<object[]>())).Returns(true);
 		Assert.IsFalse(copy.TryPrepareRecipe(f.Actor.Object, out var error)); StringAssert.Contains(error!, "first matching");
 	}
-	[DataTestMethod][DataRow(true)][DataRow(false)]
+	[TestMethod][DataRow(true)][DataRow(false)]
 	public void RecipeCallbackOrPreparedContextChange_RefusesAdmission(bool duringCallback)
 	{
 		var f = Recipe();
@@ -71,7 +71,7 @@ public class ProvisionProfileTests
 		}
 		Assert.IsFalse(f.Effect.TryPrepareRecipe(f.Actor.Object, out var error)); StringAssert.Contains(error!, duringCallback ? "callback" : "context");
 	}
-	[DataTestMethod][DataRow("empty")][DataRow("missing")][DataRow("duplicate")][DataRow("fallback")]
+	[TestMethod][DataRow("empty")][DataRow("missing")][DataRow("duplicate")][DataRow("fallback")]
 	public void MalformedRecipes_RetainConfiguredXmlAndRefuseInsteadOfFixedFallback(string failure)
 	{
 		var f = Recipe(); var xml = f.Effect.SaveToXml(); var root = xml.Element("ContainerFill")!.Element("Recipes")!;

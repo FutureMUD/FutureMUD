@@ -350,7 +350,7 @@ public class AutomaticCrimeExtensionsTests
 		Assert.IsTrue(AutomaticCrimeExtensions.CheckLawfulMovement(actor.Object, exit.Object));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CheckLawfulMovement_LawfulFollowerWouldTrespass_BlocksWholeMovement(bool silent)

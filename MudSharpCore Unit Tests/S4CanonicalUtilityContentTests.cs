@@ -113,7 +113,7 @@ public class S4CanonicalUtilityContentTests
 			Assert.AreEqual("42", definition.Descendants("Cost").Single().Attribute("expression")!.Value);
 		}
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("sense_enchantment", "detectmagick")] [DataRow("mend_flesh", "heal")]
 	[DataRow("draw_water", "createliquid")] [DataRow("hovering_light", "createitem")]
 	[DataRow("draw_wine", "createliquid")] [DataRow("sustain_meal", "createitem")]
@@ -149,7 +149,7 @@ public class S4CanonicalUtilityContentTests
 			Assert.AreEqual(ProgVariableTypes.Boolean.ToStorageString(), row.ReturnTypeDefinition);
 			Assert.AreEqual(content.Key is "arm.spell.draw_water" or "arm.spell.draw_wine" ? ProgVariableTypes.Item.ToStorageString() : ProgVariableTypes.Character.ToStorageString(), row.FutureProgsParameters.Single(x => x.ParameterIndex == 0).ParameterTypeDefinition);
 			Assert.AreEqual(ProgVariableTypes.Character.ToStorageString(), row.FutureProgsParameters.Single(x => x.ParameterIndex == 1).ParameterTypeDefinition);
-			Assert.ThrowsException<ArgumentException>(() => content.BuildDefinition(41, 42, 0));
+			Assert.ThrowsExactly<ArgumentException>(() => content.BuildDefinition(41, 42, 0));
 		}
 	}
 	[TestMethod]
@@ -174,7 +174,7 @@ public class S4CanonicalUtilityContentTests
 		Assert.AreEqual("60*grade", contents["arm.spell.pierce_concealment"].DurationFormula); Assert.IsFalse(pierce.Descendants("LifetimePolicy").Any());
 		Assert.IsTrue(ArmageddonReviewedPierceContent.PierceConcealment().BuildDefinition(41, 42, 43).Descendants("LifetimePolicy").Any(), "The legacy accumulated profile remains independently available.");
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(7)]
 	public void NativeSelectedGradeBindings_HealingDamageAndBinaryDuration_UseLockedBounds(int grade)
 	{
@@ -202,7 +202,7 @@ public class S4CanonicalUtilityContentTests
 			bindings with { HoveringLightPrototypeId = 0 }, bindings with { CharacterResistanceTraitId = 0 }, bindings with { FoodPrototypeIds = [75, 75, 77] },
 			bindings with { FoodPrototypeIds = [75, 76] }, bindings with { PerceptionEligibilitySource = " " }, bindings with { TargetEligibilitySource = "" },
 			bindings with { LiquidEligibilitySource = "" }, bindings with { MagicalEligibilitySource = "" } })
-			Assert.ThrowsException<ArgumentException>(() => ArmageddonCanonicalUtilityContent.Contributions(invalid));
-		Assert.ThrowsException<ArgumentException>(() => meal.BuildDefinition(0, 42, 0));
+			Assert.ThrowsExactly<ArgumentException>(() => ArmageddonCanonicalUtilityContent.Contributions(invalid));
+		Assert.ThrowsExactly<ArgumentException>(() => meal.BuildDefinition(0, 42, 0));
 	}
 }

@@ -13,7 +13,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonPreparedWorldSeederTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("retired")]
 	[DataRow("type")]
 	[DataRow("version")]
@@ -73,7 +73,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		Merits = db.Merits.AsNoTracking().OrderBy(x => x.Id).Select(x => new { x.Id, x.Definition }).ToArray()
 	});
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("sorcerer")]
 	[DataRow("preserver")]
 	[DataRow("defiler")]
@@ -100,7 +100,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonInstallCheckpoint.ContentCreated)]
 	[DataRow(ArmageddonInstallCheckpoint.BeforeCommit)]
 	public void PierceInterruptionPreservesExistingCapabilityMeritPolicyAndBaseline(ArmageddonInstallCheckpoint boundary)
@@ -138,7 +138,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("MagicCapability")]
 	[DataRow("Merit")]
 	public void BootstrapStillRefusesRetiredCapabilityOrMeritOwnership(string entityType)

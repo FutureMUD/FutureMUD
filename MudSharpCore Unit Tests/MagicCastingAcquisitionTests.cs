@@ -73,7 +73,7 @@ public class MagicCastingAcquisitionTests
 		Assert.AreEqual(48, cases);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(2, 0.0)]
 	[DataRow(1, 43.0)]
 	public void Reconcile_DiamondUnmetBranch_LeavesJoinAbsent(int grade, double proficiency)
@@ -86,7 +86,7 @@ public class MagicCastingAcquisitionTests
 		AssertNoCasting(f);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("spell", false)]
 	[DataRow("trait", false)]
 	[DataRow("both", false)]
@@ -146,7 +146,7 @@ public class MagicCastingAcquisitionTests
 		AssertNoCasting(f);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("no enrolment")]
 	[DataRow("disabled")]
 	[DataRow("unavailable")]
@@ -213,7 +213,7 @@ public class MagicCastingAcquisitionTests
 		AssertNoCasting(f);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("prerequisite spell")]
 	[DataRow("prerequisite trait")]
 	[DataRow("target spell")]
@@ -271,7 +271,7 @@ public class MagicCastingAcquisitionTests
 		AssertNoCasting(f);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("multi-node cycle", "cycle")]
 	[DataRow("self-cycle", "cycle")]
 	[DataRow("duplicate prerequisite", "duplicate")]

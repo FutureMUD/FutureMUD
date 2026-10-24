@@ -8,7 +8,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ControlledSpellEfficiencyTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 1, 7.0, 50.0)]
 	[DataRow(2, 1, 7.0, 25.0)]
 	[DataRow(3, 1, 7.0, 16.0)]
@@ -29,10 +29,10 @@ public class ControlledSpellEfficiencyTests
 	{
 		foreach (var profile in new[] { new ControlledSpellEfficiency(-1, 1), new ControlledSpellEfficiency(51, 1),
 			new ControlledSpellEfficiency(double.NaN, 1), new ControlledSpellEfficiency(7, 0), new ControlledSpellEfficiency(7, double.PositiveInfinity) })
-			Assert.ThrowsException<InvalidOperationException>(() => profile.Cost(1, 1));
-		Assert.ThrowsException<InvalidOperationException>(() => new ControlledSpellEfficiency(7, double.MaxValue).Cost(1, 1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new ControlledSpellEfficiency(7, 1).Cost(0, 1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new ControlledSpellEfficiency(7, 1).Cost(1, 8));
+			Assert.ThrowsExactly<InvalidOperationException>(() => profile.Cost(1, 1));
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ControlledSpellEfficiency(7, double.MaxValue).Cost(1, 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new ControlledSpellEfficiency(7, 1).Cost(0, 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new ControlledSpellEfficiency(7, 1).Cost(1, 8));
 	}
 
 	[TestMethod]
@@ -52,7 +52,7 @@ public class ControlledSpellEfficiencyTests
 		}
 		Assert.IsFalse(ArmageddonPowerVocabulary.TryParse("first", out _));
 		Assert.IsFalse(ArmageddonPowerVocabulary.TryParse(null, out _));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPowerVocabulary.SourceIndex(0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPowerVocabulary.Grade(7));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPowerVocabulary.SourceIndex(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonPowerVocabulary.Grade(7));
 	}
 }

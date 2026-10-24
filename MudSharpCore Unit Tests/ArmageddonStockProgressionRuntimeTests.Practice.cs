@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockProgressionRuntimeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -81,7 +81,7 @@ public partial class ArmageddonStockProgressionRuntimeTests
 		Assert.AreEqual(opportunity, f.Store.Opportunity(100, trait));
 		Assert.AreEqual(0, f.Balances[reserve]);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(CharacterState.Awake, "Standing", false, 2.0)]
 	[DataRow(CharacterState.Awake, "Sitting", false, 4.0)]
 	[DataRow(CharacterState.Sleeping, "Sitting", false, 0.0)]

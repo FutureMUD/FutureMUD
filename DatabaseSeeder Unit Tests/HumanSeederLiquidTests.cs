@@ -13,7 +13,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class HumanSeederLiquidTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void SeedBloodAndSweat_UsesWaterWithNonDefaultId(bool unrelatedLiquidAtIdOne)
@@ -49,7 +49,7 @@ public class HumanSeederLiquidTests
 	public void SeedBloodAndSweat_MissingWaterReportsPrerequisiteBeforeAddingRecords()
 	{
 		using var context = BuildContext();
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			HumanSeeder.SeedBloodAndSweat(context));
 		StringAssert.Contains(exception.Message, "stock water liquid");
 		Assert.AreEqual(0, context.ChangeTracker.Entries().Count());

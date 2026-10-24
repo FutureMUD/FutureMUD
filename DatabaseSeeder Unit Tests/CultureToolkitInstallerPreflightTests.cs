@@ -27,7 +27,7 @@ public class CultureToolkitInstallerPreflightTests
 	public void MissingLearnedLiteracyFailsBeforeSourceEvaluationOrWrites()
 	{
 		using var context = Context();
-		var error = Assert.ThrowsException<InvalidOperationException>(() => CultureToolkitInstaller.Install(context, "medieval", true, true, true));
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() => CultureToolkitInstaller.Install(context, "medieval", true, true, true));
 		StringAssert.Contains(error.Message, "Literacy");
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 	}

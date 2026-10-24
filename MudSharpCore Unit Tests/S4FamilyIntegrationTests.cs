@@ -89,7 +89,7 @@ public class S4FamilyIntegrationTests
 		Assert.AreEqual(1, f.Messages.Count(x => x.Contains("threshold alarm")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void PlanarStock_ConcreteInitialEffectEjectsOnlyNoncorporealInventoryAndResolverReturnsOnRemoval(bool manifested)

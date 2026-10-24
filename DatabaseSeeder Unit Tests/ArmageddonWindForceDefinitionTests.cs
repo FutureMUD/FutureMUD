@@ -21,7 +21,7 @@ public class ArmageddonWindForceDefinitionTests
 			Assert.AreEqual("arm.capability.wind", contribution.NativeCapabilityKey);
 			Assert.AreEqual("7*grade", contribution.Content.CostRow(1).Expression);
 			Assert.AreEqual("0", contribution.Content.DurationFormula);
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(0, 2, 0));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(0, 2, 0));
 			var definition = contribution.Content.BuildDefinition(1, 2, 0);
 			Assert.AreEqual("characterexit", (string?)definition.Element("Trigger")!.Attribute("type"));
 			Assert.AreEqual(false, (bool)definition.Element("Trigger")!.Element("CanTargetSelf")!);

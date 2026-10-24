@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class WeaponPoisonConfigurationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(DrugVector.Injected)]
 	[DataRow(DrugVector.Touched)]
 	public void DeliveryChance_NoneSeverityDoesNotReceiveMinimumChance(DrugVector vector)
@@ -25,7 +25,7 @@ public class WeaponPoisonConfigurationTests
 		Assert.AreEqual(0.0, WeaponPoisonDeliveryHelper.CalculateDeliveryChance(world.Object, wound, vector));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("severity", 0.0)]
 	[DataRow("severity", -1.0)]
 	[DataRow("severity", double.NaN)]
@@ -48,7 +48,7 @@ public class WeaponPoisonConfigurationTests
 		Assert.AreEqual(0.0, WeaponPoisonDeliveryHelper.CalculateDeliveryChance(world.Object, wound, DrugVector.Touched));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.001, 0.05)]
 	[DataRow(0.5, 0.5)]
 	[DataRow(10.0, 0.95)]

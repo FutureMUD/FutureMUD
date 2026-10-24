@@ -36,7 +36,7 @@ public class RoomSpatialContractionTests
 		Assert.IsFalse(copy.Contains("INSERT IGNORE"));
 		CollectionAssert.AreEquivalent(new[] { "Rooms", "Areas_Rooms" }, operations.OfType<DropTableOperation>().Select(x => x.Name).ToArray());
 		Assert.AreEqual("RoomId", operations.OfType<DropColumnOperation>().Single().Name);
-		Assert.ThrowsException<NotSupportedException>(() => _ = new CellSpatialContraction().DownOperations);
+		Assert.ThrowsExactly<NotSupportedException>(() => _ = new CellSpatialContraction().DownOperations);
 	}
 
 	[TestMethod]

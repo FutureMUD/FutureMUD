@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ChargedMagicDeviceRechargeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("wrong-route", "does not explicitly admit")]
 	[DataRow("unacquired", "not acquired")]
 	[DataRow("uncontrolled", "explicit overreach")]
@@ -72,7 +72,7 @@ public class ChargedMagicDeviceRechargeTests
 		Assert.AreEqual(0, fixture.F.SkillUses);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Recharge_PaidInterruptionOrRestart_PreservesOldChargesWithoutRefundOrReplay(bool restartDuringWork)

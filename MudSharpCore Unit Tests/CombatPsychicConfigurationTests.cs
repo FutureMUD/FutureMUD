@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CombatPsychicConfigurationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("75%", 0.75, true)]
 	[DataRow("0%", 0.0, true)]
 	[DataRow("100%", 1.0, true)]

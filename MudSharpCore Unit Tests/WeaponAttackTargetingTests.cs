@@ -22,7 +22,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class WeaponAttackTargetingTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void MeleeDamage_RetainsExactWeaponOriginWithAndWithoutWeaponWear(bool weaponWear)

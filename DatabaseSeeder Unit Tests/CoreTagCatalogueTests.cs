@@ -80,7 +80,7 @@ public class CoreTagCatalogueTests
 		Assert.IsTrue(catalogue.Messages.Any(x => x.Contains("Incense Fuel") && x.Contains("#2")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("duplicate")]
 	[DataRow("cycle")]
 	[DataRow("orphan")]
@@ -91,12 +91,12 @@ public class CoreTagCatalogueTests
 		if (scenario == "duplicate") db.Tags.Add(new Tag { Id = 2, Name = "Functions" });
 		db.SaveChanges();
 		var count = db.Tags.Count();
-		Assert.ThrowsException<InvalidOperationException>(() => CoreTagCatalogue.Ensure(db));
+		Assert.ThrowsExactly<InvalidOperationException>(() => CoreTagCatalogue.Ensure(db));
 		Assert.AreEqual(count, db.Tags.Count());
 		Assert.AreEqual(0, db.SeederManagedRecords.Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("retired")]
 	[DataRow("type")]
 	[DataRow("module")]
@@ -110,8 +110,8 @@ public class CoreTagCatalogueTests
 			EntityType = scenario == "type" ? nameof(Material) : nameof(Tag), StableKey = definition.Key, LogicalId = 1, Retired = scenario == "retired" });
 		if (scenario == "shared-id") db.SeederManagedRecords.Add(new SeederManagedRecord { Seeder = nameof(CoreDataSeeder), Module = "TagCatalogue", EntityType = nameof(Tag), StableKey = CoreTagCatalogue.Definitions[1].Key, LogicalId = 1 });
 		db.SaveChanges();
-		Assert.ThrowsException<InvalidOperationException>(() => CoreTagCatalogue.Ensure(db));
-		Assert.ThrowsException<InvalidOperationException>(() => CoreTagCatalogue.Require(db, definition.Path));
+		Assert.ThrowsExactly<InvalidOperationException>(() => CoreTagCatalogue.Ensure(db));
+		Assert.ThrowsExactly<InvalidOperationException>(() => CoreTagCatalogue.Require(db, definition.Path));
 		Assert.AreEqual(1, db.Tags.Count());
 	}
 

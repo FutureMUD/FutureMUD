@@ -55,7 +55,7 @@ public class VehicleRouteExitStepLoadTests
 			.Setup(x => x.GetAllExits(origin.Object))
 			.Returns([]);
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			new VehicleRouteExitStep(null!, CreateStep(exitId), gameworld.Object));
 
 		StringAssert.Contains(exception.Message, "Vehicle route exit step #77");

@@ -9,7 +9,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class EnvironmentalMagicOptionsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("EnvironmentalMagicActiveSeconds", "0")]
 	[DataRow("EnvironmentalMagicAuditSeconds", "30")]
 	[DataRow("EnvironmentalMagicMaximumCellVisits", "0")]
@@ -19,7 +19,7 @@ public class EnvironmentalMagicOptionsTests
 	public void InvalidDeploymentEdit_PreservesThePreviouslyAcceptedBudgets(string name, string value)
 	{
 		var original = new EnvironmentalMagicOptions();
-		Assert.ThrowsException<ArgumentException>(() => original.WithSetting(name, value));
+		Assert.ThrowsExactly<ArgumentException>(() => original.WithSetting(name, value));
 		Assert.AreEqual(new EnvironmentalMagicOptions(), original);
 	}
 

@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 public class FiveUtilityStockTests
 {
 	[ClassInitialize]public static void Initialise(TestContext _)=>FutureProgTestBootstrap.EnsureInitialised();
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("sense","arm.spell.sense_enchantment",60,7.0,"detectmagick")]
 	[DataRow("unravel","arm.spell.unravel_enchantment",60,7.0,"dispelmagic")]
 	[DataRow("mend","arm.spell.mend_flesh",30,20.0,"heal")]
@@ -46,7 +46,7 @@ public class FiveUtilityStockTests
 		"mend"=>ArmageddonMendFleshStock.Definition(10,1,1),"draw"=>ArmageddonDrawWaterStock.Definition(10,1,1,1,2),
 		_=>ArmageddonHoveringLightStock.Definition(10,1,0,1)};
 
-	[DataTestMethod][DataRow(1,2.0)][DataRow(7,98.0)]
+	[TestMethod][DataRow(1,2.0)][DataRow(7,98.0)]
 	public void MendFlesh_SelectedGradeBindsNativeWorstFirstBudget(int grade,double budget)
 	{
 		var f=new MagicCastingFixture();var model=(MudSharp.Models.MagicSpell)typeof(MagicSpell).GetMethod("SnapshotModel",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(f.Spell,[])!;
@@ -58,7 +58,7 @@ public class FiveUtilityStockTests
 		var report=((IMagicSpellEffectOperation)copy.SpellEffects.Single()).Apply(f.Actor.Object,f.Actor.Object,default,default,null!,[]);
 		Assert.AreEqual(MagicEffectOperationStatus.Applied,report.Status);Assert.AreEqual(100-budget,worse.Object.CurrentDamage);Assert.AreEqual(3,lesser.Object.CurrentDamage);Assert.AreEqual(200,impossible.Object.CurrentDamage);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Silt",false,false)][DataRow("sIlT",false,false)][DataRow("Fire Plane",true,false)][DataRow("Desert",true,true)][DataRow("Water Plane",true,true)]
 	public void StockTerrainProgs_CompileAndEvaluateNativeVariables(string name,bool sense,bool water)
 	{

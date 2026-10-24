@@ -21,7 +21,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PreparedGetStackMergeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(-1)]
 	public void EmptyStack_CannotBeRetrievedMergedOrTargeted(int quantity)
@@ -62,7 +62,7 @@ public class PreparedGetStackMergeTests
 
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, false)]
 	[DataRow(-1, false)]
 	[DataRow(2, false)]
@@ -110,7 +110,7 @@ public class PreparedGetStackMergeTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("ammo")]
 	[DataRow("foreign-component")]
 	[DataRow("callback-component")]
@@ -171,7 +171,7 @@ public class PreparedGetStackMergeTests
 		var completion = typeof(Body).GetMethod("CompleteGetPlacementWithResult", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		if (scenario is "delete-throw" or "refill-empty-throw")
 		{
-			var error = Assert.ThrowsException<TargetInvocationException>(() => completion.Invoke(body, arguments));
+			var error = Assert.ThrowsExactly<TargetInvocationException>(() => completion.Invoke(body, arguments));
 			Assert.AreSame(expected, error.InnerException, error.InnerException?.ToString());
 		}
 		else Assert.IsTrue((bool)completion.Invoke(body, arguments)!);
@@ -199,7 +199,7 @@ public class PreparedGetStackMergeTests
 		if (scenario is "foreign-component" or "callback-component") Assert.IsTrue(source.Components.Contains(foreign));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("refill")]
 	[DataRow("relocate")]
@@ -236,7 +236,7 @@ public class PreparedGetStackMergeTests
 		var call = typeof(GameItem).GetMethod("MergeCommittedStackForGet", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		if (scenario == "throw")
 		{
-			var error = Assert.ThrowsException<TargetInvocationException>(() => call.Invoke(survivor, [source, holder]));
+			var error = Assert.ThrowsExactly<TargetInvocationException>(() => call.Invoke(survivor, [source, holder]));
 			Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		}
 		else call.Invoke(survivor, [source, holder]);
@@ -255,7 +255,7 @@ public class PreparedGetStackMergeTests
 	public void CommittedGetStackMerge_OverflowRefusesBeforeEitherQuantityChanges()
 	{
 		var (survivor, source, holder) = Pair(int.MaxValue, 1);
-		var error = Assert.ThrowsException<TargetInvocationException>(() =>
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() =>
 			typeof(GameItem).GetMethod("MergeCommittedStackForGet", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(survivor, [source, holder]));
 		Assert.IsInstanceOfType(error.InnerException, typeof(OverflowException));
 		Assert.AreEqual(int.MaxValue, survivor.Quantity);
@@ -263,7 +263,7 @@ public class PreparedGetStackMergeTests
 		Assert.IsFalse(source.Deleted);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("load", "valid")]
 	[DataRow("load", "refill")]
 	[DataRow("load", "foreign")]
@@ -292,7 +292,7 @@ public class PreparedGetStackMergeTests
 		};
 		if (mutation == "foreign") ((List<IGameItemComponent>)typeof(GameItem).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(source)!).Add(Mock.Of<IGameItemComponent>());
 		var method = typeof(GameItem).GetMethod(operation == "load" ? "MergeCommittedAmmoStackForLoad" : "MergeCommittedAmmoStackForGet", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		if (mutation == "active") Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(survivor, [source, holder]));
+		if (mutation == "active") Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(survivor, [source, holder]));
 		else method.Invoke(survivor, [source, holder]);
 		Assert.AreEqual(mutation == "active" ? 5 : 8, survivor.Quantity);
 		Assert.AreEqual(mutation == "active" ? 3 : mutation == "refill" ? 2 : 0, source.Quantity);
@@ -300,7 +300,7 @@ public class PreparedGetStackMergeTests
 		Assert.AreEqual(mutation == "valid", source.Deleted);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("valid")]
 	[DataRow("description-throw")]
 	[DataRow("add-throw")]
@@ -326,7 +326,7 @@ public class PreparedGetStackMergeTests
 		if (scenario == "valid") { var result = Invoke(); Assert.AreSame(captured, result); }
 		else
 		{
-			var error = Assert.ThrowsException<TargetInvocationException>(() => Invoke());
+			var error = Assert.ThrowsExactly<TargetInvocationException>(() => Invoke());
 			if (scenario != "reject") Assert.AreSame(expected, error.InnerException);
 		}
 		Assert.AreEqual(scenario == "reject" ? 3 : 1, source.Quantity);

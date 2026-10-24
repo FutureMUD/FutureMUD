@@ -23,7 +23,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class SpellOwnedNpcAdmissionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0")]
 	[DataRow("-1")]
 	[DataRow("1/0")]
@@ -46,7 +46,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Samples); Assert.AreEqual(0, f.SkillUses); Assert.AreEqual(0, f.Flushes);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("grade*60")]
 	[DataRow("outcome*60")]
 	[DataRow("variable+60")]
@@ -74,7 +74,7 @@ public partial class SpellOwnedNpcAdmissionTests
 			"Post-roll evaluation must retain the native duration trait-read timing even for an invariant formula.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("coordinate")]
 	[DataRow("world")]
 	[DataRow("length")]
@@ -95,7 +95,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Store.Operations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("template")]
 	[DataRow("revision")]
 	[DataRow("coordinate")]
@@ -167,7 +167,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		finally { RouteSpatialService.Instance.ClearActiveMovement(f.Actor.Object); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("permanent")]
 	[DataRow("legacy")]
 	public void PreparedNpc_NonTemporaryPolicies_PreserveLifetimeFreeApplications(string mode)

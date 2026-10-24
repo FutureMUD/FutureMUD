@@ -170,8 +170,8 @@ return @togglevalue");
 		fileSystem.WriteFile("signal.txt", "12345");
 
 		Assert.AreEqual(5, fileSystem.UsedBytes);
-		Assert.ThrowsException<ComputerFileSystemCapacityException>(() => fileSystem.AppendFile("signal.txt", "6"));
-		Assert.ThrowsException<ComputerFileSystemCapacityException>(() => fileSystem.WriteFile("other.txt", "1"));
+		Assert.ThrowsExactly<ComputerFileSystemCapacityException>(() => fileSystem.AppendFile("signal.txt", "6"));
+		Assert.ThrowsExactly<ComputerFileSystemCapacityException>(() => fileSystem.WriteFile("other.txt", "1"));
 
 		fileSystem.WriteFile("signal.txt", "12");
 		fileSystem.WriteFile("other.txt", "123");
@@ -191,9 +191,9 @@ return @togglevalue");
 		Assert.AreEqual(ComputerFileKind.Media, fileSystem.GetFile("camera.av")!.Kind);
 		Assert.AreEqual(ComputerFileKind.Media, change!.Kind);
 		Assert.AreEqual(42L, change.MediaRecordingId);
-		Assert.ThrowsException<ComputerFileKindException>(() => fileSystem.ReadFile("camera.av"));
-		Assert.ThrowsException<ComputerFileKindException>(() => fileSystem.WriteFile("camera.av", "not media"));
-		Assert.ThrowsException<ComputerFileKindException>(() => fileSystem.AppendFile("camera.av", "not media"));
+		Assert.ThrowsExactly<ComputerFileKindException>(() => fileSystem.ReadFile("camera.av"));
+		Assert.ThrowsExactly<ComputerFileKindException>(() => fileSystem.WriteFile("camera.av", "not media"));
+		Assert.ThrowsExactly<ComputerFileKindException>(() => fileSystem.AppendFile("camera.av", "not media"));
 		Assert.IsFalse(fileSystem.WriteMediaFile("second.av", 43L, 3L, false, out var capacityError));
 		StringAssert.Contains(capacityError, "capacity");
 	}
@@ -220,7 +220,7 @@ return @togglevalue");
 		Assert.IsTrue(owners.Any(x => x.FileOwnerId == fileGenerator.Id));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("enter cell")]
 	[DataRow("enter room")]
 	public void MotionSensorDetectionMode_MatchesExpectedWitnessEvents(string selector)
@@ -241,7 +241,7 @@ return @togglevalue");
 		Assert.IsFalse(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterEnterRoomWitness));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("EnterCell")]
 	[DataRow("EnterRoom")]
 	[DataRow("2")]
@@ -543,7 +543,7 @@ return @togglevalue");
 		StringAssert.Contains(error, "open");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void AutomationMounts_GenericConnectRequiresElectricalInstallInBothOrders(bool housingOpen)

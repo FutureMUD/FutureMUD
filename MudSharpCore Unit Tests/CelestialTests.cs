@@ -25,7 +25,7 @@ public class CelestialTests
             CelestialTestAssertions.DayNumberTolerance);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(CurrentPositionRegressionCases), DynamicDataSourceType.Method)]
     public void CurrentPosition_RegressionMatchesExpectedValues(
         string date,

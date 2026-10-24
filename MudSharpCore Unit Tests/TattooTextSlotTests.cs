@@ -25,7 +25,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class TattooTextSlotTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("closed")]
 	[DataRow("sealed")]
 	public void TattooTextCopy_RejectsUnexposedTextOnVisibleItem(string restriction)

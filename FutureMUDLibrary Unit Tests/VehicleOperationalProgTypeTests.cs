@@ -8,7 +8,7 @@ namespace FutureMUDLibrary_Unit_Tests.FutureProg;
 [TestClass]
 public class VehicleOperationalProgTypeTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("vehicleroute")]
 	[DataRow("vehicleservice")]
 	[DataRow("vehiclejourney")]

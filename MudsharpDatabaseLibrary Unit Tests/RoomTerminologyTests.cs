@@ -37,7 +37,7 @@ public class RoomTerminologyTests
 			Assert.AreEqual("RoomId",alter.Name);
 			Assert.IsTrue(alter.Table is "RoomSpatialAreaMigrationLedger" or "RoomSpatialAreaContractionLedger");
 		}
-		Assert.ThrowsException<NotSupportedException>(()=>_ = migration.DownOperations);
+		Assert.ThrowsExactly<NotSupportedException>(()=>_ = migration.DownOperations);
 		var preflight = operations.OfType<SqlOperation>().First().Sql;
 		Assert.IsTrue(preflight.Contains("legacy grouping still exists"));
 		Assert.IsTrue(preflight.Contains("complete contraction first"));

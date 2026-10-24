@@ -34,7 +34,7 @@ public class ArmageddonWindForceCastingTests
 		Assert.AreEqual(1, ((ForcedPathMovementEffect)spell.SpellEffects.Single()).Steps);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0")]
 	[DataRow("1.5")]
 	[DataRow("101")]
@@ -47,7 +47,7 @@ public class ArmageddonWindForceCastingTests
 		definition.Element("ControlledPower")!.Element("ScalarBindings")!.Elements().Single().Value = formula;
 		row.Definition = definition.ToString();
 		var edited = new MagicSpell(row, fixture.World.Object);
-		Assert.ThrowsException<InvalidOperationException>(() => edited.CastingCopy(
+		Assert.ThrowsExactly<InvalidOperationException>(() => edited.CastingCopy(
 			fixture.Actor.Object, fixture.Traits[0], 2, SpellPower.ExtremelyWeak, Difficulty.Normal));
 	}
 

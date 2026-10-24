@@ -32,7 +32,7 @@ public class S4ExistingFactoryEmotionalCastingTests
 		(kind == EmotionalSpellKind.Fury ? ArmageddonRousedFuryStock.Content(new(10, 20)) :
 		 ArmageddonStillAngerStock.Content(new(11, 20, Enumerable.Range(1, 7).ToDictionary(x => x, _ => Difficulty.Normal))))
 		.BuildDefinition(10, 1, 0).Descendants("SourceProfile").Single());
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(EmotionalSpellKind.Fury, 1)] [DataRow(EmotionalSpellKind.Fury, 7)]
 	[DataRow(EmotionalSpellKind.Calm, 1)] [DataRow(EmotionalSpellKind.Calm, 7)]
 	public void CanonicalPaidCast_GradeBoundaries_ApplyActiveNativeEmotionAndLockedTiming(EmotionalSpellKind kind, int grade)
@@ -45,7 +45,7 @@ public class S4ExistingFactoryEmotionalCastingTests
 		if (child is SpellSourceFuryEffect fury) { Assert.IsTrue(fury.IsRaging); Assert.AreEqual((double)grade, fury.State.EndurancePoints); }
 		if (child is SpellSourceCalmEffect calm) { Assert.IsTrue(calm.IsPeaceful); Assert.IsTrue(calm.IsSuperPeaceful); }
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, 7)] [DataRow(7, 1)]
 	public void CanonicalFuryRecast_StrongerAndWeaker_UpdatesSameChildWithoutRemoval(int oldGrade, int newGrade)
 	{

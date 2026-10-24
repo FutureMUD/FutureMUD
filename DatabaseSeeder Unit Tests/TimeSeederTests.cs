@@ -183,7 +183,7 @@ public class TimeSeederTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("gregorian-us", "Gregorian Calendar (EN-US)", "American", "january/01/1200")]
     [DataRow("gregorian-uk", "Gregorian Calendar (EN-UK)", "British", "01/january/1200")]
     public void SeedData_GregorianModes_DescribeTheirSelectedDateConvention(string mode, string shortName,
@@ -201,7 +201,7 @@ public class TimeSeederTests
         Assert.AreEqual(date, calendar.Date);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("islamic-hijri")]
     [DataRow("hebrew")]
     [DataRow("old-persian")]

@@ -31,7 +31,7 @@ public class NpcArchiveMaintenanceTests
 		diagnostic = (string)args[5]!; return result;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("ordinary")]
 	[DataRow("ambiguous")]
 	[DataRow("permanent")]
@@ -67,7 +67,7 @@ public class NpcArchiveMaintenanceTests
 		Assert.IsFalse(string.IsNullOrEmpty(diagnostic)); world.VerifyNoOtherCalls();
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void TryArchiveMaintenanceNpc_ProvenNpc_UsesExactServiceVersionAndPropagatesHold(bool succeeds)
@@ -111,7 +111,7 @@ public class NpcArchiveMaintenanceTests
 		Assert.IsFalse(statistics.Object.RecordPlayersPaused);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void CleanupAllPCsLoaded_QuitFailure_AttemptsRemainingPcResumesStatisticsAndReportsFailure(bool throws)
@@ -121,7 +121,7 @@ public class NpcArchiveMaintenanceTests
 		var failed = new Mock<ICharacter>(); var other = new Mock<ICharacter>(); other.Setup(x => x.Quit(true)).Returns(true);
 		if (throws) failed.Setup(x => x.Quit(true)).Throws(new InvalidOperationException("quit fault"));
 		else failed.Setup(x => x.Quit(true)).Returns(false);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => Cleanup(world.Object, [failed.Object, other.Object]));
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => Cleanup(world.Object, [failed.Object, other.Object]));
 		Assert.IsInstanceOfType(error.InnerException, typeof(AggregateException));
 		Assert.AreEqual(1, ((AggregateException)error.InnerException!).InnerExceptions.Count);
 		other.Verify(x => x.Quit(true), Times.Once); Assert.IsFalse(statistics.Object.RecordPlayersPaused);

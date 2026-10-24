@@ -135,7 +135,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.AreEqual(0, f.Service.ActiveCount);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.25, 2.5)] [DataRow(200.0, 1000.0)] [DataRow(double.NaN, 0.0)] [DataRow(-1.0, 0.0)]
 	public void AmbientIntensityHook_IsBoundedAndFailsClosed(double multiplier, double expected)
 	{
@@ -258,7 +258,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.AreEqual(20, f.Damage.Sum(x => x.DamageAmount), 1e-7);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("simple", BodypartTypeEnum.Lung)]
 	[DataRow("gills", BodypartTypeEnum.Gill)]
 	[DataRow("blowhole", BodypartTypeEnum.Blowhole)]
@@ -273,7 +273,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.IsTrue(f.Damage.All(x => ReferenceEquals(x.Bodypart, part)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)] [DataRow(true, false)]
 	public void NoAirflowOrFailedWithdrawal_DoesNotDeliverRespiratoryInjury(bool airflow, bool success)
 	{
@@ -386,7 +386,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.AreEqual(10, f.Damage.Sum(x => x.DamageAmount), 1e-8);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("Enabled")] [DataRow("Disabled")] [DataRow("Legacy")]
 	public void OrdinaryWetness_DriesOnTheClockWithoutReadsOrHazardRules(string mode)
 	{
@@ -496,7 +496,7 @@ public class EnvironmentalExposureIntegrationTests
 		finally { property.SetValue(null, previous); }
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(typeof(SimpleLivingHealthStrategy), true, true, true)]
 	[DataRow(typeof(ComplexLivingHealthStrategy), true, true, true)]
 	[DataRow(typeof(RobotHealthStrategy), true, false, true)]
@@ -585,7 +585,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.IsNull(((IContinuousExposureWound)combat).ExposureKey);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(DamageType.Hypoxia)] [DataRow(DamageType.Cellular)] [DataRow(DamageType.Chemical)]
 	public void ContinuousWounds_DistinctSourcesRetainAllCapOverflow(DamageType type)
 	{
@@ -621,7 +621,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.AreEqual(10, f.Damage.Sum(x => x.DamageAmount), 1e-8);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false)] [DataRow(true, false)] [DataRow(false, true)] [DataRow(true, true)]
 	public void CorpseExternalContact_UsesOriginalAnatomyAtTheRemainsLocation(bool heat, bool contained)
 	{
@@ -701,7 +701,7 @@ public class EnvironmentalExposureIntegrationTests
 		f.Room.Verify(x => x.AddLiquidToSurface(It.IsAny<LiquidMixture>(), It.IsAny<RoomLayer>(), It.IsAny<IPerceivable>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, DamageType.Burning, 20.0)] [DataRow(false, DamageType.Freezing, 30.0)]
 	public void ThermalGas_ExclusionOrDifferentInjuryTypeDoesNotSuppressAmbientBurning(bool exclude, DamageType type, double total)
 	{
@@ -729,7 +729,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.IsTrue(f.Damage.All(x => x.ExposureContext!.SourceKind == ExposureSourceKind.ContainerInterior));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, 0.0)] [DataRow(true, 10.0)]
 	public void Enclosure_GasTightLidGatesNestedContents(bool open, double expected)
 	{
@@ -771,7 +771,7 @@ public class EnvironmentalExposureIntegrationTests
 		f.Advance(5); Assert.AreEqual(62.5, f.Damage.Sum(x => x.DamageAmount), 1e-7);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.05)] [DataRow(0.25)] [DataRow(1.0)]
 	public void StalePatch_CallbackMovementPreventsRemainingDamage(double substep)
 	{
@@ -799,7 +799,7 @@ public class EnvironmentalExposureIntegrationTests
 		Assert.AreEqual(30, effect.TotalDamageAbsorbed);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.0)] [DataRow(100.0)]
 	public void NakedImmersion_PrewettingDoesNotPreventContinuousOrRetainedInjury(double prewet)
 	{

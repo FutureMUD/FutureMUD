@@ -162,7 +162,7 @@ public class MagicCastingIntegrationTests
 		Assert.AreEqual(77.5, f.Balances[f.Resources[1]]); Assert.AreEqual(1, f.SkillUses); Assert.AreEqual(0, f.Samples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void InstantaneousDamage_RequiresDeliveredWoundMagnitude_AndRunsOnlyOnce(bool delivered)
@@ -178,7 +178,7 @@ public class MagicCastingIntegrationTests
 		Assert.AreEqual(delivered ? 3 : 2, f.Service.Acquisition(f.Actor.Object, 1)!.ControlledGrade);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void RemoveBlindness_NoOpCannotMaster_ActualRemovalQualifiesOnce(bool present)

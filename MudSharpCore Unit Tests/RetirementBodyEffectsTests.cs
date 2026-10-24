@@ -34,7 +34,7 @@ public class RetirementBodyEffectsTests
 		effects.Add(new LimbSpinalDamageEffect(body.Object, limb)); Assert.IsFalse(unchanged());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(1)]
 	[DataRow(2)]

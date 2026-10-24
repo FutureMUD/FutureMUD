@@ -43,7 +43,7 @@ public class EngineUpdateTests
 	[TestMethod]
 	public void ResolveEngineUpdateBinariesPath_EmptyConfiguration_Throws()
 	{
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			StaffModule.ResolveEngineUpdateBinariesPath(" ", AppContext.BaseDirectory));
 	}
 
@@ -64,7 +64,7 @@ public class EngineUpdateTests
 	[TestMethod]
 	public void EngineUpdateDownloadUrl_UnsupportedRuntime_Throws()
 	{
-		Assert.ThrowsException<PlatformNotSupportedException>(() =>
+		Assert.ThrowsExactly<PlatformNotSupportedException>(() =>
 			StaffModule.EngineUpdateDownloadUrl(false, false, Architecture.X64));
 	}
 
@@ -84,7 +84,7 @@ public class EngineUpdateTests
 	{
 		var root = Path.Combine(Path.GetTempPath(), "futuremud-update-tests");
 
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			StaffModule.ResolveEngineUpdateEntryPath(root, "../outside.txt"));
 	}
 
@@ -94,7 +94,7 @@ public class EngineUpdateTests
 		var root = Path.Combine(Path.GetTempPath(), "futuremud-update-tests");
 		var outside = Path.GetFullPath(Path.Combine(root, "..", "outside.txt"));
 
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			StaffModule.ResolveEngineUpdateEntryPath(root, outside));
 	}
 }

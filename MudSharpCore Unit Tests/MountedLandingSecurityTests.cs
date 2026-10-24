@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MountedLandingSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("You are not flying.")]
 	[DataRow("You cannot land while moving.")]
 	[DataRow("A movement blocking effect prevents landing.")]
@@ -30,7 +30,7 @@ public class MountedLandingSecurityTests
 		output.Verify(x => x.Send(error, true, false), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Land_PrimaryRiderWhenMountCanLand_PreservesControlledDestinationPosition(bool swimming)

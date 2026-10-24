@@ -236,7 +236,7 @@ public class RenaissanceMilitarySeederTests
 		using var context = BuildContext();
 		SeedPrerequisites(context, "Musket_Matchlock_Arquebus55");
 
-		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 			new ItemSeeder().SeedRenaissanceMilitaryForTesting(context));
 
 		StringAssert.Contains(exception.Message, "Missing seeded component: Musket_Matchlock_Arquebus55");

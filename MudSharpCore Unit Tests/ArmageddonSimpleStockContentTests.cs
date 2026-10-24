@@ -87,7 +87,7 @@ public class ArmageddonSimpleStockContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1, SpellPower.ExtremelyStrong)]
 	[DataRow(7, SpellPower.ExtremelyWeak)]
 	public void SelectedGrade_BindsNativeDurationAndVeilLuxIndependentlyOfPower(int grade, SpellPower power)
@@ -257,13 +257,13 @@ public class ArmageddonSimpleStockContentTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0L, 44L)]
 	[DataRow(11L, 0L)]
 	[DataRow(-1L, 44L)]
 	[DataRow(11L, -1L)]
 	public void InvalidTypedBindings_RefuseBeforeDefinitionConstruction(long reserve, long school) =>
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonSimpleStockContent.Create(new(reserve, school)));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => ArmageddonSimpleStockContent.Create(new(reserve, school)));
 
 	[TestMethod]
 	public void NativeRoomAndExitTriggers_RejectUnsupportedFiltersInsteadOfLosingThemOnSave()
@@ -273,7 +273,7 @@ public class ArmageddonSimpleStockContentTests
 			var trigger = content.BuildDefinition(10, 1, 0).Element("Trigger")!;
 			if (trigger.Attribute("type")!.Value is not ("room" or "exit")) continue;
 			Assert.IsNull(trigger.Element("TargetFilterProg"));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => content.BuildDefinition(10, 1, 1));
+			Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => content.BuildDefinition(10, 1, 1));
 		}
 	}
 

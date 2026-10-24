@@ -77,7 +77,7 @@ public class RoleSkillProgressionRuntimeTests
 		secondary.SetupGet(x => x.Progression).Returns(new RoleSkillProgression(original));
 		Assert.AreEqual(35.0, RoleSkillProgressionService.Entitlements(actor.Object)[1].ComposedOpening);
 		secondary.SetupGet(x => x.Progression).Returns(new RoleSkillProgression([new(10, 1, true, 20, 70)]));
-		Assert.ThrowsException<System.ArgumentException>(() => RoleSkillProgressionService.Entitlements(actor.Object));
+		Assert.ThrowsExactly<System.ArgumentException>(() => RoleSkillProgressionService.Entitlements(actor.Object));
 	}
 
 	[TestMethod]

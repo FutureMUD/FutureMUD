@@ -189,6 +189,8 @@ HumanSeeder installs the 43 Industrialised/historical-correction wearable config
 
 ## Debug Replay Profiles
 
+The fixed local connection template uses `SslMode=Disabled`, the supported spelling for its existing no-TLS development connection in both MySql.Data and MySqlConnector. Connector/NET 9.6 removed the deprecated `None` spelling.
+
 Debug builds expose a `REPLAY` option at the package menu for unattended developer setup. It is deliberately not part of a Release build or a consumer-facing installer path. Debug startup asks for a nonblank database name, inserts it into the fixed local development connection template with a MySQL connection-string builder, and then shows the ordinary interactive menu or the replay-profile menu. Manifest and blank-snapshot command modes remain noninteractive and retain their existing argument/environment-variable behavior.
 
 The maintained profiles are:

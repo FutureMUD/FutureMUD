@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmourDamageProvenanceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("natural", false)]
 	[DataRow("spell", false)]
 	[DataRow("worn", false)]

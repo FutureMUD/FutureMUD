@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BodyPerceptionLookInTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, true, false)]
 	[DataRow(true, false, false)]
 	[DataRow(false, true, false)]

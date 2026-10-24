@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class IndustrialisedClothingReuseTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("unmanaged", "Unmanaged clothing item conflict")]
 	[DataRow("wrong-owner", "ownership conflict")]
 	[DataRow("other-owner", "claimed by another aggregate")]
@@ -56,16 +56,16 @@ public partial class IndustrialisedClothingReuseTests
 		var before = NewClothingState(context);
 		catalogue = catalogue with { Items = catalogue.Items.Select(x => x with { FullDescription = x.FullDescription + " New source prose." }).ToArray() };
 		var seeder = new ItemSeeder(catalogue);
-		var error = Assert.ThrowsException<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
+		var error = Assert.ThrowsExactly<InvalidDataException>(() => seeder.ValidateClothingPrerequisitesForTesting(context, "industrial"));
 		StringAssert.Contains(error.Message, "Clothing/bases.tsv:3");
 		StringAssert.Contains(error.Message, diagnostic);
 		Assert.IsFalse(context.ChangeTracker.HasChanges());
 		Assert.AreEqual(before, NewClothingState(context));
 		Assert.AreEqual(0, seeder.GetCapturedManifestEntriesForTesting().Count);
-		Assert.ThrowsException<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.ApplyClothingReuseForTesting("industrial"));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("renamed")]
 	[DataRow("custom-prose")]
 	[DataRow("exact-unmanaged")]
@@ -126,7 +126,7 @@ public partial class IndustrialisedClothingReuseTests
 		context.SeederManagedRecords.Single(x => x.StableKey == "industrial_clothing_fixture_second").LogicalId = 987654;
 		context.SaveChanges();
 		var before = NewClothingState(context);
-		var error = Assert.ThrowsException<TargetInvocationException>(() => typeof(ItemSeeder)
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => typeof(ItemSeeder)
 			.GetMethod("SeedIndustrialisedCatalogueItems", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(seeder, ["industrial"]));
 		StringAssert.Contains(error.InnerException!.Message, "ownership conflict");
 		Assert.AreEqual(before, NewClothingState(context));

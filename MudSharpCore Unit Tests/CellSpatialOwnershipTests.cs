@@ -182,7 +182,7 @@ public class RoomSpatialOwnershipTests
 		simulation.SetPreparedCurrencyRoomMembership(item, true);
 		Assert.IsTrue(simulation.GameItems.Any(x => ReferenceEquals(x, item)));
 		Assert.IsFalse(owner.GameItems.Any(x => ReferenceEquals(x, item)) || shard.GameItems.Any(x => ReferenceEquals(x, item)));
-		Assert.ThrowsException<InvalidOperationException>(() => simulation.SetNewZone(other));
+		Assert.ThrowsExactly<InvalidOperationException>(() => simulation.SetNewZone(other));
 	}
 
 	private static void Attach(Room room, Zone zone)

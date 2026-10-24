@@ -27,7 +27,7 @@ public partial class RemainsRuntimeBoundaryTests
 		public override bool CanSee(IPerceivable thing, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None) => thing is not null;
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0, false, false)]
 	[DataRow(0, true, true)]
 	[DataRow(1, false, false)]
@@ -48,11 +48,11 @@ public partial class RemainsRuntimeBoundaryTests
 		var observerBody = new Mock<IBody>(); observerBody.SetupGet(x => x.ExternalItems).Returns(carried ? [f.Item.Object] : Array.Empty<IGameItem>());
 		f.Source.SetupGet(x => x.Perceivables).Returns(carried ? Array.Empty<IPerceivable>() : [f.Item.Object]);
 		var observer = TargetCharacter.Create(f.Source.Object, observerBody.Object);
-		Assert.AreEqual(state == 3 ? f.Actor.Object : null,
+		Assert.AreSame(state == 3 ? f.Actor.Object : null,
 			observer.TargetActorOrCorpse("#1", ignoreLayers ? PerceiveIgnoreFlags.IgnoreLayers : PerceiveIgnoreFlags.None));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void ActorTargeting_IndependentlyVisibleLiveOwner_RemainsTargetableBesideUnresolvedCorpse(bool ignoreLayers)

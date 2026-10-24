@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockProgressionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void ClassOpenings_FreshInstall_LeavesOpeningSkillsToCapabilityEnrolment(ArmageddonProgressionMode mode)
@@ -26,7 +26,7 @@ public partial class ArmageddonStockProgressionTests
 		Assert.AreEqual(0, db.ChargenRolesTraits.Count(), "Role traits must not add culture starting values and Class adjustments before authored enrolment.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]

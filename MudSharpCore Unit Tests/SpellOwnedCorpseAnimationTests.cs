@@ -30,10 +30,10 @@ public class SpellOwnedCorpseAnimationTests
 		var item = Mock.Of<IGameItem>();
 		using (ForeignCustodyTransferContext.FreezeCustody())
 		{
-			Assert.ThrowsException<InvalidOperationException>(() => ForeignCustodyTransferContext.EnsureItem(item));
-			Assert.ThrowsException<InvalidOperationException>(() => ForeignCustodyTransferContext.EnsureItem(item, destructive: true));
-			Assert.ThrowsException<InvalidOperationException>(() => ForeignCustodyTransferContext.EnsureFlushOutsideTransfer());
-			Assert.ThrowsException<InvalidOperationException>(() => ForeignCustodyTransferContext.FreezeCustody());
+			Assert.ThrowsExactly<InvalidOperationException>(() => ForeignCustodyTransferContext.EnsureItem(item));
+			Assert.ThrowsExactly<InvalidOperationException>(() => ForeignCustodyTransferContext.EnsureItem(item, destructive: true));
+			Assert.ThrowsExactly<InvalidOperationException>(() => ForeignCustodyTransferContext.EnsureFlushOutsideTransfer());
+			Assert.ThrowsExactly<InvalidOperationException>(() => ForeignCustodyTransferContext.FreezeCustody());
 		}
 		ForeignCustodyTransferContext.EnsureItem(item);
 		ForeignCustodyTransferContext.EnsureFlushOutsideTransfer();
@@ -56,7 +56,7 @@ public class SpellOwnedCorpseAnimationTests
 		Assert.IsFalse(((AnimateCorpseSpellEffect)effect.Clone()).DurableLifecycle);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0", "TemporaryCleanup")]
 	[DataRow("1", "Permanent")]
 	[DataRow("1", "DeathOnExpiry")]
@@ -73,7 +73,7 @@ public class SpellOwnedCorpseAnimationTests
 		Assert.IsNull(application);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("", "60", true)]
 	[DataRow("servitor", "outcome+60", true)]
 	[DataRow("servitor", "grade*60", false)]

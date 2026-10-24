@@ -163,7 +163,7 @@ public class PhysicalManipulationTests
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object, requireInventoryPermission: false).Truth);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, true)]
 	[DataRow(true, false)]
 	public void SheathEmpty_OtherInventoryWithoutConsentOrProximity_PreservesContents(bool consent, bool colocated)
@@ -287,7 +287,7 @@ public class PhysicalManipulationTests
 		container.Verify(x => x.Take(It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<int>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Inventory_ContainerRetrieval_RejectsMissingComponentOrUnrelatedSource(bool suppliedContainer)

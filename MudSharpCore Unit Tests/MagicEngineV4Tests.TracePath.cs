@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void TracePath_AllGradesRevealOnlyThePermittedBoundWithoutMovement(int grade)
 	{
@@ -39,7 +39,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(100.0, beyond.Pair.F.Balances[beyond.Pair.F.Resources[1]]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("closed")] [DataRow("hidden")] [DataRow("impassable")] [DataRow("unverified")] [DataRow("guard")]
 	[DataRow("concealed")] [DataRow("bodydub")] [DataRow("ambiguous")] [DataRow("offline")]
 	public void TracePath_UnsafeRouteOrUnprovenIdentityRefusesBeforePayment(string reason)
@@ -62,7 +62,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsFalse(f.Pair.F.Messages.Any(x => x.StartsWith("The permitted path leads", StringComparison.Ordinal)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("door")] [DataRow("dub")] [DataRow("position")] [DataRow("topology")]
 	public void TracePath_FinalAdmissionRejectsFrozenInputDrift(string change)
 	{
@@ -107,7 +107,7 @@ public partial class MagicEngineV4Tests
 		Assert.IsFalse(SpellPermittedPath.Admitted(f.Pair.F.Actor.Object, f.Edges[0]));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true, false)] [DataRow(false, true)]
 	public void RecognisedCharacter_ProtectedPlayerRequiresImmortalMode(bool immortal, bool invisible)
 	{
@@ -148,7 +148,7 @@ public partial class MagicEngineV4Tests
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Cast(1).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null, false)] [DataRow(true, false)] [DataRow(false, true)]
 	public void RecognisedCharacter_LoadedDubPreservesUnknownConcealedAndVerifiedProvenance(bool? concealed, bool verified)
 	{

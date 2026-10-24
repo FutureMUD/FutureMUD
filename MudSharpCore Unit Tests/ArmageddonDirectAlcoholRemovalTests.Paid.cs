@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonDirectAlcoholRemovalTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)]
 	[DataRow(7)]
 	public void ClearHead_SelectedGradeBoundPaidRouteAppliesExactNativeAlcoholBudget(int grade)
@@ -48,7 +48,7 @@ public partial class ArmageddonDirectAlcoholRemovalTests
 		Assert.AreEqual(0, f.Store.Operations.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("0.01*grade")]
 	[DataRow("-1000000*grade")]
 	public void ClearHead_InvalidReboundScalarRefusesBeforePayment(string formula)

@@ -15,7 +15,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class IndustrialisedClothingReuseTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
 	public void GeneratedIdentity_OutfitsReceiveProvenanceIdsAtFirstItemFlush(bool autoDetectChanges)
@@ -53,7 +53,7 @@ public partial class IndustrialisedClothingReuseTests
 			Assert.AreEqual(context.FutureProgs.Single(x => x.FunctionName == record.StableKey).Id, record.LogicalId);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("temporary")]
 	[DataRow("deleted")]
 	[DataRow("detached")]
@@ -89,7 +89,7 @@ public partial class IndustrialisedClothingReuseTests
 		}
 		var first = context.SeederManagedRecords.Single(x => x.EntityType == "outfit" && x.StableKey == "fixture_first");
 		var before = System.Text.Json.JsonSerializer.Serialize(new[] { first, record });
-		var error = Assert.ThrowsException<TargetInvocationException>(() => typeof(ItemSeeder)
+		var error = Assert.ThrowsExactly<TargetInvocationException>(() => typeof(ItemSeeder)
 			.GetMethod("ReconcileGeneratedManifestIdentities", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(seeder, null));
 		Assert.IsInstanceOfType(error.InnerException, typeof(InvalidOperationException));
 		Assert.IsNull(first.LogicalId, "The complete pending batch must validate before its first ID is assigned.");
@@ -123,7 +123,7 @@ public partial class IndustrialisedClothingReuseTests
 		var seeder = SeedOutfitsBeforeFlush(context);
 		interceptor.Armed = true;
 		var flush = typeof(ItemSeeder).GetMethod("SaveManifestChanges", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		Assert.ThrowsException<TargetInvocationException>(() => flush.Invoke(seeder, null));
+		Assert.ThrowsExactly<TargetInvocationException>(() => flush.Invoke(seeder, null));
 		Assert.AreEqual(2, PendingIdentityCount(seeder));
 		Assert.IsTrue(context.SeederManagedRecords.AsNoTracking().Where(x => x.EntityType == "outfit").All(x => x.LogicalId == null));
 		flush.Invoke(seeder, null);

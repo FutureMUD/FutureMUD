@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ProjectQueuePreferenceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Constructor_Exactly100Characters_PreservesPreference(bool startEntry)
@@ -25,15 +25,15 @@ public class ProjectQueuePreferenceTests
 		Assert.AreEqual(preference, CreateEntry(startEntry, preference).LabourPreference);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void Constructor_101Characters_RejectsPreference(bool startEntry)
 	{
-		Assert.ThrowsException<ArgumentException>(() => CreateEntry(startEntry, new string('x', 101)));
+		Assert.ThrowsExactly<ArgumentException>(() => CreateEntry(startEntry, new string('x', 101)));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0)]
 	[DataRow(100)]
 	public void ModelConstructor_NullOr100Characters_PreservesPreference(int length)
@@ -50,7 +50,7 @@ public class ProjectQueuePreferenceTests
 	[TestMethod]
 	public void ModelConstructor_101Characters_RejectsPreference()
 	{
-		Assert.ThrowsException<ArgumentException>(() => new ProjectLabourQueueEntry(
+		Assert.ThrowsExactly<ArgumentException>(() => new ProjectLabourQueueEntry(
 			new MudSharp.Models.ProjectLabourQueue { LabourPreference = new string('x', 101) },
 			new Mock<IFuturemud>().Object, new Mock<ICharacter>().Object));
 	}
@@ -60,7 +60,7 @@ public class ProjectQueuePreferenceTests
 	{
 		var labour = new Mock<IProjectLabourRequirement>();
 		labour.SetupGet(x => x.Name).Returns(new string('x', 101));
-		Assert.ThrowsException<ArgumentException>(() => new ProjectLabourQueueEntry(
+		Assert.ThrowsExactly<ArgumentException>(() => new ProjectLabourQueueEntry(
 			new Mock<ICharacter>().Object, new Mock<IActiveProject>().Object, labour.Object, 1));
 	}
 
@@ -73,7 +73,7 @@ public class ProjectQueuePreferenceTests
 		var entry = new ProjectLabourQueueEntry(new Mock<ICharacter>().Object,
 			new Mock<IActiveProject>().Object, labour.Object, 1);
 
-		Assert.ThrowsException<ArgumentException>(() => entry.SetLabourPreference(new string('x', 101)));
+		Assert.ThrowsExactly<ArgumentException>(() => entry.SetLabourPreference(new string('x', 101)));
 		Assert.AreEqual("Masonry", entry.LabourPreference);
 		Assert.AreEqual(20L, entry.LabourId);
 	}
@@ -89,7 +89,7 @@ public class ProjectQueuePreferenceTests
 		Assert.IsNull(entry.LabourPreference);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(100, "", true)]
 	[DataRow(101, "", false)]
 	[DataRow(100, " for 2", true)]
@@ -114,7 +114,7 @@ public class ProjectQueuePreferenceTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(100, true)]
 	[DataRow(101, false)]
 	public void ProjectQueueLabour_EditCommand_ValidatesBeforeMutation(int length, bool expected)
@@ -134,7 +134,7 @@ public class ProjectQueuePreferenceTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(100, true)]
 	[DataRow(101, false)]
 	public void ProjectQueueAdd_Command_ValidatesBeforeMutation(int length, bool expected)

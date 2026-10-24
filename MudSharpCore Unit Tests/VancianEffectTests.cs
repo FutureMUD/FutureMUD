@@ -68,7 +68,7 @@ public class VancianEffectTests
 		Assert.AreEqual(43,((MagicSpell)restored.Spell).EffectDurationExpression.Evaluate(reader.Object,f.Trait.Object,TraitBonusContext.SpellDuration));
 		f.World.Verify(x => x.TryGetCharacter(10,It.IsAny<bool>()),Times.Never);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("blindness")]
 	[DataRow("sleep")]
 	[DataRow("infravision")]

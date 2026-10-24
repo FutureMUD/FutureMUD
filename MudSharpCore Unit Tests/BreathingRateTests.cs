@@ -30,7 +30,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BreathingRateTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1.0, 1.0, 10.0, 7.0 / 6)]
 	[DataRow(1.0, 1.0, 60.0, 7.0)]
 	[DataRow(0.001, 1.0, 10.0, 7000.0 / 6)]
@@ -95,7 +95,7 @@ public class BreathingRateTests
 		Assert.AreEqual(1200, f.Tank.GasVolumeAtOneAtmosphere);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1.0, 1.0)]
 	[DataRow(0.001, 2.0)]
 	public void LungBreather_Filter_DegradesByElapsedBaseVolumeAndPassesAmbientAfterExhaustion(
@@ -130,7 +130,7 @@ public class BreathingRateTests
 			"The last filtered breath uses the delivered gas before the cartridge is exhausted.");
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("simple")]
 	[DataRow("gills")]
 	[DataRow("blowhole")]
@@ -145,7 +145,7 @@ public class BreathingRateTests
 		Assert.AreEqual(TimeSpan.FromSeconds(4), f.Body.Object.HeldBreathTime);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("simple")]
 	[DataRow("gills")]
 	[DataRow("blowhole")]
@@ -158,7 +158,7 @@ public class BreathingRateTests
 		Assert.AreEqual(TimeSpan.FromSeconds(2.5), f.Body.Object.HeldBreathTime);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("simple")]
 	[DataRow("gills")]
 	[DataRow("blowhole")]

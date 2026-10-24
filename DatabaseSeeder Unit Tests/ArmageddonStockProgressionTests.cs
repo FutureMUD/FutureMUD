@@ -12,7 +12,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public partial class ArmageddonStockProgressionTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -78,7 +78,7 @@ public partial class ArmageddonStockProgressionTests
 		ArmageddonInstallation.Prepare(factory, mode); // Typed preflight recognises the new ownership types.
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void CompletePolicyProjection_ExactRostersNativeTraitsCapsAndTypedEdges(ArmageddonProgressionMode mode)

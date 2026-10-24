@@ -102,11 +102,11 @@ public class MudTimeFactoryTests
 	{
 		var (clock, utc, _) = CreateClock();
 
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
 			MudTime.FromLocalTime(60, 0, 0, utc, clock));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
 			MudTime.FromLocalTime(0, 60, 0, utc, clock));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
 			MudTime.FromLocalTime(0, 0, 24, utc, clock));
 	}
 

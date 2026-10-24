@@ -118,7 +118,7 @@ public class GameItemSpatialPlacementTests
 		room.Verify(x => x.Insert(item.Object, true), Times.Once);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("weapon unload", 1_250.0, false)]
 	[DataRow("outfit removal", 5_500.0, false)]
 	[DataRow("builder full-hands fallback", 8_875.0, false)]

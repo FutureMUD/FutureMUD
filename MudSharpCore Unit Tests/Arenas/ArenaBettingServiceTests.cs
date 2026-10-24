@@ -268,7 +268,7 @@ public class ArenaBettingServiceTests
         ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
             new[] { authority.Object });
 
-        Assert.ThrowsException<InvalidOperationException>(() => service.PlaceBet(actor.Object, evt, 0, 100m));
+        Assert.ThrowsExactly<InvalidOperationException>(() => service.PlaceBet(actor.Object, evt, 0, 100m));
 
         Assert.AreEqual(0, context.ArenaBets.Count());
         authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(),
@@ -294,7 +294,7 @@ public class ArenaBettingServiceTests
         ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
             new[] { authority.Object });
 
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => service.PlaceBet(actor.Object, evt, 99, 100m));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => service.PlaceBet(actor.Object, evt, 99, 100m));
 
         paymentMock.Verify(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()),
             Times.Never);
@@ -329,7 +329,7 @@ public class ArenaBettingServiceTests
         ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
             new[] { authority.Object });
 
-        Assert.ThrowsException<InvalidOperationException>(() => service.PlaceBet(actor.Object, evt, 0, 100m));
+        Assert.ThrowsExactly<InvalidOperationException>(() => service.PlaceBet(actor.Object, evt, 0, 100m));
 
         paymentMock.Verify(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()),
             Times.Never);

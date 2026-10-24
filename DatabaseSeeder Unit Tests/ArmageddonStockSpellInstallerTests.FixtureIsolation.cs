@@ -50,7 +50,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(snapshot.Fingerprint, InMemorySeederSnapshot.Capture(clone).Fingerprint);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void PrerequisiteSnapshot_PreservesEveryScalarAndIsolatesMutations(ArmageddonProgressionMode mode)

@@ -16,7 +16,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class OutfitTeachingNumericNameTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("travel", "travel1", "travel2")]
 	[DataRow("travel2147483647", "travel2147483648", "travel2147483649")]
 	[DataRow("travel999999999999999999999999", "travel1000000000000000000000000", "travel1000000000000000000000001")]

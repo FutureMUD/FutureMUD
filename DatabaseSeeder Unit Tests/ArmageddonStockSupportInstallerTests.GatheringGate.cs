@@ -56,7 +56,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual("return true", db.FutureProgs.Single(x => x.Id == id).FunctionText);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("static")]
 	[DataRow("return_type")]
 	[DataRow("any_parameters")]

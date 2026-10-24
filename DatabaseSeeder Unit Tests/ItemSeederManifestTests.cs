@@ -75,7 +75,7 @@ public class ItemSeederManifestTests
 		{
 			var document = ItemSeederManifestCatalogue.BuildDocument([], "test") with { ManifestVersion = "1" };
 			File.WriteAllText(path, ItemSeederManifestCatalogue.Serialize(document));
-			StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => ItemSeederManifestCatalogue.Load(path)).Message,
+			StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => ItemSeederManifestCatalogue.Load(path)).Message,
 				"recapture the manifest");
 		}
 		finally { File.Delete(path); }

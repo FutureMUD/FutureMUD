@@ -26,7 +26,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CommandableAiTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("allowed", 1)]
 	[DataRow("combat", 0)]
 	[DataRow("moving", 0)]

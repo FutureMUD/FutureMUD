@@ -238,7 +238,7 @@ public partial class MagicCastingAreaTests
 		Assert.AreEqual(1, a.F.Rolls); Assert.AreEqual(1, a.MasterySamples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("body")][DataRow("layer")][DataRow("ground")][DataRow("plane")][DataRow("ally")]
 	public void RepeatedHit_RevalidatesEligibilityAfterFirstHit(string mutation)
 	{
@@ -303,7 +303,7 @@ public partial class MagicCastingAreaTests
 		Assert.AreEqual(77.5, a.F.Balances[a.F.Resources[1]]); Assert.AreEqual(0, a.MasterySamples);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("here tail")][DataRow("self")][DataRow("party")][DataRow("")]
 	public void AreaSelectorMustBeExplicitAndComplete(string target)
 	{

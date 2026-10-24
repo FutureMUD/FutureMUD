@@ -32,7 +32,7 @@ public partial class UnifiedEmploymentDispatchTests
 		var step = new BankAccountTransferActionStep(target.Object.AccountReference, new MoneyAmount(currency.Object, 10M));
 		var context = new EmploymentTaskContext(shop.Object);
 
-		Assert.ThrowsException<InvalidOperationException>(() => state.TaskBoard.CreateActiveTask("unauthorised transfer", new EmploymentActionPlan([step]), manager));
+		Assert.ThrowsExactly<InvalidOperationException>(() => state.TaskBoard.CreateActiveTask("unauthorised transfer", new EmploymentActionPlan([step]), manager));
 		Assert.IsFalse(step.CanExecute(context, manager, out var reason));
 		StringAssert.Contains(reason, "lacks the authority");
 		var result = step.Execute(context, manager);

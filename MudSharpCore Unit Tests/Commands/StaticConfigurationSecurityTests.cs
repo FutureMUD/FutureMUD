@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests.Commands;
 [TestClass]
 public class StaticConfigurationSecurityTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("EmailServer")]
 	[DataRow("EngineUpdateBinariesPath")]
 	[DataRow("DiscordAuthToken")]
@@ -42,7 +42,7 @@ public class StaticConfigurationSecurityTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("EmailServer")]
 	[DataRow("EngineUpdateBinariesPath")]
 	[DataRow("DiscordAuthToken")]
@@ -64,7 +64,7 @@ public class StaticConfigurationSecurityTests
 		fixture.Gameworld.Verify(x => x.UpdateStaticConfiguration(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("EmailServer")]
 	[DataRow("EngineUpdateBinariesPath")]
 	[DataRow("DiscordAuthToken")]
@@ -88,7 +88,7 @@ public class StaticConfigurationSecurityTests
 		Assert.AreSame(fixture.Actor.Object, fixture.Arguments[2]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(PermissionLevel.HighAdmin)]
 	[DataRow(PermissionLevel.Founder)]
 	public void EditStaticConfig_List_RedactsOnlyRestrictedValuesForLowerRanks(PermissionLevel permission)

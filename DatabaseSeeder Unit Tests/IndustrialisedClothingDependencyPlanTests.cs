@@ -38,11 +38,11 @@ public class IndustrialisedClothingDependencyPlanTests
 	{
 		var plan = IndustrialisedClothingDependencyPlan.Rows;
 		CollectionAssert.AreEqual(plan.Select(x => x.ItemReference).OrderBy(x => x, StringComparer.Ordinal).ToArray(), plan.Select(x => x.ItemReference).ToArray());
-		Assert.ThrowsException<NotSupportedException>(() => ((IList<ClothingDependencyPlanRow>)plan).Clear());
+		Assert.ThrowsExactly<NotSupportedException>(() => ((IList<ClothingDependencyPlanRow>)plan).Clear());
 		foreach (var row in plan)
 		{
 			foreach (var list in new[] { row.EraAdmissions, row.Components, row.Tags, row.OpenRequirements })
-				Assert.ThrowsException<NotSupportedException>(() => ((IList<string>)list).Clear());
+				Assert.ThrowsExactly<NotSupportedException>(() => ((IList<string>)list).Clear());
 			Assert.IsTrue(row.Components.Count > 0);
 			Assert.AreEqual(row.Components.Count, row.Components.Distinct(StringComparer.OrdinalIgnoreCase).Count());
 			if (row.Reused)
@@ -93,7 +93,7 @@ public class IndustrialisedClothingDependencyPlanTests
 		foreach (var (key, value) in before) CollectionAssert.AreEqual(value, fixture.Bytes()[key]);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("missing")]
 	[DataRow("duplicate")]
 	[DataRow("unapproved")]
@@ -116,10 +116,10 @@ public class IndustrialisedClothingDependencyPlanTests
 			case "weight": plan[index] = row with { RequiredLayerWeight = double.NaN }; break;
 			case "component": plan[index] = row with { Components = row.Components.Append(row.Components[0].ToLowerInvariant()).ToArray() }; break;
 		}
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingDependencyAudit.Generate(ItemSeederManifestCatalogue.FindRepositoryRoot(), plan));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingDependencyAudit.Generate(ItemSeederManifestCatalogue.FindRepositoryRoot(), plan));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(IndustrialisedClothingDependencyAudit.MaterialsPath, "Material Name", "Material name")]
 	[DataRow(IndustrialisedClothingDependencyAudit.TagsPath, "Tag hierarchy", "Tag path")]
 	[DataRow(IndustrialisedClothingDependencyAudit.InventoryPath, "| Family |", "| Invalid |")]
@@ -133,7 +133,7 @@ public class IndustrialisedClothingDependencyPlanTests
 		var text = File.ReadAllText(path);
 		Assert.IsTrue(text.Contains(from, StringComparison.Ordinal));
 		File.WriteAllText(path, text.Replace(from, to, StringComparison.Ordinal));
-		Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingDependencyAudit.Generate(fixture.Root));
+		Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingDependencyAudit.Generate(fixture.Root));
 	}
 
 	[TestMethod]
@@ -156,7 +156,7 @@ public class IndustrialisedClothingDependencyPlanTests
 		using var fixture = new DependencyDirectory();
 		var path = Path.Combine(fixture.Root, IndustrialisedClothingDependencyAudit.MaterialsPath);
 		File.WriteAllText(path, File.ReadAllText(path).Replace("\"wool\"", "\"Cotton\"", StringComparison.Ordinal));
-		StringAssert.Contains(Assert.ThrowsException<InvalidDataException>(() => IndustrialisedClothingDependencyAudit.Generate(fixture.Root)).Message, "Duplicate");
+		StringAssert.Contains(Assert.ThrowsExactly<InvalidDataException>(() => IndustrialisedClothingDependencyAudit.Generate(fixture.Root)).Message, "Duplicate");
 	}
 
 	internal static Dictionary<string, string>[] Rows(string audit)

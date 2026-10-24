@@ -23,7 +23,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void StormLocus_AllGradesClaimBeforeDistinctNativeInjuryAndExpireWithoutTickTraining(int grade)
 	{
@@ -77,10 +77,10 @@ public partial class MagicEngineV4Tests
 		var row = new MudSharp.Models.MagicSpellLifecycle { Id = Guid.NewGuid(), CreatorId = 1, SpellId = 7, Grade = 1,
 			Family = SpellRoomHazardJournal.Family, Mode = (int)SpellLifecycleMode.TemporaryCleanup, CreatedUtc = now, UpdatedUtc = now,
 			DeadlineUtc = now.AddSeconds(30), Provenance = anchor.Save(), Version = 1 };
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
 		row.RoomHazardNextPulseUtc = now.AddSeconds(10); Assert.AreEqual(0, SpellOwnedLifecycleStore.Read(row).Entities.Count);
 		row.Entities.Add(new() { EntityId = 4, Kind = (int)SpellOwnedEntityKind.Room, Role = (int)SpellOwnedEntityRole.CreatedEntity });
-		Assert.ThrowsException<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
+		Assert.ThrowsExactly<InvalidOperationException>(() => SpellOwnedLifecycleStore.Read(row));
 	}
 
 	private sealed class StormFixture

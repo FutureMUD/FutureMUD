@@ -20,7 +20,7 @@ public class FlameKnifeGradeTests
 {
 	private sealed class OutputEffect(XElement root, MudSharp.Magic.IMagicSpell spell) : CreateItemEffect(root, spell);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void CastingService_MonOnlyMaterial_PaysOnceAndConsumesOnlyAtSeven(int grade)
 	{
@@ -61,7 +61,7 @@ public class FlameKnifeGradeTests
 	{
 		var world = Mock.Of<IFuturemud>(x => x.Tags == new All<ITag>()); var action = new InventoryPlanActionConsume(world, 1, 0, 0, null!, null!);
 		action.ConfigureRequiredGrade(7); var before = action.SaveToXml().ToString();
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => action.ConfigureRequiredGrade(0)); Assert.AreEqual(before, action.SaveToXml().ToString());
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => action.ConfigureRequiredGrade(0)); Assert.AreEqual(before, action.SaveToXml().ToString());
 		Assert.AreEqual(7, new InventoryPlanActionConsume(action.SaveToXml(), world).RequiredGrade);
 		action.ConfigureRequiredGrade(null); Assert.IsNull(action.SaveToXml().Attribute("grade"));
 	}
@@ -82,7 +82,7 @@ public class FlameKnifeGradeTests
 		Assert.AreEqual("12345", action.SaveToXml().Attribute("tag")!.Value);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("<Output grade='0'><Prototype>1</Prototype></Output>")]
 	[DataRow("<Output grade='2'><Prototype>1</Prototype><Prototype>1</Prototype></Output>")]
 	[DataRow("<Output grade='2'/>")]
@@ -103,7 +103,7 @@ public class FlameKnifeGradeTests
 		Assert.AreEqual(100, f.Balances[f.Resources[1]]); Assert.AreEqual(0, f.Rolls);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("EligibilityProg", "bad")]
 	[DataRow("LifetimeMultiplierProg", "999999999999999999999999999")]
 	public void OutputPolicies_MalformedProgId_PreservesEditableLifecycle(string field, string value)

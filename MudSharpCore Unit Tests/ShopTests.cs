@@ -324,7 +324,7 @@ public partial class ShopTests
         bankActor.Body.Verify(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
     }
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("exact")]
 	[DataRow("variant")]
 	[DataRow("shared-variant")]
@@ -357,7 +357,7 @@ public partial class ShopTests
 		stock.Temporary.Verify(x => x.Delete(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("exact")]
 	[DataRow("variant")]
 	[DataRow("default")]
@@ -412,7 +412,7 @@ public partial class ShopTests
 		newTemporary.Verify(x => x.Delete(), Times.Never);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(null)]
 	[DataRow("clean")]
 	[DataRow("bag")]
@@ -430,7 +430,7 @@ public partial class ShopTests
 		CollectionAssert.AreEqual(new[] { stock.Contaminated.Object, stock.Clean.Object }, _shop.StockedItems(stock.Merchandise).ToList());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	[DoNotParallelize]

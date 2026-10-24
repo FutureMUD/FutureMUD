@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class WaterBreathingCompatibilityTests
 {
-	[DataTestMethod, DataRow("simple"), DataRow("gills"), DataRow("blowhole"), DataRow("partless")]
+	[TestMethod, DataRow("simple"), DataRow("gills"), DataRow("blowhole"), DataRow("partless")]
 	public void NativeStrategies_AllowMappedLiquidRefuseUnmappedAndGasAndKeepRacialCompatibility(string strategy)
 	{
 		var f = new Fixture(strategy); Assert.IsFalse(f.Strategy.CanBreathe(f.Body.Object));
@@ -39,7 +39,7 @@ public class WaterBreathingCompatibilityTests
 		f.Race.Setup(x => x.CanBreatheFluid(f.Gas)).Returns((true, 1.0)); Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
 	}
 
-	[DataTestMethod, DataRow("simple"), DataRow("gills"), DataRow("blowhole"), DataRow("partless")]
+	[TestMethod, DataRow("simple"), DataRow("gills"), DataRow("blowhole"), DataRow("partless")]
 	public void SpellOwnedBreathingInterruption_StopsAndRestoresNativeBreathing(string strategy)
 	{
 		var f = new Fixture(strategy);
@@ -52,7 +52,7 @@ public class WaterBreathingCompatibilityTests
 		Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
 	}
 
-	[DataTestMethod, DataRow("simple"), DataRow("blowhole"), DataRow("gills")]
+	[TestMethod, DataRow("simple"), DataRow("blowhole"), DataRow("gills")]
 	public void MappedMagic_DoesNotBypassOrgansOrWorkingParts(string strategy)
 	{
 		var f = new Fixture(strategy); f.Effects.Add(f.Scoped); Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
@@ -68,7 +68,7 @@ public class WaterBreathingCompatibilityTests
 		f.Body.SetupGet(x => x.Bodyparts).Returns(Array.Empty<IBodypart>()); Assert.IsFalse(f.Strategy.CanBreathe(f.Body.Object));
 	}
 
-	[DataTestMethod, DataRow("simple", true), DataRow("gills", false), DataRow("blowhole", false), DataRow("partless", false)]
+	[TestMethod, DataRow("simple", true), DataRow("gills", false), DataRow("blowhole", false), DataRow("partless", false)]
 	public void LegacyBroadGrant_RemainsLimitedToPreviousLungIntegration(string strategy, bool expected)
 	{
 		var f = new Fixture(strategy); f.Effects.Add(new SpellWaterBreathingEffect(f.Actor.Object, f.Parent));

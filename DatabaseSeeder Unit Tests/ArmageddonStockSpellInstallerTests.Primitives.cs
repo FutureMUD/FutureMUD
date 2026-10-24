@@ -13,7 +13,7 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonStockSpellInstallerTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren(ArmageddonProgressionMode mode)
@@ -151,7 +151,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void DrowningGrip_UsesNativeBreathingInterruptionAndBoundedResistedLifetime(ArmageddonProgressionMode mode)
@@ -170,7 +170,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(0, root.Element("Plan")!.Elements().Count());
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void FixedConcealmentAndWaterBreathing_UseExactViewerAndWaterBindings(ArmageddonProgressionMode mode)
@@ -237,7 +237,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void MovementTempo_InstalledChildrenRetainExactOrdinaryAgilityBinding(ArmageddonProgressionMode mode)
@@ -312,7 +312,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void ReserveAndDiseaseBindings_UseExactNativeModesAndCharacterResistance(ArmageddonProgressionMode mode)
@@ -333,7 +333,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual("arm.effect.disease", Effect("purge_disease").Element("OwnedFamily")!.Value);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("strength")][DataRow("viewer")][DataRow("reserve")]
 	public void PrimitiveDependencyLoss_HoldsNewBatchAndPreservesEarlierCommittedSlices(string missing)
 	{

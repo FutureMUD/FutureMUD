@@ -45,7 +45,7 @@ public class S4ProtectionSupportTests
 		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(210, new ArmageddonStockCatalogue().Blueprints.Count);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false)] [DataRow(true)]
 	public void Armour_ColdNativeLoadPreservesSupportedAndExcludedDamageChannels(bool electrical)
 	{
@@ -86,7 +86,7 @@ public class S4ProtectionSupportTests
 		Assert.AreEqual("a builder component", db.GameItemProtos.Single(x => x.Id == item.Id).ShortDescription);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("blank")] [DataRow("stackable")] [DataRow("clay")] [DataRow("craft")]
 	public void MissingTypedDependencies_RefuseBeforeAnySupplementalWrites(string failure)
 	{
@@ -108,7 +108,7 @@ public class S4ProtectionSupportTests
 		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.StableKey == ArmageddonStockSupportInstaller.CreationRankSixKey));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("revision")] [DataRow("missing")] [DataRow("retired")] [DataRow("module")] [DataRow("competing")]
 	public void ArmourOwnership_InvalidClaimsStillRefusePrepareWithoutChanges(string failure)
 	{
@@ -123,7 +123,7 @@ public class S4ProtectionSupportTests
 			case "competing": db.SeederManagedRecords.Add(new SeederManagedRecord { Seeder = "Other owner", StableKey = "other.armour", EntityType = nameof(ArmourType), LogicalId = claim.LogicalId }); break;
 		}
 		db.SaveChanges(); var before = (db.SeederManagedRecords.Count(), db.ArmourTypes.Count(), db.GameItemProtos.Count());
-		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db), ArmageddonProgressionMode.Simple));
+		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db), ArmageddonProgressionMode.Simple));
 		Assert.AreEqual(before, (db.SeederManagedRecords.Count(), db.ArmourTypes.Count(), db.GameItemProtos.Count()));
 		Assert.AreEqual(installed.Identities[ArmageddonStockSupportInstaller.ExternalArmourKey], claim.LogicalId);
 	}

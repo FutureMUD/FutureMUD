@@ -10,7 +10,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SurfaceLiquidTransferServiceTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(false, false, false, 1)]
 	[DataRow(false, true, true, 0)]
 	[DataRow(false, true, false, 2)]
@@ -30,7 +30,7 @@ public class SurfaceLiquidTransferServiceTests
 
 		Assert.AreEqual(SurfaceLiquidRoute.Ignore, route);
 	}
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(0.01, 0.02, 0.02)]
 	[DataRow(10.0, 0.02, 3.0)]
 	public void DryAfterMachineCycle_UsesMinimumOrThirtyPercent(double currentVolume, double minimum,

@@ -156,7 +156,7 @@ public class RouteRoomMutationSafetyTests
 			new[] { 7_150.125 },
 			RouteRoomMutationSafety.PointSurfaceLiquidPositions(
 				"<Surfaces><Layer id=\"0\" position=\"7150.125\"><Surface /></Layer></Surfaces>").ToArray());
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			RouteRoomMutationSafety.PointSurfaceLiquidPositions(
 				"<Surfaces><Layer id=\"0\" position=\"not-a-distance\"><Surface /></Layer></Surfaces>"));
 	}

@@ -13,7 +13,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class WeatherSeederRainConfigurationTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("full", "false", "true")]
 	[DataRow("soak", "true", "false")]
 	public void ConfigurePuddleSettingForRainMode_ReconcilesExistingSetting(string rainMode, string initialValue,

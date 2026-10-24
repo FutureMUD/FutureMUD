@@ -30,6 +30,8 @@ public partial class CelestialSeeder
 	private static void EnsureAuthoredPackage(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> answers)
 	{
 		var installed = AuthoredPresetsInstalled(context);
+		var missing = SelectedAuthoredPresets(answers).Where(x => !installed.Contains(x)).ToList();
+		if (missing.Count == 0) return;
 		var calendar = GetCalendar(context, answers["authoredcalendar"]);
 		var clock = context.Clocks.Find(calendar.FeedClockId) ?? throw new InvalidOperationException("The authored calendar's clock is missing.");
 		var xml = XElement.Parse(clock.Definition);
@@ -37,7 +39,7 @@ public partial class CelestialSeeder
 		var seconds = Dimension("SecondsPerMinute");
 		var minutes = Dimension("MinutesPerHour");
 		var hours = Dimension("HoursPerDay");
-		foreach (var preset in AuthoredCelestialPresets.Names.Where(x => !installed.Contains(x)))
+		foreach (var preset in missing)
 		{
 			var definition = AuthoredCelestialPresets.Create(preset, calendar.Id, minutes, hours);
 			var compiled = new CompiledAuthoredCelestial(definition, seconds, minutes, hours);

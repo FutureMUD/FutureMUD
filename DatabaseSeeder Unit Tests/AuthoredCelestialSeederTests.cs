@@ -17,6 +17,36 @@ namespace DatabaseSeederUnitTests;
 public class AuthoredCelestialSeederTests
 {
 	[TestMethod]
+	[DataRow("Rails", "RailSun RailMoon")]
+	[DataRow("Scripts", "ScriptedSun ScriptedMoon")]
+	[DataRow("MorningStar", "MorningStar")]
+	[DataRow("MorningGlow", "MorningGlow")]
+	[DataRow("Rails Rails", "RailSun RailMoon")]
+	[DataRow("none", "")]
+	public void Selection_InstallsOnlySelectedExamplesAndSkipsCompletedFollowups(string selection, string expected)
+	{
+		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString())
+			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
+		new TimeSeeder().SeedData(context, new Dictionary<string, string>
+		{
+			["secondsmultiplier"] = "2", ["mode"] = "gregorian-uk", ["startyear"] = "2000"
+		});
+		var answers = new Dictionary<string, string> { ["packages"] = selection };
+		var seeder = new CelestialSeeder();
+		seeder.SeedData(context, answers);
+		CollectionAssert.AreEquivalent(expected.Split(' ', StringSplitOptions.RemoveEmptyEntries),
+			context.Celestials.AsEnumerable().Select(x => AuthoredCelestialFormat.Parse(x.Definition).SeederPreset).ToArray());
+		// A second calendar must not make completed selections ask for details again.
+		context.Calendars.Add(new Calendar { Definition = "<calendar />", Date = "1-1-1", FeedClockId = context.Clocks.First().Id });
+		context.SaveChanges();
+		CollectionAssert.AreEqual(new[] { "packages" }, ((DatabaseSeeder.IDatabaseSeeder)seeder).Questions
+			.Where(x => x.Filter(context, answers)).Select(x => x.Id).ToArray());
+		seeder.SeedData(context, answers);
+		Assert.AreEqual(expected.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length, context.Celestials.Count());
+	}
+
+	[TestMethod]
 	public void AuthoredExamples_CompileAndRerunPreservesEditsAndRestoresOnlyMissingMember()
 	{
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -26,7 +56,7 @@ public class AuthoredCelestialSeederTests
 		{
 			["secondsmultiplier"] = "2", ["mode"] = "gregorian-uk", ["startyear"] = "2000"
 		});
-		var answers = new Dictionary<string, string> { ["installauthored"] = "yes", ["authoredcalendar"] = context.Calendars.First().Id.ToString() };
+		var answers = new Dictionary<string, string> { ["packages"] = "Rails Scripts MorningStar MorningGlow", ["authoredcalendar"] = context.Calendars.First().Id.ToString() };
 		var seeder = new CelestialSeeder();
 		seeder.SeedData(context, answers);
 		var original = context.Celestials.OrderBy(x => x.Id).ToArray();

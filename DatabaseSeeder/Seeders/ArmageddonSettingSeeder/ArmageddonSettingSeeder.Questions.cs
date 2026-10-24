@@ -38,16 +38,16 @@ public sealed partial class ArmageddonSettingSeeder
 	private static bool IsYes(string answer) => answer.Trim().Equals("yes", StringComparison.OrdinalIgnoreCase);
 	public IEnumerable<SeederQuestion> Questions =>
 	[
-		new(FullInstallQuestion, "Install/reconcile Armageddon fixed settings, progression and native stock catalogue? yes/no (default no). Fresh installations enable approved stock casting/Class/gathering/device permissions. Existing activation defaults and builder edits are retained; no existing player enrolment or refill.",
+		new(FullInstallQuestion, "Install or update the Armageddon setting content? yes/no (default no). Existing characters and builder customisations are preserved.",
 			(_, _) => true, (answer, _) => answer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase) || IsYes(answer) ? (true, "") : (false, "Answer yes or no."), DefaultAnswerResolver: (_, _) => "no", PersistAnswer: false),
-		new(ModeQuestion, "Choose the fixed game-wide progression mode: Classic or Simple.",
+		new(ModeQuestion, "Choose the magic progression style: Classic or Simple. This choice cannot be changed by rerunning the seeder.",
 			(db, answers) => FullConsent(answers) && ArmageddonInstallation.Read(db) is null,
 			(answer, _) => Enum.GetNames<ArmageddonProgressionMode>().Contains(answer.Trim(), StringComparer.OrdinalIgnoreCase) ? (true, "") : (false, "Choose Classic or Simple."),
 			SharedAnswerKey: ArmageddonInstallation.ModeAnswerKey, DefaultAnswerResolver: (_, _) => "Classic", PersistAnswer: false),
-		new(CapacityQuestion, "Select the native Mental/Spiritual body attribute ID for reserve capacity; the ordinary attribute mapping is ambiguous or missing.",
+		new(CapacityQuestion, "Which mental or spiritual attribute should determine magical energy capacity? Enter its attribute ID; no unique default was found.",
 			(db, answers) => FullConsent(answers) && ArmageddonInstallation.Read(db) is null && ArmageddonInstallation.ResolveCapacityAttribute(db) == 0,
 			(answer, db) => long.TryParse(answer, out var id) && db.TraitDefinitions.Any(x => x.Id == id && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && (x.TraitGroup == "Mental" || x.TraitGroup == "Spiritual")) ? (true, "") : (false, "Select an existing ordinary Mental/Spiritual body attribute."), PersistAnswer: false),
-		new(NativeBindingsQuestion, "Supply explicit native foundation bindings for ambiguous/nonstandard primitives as JSON, for example {\"SkillDecorator\":123}. Only declared foundation fields are accepted; stock NPCs/items are automatic.",
+		new(NativeBindingsQuestion, "Some required world settings could not be selected automatically. Enter their IDs as JSON, for example {\"SkillDecorator\":123}. Creature and item templates are created automatically.",
 			(db, answers) => FullConsent(answers) && ArmageddonInstallation.Read(db) is null && NeedsNativeBindings(db),
 			ValidateNativeOverrides, DefaultAnswerResolver: (_, _) => "{}", PersistAnswer: false),
 		new(InstallQuestion, "Install/reconcile the PARTIAL Armageddon package in this prepared world? yes/no (default no)",

@@ -116,7 +116,7 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 
 	protected CheckOutcome CheckPower(ICharacter actor, ICharacter target, CheckType type)
 	{
-		var hostile = actor != target && DatabaseType is "suggest" or "psychicbolt" or "hex" or "coerce" or "babble" or "projectemotion" or "psionicmindblast" or "psionicmindwipe" or "psioniccontrol" or "psionicvision";
+		var hostile = actor != target && DatabaseType is "suggest" or "psychicbolt" or "hex" or "coerce" or "babble" or "projectemotion" or "psionicmindblast" or "psionicmindwipe" or "psioniccontrol" or "psionicvision" or "psionicprobe" or "psionicdisorient";
 		var context = new MentalActionContext(actor, target, this, MentalActionKind.Influence, hostile);
 		var bonus = hostile
 			? target.Effects.OfType<IMentalActionDefence>().Sum(x => x.DefensiveBonus(context)) +

@@ -27,7 +27,7 @@ using System.Xml.Linq;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class MagicPsionicTraceTests
+public partial class MagicPsionicTraceTests
 {
 	[TestMethod]
 	public void DisabledImpressions_KeepCharacterTracesButNeverRecordRoomHistory()

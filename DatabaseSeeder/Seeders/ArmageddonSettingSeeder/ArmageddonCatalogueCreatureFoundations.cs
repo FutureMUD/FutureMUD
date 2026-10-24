@@ -93,7 +93,8 @@ public static class ArmageddonCatalogueCreatureFoundations
 				foreach (var link in source.Liquids) race.RacesBreathableLiquids.Add(new() { RaceId = race.Id, LiquidId = link.Key, Multiplier = link.Value });
 				var strike = Attack(db, owned, blueprint, label, race.BaseBodyId, attributeId);
 				foreach (var part in db.BodypartProtos.AsNoTracking().Where(x => x.BodyId == race.BaseBodyId &&
-					(x.BodypartType == (int)BodypartTypeEnum.GrabbingWielding || x.BodypartType == (int)BodypartTypeEnum.BonyGrabbingWielding)))
+					(x.BodypartType == (int)BodypartTypeEnum.GrabbingWielding || x.BodypartType == (int)BodypartTypeEnum.BonyGrabbingWielding ||
+					 x.BodypartType == (int)BodypartTypeEnum.Wielding)))
 					race.RacesWeaponAttacks.Add(new() { RaceId = race.Id, WeaponAttackId = strike.Id, BodypartId = part.Id, Quality = (int)ItemQuality.Standard });
 				if (race.RacesWeaponAttacks.Count == 0) throw new InvalidOperationException($"{blueprint.Key}: no native grasping strike part.");
 				owned.Stage(blueprint.Key, race, [blueprint.Key + ".body", "arm.culture.constructs", blueprint.Key + ".strike"]);
@@ -141,7 +142,8 @@ public static class ArmageddonCatalogueCreatureFoundations
 		var pain = Expression("pain", $"max(0, 0.5 * (power:{attributeId}{{noimprove,nobranch}} - 10))");
 		var stun = Expression("stun", "0");
 		var part = db.BodypartProtos.AsNoTracking().Where(x => x.BodyId == bodyId &&
-			(x.BodypartType == (int)BodypartTypeEnum.GrabbingWielding || x.BodypartType == (int)BodypartTypeEnum.BonyGrabbingWielding)).OrderBy(x => x.Id).First();
+			(x.BodypartType == (int)BodypartTypeEnum.GrabbingWielding || x.BodypartType == (int)BodypartTypeEnum.BonyGrabbingWielding ||
+			 x.BodypartType == (int)BodypartTypeEnum.Wielding)).OrderBy(x => x.Id).First();
 		var attack = owned.Put(key, new WeaponAttack { Name = "Armageddon " + label + " strike", MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
 			Verb = (int)MeleeWeaponVerb.Strike, DamageType = (int)DamageType.Crushing, BodypartShapeId = part.BodypartShapeId,
 			DamageExpressionId = damage.Id, PainExpressionId = pain.Id, StunExpressionId = stun.Id,

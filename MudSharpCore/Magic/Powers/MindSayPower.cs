@@ -239,6 +239,7 @@ public class MindSayPower : MagicPowerBase
         {
             actor.OutputHandler.Send(
                 new EmoteOutput(new Emote(FailEmoteText, actor, actor, effect.TargetCharacter)));
+            ConsumePowerCosts(actor, verb);
             return;
         }
 
@@ -269,6 +270,7 @@ public class MindSayPower : MagicPowerBase
         }
 
         PsionicActivityNotifier.Notify(actor, this, "a directed mental message", effect.TargetCharacter);
+        ConsumePowerCosts(actor, verb);
     }
 
     public override IEnumerable<string> Verbs => new[] { SayVerb, TellVerb };

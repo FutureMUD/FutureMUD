@@ -118,14 +118,18 @@ public static class ArmageddonCatalogueAnatomy
 			foreach (var forelimb in source.Limbs.Where(x => x.LimbType == (int)LimbType.Arm))
 			{
 				var grasp = source.Members.Where(x => x.LimbId == forelimb.Id).Select(x => source.Parts.Single(p => p.Id == x.BodypartProtoId))
-					.Single(x => x.BodypartType is (int)BodypartTypeEnum.GrabbingWielding or (int)BodypartTypeEnum.BonyGrabbingWielding);
-				parts[grasp.Id].Description = forelimb.Name.StartsWith("Right", StringComparison.OrdinalIgnoreCase) ? "right forepaw" : "left forepaw";
+					.Where(x => x.BodypartType is (int)BodypartTypeEnum.GrabbingWielding or
+						(int)BodypartTypeEnum.BonyGrabbingWielding or (int)BodypartTypeEnum.Wielding).ToArray();
+				if (grasp.Length != 1)
+					throw new InvalidOperationException($"The bound anatomy arm '{forelimb.Name}' must have exactly one wielding hand; found {grasp.Length}.");
+				var hand = grasp[0];
+				parts[hand.Id].Description = forelimb.Name.StartsWith("Right", StringComparison.OrdinalIgnoreCase) ? "right forepaw" : "left forepaw";
 				var padKey = $"{key}.forepad.{forelimb.Id}";
 				var pad = owned.Copy(standing);
 				pad.Id = owned.Id<BodypartProto>(padKey); pad.BodyId = body.Id; pad.CountAsId = null;
-				pad.Name = $"forepad{forelimb.Id}"; pad.Description = parts[grasp.Id].Description + " pad";
-				pad.Alignment = grasp.Alignment;
-				pad.BodypartProtoBodypartProtoUpstreamChildNavigation.Add(new() { Child = pad.Id, Parent = Part(grasp.Id) });
+				pad.Name = $"forepad{forelimb.Id}"; pad.Description = parts[hand.Id].Description + " pad";
+				pad.Alignment = hand.Alignment;
+				pad.BodypartProtoBodypartProtoUpstreamChildNavigation.Add(new() { Child = pad.Id, Parent = Part(hand.Id) });
 				owned.Stage(padKey, pad, [key]);
 				limbs[forelimb.Id].LimbsBodypartProto.Add(new() { LimbId = limbs[forelimb.Id].Id, BodypartProtoId = pad.Id });
 			}

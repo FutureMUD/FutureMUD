@@ -1,5 +1,11 @@
 # Armageddon Setting Seeder
 
+Installs classes, subclasses, magic, racial backgrounds, languages, equipment and game settings inspired by classical Armageddon, including class-based skill branching. Use the Armageddon skill package and enable classes/subclasses in Chargen for that experience. It supplies setting content rather than a built world of cities and rooms; races and Templar classes still require builder approval for player selection.
+
+Both Human inventory choices are supported: `hands` uses grabbing/wielding hands, while `inventory` uses wield-only hands with a separate inventory. Creature anatomy preserves that choice, creates quadruped forepaws from either hand type and assigns natural strikes to both hands. An installation stopped at anatomy can be resumed with the same settings; earlier completed batches are retained.
+
+The Setting seeder includes psionic powers and class-linked access to the Way. Ordinary classes, including Sorcerers and the Jihaen and Southern Templars, receive Normal psionics. Lirathan Templars and Psionicists receive their own broader profiles, sharing common powers. Skills unlock powers through the class branch trees. The separate **Psionics** seeder is not required; it remains an independent generic package. See [Armageddon psionics](../../Magic/Armageddon_Psionics.md) and [Templars](../../Armageddon/Armageddon_Templars.md).
+
 The public installer type and menu identity are `ArmageddonSettingSeeder` / **Armageddon Setting**. It is enabled in Debug and Release. Its durable ownership namespace intentionally remains `ArmageddonMagicSeeder`; changing the public name must never orphan existing content or player references. Historical magic receipts retain their original names.
 
 The approved early packages, magic, mundane progression/merits, heritage, physical/lifecycle/appearance defaults and source-specific actions are implemented. Current-schema combined classes/subclasses-on installation, seven native profile bodies, gameplay, preserving resume/rerun, two cold readers and first/cold server boots pass. Race admission and publication remain held. See [the execution ledger](../../Armageddon/Armageddon_Setting_Implementation_20261019.md) for exact evidence and limits.

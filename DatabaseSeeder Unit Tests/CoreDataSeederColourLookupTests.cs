@@ -8,8 +8,15 @@ using System.Xml.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using MudSharp.Database;
+using MudSharp.Form.Colour;
+using MudSharp.Framework;
 using MudSharp.Models;
+using CharacteristicDefinition = MudSharp.Models.CharacteristicDefinition;
+using CharacteristicValue = MudSharp.Models.CharacteristicValue;
+using ColourCharacteristicValue = MudSharp.Form.Characteristics.ColourCharacteristicValue;
+using ICharacteristicDefinition = MudSharp.Form.Characteristics.ICharacteristicDefinition;
 
 namespace MudSharp_Unit_Tests;
 
@@ -53,6 +60,101 @@ public class CoreDataSeederColourLookupTests
 			.Select(x => new { x.Id, x.Name, x.Pattern, x.ParentId, x.Model, x.Type, x.Description }).ToArray(),
 		Profiles = context.CharacteristicProfiles.OrderBy(x => x.Id).Select(x => new { x.Id, x.Name, x.Type, x.TargetDefinitionId, x.Definition }).ToArray()
 	});
+
+	[TestMethod]
+	public void FreshStock_AllColourValuesResolveAndRenderThroughRuntimeIncludingEveryPigment()
+	{
+		using var context = Stock();
+		var colourDefinition = context.CharacteristicDefinitions.Single(x => x.Name == "Colour");
+		var values = context.CharacteristicValues.Where(x => x.DefinitionId == colourDefinition.Id).ToArray();
+		var colours = context.Colours.ToDictionary(x => x.Id);
+		Assert.AreEqual(354, values.Length);
+		var missing = values.Where(x => !long.TryParse(x.Value, out var id) || !colours.ContainsKey(id)).ToArray();
+		Assert.AreEqual(0, missing.Length, $"Missing colours: {string.Join(", ", missing.Select(x => x.Name))}");
+		var world = new Mock<IFuturemud>();
+		var definition = new Mock<ICharacteristicDefinition>();
+		definition.Setup(x => x.Id).Returns(colourDefinition.Id);
+		world.Setup(x => x.Characteristics).Returns(new All<ICharacteristicDefinition> { definition.Object });
+		world.Setup(x => x.FutureProgs).Returns(new All<MudSharp.FutureProg.IFutureProg>());
+		var runtimeColours = new All<IColour>();
+		foreach (var colour in colours.Values)
+			runtimeColours.Add(new MudSharp.Form.Colour.Colour(colour, world.Object));
+		world.Setup(x => x.Colours).Returns(runtimeColours);
+		var rendered = values.Select(x => new ColourCharacteristicValue(x, world.Object)).ToArray();
+		foreach (var value in rendered)
+		{
+			Assert.IsFalse(string.IsNullOrWhiteSpace(value.GetValue), value.Name);
+			Assert.IsFalse(string.IsNullOrWhiteSpace(value.GetFancyValue), value.Name);
+			Assert.IsTrue(Enum.IsDefined(value.Colour.Basic), value.Name);
+			Assert.AreEqual(value.Colour.Basic.ToString().ToLowerInvariant(), value.GetBasicValue, value.Name);
+			Assert.IsTrue(value.Colour.Red is >= 0 and <= 255 && value.Colour.Green is >= 0 and <= 255 &&
+				value.Colour.Blue is >= 0 and <= 255, value.Name);
+		}
+		Assert.AreEqual(39, rendered.Count(x => x.Colour.Id is >= 316 and <= 354));
+		var madder = rendered.Single(x => x.Name == "madder red");
+		Assert.AreEqual(316L, madder.Colour.Id);
+		Assert.AreEqual("madder red", madder.GetValue);
+		Assert.AreEqual("red", madder.GetBasicValue);
+		Assert.AreEqual("the colour of madder red", madder.GetFancyValue);
+	}
+
+	[TestMethod]
+	public void MissingPigmentColours_RerunRestoresAll39WithoutChangingStoredValuesOrProfiles()
+	{
+		using var context = Stock();
+		var fresh = Snapshot(context);
+		context.Colours.RemoveRange(context.Colours.Where(x => x.Id >= 316 && x.Id <= 354));
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+		new CoreDataSeeder().SeedColours(context);
+		Assert.AreEqual(fresh, Snapshot(context));
+		new CoreDataSeeder().SeedColours(context);
+		Assert.AreEqual(fresh, Snapshot(context));
+	}
+
+	[TestMethod]
+	public void PigmentRepair_PreservesCustomColoursAndCharacteristicMetadata()
+	{
+		using var context = Stock();
+		var colour = context.Colours.Single(x => x.Id == 316);
+		colour.Name = "Builder's madder";
+		colour.Red = 123;
+		colour.Fancy = "a builder's custom red";
+		Value(context, 317).AdditionalValue = "Builder metadata";
+		context.Colours.Remove(context.Colours.Single(x => x.Id == 317));
+		context.SaveChanges();
+		new CoreDataSeeder().SeedColours(context);
+		Assert.AreEqual("Builder's madder", colour.Name);
+		Assert.AreEqual(123, colour.Red);
+		Assert.AreEqual("a builder's custom red", colour.Fancy);
+		Assert.AreEqual("Builder metadata", Value(context, 317).AdditionalValue);
+		Assert.AreEqual("kermes scarlet", context.Colours.Single(x => x.Id == 317).Name);
+		var repaired = Snapshot(context);
+		new CoreDataSeeder().SeedColours(context);
+		Assert.AreEqual(repaired, Snapshot(context));
+	}
+
+	[TestMethod]
+	[DataRow("renamed-value")]
+	[DataRow("retargeted-value")]
+	[DataRow("custom-definition")]
+	public void PigmentRepair_RequiresRecognisableStockReference(string mutation)
+	{
+		using var context = Stock();
+		context.Colours.Remove(context.Colours.Single(x => x.Id == 316));
+		var value = Value(context, 316);
+		switch (mutation)
+		{
+			case "renamed-value": value.Name = "Builder red"; break;
+			case "retargeted-value": value.Value = "6"; break;
+			case "custom-definition": value.Definition.Pattern = "^builder$"; break;
+			default: Assert.Fail(mutation); break;
+		}
+		context.SaveChanges();
+		var before = Snapshot(context);
+		new CoreDataSeeder().SeedColours(context);
+		Assert.AreEqual(before, Snapshot(context));
+	}
 
 	[TestMethod]
 	public void FreshStock_UsesExactUniqueLookupNamesWithoutChangingColourIdentities()

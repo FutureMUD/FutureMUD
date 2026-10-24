@@ -39,6 +39,14 @@ Complete tag taxonomy, guarded firearm tag/material ID bindings, materials, flui
 
 Core bootstrap accounts, world records, progs and bootstrap settings remain one-shot; only the documented foundation catalogues are repeatable.
 
+### Historical pigment colours
+
+The 39 historical pigment values, from `madder red` to `stained saffron yellow`, reference fixed Colour IDs 316–354. [CoreDataSeeder.PigmentColours.cs](../../../DatabaseSeeder/Seeders/CoreDataSeeder/CoreDataSeeder.PigmentColours.cs) supplies their names, basic colour groups, representative RGB display swatches and fancy descriptions. Fresh installs create both the Colour rows and their characteristic values from this shared list. RGB swatches are display choices, not chemical specifications.
+
+Older installs created these characteristic values without their Colour rows, causing a null reference when character creation grouped choices by basic colour. Rerun the Core seeder with the server stopped, then restart the server to reload the repaired catalogue. The foundation reconciliation fills vacant pigment Colour IDs only when the canonical Colour definition and the original named characteristic reference still exist. Existing Colour rows, characteristic IDs and metadata, profiles, and stored character/item selections are preserved. Customised or unrecognisable references are left for builder review.
+
+`CoreDataSeederColourLookupTests` covers every root Colour value's reference and runtime basic/fancy rendering, repair of all 39 missing rows, repeatability, and preservation of customised data.
+
 Those are metadata declarations. The source trace above identifies actual lookup/field/transaction behavior; matching names alone do not prove field ownership or preservation. [The shared executor](README.md#shared-execution-contract) handles exceptions and answer persistence but supplies no cross-seeder transaction.
 
 ## Verification and related references

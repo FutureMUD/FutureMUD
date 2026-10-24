@@ -151,10 +151,15 @@ public static partial class ArmageddonTemplarInstaller
 		InstallPoke(db, skills, messages);
 		InstallLirathanPsionics(db, manifest.Roles.Single(x => x.Key == "arm.class.lirathan_templar"), resolvedRoles, skills, messages);
 		InstallSouthernMagicAndItems(db, manifest, resolvedRoles, skills, messages);
+		db.SaveChanges();
+		ArmageddonMundaneProgression.ReconcilePsionicRoleGrants(db, messages);
+		ArmageddonProgressionInstaller.ReconcilePsionicRoleGrants(db, messages);
+		ArmageddonMundaneProgression.ReconcileSkillCaps(db, skills, messages);
 		foreach (var (key, role) in resolvedRoles)
 		{
 			var desired = new List<long> { progression.Id };
 			if (key == "arm.class.lirathan_templar") desired.Add(RequireOwned<Merit>(db, "arm.merit.lirathan_templar_psionics"));
+			else desired.Add(RequireOwned<Merit>(db, NormalPsionicsMeritKey));
 			if (key == "arm.class.southern_templar")
 			{
 				desired.Add(RequireOwned<Merit>(db, SouthernCastingMeritKey));

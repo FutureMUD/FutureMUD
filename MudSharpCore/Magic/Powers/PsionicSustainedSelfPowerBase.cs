@@ -82,15 +82,16 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 	{
 		if (verb.EqualTo(BeginVerb))
 		{
-			UseBegin(actor);
+			UseBegin(actor, command);
 			return;
 		}
 
 		UseEnd(actor);
 	}
 
-	private void UseBegin(ICharacter actor)
+	private void UseBegin(ICharacter actor, StringStack command)
 	{
+		if (!ValidateBeginArguments(actor, command)) return;
 		if (ActiveEffects(actor).Any())
 		{
 			actor.OutputHandler.Send("You are already sustaining that power.");
@@ -122,7 +123,7 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 			return;
 		}
 
-		actor.AddEffect(CreateEffect(actor), GetDuration(outcome.SuccessDegrees()));
+		actor.AddEffect(CreateEffect(actor, command), GetDuration(outcome.SuccessDegrees()));
 		actor.OutputHandler.Send(new EmoteOutput(new Emote(BeginEmote, actor, actor)));
 		PsionicActivityNotifier.Notify(actor, this, $"sustaining {Name}");
 		ConsumePowerCosts(actor, BeginVerb);
@@ -151,6 +152,8 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 	}
 
 	protected abstract IEffect CreateEffect(ICharacter actor);
+	protected virtual bool ValidateBeginArguments(ICharacter actor, StringStack command) => true;
+	protected virtual IEffect CreateEffect(ICharacter actor, StringStack command) => CreateEffect(actor);
 	protected abstract IEnumerable<IEffect> ActiveEffects(ICharacter actor);
 
 	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)

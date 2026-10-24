@@ -8,12 +8,13 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.Powers;
 
-/// <summary>Resisted one-command control, limited to same-room mortal command execution.</summary>
+/// <summary>Resisted one-command control using the ordinary restricted mortal command path.</summary>
 public sealed class PsionicControlPower : PsionicTargetedPowerBase
 {
 	public override string PowerType => "Mental Control";
 	public override string DatabaseType => "psioniccontrol";
 	protected override string DefaultVerb => "control";
+	public bool RequireSameLocation { get; private set; } = true;
 
 	public static void RegisterLoader()
 	{
@@ -35,8 +36,23 @@ public sealed class PsionicControlPower : PsionicTargetedPowerBase
 		DoDatabaseInsert();
 	}
 
-	private PsionicControlPower(MagicPower model, IFuturemud world) : base(model, world) { }
-	protected override XElement SaveDefinition() => SaveTargetedDefinition();
+	private PsionicControlPower(MagicPower model, IFuturemud world) : base(model, world)
+	{
+		RequireSameLocation = (bool?)XElement.Parse(model.Definition).Element("RequireSameLocation") ?? true;
+	}
+	protected override XElement SaveDefinition() => SaveTargetedDefinition(new XElement("RequireSameLocation", RequireSameLocation));
+	protected override string SubtypeHelpText => base.SubtypeHelpText + "\n\t#3samelocation#0 - toggles whether control also requires a target in the same room";
+	protected override void ShowSubtypeDetails(ICharacter actor, StringBuilder sb) =>
+		sb.AppendLine($"Requires the same room: {RequireSameLocation.ToColouredString()}");
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		if (!command.PeekSpeech().EqualTo("samelocation")) return base.BuildingCommand(actor, command);
+		command.PopSpeech();
+		RequireSameLocation = !RequireSameLocation;
+		Changed = true;
+		actor.Send($"This power {(RequireSameLocation ? "now" : "no longer")} requires the target to be in the same room. Its distance policy still applies.");
+		return true;
+	}
 
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
@@ -67,7 +83,7 @@ public sealed class PsionicControlPower : PsionicTargetedPowerBase
 			return;
 		}
 
-		if (target.Location != actor.Location || !PsionicTrafficHelper.CanReceiveInvoluntaryMentalTraffic(target))
+		if (RequireSameLocation && target.Location != actor.Location || !PsionicTrafficHelper.CanReceiveInvoluntaryMentalTraffic(target))
 		{
 			actor.OutputHandler.Send("You cannot establish that control over the target.");
 			return;
@@ -100,7 +116,8 @@ public sealed class PsionicControlPower : PsionicTargetedPowerBase
 		SendSuccess(actor, target);
 		// Revalidate immediately before execution and rely on the shared forced-command guard,
 		// which executes as a mortal and preserves the normal command restriction pipeline.
-		if (target.Location == actor.Location && PsionicTrafficHelper.CanReceiveInvoluntaryMentalTraffic(target) &&
+		if ((!RequireSameLocation || target.Location == actor.Location) && AcquireTarget(actor, targetText, PowerDistance) == target &&
+			PsionicTrafficHelper.CanReceiveInvoluntaryMentalTraffic(target) &&
 			CommandExecutionGuards.CanForceTarget(actor, target) && !PsionicTrafficHelper.IsBlockedCommandRoot(forcedCommand))
 		{
 			CommandExecutionGuards.ExecuteForcedCommand(target, forcedCommand);

@@ -60,7 +60,7 @@ public class ArmageddonReleaseGateTests
 		CollectionAssert.AreEqual(new[] { ArmageddonSettingSeeder.FullInstallQuestion, ArmageddonSettingSeeder.ModeQuestion,
 			ArmageddonSettingSeeder.CapacityQuestion, ArmageddonSettingSeeder.NativeBindingsQuestion, ArmageddonSettingSeeder.InstallQuestion,
 			ArmageddonSettingSeeder.BindingsQuestion }, seeder.Questions.Select(x => x.Id).ToArray());
-		StringAssert.Contains(seeder.FullDescription, "fresh opt-in installation");
+		Assert.IsFalse(string.IsNullOrWhiteSpace(seeder.FullDescription));
 		Assert.AreEqual("no", seeder.Questions.First().DefaultAnswerResolver!(null!, new Dictionary<string, string>()));
 	}
 

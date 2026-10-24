@@ -87,9 +87,12 @@ public static partial class ArmageddonProgressionInstaller
 		current["RoleMerits"] = JsonSerializer.Serialize(merits.Select(x => x.MeritId).Order().ToArray());
 		current["RoleTraits"] = JsonSerializer.Serialize(traits.OrderBy(x => x.TraitId).Select(x => new RoleTrait(x.TraitId, x.Amount, x.GiveIfDoesntHave)).ToArray());
 		var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+		var desiredMerits = new List<long> { meritId };
+		foreach (var key in new[] { ArmageddonTemplarInstaller.NormalPsionicsMeritKey, ArmageddonTemplarInstaller.MagicPsionicProgressionKey })
+			if (ArmageddonTemplarInstaller.OptionalPsionicMerit(db, key) is { } psi) desiredMerits.Add(psi);
 		var desired = new Dictionary<string, string>(baseline)
 		{
-			["RoleMerits"] = JsonSerializer.Serialize(new[] { meritId }),
+			["RoleMerits"] = JsonSerializer.Serialize(desiredMerits.Distinct().Order().ToArray()),
 			["RoleTraits"] = JsonSerializer.Serialize(Array.Empty<RoleTrait>())
 		};
 		var newLinks = !baseline.ContainsKey("RoleMerits") && !baseline.ContainsKey("RoleTraits") && merits.Length == 0 && traits.Length == 0;
@@ -108,6 +111,21 @@ public static partial class ArmageddonProgressionInstaller
 		}
 		if (newLinks || current["RoleMerits"] != merged["RoleMerits"] || current["RoleTraits"] != merged["RoleTraits"]) record.AppliedAt = DateTime.UtcNow;
 		db.SaveChanges();
+	}
+
+	internal static void ReconcilePsionicRoleGrants(FuturemudDatabaseContext db, ICollection<string> messages)
+	{
+		var additions = new[] { ArmageddonTemplarInstaller.NormalPsionicsMeritKey, ArmageddonTemplarInstaller.MagicPsionicProgressionKey }
+			.Select(x => ArmageddonTemplarInstaller.OptionalPsionicMerit(db, x)!.Value).ToHashSet();
+		var output = new List<string>();
+		foreach (var record in db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module &&
+			x.EntityType == nameof(ChargenRole) && !x.Retired && x.LogicalId != null).ToArray())
+		{
+			var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+			var casterMerit = JsonSerializer.Deserialize<long[]>(baseline["RoleMerits"])!.Single(x => !additions.Contains(x));
+			RoleLinks(db, db.ChargenRoles.Find(record.LogicalId!.Value)!, record, casterMerit, output);
+		}
+		foreach (var message in output) messages.Add(message);
 	}
 
 	private sealed record RoleTrait(long Id, double Amount, bool Give);

@@ -54,11 +54,40 @@ public partial class ArmageddonStockSpellInstallerTests
 				TraitExpression = new TraitExpression { Name = "Analyze fixture", Expression = "0" } });
 		db.SaveChanges();
 		var messages = new List<string>();
+		ArmageddonMundaneProgression.Install(db, messages);
 		ArmageddonTemplarInstaller.Install(db, messages);
 		db.ChangeTracker.Clear();
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonTemplarInstaller.Module).ToDictionary(x => x.StableKey);
 		Assert.AreEqual(3, claims.Values.Count(x => x.EntityType == nameof(ChargenRole)));
-		Assert.AreEqual(20, claims.Values.Count(x => x.EntityType == nameof(MagicPower)));
+		Assert.AreEqual(32, claims.Values.Count(x => x.EntityType == nameof(MagicPower)));
+		var normalMerit = claims[ArmageddonTemplarInstaller.NormalPsionicsMeritKey].LogicalId!.Value;
+		var psionicistMerit = claims[ArmageddonTemplarInstaller.PsionicistMeritKey].LogicalId!.Value;
+		foreach (var mainRole in ArmageddonMundaneProgression.Roles.Where(x => x.Primary))
+		{
+			var id = db.SeederManagedRecords.Single(x => x.StableKey == mainRole.Key).LogicalId!.Value;
+			Assert.IsTrue(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == id && x.MeritId == (mainRole.Name == "Psionicist" ? psionicistMerit : normalMerit)));
+			Assert.IsFalse(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == id && x.MeritId == (mainRole.Name == "Psionicist" ? normalMerit : psionicistMerit)));
+		}
+		var normalPowers = XElement.Parse(db.MagicCapabilities.Single(x => x.Id == claims["arm.capability.normal_psionics"].LogicalId).Definition).Elements("Power").ToArray();
+		var psionicistPowers = XElement.Parse(db.MagicCapabilities.Single(x => x.Id == claims["arm.capability.psionicist_psionics"].LogicalId).Definition).Elements("Power").ToArray();
+		var lirathanPowers = XElement.Parse(db.MagicCapabilities.Single(x => x.Id == claims["arm.capability.lirathan_templar_psionics"].LogicalId).Definition).Elements("Power").ToArray();
+		Assert.AreEqual(5, normalPowers.Length);
+		Assert.AreEqual(29, psionicistPowers.Length);
+		Assert.AreEqual(22, lirathanPowers.Length);
+		foreach (var common in normalPowers)
+		{
+			Assert.IsTrue(psionicistPowers.Any(x => XNode.DeepEquals(x, common)), "Psionicist must share normal powers and canonical traits.");
+			Assert.IsTrue(lirathanPowers.Any(x => XNode.DeepEquals(x, common)), "Lirathan must share normal powers and canonical traits.");
+		}
+		var magicRules = XElement.Parse(db.Merits.Single(x => x.Id == claims[ArmageddonTemplarInstaller.MagicPsionicProgressionKey].LogicalId).Definition).Element("Rules")!.Elements("Rule").ToArray();
+		Assert.AreEqual(30, magicRules.Length);
+		foreach (var magicRole in magicRules.Select(x => (long)x.Attribute("role")!).Distinct())
+		{
+			Assert.IsTrue(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == magicRole && x.MeritId == normalMerit));
+			Assert.IsTrue(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == magicRole && x.MeritId == claims[ArmageddonTemplarInstaller.MagicPsionicProgressionKey].LogicalId));
+			var expel = magicRules.Single(x => (long)x.Attribute("role")! == magicRole && x.Attribute("parent") is not null);
+			Assert.AreEqual(70.0, (double)expel.Attribute("threshold")!);
+		}
 		foreach (var wearable in db.GameItemComponentProtos.Where(x => x.Type == "Wearable").AsEnumerable())
 		{
 			var profiles = XElement.Parse(wearable.Definition).Element("Profiles")!;
@@ -105,7 +134,14 @@ public partial class ArmageddonStockSpellInstallerTests
 		var powerIds = claims.Values.Where(x => x.EntityType == nameof(MagicPower)).Select(x => x.LogicalId!.Value).ToArray();
 		foreach (var row in db.MagicPowers.Where(x => powerIds.Contains(x.Id)))
 			loadedPowers.Add(MagicPowerFactory.LoadPower(row, world.Object));
-		Assert.AreEqual(20, loadedPowers.Count());
+		Assert.AreEqual(32, loadedPowers.Count());
+		foreach (var verb in new[] { "say", "connectback", "probe", "sensepresence", "vanish", "rejuvenate", "disorient", "project", "suggest", "compel", "conceal", "babble" })
+			Assert.AreEqual(1, loadedPowers.Count(x => x.Verbs.Contains(verb)), "Unique shared Armageddon verb: " + verb);
+		var compel = (PsionicControlPower)loadedPowers.Get(claims["arm.power.psionicist.compel"].LogicalId!.Value);
+		var control = (PsionicControlPower)loadedPowers.Get(claims["arm.power.lirathan.control"].LogicalId!.Value);
+		Assert.IsFalse(compel.RequireSameLocation);
+		Assert.AreEqual(MagicPowerDistance.AnyConnectedMind, compel.PowerDistance);
+		Assert.IsTrue(control.RequireSameLocation);
 		foreach (var verb in new[] { "contact", "barrier", "expel", "allspeak", "hear", "thoughtsense", "empathy", "clairaudience", "trace", "magicksense", "locate", "mindblast", "mindwipe", "control", "masquerade", "illusion", "cathexis", "dome", "shadowwalk", "silentpsi" })
 			Assert.AreEqual(1, loadedPowers.Count(x => x.Verbs.Contains(verb)), "Unique usable Lirathan verb: " + verb);
 		var cap = db.MagicCapabilities.Single(x => x.Id == claims["arm.capability.southern_templar"].LogicalId);
@@ -143,10 +179,19 @@ public partial class ArmageddonStockSpellInstallerTests
 		db.RacesCombatActions.Remove(db.RacesCombatActions.Single(x => x.CombatActionId == pokeActionId));
 		db.GameItemProtosGameItemComponentProtos.Remove(gem.GameItemProtosGameItemComponentProtos.Single(x => x.GameItemComponentProtoId == bindingId));
 		shrine.Definition = (policy with { SelectionLimit = 1 }).Save().ToString();
+		var customPower = db.MagicPowers.Single(x => x.Id == claims["arm.power.psionicist.probe"].LogicalId);
+		customPower.ShowHelp = "Builder Probe help";
+		var merchantKey = ArmageddonMundaneProgression.Roles.Single(r => r.Name == "Merchant" && r.Primary).Key;
+		var merchantId = db.SeederManagedRecords.Single(x => x.StableKey == merchantKey).LogicalId!.Value;
+		db.ChargenRolesMerits.Remove(db.ChargenRolesMerits.Single(x => x.ChargenRoleId == merchantId && x.MeritId == normalMerit));
 		db.SaveChanges();
+		ArmageddonMundaneProgression.Install(db, messages);
 		ArmageddonTemplarInstaller.Install(db, messages);
 		db.ChangeTracker.Clear();
 		Assert.AreEqual("Builder Lirathan", db.ChargenRoles.Single(x => x.Id == role.Id).Name);
+		Assert.AreEqual("Builder Probe help", db.MagicPowers.Single(x => x.Id == customPower.Id).ShowHelp);
+		Assert.IsFalse(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == merchantId && x.MeritId == normalMerit));
+		foreach (var claim in claims.Values) Assert.AreEqual(claim.LogicalId, db.SeederManagedRecords.Single(x => x.StableKey == claim.StableKey).LogicalId);
 		Assert.AreEqual("123", db.TraitDefinitions.Include(x => x.Expression).Single(x => x.Id == pressure.Id).Expression.Expression);
 		Assert.IsFalse(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == role.Id && x.MeritId == removedMeritId));
 		Assert.IsFalse(db.GameItemProtosGameItemComponentProtos.Any(x => x.GameItemProtoId == gem.Id && x.GameItemComponentProtoId == bindingId));

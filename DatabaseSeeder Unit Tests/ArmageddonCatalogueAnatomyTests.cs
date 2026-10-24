@@ -16,6 +16,40 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonCatalogueAnatomyTests
 {
 	[TestMethod]
+	[DataRow(BodypartTypeEnum.GrabbingWielding)]
+	[DataRow(BodypartTypeEnum.BonyGrabbingWielding)]
+	[DataRow(BodypartTypeEnum.Wielding)]
+	public void Anatomy_HandInventoryStylesRetainHandTypesAndSupportForepaws(BodypartTypeEnum handType)
+	{
+		using var db = Fixture();
+		foreach (var hand in db.BodypartProtos.Where(x => x.Id == 2 || x.Id == 3)) hand.BodypartType = (int)handType;
+		db.SaveChanges();
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var result = ArmageddonCatalogueAnatomy.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
+		db.ChangeTracker.Clear();
+		foreach (var blueprint in new ArmageddonStockCatalogue().Blueprints.Where(x => x.Kind == ArmageddonBlueprintKind.RaceBundle))
+		{
+			var bodyId = result.Identities[blueprint.Key + ".body"];
+			var hands = db.BodypartProtos.Where(x => x.BodyId == bodyId && x.BodypartType == (int)handType).ToArray();
+			Assert.AreEqual(2, hands.Length);
+			if (!blueprint.Configuration.GetProperty("body_plan").GetString()!.Contains("quadruped", StringComparison.Ordinal)) continue;
+			foreach (var hand in hands)
+			{
+				var pad = db.BodypartProtos.Single(x => x.BodyId == bodyId && x.Description == hand.Description + " pad");
+				Assert.AreEqual((int)BodypartTypeEnum.Standing, pad.BodypartType);
+				Assert.IsTrue(db.BodypartProtoBodypartProtoUpstream.Any(x => x.Child == pad.Id && x.Parent == hand.Id));
+				Assert.IsTrue(db.LimbsBodypartProto.Any(x => x.BodypartProtoId == pad.Id));
+			}
+		}
+		var identities = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => x.LogicalId);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueAnatomy.Install(factory).Status);
+		db.ChangeTracker.Clear();
+		foreach (var record in db.SeederManagedRecords) Assert.AreEqual(identities[record.StableKey], record.LogicalId);
+		Assert.AreEqual((int)handType, db.BodypartProtos.Single(x => x.Id == 2).BodypartType);
+	}
+
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]

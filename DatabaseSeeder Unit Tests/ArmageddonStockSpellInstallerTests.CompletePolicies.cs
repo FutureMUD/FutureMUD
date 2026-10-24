@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		using var db = FreshFixture(mode, classes, enabled);
 		var answers = new Dictionary<string, string> { [ArmageddonSettingSeeder.FullInstallQuestion] = "yes", [ArmageddonSettingSeeder.ModeQuestion] = mode.ToString() };
 		var report = new ArmageddonSettingSeeder().SeedData(db, answers);
-		StringAssert.Contains(report, enabled ? "v1 fresh-install enabled" : "existing-install retained");
+		StringAssert.Contains(report, enabled ? "Availability: enabled for new installations" : "Availability: existing settings retained");
 		db.ChangeTracker.Clear();
 		var claims = db.SeederManagedRecords.ToDictionary(x => x.StableKey);
 		var stock = new ArmageddonStockProgression(mode);

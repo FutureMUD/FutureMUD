@@ -22,6 +22,28 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonCatalogueCreatureFoundationTests
 {
 	[TestMethod]
+	public void CreatureFoundations_InventoryHandsReceiveNativeStrikeAttacks()
+	{
+		using var db = Fixture();
+		foreach (var hand in db.BodypartProtos.Where(x => x.BodypartType == (int)MudSharp.Body.BodypartTypeEnum.GrabbingWielding))
+			hand.BodypartType = (int)MudSharp.Body.BodypartTypeEnum.Wielding;
+		db.SaveChanges();
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var result = ArmageddonCatalogueCreatureFoundations.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
+		db.ChangeTracker.Clear();
+		foreach (var blueprint in new ArmageddonStockCatalogue().Blueprints.Where(x => x.Kind == ArmageddonBlueprintKind.RaceBundle))
+		{
+			var raceId = result.Identities[blueprint.Key];
+			var attacks = db.RacesWeaponAttacks.Where(x => x.RaceId == raceId).ToArray();
+			Assert.AreEqual(2, attacks.Length);
+			foreach (var attack in attacks)
+				Assert.AreEqual((int)MudSharp.Body.BodypartTypeEnum.Wielding, db.BodypartProtos.Single(x => x.Id == attack.BodypartId).BodypartType);
+		}
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueCreatureFoundations.Install(factory).Status);
+	}
+
+	[TestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)][DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)][DataRow(ArmageddonProgressionMode.Simple, true)]
 	public void CreatureFoundations_IndependentNativeBundlesAndExactGradeAttacks(ArmageddonProgressionMode mode, bool classes)

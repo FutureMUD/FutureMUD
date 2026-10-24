@@ -814,12 +814,12 @@ public class Movement : IMovement
 
             ISawSneakerEffect sawSneakEffect = voyeur.EffectsOfType<ISawSneakerEffect>().FirstOrDefault(x => x.Sneaker == mover);
 
-            if (sawSneakEffect == null && flags.HasFlag(PerceiveIgnoreFlags.IgnoreSpotting))
+            if (sawSneakEffect == null && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSpotting))
             {
                 CheckOutcome voyeurCheck = mover.Gameworld.GetCheck(CheckType.SpotSneakCheck)
                                        .Check(voyeurCh,
                                            voyeur.Location.SpotDifficulty(voyeur).StageDown(sneakMoveEffect.Subtle ? 2 : 0),
-                                           mover);
+                                           mover, externalBonus: PsionicSensePresenceEffect.SneakSpottingBonus(voyeurCh, mover));
                 OpposedOutcome opposed = new(sneakMoveEffect.StealthOutcome, voyeurCheck);
                 sawSneakEffect = new SawSneaker(voyeur, mover, opposed.Outcome != OpposedOutcomeDirection.Proponent);
                 voyeur.AddEffect(sawSneakEffect);

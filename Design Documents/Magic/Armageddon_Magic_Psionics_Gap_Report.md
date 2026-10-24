@@ -1,5 +1,7 @@
 # Armageddon Magic and Psionics Gap Report
 
+**2026-10-24 update:** the Armageddon Setting seeder now supplies class-linked Normal, Lirathan Templar and Psionicist profiles. Probe, Rejuvenate, Disorient, Sense Presence, Vanish and remote Compel have native runtime implementations. The retained comparison below predates those additions; consult [Armageddon psionics](Armageddon_Psionics.md) for their current behaviour and explicit adaptations, including Probe's optional world-authored memories.
+
 ## Scope
 
 This report compares the Armageddon spell and psionic inventory in:

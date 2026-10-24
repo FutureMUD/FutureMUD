@@ -25,6 +25,8 @@ Tests that require the same mocked entity now use `AreSame`, preserving their re
 
 Restore with `NuGetAudit=true` and `NuGetAuditMode=all`, then inspect both direct and transitive packages with `dotnet list <solution-or-project> package --vulnerable --include-transitive --no-restore`. Run `--outdated` separately to check direct package currency. An audit fetch failure is an unknown result, not evidence of no vulnerabilities. Do not disable auditing or suppress NU190x warnings for this task.
 
+The website security workflow also pins the approved BouncyCastle.Cryptography version in its dependency-boundary check. Update that exact-version approval alongside the website package reference; it now permits 2.7.0. The engine/database exclusions and enforced NuGet vulnerability audit remain active.
+
 The classic VSIX project needs Visual Studio's MSBuild and installed VSSDK targets. For CLI package inventory, use an equivalent temporary solution containing the SDK projects; the VSIX project itself has no NuGet references. On a restricted Windows account, a writable per-run `NUGET_HTTP_CACHE_PATH` can avoid HTTP-cache access failures without changing package sources or credentials.
 
 ## Verification, 24 October 2026

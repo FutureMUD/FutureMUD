@@ -45,7 +45,7 @@ public static partial class ArmageddonTemplarInstaller
 			[(ProgVariableTypes.Character, "ch")], messages);
 		var capIds = SouthernElementalistKeys.ToDictionary(x => x, x => RequireOwned<MagicCapability>(db, x), StringComparer.Ordinal);
 		var priorCapId = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernCastingKey)?.LogicalId;
-		var southernClassCapability = $"Contains(magiccapabilities(@ch), ToMagicCapability(\"{(priorCapId is { } existingCap ? existingCap.ToString(CultureInfo.InvariantCulture) : "Armageddon Southern Templar casting")}\"))";
+		var southernClassCapability = $"Contains(magiccapabilities(@ch), ToMagicCapability(\"{(priorCapId is { } existingCap ? existingCap.ToString(CultureInfo.InvariantCulture) : "Southern Templar casting")}\"))";
 		var southern = Prog(db, magic.AuthorityProgKey, "SouthernTemplarAuthority",
 			$"return @{enable.FunctionName}() and {southernClassCapability} and @{military.FunctionName}(@ch)",
 			[(ProgVariableTypes.Character, "ch")], messages);
@@ -65,7 +65,7 @@ public static partial class ArmageddonTemplarInstaller
 		var choiceKeys = magic.Choices.Values.SelectMany(x => x).ToArray();
 		var allKeys = permanentKeys.Concat(choiceKeys).Distinct(StringComparer.Ordinal).ToArray();
 		var spellIds = allKeys.ToDictionary(x => x, x => RequireOwned<MagicSpell>(db, x), StringComparer.Ordinal);
-		var school = (MagicSchool)Put(db, "arm.school.southern_templar", new MagicSchool { Name = "Armageddon Southern Templar",
+		var school = (MagicSchool)Put(db, "arm.school.southern_templar", new MagicSchool { Name = "Southern Templar",
 			SchoolVerb = "templar", SchoolAdjective = "templar", PowerListColour = "yellow" },
 			[nameof(MagicSchool.Name), nameof(MagicSchool.SchoolVerb), nameof(MagicSchool.SchoolAdjective), nameof(MagicSchool.PowerListColour)], messages);
 		var resourceTemplate = Owned<MagicResource>(db, "arm.resource.void");
@@ -77,9 +77,10 @@ public static partial class ArmageddonTemplarInstaller
 		resourceDefinition.SetElementValue("StartingResourceAmountCharacterProg", zeroProg.Id);
 		resourceDefinition.SetElementValue("ResourceCapProg", capProg.Id);
 		resourceDefinition.Elements("AttributeCapacity").Remove();
-		if (db.MagicResources.Any(x => x.ShortName == "armsouth" && x.Name != "Armageddon Southern Templar reserve"))
+		var priorResourceId = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernReserveKey)?.LogicalId;
+		if (db.MagicResources.Any(x => x.ShortName == "armsouth" && x.Id != priorResourceId))
 			throw new InvalidOperationException("An unowned magic resource already uses the Southern Templar reserve short name.");
-		var resource = (MagicResource)Put(db, SouthernReserveKey, new MagicResource { Name = "Armageddon Southern Templar reserve",
+		var resource = (MagicResource)Put(db, SouthernReserveKey, new MagicResource { Name = "Southern Templar reserve",
 			ShortName = "armsouth", Type = "simple", MagicResourceType = resourceTemplate.MagicResourceType,
 			BottomColour = resourceTemplate.BottomColour, MidColour = resourceTemplate.MidColour, TopColour = resourceTemplate.TopColour,
 			Definition = resourceDefinition.ToString() }, [nameof(MagicResource.Name), nameof(MagicResource.ShortName), nameof(MagicResource.Type),
@@ -99,9 +100,9 @@ public static partial class ArmageddonTemplarInstaller
 		var patron = new PatronCastingPolicy(southern.Id, territory.Id, magic.FixedGrade, true, true, true,
 			permanentKeys.Select(x => spellIds[x]).ToArray(), magic.SelectionLimit, incantations);
 		casting.Add(new XElement("Patron", JsonSerializer.Serialize(patron)));
-		if (db.MagicCapabilities.Any(x => x.Name == "Armageddon Southern Templar casting") && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernCastingKey))
+		if (db.MagicCapabilities.Any(x => x.Name == "Southern Templar casting") && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernCastingKey))
 			throw new InvalidOperationException("Unowned Southern Templar capability name collision.");
-		var cap = (MagicCapability)Put(db, SouthernCastingKey, new MagicCapability { Name = "Armageddon Southern Templar casting",
+		var cap = (MagicCapability)Put(db, SouthernCastingKey, new MagicCapability { Name = "Southern Templar casting",
 			CapabilityModel = "skilllevel", PowerLevel = 1, MagicSchoolId = school.Id,
 			Definition = new XElement("Definition", new XElement("ConcentrationTrait", skill.Id), new XElement("ConcentrationCapabilityExpression", "1"),
 				new XElement("ConcentrationDifficultyExpression", "5"), new XElement("Regenerators"), casting).ToString() },
@@ -112,7 +113,7 @@ public static partial class ArmageddonTemplarInstaller
 			southern = Prog(db, magic.AuthorityProgKey, "SouthernTemplarAuthority", gate, [(ProgVariableTypes.Character, "ch")], messages);
 			escort = Prog(db, "arm.templar.southern.gem.escort", "SouthernTemplarGemEscort", gate, [(ProgVariableTypes.Character, "ch")], messages);
 		}
-		var capabilityMerit = (Merit)Put(db, SouthernCastingMeritKey, new Merit { Name = "Armageddon Southern Templar caster", Type = "Magic Capability",
+		var capabilityMerit = (Merit)Put(db, SouthernCastingMeritKey, new Merit { Name = "Southern Templar caster", Type = "Magic Capability",
 			MeritType = 0, MeritScope = 2, Definition = new XElement("Definition", new XElement("ChargenAvailableProg", no.Id),
 				new XElement("ApplicabilityProg", yes.Id), new XElement("ChargenBlurb", "Southern Templar casting; role selection provides the authored capability."),
 				new XElement("DescriptionText", "@ channel|channels the Southern Templar tradition."), new XElement("Capabilities", new XElement("Capability", cap.Id))).ToString() },
@@ -121,7 +122,7 @@ public static partial class ArmageddonTemplarInstaller
 		_ = new RoleSkillProgression([classSkillRule]);
 		var skillProgression = (Merit)Put(db, "arm.merit.southern_templar_magic_progression", new Merit
 		{
-			Name = "Armageddon Southern Templar Magic Progression", Type = "Role Skill Progression", MeritType = 0, MeritScope = 2,
+			Name = "Southern Templar Magic Progression", Type = "Role Skill Progression", MeritType = 0, MeritScope = 2,
 			Definition = new XElement("Definition", new XElement("ChargenAvailableProg", no.Id), new XElement("ApplicabilityProg", yes.Id),
 				new XElement("DescriptionText", "@ develop|develops the Southern Templar tradition"), new XElement("ChargenBlurb", "Southern Templar Magic progression"),
 				new XElement("Rules", new XElement("Rule", new XAttribute("role", classSkillRule.RoleId), new XAttribute("trait", classSkillRule.TraitId),
@@ -218,7 +219,7 @@ public static partial class ArmageddonTemplarInstaller
 		var no = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse");
 		var yes = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue");
 		var trait = new TraitDefinition { Name = name, Type = 0, OwnerScope = (int)TraitOwnerScope.Character, DerivedType = 0,
-			TraitGroup = "Armageddon Templar Magic", Hidden = false, Expression = new TraitExpression { Name = key + ".cap", Expression = "100" },
+			TraitGroup = "Templar Magic", Hidden = false, Expression = new TraitExpression { Name = key + ".cap", Expression = "100" },
 			DecoratorId = template.DecoratorId, ImproverId = template.ImproverId, AvailabilityProg = no, LearnableProg = yes, TeachableProg = no,
 			TeachDifficulty = 7, LearnDifficulty = 7, ChargenBlurb = "Builder-configured Southern Templar spell skill.", BranchMultiplier = 0 };
 		db.TraitDefinitions.Add(trait); db.SaveChanges();

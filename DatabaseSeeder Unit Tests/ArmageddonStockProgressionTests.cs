@@ -131,7 +131,7 @@ public partial class ArmageddonStockProgressionTests
 		using var db = ArmageddonInstallationSettingsTests.Fixture(false);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		ArmageddonInstallation.Prepare(factory, ArmageddonProgressionMode.Simple);
-		db.MagicCapabilities.Add(new MagicCapability { Name = "Armageddon Earth" });
+		db.MagicCapabilities.Add(new MagicCapability { Name = "Earth" });
 		db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, ArmageddonProgressionInstaller.Install(factory).Status);
 		Assert.AreEqual(1, db.SeederManagedRecords.Count());

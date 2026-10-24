@@ -22,7 +22,7 @@ public static partial class ArmageddonTemplarInstaller
 	private static void InstallLirathanPsionics(FuturemudDatabaseContext db, Role lirathanRole,
 		IReadOnlyDictionary<string, ChargenRole> roles, IReadOnlyDictionary<string, TraitDefinition> skills, ICollection<string> messages)
 	{
-		var school = (MagicSchool)Put(db, "arm.school.lirathan_templar", new MagicSchool { Name = "Armageddon Psionics",
+		var school = (MagicSchool)Put(db, "arm.school.lirathan_templar", new MagicSchool { Name = "Psionics",
 			SchoolVerb = "lpsi", SchoolAdjective = "psionic", PowerListColour = "boldmagenta" },
 			[nameof(MagicSchool.Name), nameof(MagicSchool.SchoolVerb), nameof(MagicSchool.SchoolAdjective), nameof(MagicSchool.PowerListColour)], messages);
 		var canInvoke = TextOrBooleanPowerProg(db, "arm.templar.lirathan.power.allowed", "return true", ProgVariableTypes.Boolean, messages);
@@ -90,7 +90,7 @@ public static partial class ArmageddonTemplarInstaller
 			if (spec.Sustained || spec.Model == "psioniccathexis" || spec.Model == "psionicillusion")
 				definition.Add(new XElement("StunUpkeep", new XAttribute("skillTrait", trait.Id), new XAttribute("wisdomTrait", wisdom.Id),
 					new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
-			var row = Put(db, "arm.power.lirathan." + spec.Key, new MagicPower { Name = spec.Name.Replace("Lirathan", "Armageddon", StringComparison.Ordinal), MagicSchoolId = school.Id,
+			var row = Put(db, "arm.power.lirathan." + spec.Key, new MagicPower { Name = spec.Name.Replace("Lirathan ", "", StringComparison.Ordinal), MagicSchoolId = school.Id,
 				PowerModel = spec.Model, Blurb = "A technique of the Way, powered by mental effort.",
 				ShowHelp = $"Use LPSI {spec.Verb.ToUpperInvariant()} with the target or invocation described by the power.", Definition = definition.ToString() },
 				[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages);
@@ -132,7 +132,7 @@ public static partial class ArmageddonTemplarInstaller
 				new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
 			var key = entry.Verb is "say" or "connectback" ? entry.Verb : entry.Trait.Split('.').Last();
 			var definition = xml.ToString();
-			var row = Put(db, "arm.power.lirathan." + key, new MagicPower { Name = "Armageddon " + key, MagicSchoolId = school.Id,
+			var row = Put(db, "arm.power.lirathan." + key, new MagicPower { Name = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace('_', ' ')), MagicSchoolId = school.Id,
 				PowerModel = stock.Type, Blurb = stock.Help.Replace("{range}", "the same plane", StringComparison.Ordinal),
 				ShowHelp = stock.Help, Definition = definition },
 				[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages);
@@ -156,12 +156,12 @@ public static partial class ArmageddonTemplarInstaller
 		var capabilityDefinition = new XElement("Definition", new XElement("ConcentrationTrait", skills["arm.skill.allspeak"].Id),
 			new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"), new XElement("Regenerators"),
 			allPowers.Select(x => new XElement("Power", new XAttribute("trait", x.Trait.Id), new XAttribute("minvalue", 1), new XAttribute("power", x.Power.Id))));
-		var capability = (MagicCapability)Put(db, "arm.capability.lirathan_templar_psionics", new MagicCapability { Name = "Armageddon Lirathan Templar Psionics",
+		var capability = (MagicCapability)Put(db, "arm.capability.lirathan_templar_psionics", new MagicCapability { Name = "Lirathan Templar Psionics",
 			CapabilityModel = "skilllevel", PowerLevel = 2, MagicSchoolId = school.Id, Definition = capabilityDefinition.ToString() },
 			[nameof(MagicCapability.Name), nameof(MagicCapability.CapabilityModel), nameof(MagicCapability.PowerLevel), nameof(MagicCapability.MagicSchoolId), nameof(MagicCapability.Definition)], messages);
 		var no = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse");
 		var yes = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue");
-		var merit = (Merit)Put(db, "arm.merit.lirathan_templar_psionics", new Merit { Name = "Armageddon Lirathan Templar Psionics", Type = "Magic Capability",
+		var merit = (Merit)Put(db, "arm.merit.lirathan_templar_psionics", new Merit { Name = "Lirathan Templar Psionics", Type = "Magic Capability",
 			MeritType = 0, MeritScope = 2, Definition = new XElement("Definition", new XElement("ChargenAvailableProg", no.Id), new XElement("ApplicabilityProg", yes.Id),
 				new XElement("ChargenBlurb", "Lirathan Templar Way powers; class selection supplies this configured capability."),
 				new XElement("DescriptionText", "@ command|commands the Way through Lirathan psionic techniques."), new XElement("Capabilities", new XElement("Capability", capability.Id))).ToString() },

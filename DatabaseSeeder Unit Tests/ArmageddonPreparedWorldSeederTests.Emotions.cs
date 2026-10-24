@@ -44,7 +44,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			Assert.AreEqual(6, result.Modules.Single(x => x.Module == ArmageddonEmotionalInstaller.Module).Identities.Count);
 			Assert.IsTrue(result.Availability.All(x => x.StoredAdmissions.Count == 12 && x.WithoutStoredAdmission.Count == 70));
 			long Id(string key) => db.SeederManagedRecords.AsNoTracking().Single(x => x.StableKey == key).LogicalId!.Value;
-			foreach (var cap in db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Armageddon partial ")))
+			foreach (var cap in db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Partial ")))
 			{
 				var admissions = XElement.Parse(cap.Definition).Element("Casting")!.Elements("Admission").ToArray();
 				foreach (var (key, parent, rawCap) in new[] { (ArmageddonEmotionalInstaller.FuryKey, "arm.spell.unravel_enchantment", 90d),
@@ -137,7 +137,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			var xml = XElement.Parse(row.Definition); xml.Element("Effects")!.Element("Effect")!.Element("SourceProfile")!.SetAttributeValue("intensity", 9); row.Definition = xml.ToString();
 			var costId = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonEmotionalInstaller.FuryKey + ".cost").LogicalId;
 			db.TraitExpressions.Single(x => x.Id == costId).Expression = "42";
-			var cap = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial sorcerer"); xml = XElement.Parse(cap.Definition);
+			var cap = db.MagicCapabilities.Single(x => x.Name == "Partial sorcerer"); xml = XElement.Parse(cap.Definition);
 			xml.Element("Casting")!.Elements("Admission").Single(x => (long?)x.Attribute("spell") == id).Remove(); cap.Definition = xml.ToString();
 			db.SaveChanges(); db.ChangeTracker.Clear();
 			foreach (var selection in new[] { bindings, bindings with { Emotions = null } })

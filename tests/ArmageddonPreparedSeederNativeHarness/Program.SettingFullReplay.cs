@@ -97,7 +97,7 @@ internal static partial class GNHProgram
 			Require(settings is { Mode: ArmageddonProgressionMode.Simple, ClassesEnabled: true } && settings.CapacityAttribute == willpower.Id,
 				"Full replay checkpoint must retain Simple/classes-on and the explicit ordinary LabMUD Willpower capacity policy.");
 		}
-		RequirePhysicalAdmissionHeld(database);
+		RequirePhysicalAdmissionDefaults(database);
 		using (var world = LoadProductionRestartWorld(new HarnessClock()))
 		using (new FMDB())
 		{
@@ -131,7 +131,7 @@ internal static partial class GNHProgram
 			}));
 		}
 		RunCoreFoundationBoot(database);
-		Console.WriteLine("SETTING-full-completion=PASS all-enabled-except-Item-and-alternative-SkillSeeder first-and-cold-native-boot admission-held");
+		Console.WriteLine("SETTING-full-completion=PASS all-enabled-except-Item-and-alternative-SkillSeeder first-and-cold-native-boot six-playable-profiles");
 		return 0;
 	}
 

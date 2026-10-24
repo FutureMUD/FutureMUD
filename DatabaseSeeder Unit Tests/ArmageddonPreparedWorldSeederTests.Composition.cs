@@ -68,7 +68,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		Records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Module == ArmageddonTraditionInstaller.Module &&
 			(x.EntityType == "MagicCapability" || x.EntityType == "Merit")).OrderBy(x => x.StableKey)
 			.Select(x => new { x.StableKey, x.LogicalId, x.SeedBaseline, x.AppliedFingerprint }).ToArray(),
-		Capabilities = db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Armageddon partial "))
+		Capabilities = db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Partial "))
 			.OrderBy(x => x.Id).Select(x => new { x.Id, x.Definition }).ToArray(),
 		Merits = db.Merits.AsNoTracking().OrderBy(x => x.Id).Select(x => new { x.Id, x.Definition }).ToArray()
 	});
@@ -83,7 +83,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		{
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
 			var pierce = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonReviewedPierceContent.Key).LogicalId!.Value;
-			var cap = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial " + variant);
+			var cap = db.MagicCapabilities.Single(x => x.Name == "Partial " + variant);
 			var xml = XElement.Parse(cap.Definition);
 			xml.Element("Casting")!.Elements("Admission").Single(x => (long?)x.Attribute("spell") == pierce).Remove();
 			cap.Definition = xml.ToString(); db.SaveChanges();

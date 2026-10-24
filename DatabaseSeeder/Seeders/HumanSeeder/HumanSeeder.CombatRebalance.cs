@@ -127,9 +127,7 @@ public partial class HumanSeeder
 			.Where(x => x.Name == "Humanoid" || x.Name == "Organic Humanoid")
 			.ToList());
 
-		foreach (Race race in _context.Races
-			         .Where(x => x.Name == "Humanoid" || x.Name == "Organic Humanoid" || x.Name == "Human")
-			         .ToList())
+		foreach (Race race in HumanFoundationRaces(_context))
 		{
 			race.NaturalArmourType = _racialNaturalArmour;
 			race.BodypartHealthMultiplier = 1.0;

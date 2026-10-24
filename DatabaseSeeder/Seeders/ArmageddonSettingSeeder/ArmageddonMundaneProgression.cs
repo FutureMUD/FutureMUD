@@ -86,6 +86,7 @@ public static class ArmageddonMundaneProgression
 	private static T Apply<T>(FuturemudDatabaseContext db, string key, T desired, ICollection<string> messages, params string[] fields) where T : class
 	{
 		var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
+		ArmageddonSettingOwnership.RequireNameAvailable(db, desired, record);
 		if (record is null)
 		{
 			db.Add(desired); db.SaveChanges();
@@ -129,15 +130,15 @@ public static class ArmageddonMundaneProgression
 				if (!skills.ContainsKey(skill.Key) || skill.Parent is { } parent && !role.Skills.Any(x => x.Key == parent))
 					throw new InvalidOperationException($"Unresolved mundane role edge: {role.Name}/{skill.Key}.");
 		}
-		if (!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == ProgressionKey) && db.Merits.Any(x => x.Name == "Armageddon Mundane Role Progression"))
+		if (!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == ProgressionKey) && db.Merits.Any(x => x.Name == "Mundane Role Progression"))
 			throw new InvalidOperationException("Unowned mundane progression merit name collision.");
 		using var transaction = db.Database.IsRelational() && db.Database.CurrentTransaction is null ? db.Database.BeginTransaction() : null;
 		var merits = ArmageddonMundaneMerits.Install(db, messages);
 		var actualRoles = Roles.ToDictionary(x => x.Key, x => Apply(db, x.Key, new ChargenRole
 		{
 			Name = x.Name, Type = x.Primary ? 0 : 1, PosterId = poster, AvailabilityProgId = yes,
-			ChargenBlurb = $"{x.Name}: {(x.Primary ? "main guild with a prerequisite skill tree" : "subclass with approved supplemental proficiencies")}. " +
-				"Your class determines which skills and powers you begin with, and which new abilities you can learn through practice.",
+			ChargenBlurb = ArmageddonPresentation.RoleDescription(x.Name, x.Skills.Where(y => y.Parent is null && y.Opening > 0)
+				.OrderByDescending(y => y.Opening).Select(y => skills[y.Key].Name)),
 			Expired = false, MaximumNumberAlive = 0, MaximumNumberTotal = 0, MinimumAuthorityToApprove = 0, MinimumAuthorityToView = 0
 		}, messages, RoleFields));
 		var rules = Roles.SelectMany(role => role.Skills.Select(skill => new RoleSkillRule(actualRoles[role.Key].Id, skills[skill.Key].Id,
@@ -148,7 +149,7 @@ public static class ArmageddonMundaneProgression
 			new XElement("Rules", rules.Select(x => new XElement("Rule", new XAttribute("role", x.RoleId), new XAttribute("trait", x.TraitId),
 				new XAttribute("primary", x.Primary), new XAttribute("opening", x.Opening), new XAttribute("cap", x.Cap),
 				x.ParentTraitId is { } parent ? new XAttribute("parent", parent) : null, new XAttribute("threshold", x.Threshold), new XAttribute("bonus", x.OverlapBonus)))));
-		var progression = Apply(db, ProgressionKey, new Merit { Name = "Armageddon Mundane Role Progression", Type = "Role Skill Progression", MeritType = 0, MeritScope = 2, Definition = definition.ToString() },
+		var progression = Apply(db, ProgressionKey, new Merit { Name = "Mundane Role Progression", Type = "Role Skill Progression", MeritType = 0, MeritScope = 2, Definition = definition.ToString() },
 			messages, "Name", "Type", "MeritType", "MeritScope", "Definition");
 		foreach (var role in Roles)
 		{

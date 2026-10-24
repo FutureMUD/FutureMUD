@@ -34,6 +34,7 @@ public static partial class ArmageddonProgressionInstaller
 		Dictionary<string, SeederManagedRecord> records, List<string> messages) where T : class
 	{
 		var created = !records.TryGetValue(spec.Key, out var record);
+		ArmageddonSettingOwnership.RequireNameAvailable(db, desired, record);
 		// Capture explicit stock values before SaveChanges substitutes provider defaults (e.g. BranchMultiplier=1).
 		var next = Fields(db, desired, spec.Type);
 		T row;

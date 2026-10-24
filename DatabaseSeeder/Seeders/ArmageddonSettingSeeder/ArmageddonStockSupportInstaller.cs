@@ -208,7 +208,7 @@ public static partial class ArmageddonStockSupportInstaller
 			foreach (var (key, name) in new[] { (SiltTagKey, "Silt"), (ShallowsTagKey, "Shallows") })
 				ids.Add(key, owned.Put(key, new Tag { Name = "Armageddon " + name, ShouldSeeProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg] }, []).Id);
 			foreach (var (key, name) in new[] { (UndeadMeritKey, "undead marker"), (MagicalExceptionMeritKey, "magical exception marker") })
-				ids.Add(key, owned.Put(key, new Merit { Name = "Armageddon " + name, Type = "Simple Character", MeritScope = 2, MeritType = 0,
+				ids.Add(key, owned.Put(key, new Merit { Name = name, Type = "Simple Character", MeritScope = 2, MeritType = 0,
 					Definition = new XElement("Merit", new XElement("ChargenAvailableProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]),
 						new XElement("ApplicabilityProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]), new XElement("ChargenBlurb", "Explicit builder attachment only."),
 						new XElement("DescriptionText", "@ have|has an explicitly declared " + name + ".")).ToString() }, []).Id);

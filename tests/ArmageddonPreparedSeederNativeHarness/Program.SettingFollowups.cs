@@ -47,7 +47,7 @@ internal static partial class GNHProgram
 				using var curated = JsonDocument.Parse(XElement.Parse(definition).Element("CuratedNamingDefinition")!.Value);
 				descriptions += curated.RootElement.GetProperty("culture").GetProperty("elements").GetArrayLength();
 			}
-			Require(descriptions == 78 && db.NameCultures.Where(x => namingIds.Contains(x.Id)).AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Elements")!.Elements().Count()) == 78, "All exact curated and executable descriptions survived MySQL storage.");
+			Require(descriptions == 78 && db.NameCultures.Where(x => namingIds.Contains(x.Id)).AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Elements")!.Elements().Count()) == 45, "Historical source descriptions and simplified executable prompts survived MySQL storage.");
 			using var manifest = JsonDocument.Parse(typeof(ArmageddonSettingSeeder).Assembly.GetManifestResourceStream("DatabaseSeeder.Armageddon.naming.json")!);
 			foreach (var source in manifest.RootElement.GetProperty("cultures").EnumerateArray())
 			{
@@ -56,11 +56,10 @@ internal static partial class GNHProgram
 				using var curated = JsonDocument.Parse(xml.Element("CuratedNamingDefinition")!.Value);
 				Require(JsonSerializer.Serialize(source) == JsonSerializer.Serialize(curated.RootElement.GetProperty("culture")), "Native curated description/constraint content differs from the approved manifest.");
 				Require(xml.Element("ExactRandomProfileGender")?.Value == "true" && xml.Element("PreserveNameCase")?.Value == "true", "Native exact gender/case opt-in missing.");
-				foreach (var component in source.GetProperty("elements").EnumerateArray())
-				{
-					var native = xml.Element("Elements")!.Elements().Single(x => x.Attribute("Name")!.Value == component.GetProperty("label").GetString());
-					Require(new MudSharp.Character.Name.NameCultureElement(native).ChargenBlurb == component.GetProperty("description").GetString(), "Executable native description differs from approved source.");
-				}
+				var elements = xml.Element("Elements")!.Elements().Select(x => new MudSharp.Character.Name.NameCultureElement(x)).ToArray();
+				Require(elements.Length == 3 && elements.All(x => x.MaximumCount == 1 && x.ConfirmationPrompt is null && x.DisplayChoicePrompt is null), "Naming retained complex supplementary entry.");
+				Require(elements.Single(x => x.Usage == MudSharp.Character.Name.NameUsage.BirthName).MinimumCount == 1 &&
+					elements.Where(x => x.Usage != MudSharp.Character.Name.NameUsage.BirthName).All(x => x.MinimumCount == 0), "Required given-name and optional family/nickname counts differ.");
 				var pool = manifest.RootElement.GetProperty("personal_pools").GetProperty(source.GetProperty("personal_pool_id").GetString()!);
 				string[] Values(string bucket) => pool.GetProperty(bucket).EnumerateArray().Select(x => x.GetString()!).ToArray();
 				var nativeProfiles = db.RandomNameProfiles.Where(x => x.NameCultureId == nativeId).ToArray();
@@ -110,7 +109,7 @@ internal static partial class GNHProgram
 			catch (InvalidOperationException error) when (!error.Message.StartsWith("Different preset was accepted", StringComparison.Ordinal)) { }
 		}
 		Require(before == BaseContentHash(database), "Rejected changed preset mutated persisted content.");
-		Console.WriteLine("SETTING-followups-presets-naming-sweat=PASS one-active-Arm-prompt seven-saved-answers 15-cultures 75-exact-gender-profiles 321-forms 78-descriptions two-cold-process-reruns builder-player-age-zero-sweat-preservation changed-preset-refusal");
+		Console.WriteLine("SETTING-followups-presets-naming-sweat=PASS one-active-Arm-prompt seven-saved-answers 15-cultures 75-exact-gender-profiles 321-forms 45-simple-prompts 78-source-descriptions two-cold-process-reruns builder-player-age-zero-sweat-preservation changed-preset-refusal");
 	}
 
 	private static void RequireSavedPreset(FuturemudDatabaseContext db, string expected)
@@ -151,7 +150,7 @@ internal static partial class GNHProgram
 		var dwarf = db.Races.Single(x => x.Id == input.Dwarf);
 		Require(dwarf.SweatRateInLitresPerMinute == 0.007 && dwarf.SweatLiquidId == null && db.Races.Single(x => x.Id == input.Mul).SweatRateInLitresPerMinute == 0.0, "Cold rerun lost custom/zero sweat data.");
 		Require(new[] { dwarf.ChildAge, dwarf.YouthAge, dwarf.YoungAdultAge, dwarf.AdultAge, dwarf.ElderAge, dwarf.VenerableAge }.SequenceEqual(new[] { 5, 12, 21, 31, 62, 82 }), "Cold rerun changed authored test age overrides.");
-		RequirePhysicalAdmissionHeld(database);
+		RequirePhysicalAdmissionDefaults(database);
 		Require(input.Physiology is not null, "Cold reader lacks the physiology qualification receipt.");
 		CheckSettingPhysiologyCold(database, input.Physiology!);
 		Console.WriteLine("SETTING-followups-cold-reader=PASS persistence-and-preserving-installer-only"); return 0;

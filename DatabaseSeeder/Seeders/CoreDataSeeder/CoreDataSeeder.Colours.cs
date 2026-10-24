@@ -27,6 +27,7 @@ public partial class CoreDataSeeder
 		if (context.Colours.Any())
 		{
 			ReconcileStockColourLookups(context);
+			EnsureMissingPigmentColours(context);
 			EnsureClothingColourProfiles(context);
 			return;
 		}
@@ -2428,6 +2429,8 @@ public partial class CoreDataSeeder
             Blue = 0,
             Fancy = "the natural colour of lips, unadorned by makeup"
         });
+
+		context.Colours.AddRange(PigmentColours.Select(x => x.CreateColour()));
 
         long nextId = context.CharacteristicValues.Select(x => x.Id).Max() + 1;
         context.CharacteristicValues.Add(new CharacteristicValue
@@ -5266,26 +5269,14 @@ public partial class CoreDataSeeder
             Pluralisation = 0
         });
 
-        var nextColourCharacteristicValue = 316;
-        foreach (var value in new[]
-                 {
-                     "madder red", "kermes scarlet", "lac crimson", "alkanet purple", "orchil violet",
-                     "tyrian purple", "woad blue", "egyptian blue", "azurite blue", "lapis blue",
-                     "malachite green", "verdigris green", "orpiment yellow", "realgar orange",
-                     "hematite red", "cinnabar red", "red ochre", "yellow ochre", "lamp black",
-                     "bone black", "lead white", "chalk white", "walnut brown", "oak-gall black",
-                     "pomegranate yellow", "saffron yellow", "henna orange", "faded madder red",
-                     "dull ochre", "dusty red ochre", "dull egyptian blue", "faded woad blue",
-                     "smoky lamp black", "chalky white", "tarnished lead white", "muddy walnut brown",
-                     "dull verdigris green", "faded tyrian purple", "stained saffron yellow"
-                 })
+        foreach (var pigment in PigmentColours)
         {
             context.CharacteristicValues.Add(new CharacteristicValue
             {
                 Id = nextId++,
-                Name = value,
+                Name = pigment.Name,
                 DefinitionId = colourDef.Id,
-                Value = (nextColourCharacteristicValue++).ToString(),
+                Value = pigment.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
                 Default = false,
                 Pluralisation = 0
             });

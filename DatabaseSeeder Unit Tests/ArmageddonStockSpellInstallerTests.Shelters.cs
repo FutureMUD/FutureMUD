@@ -16,6 +16,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Shelters_RealTypedSourcesAndApprovedDefaults_PreserveWorldAndClosedGates()
 	{
 		using var db = Fixture();
@@ -63,6 +64,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow("missing-template")]
 	[DataRow("retired-template")]
 	[DataRow("wrong-type")]
@@ -99,6 +101,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Shelters_RetainedFallbackBecomesUnsafe_HoldsWithoutChoosingAnotherStart()
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);

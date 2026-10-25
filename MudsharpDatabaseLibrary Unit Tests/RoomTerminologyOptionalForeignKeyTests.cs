@@ -63,6 +63,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 	[DataRow("wrong-delete",true)]
 	[DataRow("cascade-update",true)]
 	[DataRow("set-null-update",true)]
+	[TestCategory("Integration")]
 	public void Naming_GeneratedPreflight_AcceptsOnlyAbsenceOrSupportedPresence(string variant,bool refuses)
 	{
 		var guard = Regex.Match(GeneratedSql.Value,
@@ -121,6 +122,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 	[DataRow("extra-column",1,"NO ACTION","SET NULL",true)]
 	[DataRow("absent",0,"NO ACTION",null,true)]
 	[DataRow("absent",2,null,null,true)]
+	[TestCategory("Integration")]
 	public void Naming_GeneratedPostflight_RefusesChangedPresenceShapeOrExactActions(string variant,int present,
 		string? updateRule,string? deleteRule,bool refuses)
 	{
@@ -148,6 +150,7 @@ public class RoomTerminologyOptionalForeignKeyTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_GeneratedSql_CapturesBeforeDdlAndChecksThenClearsOptionalState()
 	{
 		var sql = GeneratedSql.Value;

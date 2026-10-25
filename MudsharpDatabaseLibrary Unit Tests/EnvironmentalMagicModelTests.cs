@@ -44,6 +44,7 @@ public class EnvironmentalMagicModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void EnvironmentalBindings_UpgradeToInheritanceWithoutAttachingProfiles()
 	{
 		using var context = CreateContext();
@@ -61,6 +62,7 @@ public class EnvironmentalMagicModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void EnvironmentalBindings_KeepMissingProfileIdentityForDiagnostics()
 	{
 		using var context = CreateContext();
@@ -76,6 +78,7 @@ public class EnvironmentalMagicModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void EnvironmentalState_UsesOnePhysicalRoomKeyAndOptimisticConcurrency()
 	{
 		using var context = CreateContext();
@@ -93,6 +96,7 @@ public class EnvironmentalMagicModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void EnvironmentalState_DefaultsPreserveNoDamageAndNoDestructiveHistory()
 	{
 		using var context = CreateContext();
@@ -118,6 +122,7 @@ public class EnvironmentalMagicModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void OperationReceipt_HasDurableCallerIdentityAndNoCascadingOwners()
 	{
 		using var context = CreateContext();
@@ -134,6 +139,7 @@ public class EnvironmentalMagicModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void OperationReceipt_DuplicateDeliveryCannotTrackTwoRowsForOneIdentity()
 	{
 		using var context = CreateContext();

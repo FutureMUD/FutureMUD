@@ -9,6 +9,7 @@ using MudSharp.Models;
 namespace MudsharpDatabaseLibrary_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class ChargenSkillSelectionGroupModelTests
 {
 	[TestMethod]

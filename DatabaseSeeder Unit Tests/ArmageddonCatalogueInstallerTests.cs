@@ -14,6 +14,7 @@ using Material = MudSharp.Models.Material;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class ArmageddonCatalogueInstallerTests
 {
 	[TestMethod]

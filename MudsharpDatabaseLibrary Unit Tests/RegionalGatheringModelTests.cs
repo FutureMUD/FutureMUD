@@ -25,6 +25,7 @@ public class RegionalGatheringModelTests
 		Assert.AreEqual("RegionalGatheringProfiles", pool.ForeignKeys.Single().PrincipalTable, "Region deletion must retain ecological/payment evidence.");
 	}
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void RegionalModel_UsesPhysicalOwnerCompositeKeyAndOptimisticRevisions()
 	{
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()

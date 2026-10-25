@@ -14,6 +14,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, false, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true, false)]
 	[DataRow(ArmageddonProgressionMode.Simple, false, false)]
@@ -114,6 +115,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow("deleted")][DataRow("retired")][DataRow("type")][DataRow("identity")]
 	public void CompletePolicy_MissingCanonicalIdentityHoldsWithoutDowngrade(string corruption)
 	{
@@ -138,6 +140,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void CompletePolicy_PreservesBuilderDefinitionAndRetainsHydrationOnOrdinaryReconciliation()
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
@@ -155,6 +158,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.IsTrue(result.Messages.Any(x => x.Contains("preserved builder edit Definition")));
 	}
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void CompletePolicy_UnknownLaterMarkerVersionRefusesBeforeAnyProgressionWrite()
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);

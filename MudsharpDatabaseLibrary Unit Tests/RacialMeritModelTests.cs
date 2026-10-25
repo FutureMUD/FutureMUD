@@ -9,6 +9,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class RacialMeritModelTests
 {
 	private static FuturemudDatabaseContext Context()

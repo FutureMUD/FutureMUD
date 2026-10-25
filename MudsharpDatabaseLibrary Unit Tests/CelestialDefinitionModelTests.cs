@@ -13,6 +13,7 @@ namespace MudsharpDatabaseLibrary_Unit_Tests;
 public class CelestialDefinitionModelTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Definition_AllowsDenseAuthoredSources_WithoutChangingExistingEncoding()
 	{
 		using var context = new FuturemudDatabaseContextFactory().CreateDbContext([]);

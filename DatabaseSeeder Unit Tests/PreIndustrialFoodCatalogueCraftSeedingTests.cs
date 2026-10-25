@@ -18,6 +18,7 @@ using System.Xml.Linq;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class PreIndustrialFoodCatalogueCraftSeedingTests
 {
 	[TestMethod]

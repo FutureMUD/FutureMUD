@@ -23,6 +23,7 @@ public class VancianMagicModelTests
 		Assert.AreEqual(0,migration.UpOperations.OfType<SqlOperation>().Count());
 	}
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void IdentityCapabilityKeyHasConcurrencyAndTombstonesOutliveDeletedOwnersAndItems()
 	{
 		using var context = new FuturemudDatabaseContextFactory().CreateDbContext([]);

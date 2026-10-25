@@ -12,6 +12,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void Kindle_LegacyOwnedWeaponDefinitionReconcilesInPlace_AndRerunIsUnchanged(ArmageddonProgressionMode mode)

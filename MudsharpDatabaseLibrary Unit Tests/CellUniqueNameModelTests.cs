@@ -31,6 +31,7 @@ public class RoomUniqueNameModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Model_PreservesDirectZoneForeignKeyAndPrototypeIdentifierStorageContract()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

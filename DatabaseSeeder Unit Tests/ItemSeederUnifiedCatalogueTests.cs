@@ -25,6 +25,7 @@ namespace MudSharp_Unit_Tests;
 public class ItemSeederUnifiedCatalogueTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void AuthoredCatalogue_ContainsLiteralDefinitionsWithoutRuntimeExpansion()
 	{
 		var directory = Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(), "DatabaseSeeder", "Seeders", "ItemSeeder", "Catalogue");
@@ -98,6 +99,7 @@ public class ItemSeederUnifiedCatalogueTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void FullCapture_ExportsAllAggregateFamiliesAndSupplementaryFields()
 	{
 		using var context = Program.CreateItemManifestCaptureContext();
@@ -130,6 +132,7 @@ public class ItemSeederUnifiedCatalogueTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void FullCatalogue_AllPreindustrialSelectionsHaveIdenticalDefinitions()
 	{
 		var eras = new[] { "antiquity", "medieval", "renaissance", "earlymodern" };
@@ -144,6 +147,7 @@ public class ItemSeederUnifiedCatalogueTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void RepresentativeVehicleAndOutfit_PreserveEverySourceField()
 	{
 		FrozenCatalogueContract.AssertGraph("vehicles");

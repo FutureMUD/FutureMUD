@@ -31,6 +31,7 @@ public class ArmageddonWeatherTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Install_NineBlocksHeatingConnectedDryGraphs_AndPreservingPartialRecovery()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseInMemoryDatabase(

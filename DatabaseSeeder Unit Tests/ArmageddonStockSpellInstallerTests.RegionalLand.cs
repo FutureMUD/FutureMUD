@@ -12,6 +12,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void RegionalLand_PresetsCoverTerrainFamiliesAndRerunPreservesOwnersAndBuilderEdits()
 	{
 		using var db = FreshFixture();

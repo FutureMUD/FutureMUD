@@ -14,6 +14,7 @@ using MudSharp.Models;
 namespace MudSharp_Climate_Tests;
 
 [TestClass]
+[TestCategory("ClimateSeeder")]
 public class WeatherHazardSeederTests
 {
 	[TestMethod]

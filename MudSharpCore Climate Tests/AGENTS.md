@@ -17,6 +17,8 @@ Contains the long-running seeded climate and weather-regression tests that are n
 * Prefer adding slow climate seeder regressions here rather than back into the core unit-test project.
 * Run this project only when climate, weather seeding, weather analysis, or weather-statistics export behaviour changes, or when the user explicitly asks for the extended suite.
 
+* All classes use `[TestCategory("ClimateSeeder")]`. The climate wrapper opts in explicitly; plain solution-wide `dotnet test` excludes them. Hosted climate runs are manual dispatch only, with no recurring schedule.
+
 ## Notes
 
 * All modules inherit both the solution-level and project-level rules unless explicitly overridden.

@@ -1093,6 +1093,7 @@ public class EconomySeederTests
     }
 
     [TestMethod]
+    [TestCategory("Integration")]
     public void SeedData_LiterateHouseholds_IncludeWritingMaterialsNeeds()
     {
         FuturemudDatabaseContext context = AllErasContext.Value;
@@ -1122,6 +1123,7 @@ public class EconomySeederTests
     }
 
     [TestMethod]
+    [TestCategory("Integration")]
     public void SeedData_LaterEras_UseBroaderServiceAndHospitalityNeeds()
     {
         FuturemudDatabaseContext context = AllErasContext.Value;
@@ -1192,6 +1194,7 @@ public class EconomySeederTests
     }
 
     [TestMethod]
+    [TestCategory("Integration")]
     public void SeedData_EraScaling_RaisesLaterEraCommonerBudgets()
     {
         FuturemudDatabaseContext context = AllErasContext.Value;

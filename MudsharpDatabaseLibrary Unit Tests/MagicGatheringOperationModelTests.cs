@@ -57,6 +57,7 @@ public class MagicGatheringOperationModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void GatheringReceipt_HasStandaloneIdentityAndTargetedReviewIndexes()
 	{
 		using FuturemudDatabaseContext context = CreateContext();
@@ -77,6 +78,7 @@ public class MagicGatheringOperationModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void GatheringReceipt_DuplicateOperationIdentityCannotBeTrackedTwice()
 	{
 		using FuturemudDatabaseContext context = CreateContext();
@@ -107,6 +109,7 @@ public class MagicGatheringOperationModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void LandGatheringParticipants_HaveBoundedRoomAndSourceLookupIdentity()
 	{
 		using FuturemudDatabaseContext context = CreateContext();

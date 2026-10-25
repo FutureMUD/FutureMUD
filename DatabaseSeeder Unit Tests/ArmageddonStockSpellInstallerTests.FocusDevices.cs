@@ -14,6 +14,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void FocusDevices_LockedTwelveHaveNativeRecipesRealAllowListsAndDisabledGates(ArmageddonProgressionMode mode)
@@ -82,6 +83,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void FocusDevices_MissingSpellRefusesBeforeAnyContentAndLostAcknowledgementResumes()
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);

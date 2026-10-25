@@ -20,6 +20,7 @@ using FutureProg = MudSharp.Models.FutureProg;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public partial class ArmageddonPreparedWorldSeederTests
 {
 	private static readonly InMemoryDatabaseRoot PreparedStores = new();

@@ -10,6 +10,7 @@ internal sealed class Options
 	public string? ResultsRoot { get; set; }
 	public int? TimeoutSeconds { get; set; }
 	public bool FailOnSkipped { get; set; }
+	public bool IncludeExtended { get; set; }
 	public List<string> Projects { get; } = [];
 }
 
@@ -103,6 +104,7 @@ internal sealed class Summary
 	public string Configuration { get; set; } = "";
 	public string? Filter { get; set; }
 	public bool FailOnSkipped { get; set; }
+	public bool IncludeExtended { get; set; }
 	public bool ExecutionComplete { get; set; }
 	public bool CountsComplete { get; set; }
 	public string Status { get; set; } = "INCONCLUSIVE";

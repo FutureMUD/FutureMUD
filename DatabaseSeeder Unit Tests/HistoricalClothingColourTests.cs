@@ -380,6 +380,7 @@ public class HistoricalClothingColourTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void AllVariableCapableInventoryRows_ResolveTheirActualStockChannelsAndCompleteProfiles()
 	{
 		using var context = Stock();

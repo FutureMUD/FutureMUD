@@ -40,6 +40,7 @@ public class RoomSpatialContractionTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void CurrentModel_RequiresDirectOwnershipAndRetainsIndependentHistoricalLedgers()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

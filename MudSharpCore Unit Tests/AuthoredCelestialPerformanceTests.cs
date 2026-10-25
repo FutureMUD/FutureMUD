@@ -16,6 +16,7 @@ using MudSharp.TimeAndDate;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Benchmark")]
 public class AuthoredCelestialPerformanceTests
 {
 	public TestContext TestContext { get; set; } = null!;

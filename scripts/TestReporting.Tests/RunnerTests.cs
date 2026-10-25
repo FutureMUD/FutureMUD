@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace TestReporting.Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 [DoNotParallelize]
 public class RunnerTests
 {
@@ -263,8 +264,27 @@ public class RunnerTests
 			var args = summary.RootElement.GetProperty("invocations")[0].GetProperty("test").GetProperty("arguments").EnumerateArray().Select(x => x.GetString()).ToArray();
 			var index = Array.IndexOf(args, "--filter");
 			Assert.IsTrue(index >= 0);
-			Assert.AreEqual(filter, args[index + 1]);
+			Assert.AreEqual(TestSelection.EffectiveFilter(filter, false), args[index + 1]);
 			Assert.AreEqual("NO_TESTS", summary.RootElement.GetProperty("issues")[0].GetProperty("kind").GetString());
+		}
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public async Task ExtendedOptInControlsNativeSelectionAndIsRecorded(bool includeExtended)
+	{
+		using var repo = new Repo();
+		var result = await Run(repo, "pass", includeExtended ? ["--include-extended"] : []);
+		using (result.Json)
+		{
+			Assert.AreEqual(0, result.Exit);
+			Assert.AreEqual(includeExtended, result.Json.RootElement.GetProperty("include_extended").GetBoolean());
+			using var summary = JsonDocument.Parse(File.ReadAllText(result.Json.RootElement.GetProperty("artifacts").GetProperty("summary").GetString()!));
+			var args = summary.RootElement.GetProperty("invocations")[0].GetProperty("test").GetProperty("arguments").EnumerateArray().Select(x => x.GetString()).ToArray();
+			CollectionAssert.Contains(args, "-p:IncludeExtendedTests=" + includeExtended.ToString().ToLowerInvariant());
+			Assert.AreEqual(!includeExtended, args.Contains("--filter"));
+			if (!includeExtended) Assert.AreEqual(TestSelection.DefaultFilter, args[Array.IndexOf(args, "--filter") + 1]);
 		}
 	}
 

@@ -13,7 +13,7 @@ Contains MSTest-based tests that directly target `MudsharpDatabaseLibrary` persi
 
 ## Key Architectural Principles
 * Add direct database-library tests here as coverage is introduced.
-* This suite is part of the default unit-test pass and should avoid requiring a live MySQL server.
+* Fast source/operation and isolated persistence-helper checks are part of the default unit-test pass. Full production-provider model construction, historical target-model initialisation and generated whole-schema SQL use `[TestCategory("Integration")]` and require `-IncludeExtended` / `--include-extended`. Classify all consumers of a shared expensive model together so its cold startup cost does not simply move to another default case. No test requires a live MySQL server.
 * Prefer tests that isolate persistence behaviour from higher-level engine runtime concerns.
 
 ## Notes

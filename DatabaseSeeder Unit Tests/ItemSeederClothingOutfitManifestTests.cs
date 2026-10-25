@@ -70,6 +70,7 @@ public class ItemSeederClothingOutfitManifestTests
 	[DataRow("renaissance")]
 	[DataRow("earlymodern")]
 	[DataRow("medieval renaissance")]
+	[TestCategory("Integration")]
 	public void SelectedEra_OutfitReferencesAreActuallySeeded(string eras)
 	{
 		using var context = BuildContext();
@@ -177,6 +178,7 @@ public class ItemSeederClothingOutfitManifestTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void DocumentedOutfitManifests_AllItemReferencesHaveSeedSources()
 	{
 		using var context = DatabaseSeeder.Program.CreateItemManifestCaptureContext();

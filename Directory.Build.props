@@ -1,0 +1,7 @@
+<Project>
+	<PropertyGroup>
+		<!-- Applies to dotnet test and Visual Studio as well as the repository wrappers. -->
+		<RunSettingsFilePath Condition="'$(RunSettingsFilePath)' == '' and '$(IncludeExtendedTests)' != 'true'">$(MSBuildThisFileDirectory)test-default.runsettings</RunSettingsFilePath>
+		<RunSettingsFilePath Condition="'$(RunSettingsFilePath)' == '' and '$(IncludeExtendedTests)' == 'true'">$(MSBuildThisFileDirectory)test-extended.runsettings</RunSettingsFilePath>
+	</PropertyGroup>
+</Project>

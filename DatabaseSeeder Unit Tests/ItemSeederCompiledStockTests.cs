@@ -19,6 +19,7 @@ public class ItemSeederCompiledStockTests
 {
 	public TestContext TestContext { get; set; } = null!;
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void IndustrialStock_AllFieldsAndEvidenceMatchFrozenSource()
 	{
 		var compiled = IndustrialisedItemCatalogue.Document;
@@ -33,6 +34,7 @@ public class ItemSeederCompiledStockTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void MedicalStock_AllFieldsCategoriesAndNotesMatchFrozenSource()
 	{
 		Assert.AreEqual(178, EraMedicalRepairCatalogue.Entries.Count);
@@ -49,6 +51,7 @@ public class ItemSeederCompiledStockTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void SourceGraphs_MatchAllIndependentOriginalFamilies()
 	{
 		FrozenCatalogueContract.AssertSourceGraphs();
@@ -147,6 +150,7 @@ public class ItemSeederCompiledStockTests
 	[DataRow("japanese")]
 	[DataRow("chinese")]
 	[DataRow("custom")]
+	[TestCategory("Integration")]
 	public void IndustrialSelection_EveryTechnologyProfilePreservesFullDefinitions(string profile)
 	{
 		using var context = Program.CreateItemManifestCaptureContext();

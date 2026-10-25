@@ -11,6 +11,7 @@ namespace MudSharp_Unit_Tests;
 public class ItemSeederCompiledInventoryTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void CompiledInventory_IsCachedAndMatchesTheAuthoritativeCapture()
 	{
 		var compiled = ItemSeederManifestCatalogue.LoadForRuntime();

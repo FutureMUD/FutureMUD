@@ -16,6 +16,7 @@ public class DesignTimeConnectionSecurityTests
 	[TestMethod]
 	[DataRow(null)]
 	[DataRow(" ")]
+	[TestCategory("Integration")]
 	public void CreateDbContext_NoDesignTimeConnection_UsesCredentialFreeModelConfiguration(string? configured)
 	{
 		WithConnection(configured, () =>

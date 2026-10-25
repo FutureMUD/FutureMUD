@@ -17,6 +17,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public partial class ArmageddonStockSupportInstallerTests
 {
 	[TestMethod]

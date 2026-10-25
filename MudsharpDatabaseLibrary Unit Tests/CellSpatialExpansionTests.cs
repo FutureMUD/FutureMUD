@@ -31,6 +31,7 @@ public class RoomSpatialExpansionTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Model_StagesNullableMetadataWithRestrictedZoneDeletionAndNonuniqueCoordinates()
 	{
 		// Historical migration model remains nullable even after the current runtime contracts.

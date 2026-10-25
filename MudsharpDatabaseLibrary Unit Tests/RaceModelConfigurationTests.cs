@@ -9,6 +9,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class RaceModelConfigurationTests
 {
 	private static readonly string[] AgeColumnNames =

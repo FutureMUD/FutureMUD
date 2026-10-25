@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -24,7 +24,7 @@ namespace MudSharp_Unit_Tests;
 /// Summary description for DateTimeTests
 /// </summary>
 [TestClass]
-public class MudDateTimeTests
+public partial class MudDateTimeTests
 {
     public MudDateTimeTests()
     {

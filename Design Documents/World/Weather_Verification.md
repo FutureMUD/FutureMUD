@@ -80,3 +80,44 @@ An earlier native attempt (`native-52c9e1dba4`) exposed a stock-gas lookup that 
 The native scenario exercises a direct character strike and atmosphere transitions. Loose-item damage, ground splash, protected targets and magic precedence have automated runtime coverage. Long-term dust dosage and lightning lethality are configurable gameplay defaults; this work does not establish a balance calibration for a particular world.
 
 Builds succeeded with compiler warnings, including two nullability warnings in forecast interpretation and the hazard test fixture. No hosted CI or production deployment is part of this verification.
+
+## Non-terrestrial timing and Armageddon weather — 25 October 2026
+
+This follow-up is a working-tree change based on `8c15d749612addfb1c06af3fa25e285206d0ef41`, on Windows with the repository's .NET 10 targets and owned disposable MySQL 8.0.45. Existing weather receives no automatic timing conversion. No persistence model, migration, public climate interface or new runtime weather type was added.
+
+| Check | Result | Evidence under `.artifacts/` |
+| --- | --- | --- |
+| Full DatabaseSeeder suite | 2,220 passed; two stale six-question assertions failed; three Unix permission cases not executed | `armageddon/weather-final/seeder/seeder.trx` |
+| Focused corrections and weather/replay regressions | 37/37 passed, including the corrected seven-question inventories and failed-executor/no-answer-write regression | `armageddon/weather-final-r2/seeder-focused/seeder-focused.trx` |
+| Explicit authored-moon time-context eligibility | 1/1 passed | `armageddon/weather-final-r2/authored-moon-eligibility/authored-moon-eligibility.trx` |
+| Combined unique seeder cases across full/focused receipts | 2,224 passed; three Unix-only cases not executed on Windows; no unresolved failures | `armageddon/weather-final-r5/seeder-combined-evidence.json` |
+| Full climate suite, existing terrestrial targets unchanged | 50/50 passed, including all 12 Armageddon profile/seed cases | `armageddon/weather-final-r2/climate-full/climate-full.trx` |
+| Final controller, forecast, hazard, analyzer and CSV regressions | 52/52 passed, including native climate-clock selection before initial weather | `armageddon/weather-final-r5/core-weather/core-weather.trx` |
+| Debug harness and Release seeder builds | Passed; Release reported existing warnings with zero errors | `armageddon/weather-final-r5/native-build/` and `armageddon/weather-final-r5/seeder-release-build/` |
+| Replay metadata inspection | Present in Debug, absent in Release | Portable PE metadata inspection of both final seeder assemblies |
+| Native wrapper cleanup checks | 4/4 passed with writable workspace TEMP/TMP | `scripts/AuthoredCelestialSmokeWorld/test_cleanup.py` |
+
+The full seeder receipt remains a failed attempt; its two inventory assertions were corrected and have passing focused evidence. The combined receipt matches cases by class and test name rather than treating a targeted run as a new full-suite run. The three inconclusive launcher cases require native Unix filesystem permission behavior. The climate run preceded the final controller-creation default correction; profile definitions, timing helper, analyzer and simulation code were unchanged afterward. The final 52 core cases and native integration below cover that correction.
+
+Each Armageddon row sampled five 693-day years after one burn-in year with seeds `123456`, `8675309`, `424242`. All prohibited-weather occupancy was zero. Measured ranges across those three seeds were:
+
+| Profile | Strong wind/Gale | Dust including choking dust | Largest sheltered seasonal/hourly mean error |
+| --- | --- | --- | --- |
+| Southern Desert | 8.932–9.177% | 5.183–5.738% | 0.100°C |
+| Salt Flats | 13.752–14.402% | 9.780–10.346% | 0.105°C |
+| Northern Scrubland | 4.344–4.720% | 2.134–2.216% | 0.071°C |
+| Northern Forest | 1.373–1.582% | 0.304–0.465% | 0.049°C |
+
+These are authored fictional climates, not recovered historical regional measurements. Targets and authoring inputs are in the [setting guide](../Seeding/Seeders/ArmageddonSettingSeeder.md#regional-weather).
+
+### Native installation and controller integration
+
+Final owned run: `authored-celestials/run-7fabf71fffc7/`. Receipts are `native-replay.json`, `armageddon-weather.json`, `armageddon-time-sky.json`, `cleanup.json`, `smoke-latest.json`, and `operator-receipt.json`.
+
+The maintained Medieval replay completed all 32 seeders; a second attempt was refused with unchanged all-table checksums. A separate new schema restored the maintained blank snapshot through the production importer and applied migrations. It then installed generic weather against Armageddon time, proving nine hourly entries and scaled conventional onsets in MySQL, and installed all four setting profiles. Fresh EF contexts verified persisted templates, preserved edited description/temperature fields, restored a deleted owned season at its original ID and recovered its graph/table rows.
+
+The concrete runtime controller was created with an unrelated 24-hour clock first in the world at hour 18. It selected the climate's Suk-Krath and nine-hour clock before its initial temperature lookup. Its real clock subscriptions drove 1,080 minute updates through every native hour and a year boundary; a cold controller reload preserved season, temperature and forecast anchor. Reinstall refusal and the hazards update left season dates and temperature tables unchanged. Template reruns retained the existing controller's climate. No template was assigned automatically to a zone or controller.
+
+The time/sky qualification also passed fresh-context reloads, answer persistence and preserving partial reruns. Owned MySQL shutdown was verified and data retained. This follow-up used concrete runtime clock/calendar/celestial/climate/controller objects with mocked surrounding world services; it did not start a game server or run Telnet gameplay.
+
+The earlier native attempt `authored-celestials/run-ce13c06e96bb/` passed the replay/refusal gate but failed in the test fixture's generic EF `EnsureCreated()` path with a MySQL foreign-key creation error. Its verified cleanup and failure receipt remain preserved. The fixture was changed to the supported snapshot-and-migration installation path; no schema repair or model change was introduced. Earlier fixture-assertion failures and the initial simulation-duration assertion are likewise retained under `armageddon/weather-package*`, `weather-final*` and `climate-armageddon-r3/`; they are not counted as passing attempts.

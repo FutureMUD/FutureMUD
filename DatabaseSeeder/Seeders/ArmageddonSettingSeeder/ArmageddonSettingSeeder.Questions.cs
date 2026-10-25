@@ -26,6 +26,7 @@ public sealed partial class ArmageddonSettingSeeder
 	public const string InstallQuestion = "install-armageddon-setting-prepared";
 	public const string BindingsQuestion = "armageddon-setting-prepared-bindings";
 	public const string FullInstallQuestion = "install-armageddon-setting";
+	public const string WeatherQuestion = "armageddon-weather";
 	public const string ModeQuestion = "armageddon-progression-mode";
 	public const string CapacityQuestion = "armageddon-setting-capacity-attribute";
 	public const string NativeBindingsQuestion = "armageddon-setting-native-bindings";
@@ -40,6 +41,9 @@ public sealed partial class ArmageddonSettingSeeder
 	[
 		new(FullInstallQuestion, "Install or update the Armageddon setting content? yes/no (default no). Existing characters and builder customisations are preserved.",
 			(_, _) => true, (answer, _) => answer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase) || IsYes(answer) ? (true, "") : (false, "Answer yes or no."), DefaultAnswerResolver: (_, _) => "no", PersistAnswer: false),
+        new(WeatherQuestion, "Install or update all four authored Armageddon regional weather templates? yes/no. Requires Armageddon time, Suk-Krath and shared Weather Seeder dust foundations.",
+            (_, answers) => FullConsent(answers), ArmageddonWeatherInstaller.ValidateAnswer,
+            DefaultAnswerResolver: ArmageddonWeatherInstaller.DefaultAnswer),
 		new(ModeQuestion, "Choose the magic progression style: Classic or Simple. This choice cannot be changed by rerunning the seeder.",
 			(db, answers) => FullConsent(answers) && ArmageddonInstallation.Read(db) is null,
 			(answer, _) => Enum.GetNames<ArmageddonProgressionMode>().Contains(answer.Trim(), StringComparer.OrdinalIgnoreCase) ? (true, "") : (false, "Choose Classic or Simple."),

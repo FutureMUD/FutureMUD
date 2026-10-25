@@ -201,7 +201,7 @@ public class NameCulturePolicyTests
 		Assert.IsNotNull(f.Chargen.Object.SelectedName.EntryProgress);
 		f.DefaultCulture(fallback);
 		screen = f.Storyboard().GetScreen(f.Chargen.Object);
-		StringAssert.Contains(screen.Display(), "Personal name Selection"); Assert.IsNull(f.Chargen.Object.SelectedName);
+		StringAssert.Contains(screen.Display(), "Personal Name Selection"); Assert.IsNull(f.Chargen.Object.SelectedName);
 		screen.HandleCommand("Newname"); screen.HandleCommand(""); Assert.AreEqual(ChargenScreenState.Complete, screen.State);
 	}
 

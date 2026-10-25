@@ -379,18 +379,8 @@ public partial class WeatherSeeder
                 {
                     transitionPairs.Add((baseSeasonEvent.WeatherEvent.Id, collapsedTemperatureChance));
                 }
-                (double EffectiveChangeChance, string TransitionXml) transitionDefinition = BuildTransitionDefinition(
-                    baseSeasonEvent.WeatherEvent.Id,
-                    transitionPairs,
-                    profile.BaseChangeChance);
-                cms.SeasonEvents.Add(new ClimateModelSeasonEvent
-                {
-                    ClimateModel = climateModel,
-                    Season = baseSeason.Season,
-                    WeatherEvent = baseSeasonEvent.WeatherEvent,
-                    ChangeChance = transitionDefinition.EffectiveChangeChance,
-                    Transitions = transitionDefinition.TransitionXml
-                });
+                cms.SeasonEvents.Add(CreateSeasonEvent(climateModel, baseSeason.Season,
+                    baseSeasonEvent.WeatherEvent, transitionPairs, profile.BaseChangeChance));
             }
         }
 

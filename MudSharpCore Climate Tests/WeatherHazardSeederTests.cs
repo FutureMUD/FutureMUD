@@ -120,7 +120,9 @@ public class WeatherHazardSeederTests
 	{
 		var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
-		context.Celestials.Add(new Celestial { Definition = "<Celestial />", CelestialType = "test", FeedClockId = 1 });
+		context.Calendars.Add(new MudSharp.Models.Calendar { Id = 1, FeedClockId = 1, Definition = "<Calendar />", Date = "1/test/1" });
+        context.Clocks.Add(new Clock { Id = 1, Definition = "<Clock><HoursPerDay>24</HoursPerDay><MinutesPerHour>60</MinutesPerHour><SecondsPerMinute>60</SecondsPerMinute></Clock>" });
+		context.Celestials.Add(new Celestial { Definition = "<SunV2><Calendar>1</Calendar><Orbital><CelestialDaysPerYear>365</CelestialDaysPerYear></Orbital></SunV2>", CelestialType = "Sun", FeedClockId = 1 });
 		context.Liquids.Add(new Liquid { Name = "rain water" });
 		context.Gases.Add(new Gas { Name = gasName, Description = "air", DisplayColour = "white", SmellText = "", VagueSmellText = "" });
 		context.SaveChanges();

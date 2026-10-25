@@ -47,10 +47,10 @@ public partial class WeatherController : SaveableItem, IWeatherController
     {
         Gameworld = gameworld;
         _name = name;
-        FeedClock = Gameworld.Clocks.First();
+        Celestial = climate.Seasons.FirstOrDefault()?.Celestial ?? Gameworld.CelestialObjects.FirstOrDefault();
+        FeedClock = (Celestial as ICelestialTimeContext)?.Clock ?? Gameworld.Clocks.First();
         FeedClockTimeZone = FeedClock.PrimaryTimezone;
         RegionalClimate = climate;
-        Celestial = Gameworld.CelestialObjects.FirstOrDefault();
         OppositeHemisphere = false;
         CurrentTemperatureFluctuation = 0.0;
         GeographyForTimeOfDay = new GeographicCoordinate(zone.Geography.Latitude, zone.Geography.Longitude, zone.Geography.Elevation, 6371000);

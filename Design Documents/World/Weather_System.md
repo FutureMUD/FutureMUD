@@ -12,6 +12,8 @@ Quality changes the interpretation, not the scheduled weather. Difficulty and un
 
 ## Authoritative schedule
 
+New weather controllers adopt the first climate season's celestial and its clock/primary timezone when that celestial exposes a time context. This supports nine-hour templates even when an unrelated 24-hour clock is first in the world. Loaded controllers keep their saved clock and celestial.
+
 Creating a weather controller requires an initial weather event permitted for its current season and local time of day. If the regional climate has no such event, creation returns a builder error without inserting the controller or subscribing it to clock/heartbeat updates. Add a permitted event to the climate before retrying; creation does not override event time restrictions.
 
 Each weather controller owns a rolling queue of climate-processing checkpoints. `weathercontroller set forecast <days>` configures its horizon from 1 to 30 local game days; the default is 7. Growing the horizon extends the existing future. Shrinking it limits what is shown without discarding an already scheduled future.
@@ -61,3 +63,9 @@ Heavy/torrential rain variants receive lightning in non-polar stock climates. En
 Implementor weather-statistics CSV exports encode all text columns and metadata as spreadsheet-safe cells. Formula prefixes, including those after leading whitespace, receive a leading apostrophe; CSV quoting preserves embedded commas, quotes and line breaks. Numeric measurements retain their invariant numeric representation, including negative temperatures. This export protection does not restrict builder names in the game.
 
 Shared XML/RNG contracts belong to `FutureMUDLibrary Unit Tests`; controller playback, persistence, daily readings and lightning routing belong to `MudSharpCore Unit Tests`. Stock hazard adoption and long climate simulations belong to `MudSharpCore Climate Tests`. Seeder workflow/replay and snapshot contracts remain in `DatabaseSeeder Unit Tests`. Native MySQL/Telnet evidence and limitations are recorded in the [weather verification report](Weather_Verification.md).
+
+## Seeder timing and fictional setting climates
+
+Fresh WeatherSeeder installs resolve a supported daylight celestial and its feed clock. Conventional seasons scale with its celestial year, hourly temperatures are periodic samples of day fraction, and multi-day drift periods use the clock's minutes per day. Literal-minute tick intervals remain minutes. The seeder refuses an existing weather catalogue; neither rerun refusal nor the hazards update retimes existing seasons or temperature tables. See the [WeatherSeeder guide](../Seeding/Seeders/WeatherSeeder.md).
+
+The optional [Armageddon setting weather](../Seeding/Seeders/ArmageddonSettingSeeder.md#regional-weather) adds four unassigned fictional climate templates with nine 77-day seasons and nine-hour heating. It uses the existing terrestrial transition model and shared dry/dust events; no persistence or public climate-interface changes are needed.

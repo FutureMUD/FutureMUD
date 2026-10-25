@@ -9,7 +9,7 @@ Edit [WeatherSeeder.ClimateProfiles.cs](../../../DatabaseSeeder/Seeders/WeatherS
 Sets up Weather and Seasons.
 Baseline availability: **Enabled**. The entrypoint is [WeatherSeeder.cs](../../../DatabaseSeeder/Seeders/WeatherSeeder/WeatherSeeder.cs); `SeederQuestions`, `SeedData` and `ShouldSeedData` define operator filtering/validation, execution and legacy readiness. No manual Program registration is needed.
 
-Operator question IDs: `operation`, `rain`. Exact accepted values, conditional visibility and defaults are defined in the linked `SeederQuestions`; the trace below explains the relevant choice path.
+Operator question IDs: `operation`, `weathercelestial`, `rain`. Exact accepted values, conditional visibility and defaults are defined in the linked `SeederQuestions`; the trace below explains the relevant choice path.
 
 Metadata prerequisite descriptions from [SeederMetadataRegistry](../../../DatabaseSeeder/SeederMetadataRegistry.cs):
 
@@ -30,7 +30,13 @@ All catalogue definitions are authored C#. [WeatherSeeder.cs](../../../DatabaseS
 
 Operator `operation` selects install or the separate hazard update; `rain` selects full/soak/none. Full enables rain events and puddles; soak enables rain events and disables puddles; none uses simple events and does not change the existing puddle setting. The hazard updater targets recognized stock models and does not retarget controllers.
 
-**Failure/rerun boundary.** The install path has staged SaveChanges and no explicit transaction, so later failure can leave earlier seasons/events/models persisted. Named events are refreshed directly; managed climate fingerprint checks preserve/report customization as implemented in the climate helper. Do not infer preservation for every event scalar from climate metadata. The [rain configuration tests](../../../DatabaseSeeder%20Unit%20Tests/WeatherSeederRainConfigurationTests.cs) cover selection behavior. Numerical/runtime climate checks belong to `MudSharpCore Climate Tests`; none were run here.
+**Fresh installation timing.** A single eligible daylight celestial is selected automatically. With multiple eligible bodies, `weathercelestial` selects an ID and suggests the lowest eligible ID. Physical `Sun` and authored `RailSun`/`ScriptedSun`/`RailMoon`/`ScriptedMoon` definitions explicitly governing time of day supply their native celestial year and feed clock; unsupported indirect views, missing clocks, nonpositive dimensions and unrepresentable season layouts are rejected before writes. Authored sources must refer to a calendar using that clock. No terrestrial fallback is used for real installations.
+
+The shared internal [SeederWeatherTiming](../../../DatabaseSeeder/Seeders/Utilities/SeederWeatherTiming.cs) retains the 24-point daily curve as a periodic day-fraction function. An H-hour clock gets exactly H values sampled by cyclic linear interpolation at `24 * hour / H`; a 24-hour clock keeps identical values. Each conventional day onset is scaled by `round(day * celestialYearDays / 365, AwayFromZero)`. All twelve integer onsets must remain distinct and inside the year, including fractional years. Multi-day fluctuation periods use native minutes per day; processing and echo intervals explicitly authored in minutes keep those units. Conventional temperature bands, transition weights and terrestrial benchmark targets remain unchanged.
+
+**Failure/rerun boundary.** Weather installation is fresh-only and refuses an existing weather catalogue. Timing validation precedes all writes; subsequent installation still uses staged saves. Existing installations receive no timing conversion, and there is no timing-repair operation. The separate hazards update uses an explicitly canonical 24-hour/60-minute/365-day disposable reference to verify graphs; it does not change season onsets, regional hourly tables or fluctuation periods. Custom graphs retain the existing whole-graph protection.
+
+**Setting weather.** The optional [Armageddon weather package](ArmageddonSettingSeeder.md#regional-weather) reuses this canonical catalogue, owned dust variants and transition row writer. It supplies its own nine-season heating and regional wind/dust weights, independently of conventional climate families. `rain=none` disables physical soaking/puddles, not precipitation occurrence.
 
 ## Declared rerun and ownership contract
 
@@ -44,6 +50,6 @@ Those are metadata declarations. The source trace above identifies actual lookup
 
 ## Verification and related references
 
-This guide was checked by static source reading; its addition recipe was not executed. No build, database or runtime result is claimed. For a future content change, add focused source/loader/serialization or selected-path first-install/rerun regression checks as appropriate, following the [verification map](../../../.codex/references/verification-and-docs.md). A source invariant is not proof of installed gameplay behavior.
+Timing, fresh-only behavior, preserving hazard updates and question inventories have automated regression coverage. All 50 climate tests passed, including unchanged terrestrial benchmarks and 12 Armageddon profile/seed runs. Native MySQL qualification covered installation, fresh-context reloads, preserving reruns and a concrete nine-hour controller across hour/year boundaries. Full/focused seeder evidence, build results and limitations are recorded in the [weather verification report](../../World/Weather_Verification.md#non-terrestrial-timing-and-armageddon-weather--25-october-2026).
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), [coverage and reviewed evidence](Coverage_and_Evidence.md), and the relevant linked test/source references above.

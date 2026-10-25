@@ -13,6 +13,7 @@ using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.RPG.Law;
 using MudSharp.Magic;
 using MudSharp.Magic.Powers;
 using MudSharp.Magic.SpellEffects;
@@ -1130,6 +1131,7 @@ public partial class MagicEngineV4Tests
 		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock<ICharacter>().Object);
 		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock<ICharacter>().Object);
 		gameworld.SetupGet(x => x.Clans).Returns(CreateCollectionMock<IClan>().Object);
+		gameworld.SetupGet(x => x.LegalAuthorities).Returns(CreateCollectionMock<ILegalAuthority>().Object);
 		gameworld.SetupGet(x => x.AlwaysTrueProg).Returns(progList.FirstOrDefault(x => x.Id == 0) ?? CreateProg(0, true).Object);
 		gameworld.SetupGet(x => x.AlwaysFalseProg).Returns(CreateProg(3, false).Object);
 		gameworld.SetupGet(x => x.UniversalErrorTextProg).Returns(progList.FirstOrDefault(x => x.Id == 0) ?? CreateProg(0, true).Object);

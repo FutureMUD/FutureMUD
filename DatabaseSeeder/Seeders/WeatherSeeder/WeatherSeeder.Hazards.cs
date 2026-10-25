@@ -31,7 +31,7 @@ public partial class WeatherSeeder
 			reference.Celestials.Add(new Celestial { Definition = "<Celestial />", CelestialType = "reference", FeedClockId = 1 });
 			reference.Liquids.Add(new Liquid { Name = "rain water" });
 			reference.SaveChanges();
-			new WeatherSeeder().SeedBaseData(reference, new Dictionary<string, string> { ["rain"] = "full" });
+			new WeatherSeeder().SeedBaseData(reference, new Dictionary<string, string> { ["rain"] = "full" }, SeederWeatherTiming.Canonical(reference.Celestials.Single().Id));
 		}
 
 		var source = reference ?? context;

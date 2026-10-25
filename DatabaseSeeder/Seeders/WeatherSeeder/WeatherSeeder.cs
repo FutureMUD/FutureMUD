@@ -60,6 +60,13 @@ public partial class WeatherSeeder : IDatabaseSeeder
                 : (false, "Please choose install or hazards.")
         ),
         (
+            "weathercelestial",
+            "Which daylight celestial should govern weather seasons? Enter its ID (the lowest eligible ID is suggested). ",
+            (context, answers) => !answers.GetValueOrDefault("operation", "install").EqualTo("hazards") && SeederWeatherTiming.Eligible(context).Count != 1,
+            (text, context) => long.TryParse(text, out var id) && SeederWeatherTiming.Eligible(context).Any(x => x.CelestialId == id)
+                ? (true, string.Empty) : (false, "Select an eligible daylight celestial with a supported feed clock and year.")
+        ),
+        (
             "rain",
             @"The engine can set up the rain events to soak items and create puddles. This will effectively have the engine automatically add water contamination to items left outside, fill up open containers, and create puddles around things.
 
@@ -92,7 +99,7 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
     /// <inheritdoc />
     public string FullDescription => @"This seeder will set up the core components of the weather and climate system in your MUD, including seasons. Note that this assumes terrestrial or earth-like weather. 
 
-Once you have installed this seeder you will need to add the WeatherControllers it installs onto your zones yourself.
+Once you have installed this seeder, create weather controllers using its climate templates and assign them to your zones.
 
 At the present time, this seeder installs temperate oceanic, humid subtropical, tropical rainforest, humid subcontinental, East Asian dry-winter continental, subarctic, tundra, polar ice cap, mediterranean, hot and cold semi-arid, and hot and cold desert climate templates (e.g. Western Europe / Pacific Northwest US, Köppen Cfa regions such as Atlanta or Brisbane, equatorial Af regions such as Singapore, cool-summer humid continental regions such as Buffalo or southern Ontario, Köppen Dwa regions such as Seoul or Beijing, Siberian Dfc regions such as Bratsk, polar ET/EF regions such as Nuuk or Antarctica, dry-summer regions such as Sacramento or coastal southern Europe, steppe climates such as Del Rio or Denver, and desert climates such as Yuma or Bishop).";
 
@@ -213,7 +220,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
                 .ToString());
     }
 
-    private static (double EffectiveChangeChance, string TransitionXml) BuildTransitionDefinition(
+    internal static (double EffectiveChangeChance, string TransitionXml) BuildTransitionDefinition(
         long currentEventId,
         IEnumerable<(long EventId, double Chance)> transitions,
         double baseChangeChance)
@@ -543,11 +550,13 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         var operation = questionAnswers.GetValueOrDefault("operation", existing ? "hazards" : "install");
         if (operation.EqualTo("hazards")) return InstallWeatherHazards(context, false);
         if (existing) return "Weather already exists. Choose the hazards update to preserve builder customisations.";
-        var error = SeedBaseData(context, questionAnswers);
+        var timing = SeederWeatherTiming.Resolve(context, questionAnswers);
+        timing.Validate();
+        var error = SeedBaseData(context, questionAnswers, timing);
         return error.Length > 0 ? error : InstallWeatherHazards(context, true);
     }
 
-    internal string SeedBaseData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    internal string SeedBaseData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers, SeederWeatherTiming? referenceTiming = null)
     {
         _context = context;
         _questionAnswers = questionAnswers;
@@ -556,11 +565,10 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         Console.WriteLine("[Weather Seeder] Starting weather and climate seeding.");
         Console.WriteLine("[Weather Seeder] Using a single canonical weather event set without seeded temperature variants.");
 
-        Celestial? celestial = _context.Celestials.FirstOrDefault();
-        if (celestial is null)
-        {
-            return "Could not proceed because there was not a celestial object. No data was seeded.";
-        }
+        SeederWeatherTiming timing;
+        try { timing = referenceTiming ?? SeederWeatherTiming.Resolve(context, questionAnswers); timing.Validate(); }
+        catch (InvalidOperationException error) { return error.Message; }
+        var celestial = context.Celestials.Single(x => x.Id == timing.CelestialId);
 
         string rainMode = _questionAnswers["rain"].ToLowerInvariant();
         ConfigurePuddleSettingForRainMode(context, rainMode);
@@ -581,7 +589,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
         Stopwatch stageStopwatch = Stopwatch.StartNew();
         Console.WriteLine("[Weather Seeder] Creating seasons...");
-        List<Season> seasons = CreateSeasons(celestial);
+        List<Season> seasons = CreateSeasons(celestial, timing);
         Console.WriteLine($"[Weather Seeder] Created {seasons.Count:N0} seasons in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
 
         stageStopwatch.Restart();
@@ -613,7 +621,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
             WeatherSeederClimateProfile profile = profiles[i];
             stageStopwatch.Restart();
             Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Creating regional climate for {profile.RegionalClimatePrefix}...");
-            CreateRegionalClimate(context, seasons, seededClimateModels[profile.ClimateModelName], profile);
+            CreateRegionalClimate(context, seasons, seededClimateModels[profile.ClimateModelName], profile, timing);
             Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Prepared regional climate in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
         }
 
@@ -731,49 +739,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         return $"{profile.RegionalClimateSummary} This is the seeded northern-hemisphere baseline for the {profile.RegionalClimatePrefix} template.\n\nTypical daily temperatures sit around {DescribeTemperatureRange(midWinter)} in Mid Winter and {DescribeTemperatureRange(midSummer)} in Mid Summer, with the full annual envelope running from about {DescribeTemperature(coldest.Value.Minimum)} to {DescribeTemperature(warmest.Value.Maximum)}. Day-to-day conditions are intended to wander by about {DescribeTemperature(fluctuationStdDev)} around the hourly mean over roughly {fluctuationPeriod.TotalDays:0.#} days before tending back toward normal. It matches Koppen climate classification {profile.KoppenClimateClassification} and was based on {profile.ReferenceLocation}. Use the opposite-hemisphere flag on a weather controller to invert the seasonal timing for southern locations.";
     }
 
-    private static XElement CreateDailyTemperatures(double minimum, double maximum)
-    {
-        List<(int Hour, double Temp)> temps = new();
-        double delta = maximum - minimum;
-        for (int i = 0; i < 24; i++)
-        {
-            temps.Add((i, minimum + delta * i switch
-            {
-                0 => 0.0866,
-                1 => 0.0472,
-                2 => 0.0236,
-                3 => 0.0079,
-                4 => 0.0,
-                5 => 0.0315,
-                6 => 0.126,
-                7 => 0.2835,
-                8 => 0.3622,
-                9 => 0.4409,
-                10 => 0.5197,
-                11 => 0.5984,
-                12 => 0.6772,
-                13 => 0.7559,
-                14 => 0.8346,
-                15 => 0.8740,
-                16 => 0.9134,
-                17 => 0.9370,
-                18 => 0.9685,
-                19 => 1.0,
-                20 => 0.8346,
-                21 => 0.6772,
-                22 => 0.3622,
-                23 => 0.2047,
-                _ => minimum
-            }));
-        }
-
-        return new XElement("Temperatures",
-            from temp in temps
-            select new XElement("Value", new XAttribute("hour", temp.Hour), temp.Temp)
-        );
-    }
-
-    private static void CreateRegionalClimate(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel climateModel, WeatherSeederClimateProfile profile)
+    private static void CreateRegionalClimate(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel climateModel, WeatherSeederClimateProfile profile, SeederWeatherTiming timing)
     {
         #region Regional Climate
         string regionalClimateName = $"{profile.RegionalClimatePrefix} Northern Hemisphere";
@@ -792,7 +758,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         regionalClimate.ClimateModelId = climateModel.Id;
         regionalClimate.TemperatureFluctuationStandardDeviation = EstimateTemperatureFluctuationStandardDeviation(profile);
         regionalClimate.TemperatureFluctuationPeriodMinutes =
-            (int)Math.Round(EstimateTemperatureFluctuationPeriod(profile).TotalMinutes);
+            timing.DaysToMinutes(EstimateTemperatureFluctuationPeriod(profile).TotalDays);
 
         foreach (RegionalClimatesSeason? existing in context.RegionalClimatesSeasons.Where(x => x.RegionalClimateId == regionalClimate.Id).ToList())
         {
@@ -806,7 +772,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
             {
                 RegionalClimate = regionalClimate,
                 Season = season,
-                TemperatureInfo = CreateDailyTemperatures(temperatures.Minimum, temperatures.Maximum).ToString()
+                TemperatureInfo = timing.Temperatures(temperatures.Minimum, temperatures.Maximum).ToString()
             };
             context.RegionalClimatesSeasons.Add(rs);
         }
@@ -2342,7 +2308,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
         };
     }
 
-    private List<Season> CreateSeasons(Celestial? celestial)
+    private List<Season> CreateSeasons(Celestial celestial, SeederWeatherTiming timing)
     {
         #region Seasons
 
@@ -2364,7 +2330,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
             season.DisplayName = displayName;
             season.SeasonGroup = group;
 			season.CelestialId = celestial!.Id;
-            season.CelestialDayOnset = celestialDayOnset;
+            season.CelestialDayOnset = timing.ScaleOnset(celestialDayOnset);
             seasons.Add(season);
         }
 

@@ -15,13 +15,13 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 	public int SortOrder => 305;
 	// Public installer identity; durable content ownership remains independent.
 	public string Name => "Armageddon Setting";
-	public string Tagline => "Staged Armageddon setting: magic, mundane progression and heritage";
-	public string FullDescription => "Staged Setting installer: the magic phase installs 152 canonical spells, 210 blueprints, ten capability/merit pairs, " +
-		"eight reserves, complete admission/support graphs and six source Self/Land gathering methods. " +
-		"A fresh opt-in installation enables complete casting, conditional Class roles, gathering permissions and approved focus/device use and crafts. " +
-		"Existing installations retain their activation defaults and builder edits. No existing player is enrolled or refilled. " +
-		"Classic/Simple and the earlier Chargen class direction are fixed; Land requires builder-owned life/profile/terrain bindings. " +
-		"The approved mundane roles, prerequisite trees, writing grants and class merits compose with magic. The canonical skill package also installs three disabled Templar classes with psionics, pressure-point combat and configurable shrine/gem content. The inactive heritage graph includes native and secondary languages with free-entry names. Physical acceptance and remaining action bindings are pending; this is not a complete playable Setting. Historical prepared-world APIs remain available. See Design Documents/Magic/Armageddon_Installer_Integration_Guide.md.";
+	public string Tagline => "Classes, magic, psionics and heritage inspired by classical Armageddon";
+	public string FullDescription => "Installs classes, subclasses, magic, psionics and game settings inspired by classical Armageddon, " +
+		"along with its races, languages and equipment. Skills follow Armageddon's class-based branching system, " +
+		"and powers of the Way are granted through class rules. " +
+		"Use the Armageddon skill package with classes and subclasses enabled; the separate Psionics seeder is not required. " +
+		"Optional regional weather templates use Armageddon time, Suk-Krath and shared weather foundations. " +
+		"Builders create the world's cities, rooms and stories.";
 	public bool SafeToRunMoreThanOnce => true;
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) =>
@@ -52,10 +52,10 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
         return new SeederAssessment(missing.Count > 0 ? SeederAssessmentStatus.Blocked :
                 ShouldSeedData(context) == ShouldSeedResult.ReadyToInstall ? SeederAssessmentStatus.ReadyToInstall : SeederAssessmentStatus.UpdateAvailable,
             missing.Count > 0 ? "Full Armageddon foundations are incomplete. Core, Time, attributes/skills, Human, Combat and Chargen supply the baseline." :
-                "Optional v1 package foundations are ready; native bindings and capacity are validated again at opt-in installation.",
+                "The Armageddon setting is ready to install or update.",
             missing, Array.Empty<string>(),
-            ["Default No on every visit. Fixed settings and shared answers commit atomically before catalogue work.",
-             "Optional Useful items, generic Item and Health packages are not baseline prerequisites."]);
+            ["Installation is optional. Reruns retain your original progression settings and builder customisations.",
+             "Useful Items, Item, Health and Psionics are optional; this setting does not require them."]);
     }
 
 
@@ -64,7 +64,12 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 		if (FullConsent(questionAnswers))
 		{
 			if (questionAnswers.TryGetValue(InstallQuestion, out var partial) && IsYes(partial)) throw new InvalidOperationException("Choose the package settings stage or the retained prepared-world API, not both.");
-			var factory = ContextFactory(context);
+			var installWeather = questionAnswers.TryGetValue(WeatherQuestion, out var weatherAnswer)
+                ? IsYes(weatherAnswer) : ArmageddonWeatherInstaller.DefaultAnswer(context, questionAnswers) == "yes";
+            if (questionAnswers.TryGetValue(WeatherQuestion, out weatherAnswer) && !IsYes(weatherAnswer) && !weatherAnswer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Answer yes or no for armageddon-weather.");
+            if (installWeather) _ = ArmageddonWeatherInstaller.Require(context);
+            var factory = ContextFactory(context);
 			var prior = ArmageddonInstallation.Read(context);
 			ArmageddonProgressionMode? mode = null;
 			if (questionAnswers.TryGetValue(ModeQuestion, out var modeText))
@@ -120,7 +125,13 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 				else templarMessages.Add("Templar classes require the canonical Armageddon skill package; the existing magic-only installation was retained.");
 				completeProgressionReport += "\n" + string.Join("\n", templarMessages);
 			}
-			return $"Armageddon magic, mundane progression and inactive nonphysical heritage phases complete; physical acceptance and remaining action bindings are pending. Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nComplete stock admission/support and source gathering defaults are installed. Activation defaults: {(settings.StockAvailabilityByDefault ? "v1 fresh-install enabled" : "existing-install retained")}; preserved builder overrides are reported above. Land bindings and existing-player enrolment remain explicit.";
+            if (installWeather)
+            {
+                var weather = ArmageddonWeatherInstaller.Install(factory);
+                completeProgressionReport += "\n" + string.Join("\n", weather.Messages);
+            }
+
+			return $"Armageddon setting content installed. Magic progression: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Existing characters and builder customisations have been preserved.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nMagic and gathering content installed. Availability: {(settings.StockAvailabilityByDefault ? "enabled for new installations" : "existing settings retained")}; preserved builder overrides are reported above. Builders must configure land-based gathering and grant access to existing characters.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";

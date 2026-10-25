@@ -50,7 +50,7 @@ public class ArmageddonTraditionInstallerTests
 	private static ArmageddonTraditionInstallResult Run(FuturemudDatabaseContext db, ArmageddonTraditionInstallPlan plan)
 	{ db.ChangeTracker.Clear(); return ArmageddonTraditionInstaller.Install(db, plan); }
 	private static void Installed(ArmageddonTraditionInstallResult result) => Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
-	private static XElement Policy(FuturemudDatabaseContext db, string variant) => XElement.Parse(db.MagicCapabilities.Single(x => x.Name == "Armageddon partial " + variant).Definition).Element("Casting")!;
+	private static XElement Policy(FuturemudDatabaseContext db, string variant) => XElement.Parse(db.MagicCapabilities.Single(x => x.Name == "Partial " + variant).Definition).Element("Casting")!;
 
 	[TestMethod] public void ExactSourceRowsPreserveRootsCapsAndSupportBridge()
 	{
@@ -76,7 +76,7 @@ public class ArmageddonTraditionInstallerTests
 			Assert.AreEqual(82, skills.Select(x => x.ExpressionId).Distinct().Count());
 			foreach (var row in ArmageddonTraditionInstaller.SourceRows.Where(x => x.Kind == "spell"))
 			{
-				var skill = skills.Single(x => x.Name == "Armageddon " + row.HistoricalName);
+				var skill = skills.Single(x => x.Name == row.HistoricalName);
 				Assert.AreEqual(row.RawCap.ToString(System.Globalization.CultureInfo.InvariantCulture), db.TraitExpressions.Single(x => x.Id == skill.ExpressionId).Expression);
 				var record = db.SeederManagedRecords.Single(x => x.StableKey == row.Key + ".skill");
 				StringAssert.Contains(record.SeedBaseline, row.Key);
@@ -100,7 +100,7 @@ public class ArmageddonTraditionInstallerTests
 			var template = db.MagicCapabilities.Find(1L)!.Definition; Installed(Run(db, plan));
 			foreach (var (variant, expected) in new[] { ("sorcerer", new[] { "Self", "Gentle", "Land" }), ("preserver", new[] { "Self", "Gentle" }), ("defiler", new[] { "Self", "Land" }) })
 			{
-				var xml = XElement.Parse(db.MagicCapabilities.Single(x => x.Name == "Armageddon partial " + variant).Definition);
+				var xml = XElement.Parse(db.MagicCapabilities.Single(x => x.Name == "Partial " + variant).Definition);
 				CollectionAssert.AreEquivalent(expected, xml.Element("Gathering")!.Elements("Method").Select(x => (string)x.Attribute("kind")!).ToArray());
 				Assert.IsFalse(xml.Element("Regenerators")!.Elements().Any()); Assert.IsTrue(xml.Element("Gathering")!.Elements().All(x => (double)x.Attribute("duration")! == 30));
 			}
@@ -132,9 +132,9 @@ public class ArmageddonTraditionInstallerTests
 	{
 		var (db, plan) = Fixture(); using (db)
 		{
-			Installed(Run(db, plan)); var cap = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial sorcerer");
+			Installed(Run(db, plan)); var cap = db.MagicCapabilities.Single(x => x.Name == "Partial sorcerer");
 			cap.Name = "Builder caster"; var xml = XElement.Parse(cap.Definition); xml.Element("Casting")!.Elements("Admission").Last().Remove(); cap.Definition = xml.ToString();
-			var skill = db.TraitDefinitions.Single(x => x.Name == "Armageddon heal"); skill.Name = "Builder remedy";
+			var skill = db.TraitDefinitions.Single(x => x.Name == "heal"); skill.Name = "Builder remedy";
 			var expression = db.TraitExpressions.Find(skill.ExpressionId)!; expression.Expression = "55";
 			db.MagicCapabilities.Add(new() { Name = "Unowned clone", Definition = cap.Definition, MagicSchoolId = cap.MagicSchoolId, CapabilityModel = cap.CapabilityModel });
 			db.SaveChanges(); var edited = cap.Definition;
@@ -157,7 +157,7 @@ public class ArmageddonTraditionInstallerTests
 	{
 		var (db, plan) = Fixture(); using (db)
 		{
-			db.TraitDefinitions.Add(new() { Name = "Armageddon heal" }); db.SaveChanges();
+			db.TraitDefinitions.Add(new() { Name = "heal" }); db.SaveChanges();
 			Assert.AreEqual(ArmageddonInstallStatus.Blocked, Run(db, plan).Status); Assert.AreEqual(0, db.SeederManagedRecords.Count());
 		}
 	}

@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -50,6 +50,9 @@ namespace MudSharp.TimeAndDate.Date
         List<MonthDefinition> Months { get; }
         List<IntercalaryMonth> Intercalaries { get; }
         IReadOnlyList<IRegnalPeriod> RegnalPeriods { get; }
+#nullable enable
+        NamedYearCycle? YearCycle { get; }
+#nullable restore
         void UpdateDays();
         void UpdateMonths();
         void UpdateYears();

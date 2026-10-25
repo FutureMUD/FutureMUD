@@ -22,13 +22,22 @@ public static partial class ArmageddonTemplarInstaller
 	private static void InstallLirathanPsionics(FuturemudDatabaseContext db, Role lirathanRole,
 		IReadOnlyDictionary<string, ChargenRole> roles, IReadOnlyDictionary<string, TraitDefinition> skills, ICollection<string> messages)
 	{
-		var school = (MagicSchool)Put(db, "arm.school.lirathan_templar", new MagicSchool { Name = "Armageddon Lirathan Templar Psionics",
-			SchoolVerb = "lpsi", SchoolAdjective = "Lirathan", PowerListColour = "boldmagenta" },
+		var school = (MagicSchool)Put(db, "arm.school.lirathan_templar", new MagicSchool { Name = "Psionics",
+			SchoolVerb = "lpsi", SchoolAdjective = "psionic", PowerListColour = "boldmagenta" },
 			[nameof(MagicSchool.Name), nameof(MagicSchool.SchoolVerb), nameof(MagicSchool.SchoolAdjective), nameof(MagicSchool.PowerListColour)], messages);
 		var canInvoke = TextOrBooleanPowerProg(db, "arm.templar.lirathan.power.allowed", "return true", ProgVariableTypes.Boolean, messages);
 		var unavailable = TextOrBooleanPowerProg(db, "arm.templar.lirathan.power.unavailable", "return \"That Lirathan psionic power is unavailable.\"", ProgVariableTypes.Text, messages);
 		var inTuluk = Prog(db, "arm.templar.lirathan.tuluk.free_upkeep", "LirathanTemplarInTuluk", "return false",
 			[(ProgVariableTypes.Character, "ch")], messages);
+		var freeUpkeep = Prog(db, "arm.psionics.lirathan.free_upkeep", "ArmageddonLirathanFreePsionicUpkeep",
+			$"return Contains(@ch.Roles, ToRole({roles[lirathanRole.Key].Id})) and @{inTuluk.FunctionName}(@ch)",
+			[(ProgVariableTypes.Character, "ch")], messages);
+		var normalDifficulty = (FutureProg)Put(db, "arm.psionics.normal_difficulty", new FutureProg
+		{
+			FunctionName = "ArmageddonPsionicDifficulty", FunctionText = $"return {(int)Difficulty.Normal}", ReturnType = (long)ProgVariableTypes.Number,
+			ReturnTypeDefinition = ProgVariableTypes.Number.ToStorageString(), AcceptsAnyParameters = true,
+			Category = "Armageddon", Subcategory = "Psionics", FunctionComment = "Default mental expulsion difficulty.", Public = false
+		}, ["FunctionName", "FunctionText", "ReturnTypeDefinition", "AcceptsAnyParameters", "Category", "Subcategory", "FunctionComment", "Public"], messages);
 		var sourceResource = RequireOwned<MagicResource>(db, ArmageddonProgressionInstaller.SourceResourceKey);
 		var willpower = FindAttribute(db, "Willpower", "Wisdom");
 		var wisdom = FindAttribute(db, "Wisdom", "Intelligence");
@@ -80,9 +89,9 @@ public static partial class ArmageddonTemplarInstaller
 				new XAttribute("willpowerTrait", willpower.Id), new XAttribute("verbs", spec.Verb)));
 			if (spec.Sustained || spec.Model == "psioniccathexis" || spec.Model == "psionicillusion")
 				definition.Add(new XElement("StunUpkeep", new XAttribute("skillTrait", trait.Id), new XAttribute("wisdomTrait", wisdom.Id),
-					new XAttribute("freeProg", inTuluk.Id), new XAttribute("attemptsPerMinute", 60)));
-			var row = Put(db, "arm.power.lirathan." + spec.Key, new MagicPower { Name = spec.Name, MagicSchoolId = school.Id,
-				PowerModel = spec.Model, Blurb = "A Lirathan Templar psionic technique; skill, bodily cost and upkeep are source-trait bound.",
+					new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
+			var row = Put(db, "arm.power.lirathan." + spec.Key, new MagicPower { Name = spec.Name.Replace("Lirathan ", "", StringComparison.Ordinal), MagicSchoolId = school.Id,
+				PowerModel = spec.Model, Blurb = "A technique of the Way, powered by mental effort.",
 				ShowHelp = $"Use LPSI {spec.Verb.ToUpperInvariant()} with the target or invocation described by the power.", Definition = definition.ToString() },
 				[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages);
 			powers.Add(spec.Key, row);
@@ -91,6 +100,7 @@ public static partial class ArmageddonTemplarInstaller
 		var stockMapping = new (string Verb, string Trait, bool Advanced, string? VerbOverride, bool? Thinks, bool? Feels)[]
 		{
 			("contact", "arm.skill.contact", true, null, null, null), ("barrier", "arm.skill.barrier", true, null, null, null),
+			("connectback", "arm.skill.contact", true, null, null, null), ("say", "arm.skill.contact", true, null, null, null),
 			("expel", "arm.skill.expel", true, null, null, null), ("allspeak", "arm.skill.allspeak", true, null, null, null),
 			("hear", "arm.skill.hear", true, null, true, true),
 			("hear", "arm.skill.thoughtsense", true, "thoughtsense", true, false), ("hear", "arm.skill.empathy", true, "empathy", false, true),
@@ -102,7 +112,7 @@ public static partial class ArmageddonTemplarInstaller
 			var stock = PsionicStockContent.Powers.Single(x => x.Verb == entry.Verb);
 			var trait = skills[entry.Trait];
 			var xml = PsionicStockContent.Definition(stock, trait.Id, sourceResource, canInvoke.Id, canInvoke.Id,
-				unavailable.Id, (long)Difficulty.Normal, advanced: entry.Advanced);
+				unavailable.Id, normalDifficulty.Id, advanced: entry.Advanced);
 			xml.Element("InvocationCosts")?.Remove();
 		xml.Element("SustainResourceCosts")?.Remove();
 			xml.SetElementValue("Resource", sourceResource);
@@ -117,12 +127,12 @@ public static partial class ArmageddonTemplarInstaller
 			if (entry.Feels is { } feels) xml.SetElementValue("ShowFeels", feels);
 			var invocationVerb = entry.VerbOverride ?? entry.Verb;
 			xml.Add(new XElement("BodilyCost", new XAttribute("base", stock.Cost switch { <= 2 => 8, <= 3 => 10, <= 5 => 14, _ => 18 }),
-				new XAttribute("skillTrait", trait.Id), new XAttribute("willpowerTrait", willpower.Id), new XAttribute("verbs", invocationVerb)));
+				new XAttribute("skillTrait", trait.Id), new XAttribute("willpowerTrait", willpower.Id), new XAttribute("verbs", invocationVerb == "say" ? "say,tell" : invocationVerb)));
 			if (stock.Seconds > 0) xml.Add(new XElement("StunUpkeep", new XAttribute("skillTrait", trait.Id), new XAttribute("wisdomTrait", wisdom.Id),
-				new XAttribute("freeProg", inTuluk.Id), new XAttribute("attemptsPerMinute", 60)));
-			var key = entry.Trait.Split('.').Last();
+				new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
+			var key = entry.Verb is "say" or "connectback" ? entry.Verb : entry.Trait.Split('.').Last();
 			var definition = xml.ToString();
-			var row = Put(db, "arm.power.lirathan." + key, new MagicPower { Name = "Lirathan Templar " + key, MagicSchoolId = school.Id,
+			var row = Put(db, "arm.power.lirathan." + key, new MagicPower { Name = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace('_', ' ')), MagicSchoolId = school.Id,
 				PowerModel = stock.Type, Blurb = stock.Help.Replace("{range}", "the same plane", StringComparison.Ordinal),
 				ShowHelp = stock.Help, Definition = definition },
 				[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages);
@@ -137,7 +147,7 @@ public static partial class ArmageddonTemplarInstaller
 			new XElement("SustainPenalty", -2), new XElement("DetectableWithDetectMagic", (int)Difficulty.Hard), new XElement("SustainResourceCosts"),
 			new XElement("AllSchools", true), new XElement("HideActivity", true), new XElement("AuditDifficultyStages", 2),
 			new XElement("BodilyCost", new XAttribute("base", 10), new XAttribute("skillTrait", silentTrait.Id), new XAttribute("willpowerTrait", willpower.Id), new XAttribute("verbs", "silentpsi")),
-			new XElement("StunUpkeep", new XAttribute("skillTrait", silentTrait.Id), new XAttribute("wisdomTrait", wisdom.Id), new XAttribute("freeProg", inTuluk.Id), new XAttribute("attemptsPerMinute", 60)));
+			new XElement("StunUpkeep", new XAttribute("skillTrait", silentTrait.Id), new XAttribute("wisdomTrait", wisdom.Id), new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
 		powers.Add("silentpsi", (MagicPower)Put(db, "arm.power.lirathan.silentpsi", new MagicPower { Name = "Lirathan Silent Psi", MagicSchoolId = school.Id,
 			PowerModel = "mindconceal", Blurb = "Conceal mental identity and activity.", ShowHelp = "Use LPSI SILENTPSI or LPSI ENDSILENTPSI to veil or reveal your mental signature.", Definition = silentXml.ToString() },
 			[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages));
@@ -146,17 +156,18 @@ public static partial class ArmageddonTemplarInstaller
 		var capabilityDefinition = new XElement("Definition", new XElement("ConcentrationTrait", skills["arm.skill.allspeak"].Id),
 			new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"), new XElement("Regenerators"),
 			allPowers.Select(x => new XElement("Power", new XAttribute("trait", x.Trait.Id), new XAttribute("minvalue", 1), new XAttribute("power", x.Power.Id))));
-		var capability = (MagicCapability)Put(db, "arm.capability.lirathan_templar_psionics", new MagicCapability { Name = "Armageddon Lirathan Templar Psionics",
+		var capability = (MagicCapability)Put(db, "arm.capability.lirathan_templar_psionics", new MagicCapability { Name = "Lirathan Templar Psionics",
 			CapabilityModel = "skilllevel", PowerLevel = 2, MagicSchoolId = school.Id, Definition = capabilityDefinition.ToString() },
 			[nameof(MagicCapability.Name), nameof(MagicCapability.CapabilityModel), nameof(MagicCapability.PowerLevel), nameof(MagicCapability.MagicSchoolId), nameof(MagicCapability.Definition)], messages);
 		var no = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse");
 		var yes = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue");
-		var merit = (Merit)Put(db, "arm.merit.lirathan_templar_psionics", new Merit { Name = "Armageddon Lirathan Templar Psionics", Type = "Magic Capability",
+		var merit = (Merit)Put(db, "arm.merit.lirathan_templar_psionics", new Merit { Name = "Lirathan Templar Psionics", Type = "Magic Capability",
 			MeritType = 0, MeritScope = 2, Definition = new XElement("Definition", new XElement("ChargenAvailableProg", no.Id), new XElement("ApplicabilityProg", yes.Id),
 				new XElement("ChargenBlurb", "Lirathan Templar Way powers; class selection supplies this configured capability."),
 				new XElement("DescriptionText", "@ command|commands the Way through Lirathan psionic techniques."), new XElement("Capabilities", new XElement("Capability", capability.Id))).ToString() },
 			["Name", "Type", "MeritType", "MeritScope", "Definition"], messages);
 		var role = roles[lirathanRole.Key];
+		InstallCommonPsionics(db, school, skills, powers, canInvoke.Id, unavailable.Id, willpower.Id, wisdom.Id, freeUpkeep.Id, sourceResource, normalDifficulty.Id, messages);
 		messages.Add($"Lirathan Templar psionic capability installed with {allPowers.Length} per-skill powers, source bodily costs, and a builder-configurable free-upkeep territory binding.");
 	}
 
@@ -174,7 +185,7 @@ public static partial class ArmageddonTemplarInstaller
 
 	private static string TraitForPower(string key) => key switch
 	{
-		"contact" => "arm.skill.contact", "barrier" => "arm.skill.barrier", "expel" => "arm.skill.expel", "allspeak" => "arm.skill.allspeak",
+		"contact" or "say" or "connectback" => "arm.skill.contact", "barrier" => "arm.skill.barrier", "expel" => "arm.skill.expel", "allspeak" => "arm.skill.allspeak",
 		"thoughtsense" => "arm.skill.thoughtsense", "empathy" => "arm.skill.empathy", "clairaudience" => "arm.skill.clairaudience", "trace" => "arm.skill.trace",
 		"magicksense" => "arm.skill.magicksense", "locate" => "arm.skill.locate", "mindblast" => "arm.skill.mindblast", "mindwipe" => "arm.skill.mindwipe",
 		"control" => "arm.skill.control", "vision" => "arm.skill.masquerade", "illusion" => "arm.skill.illusion", "cathexis" => "arm.skill.cathexis", "dome" => "arm.skill.dome",

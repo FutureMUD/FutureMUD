@@ -464,7 +464,7 @@ internal static class DebugSeederReplayProfiles
 				("distinctive", "yes"),
 				("nonbinary", "no"),
 				("includeextraperson", "no")),
-        Step<WeatherSeeder>(("operation", "install"), ("rain", "full")),
+        Step<WeatherSeeder>(("operation", "install"), ("weathercelestial", "1"), ("rain", "full")),
 			Step<LawSeeder>(
 				("name", "Debug Authority"),
 				("currency", "1"),
@@ -540,7 +540,7 @@ internal static class DebugSeederReplayProfiles
 				("random", "static"),
 				("messagestyle", "sparse")),
 			Step<ArmageddonSettingSeeder>((ArmageddonSettingSeeder.InstallQuestion, "no"),
-				(ArmageddonSettingSeeder.FullInstallQuestion, "no"), (ArmageddonSettingSeeder.ModeQuestion, "Classic"),
+				(ArmageddonSettingSeeder.FullInstallQuestion, "no"), (ArmageddonSettingSeeder.WeatherQuestion, "no"), (ArmageddonSettingSeeder.ModeQuestion, "Classic"),
 				(ArmageddonSettingSeeder.CapacityQuestion, "0"), (ArmageddonSettingSeeder.NativeBindingsQuestion, "{}"),
 				(ArmageddonSettingSeeder.BindingsQuestion, "none")),
 			Step<PsionicsSeeder>(("install-psionics", "yes")),

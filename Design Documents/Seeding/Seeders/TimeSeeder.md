@@ -17,6 +17,16 @@ Metadata prerequisite descriptions from [SeederMetadataRegistry](../../../Databa
 
 These predicates supplement concrete `ShouldSeedData` and helper preflights; declared ordering types are listed in the [dependency map](Dependency_Map.md).
 
+## Armageddon option
+
+Choose `Armageddon` for a nine-hour Zalanthan clock, ZST timezone, eleven-day week and Descending Sun / Low Sun / Ascending Sun months of 231 days each. Enter speed `6` for the historical ten-real-minute hour. Starting year defaults to `1` for this mode; it remains an ordinary configurable positive canonical year. Starting-year and speed answers must fit the runtime's positive signed 32-bit integer fields; values beyond that range are rejected at the question.
+
+`TimeSeeder.Armageddon.cs` supplies all 77 pre-combined year names as literal stock data in the reusable named year cycle. No runtime possessor/quality lists or combination algorithm are installed. Date masks render the name, year within the cycle and King's Age number while dates retain a continuous numeric year. The epoch is always year 1; a later selected starting year does not reset the cycle.
+
+This path creates the Armageddon clock directly, without an unused 24-hour UTC clock. First install adds the normal shard/calendar/clock and zone/timezone links. Reruns preserve the existing calendar definition/date, clock definition/current time, timezone data and established bindings. Missing clock/calendar/timezone members are added where their canonical identities can be resolved; a calendar with an unresolved feed-clock ID is rejected rather than rebound silently. Other TimeSeeder modes retain their existing repair semantics.
+
+See [named year cycle authoring](../../World/Time_And_Date_System.md) and [source evidence and sky adaptation](../../Armageddon/Armageddon_Time_And_Celestial_Proposal.md). `ArmageddonTimeAndSkyTests` covers runtime loading, calendar boundaries, all names, clock conversion and preservation.
+
 ## Inputs, representative trace and practical authoring guide
 
 **Installer route and stored shape.** The `mode` prompt lists `gregorian-us` and others; validator accepts it. `SeedData` starts a DB transaction, ensures an UTC `Clock` definition using `secondsmultiplier`, then ensures UTC timezone. `EnsureClock`, `EnsureTimezone`, and `EnsureCalendar` are helpers in `TimeSeeder.cs:360-424`; `EnsureCalendar` derives alias from definition XML and reuses by canonical alias, otherwise creates a `Calendar` and adds to `context.Calendars`. For `mode=gregorian-us`, switch at line 157 calls `SetupGregorian(context, true, false, clock, answers)`. `SetupGregorian` is in `TimeSeeder.Calendars.cs:3430+`: builds a Gregorian calendar with date `january/01/{startyear}`, alias `gregorian`, US `MM/DD/YYYY` short format, American date prose, Gregorian leap-year rules (divisibility by 4 with the 100/400 century exceptions), month/week definitions, and saves the complete XML in `Calendar.Definition`; then passes calendar through `EnsureCalendar`. Thus definition XML, not a model class per month, carries calendar structure. Main method resolves primary alias, binds it to zones/shards with `SyncShardAndZoneTimeBindings`, saves and commits.
@@ -40,6 +50,10 @@ Reruns repair or complete stock clocks, calendars, timezones, and shard/zone bin
 Seeder-owned time records are tracked by stable names and aliases.
 
 Those are metadata declarations. The source trace above identifies actual lookup/field/transaction behavior; matching names alone do not prove field ownership or preservation. [The shared executor](README.md#shared-execution-contract) handles exceptions and answer persistence but supplies no cross-seeder transaction.
+
+## Armageddon verification result
+
+The complete DatabaseSeeder suite passed 2,204 cases with three Unix-only launcher permission cases skipped on Windows; the library passed 811 and core passed 8,388. Debug/Release seeder builds and the Debug-only replay metadata boundary passed. Native MySQL run `run-37bf80360bf1` verified saved answers, fresh-context reload and preservation of changed calendar/clock/timezone data through the shared executor. See [the full evidence and climate-template limitation](../../Armageddon/Armageddon_Time_And_Celestial_Proposal.md#implementation-verification). Game-server startup/Telnet and climate calibration were not run.
 
 ## Verification and related references
 

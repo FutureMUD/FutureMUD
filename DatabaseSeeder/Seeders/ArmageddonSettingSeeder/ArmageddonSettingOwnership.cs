@@ -13,12 +13,27 @@ namespace DatabaseSeeder.Seeders;
 /// <summary>Field baselines shared by early and late Setting phases, independent of public installer names.</summary>
 internal static class ArmageddonSettingOwnership
 {
+	internal static void RequireNameAvailable<T>(FuturemudDatabaseContext db, T desired, SeederManagedRecord? record) where T : class
+	{
+		if (db.Model.FindEntityType(typeof(T))!.FindProperty("Name") is null) return;
+		var name = (string?)db.Entry(desired).Property("Name").CurrentValue;
+		if (record?.LogicalId is { } id && db.Find<T>(id) is { } actual && record.SeedBaseline is { } baseline &&
+			JsonSerializer.Deserialize<Dictionary<string, string>>(baseline)!.TryGetValue("Name", out var previous) &&
+			JsonSerializer.Serialize(db.Entry(actual).Property("Name").CurrentValue) != previous)
+			return; // A builder's name will be retained by field reconciliation.
+		if (db.Set<T>().AsEnumerable().Any(x => (long)db.Entry(x).Property("Id").CurrentValue! != record?.LogicalId &&
+			string.Equals((string?)db.Entry(x).Property("Name").CurrentValue, name, StringComparison.OrdinalIgnoreCase) &&
+			(desired is not Accent accent || x is Accent other && other.LanguageId == accent.LanguageId)))
+			throw new InvalidOperationException($"{typeof(T).Name} name collision: {name}; resolve before renaming stock content.");
+	}
+
 	internal static T Apply<T>(FuturemudDatabaseContext db, string module, string key, T desired,
 		ICollection<string> messages) where T : class
 	{
 		var metadata = db.Model.FindEntityType(typeof(T)) ?? throw new InvalidOperationException($"Unmapped owned type {typeof(T).Name}.");
 		var fields = metadata.GetProperties().Where(x => !x.IsPrimaryKey()).Select(x => x.Name).ToArray();
 		var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
+		RequireNameAvailable(db, desired, record);
 		if (record is null)
 		{
 			var nameField = metadata.FindProperty("Name") ?? metadata.FindProperty("FunctionName");

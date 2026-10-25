@@ -34,11 +34,11 @@ internal static partial class GNHProgram
 		using (var db = factory())
 		{
 			Require(!ArmageddonInstallation.Read(db)!.ClassesEnabled, "Standard replay class direction unexpectedly changed.");
-			Require(db.MagicCapabilities.Count(x => x.Name.StartsWith("Armageddon ")) == 10 && db.Merits.Count(x => x.Name.StartsWith("Armageddon ")) == 10,
+			Require(db.MagicCapabilities.Count(x => db.SeederManagedRecords.Any(r => r.Module == ArmageddonProgressionInstaller.Module && r.EntityType == "MagicCapability" && r.LogicalId == x.Id)) == 10 && db.Merits.Count(x => db.SeederManagedRecords.Any(r => r.Module == ArmageddonProgressionInstaller.Module && r.EntityType == "Merit" && r.LogicalId == x.Id)) == 10,
 				"Ten staged capability/merit pairs are not durable.");
 			Require(!db.SeederManagedRecords.Any(x => x.Module == ArmageddonProgressionInstaller.Module && x.EntityType == "ChargenRole"), "Classes-off created a package Class role.");
-			Require(db.MagicResources.Count(x => x.Name.StartsWith("Armageddon ") && x.MagicResourceType == 1) == 8 &&
-				db.MagicResources.Count(x => x.Name == "Armageddon source energy" && x.MagicResourceType == 0) == 1,
+			Require(db.MagicResources.Count(x => x.MagicResourceType == 1 && db.SeederManagedRecords.Any(r => r.Module == ArmageddonProgressionInstaller.Module && r.EntityType == "MagicResource" && r.LogicalId == x.Id)) == 8 &&
+				db.MagicResources.Count(x => x.Name == "Source Energy" && x.MagicResourceType == 0) == 1,
 				"Common cost unit/eight reserve layout changed.");
 			Require(db.SeederManagedRecords.Count(x => x.Module == ArmageddonProgressionInstaller.Module && x.EntityType == "TraitDefinition") == 11,
 				"Simple produced per-spell proficiency ghosts.");
@@ -46,8 +46,8 @@ internal static partial class GNHProgram
 				.Select(x => x.LogicalId!.Value).ToArray();
 			Require(db.TraitDefinitions.Where(x => skillIds.Contains(x.Id)).All(x => x.BranchMultiplier == 0),
 				"S2 first install retained the provider's native BranchMultiplier default instead of explicit stock zero.");
-			var source = db.MagicResources.Single(x => x.Name == "Armageddon source energy").Id;
-			foreach (var model in db.MagicCapabilities.Where(x => x.Name.StartsWith("Armageddon ")))
+			var source = db.MagicResources.Single(x => x.Name == "Source Energy").Id;
+			foreach (var model in db.MagicCapabilities.Where(x => db.SeederManagedRecords.Any(r => r.Module == ArmageddonProgressionInstaller.Module && r.EntityType == "MagicCapability" && r.LogicalId == x.Id)))
 			{
 				var casting = XElement.Parse(model.Definition).Element("Casting")!;
 				Require(!(bool)casting.Attribute("enabled")! && !casting.Elements().Any() && (long)casting.Attribute("source")! == source,
@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 			"S2 owned rerun churned IDs, baselines or audit times. Changed owned keys: " + string.Join(", ", changedKeys) + "\n" + string.Join("\n", rerun.Messages));
 		using (var db = factory())
 		{
-			var trait = db.TraitDefinitions.Single(x => x.Name == "Armageddon Earth Casting");
+			var trait = db.TraitDefinitions.Single(x => x.Id == db.SeederManagedRecords.Single(r => r.StableKey == "arm.skill.earth_casting").LogicalId);
 			trait.Name = "Builder renamed Earth Casting";
 			trait.ChargenBlurb = "Builder keeps this blurb";
 			db.SaveChanges();

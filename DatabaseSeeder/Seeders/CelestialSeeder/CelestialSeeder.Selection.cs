@@ -14,6 +14,7 @@ public partial class CelestialSeeder
 #3EarthSun#F - Earth-facing daylight sun, named The Sun.
 #3EarthMoon#F - The Moon, lunar phases and linked moon-surface sky views; requires EarthSun.
 #3Jupiter#F - Ganymede viewpoint with Jupiter dominating the sky and distant Sol.
+#3Armageddon#F - Suk-Krath, Jihae and Lirathu; requires Armageddon time.
 #3Rails#F - RailSun and RailMoon authored examples.
 #3Scripts#F - ScriptedSun and ScriptedMoon authored examples.
 #3MorningStar#F - Authored Morning Star example.
@@ -25,7 +26,7 @@ Only selected, incomplete packages need follow-up questions.";
 
 	private static readonly string[] PackageOptions =
 	[
-		"EarthSun", "EarthMoon", "Jupiter", "Rails", "Scripts", "MorningStar", "MorningGlow"
+		"EarthSun", "EarthMoon", "Jupiter", "Rails", "Scripts", "MorningStar", "MorningGlow", "Armageddon"
 	];
 
 	private static IReadOnlyDictionary<string, string> ResolveAutomaticAnswers(FuturemudDatabaseContext context,
@@ -106,12 +107,19 @@ Only selected, incomplete packages need follow-up questions.";
 			return (false, "EarthMoon requires exactly one Earth-facing Sun. Select EarthSun too on a fresh world, or resolve existing ambiguous Sun records first.");
 		}
 
-		return (true, string.Empty);
+		return selections.Contains("Armageddon", StringComparer.OrdinalIgnoreCase)
+			? ValidateArmageddonInstall(context)
+			: (true, string.Empty);
 	}
 
 	internal static string? ResolvePackagesDefault(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> answers)
 	{
+		if (ArmageddonCalendar(context) is not null)
+		{
+			return HasArmageddonPackage(context) ? "none" : "Armageddon";
+		}
+
 		var options = new List<string>();
 		if (!HasEarthSunPackage(context)) options.Add("EarthSun");
 		if (!HasEarthMoonPackage(context) && (!HasEarthSunPackage(context) || HasSingleEarthSunCandidate(context)))
@@ -126,7 +134,8 @@ Only selected, incomplete packages need follow-up questions.";
 		if (HasEarthSunPackage(context)) installed.Add("EarthSun");
 		if (HasEarthMoonPackage(context)) installed.Add("EarthMoon");
 		if (HasGasGiantPackage(context)) installed.Add("Jupiter");
-		foreach (var option in PackageOptions.Skip(3))
+		if (HasArmageddonPackage(context)) installed.Add("Armageddon");
+		foreach (var option in PackageOptions.Skip(3).Where(x => x != "Armageddon"))
 		{
 			if (!HasMissingSelectedAuthoredPresets(context, new Dictionary<string, string> { ["packages"] = option }))
 				installed.Add(option);

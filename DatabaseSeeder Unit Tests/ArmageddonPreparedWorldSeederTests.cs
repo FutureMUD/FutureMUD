@@ -142,7 +142,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		var (db, bindings) = Fixture(); using (db)
 		{
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
-			var owned = db.MagicCapabilities.Single(x => x.Name == "Armageddon partial defiler"); var xml = XElement.Parse(owned.Definition);
+			var owned = db.MagicCapabilities.Single(x => x.Name == "Partial defiler"); var xml = XElement.Parse(owned.Definition);
 			xml.Element("Casting")!.Elements("Admission").Last().Remove(); owned.Definition = xml.ToString(); db.SaveChanges();
 			var result = ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings); Completed(result);
 			Assert.AreEqual(3, result.Availability.Single(x => x.Variant == "defiler").StoredAdmissions.Count);
@@ -214,7 +214,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		foreach (var profile in DebugSeederReplayProfiles.All)
 		{
 			var validation = SeederReplayRunner.Validate(profile, SeederCatalogue.GetEnabledSeeders()); Assert.IsTrue(validation.IsValid, string.Join("\n", validation.Errors));
-			var step = profile.Steps.Single(x => x.SeederType == typeof(ArmageddonSettingSeeder)); Assert.AreEqual(6, step.Answers.Count);
+			var step = profile.Steps.Single(x => x.SeederType == typeof(ArmageddonSettingSeeder)); Assert.AreEqual(7, step.Answers.Count);
 			var seeder = new ArmageddonSettingSeeder(); var prior = new Dictionary<string, string>();
 			foreach (var question in seeder.Questions)
 			{
@@ -229,6 +229,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			Assert.AreEqual("Classic", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.ModeQuestion).Answer);
 			Assert.AreEqual("0", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.CapacityQuestion).Answer);
 			Assert.AreEqual("{}", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.NativeBindingsQuestion).Answer);
+			Assert.AreEqual("no", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.WeatherQuestion).Answer);
 		}
 #endif
 	}

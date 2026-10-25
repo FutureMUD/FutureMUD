@@ -208,11 +208,15 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
             }
 
             StringBuilder sb = new();
-            sb.AppendLine((Enumerator.Current.Name + " Selection").Colour(Telnet.Cyan));
+            sb.AppendLine((Enumerator.Current.Name.TitleCase() + " Selection").Colour(Telnet.Cyan));
+			sb.AppendLine();
 			var cultures = AvailableCultures();
 			if (cultures.Length > 1)
 			{
-				sb.AppendLine($"Naming style: {NameCulture.Name.ColourName()}. Optional: {"/style <number>".ColourCommand()} changes the style and restarts name entry.");
+
+                sb.AppendLine($"You have multiple naming styles available ({cultures.Select((x, i) => $"{i + 1}. {x.Name}").ListToColouredString()})");
+                sb.AppendLine($"Currently selected: {NameCulture.Name.ColourName()}");
+				sb.AppendLine($"Naming style: {NameCulture.Name.ColourName()}");
 				sb.AppendLine(cultures.Select((x, i) => $"{i + 1}. {x.Name}").ListToString());
 				sb.AppendLine();
 			}
@@ -252,7 +256,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 			var current = Enumerator.Current;
 			var supplied = current.ParentUsage is { } parent && SelectedNameElements.TryGetValue(parent, out var parents) && parents.Count == 1 &&
 				current.ParentValues.TryGetValue(parents[0], out var children) ? children : current.SuggestedValues;
-			if (supplied.Count > 0) sb.AppendLine("Supplied forms (not membership grants): " + supplied.ListToString());
+			if (supplied.Count > 0) sb.AppendLine("Suggested Examples: " + supplied.ListToColouredString());
 			if (_phase != "entry")
 			{
 				sb.AppendLine(string.Join(", ", _pending));
@@ -261,6 +265,12 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 			}
 			if (current.MaximumCount < 0)
 			{
+                if (cultures.Length > 1)
+                {
+                    sb.AppendLine($"Enter any number of {current.Name.Pluralise()}, or leave blank. Quote each multiword value separately.\nOptional: {"/style <number>".ColourCommand()} changes the name style and restarts name entry.");
+                    return sb.ToString();
+                }
+
 				sb.AppendLine($"Enter any number of {current.Name.Pluralise()}, or leave blank. Quote each multiword value separately.");
 				return sb.ToString();
 			}
@@ -272,8 +282,11 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 ? Enumerator.Current.Name.Pluralise()
                 : Enumerator.Current.Name);
             sb.AppendLine(Enumerator.Current.MaximumCount > 1 ? ", seperated by spaces" : "");
-
-            return sb.ToString();
+			if (cultures.Length > 1)
+			{
+				sb.AppendLine($"Optional: {"/style <number>".ColourCommand()} changes the name style and restarts name entry.");
+			}
+			return sb.ToString();
         }
 
         public override string HandleCommand(string command)

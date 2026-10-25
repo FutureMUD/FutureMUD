@@ -41,7 +41,7 @@ public class ArmageddonAttributeAdaptationTests
 		db.SaveChanges();
 		var originalIds = db.TraitDefinitions.Select(x => x.Id).ToHashSet();
 		ArmageddonHeritage.Install(db, new List<string>());
-		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
+		var giant = db.Races.Single(x => x.Name == "Half-Giant");
 		var links = db.RacesAttributes.Where(x => x.RaceId == giant.Id).ToArray();
 		Assert.AreEqual(48, giant.AttributeTotalCap);
 		Assert.AreEqual(4, links.Length);
@@ -56,7 +56,7 @@ public class ArmageddonAttributeAdaptationTests
 		using var db = ArmageddonHeritageTests.Fixture();
 		var messages = new List<string>();
 		ArmageddonHeritage.Install(db, messages);
-		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
+		var giant = db.Races.Single(x => x.Name == "Half-Giant");
 		var strength = db.TraitDefinitions.Single(x => x.Name == "Strength");
 		// Reproduce an earlier installed scaffold with no attribute collection ownership yet.
 		db.SeederManagedRecords.Remove(db.SeederManagedRecords.Single(x => x.StableKey == "arm.race.half_giant.attributes"));
@@ -90,7 +90,7 @@ public class ArmageddonAttributeAdaptationTests
 		db.SaveChanges();
 		var messages = new List<string>();
 		ArmageddonHeritage.Install(db, messages);
-		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
+		var giant = db.Races.Single(x => x.Name == "Half-Giant");
 		Assert.AreEqual(84, giant.AttributeTotalCap, "Seven selected raw attributes retain a twelve-point-per-attribute budget.");
 		Assert.AreEqual(20, giant.IndividualAttributeCap);
 		Assert.AreEqual("3d6+1", giant.DiceExpression);
@@ -113,6 +113,6 @@ public class ArmageddonAttributeAdaptationTests
 		Assert.AreEqual("2d10", db.RacesAttributes.Single(x => x.RaceId == giant.Id && x.AttributeId == constitution.Id).DiceExpression);
 		Assert.IsFalse(db.RacesAttributes.Any(x => x.RaceId == giant.Id && x.AttributeId == intelligence.Id));
 		Assert.AreEqual(1, db.RacesAttributes.Count(x => x.RaceId == 101), "Bootstrap Human remains untouched.");
-		Assert.IsTrue(db.Races.Where(x => x.Name.StartsWith("Armageddon ")).All(x => x.AvailabilityProgId == 2));
+		Assert.IsTrue(db.Races.Where(x => x.Id != 100 && x.Id != 101).All(x => x.AvailabilityProgId == ((x.Name == "Elf" || x.Name == "Half-Elf") ? 2 : 1)));
 	}
 }

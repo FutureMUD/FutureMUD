@@ -17,7 +17,7 @@ internal static partial class GNHProgram
 			Records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Module == ArmageddonTraditionInstaller.Module &&
 				(x.EntityType == "MagicCapability" || x.EntityType == "Merit")).OrderBy(x => x.StableKey)
 				.Select(x => new { x.StableKey, x.LogicalId, x.SeedBaseline, x.AppliedFingerprint }).ToArray(),
-			Capabilities = db.MagicCapabilities.AsNoTracking().Where(x => x.Name.StartsWith("Armageddon partial "))
+			Capabilities = db.MagicCapabilities.AsNoTracking().Where(x => db.SeederManagedRecords.Any(r => r.Module == ArmageddonTraditionInstaller.Module && r.EntityType == "MagicCapability" && r.LogicalId == x.Id))
 				.OrderBy(x => x.Id).Select(x => new { x.Id, x.Definition }).ToArray(),
 			Merits = db.Merits.AsNoTracking().OrderBy(x => x.Id).Select(x => new { x.Id, x.Definition }).ToArray()
 		});

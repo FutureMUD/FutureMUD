@@ -22,9 +22,9 @@ public static class SeederMetadataRegistry
         {
 			nameof(ArmageddonSettingSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				Array.Empty<SeederPrerequisite>(),
-				RerunSummary: "Default No. Opt-in validates foundations and preserves the fixed game-wide mode, class direction and native IDs. Settings commit atomically with their answer mirrors before catalogue modules.",
-				UpdateSummary: "Complete v1 stock reconciles in resumable batches. Fresh installations enable approved stock defaults; existing activation defaults and builder edits are retained. No player refresh or mode conversion.",
-				OwnershipSummary: "One owned installation metadata record plus typed historical module claims. Builder content and player state are preserved; unresolved ownership blocks preflight.",
+				RerunSummary: "Safe to rerun with the same settings. An interrupted installation resumes without discarding completed work.",
+				UpdateSummary: "Adds missing stock content and updates unchanged defaults while preserving builder customisations and existing characters.",
+				OwnershipSummary: "Changes only content managed by this package. Conflicts are reported for builders to resolve.",
 				DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(SkillPackageSeeder), typeof(TimeSeeder), typeof(HumanSeeder), typeof(CombatSeeder), typeof(ChargenSeeder)],
                 OrderAfterSeederTypes: [typeof(HealthSeeder), typeof(ItemSeeder)]),
 			nameof(EnvironmentalExposureSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,

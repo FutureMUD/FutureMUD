@@ -55,12 +55,12 @@ public class ArmageddonReleaseGateTests
 	public void QuestionsAndDescriptionsAreAvailableInDebugAndRelease()
 	{
 		IDatabaseSeeder seeder = new ArmageddonSettingSeeder();
-		Assert.AreEqual(6, seeder.Questions.Count());
-		Assert.AreEqual(6, seeder.SeederQuestions.Count());
-		CollectionAssert.AreEqual(new[] { ArmageddonSettingSeeder.FullInstallQuestion, ArmageddonSettingSeeder.ModeQuestion,
+		Assert.AreEqual(7, seeder.Questions.Count());
+		Assert.AreEqual(7, seeder.SeederQuestions.Count());
+		CollectionAssert.AreEqual(new[] { ArmageddonSettingSeeder.FullInstallQuestion, ArmageddonSettingSeeder.WeatherQuestion, ArmageddonSettingSeeder.ModeQuestion,
 			ArmageddonSettingSeeder.CapacityQuestion, ArmageddonSettingSeeder.NativeBindingsQuestion, ArmageddonSettingSeeder.InstallQuestion,
 			ArmageddonSettingSeeder.BindingsQuestion }, seeder.Questions.Select(x => x.Id).ToArray());
-		StringAssert.Contains(seeder.FullDescription, "fresh opt-in installation");
+		Assert.IsFalse(string.IsNullOrWhiteSpace(seeder.FullDescription));
 		Assert.AreEqual("no", seeder.Questions.First().DefaultAnswerResolver!(null!, new Dictionary<string, string>()));
 	}
 

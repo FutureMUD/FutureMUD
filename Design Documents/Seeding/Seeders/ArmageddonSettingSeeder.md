@@ -1,5 +1,11 @@
 # Armageddon Setting Seeder
 
+Installs classes, subclasses, magic, racial backgrounds, languages, equipment and game settings inspired by classical Armageddon, including class-based skill branching. Use the Armageddon skill package and enable classes/subclasses in Chargen for that experience. It supplies setting content rather than a built world of cities and rooms; races and Templar classes still require builder approval for player selection.
+
+Both Human inventory choices are supported: `hands` uses grabbing/wielding hands, while `inventory` uses wield-only hands with a separate inventory. Creature anatomy preserves that choice, creates quadruped forepaws from either hand type and assigns natural strikes to both hands. An installation stopped at anatomy can be resumed with the same settings; earlier completed batches are retained.
+
+The Setting seeder includes psionic powers and class-linked access to the Way. Ordinary classes, including Sorcerers and the Jihaen and Southern Templars, receive Normal psionics. Lirathan Templars and Psionicists receive their own broader profiles, sharing common powers. Skills unlock powers through the class branch trees. The separate **Psionics** seeder is not required; it remains an independent generic package. See [Armageddon psionics](../../Magic/Armageddon_Psionics.md) and [Templars](../../Armageddon/Armageddon_Templars.md).
+
 The public installer type and menu identity are `ArmageddonSettingSeeder` / **Armageddon Setting**. It is enabled in Debug and Release. Its durable ownership namespace intentionally remains `ArmageddonMagicSeeder`; changing the public name must never orphan existing content or player references. Historical magic receipts retain their original names.
 
 The approved early packages, magic, mundane progression/merits, heritage, physical/lifecycle/appearance defaults and source-specific actions are implemented. Current-schema combined classes/subclasses-on installation, seven native profile bodies, gameplay, preserving resume/rerun, two cold readers and first/cold server boots pass. Race admission and publication remain held. See [the execution ledger](../../Armageddon/Armageddon_Setting_Implementation_20261019.md) for exact evidence and limits.
@@ -37,3 +43,24 @@ Canonical check bindings distinguish Flee from Ride-based mount control/fall avo
 After every required early check resolves, the explicit fresh-world Armageddon choice enables Pilot, Direction Sense, hostile Guarding and Haggling. Reruns retain later builder opt-outs. These flags do not grant skills. See [Backstab attacks](../../Combat/Backstab_Attacks.md) for specific proficiency and callback revalidation.
 
 Fresh installs disable unallocated Electrical/Programming commands; subsequent builder choices survive reruns. Native boot's generic optional Trap check backfills remain explicitly unbound and do not qualify the optional adapter. Owned creature float speeds retain their original identities after native boot adds a compatibility speed to shared source anatomy; deliberate overrides and unrelated collision checks remain intact.
+
+## Regional weather
+
+Full installation offers `armageddon-weather=yes|no`. Its contextual default is yes only when compatible Armageddon time, Suk-Krath and verified shared Weather Seeder/dust foundations are present. Explicit yes fails preflight before fixed setting installation or any setting module writes. All four templates install together; no zone or existing weather controller is assigned or retargeted. Creating a new controller from one of these templates selects Suk-Krath and its nine-hour clock before the initial temperature lookup, including in worlds whose first global clock is terrestrial.
+
+| Profile | Warm minimum–maximum °C | Cool minimum–maximum °C | Fluctuation standard deviation °C | Strong/gale target | Dust target |
+| --- | --- | --- | --- | --- | --- |
+| Southern Desert | 25–50 | 10–35 | 1.5 | 3–15% | 2–10% |
+| Salt Flats | 28–55 | 12–40 | 2 | 5–20% | 5–15% |
+| Northern Scrubland | 20–42 | 8–28 | 1 | 1–8% | 0.5–4% |
+| Northern Forest | 16–32 | 5–23 | 0.8 | 0–3% | 0–1% |
+
+These are editable fictional defaults, not recovered historical measurements. Each of Descending Sun, Low Sun and Ascending Sun has Early/Mid/Late subdivisions: nine 77-day weather seasons starting at 0,77,…616. Calendar months remain unchanged. Daily min/max bands interpolate between cool and warm using `[1,.6,.2,0,0,0,.2,.6,1]`; first and last seasons match at the year seam. Hourly heating factors are `[.15,0,.15,.45,.8,1,.8,.45,.25]`: dawn minimum, early-afternoon maximum. Fluctuation period is four native days (2,160 feed-clock minutes).
+
+[ArmageddonWeatherInstaller](../../../DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonWeatherInstaller.cs) owns the source profiles, heating, seasonal subdivisions and weights. Author new tuning there. It reuses the canonical Weather Seeder event catalogue, verified shared dust hazards and canonical transition writer, with no new runtime weather type. The lazy weighted resampling graph has a 0.08 attempt probability per ten-minute processing interval; self weights reduce effective change chance through the shared writer. Stationary strong/gale weights are 9%,14%,4.5%,1.5%; dust weights are 5.5%,10%,2.2%,0.4%. Dust is included within strong/gale occupancy. Of weak winds, 40% are still, 40% breeze and 20% wind; non-dust strong winds split 80/20 strong/gale, dust splits 80/20 ordinary/choking and 80/20 strong/gale. All seasons share these weights. Every state can clear and weaken; rain, snow, lightning and winds above Gale are absent from initial states and transitions.
+
+Ownership uses package `ArmageddonMagicSeeder`, module `setting-weather-v1`, stable keys and field-level three-way reconciliation for principal rows, seasonal graph rows and hourly temperature XML. Reruns preserve IDs, renames, edited fields and controller choices; missing owned rows are restored and partial installs resume. Unowned name/row collisions fail with an actionable report. Temperature XML and transition XML are each reconciled as a field, preserving a builder's whole edited table/list. Templates remain unassigned. All regions follow the shared sun arcs by default; opposite-hemisphere controls are an explicit builder choice.
+
+The package does not reconstruct the absent historical regional weather file, wind-front/advection engine, diseases, ecology or tides. See [time/sky source and adaptation evidence](../../Armageddon/Armageddon_Time_And_Celestial_Proposal.md) and [weather system](../../World/Weather_System.md). Qualification uses the existing analyzer fixture with five sampled years after one burn-in year, seeds 123456,8675309,424242, the occupancy targets above, zero prohibited weather and sheltered seasonal/hourly means within 2°C of configured baselines.
+
+Measured occupancy ranges, all test receipts and native installation/controller qualification are recorded in the [weather verification report](../../World/Weather_Verification.md#non-terrestrial-timing-and-armageddon-weather--25-october-2026).

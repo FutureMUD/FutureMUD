@@ -150,6 +150,11 @@ The stock package uses an epoch-aligned default at the start of the selected cal
         context.Database.BeginTransaction();
         try
         {
+            if (PackageSelected(questionAnswers, "Armageddon"))
+            {
+                EnsureArmageddonPackage(context);
+            }
+
             Celestial? earthSun = null;
             if (PackageSelected(questionAnswers, "EarthSun"))
             {
@@ -193,12 +198,13 @@ The stock package uses an epoch-aligned default at the start of the selected cal
         bool hasEarthMoon = HasEarthMoonPackage(context);
         bool hasGasGiant = HasGasGiantPackage(context);
         bool hasAuthored = HasAuthoredPackage(context);
+        bool hasArmageddon = HasArmageddonPackage(context);
         if (!hasEarthSun && !hasEarthMoon && !hasGasGiant && !AuthoredPresetsInstalled(context).Any())
         {
             return ShouldSeedResult.ReadyToInstall;
         }
 
-        return hasEarthSun && hasEarthMoon && hasGasGiant && hasAuthored
+        return hasEarthSun && hasEarthMoon && hasGasGiant && hasAuthored && hasArmageddon
             ? ShouldSeedResult.MayAlreadyBeInstalled
             : ShouldSeedResult.ExtraPackagesAvailable;
     }
@@ -206,7 +212,7 @@ The stock package uses an epoch-aligned default at the start of the selected cal
     public int SortOrder => 6;
     public string Name => "Celestial Seeder";
     public string Tagline => "Sets up Suns, Moons, etc";
-    public string FullDescription => "This seeder sets up stock physical celestial packages and optional geography-independent authored examples. Reruns add missing package members and preserve builder customisation. Authored examples are not automatically attached to shards.";
+    public string FullDescription => "This seeder sets up stock physical celestial packages and optional Armageddon sky and geography-independent authored examples. Reruns add missing package members and preserve builder customisation. Authored examples are not automatically attached to shards.";
 
     internal static string? ResolveSunCalendarDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers)

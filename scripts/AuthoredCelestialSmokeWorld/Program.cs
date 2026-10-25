@@ -101,5 +101,9 @@ using (var db = factory())
 		accounts = db.Accounts.Count(), characters = db.Characters.Count(), rooms = db.Rooms.Count() };
 	File.WriteAllText(receiptPath, JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true }));
 }
+if (args.Length == 3 && args[2] == "--armageddon-time-sky")
+{
+	ArmageddonTimeSkyVerification.Run(connection, Path.Combine(Path.GetDirectoryName(receiptPath)!, "armageddon-time-sky.json"));
+}
 Console.WriteLine("PASS: complete native replay and unchanged nonblank refusal.");
 return 0;

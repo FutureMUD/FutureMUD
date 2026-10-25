@@ -86,6 +86,7 @@ public static class ArmageddonMundaneProgression
 	private static T Apply<T>(FuturemudDatabaseContext db, string key, T desired, ICollection<string> messages, params string[] fields) where T : class
 	{
 		var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
+		ArmageddonSettingOwnership.RequireNameAvailable(db, desired, record);
 		if (record is null)
 		{
 			db.Add(desired); db.SaveChanges();
@@ -129,15 +130,15 @@ public static class ArmageddonMundaneProgression
 				if (!skills.ContainsKey(skill.Key) || skill.Parent is { } parent && !role.Skills.Any(x => x.Key == parent))
 					throw new InvalidOperationException($"Unresolved mundane role edge: {role.Name}/{skill.Key}.");
 		}
-		if (!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == ProgressionKey) && db.Merits.Any(x => x.Name == "Armageddon Mundane Role Progression"))
+		if (!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == ProgressionKey) && db.Merits.Any(x => x.Name == "Mundane Role Progression"))
 			throw new InvalidOperationException("Unowned mundane progression merit name collision.");
 		using var transaction = db.Database.IsRelational() && db.Database.CurrentTransaction is null ? db.Database.BeginTransaction() : null;
 		var merits = ArmageddonMundaneMerits.Install(db, messages);
 		var actualRoles = Roles.ToDictionary(x => x.Key, x => Apply(db, x.Key, new ChargenRole
 		{
 			Name = x.Name, Type = x.Primary ? 0 : 1, PosterId = poster, AvailabilityProgId = yes,
-			ChargenBlurb = $"{x.Name}: {(x.Primary ? "main guild with a prerequisite skill tree" : "subclass with approved supplemental proficiencies")}. " +
-				"Skill grants and caps compose with your other selected role. Psychic traits do not grant active psychic powers; recipe and script access remain separate.",
+			ChargenBlurb = ArmageddonPresentation.RoleDescription(x.Name, x.Skills.Where(y => y.Parent is null && y.Opening > 0)
+				.OrderByDescending(y => y.Opening).Select(y => skills[y.Key].Name)),
 			Expired = false, MaximumNumberAlive = 0, MaximumNumberTotal = 0, MinimumAuthorityToApprove = 0, MinimumAuthorityToView = 0
 		}, messages, RoleFields));
 		var rules = Roles.SelectMany(role => role.Skills.Select(skill => new RoleSkillRule(actualRoles[role.Key].Id, skills[skill.Key].Id,
@@ -148,13 +149,15 @@ public static class ArmageddonMundaneProgression
 			new XElement("Rules", rules.Select(x => new XElement("Rule", new XAttribute("role", x.RoleId), new XAttribute("trait", x.TraitId),
 				new XAttribute("primary", x.Primary), new XAttribute("opening", x.Opening), new XAttribute("cap", x.Cap),
 				x.ParentTraitId is { } parent ? new XAttribute("parent", parent) : null, new XAttribute("threshold", x.Threshold), new XAttribute("bonus", x.OverlapBonus)))));
-		var progression = Apply(db, ProgressionKey, new Merit { Name = "Armageddon Mundane Role Progression", Type = "Role Skill Progression", MeritType = 0, MeritScope = 2, Definition = definition.ToString() },
+		var progression = Apply(db, ProgressionKey, new Merit { Name = "Mundane Role Progression", Type = "Role Skill Progression", MeritType = 0, MeritScope = 2, Definition = definition.ToString() },
 			messages, "Name", "Type", "MeritType", "MeritScope", "Definition");
 		foreach (var role in Roles)
 		{
 			var desired = new List<long> { progression.Id };
 			if (role.Name == "Bard" && !role.Primary) desired.Add(merits[ArmageddonMundaneMerits.BardKey]);
 			if (role.Name == "Mercenary" && !role.Primary) desired.Add(merits[ArmageddonMundaneMerits.MercenaryKey]);
+			if (role.Primary && ArmageddonTemplarInstaller.OptionalPsionicMerit(db, role.Name == "Psionicist" ?
+				ArmageddonTemplarInstaller.PsionicistMeritKey : ArmageddonTemplarInstaller.NormalPsionicsMeritKey) is { } psi) desired.Add(psi);
 			ReconcileRoleMerits(db, role.Key, actualRoles[role.Key], desired, messages);
 		}
 		ReconcileSkillCaps(db, skills, messages);
@@ -169,10 +172,10 @@ public static class ArmageddonMundaneProgression
 			x.EntityType == nameof(ChargenRole) && !x.Retired && x.LogicalId != null).ToDictionary(x => x.StableKey, x => x.LogicalId!.Value);
 		var caps = Roles.Where(x => roleIds.ContainsKey(x.Key)).SelectMany(role => role.Skills.Select(skill =>
 			(Role: roleIds[role.Key], Trait: skills[skill.Key].Id, role.Primary, skill.Cap))).ToList();
-		var templar = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package &&
-			x.Module == ArmageddonTemplarInstaller.Module && x.StableKey == ArmageddonTemplarInstaller.ProgressionKey &&
-			x.EntityType == nameof(Merit) && !x.Retired);
-		if (templar is not null)
+		var additional = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package &&
+			x.Module == ArmageddonTemplarInstaller.Module && (x.StableKey == ArmageddonTemplarInstaller.ProgressionKey ||
+			x.StableKey == ArmageddonTemplarInstaller.MagicPsionicProgressionKey) && x.EntityType == nameof(Merit) && !x.Retired).ToArray();
+		foreach (var templar in additional)
 		{
 			// The ownership baseline is the authored source graph, even when a builder edits the merit.
 			var fields = JsonSerializer.Deserialize<Dictionary<string, string>>(templar.SeedBaseline!)!;
@@ -199,6 +202,19 @@ public static class ArmageddonMundaneProgression
 			var next = new Dictionary<string, string> { ["Expression"] = JsonSerializer.Serialize(expression) };
 			if (baseline.TryGetValue("Name", out var name)) next["Name"] = name;
 			ArmageddonSettingOwnership.Reconcile(db, record, trait.Expression, next, messages);
+		}
+	}
+
+	internal static void ReconcilePsionicRoleGrants(FuturemudDatabaseContext db, ICollection<string> messages)
+	{
+		foreach (var role in Roles.Where(x => x.Primary))
+		{
+			var record = db.SeederManagedRecords.Single(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == role.Key);
+			var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+			var desired = JsonSerializer.Deserialize<long[]>(baseline["RoleMerits"])!.ToList();
+			var merit = ArmageddonTemplarInstaller.OptionalPsionicMerit(db, role.Name == "Psionicist" ? ArmageddonTemplarInstaller.PsionicistMeritKey : ArmageddonTemplarInstaller.NormalPsionicsMeritKey)!.Value;
+			if (!desired.Contains(merit)) desired.Add(merit);
+			ReconcileRoleMerits(db, role.Key, db.ChargenRoles.Find(record.LogicalId!.Value)!, desired, messages);
 		}
 	}
 

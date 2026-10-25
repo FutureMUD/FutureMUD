@@ -15,10 +15,6 @@
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=labmud_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     },
-    "Nez DBO": {
-      "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=nez_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
-    },
     "Jenna DBO": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=jenna_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
@@ -78,6 +74,10 @@
     "Damnatio Memoriae": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=damnatio_memoriae;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Armageddon": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=armageddon_test;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

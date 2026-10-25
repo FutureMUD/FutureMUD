@@ -66,7 +66,7 @@ public class WeatherTimingTests
 		new TimeSeeder().SeedData(db, new Dictionary<string, string> { ["mode"] = "gregorian-uk", ["secondsmultiplier"] = "2", ["startyear"] = "2000" });
 		new CelestialSeeder().SeedData(db, new Dictionary<string, string>
 		{
-			["installsun"] = "yes", ["suncalendar"] = "1", ["sunname"] = "The Sun", ["sunepoch"] = "1/jan/2000"
+			["packages"] = "EarthSun", ["sunepoch"] = "1/jan/2000"
 		});
 		var timing = SeederWeatherTiming.Resolve(db, new Dictionary<string, string>());
 		Assert.AreEqual(24, timing.HoursPerDay);
@@ -79,7 +79,7 @@ public class WeatherTimingTests
 	{
 		using var db = Context();
 		new TimeSeeder().SeedData(db, new Dictionary<string, string> { ["mode"] = "Armageddon", ["secondsmultiplier"] = "6", ["startyear"] = "1" });
-		new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["installarmageddon"] = "yes" });
+		new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["packages"] = "Armageddon" });
 		var moon = db.Celestials.First(x => x.CelestialType == "ScriptedMoon");
 		db.Celestials.RemoveRange(db.Celestials.Where(x => x.Id != moon.Id)); db.SaveChanges();
 		Assert.AreEqual(0, SeederWeatherTiming.Eligible(db).Count);

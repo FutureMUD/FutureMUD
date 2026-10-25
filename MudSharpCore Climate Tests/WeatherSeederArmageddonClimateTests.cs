@@ -28,7 +28,7 @@ public partial class WeatherSeederClimateTests
 					$"armageddon-climate-{Guid.NewGuid():N}", x => x.EnableNullChecks(false)).ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options;
 				using var db = new FuturemudDatabaseContext(options);
 				new TimeSeeder().SeedData(db, new Dictionary<string, string> { ["mode"] = "Armageddon", ["secondsmultiplier"] = "6", ["startyear"] = "1" });
-				new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["installarmageddon"] = "yes" });
+				new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["packages"] = "Armageddon" });
 				db.Gases.Add(new Gas { Name = "air" }); db.SaveChanges();
 				Assert.AreEqual("", new WeatherSeeder().SeedData(db, new Dictionary<string, string> { ["rain"] = "none" }));
 				ArmageddonWeatherInstaller.Install(() => new FuturemudDatabaseContext(options));

@@ -56,7 +56,7 @@ internal static class ArmageddonWeatherVerification
 			new DatabaseUpgradeCoordinator().ImportBlankDatabaseSnapshot(builder.ConnectionString, snapshot, "__FUTUREMUD_DATABASE__");
 			db.Database.Migrate();
 			new TimeSeeder().SeedData(db, new Dictionary<string, string> { ["mode"] = "Armageddon", ["secondsmultiplier"] = "6", ["startyear"] = "1" });
-			new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["installarmageddon"] = "yes" });
+			new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["packages"] = "Armageddon" });
 			using var source = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 				.UseMySql(verifiedConnection, ServerVersion.AutoDetect(verifiedConnection)).Options);
 			var air = source.Gases.First(x => x.Name == "Breathable Atmosphere" || x.Name == "air");

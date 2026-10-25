@@ -39,7 +39,7 @@ public class ArmageddonWeatherTests
 		using (var db = Factory())
 		{
 			new TimeSeeder().SeedData(db, new Dictionary<string, string> { ["mode"] = "Armageddon", ["secondsmultiplier"] = "6", ["startyear"] = "1" });
-			new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["installarmageddon"] = "yes" });
+			new CelestialSeeder().SeedData(db, new Dictionary<string, string> { ["packages"] = "Armageddon" });
 			Assert.AreEqual("no", ArmageddonWeatherInstaller.DefaultAnswer(db, new Dictionary<string, string>()));
 			db.Gases.Add(new Gas { Name = "air" }); db.SaveChanges();
 			Assert.AreEqual("", new WeatherSeeder().SeedData(db, new Dictionary<string, string> { ["rain"] = "none" }));

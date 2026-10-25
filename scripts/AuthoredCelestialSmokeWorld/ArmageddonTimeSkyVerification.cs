@@ -29,8 +29,7 @@ internal static class ArmageddonTimeSkyVerification
 		var timeAnswers = new Dictionary<string, string> { ["mode"] = "Armageddon", ["secondsmultiplier"] = "6", ["startyear"] = "1" };
 		var skyAnswers = new Dictionary<string, string>
 		{
-			["installsun"] = "no", ["installmoon"] = "no", ["installgasgiantmoon"] = "no",
-			["installauthored"] = "no", ["installarmageddon"] = "yes"
+			["packages"] = "Armageddon"
 		};
 		var assembly = typeof(TimeSeeder).Assembly;
 		var execute = assembly.GetType("DatabaseSeeder.SeederExecutionService")!.GetMethod("Execute", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -76,7 +75,7 @@ internal static class ArmageddonTimeSkyVerification
 			}
 			var bodyIds = bodies.Select(b => b.Id).ToArray();
 			Require(!db.ShardsCelestials.Any(x => bodyIds.Contains(x.CelestialId)), "Armageddon objects were attached automatically.");
-			Require(db.SeederChoices.Any(x => x.Choice == "installarmageddon" && x.Answer == "yes"), "New answer did not persist through the shared executor.");
+			Require(db.SeederChoices.Any(x => x.Choice == "packages" && x.Answer == "Armageddon"), "New answer did not persist through the shared executor.");
 
 			// Deliberate fixture customisations across separate contexts exercise the preserving rerun contract.
 			var root = XElement.Parse(calendar.Definition);

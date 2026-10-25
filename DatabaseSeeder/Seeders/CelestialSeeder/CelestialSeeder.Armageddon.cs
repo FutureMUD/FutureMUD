@@ -19,9 +19,6 @@ public partial class CelestialSeeder
 	private const int ArmageddonYearMinutes = 3 * ArmageddonMonthMinutes;
 	private static readonly string[] ArmageddonPresets = ["ArmageddonSun", "ArmageddonJihae", "ArmageddonLirathu"];
 
-	internal static string ResolveInstallArmageddonDefault(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> _) =>
-		ArmageddonCalendar(context) is not null ? "yes" : "no";
-
 	private static bool HasArmageddonPackage(FuturemudDatabaseContext context) =>
 		ArmageddonPresets.All(AuthoredPresetsInstalled(context).Contains);
 
@@ -29,10 +26,8 @@ public partial class CelestialSeeder
 		context.Calendars.AsEnumerable().FirstOrDefault(x =>
 			XElement.Parse(x.Definition).Element("alias")?.Value.Equals("armageddon", StringComparison.OrdinalIgnoreCase) == true);
 
-	private static (bool Success, string error) ValidateArmageddonInstall(string answer, FuturemudDatabaseContext context)
+	private static (bool Success, string error) ValidateArmageddonInstall(FuturemudDatabaseContext context)
 	{
-		var valid = ValidateYesNo(answer, context);
-		if (!valid.Success || !answer.Equals("yes", StringComparison.OrdinalIgnoreCase)) return valid;
 		try
 		{
 			_ = RequireArmageddonCalendar(context);

@@ -96,18 +96,12 @@ public static class SeederQuestionRegistry
                 SharedAnswerKey: "economy-shopper-scale",
                 AutoReuseLastAnswer: true
             ),
-            [BuildKey(nameof(CelestialSeeder), "installsun")] = new(
-                DefaultAnswerResolver: CelestialSeeder.ResolveInstallSunDefault,
-                DisplayResolver: CelestialSeeder.ResolveInstallSunDisplay
-            ),
-            [BuildKey(nameof(CelestialSeeder), "installarmageddon")] = new(
-                DefaultAnswerResolver: CelestialSeeder.ResolveInstallArmageddonDefault
-            ),
             [BuildKey(nameof(TimeSeeder), "startyear")] = new(
                 DefaultAnswerResolver: (_, answers) => answers.TryGetValue("mode", out var mode) && mode.Equals("armageddon", StringComparison.OrdinalIgnoreCase) ? "1" : null
             ),
-            [BuildKey(nameof(CelestialSeeder), "installauthored")] = new(
-                DefaultAnswerResolver: (_, _) => "no"
+            [BuildKey(nameof(CelestialSeeder), "packages")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolvePackagesDefault,
+                DisplayResolver: CelestialSeeder.ResolvePackagesDisplay
             ),
             [BuildKey(nameof(CelestialSeeder), "authoredcalendar")] = new(
                 DefaultAnswerResolver: CelestialSeeder.ResolveSunCalendarDefault
@@ -116,25 +110,9 @@ public static class SeederQuestionRegistry
                 DefaultAnswerResolver: CelestialSeeder.ResolveSunCalendarDefault,
                 DisplayResolver: CelestialSeeder.ResolveSunCalendarDisplay
             ),
-            [BuildKey(nameof(CelestialSeeder), "sunname")] = new(
-                DefaultAnswerResolver: CelestialSeeder.ResolveSunNameDefault,
-                DisplayResolver: CelestialSeeder.ResolveSunNameDisplay
-            ),
-            [BuildKey(nameof(CelestialSeeder), "installmoon")] = new(
-                DefaultAnswerResolver: CelestialSeeder.ResolveInstallMoonDefault,
-                DisplayResolver: CelestialSeeder.ResolveInstallMoonDisplay
-            ),
             [BuildKey(nameof(CelestialSeeder), "mooncalendar")] = new(
                 DefaultAnswerResolver: CelestialSeeder.ResolveMoonCalendarDefault,
                 DisplayResolver: CelestialSeeder.ResolveMoonCalendarDisplay
-            ),
-            [BuildKey(nameof(CelestialSeeder), "moonname")] = new(
-                DefaultAnswerResolver: CelestialSeeder.ResolveMoonNameDefault,
-                DisplayResolver: CelestialSeeder.ResolveMoonNameDisplay
-            ),
-            [BuildKey(nameof(CelestialSeeder), "installgasgiantmoon")] = new(
-                DefaultAnswerResolver: CelestialSeeder.ResolveInstallGasGiantDefault,
-                DisplayResolver: CelestialSeeder.ResolveInstallGasGiantDisplay
             ),
             [BuildKey(nameof(CelestialSeeder), "gasgiantcalendar")] = new(
                 DefaultAnswerResolver: CelestialSeeder.ResolveGasGiantCalendarDefault,

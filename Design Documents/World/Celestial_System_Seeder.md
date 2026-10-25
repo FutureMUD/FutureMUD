@@ -13,9 +13,19 @@
 | `Armageddon` | Suk-Krath (`ScriptedSun`), Jihae and Lirathu (`ScriptedMoon`) | Requires Armageddon time; preserving three-body package; remains unattached |
 | Authored examples | `RailSun`, `RailMoon`, `ScriptedSun`, `ScriptedMoon`, MorningStar and MorningGlow scripts | Optional, geography-independent examples; never automatically attached |
 
-The Armageddon choice uses `installarmageddon`, defaulting yes when the Armageddon calendar exists. Its annual sparse tracks, independent lunar phase tables and 77-day midnight conjunction milestones are described in [the package guide](../Seeding/Seeders/CelestialSeeder.md#armageddon-option). All replay profiles explicitly retain `installarmageddon=no`.
+The first screen accepts space-separated, case-insensitive selections: `EarthSun`, `EarthMoon`, `Jupiter`, `Rails`, `Scripts`, `MorningStar`, `MorningGlow`, and `Armageddon`. `EarthMoon` selects the `EarthMoonView` package; `Jupiter` selects `GasGiantMoonView`. `Rails` installs RailSun and RailMoon; `Scripts` installs ScriptedSun and ScriptedMoon. The two morning examples can be selected individually. Enter `none` alone to skip. Unknown names and EarthMoon without a unique existing Earth sun or a new EarthSun selection are rejected before follow-up questions.
 
-The authored package uses `installauthored` (interactive default `no`) and `authoredcalendar`. Every Debug replay profile explicitly supplies both answers and installs the examples. Their JSON `SeederPreset` identities are stable: reruns insert only missing members, preserving existing IDs and builder changes. Clones made through the builder command clear ownership. Physical package detection and XML definitions are unchanged. See [Authored Celestials](Authored_Celestials.md) for clock units, illustrative lighting, source-byte limits and attachment commands.
+The initial default is `EarthSun EarthMoon`, or `Armageddon` when its time calendar exists. A completed Armageddon sky defaults to `none`. Armageddon installs Suk-Krath, Jihae and Lirathu together without additional questions, validates its required calendar/clock, and remains unattached; see [the package guide](../Seeding/Seeders/CelestialSeeder.md#armageddon-option). Only selected, incomplete packages ask follow-up questions. Stock names are `The Sun` and `The Moon`; builders can rename them later. A single installed calendar is used automatically, while multiple calendars activate the selected packages' calendar questions. Authored selections share one calendar question. With one calendar, a typical complete interaction is:
+
+```text
+EarthSun EarthMoon
+01/jan/2000
+28/jan/2000
+```
+
+The dates are user choices, not a change to the suggested lunar epoch (the 21st day remains the stock suggestion). Selection order does not change dependency order: the Earth sun is installed before its moon. Duplicate selections install each option once. The main screen shows completed options; reruns preserve existing objects and add only missing selected members.
+
+Every Debug replay profile inventories `packages`, all calendar questions, and all epoch questions, including inactive ones, and selects the seven non-Armageddon options to retain its Earth-based world. The authored JSON `SeederPreset` identities remain stable: reruns insert only missing members, preserving existing IDs and builder changes. Clones made through the builder command clear ownership. Physical package detection and XML definitions are unchanged. See [Authored Celestials](Authored_Celestials.md) for clock units, illustrative lighting, source-byte limits and attachment commands.
 
 The seeder no longer emits or recognizes `OldSun` as a supported runtime target.
 
@@ -30,7 +40,7 @@ Each seeded object is marked with:
 ## Seeder Prompt Guidance
 The seeder gives package-aware and calendar-aware guidance instead of assuming Gregorian examples.
 
-- Package questions explain what each stock package installs, show a recommended `yes` or `no`, and use visible colour cues for package names, commands, and key recommendations
+- One package-selection screen explains all options and shows the recommended space-separated selection
 - Calendar questions list installed calendars with IDs, names, and current dates
 - Calendar defaults prefer a previous celestial calendar answer where one exists, then fall back to the single installed calendar or stock ID `1`
 - Pressing `Enter` on a question with a suggested default accepts that displayed default

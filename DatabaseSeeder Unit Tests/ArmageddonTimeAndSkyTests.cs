@@ -35,7 +35,7 @@ public class ArmageddonTimeAndSkyTests
 	{
 		["mode"] = "Armageddon", ["secondsmultiplier"] = "6", ["startyear"] = "1"
 	};
-	private static readonly Dictionary<string, string> SkyAnswers = new() { ["installarmageddon"] = "yes" };
+	private static readonly Dictionary<string, string> SkyAnswers = new() { ["packages"] = "Armageddon" };
 
 	private static FuturemudDatabaseContext Context() => new(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		.UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -174,7 +174,8 @@ public class ArmageddonTimeAndSkyTests
 		Assert.IsNotNull(context.Celestials.Find(original[1].Id));
 		seeder.SeedData(context, SkyAnswers);
 		Assert.AreEqual(3, context.Celestials.Count());
-		Assert.IsFalse(seeder.SeederQuestions.Single(x => x.Id == "installarmageddon").Filter(context, SkyAnswers));
+		Assert.AreEqual("none", CelestialSeeder.ResolvePackagesDefault(context, SkyAnswers));
+		CollectionAssert.AreEqual(new[] { "packages" }, seeder.SeederQuestions.Where(x => x.Filter(context, SkyAnswers)).Select(x => x.Id).ToArray());
 	}
 
 	[TestMethod]
@@ -182,18 +183,23 @@ public class ArmageddonTimeAndSkyTests
 	{
 		using var context = Context();
 		var seeder = new CelestialSeeder();
-		var question = seeder.SeederQuestions.Single(x => x.Id == "installarmageddon");
-		Assert.IsFalse(question.Validator("yes", context).Success);
+		var question = seeder.SeederQuestions.Single(x => x.Id == "packages");
+		Assert.IsFalse(question.Validator("Armageddon", context).Success);
+		Assert.IsTrue(question.Validator("EarthSun", context).Success);
 		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(context, SkyAnswers));
 		Assert.AreEqual(0, context.Celestials.Count());
 		new TimeSeeder().SeedData(context, TimeAnswers);
-		Assert.IsTrue(question.Validator("yes", context).Success);
+		Assert.IsTrue(question.Validator("Armageddon", context).Success);
+		Assert.AreEqual("Armageddon", CelestialSeeder.ResolvePackagesDefault(context, SkyAnswers));
+		CollectionAssert.AreEqual(new[] { "packages" }, seeder.SeederQuestions.Where(x => x.Filter(context, SkyAnswers)).Select(x => x.Id).ToArray());
+		Assert.IsTrue(question.Validator("EarthSun Armageddon", context).Success);
 		var clock = context.Clocks.Single();
 		var definition = XElement.Parse(clock.Definition);
 		definition.Element("HoursPerDay")!.Value = "24";
 		clock.Definition = definition.ToString();
 		context.SaveChanges();
-		Assert.IsFalse(question.Validator("yes", context).Success);
+		Assert.IsFalse(question.Validator("Armageddon", context).Success);
+		Assert.IsTrue(question.Validator("EarthSun", context).Success);
 		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(context, SkyAnswers));
 		Assert.AreEqual(0, context.Celestials.Count());
 	}

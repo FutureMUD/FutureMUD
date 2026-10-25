@@ -18,6 +18,7 @@ namespace MudSharp_Unit_Tests;
 public class NPCSkillPackageModelTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Model_UsesNormalisedEntriesAndRequiredDeletionRules()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

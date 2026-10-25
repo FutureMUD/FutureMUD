@@ -16,6 +16,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Creatures_CanonicalDefinitionsBindAll49ApprovedTemplatesAndLockedValues()
 	{
 		using var db = Fixture();
@@ -64,6 +65,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow("missing")][DataRow("retired")][DataRow("module")][DataRow("version")][DataRow("type")]
 	[DataRow("revision")][DataRow("withdrawn")][DataRow("controller")][DataRow("purpose")][DataRow("riding")]
 	public void Creatures_InvalidUnselectedGradeDependencyHoldsRetainingEarlierRead(string corruption)

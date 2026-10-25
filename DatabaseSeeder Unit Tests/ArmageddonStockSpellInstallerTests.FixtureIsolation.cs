@@ -51,6 +51,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void PrerequisiteSnapshot_PreservesEveryScalarAndIsolatesMutations(ArmageddonProgressionMode mode)

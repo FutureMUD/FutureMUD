@@ -128,6 +128,7 @@ public class WeatherTimingTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void FreshInstall_NativeTablesAndPeriods_AreNotRetimedByReinstallOrHazards()
 	{
 		using var db = Context();

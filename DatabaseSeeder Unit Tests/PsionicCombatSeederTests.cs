@@ -30,6 +30,7 @@ public class PsionicCombatSeederTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Install_AdvancedSuiteCoversAllMechanics_WithoutBasicAccess()
 	{
 		using var context = Context(); new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" });
@@ -53,6 +54,7 @@ public class PsionicCombatSeederTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Rerun_PreservesEditedPowerAttackAndUnlock_AndAddsMissingCombatPower()
 	{
 		using var context = Context(); var seeder = new PsionicsSeeder(); var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
@@ -74,6 +76,7 @@ public class PsionicCombatSeederTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Rerun_ConflictingPowerTypeIsReportedRatherThanOverwritten()
 	{
 		using var context = Context(); var seeder = new PsionicsSeeder(); var answers = new Dictionary<string, string> { ["install-psionics"] = "yes" };
@@ -83,6 +86,7 @@ public class PsionicCombatSeederTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Rerun_RepairsLegacyPresentationAndPreservesRenamedCombatPower()
 	{
 		using var context = Context();

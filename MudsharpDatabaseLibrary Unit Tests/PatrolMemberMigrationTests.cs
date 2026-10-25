@@ -17,6 +17,7 @@ namespace MudSharp_Unit_Tests;
 public class PatrolMemberMigrationTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void PatrolMemberModel_KeepsLegacyPrimaryKey()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -60,6 +61,7 @@ public class PatrolMemberMigrationTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void ActorReferenceModel_DoesNotHardForeignKeyCharacterInstances()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

@@ -14,6 +14,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren(ArmageddonProgressionMode mode)
@@ -152,6 +153,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void DrowningGrip_UsesNativeBreathingInterruptionAndBoundedResistedLifetime(ArmageddonProgressionMode mode)
@@ -171,6 +173,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void FixedConcealmentAndWaterBreathing_UseExactViewerAndWaterBindings(ArmageddonProgressionMode mode)
@@ -238,6 +241,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void MovementTempo_InstalledChildrenRetainExactOrdinaryAgilityBinding(ArmageddonProgressionMode mode)
@@ -269,6 +273,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void FixedWaterBreathing_RefusesEarlierModuleOwnershipWithoutAdoption()
 	{
 		using var db = Fixture();
@@ -291,6 +296,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void PrimitiveBindings_ExactNativeAttributesViewerPolicyAndVoidPayloadRemainDistinctFromCosts()
 	{
 		using var db = Fixture();
@@ -313,6 +319,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
 	public void ReserveAndDiseaseBindings_UseExactNativeModesAndCharacterResistance(ArmageddonProgressionMode mode)
@@ -334,6 +341,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow("strength")][DataRow("viewer")][DataRow("reserve")]
 	public void PrimitiveDependencyLoss_HoldsNewBatchAndPreservesEarlierCommittedSlices(string missing)
 	{

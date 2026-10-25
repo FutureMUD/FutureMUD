@@ -22,7 +22,7 @@ internal static class Program
 			if (args.Length > 0 && args[0] == "inspect") return Inspect(args[1..]);
 			if (args.Contains("--help"))
 			{
-				Console.WriteLine("Options: --repo PATH --suite fast|core|climate --project PATH (repeatable, fast only) --output-mode human|compact|json --results-root PATH --configuration NAME --filter EXPR --timeout-seconds N --fail-on-skipped. Inspect: inspect --run DIRECTORY [--failure ID | --invocation N | --page N]");
+				Console.WriteLine("Options: --repo PATH --suite fast|core|climate --project PATH (repeatable, fast only) --output-mode human|compact|json --results-root PATH --configuration NAME --filter EXPR --include-extended --timeout-seconds N --fail-on-skipped. Integration, benchmark and climate tests require --include-extended; the climate wrapper opts in automatically. Inspect: inspect --run DIRECTORY [--failure ID | --invocation N | --page N]");
 				return 0;
 			}
 			var options = Parse(args);
@@ -53,6 +53,7 @@ internal static class Program
 		{
 			var key = args[i];
 			if (key == "--fail-on-skipped") { options.FailOnSkipped = true; continue; }
+			if (key == "--include-extended") { options.IncludeExtended = true; continue; }
 			if (i + 1 >= args.Length) throw new ArgumentException("Missing value for " + key);
 			var value = args[++i];
 			switch (key)
@@ -74,6 +75,7 @@ internal static class Program
 		if (string.IsNullOrWhiteSpace(options.Configuration) || options.Configuration.StartsWith('-')) throw new ArgumentException("Invalid configuration.");
 		if (options.Suite != "fast" && options.Projects.Count > 0) throw new ArgumentException("Explicit projects are supported by the broad entry point only.");
 		if (options.Filter is not null && string.IsNullOrWhiteSpace(options.Filter)) throw new ArgumentException("Filter cannot be empty.");
+		if (options.Suite == "climate") options.IncludeExtended = true;
 		if (options.Mode != "human") options.TimeoutSeconds ??= 1800;
 		options.Repository = Path.GetFullPath(options.Repository);
 		return options;
@@ -91,6 +93,7 @@ internal static class Program
 		};
 		var projects = selection.Select(x => ValidateProject(repo, x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 		if (projects.Count == 0 || options.Filter is not null && projects.Count != 1) throw new ArgumentException("Selection must be nonempty, and filters require exactly one project.");
+		options.Filter = TestSelection.EffectiveFilter(options.Filter, options.IncludeExtended);
 		var root = Path.GetFullPath(options.ResultsRoot ?? Path.Combine(repo, ".artifacts", "test-runs"), repo);
 		Directory.CreateDirectory(root);
 		var runId = DateTimeOffset.UtcNow.ToString("yyyyMMddTHHmmssZ") + "-" + Guid.NewGuid().ToString("N")[..12];
@@ -100,7 +103,7 @@ internal static class Program
 		var summary = new Summary
 		{
 			RunId = runId, Repository = repo, StartedUtc = started.ToString("O"), Suite = options.Suite,
-			Configuration = options.Configuration, Filter = options.Filter, FailOnSkipped = options.FailOnSkipped,
+			Configuration = options.Configuration, Filter = options.Filter, FailOnSkipped = options.FailOnSkipped, IncludeExtended = options.IncludeExtended,
 			Projects = projects, Artifacts = new()
 			{
 				["run"] = Path.Combine(dir, "run.json"), ["summary"] = Path.Combine(dir, "summary.json"),
@@ -114,7 +117,7 @@ internal static class Program
 		{
 			foreach (var framework in Frameworks(Path.Combine(repo, project))) summary.Invocations.Add(new Invocation { Project = project, Framework = framework });
 		}
-		WriteJson(summary.Artifacts["run"], new { summary.RunId, summary.Repository, summary.StartedUtc, summary.Suite, summary.Projects, summary.Configuration, summary.Filter, summary.FailOnSkipped, options.TimeoutSeconds, summary.BuildSwitches });
+		WriteJson(summary.Artifacts["run"], new { summary.RunId, summary.Repository, summary.StartedUtc, summary.Suite, summary.Projects, summary.Configuration, summary.Filter, summary.FailOnSkipped, summary.IncludeExtended, options.TimeoutSeconds, summary.BuildSwitches });
 		var records = new List<TestRecord>();
 		var lockPath = Path.Combine(repo, ".artifacts", "test-runs", ".worktree.lock");
 		var ownerPath = lockPath + ".owner";
@@ -152,7 +155,7 @@ internal static class Program
 					WriteJson(Path.Combine(dir, "source-start.json"), new { summary.Head, fingerprint = summary.SourceStart, utc = DateTimeOffset.UtcNow });
 					var dotnet = Environment.GetEnvironmentVariable("FUTUREMUD_TEST_DOTNET") ?? "dotnet";
 						summary.Sdk = (await RunVersion(dotnet, repo, dir, deadline.Token)).Trim();
-						WriteJson(summary.Artifacts["run"], new { summary.RunId, summary.Repository, summary.Head, summary.SourceStart, summary.StartedUtc, summary.Sdk, summary.Runner, summary.Suite, summary.Projects, summary.Configuration, summary.Filter, summary.FailOnSkipped, options.TimeoutSeconds, summary.BuildSwitches });
+						WriteJson(summary.Artifacts["run"], new { summary.RunId, summary.Repository, summary.Head, summary.SourceStart, summary.StartedUtc, summary.Sdk, summary.Runner, summary.Suite, summary.Projects, summary.Configuration, summary.Filter, summary.FailOnSkipped, summary.IncludeExtended, options.TimeoutSeconds, summary.BuildSwitches });
 					var buildFailed = false;
 					foreach (var project in projects)
 					{
@@ -245,6 +248,7 @@ internal static class Program
 		var folder = Path.Combine(dir, "invocations", SafeKey(invocation.Project), SafeKey(invocation.Framework), "1");
 		Directory.CreateDirectory(folder);
 		var args = new List<string> { "test", invocation.Project, "-c", options.Configuration, "--no-build", "--no-restore", "-m:1", "-f", invocation.Framework, "-p:NoWarn=NU1902%3BNU1510", "--logger", "trx;LogFileName=results.trx", "--results-directory", folder };
+		args.Add("-p:IncludeExtendedTests=" + options.IncludeExtended.ToString().ToLowerInvariant());
 		if (options.Filter is not null) { args.Add("--filter"); args.Add(options.Filter); }
 		var phase = await Execute(dotnet, args.ToArray(), repo, folder, "test", cancellation);
 		invocation.Test = phase;
@@ -352,7 +356,7 @@ internal static class Program
 		{
 			schema_version = 1, run_id = summary.RunId, status = summary.Status, head = summary.Head,
 			source_start = summary.SourceStart, source_end = summary.SourceEnd, source_stable = summary.SourceStable,
-			suite = summary.Suite, projects = summary.Projects, filter = summary.Filter, configuration = summary.Configuration,
+			suite = summary.Suite, projects = summary.Projects, filter = summary.Filter, configuration = summary.Configuration, include_extended = summary.IncludeExtended,
 			execution_complete = summary.ExecutionComplete, counts_complete = summary.CountsComplete, counts = summary.Counts,
 			skipped_verification_gap = records.Any(x => x.Outcome == "SKIPPED"),
 			issues = summary.Issues.Take(5).Select(x => new { x.Kind, x.Project, detail = Clean(x.Detail, 220) }),

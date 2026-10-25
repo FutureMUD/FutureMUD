@@ -25,6 +25,7 @@ public class RoomTerminologyCheckConstraintTests
 	private static readonly Lazy<Dictionary<string, Capture>> Captures = new(ReadCaptures);
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_EntirePendingUpChain_AccountsForAllChecksAndEveryRenameDependency()
 	{
 		using var context = Context();
@@ -104,6 +105,7 @@ public class RoomTerminologyCheckConstraintTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_CheckRemovalAndRestoration_SurroundAllTableAndColumnRenames()
 	{
 		var operations = new RoomTerminology().UpOperations.ToList();
@@ -133,6 +135,7 @@ public class RoomTerminologyCheckConstraintTests
 	[TestMethod]
 	[DataRow("YES", " ENFORCED")]
 	[DataRow("NO", " NOT ENFORCED")]
+	[TestCategory("Integration")]
 	public void Naming_EachCheckRestore_PreservesBothSupportedEnforcementStates(string flag, string suffix)
 	{
 		using var context = Context();
@@ -174,6 +177,7 @@ public class RoomTerminologyCheckConstraintTests
 	[DataRow("model", "YES", "YES", false)]
 	[DataRow("native", "NO", "NO", false)]
 	[DataRow("model", "YES", "NO", true)]
+	[TestCategory("Integration")]
 	public void Naming_EmittedShapePredicate_RefusesUnreviewedClausesAndEnforcement(string variant,
 		string? flag, string? original, bool refused)
 	{
@@ -196,6 +200,7 @@ public class RoomTerminologyCheckConstraintTests
 	[TestMethod]
 	[DataRow("model")]
 	[DataRow("native")]
+	[TestCategory("Integration")]
 	public void Naming_Postflight_RequiresRenamedColumnsAndExactCapturedEnforcement(string variant)
 	{
 		var capture = Captures.Value[PayloadName];
@@ -214,6 +219,7 @@ public class RoomTerminologyCheckConstraintTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_EscapedIdentifierCollision_HasDifferentColumnSemanticsAndRefusesBothPhases()
 	{
 		const string ordinary = "(`TopologyVersion` >= 1)";
@@ -253,6 +259,7 @@ public class RoomTerminologyCheckConstraintTests
 	[DataRow(true, "(TopologyVersion >= 1)", false)]
 	[DataRow(true, "`Topology``Version` >= 1", true)]
 	[DataRow(true, "(`Topology``Version` >= 1)", true)]
+	[TestCategory("Integration")]
 	public void Naming_EscapedBackticks_RefuseWithoutRejectingOrdinaryIdentifiers(bool postflight,
 		string clause, bool refused)
 	{
@@ -261,6 +268,7 @@ public class RoomTerminologyCheckConstraintTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_AllScopedChecks_ValidateBothReviewedFormsAndPreserveUntouchedEnforcement()
 	{
 		foreach (var capture in Captures.Value.Values)
@@ -281,6 +289,7 @@ public class RoomTerminologyCheckConstraintTests
 	[DataRow("fixture", "VehicleRouteSteps", "ck_vehicleroutesteps_typedpayload", "CHECK", false)]
 	[DataRow("fixture", "VehicleRouteSteps", "CK_Custom_CellReference", "CHECK", false)]
 	[DataRow("fixture", "VehicleRouteSteps", PayloadName, "FOREIGN KEY", false)]
+	[TestCategory("Integration")]
 	public void Naming_EmittedMetadataJoin_RequiresExactCheckNameAndCorrectOwner(string schema,
 		string table, string name, string kind, bool qualifies)
 	{
@@ -298,6 +307,7 @@ public class RoomTerminologyCheckConstraintTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_UnclassifiedChecks_AreRefusedOnEveryAffectedTableIncludingTablesWithoutKnownChecks()
 	{
 		var sql = GeneratedSql.Value;
@@ -322,6 +332,7 @@ public class RoomTerminologyCheckConstraintTests
 	[DataRow(0, 1, 1, 2, false)]
 	[DataRow(1, 0, 1, 2, true)]
 	[DataRow(2, 1, 1, 1, false)]
+	[TestCategory("Integration")]
 	public void Naming_TypedPayload_KeepsRouteTraversalAndExitHopSemantics(int step, int direction,
 		int origin, int destination, bool allowed)
 	{
@@ -349,6 +360,7 @@ public class RoomTerminologyCheckConstraintTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_FinalTargetAndCurrentModel_AgreeAndHistoricalMetadataRetainsOldNames()
 	{
 		using var context = Context();

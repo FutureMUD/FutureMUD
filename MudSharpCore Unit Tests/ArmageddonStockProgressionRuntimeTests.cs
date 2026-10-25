@@ -19,6 +19,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockProgressionRuntimeTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, "earth")]
 	[DataRow(ArmageddonProgressionMode.Classic, "sorcerer")]
 	[DataRow(ArmageddonProgressionMode.Simple, "earth")]
@@ -53,7 +54,8 @@ public partial class ArmageddonStockProgressionRuntimeTests
 		}
 		else
 		{
-			for (var i = 0; i < definition.SpellKeys.Count + 1; i++)
+			// Stop once the full graph is acquired; the bounded loop still catches stalled edges.
+			for (var i = 0; i < definition.SpellKeys.Count + 1 && f.Store.Acquired.Count < definition.SpellKeys.Count; i++)
 			{
 				foreach (var admission in cap.CastingPolicy.Admissions.Where(x => f.Service.Acquisition(f.Actor.Object, x.SpellId) is not null))
 					f.Skills[admission.TraitId!.Value] = admission.RawSkillCap!.Value;

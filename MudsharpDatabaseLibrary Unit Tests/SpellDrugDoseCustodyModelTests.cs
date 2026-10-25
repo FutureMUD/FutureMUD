@@ -35,6 +35,7 @@ public class SpellDrugDoseCustodyModelTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Model_UsesPerDoseIdentityAndKeepsDrugAndBodyRelationships()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

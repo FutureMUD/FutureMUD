@@ -11,6 +11,7 @@ using System.Linq;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class LiquidFreshnessModelTests
 {
 	[TestMethod]

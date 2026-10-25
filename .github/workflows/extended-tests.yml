@@ -1,0 +1,53 @@
+name: Extended Integration and Benchmark Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: extended-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  extended-gate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run extended tests on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash ./scripts/test-unit.sh --include-extended
+      - name: Run extended tests on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: '& .\scripts\test-unit.ps1 -IncludeExtended'
+      - name: Summarize test timings
+        if: always()
+        shell: pwsh
+        run: ./scripts/Write-CiTestSummary.ps1
+      - name: Retain structured test evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: extended-test-evidence-${{ matrix.os }}
+          path: |
+            .artifacts/test-runs/**/run.json
+            .artifacts/test-runs/**/summary.json
+            .artifacts/test-runs/**/summary.txt
+            .artifacts/test-runs/**/test-results.json
+            .artifacts/test-runs/**/failures.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

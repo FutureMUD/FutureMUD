@@ -176,6 +176,24 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	[DataRow("PsionicDisorientation", "<Power><![CDATA[9000]]></Power><Penalty>2.5</Penalty>")]
+	[DataRow("PsionicSensePresence", "<ConcentrationPointsConsumed>1.5</ConcentrationPointsConsumed><School>8101</School><Power><![CDATA[9000]]></Power>")]
+	[DataRow("PsionicVanish", "<ConcentrationPointsConsumed>1.5</ConcentrationPointsConsumed><School>8101</School><Power><![CDATA[9000]]></Power><Distance>2</Distance>")]
+	public void PsionicEffects_KeepPowerSchoolAndScopeValuesWithoutRoomRewriting(string factory, string payload)
+	{
+		// Power/school IDs deliberately collide with legacy parent and playable Room IDs.
+		var effect = $"<Effect><Type>{factory}</Type><Effect>{payload}</Effect></Effect>";
+		foreach (var xml in new[]
+		{
+			$"<Effects>\r\n<!-- retain formatting -->{effect}\r\n</Effects>",
+			$"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{effect}</Children></Effect></Effect></Effects>"
+		})
+		{
+			Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+		}
+	}
+
+	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
 		Assert.ThrowsExactly<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));

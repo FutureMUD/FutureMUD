@@ -8,7 +8,7 @@ Paths and commands below are relative to the repository root. Read the section n
 | --- | --- |
 | `FutureMUDLibrary Unit Tests` | Shared extensions, helpers, abstractions and value objects. |
 | `ExpressionEngine Unit Tests` | Parser, custom functions and formula semantics. |
-| `DatabaseSeeder Unit Tests` | Seeded content, templates, repeatability, workflow and source invariants. |
+| `DatabaseSeeder Unit Tests` | Fast content/template/workflow/source checks by default; opt in to full installer/rerun matrices and exhaustive catalogue checks. |
 | `MudSharpCore Unit Tests` | Runtime/gameplay, FutureProg, AI, arenas and engine services. |
 | `MudsharpDatabaseLibrary Unit Tests` | EF models/mappings, upgrade coordination and persistence helpers. |
 | `DiscordBotCore Unit Tests` | Bot commands, protocol and message formatting. |
@@ -45,7 +45,7 @@ Select the command for the affected product; these examples do not require build
 
 | Windows script | Purpose | POSIX equivalent |
 | --- | --- | --- |
-| `scripts\test-unit.ps1` | Broad fast unit-test pass; excludes the dedicated climate suite. | `scripts/test-unit.sh` |
+| `scripts\test-unit.ps1` | Broad fast unit-test pass; excludes Integration, Benchmark, ClimateSeeder and PsychicBenchmark. `-IncludeExtended` opts in to extended cases in the selected projects (Bash: `--include-extended`). | `scripts/test-unit.sh` |
 | `scripts\test-unit-core.ps1` | Core runtime tests only. | `scripts/test-unit-core.sh` |
 | `scripts\test-unit-climate.ps1` | Dedicated slow climate suite. | `scripts/test-unit-climate.sh` |
 | `scripts\test.ps1` | Smoke-build path. | `scripts/test.sh` |

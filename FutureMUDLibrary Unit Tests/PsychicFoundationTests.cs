@@ -16,6 +16,7 @@ public class PsychicFoundationTests
 	public TestContext TestContext { get; set; } = null!;
 
 	[TestMethod]
+	[TestCategory("Benchmark")]
 	public void LazyHistoryBenchmark_ObservationCostIsIndependentOfUnrelatedItemCount()
 	{
 		// An item payload is lazy. Unrelated items own no history until observation requires it.

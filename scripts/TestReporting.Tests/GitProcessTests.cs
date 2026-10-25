@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace TestReporting.Tests;
 
 [TestClass]
+[TestCategory("Integration")]
 [DoNotParallelize]
 public class GitProcessTests
 {

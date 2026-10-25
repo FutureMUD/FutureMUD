@@ -16,6 +16,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -67,6 +68,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Rerun_PreservesBuilderFieldsAndExpressionIdentity()
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
@@ -86,6 +88,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow("name")][DataRow("identity")]
 	public void Install_UnownedCollisionRefusesWithoutClaimingOrCreatingChildren(string collision)
 	{
@@ -97,6 +100,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow("retired")][DataRow("deleted")][DataRow("child")][DataRow("identity")][DataRow("module")]
 	public void Rerun_InvalidRetainedOwnershipHoldsWithoutResurrection(string corruption)
 	{
@@ -117,6 +121,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void ConfirmationFailure_FreshContextResolvesSameCommittedIdentities()
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
@@ -133,6 +138,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Classic_ReconciledLegacySkillRetainsModuleAndNativeIdentity()
 	{
 		using var db = Fixture(ArmageddonProgressionMode.Classic);

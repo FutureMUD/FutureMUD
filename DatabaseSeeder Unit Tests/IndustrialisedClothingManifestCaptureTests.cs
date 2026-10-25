@@ -15,6 +15,7 @@ namespace MudSharp_Unit_Tests;
 public class IndustrialisedClothingManifestCaptureTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void NonemptyAuthoredGraph_CapturesItemsSkinsOutfitsAndCraftsWithoutInstalledPrerequisites()
 	{
 		var sources = IndustrialisedClothingCatalogueTests.Fixture();

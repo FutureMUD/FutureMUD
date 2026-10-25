@@ -234,6 +234,7 @@ Item 6
     }
 
     [TestMethod]
+    [TestCategory("Benchmark")]
     public void TestListToStringPerformance()
     {
         string[] list = new[] { "one", "two", "three", "four", "two", "two", "three" };

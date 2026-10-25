@@ -197,12 +197,14 @@ public class MagicalSubstanceTests
 			.All(x => x.Instance.MagicalCharges[3].Suppressed.Contains(f.Entry.Key)));
 	}
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void IndependentSurfacePortions_BoundScheduledParents_AndWashingAllowsFreshExposure()
 	{
 		var f = new Fixture("<Effect type='healingrate'><Multiplier>2</Multiplier><Stages>0</Stages></Effect>");
 		f.Entry.Lifecycle = SubstanceLifecycle.Maintained;
 		f.Entry.Stacking = SubstanceStacking.Independent;
-		for (var i = 0; i < 1000; i++)
+		// Exercise the first rejected parent without repeatedly saturating the same limit.
+		for (var i = 0; i < SubstanceExposureEffect.MaximumParents + 1; i++)
 		{
 			using (MagicalExposure.BeginExposure())
 			{

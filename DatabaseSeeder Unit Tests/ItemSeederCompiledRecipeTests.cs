@@ -18,6 +18,7 @@ namespace MudSharp_Unit_Tests;
 public class ItemSeederCompiledRecipeTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void CompiledRecipes_EveryChildSerializesLikeTheIndependentLegacyParser()
 	{
 		var eras = new HashSet<string>(["antiquity", "medieval", "renaissance", "earlymodern", "industrial"], StringComparer.OrdinalIgnoreCase);
@@ -60,6 +61,7 @@ public class ItemSeederCompiledRecipeTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void CompiledRecipes_ValidateEverySelectedDefinitionAndPreserveFixedCounts()
 	{
 		var eras = new HashSet<string>(["antiquity", "medieval", "renaissance", "earlymodern", "industrial"], StringComparer.OrdinalIgnoreCase);

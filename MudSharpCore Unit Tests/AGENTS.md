@@ -19,6 +19,7 @@ Contains the **core runtime** MSTest-based unit tests for `MudSharpCore`. This s
 * Name test methods in the `Method_Scenario_ExpectedResult` format when practical.
 * Keep shared-library tests in `FutureMUDLibrary Unit Tests`, expression tests in `ExpressionEngine Unit Tests`, and seeder tests in `DatabaseSeeder Unit Tests`.
 * Keep long-running climate seeder regressions out of this project; they belong in the dedicated climate test project.
+* Mark full stock-graph integration scenarios with `[TestCategory("Integration")]` and measurement harnesses with `[TestCategory("Benchmark")]`. These require `-IncludeExtended` / `--include-extended`; retain small boundary regressions in the default pass.
 
 ## Notes
 

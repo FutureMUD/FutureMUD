@@ -5,6 +5,7 @@ param(
 	[string]$Filter,
 	[int]$TimeoutSeconds,
 	[switch]$FailOnSkipped,
+	[switch]$IncludeExtended,
 	[switch]$Help
 )
 $ErrorActionPreference = 'Stop'

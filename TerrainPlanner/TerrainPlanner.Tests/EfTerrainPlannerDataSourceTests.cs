@@ -8,6 +8,7 @@ namespace TerrainPlanner.Tests;
 public class EfTerrainPlannerDataSourceTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void AccountLookupFiltersBeforeProjectingThePlannerRecord()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

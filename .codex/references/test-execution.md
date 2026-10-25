@@ -26,6 +26,24 @@ bash ./scripts/test-unit-climate.sh --output-mode compact --timeout-seconds 3600
 
 The filtered identity is from `ExpressionEngine Unit Tests/StrictExpressionTests.cs`. The fast selection is `scripts/unit-test-projects.txt`, including the reporter's tests; explicit `Project`/`--project` replaces that selection and can be repeated in Bash or supplied as a PowerShell string array. Core and climate wrappers select their named projects. A filter requires exactly one selected project. Configuration defaults to Debug. `ResultsRoot`/`--results-root` changes the parent directory for new unique runs. `FailOnSkipped`/`--fail-on-skipped` makes intentional skips inconclusive. `Help`/`--help` lists the interface.
 
+## Fast and extended selection
+
+The default pass excludes `Integration`, `Benchmark`, `ClimateSeeder` and the existing `PsychicBenchmark` category. Small in-memory persistence regressions remain in the fast pass; full stock installations, broad install/rerun matrices, exhaustive catalogue audits, provider-model/query integration checks and subprocess harnesses require opt-in. Excluded cases are filtered out, not skipped or deleted. Wrappers combine ordinary name/category filters with these exclusions, so a name filter alone does not opt in.
+
+```powershell
+.\scripts\test-unit.ps1 -OutputMode Compact -IncludeExtended -Project 'DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj' -Filter 'FullyQualifiedName~ArmageddonStockSpellInstallerTests'
+```
+
+```bash
+bash ./scripts/test-unit.sh --output-mode compact --include-extended --project 'DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj' --filter 'FullyQualifiedName~ArmageddonStockSpellInstallerTests'
+```
+
+With no explicit project, `-IncludeExtended` / `--include-extended` runs all cases in the ten-project manifest; climate still requires its own wrapper. The effective filter and `include_extended` policy are saved in receipts.
+
+`Directory.Build.props` supplies `test-default.runsettings` to ordinary `dotnet test` and Visual Studio. Direct opt-in: `dotnet test "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj" -m:1 -p:IncludeExtendedTests=true --filter 'TestCategory=Integration'`. In Visual Studio select `test-extended.runsettings` under Test > Configure Run Settings > Select Solution Wide runsettings File. A direct VSTest `--filter` or custom runsettings can override runsettings filtering; use wrappers when both a focused filter and default exclusions must be enforced. The climate wrapper itself opts in to the entire climate project.
+
+The manual **Extended Integration and Benchmark Tests** workflow runs the ten-project manifest with extended cases on Linux and Windows. **Climate Regression Tests** is also manual only. Neither has a recurring schedule or PR/push trigger. Product release tests inherit the fast runsettings by default.
+
 ## Execution and status
 
 The timeout covers helper bootstrap, initial HEAD/source capture, builds, tests and end source capture, including file hashing. Every Git subprocess also has an internal 60-second ceiling linked to the existing run deadline, even in Human mode without an overall timeout. A new Git operation cannot extend the run deadline. The wrappers stop the bootstrap process at the deadline and record a timeout receipt. Git drains stdout/stderr concurrently, waits at most five seconds for drains after exit, and attempts owned process-tree termination on failure/cancellation with at most ten seconds of cleanup while holding the worktree lock. If the operating system denies termination, readers remain incomplete or a child process survives its parent, cleanup is uncertain; inspect the recorded diagnostic and owned processes before another run.
@@ -58,6 +76,8 @@ The Unit Tests workflow retains structured receipts for 14 days in one `unit-tes
 The workflow runs the complete Linux/Windows matrix for all pull requests, `master` pushes, merge groups and manual dispatches. Feature pushes and tags do not schedule an additional matrix. Open a PR or manually dispatch the workflow to validate a branch; resolve merge conflicts before relying on PR merge-result checks. Product tags retain their own Release qualification workflow. The existing OS job names and full fast manifest are preserved. Validate workflow YAML and expressions with `actionlint`; review event filters and publication dependencies against the coverage table in the performance review.
 
 The Actions job summary shows each project's build-plus-restore and test durations, counts and status using `scripts/Write-CiTestSummary.ps1`. Missing receipts or counts remain explicitly unknown. The structured artifacts are still authoritative for individual test timings and failures. See [the 22 October review](../../scripts/TestReporting/ci-performance-2026-10-22.md) for measured baseline costs, coverage decisions and validation limits.
+
+The CI summary also lists cases over ten seconds (up to the slowest 20), with missing timing evidence labelled explicitly. Ten seconds is a review threshold, not a wall-clock assertion: investigate fixture work and complexity first, then retain expensive integration coverage behind opt-in. See [the slow-test audit](../../scripts/TestReporting/slow-test-audit-2026-10-25.md) for case-by-case decisions and measurements.
 
 ## Dispatch packet
 

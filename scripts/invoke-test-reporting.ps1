@@ -6,6 +6,7 @@ param(
 	[string]$Filter,
 	[int]$TimeoutSeconds,
 	[switch]$FailOnSkipped,
+	[switch]$IncludeExtended,
 	[string[]]$Project,
 	[switch]$Help
 )
@@ -85,6 +86,7 @@ else {
 		$arguments += @('--timeout-seconds', [string]$remaining)
 	}
 	if ($FailOnSkipped) { $arguments += '--fail-on-skipped' }
+	if ($IncludeExtended) { $arguments += '--include-extended' }
 	foreach ($item in $Project) { $arguments += @('--project', $item) }
 }
 & $dotnet @arguments

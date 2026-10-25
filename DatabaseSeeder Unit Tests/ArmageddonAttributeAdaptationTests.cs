@@ -39,7 +39,8 @@ public class ArmageddonAttributeAdaptationTests
 		foreach (var extra in db.TraitDefinitions.Where(x => x.Type == 1 && (x.Name == "Dexterity" || x.Name == "Perception" || x.Name == "Willpower")))
 			extra.Type = 3;
 		db.SaveChanges();
-		var originalIds = db.TraitDefinitions.Select(x => x.Id).ToHashSet();
+		// Heritage also installs language skills; this contract concerns raw attribute identities.
+		var originalIds = db.TraitDefinitions.Where(x => x.Type == 1).Select(x => x.Id).ToHashSet();
 		ArmageddonHeritage.Install(db, new List<string>());
 		var giant = db.Races.Single(x => x.Name == "Half-Giant");
 		var links = db.RacesAttributes.Where(x => x.RaceId == giant.Id).ToArray();
@@ -47,7 +48,7 @@ public class ArmageddonAttributeAdaptationTests
 		Assert.AreEqual(4, links.Length);
 		Assert.AreEqual(5.0, links.Single(x => x.AttributeId == endurance.Id).AttributeBonus);
 		Assert.AreEqual(-5.0, links.Single(x => x.AttributeId == wisdom.Id).AttributeBonus);
-		Assert.IsTrue(originalIds.SetEquals(db.TraitDefinitions.Select(x => x.Id)), "The package must use installed attributes rather than create duplicates.");
+		Assert.IsTrue(originalIds.SetEquals(db.TraitDefinitions.Where(x => x.Type == 1).Select(x => x.Id)), "The package must use installed attributes rather than create duplicates.");
 	}
 
 	[TestMethod]

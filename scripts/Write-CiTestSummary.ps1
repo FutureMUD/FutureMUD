@@ -37,6 +37,25 @@ foreach ($file in $files) {
 		$lines.Add("| $(Format-Cell $invocation.project) | $(Format-Duration $invocation.build) | $(Format-Duration $invocation.test) | $(if ($null -ne $counts) { $counts.passed } else { '?' }) | $(if ($null -ne $counts) { $counts.failed } else { '?' }) | $(if ($null -ne $counts) { $counts.skipped } else { '?' }) | $(Format-Cell $invocation.status) |")
 	}
 	$lines.Add('')
+	$resultFile = Join-Path $file.DirectoryName 'test-results.json'
+	if (Test-Path -LiteralPath $resultFile) {
+		$results = @(Get-Content -LiteralPath $resultFile -Raw | ConvertFrom-Json)
+		$slow = @($results | Where-Object { $null -ne $_.duration_seconds -and $_.duration_seconds -gt 10 } | Sort-Object duration_seconds -Descending)
+		$lines.Add("Cases over the 10-second review threshold: **$($slow.Count)**. Review fixture cost or move sustained integration/benchmark workloads behind explicit opt-in.")
+		if ($slow.Count -gt 0) {
+			$lines.Add('')
+			$lines.Add('| Test (slowest 20) | Seconds |')
+			$lines.Add('| --- | ---: |')
+			foreach ($case in ($slow | Select-Object -First 20)) {
+				$seconds = ([double]$case.duration_seconds).ToString('F2', [Globalization.CultureInfo]::InvariantCulture)
+				$lines.Add("| $(Format-Cell ($case.fully_qualified_name + ' / ' + $case.name)) | $seconds |")
+			}
+		}
+		if (@($results | Where-Object { $null -eq $_.duration_seconds }).Count -gt 0) {
+			$lines.Add('Some case timings are unavailable; the threshold count is incomplete.')
+		}
+	} else { $lines.Add('Individual test timings are unavailable; the 10-second review threshold cannot be assessed.') }
+	$lines.Add('')
 }
 $lines.Add('Build timings include restore. Test hosts overlap, so their durations must not be added to estimate job wall time. Download the structured evidence artifact for individual test timings and failure details.')
 if ([string]::IsNullOrWhiteSpace($OutputPath)) { $lines -join "`n" }

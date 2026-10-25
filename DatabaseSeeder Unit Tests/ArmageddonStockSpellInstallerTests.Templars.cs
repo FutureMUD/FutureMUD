@@ -19,6 +19,7 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Templars_FreshInstallCompilesProgsAndPreservesBuilderChangesOnRerun()
 	{
 		using var db = Fixture(ArmageddonProgressionMode.Simple, true);

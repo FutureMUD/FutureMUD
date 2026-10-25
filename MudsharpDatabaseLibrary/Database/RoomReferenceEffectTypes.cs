@@ -132,11 +132,14 @@ PrivateProperty
 ProgTraitBonusEffect
 PsionicBabble
 PsionicCathexis
+PsionicDisorientation
 PsionicDome
 PsionicHear
 PsionicMindwipe
+PsionicSensePresence
 PsionicSensitivity
 PsionicTrace
+PsionicVanish
 PsychicEmotion
 PsychicFear
 PsychicSkillSuppression

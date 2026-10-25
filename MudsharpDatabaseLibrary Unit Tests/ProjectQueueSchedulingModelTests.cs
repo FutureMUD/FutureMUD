@@ -17,6 +17,7 @@ namespace MudSharp_Unit_Tests;
 public class ProjectQueueSchedulingModelTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void ProjectQueueModel_PersistsSchedulingAndPhysicalClaimState()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

@@ -93,6 +93,7 @@ public class RoomTerminologyTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void Naming_LegacyActions_AreUsedInRenamedModelConstraintsAndComparedInPostflight()
 	{
 		var migration = new RoomTerminology();
@@ -200,6 +201,7 @@ public class RoomTerminologyTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	public void EmptyParentMemberships_KeepOriginalAreaParentPairWithNullChild()
 	{
 		foreach (var migration in new Migration[] {new CellSpatialExpansion(),new CellSpatialContraction()})

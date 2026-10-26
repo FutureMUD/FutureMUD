@@ -15,6 +15,9 @@ public static class ConsoleUtilities
         string.Format(text, args).WriteLineConsole();
     }
 
+    /// <summary>
+    /// Writes text to the console, interpreting embedded <c>#0</c> through <c>#f</c> markers as foreground colour changes.
+    /// </summary>
     public static void WriteLineConsole(this string text)
     {
         Match match = CodeRegex.Match(text);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -37,6 +37,7 @@ namespace MudSharp.Framework
             return Constants.Random.Next(min, max + 1);
         }
 
+        /// <summary>Shuffles the array in place using Fisher-Yates and the ambient random source.</summary>
         private static void OldShuffle<T>(this T[] array)
         {
             for (int i = array.Length; i > 1; i--)
@@ -48,6 +49,9 @@ namespace MudSharp.Framework
             }
         }
 
+        /// <summary>
+        /// Returns a randomly shuffled array-backed sequence containing the source elements.
+        /// </summary>
         public static IEnumerable<T> OldShuffle<T>(this IEnumerable<T> enumerable)
         {
             T[] array = enumerable.ToArray();
@@ -177,21 +181,18 @@ namespace MudSharp.Framework
         /// <summary>
         /// A wrapper for RandomNormal that assumes the mean is the mid-point of the supplied range and the the standard deviation is 1/8 of the difference
         /// </summary>
-        /// <param name="minimum"></param>
-        /// <param name="maximum"></param>
-        /// <returns></returns>
         public static double RandomNormalOverRange(double minimum, double maximum)
         {
             return RandomNormal((maximum + minimum) / 2, (maximum - minimum) / 8);
         }
 
         /// <summary>
-        ///     Picks a specified number of random results out of the input, without replacement.
-        ///     
+        ///     Picks distinct values without replacement, enumerating the source once. Duplicate source
+        ///     entries retain their selection weighting. Requests exceeding the distinct count throw.
         /// </summary>
         /// <typeparam name="T">Any type</typeparam>
         /// <param name="input">An IEnumerable from which random items are to be selected</param>
-        /// <param name="picks">The number of picks to be made. Throws an exception if greater than input.Count()</param>
+        /// <param name="picks">A positive count no greater than the number of distinct input values.</param>
         /// <returns>A number of random picks from the input.</returns>
         public static IEnumerable<T> PickRandom<T>(this IEnumerable<T> input, int picks)
         {
@@ -199,19 +200,19 @@ namespace MudSharp.Framework
             {
                 throw new ArgumentException("The number of picks in PickRandom must be greater than 0");
             }
-            int samplesRemaining = input.Count();
-            if (picks > samplesRemaining)
+            var source = input.ToArray();
+            if (picks > source.Length || picks > new HashSet<T>(source).Count)
             {
                 throw new ArgumentException(
-                    "The number of picks in PickRandom must be greater than the number of itmes in the input IEnumerable.");
+                    "The number of picks in PickRandom cannot exceed the number of distinct input values.");
             }
 
             HashSet<T> items = new();
-            int length = input.Count();
+            int length = source.Length;
             while (picks > 0)
             // if we successfully added it, move on
             {
-                if (items.Add(input.ElementAt(Constants.Random.Next(length))))
+                if (items.Add(source[Constants.Random.Next(length)]))
                 {
                     picks--;
                 }
@@ -245,6 +246,9 @@ namespace MudSharp.Framework
             return list.OldShuffle().Take(picks);
         }
 
+        /// <summary>
+        /// Selects up to the requested number of items without replacement, choosing proportionally to positive weights.
+        /// </summary>
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> input, int picks, Func<T, double> weightSelector)
         {
             if (picks < 1)
@@ -437,7 +441,6 @@ namespace MudSharp.Framework
         /// <param name="sides">The "x" component of the 1dx roll</param>
         /// <param name="target">The target number to roll below</param>
         /// <param name="roll">The actual rolled result as an out parameter</param>
-        /// <returns></returns>
         public static bool Roll(double sides, double target, out double roll)
         {
             roll = Constants.Random.NextDouble() * sides;
@@ -450,21 +453,23 @@ namespace MudSharp.Framework
         /// </summary>
         /// <param name="sides">The "x" component of the 1dx roll</param>
         /// <param name="target">The target number to roll below</param>
-        /// <returns></returns>
         public static bool Roll(double sides, double target)
         {
             return (Constants.Random.NextDouble() * sides) <= target;
         }
 
+        /// <summary>
+        /// Selects an item proportionally to its weight, enumerating the source once. Requires nonnegative finite weights with a positive representable total. Empty input returns default; the legacy fallback returns the last item when no threshold is crossed.
+        /// </summary>
         public static T GetWeightedRandom<T>(this IEnumerable<(T Value, int Weight)> arg)
         {
-            if (!arg.Any())
+            (T Value, int Weight)[] calcValues = arg as (T Value, int Weight)[] ?? arg.ToArray();
+            if (calcValues.Length == 0)
             {
                 return default;
             }
-            int len = arg.Count();
-            int sum = arg.Sum(x => x.Weight);
-            (T Value, int Weight)[] calcValues = arg as (T Value, int Weight)[] ?? arg.ToArray();
+            int len = calcValues.Length;
+            int sum = calcValues.Sum(x => x.Weight);
 
             double roll = Constants.Random.NextDouble() * sum;
             for (int i = 0; i < len; i++)
@@ -483,15 +488,18 @@ namespace MudSharp.Framework
             return calcValues.Last().Value;
         }
 
+        /// <summary>
+        /// Selects an item proportionally to its weight, enumerating the source once. Requires nonnegative finite weights with a positive representable total. Empty input returns default; the legacy fallback returns the last item when no threshold is crossed.
+        /// </summary>
         public static T GetWeightedRandom<T>(this IEnumerable<(T Value, double Weight)> arg)
         {
-            if (!arg.Any())
+            (T Value, double Weight)[] calcValues = arg as (T Value, double Weight)[] ?? arg.ToArray();
+            if (calcValues.Length == 0)
             {
                 return default;
             }
-            int len = arg.Count();
-            double sum = arg.Sum(x => x.Weight);
-            (T Value, double Weight)[] calcValues = arg as (T Value, double Weight)[] ?? arg.ToArray();
+            int len = calcValues.Length;
+            double sum = calcValues.Sum(x => x.Weight);
 
             double roll = Constants.Random.NextDouble() * sum;
             for (int i = 0; i < len; i++)
@@ -510,17 +518,21 @@ namespace MudSharp.Framework
             return calcValues.Last().Value;
         }
 
+        /// <summary>
+        /// Selects an item proportionally to its weight, enumerating the source once. Requires nonnegative finite weights with a positive representable total. Empty input returns default; the legacy fallback returns the last item when no threshold is crossed.
+        /// </summary>
         public static T GetWeightedRandom<T>(this IEnumerable<T> arg, Func<T, double> evaluator)
         {
-            if (!arg.Any())
+            var values = arg as IList<T> ?? arg.ToArray();
+            if (values.Count == 0)
             {
                 return default;
             }
-            int len = arg.Count();
+            int len = values.Count;
             (T Value, double Weight)[] calcValues = new (T Value, double Weight)[len];
             int i = 0;
             double sum = 0.0;
-            foreach (T item in arg)
+            foreach (T item in values)
             {
                 double eval = evaluator(item);
                 calcValues[i++] = (item, eval);
@@ -544,24 +556,28 @@ namespace MudSharp.Framework
             return calcValues.Last().Value;
         }
 
+        /// <summary>
+        /// Selects an item proportionally to its weight, enumerating the source once. Requires nonnegative finite weights with a positive representable total. Empty input returns default; the legacy fallback returns the last item when no threshold is crossed.
+        /// </summary>
         public static T GetWeightedRandom<T>(this IEnumerable<T> arg, Func<T, int> evaluator)
         {
-            if (!arg.Any())
+            var values = arg as IList<T> ?? arg.ToArray();
+            if (values.Count == 0)
             {
                 return default;
             }
-            int len = arg.Count();
+            int len = values.Count;
             (T Value, int Weight)[] calcValues = new (T Value, int Weight)[len];
             int i = 0;
             int sum = 0;
-            foreach (T item in arg)
+            foreach (T item in values)
             {
                 int eval = evaluator(item);
                 calcValues[i++] = (item, eval);
                 sum += eval;
             }
 
-            int roll = (int)(Constants.Random.NextDouble() * sum);
+            double roll = Constants.Random.NextDouble() * sum;
             for (i = 0; i < len; i++)
             {
                 if (calcValues[i].Weight <= 0)
@@ -578,9 +594,37 @@ namespace MudSharp.Framework
             return calcValues.Last().Value;
         }
 
+        /// <summary>
+        /// Returns a uniformly selected element, or default when empty. Indexed lists are accessed
+        /// directly; other sources are materialised once. A nonempty source consumes one random draw.
+        /// </summary>
         public static T GetRandomElement<T>(this IEnumerable<T> list)
         {
-            return !list.Any() ? default : list.ElementAt(Constants.Random.Next(0, list.Count()));
+            ArgumentNullException.ThrowIfNull(list);
+            if (list is IList<T> indexed)
+            {
+                return indexed.Count == 0 ? default : indexed[Constants.Random.Next(0, indexed.Count)];
+            }
+
+            if (list is IReadOnlyList<T> readOnly)
+            {
+                return readOnly.Count == 0 ? default : readOnly[Constants.Random.Next(0, readOnly.Count)];
+            }
+
+            return list.ToArray().GetRandomElement();
         }
+
+		/// <summary>Returns a uniformly selected array element without allocating, or default when empty.</summary>
+		public static T GetRandomElement<T>(this T[] list)
+		{
+			ArgumentNullException.ThrowIfNull(list);
+			return ((ReadOnlySpan<T>)list).GetRandomElement();
+		}
+
+		/// <summary>Returns a uniformly selected span element without allocating, or default when empty.</summary>
+		public static T GetRandomElement<T>(this ReadOnlySpan<T> list)
+		{
+			return list.IsEmpty ? default : list[Constants.Random.Next(0, list.Length)];
+		}
     }
 }

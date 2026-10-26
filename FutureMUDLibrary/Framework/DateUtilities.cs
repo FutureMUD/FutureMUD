@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.TimeAndDate;
 using System;
@@ -26,7 +26,6 @@ public static partial class DateUtilities
     /// </summary>
     /// <param name="source">The source timespan</param>
     /// <param name="format">An optional IFormatProvider for number formatting</param>
-    /// <returns></returns>
     public static string Describe(this TimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
@@ -84,6 +83,9 @@ public static partial class DateUtilities
         return WithTimeSpanSign(sb.ListToString(), isNegative);
     }
 
+    /// <summary>
+    /// Describes a duration in words, selecting millisecond, microsecond or nanosecond units below one second. Zero returns nil; negative durations are prefixed with negative. Numbers default to invariant culture.
+    /// </summary>
     public static string DescribePrecise(this TimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
@@ -157,6 +159,9 @@ public static partial class DateUtilities
         return WithTimeSpanSign(sb.ListToString(), isNegative);
     }
 
+    /// <summary>
+    /// Describes a duration with abbreviated units (y/d/h/m/s or ms/us/ns below one second). Zero returns nil; negative durations receive a minus sign. Numbers default to invariant culture.
+    /// </summary>
     public static string DescribePreciseBrief(this TimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
@@ -223,6 +228,9 @@ public static partial class DateUtilities
         return WithTimeSpanSign(sb.ListToString(), isNegative, true);
     }
 
+    /// <summary>
+    /// Describes calendar-aware year/month/week/day/hour/minute/second components in words with the supplied number format. Zero and subsecond values return less than a second; negative durations are prefixed with negative.
+    /// </summary>
     public static string Describe(this MudTimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
@@ -282,16 +290,25 @@ public static partial class DateUtilities
         return WithTimeSpanSign(sb.ListToString(), isNegative);
     }
 
+    /// <summary>
+    /// Converts a UTC date and time to the time zone associated with the character or account.
+    /// </summary>
     public static DateTime GetLocalDate(this DateTime date, ICharacter character)
     {
         return TimeZoneInfo.ConvertTimeFromUtc(date, character.Account.TimeZone);
     }
 
+    /// <summary>
+    /// Converts a UTC date and time to the time zone associated with the character or account.
+    /// </summary>
     public static DateTime GetLocalDate(this DateTime date, IAccount account)
     {
         return TimeZoneInfo.ConvertTimeFromUtc(date, account.TimeZone);
     }
 
+    /// <summary>
+    /// Formats a date in the character or account time zone, using the selected short or full date/time pattern.
+    /// </summary>
     public static string GetLocalDateString(this DateTime date, ICharacter character, bool shortForm = false)
     {
         if (date == default)
@@ -307,6 +324,9 @@ public static partial class DateUtilities
         return date.GetLocalDate(character).ToString(shortForm ? "g" : "G", character);
     }
 
+    /// <summary>
+    /// Formats a date in the character or account time zone, using the selected short or full date/time pattern.
+    /// </summary>
     public static string GetLocalDateString(this DateTime date, IAccount account, bool shortForm = false)
     {
         if (date == default)

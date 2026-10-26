@@ -100,6 +100,9 @@ namespace MudSharp.Framework
                 : input;
         }
 
+        /// <summary>
+        /// Wraps the displayed text in an MXP send link, using the text or supplied target as the command and an optional hint.
+        /// </summary>
         public static string MXPSend(this string input, string sendtext = "", string hinttext = "")
         {
             if (string.IsNullOrEmpty(sendtext))
@@ -140,6 +143,9 @@ namespace MudSharp.Framework
             return BeginMXP + tag + EndMXP;
         }
 
+        /// <summary>
+        /// Escapes ampersands, quotes, apostrophes, and angle brackets as HTML entities.
+        /// </summary>
         public static string ReplaceWebCharacters(this string input)
         {
             return input
@@ -150,11 +156,17 @@ namespace MudSharp.Framework
                    .Replace(">", "&gt;");
         }
 
+        /// <summary>
+        /// Removes MXP tags matched by the tag pattern from the input.
+        /// </summary>
         public static string StripMXP(this string input)
         {
             return _mxpTagRegex.Replace(input, "");
         }
 
+        /// <summary>
+        /// Escapes text characters and removes MXP tags unsupported by the supplied client; when MXP is disabled, strips all matched tags.
+        /// </summary>
         public static string SanitiseMXP(this string input, MXPSupport support)
         {
             if (support?.UseMXP == false)

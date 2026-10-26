@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -13,6 +13,9 @@ namespace MudSharp.Framework
         private static readonly Regex OrdinalRegex =
             new(@"^(?<number>\d+)(?:(?<=1)st|(?<=2)nd|(?<=3)rd|(?<!1|2|3)th)$", RegexOptions.IgnoreCase);
 
+        /// <summary>
+        /// Maps a probability value to a qualitative likelihood label; values at or above one are described as certain.
+        /// </summary>
         public static string DescribeAsProbability(this double value)
         {
             if (value <= 0.0)
@@ -53,35 +56,25 @@ namespace MudSharp.Framework
             return "Certain";
         }
 
-        private static HashSet<long> _powersOfTwo;
+        /// <summary>
+        /// Returns whether the value is exactly a positive power of two.
+        /// </summary>
         public static bool IsPowerOfTwo(this long value)
         {
-            if (_powersOfTwo == null)
-            {
-                _powersOfTwo = new HashSet<long>();
-                for (int i = 0; i < 64; i++)
-                {
-                    _powersOfTwo.Add(2L.LongPower(i));
-                }
-            }
-
-            return _powersOfTwo.Contains(value);
+            return value > 0 && (value & (value - 1)) == 0;
         }
 
+        /// <summary>
+        /// Returns whether the value is exactly a positive power of two.
+        /// </summary>
         public static bool IsPowerOfTwo(this int value)
         {
-            if (_powersOfTwo == null)
-            {
-                _powersOfTwo = new HashSet<long>();
-                for (int i = 0; i < 64; i++)
-                {
-                    _powersOfTwo.Add(2L.LongPower(i));
-                }
-            }
-
-            return _powersOfTwo.Contains(value);
+            return value > 0 && (value & (value - 1)) == 0;
         }
 
+        /// <summary>
+        /// Raises the receiver to a non-negative integer power; a zero or negative power returns one.
+        /// </summary>
         public static long LongPower(this long number, int power)
         {
             long result = 1L;
@@ -93,41 +86,65 @@ namespace MudSharp.Framework
             return result;
         }
 
+        /// <summary>
+        /// Returns the fallback value when the receiver is zero; otherwise returns the receiver.
+        /// </summary>
         public static double IfZero(this double value, double ifZero)
         {
             return default == value ? ifZero : value;
         }
 
+        /// <summary>
+        /// Returns the fallback when the receiver is zero; otherwise returns the receiver.
+        /// </summary>
         public static decimal IfZero(this decimal value, decimal ifZero)
         {
             return default == value ? ifZero : value;
         }
 
+        /// <summary>
+        /// Returns the fallback value when the receiver is zero; otherwise returns the receiver.
+        /// </summary>
         public static int IfZero(this int value, int ifZero)
         {
             return default == value ? ifZero : value;
         }
 
+        /// <summary>
+        /// Returns the receiver with its sign inverted.
+        /// </summary>
         public static double InvertSign(this double value)
         {
             return -value;
         }
 
+        /// <summary>
+        /// Returns the receiver with its sign inverted.
+        /// </summary>
         public static decimal InvertSign(this decimal value)
         {
             return -value;
         }
 
+        /// <summary>
+        /// Returns whether the integer is divisible by two.
+        /// </summary>
         public static bool Even(this int input)
         {
             return input % 2 == 0;
         }
 
+        /// <summary>
+        /// Returns whether the integer is odd, including negative odd integers.
+        /// </summary>
         public static bool Odd(this int input)
         {
-            return input % 2 == 1;
+            return input % 2 != 0;
         }
 
+        /// <summary>
+        /// Tests whether a value lies inclusively between two bounds, regardless of their order.
+        /// </summary>
         public static bool Between(this double testVar, double range1, double range2)
         {
             return ((testVar <= range1) && (testVar >= range2)) || ((testVar >= range1) && (testVar <= range2));
@@ -138,6 +155,9 @@ namespace MudSharp.Framework
             return Math.Abs(value1 - value2) / Math.Abs(value1.IfZero(1.0));
         }
 
+        /// <summary>
+        /// Truncates to a multiple of round toward zero; a zero round returns the input.
+        /// </summary>
         public static int Approximate(this int num, int round)
         {
             if (num == 0)
@@ -153,11 +173,17 @@ namespace MudSharp.Framework
             return num / round * round;
         }
 
+        /// <summary>
+        /// Returns Math.Floor(num / round) multiplied by round, preserving floating-point NaN and infinity semantics.
+        /// </summary>
         public static double Approximate(this double num, double round)
         {
             return Math.Floor(num / round) * round;
         }
 
+        /// <summary>
+        /// Formats the integer as an approximate multiple of the supplied interval.
+        /// </summary>
         public static string ToApproximate(this int num, int round)
         {
             if (num == 0)
@@ -192,6 +218,9 @@ namespace MudSharp.Framework
             }
         }
 
+        /// <summary>
+        /// Parses an integer or recognised ordinal suffix such as <c>4th</c>. Returns null for unrecognised text; an ordinal number outside Int32 range throws OverflowException.
+        /// </summary>
         public static int? GetIntFromOrdinal(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -210,16 +239,25 @@ namespace MudSharp.Framework
             return null;
         }
 
+        /// <summary>
+        /// Converts an angle in degrees to radians.
+        /// </summary>
         public static double DegreesToRadians(this double degrees)
         {
             return degrees * Math.PI / 180.0;
         }
 
+        /// <summary>
+        /// Converts an angle in radians to degrees.
+        /// </summary>
         public static double RadiansToDegrees(this double radians)
         {
             return radians * 180.0 / Math.PI;
         }
 
+        /// <summary>
+        /// Wraps a value into the interval defined by the lower and upper bounds.
+        /// </summary>
         public static double Wrap(this double value, double lower, double upper)
         {
             double width = upper - lower;
@@ -237,10 +275,6 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Returns the Standard Deviation of an IEnumerable after a specified function returning double has been applied.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="list"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
         public static double StdDev<T>(this IEnumerable<T> list, Func<T, double> values)
         {
             double mean = 0.0;
@@ -265,10 +299,6 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Evaluates polynomial of degree N
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="coef"></param>
-        /// <param name="N"></param>
-        /// <returns></returns>
         private static double polevl(double x, double[] coef, int N)
         {
             double ans = coef[0];
@@ -284,10 +314,6 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Evaluates polynomial of degree N with assumtion that coef[N] = 1.0
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="coef"></param>
-        /// <param name="N"></param>
-        /// <returns></returns>
         private static double p1evl(double x, double[] coef, int N)
         {
             double ans = x + coef[0];
@@ -339,8 +365,6 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Returns the complementary error function of the specified number.
         /// </summary>
-        /// <param name="a"></param>
-        /// <returns></returns>
         public static double Erfc(double a)
         {
             double x, p, q;
@@ -440,8 +464,6 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Returns the error function of the specified number.
         /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
         public static double Erf(double x)
         {
             double[] T = {
@@ -476,7 +498,6 @@ namespace MudSharp.Framework
         /// </summary>
         /// <param name="x">The number to take the modulus of</param>
         /// <param name="m">The quotient for the modulus</param>
-        /// <returns></returns>
         public static int Modulus(this int x, int m)
         {
             return (x % m + m) % m;
@@ -489,12 +510,14 @@ namespace MudSharp.Framework
         /// </summary>
         /// <param name="x">The number to take the modulus of</param>
         /// <param name="m">The quotient for the modulus</param>
-        /// <returns></returns>
         public static double Modulus(this double x, double m)
         {
             return (x % m + m) % m;
         }
 
+        /// <summary>
+        /// Parses percent-marked text using the supplied culture and divides by 100; bare numbers use current culture and remain unscaled. Returns false on parse failure.
+        /// </summary>
         public static bool TryParsePercentage(this string text, CultureInfo culture, out double value)
         {
             value = 0.0;
@@ -517,6 +540,9 @@ namespace MudSharp.Framework
             return result;
         }
 
+        /// <summary>
+        /// Parses percent-marked text using the supplied culture and divides by 100; bare numbers use current culture and remain unscaled. Returns false on parse failure.
+        /// </summary>
         public static bool TryParsePercentageDecimal(this string text, CultureInfo culture, out decimal value)
         {
             value = 0.0M;
@@ -539,11 +565,17 @@ namespace MudSharp.Framework
             return result;
         }
 
+        /// <summary>
+        /// Parses percent-marked text using invariant culture and divides by 100; bare numbers use current culture and remain unscaled. Returns false on parse failure.
+        /// </summary>
         public static bool TryParsePercentage(this string text, out double value)
         {
             return TryParsePercentage(text, CultureInfo.InvariantCulture, out value);
         }
 
+        /// <summary>
+        /// Parses percent-marked text using invariant culture and divides by 100; bare numbers use current culture and remain unscaled. Returns false on parse failure.
+        /// </summary>
         public static bool TryParsePercentageDecimal(this string text, out decimal value)
         {
             return TryParsePercentageDecimal(text, CultureInfo.InvariantCulture, out value);
@@ -554,7 +586,6 @@ namespace MudSharp.Framework
         /// </summary>
         /// <param name="fromInt">The lowest int in the range</param>
         /// <param name="toInt">The highest int in the range</param>
-        /// <returns></returns>
         public static List<int> GetIntRange(this int fromInt, int toInt)
         {
             bool reverseDirection = toInt < fromInt;
@@ -577,91 +608,145 @@ namespace MudSharp.Framework
             return results;
         }
 
+        /// <summary>
+        /// Returns the greatest integral value less than or equal to the receiver.
+        /// </summary>
         public static double Floor(this double value)
         {
             return Math.Floor(value);
         }
 
+        /// <summary>
+        /// Returns the greatest integral value less than or equal to the receiver.
+        /// </summary>
         public static decimal Floor(this decimal value)
         {
             return Math.Floor(value);
         }
 
+        /// <summary>
+        /// Returns the least integral value greater than or equal to the receiver.
+        /// </summary>
         public static double Ceiling(this double value)
         {
             return Math.Ceiling(value);
         }
 
+        /// <summary>
+        /// Returns the least integral value greater than or equal to the receiver.
+        /// </summary>
         public static decimal Ceiling(this decimal value)
         {
             return Math.Ceiling(value);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static double Round(this double value)
         {
             return Math.Round(value);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static decimal Round(this decimal value)
         {
             return Math.Round(value);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static double Round(this double value, int digits)
         {
             return Math.Round(value, digits);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static decimal Round(this decimal value, int digits)
         {
             return Math.Round(value, digits);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static double Round(this double value, MidpointRounding rounding)
         {
             return Math.Round(value, rounding);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static decimal Round(this decimal value, MidpointRounding rounding)
         {
             return Math.Round(value, rounding);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static double Round(this double value, int digits, MidpointRounding rounding)
         {
             return Math.Round(value, digits, rounding);
         }
 
+        /// <summary>
+        /// Rounds the receiver using the selected digits and midpoint rule, where supplied.
+        /// </summary>
         public static decimal Round(this decimal value, int digits, MidpointRounding rounding)
         {
             return Math.Round(value, digits, rounding);
         }
 
+        /// <summary>
+        /// Removes the fractional part by rounding toward zero.
+        /// </summary>
         public static double Truncate(this double value)
         {
             return Math.Truncate(value);
         }
 
+        /// <summary>
+        /// Removes the fractional part by rounding toward zero.
+        /// </summary>
         public static decimal Truncate(this decimal value)
         {
             return Math.Truncate(value);
         }
 
+        /// <summary>
+        /// Returns the absolute value of the receiver.
+        /// </summary>
         public static double Abs(this double value)
         {
             return Math.Abs(value);
         }
 
+        /// <summary>
+        /// Returns the absolute value of the receiver.
+        /// </summary>
         public static decimal Abs(this decimal value)
         {
             return Math.Abs(value);
         }
 
+        /// <summary>
+        /// Returns the absolute value of the receiver.
+        /// </summary>
         public static int Abs(this int value)
         {
             return Math.Abs(value);
         }
 
+        /// <summary>
+        /// Returns the absolute value of the receiver.
+        /// </summary>
         public static long Abs(this long value)
         {
             return Math.Abs(value);
@@ -669,6 +754,9 @@ namespace MudSharp.Framework
 
         #region Number to String Helpers
 
+        /// <summary>
+        /// Formats the integer with its ordinal suffix.
+        /// </summary>
         public static string ToOrdinal(this int num)
         {
             switch (num % 100)
@@ -702,6 +790,9 @@ namespace MudSharp.Framework
 
         private static readonly int MaxValueRomanNumeral = 3999999;
 
+        /// <summary>
+        /// Formats the integer as a Roman numeral.
+        /// </summary>
         public static string ToRomanNumeral(this int num)
         {
             if (num < 0 || num >= MaxValueRomanNumeral)
@@ -738,16 +829,25 @@ namespace MudSharp.Framework
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Formats the integer as words.
+        /// </summary>
         public static string ToWordyNumber(this int num)
         {
             return ToWordyNumber((long)num);
         }
 
+        /// <summary>
+        /// Formats the integer as a word-form ordinal.
+        /// </summary>
         public static string ToWordyOrdinal(this int num)
         {
             return ToWordyOrdinal((long)num);
         }
 
+        /// <summary>
+        /// Formats the integer as words.
+        /// </summary>
         public static string ToWordyNumber(this long num)
         {
             if (num < 0)
@@ -845,6 +945,9 @@ namespace MudSharp.Framework
             return "unknown";
         }
 
+        /// <summary>
+        /// Formats the integer as a word-form ordinal.
+        /// </summary>
         public static string ToWordyOrdinal(this long num)
         {
             if (num < 0)
@@ -941,11 +1044,17 @@ namespace MudSharp.Framework
             return "unknown";
         }
 
+        /// <summary>
+        /// Formats the integer as an approximate word-form quantity at the supplied interval.
+        /// </summary>
         public static string ToWordyApproximate(this int num, long round)
         {
             return ToWordyApproximate((long)num, round);
         }
 
+        /// <summary>
+        /// Formats the integer as an approximate word-form quantity at the supplied interval.
+        /// </summary>
         public static string ToWordyApproximate(this long num, long round)
         {
             if (num == 0)
@@ -967,6 +1076,9 @@ namespace MudSharp.Framework
 
     public static class NullableMath
     {
+        /// <summary>
+        /// Returns the greatest of the receiver and non-null candidates, or the receiver when no candidate has a value.
+        /// </summary>
         public static decimal Max(this decimal value, params decimal?[] vals)
         {
             return vals.Any(x => x.HasValue)
@@ -974,6 +1086,9 @@ namespace MudSharp.Framework
                 : value;
         }
 
+        /// <summary>
+        /// Returns the least of the receiver and non-null candidates, or the receiver when no candidate has a value.
+        /// </summary>
         public static decimal Min(this decimal value, params decimal?[] vals)
         {
             return vals.Any(x => x.HasValue)
@@ -981,6 +1096,9 @@ namespace MudSharp.Framework
                 : value;
         }
 
+        /// <summary>
+        /// Parses a decimal using current-culture number formatting; returns null on failure.
+        /// </summary>
         public static decimal? GetDecimal(this string input)
         {
             if (decimal.TryParse(input, out decimal value))
@@ -990,6 +1108,9 @@ namespace MudSharp.Framework
             return null;
         }
 
+        /// <summary>
+        /// Parses a double using current-culture floating-point and thousands-separator conventions; returns null on failure.
+        /// </summary>
         public static double? GetDouble(this string input)
         {
             if (double.TryParse(input, out double value))

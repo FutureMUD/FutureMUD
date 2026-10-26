@@ -249,11 +249,17 @@ namespace MudSharp.Framework
         public static readonly ANSIColour VariableGreen = new("Variable Green", VARIABLEGREEN, VARIABLEGREEN,
             VARIABLEGREENBACKGROUND, VARIABLEGREENBACKGROUND);
 
+        /// <summary>
+        /// Returns the standard ANSI reset sequence. The receiver is ignored.
+        /// </summary>
         public static string Reset(this ANSIColour colour)
         {
             return RESET;
         }
 
+        /// <summary>
+        /// Returns the ANSI reset-and-newline sequence. The receiver is ignored.
+        /// </summary>
         public static string ResetNewLine(this ANSIColour colour)
         {
             return RESETNEWLINE;

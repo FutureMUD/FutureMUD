@@ -8,6 +8,9 @@ namespace MudSharp.Framework;
 
 public static class TargetExtensions
 {
+	/// <summary>
+	/// Targets an actor first, then a corpse, and returns the corresponding body target details when found.
+	/// </summary>
 	public static BodyTargetResult? TargetActorOrCorpseBody(this ITarget targeter, string keyword,
 		PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None)
 	{

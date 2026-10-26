@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,9 @@ public interface IHaveMultipleNames : IFrameworkItem
 #nullable enable
 public static class MultipleNamesExtensions
 {
+    /// <summary>
+    /// Resolves numeric text only as an ID; otherwise prefers an invariant-culture case-insensitive exact name over a name prefix.
+    /// </summary>
     public static T? GetByIdOrNames<T>(this IEnumerable<T> items, string text) where T : IHaveMultipleNames
     {
         if (long.TryParse(text, out long id))

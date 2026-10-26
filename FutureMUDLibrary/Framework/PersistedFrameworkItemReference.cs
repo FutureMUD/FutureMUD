@@ -25,9 +25,15 @@ public static class PersistedFrameworkItemReference
 	public static string? PublicReferenceType(string? type) => type is RoomType or LegacyCellType
 		? "Room" : type == LegacyRoomType ? "Legacy Room" : ComparisonType(type);
 
+	/// <summary>
+	/// Returns the persisted type label for an item, using the versioned identity for rooms.
+	/// </summary>
 	public static string GetPersistedReferenceType(this IFrameworkItem item) =>
 		item.FrameworkItemType == "Room" ? RoomType : item.FrameworkItemType;
 
+	/// <summary>
+	/// Checks whether the item type matches a persisted label, accepting known legacy labels for renamed room-related types.
+	/// </summary>
 	public static bool MatchesPersistedReferenceType(this IFrameworkItem item, string? type) =>
 		item.FrameworkItemType switch
 		{

@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using System;
 
@@ -112,6 +112,7 @@ namespace MudSharp.Framework.Revision
 
     public static class IEditableItemExtensions
     {
+        /// <summary>Returns the revision status label, or Unknown Status for an unrecognised value.</summary>
         public static string Describe(this RevisionStatus status)
         {
             switch (status)
@@ -133,6 +134,7 @@ namespace MudSharp.Framework.Revision
             }
         }
 
+        /// <summary>Returns the status label with its standard ANSI colour, or uncoloured Unknown Status for an unrecognised value.</summary>
         public static string DescribeColour(this RevisionStatus status)
         {
             switch (status)

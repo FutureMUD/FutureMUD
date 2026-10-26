@@ -82,7 +82,7 @@ public class NumberTests
         Assert.IsTrue(0.Even(), "0 even");
         Assert.IsFalse(0.Odd(), "0 not odd");
         Assert.IsTrue((-4).Even(), "-4 even");
-        Assert.IsFalse((-3).Odd(), "-3 not odd");
+        Assert.IsTrue((-3).Odd(), "-3 is odd");
     }
 
     [TestMethod]

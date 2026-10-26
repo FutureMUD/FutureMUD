@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -16,6 +16,9 @@ namespace MudSharp.Framework
 
     public static partial class CommonStringUtilities
     {
+        /// <summary>
+        /// Wraps text into indented lines using visible widths, expanding tabs to two spaces. Nonpositive widths return the input; each emitted line has a platform newline.
+        /// </summary>
         public static string WrapText(this string text, int width, string indent = "")
         {
             if (width < 1)
@@ -41,9 +44,9 @@ namespace MudSharp.Framework
 
                 while (remains.RawTextLength() > width)
                 {
-                    int splitIndex = LastWhiteSpaceIndex(remains, width - indent.Length);
+                    int splitIndex = LastWhiteSpaceIndex(remains, Math.Max(1, width - indent.Length));
                     sb.AppendLine(indent + remains[..(splitIndex + 1)].TrimEnd());
-                    remains = remains[splitIndex..].TrimStart();
+                    remains = remains[(splitIndex + 1)..].TrimStart();
                 }
 
                 if (remains.Length > 0)
@@ -109,6 +112,9 @@ namespace MudSharp.Framework
             return lastWhitespace;
         }
 
+        /// <summary>
+        /// Formats the value with its default format string and the supplied culture provider.
+        /// </summary>
         public static string CultureFormat(this IFormattable text, IFormatProvider culture)
         {
             return text.ToString(null, culture);
@@ -204,7 +210,7 @@ namespace MudSharp.Framework
         /// Item 2    Item 5
         /// Item 3    Item 6
         /// </summary>
-        /// <typeparam name="T">Any type implementing IEnumerable<<string>></typeparam>
+        /// <typeparam name="T">Any type implementing IEnumerable&lt;string&gt;.</typeparam>
         /// <param name="inputLines">An IEnumerable of strings, where each string represents a line</param>
         /// <param name="columns">The number of columns</param>
         /// <param name="lineLength">The length of the total line</param>
@@ -276,6 +282,9 @@ namespace MudSharp.Framework
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Places strings in padded columns, ignoring markup when measuring width, and appends a newline to every row. Zero columns is treated as one.
+        /// </summary>
         public static string ArrangeStringsOntoLines(this IEnumerable<string> strings, uint numberPerLine = 4,
                                                      uint lineLength = 120)
         {
@@ -310,7 +319,8 @@ namespace MudSharp.Framework
 
         // TODO: Instead of taking a string as the article, allow it to handle properly indefinite articles, and numbered articles.
         /// <summary>
-        ///     Takes any list of strings, and then outputs it in to a grammatically correct string as a single sentence.
+        ///     Joins a sequence into a sentence, enumerating it once without buffering the items.
+        ///     Null sources return empty; null items and articles are treated as empty text.
         /// </summary>
         /// <param name="item">The list of strings</param>
         /// <param name="article">The article to proceed each item in a string: a, the, some,"",</param>
@@ -331,16 +341,36 @@ namespace MudSharp.Framework
                 return "";
             }
 
-            List<string> itemList = item.ToList();
-            switch (itemList.Count)
+            if (item is IReadOnlyList<string> indexed)
             {
-                case 0:
-                    return "";
-                case 1:
-                    return article + itemList[0];
-                case 2:
-                    return article + itemList[0] + twoItemJoiner + conjunction + article + itemList[1];
+                return FormatIndexedList(indexed, article, separator, conjunction, twoItemJoiner, oxfordComma);
             }
+
+            using var enumerator = item.GetEnumerator();
+            if (!enumerator.MoveNext())
+            {
+                return "";
+            }
+
+            var first = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                return article + first;
+            }
+
+            var pending = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                return article + first + twoItemJoiner + conjunction + article + pending;
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(article).Append(first);
+            do
+            {
+                sb.Append(separator).Append(article).Append(pending);
+                pending = enumerator.Current;
+            } while (enumerator.MoveNext());
 
             string conjunctionText = conjunction;
             if (!oxfordComma && !string.IsNullOrEmpty(conjunction) && !char.IsWhiteSpace(conjunction[0]))
@@ -348,10 +378,66 @@ namespace MudSharp.Framework
                 conjunctionText = $" {conjunction}";
             }
 
-            return
-                string.Join(separator, itemList.GetRange(0, itemList.Count - 1).ConvertAll(x => x.Insert(0, article))) +
-                (oxfordComma ? separator : "") + conjunctionText + article + itemList[^1];
+            return sb.Append(oxfordComma ? separator : "").Append(conjunctionText)
+                .Append(article).Append(pending).ToString();
         }
+
+		private static string FormatIndexedList(IReadOnlyList<string> items, string article, string separator,
+			string conjunction, string twoItemJoiner, bool oxfordComma)
+		{
+			var count = items.Count;
+			if (count == 0) return string.Empty;
+			if (count == 1) return article + items[0];
+			var leadingSpace = count > 2 && !oxfordComma && !string.IsNullOrEmpty(conjunction) &&
+			                   !char.IsWhiteSpace(conjunction[0]);
+			int length;
+			checked
+			{
+				length = count * (article?.Length ?? 0) + (conjunction?.Length ?? 0);
+				length += count == 2 ? twoItemJoiner?.Length ?? 0 :
+					(count - 2 + (oxfordComma ? 1 : 0)) * (separator?.Length ?? 0) + (leadingSpace ? 1 : 0);
+				for (var i = 0; i < count; i++) length += items[i]?.Length ?? 0;
+			}
+
+			return string.Create(length, (items, article, separator, conjunction, twoItemJoiner, oxfordComma, leadingSpace),
+				static (destination, state) =>
+				{
+					for (var i = 0; i < state.items.Count; i++)
+					{
+						if (i > 0)
+						{
+							if (state.items.Count == 2)
+							{
+								Append(ref destination, state.twoItemJoiner);
+								Append(ref destination, state.conjunction);
+							}
+							else if (i == state.items.Count - 1)
+							{
+								if (state.oxfordComma) Append(ref destination, state.separator);
+								if (state.leadingSpace)
+								{
+									destination[0] = ' ';
+									destination = destination[1..];
+								}
+								Append(ref destination, state.conjunction);
+							}
+							else
+							{
+								Append(ref destination, state.separator);
+							}
+						}
+
+						Append(ref destination, state.article);
+						Append(ref destination, state.items[i]);
+					}
+				});
+
+			static void Append(ref Span<char> destination, string value)
+			{
+				value.AsSpan().CopyTo(destination);
+				destination = destination[(value?.Length ?? 0)..];
+			}
+		}
 
         /// <summary>
         /// Returns the items in the list on separate lines of a single string text response
@@ -366,7 +452,8 @@ namespace MudSharp.Framework
         }
 
         /// <summary>
-        /// Turns a list of strings into a single string representing a CSV
+        /// Joins fields into delimiter-separated text, preserving empty and null fields.
+        /// RFC4180Compliant quotes fields containing the separator, quotes, CR or LF and doubles embedded quotes.
         /// </summary>
         /// <typeparam name="T">Any IEnumerable of strings</typeparam>
         /// <param name="items">The list of strings</param>
@@ -381,9 +468,10 @@ namespace MudSharp.Framework
             }
 
             StringBuilder sb = new();
+            var first = true;
             foreach (string item in items)
             {
-                if (sb.Length > 0)
+                if (!first)
                 {
                     sb.Append(separator);
                     if (options == StringListToCSVOptions.SpaceAfterComma)
@@ -391,9 +479,10 @@ namespace MudSharp.Framework
                         sb.Append(' ');
                     }
                 }
+                first = false;
                 if (options == StringListToCSVOptions.RFC4180Compliant)
                 {
-                    if (item.Contains('"') || item.Contains(separator) || item.Contains('\n'))
+                    if (item != null && (item.Contains('"') || item.Contains(separator) || item.Contains('\n') || item.Contains('\r')))
                     {
                         sb.Append('"');
                         sb.Append(item.Replace("\"", "\"\""));
@@ -412,6 +501,9 @@ namespace MudSharp.Framework
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Groups equal strings in first-occurrence order, formats repeated values with compactFormat, and joins the groups with the supplied separators and conjunction. Null input returns empty.
+        /// </summary>
         public static string ListToCompactString<T>(this T item, string separator = ", ", string conjunction = "and ", string twoItemJoiner = " ", bool oxfordComma = true, string compactFormat = "{0} (x{1})") where T : IEnumerable<string>
         {
             if (item == null)
@@ -570,11 +662,17 @@ namespace MudSharp.Framework
             return number.ToString("P2", format).Colour(colour);
         }
 
+        /// <summary>
+        /// Converts lone LF characters to CRLF, preserving existing CRLF pairs and standalone CR characters.
+        /// </summary>
         public static string WindowsLineEndings(this string input)
         {
             return WindowsLineEndingRegex.Replace(input, m => "\r\n");
         }
 
+        /// <summary>
+        /// Performs a substring search with the specified comparison. This legacy helper returns true if either argument is null or empty; ordinary instance calls bind to string.Contains.
+        /// </summary>
         public static bool Contains(this string source, string toCheck, StringComparison comp)
         {
             if (string.IsNullOrEmpty(toCheck) || string.IsNullOrEmpty(source))
@@ -604,12 +702,18 @@ namespace MudSharp.Framework
         //// index- the start location to replace at (0-based)
         //// length - the number of characters to be removed before inserting
         //// replace - the string that is replacing characters
+        /// <summary>
+        /// Removes up to length characters at index and inserts replace; removal is clamped to the remaining string length.
+        /// </summary>
         public static string ReplaceAt(this string str, int index, int length, string replace)
         {
             return str.Remove(index, Math.Min(length, str.Length - index))
                 .Insert(index, replace);
         }
 
+        /// <summary>
+        /// Appends the strings arranged into padded columns and returns the same builder.
+        /// </summary>
         public static StringBuilder AppendLineColumns(this StringBuilder sb, uint linelength, uint columns,
             params string[] strings)
         {

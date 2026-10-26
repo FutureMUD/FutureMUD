@@ -1,5 +1,6 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -106,11 +107,17 @@ namespace MudSharp.Framework
             return "(" + input + ") ";
         }
 
+        /// <summary>
+        /// Surrounds the input with parentheses preceded by one space.
+        /// </summary>
         public static string ParenthesesSpacePrior(this string input)
         {
             return $" ({input})";
         }
 
+        /// <summary>
+        /// Appends the supplied text when truth is true; otherwise returns the input unchanged.
+        /// </summary>
         public static string FluentAppend(this string input, string appendText, bool truth)
         {
             return truth ? $"{input}{appendText}" : input;
@@ -121,7 +128,6 @@ namespace MudSharp.Framework
         /// </summary>
         /// <param name="input">The text to surround</param>
         /// <param name="truth">If true, perform the action. If not, return the input</param>
-        /// <returns></returns>
         public static string DoubleQuotes(this string input, bool truth = true)
         {
             if (!truth)
@@ -137,7 +143,6 @@ namespace MudSharp.Framework
 		/// </summary>
 		/// <param name="input">The text to surround</param>
 		/// <param name="truth">If true, perform the action. If not, return the input</param>
-		/// <returns></returns>
 		public static string DoubleGuillemets(this string input, bool truth = true)
 		{
             if (!truth)
@@ -148,22 +153,34 @@ namespace MudSharp.Framework
             return $"«{input}»";
         }
 
+        /// <summary>
+        /// Removes the first UTF-16 character and trims leading whitespace from the remainder. Returns empty for zero or one character.
+        /// </summary>
         public static string RemoveFirstCharacter(this string input)
         {
-            return input.Length > 1 ? input[1..].TrimStart() : "";
+            return input.Length > 1 ? input.AsSpan(1).TrimStart().ToString() : "";
         }
 
+        /// <summary>
+        /// Removes the last UTF-16 character, returning empty for zero or one character.
+        /// </summary>
         public static string RemoveLastCharacter(this string input)
         {
             return input.Length > 1 ? input[..^1] : "";
         }
 
+        /// <summary>
+        /// Removes everything through the first literal space and trims leading whitespace from the remainder; returns empty if there is no space.
+        /// </summary>
         public static string RemoveFirstWord(this string input)
         {
             int firstSpace = input.IndexOf(' ');
-            return firstSpace != -1 ? input[(firstSpace + 1)..].TrimStart() : "";
+            return firstSpace != -1 ? input.AsSpan(firstSpace + 1).TrimStart().ToString() : "";
         }
 
+        /// <summary>
+        /// Decodes escaped quotes, newlines, tabs and backslashes, case-insensitively. Null and empty inputs return empty.
+        /// </summary>
         public static string ParseSpecialCharacters(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -195,8 +212,6 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Adds a fullstop to the end of the input if there is not already a sentence ending character at the end
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
         public static string Fullstop(this string input)
         {
             if (FullstopRegex.IsMatch(input))
@@ -215,6 +230,9 @@ namespace MudSharp.Framework
             return string.IsNullOrEmpty(input) ? "" : ProperCaseRegex.Replace(input, m => char.ToUpper(m.Groups[1].Value[0]).ToString(), 1);
         }
 
+        /// <summary>
+        /// Replaces only the first ordinal match, returning the original text when no match exists. Null or empty text returns empty.
+        /// </summary>
         public static string ReplaceFirst(this string text, string search, string replace)
         {
             if (string.IsNullOrEmpty(text))
@@ -227,9 +245,12 @@ namespace MudSharp.Framework
             {
                 return text;
             }
-            return text[..pos] + replace + text[(pos + search.Length)..];
+            return string.Concat(text.AsSpan(0, pos), replace.AsSpan(), text.AsSpan(pos + search.Length));
         }
 
+        /// <summary>
+        /// Replaces only the first ordinal match, returning the original text when no match exists. Null or empty text returns empty.
+        /// </summary>
         public static string ReplaceFirst(this string text, char search, char replace)
         {
             if (string.IsNullOrEmpty(text))
@@ -242,7 +263,11 @@ namespace MudSharp.Framework
             {
                 return text;
             }
-            return text[..pos] + replace + text[(pos + 1)..];
+            return string.Create(text.Length, (text, pos, replace), static (destination, state) =>
+            {
+                state.text.AsSpan().CopyTo(destination);
+                destination[state.pos] = state.replace;
+            });
         }
 
 		/// <summary>Capitalises word starts while preserving internal apostrophes and existing capitalisation.</summary>
@@ -254,14 +279,14 @@ namespace MudSharp.Framework
         /// <summary>
         ///     Fluent extension method to handle Proper Case transformations of strings based on a boolean variable
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="proper"></param>
-        /// <returns></returns>
         public static string FluentProper(this string input, bool proper)
         {
             return proper ? input.Proper() : input;
         }
 
+        /// <summary>
+        /// Tests whether the input parses as a signed 64-bit integer using the current culture.
+        /// </summary>
         public static bool IsInteger(this string input)
         {
             return long.TryParse(input, out _);
@@ -276,9 +301,18 @@ namespace MudSharp.Framework
         /// <returns>True if the target word is in the collection, with the specified options</returns>
         public static bool HasWord(this List<string> input, string targetWord, bool abbreviated = true)
         {
-            return abbreviated
-                ? input.Any(x => x.StartsWith(targetWord, StringComparison.InvariantCultureIgnoreCase))
-                : input.Any(x => x.Equals(targetWord, StringComparison.InvariantCultureIgnoreCase));
+            ArgumentNullException.ThrowIfNull(input);
+            foreach (var word in input)
+            {
+                if (abbreviated
+                    ? word.StartsWith(targetWord, StringComparison.InvariantCultureIgnoreCase)
+                    : word.Equals(targetWord, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -290,62 +324,120 @@ namespace MudSharp.Framework
         /// <returns>True if the target words are all in the collection, with the specified options</returns>
         public static bool HasWord(this List<string> input, IEnumerable<string> targetWords, bool abbreviated = true)
         {
-            return abbreviated
-                ? targetWords.All(x => input.Any(y => y.StartsWith(x, StringComparison.InvariantCultureIgnoreCase)))
-                : targetWords.All(x => input.Any(y => y.Equals(x, StringComparison.InvariantCultureIgnoreCase)));
+            ArgumentNullException.ThrowIfNull(targetWords);
+            foreach (var target in targetWords)
+            {
+                if (!input.HasWord(target, abbreviated))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
+        /// <summary>
+        /// Returns the fallback for an empty string; the receiver must be non-null.
+        /// </summary>
         public static string IfEmpty(this string text, string emptytext)
         {
             return text.Length > 0 ? text : emptytext;
         }
 
+        /// <summary>
+        /// Appends one space to nonempty text; preserves null and empty inputs.
+        /// </summary>
         public static string SpaceIfNotEmpty(this string text)
         {
             return text.ConcatIfNotEmpty(" ");
         }
 
+        /// <summary>
+        /// Prepends one space to nonempty text; preserves null and empty inputs.
+        /// </summary>
         public static string LeadingSpaceIfNotEmpty(this string text)
         {
             return text.LeadingConcatIfNotEmpty(" ");
         }
 
+        /// <summary>
+        /// Appends the suffix only when the receiver is neither null nor empty.
+        /// </summary>
         public static string ConcatIfNotEmpty(this string text, string concat)
         {
             return string.IsNullOrEmpty(text) ? text : text + concat;
         }
 
+        /// <summary>
+        /// Prepends the prefix only when the receiver is neither null nor empty.
+        /// </summary>
         public static string LeadingConcatIfNotEmpty(this string text, string concat)
         {
             return string.IsNullOrEmpty(text) ? text : concat + text;
         }
 
+        /// <summary>
+        /// Compares strings using invariant culture, ignoring case by default. Two null strings compare equal.
+        /// </summary>
         public static bool EqualTo(this string text, string compareText, bool caseInsensitive = true)
         {
             return string.Equals(text, compareText,
                 caseInsensitive ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
         }
 
+        /// <summary>
+        /// Tests for an invariant-culture, case-insensitive match with any candidate. Null matches null; an empty array returns false and a null array throws.
+        /// </summary>
         public static bool EqualToAny(this string text, params string[] compareTexts)
         {
-            return compareTexts.Any(x => string.Equals(text, x, StringComparison.InvariantCultureIgnoreCase));
+            ArgumentNullException.ThrowIfNull(compareTexts);
+            return text.EqualToAny((ReadOnlySpan<string>)compareTexts);
         }
 
+		/// <summary>
+		/// Tests for an invariant-culture, case-insensitive match with any candidate, without allocating
+		/// a parameter array. Null matches null; an empty candidate span returns false.
+		/// </summary>
+		public static bool EqualToAny(this string text, params ReadOnlySpan<string> compareTexts)
+		{
+			foreach (var candidate in compareTexts)
+			{
+				if (string.Equals(text, candidate, StringComparison.InvariantCultureIgnoreCase))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+        /// <summary>
+        /// Returns the characters for which the predicate is false, preserving their order and evaluating the predicate once per character.
+        /// </summary>
         public static string Strip(this string source, Func<char, bool> charsToStrip)
         {
             return new string(source.Where(x => !charsToStrip(x)).ToArray());
         }
 
+        /// <summary>
+        /// Concatenates the receiver and suffix, treating null strings as empty.
+        /// </summary>
         public static string Append(this string source, string suffix)
         {
             return source + suffix;
         }
 
+        /// <summary>
+        /// Concatenates the prefix and receiver, treating null strings as empty.
+        /// </summary>
         public static string Prepend(this string source, string prefix)
         {
             return prefix + source;
         }
 
+        /// <summary>
+        /// Collapses runs of spaces and tabs; unless ignorePunctuation is true, also removes spaces before punctuation and inserts missing spaces after it.
+        /// </summary>
         public static string NormaliseSpacing(this string text, bool ignorePunctuation = false)
         {
             return ignorePunctuation
@@ -355,6 +447,9 @@ namespace MudSharp.Framework
                         m => m.Groups[1].Value), m => m.Groups[1].Value + " " + m.Groups[2].Value);
         }
 
+        /// <summary>
+        /// Returns the fallback for null, empty or whitespace-only input; otherwise returns the input.
+        /// </summary>
         public static string IfNullOrWhiteSpace(this string text, string fallback)
         {
             return string.IsNullOrWhiteSpace(text) ? fallback : text;
@@ -363,27 +458,66 @@ namespace MudSharp.Framework
         /// <summary>
         /// Strips out all MXP and ANSI Instructions from a string
         /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
         public static string RawText(this string text)
         {
-            StringBuilder sb = new();
-            bool colour = false, mxp = false;
-            foreach (char t in text)
+            if (text.AsSpan().IndexOfAny('\x1B', MXP.BeginMXPChar) < 0)
             {
-                colour = colour || (t == '\x1B');
-                mxp = mxp || (t == MXP.BeginMXPChar);
-                if (!mxp && !colour)
-                {
-                    sb.Append(t);
-                }
-                colour = (!colour || (t != 'm')) && colour;
-                mxp = (!mxp || (t != MXP.EndMXPChar)) && mxp;
+                ArgumentNullException.ThrowIfNull(text);
+                return text;
             }
 
-            return sb.ToString();
+            char[] rented = null;
+            Span<char> buffer = text.Length <= 512
+                ? stackalloc char[text.Length]
+                : (rented = ArrayPool<char>.Shared.Rent(text.Length));
+            try
+            {
+                text.AsSpan().TryCopyRawText(buffer, out var written);
+                return buffer[..written].ToString();
+            }
+            finally
+            {
+                if (rented != null)
+                {
+                    ArrayPool<char>.Shared.Return(rented);
+                }
+            }
         }
 
+		/// <summary>
+		/// Copies visible UTF-16 characters, excluding ANSI sequences through 'm' and MXP tags through
+		/// their closing delimiter, into caller-owned storage without allocating. Unterminated markup
+		/// hides the remaining text. On insufficient capacity returns false and reports the copied prefix.
+		/// Source and destination must not overlap unless they start at the same position.
+		/// </summary>
+		public static bool TryCopyRawText(this ReadOnlySpan<char> input, Span<char> destination, out int charsWritten)
+		{
+			charsWritten = 0;
+			bool colour = false, mxp = false;
+			foreach (var ch in input)
+			{
+				colour |= ch == '\x1B';
+				mxp |= ch == MXP.BeginMXPChar;
+				if (!colour && !mxp)
+				{
+					if (charsWritten == destination.Length)
+					{
+						return false;
+					}
+
+					destination[charsWritten++] = ch;
+				}
+
+				colour &= ch != 'm';
+				mxp &= ch != MXP.EndMXPChar;
+			}
+
+			return true;
+		}
+
+        /// <summary>
+        /// Removes MXP tags and replaces the end of every ANSI colour sequence with a Markdown bold marker. Unterminated markup hides the remainder.
+        /// </summary>
         public static string RawTextForDiscord(this string text)
         {
             StringBuilder sb = new();
@@ -408,11 +542,17 @@ namespace MudSharp.Framework
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Returns a substring indexed by visible UTF-16 characters, preserving embedded ANSI and MXP markup. Excess length is clamped; missing start positions return empty.
+        /// </summary>
         public static string RawTextSubstring(this string input, int startIndex)
         {
             return input.RawTextSubstring(startIndex, input.RawTextLength() - startIndex);
         }
 
+        /// <summary>
+        /// Returns a substring indexed by visible UTF-16 characters, preserving embedded ANSI and MXP markup. Excess length is clamped; missing start positions return empty.
+        /// </summary>
         public static string RawTextSubstring(this string input, int startIndex, int characters)
         {
             if (string.IsNullOrEmpty(input) || characters <= 0)
@@ -454,11 +594,23 @@ namespace MudSharp.Framework
             return input[start..];
         }
 
+        /// <summary>
+        /// Counts visible UTF-16 characters, excluding ANSI sequences and MXP tags. Null or empty input returns zero; unterminated markup hides the remainder.
+        /// </summary>
         public static int RawTextLength(this string input)
         {
-            if (string.IsNullOrEmpty(input))
+            return input.AsSpan().RawTextLength();
+        }
+
+		/// <summary>
+		/// Counts visible UTF-16 characters without allocating, excluding ANSI sequences through 'm'
+		/// and MXP tags through their closing delimiter. Unterminated markup hides the remainder.
+		/// </summary>
+        public static int RawTextLength(this ReadOnlySpan<char> input)
+        {
+            if (input.IndexOfAny('\x1B', MXP.BeginMXPChar) < 0)
             {
-                return 0;
+                return input.Length;
             }
             int count = 0;
             bool colour = false, mxp = false;
@@ -474,12 +626,18 @@ namespace MudSharp.Framework
             return count;
         }
 
+        /// <summary>
+        /// Prepends padding until the visible UTF-16 length reaches pad, ignoring ANSI and MXP markup. Null is treated as empty.
+        /// </summary>
         public static string RawTextPadLeft(this string input, int pad, char padChar = ' ')
         {
             int len = input.RawTextLength();
             return (len < pad ? new string(padChar, pad - len) : "") + input;
         }
 
+        /// <summary>
+        /// Appends padding until the visible UTF-16 length reaches pad, ignoring ANSI and MXP markup. Null is treated as empty.
+        /// </summary>
         public static string RawTextPadRight(this string input, int pad, char padChar = ' ')
         {
             int len = input.RawTextLength();
@@ -510,6 +668,9 @@ namespace MudSharp.Framework
         }
 
         public static Regex StringSanitisingFilteredRegex = new(@"\{(?<index>\d+)[^\}]*\}");
+        /// <summary>
+        /// Escapes numbered format placeholders above maximumIndex by doubling their braces, leaving lower indexes and nonmatching text unchanged.
+        /// </summary>
         public static string SanitiseExceptNumbered(this string input, int maximumIndex)
         {
             return StringSanitisingFilteredRegex.Replace(input, m =>
@@ -523,6 +684,9 @@ namespace MudSharp.Framework
             });
         }
 
+        /// <summary>
+        /// Inserts spaces at lower-to-upper and acronym-to-word boundaries. The conditional overload returns unchanged text when truth is false.
+        /// </summary>
         public static string SplitCamelCase(this string str)
         {
             return Regex.Replace(
@@ -536,6 +700,9 @@ namespace MudSharp.Framework
             );
         }
 
+        /// <summary>
+        /// Inserts spaces at lower-to-upper and acronym-to-word boundaries. The conditional overload returns unchanged text when truth is false.
+        /// </summary>
         public static string SplitCamelCase(this string str, bool truth)
         {
             if (!truth)
@@ -562,7 +729,6 @@ namespace MudSharp.Framework
         /// The use case for this function would be, for example, duplicate names of things where you might have "Item" become "Item1" or "Item55" become "Item56" etc.
         /// </summary>
         /// <param name="str">The string to check</param>
-        /// <returns></returns>
         public static string IncrementNumberOrAddNumber(this string str)
         {
             Match match = IncrementRegex.Match(str);
@@ -615,6 +781,9 @@ namespace MudSharp.Framework
             return $"{name}{matches.Select(x => int.Parse(x.Groups["number"].Length == 0 ? "0" : x.Groups["number"].Value)).Max() + 1}";
         }
 
+        /// <summary>
+        /// Formats true as green True and false as red False, each followed by a reset sequence.
+        /// </summary>
         public static string ToColouredString(this bool boolean)
         {
             return boolean ? "True".Colour(Telnet.Green) : "False".Colour(Telnet.Red);
@@ -627,7 +796,6 @@ namespace MudSharp.Framework
         /// <param name="formatProvider">The format provider to provide the culture info for the number format</param>
         /// <param name="decimalPlaces">The number of decimal places</param>
         /// <param name="colour">Whether to colour green/red for bonus/penalty</param>
-        /// <returns></returns>
         public static string ToBonusString(this double number, IFormatProvider formatProvider = null, uint decimalPlaces = 2, bool colour = true)
         {
             formatProvider ??= NumberFormatInfo.InvariantInfo;
@@ -645,6 +813,9 @@ namespace MudSharp.Framework
             return value;
         }
 
+        /// <summary>
+        /// Formats a signed percentage bonus with the supplied precision and culture; optionally colours nonnegative values green and negative values red.
+        /// </summary>
         public static string ToBonusPercentageString(this double number, IFormatProvider formatProvider = null, uint decimalPlaces = 2, bool colour = true)
         {
             formatProvider ??= NumberFormatInfo.InvariantInfo;
@@ -667,14 +838,15 @@ namespace MudSharp.Framework
         /// </summary>
         /// <param name="number">The number to format</param>
         /// <param name="formatProvider">The format provider to provide the culture info for the number format</param>
-        /// <param name="decimalPlaces">The number of decimal places</param>
         /// <param name="colour">Whether to colour green/red for bonus/penalty</param>
-        /// <returns></returns>
         public static string ToBonusString(this int number, IFormatProvider formatProvider = null, bool colour = true)
         {
             return ((double)number).ToBonusString(formatProvider, 0U, colour);
         }
 
+        /// <summary>
+        /// Wraps lines to the visible width while preserving ANSI and MXP markup and respecting the no-wrap marker. Applies the supplied indentation.
+        /// </summary>
         public static string Wrap(this string text, int width, string indent = "")
         {
             if (width < 1 || string.IsNullOrEmpty(text))
@@ -791,13 +963,14 @@ namespace MudSharp.Framework
         ///     Marks this text as non-wrapping when sent to the player. Word wrap will not be applied. Must be applied on a
         ///     per-line basis.
         /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
         public static string NoWrap(this string text)
         {
             return Telnet.NoWordWrap + text;
         }
 
+        /// <summary>
+        /// Normalises sentence spacing and capitalisation while preserving ANSI and MXP tokens. Null and empty input return empty.
+        /// </summary>
         public static string NormaliseOutputSentences(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -986,6 +1159,9 @@ namespace MudSharp.Framework
             return output.ToString();
         }
 
+        /// <summary>
+        /// Capitalises sentence starts using the current culture while retaining ANSI and MXP markup and existing whitespace.
+        /// </summary>
         public static string ProperSentences(this string input)
         {
             if (input.Length == 0)
@@ -1058,6 +1234,9 @@ namespace MudSharp.Framework
                 titleColour);
         }
 
+        /// <summary>
+        /// Builds a decorated title line using the account inner line width and Unicode preference, with optional ruler and title colours.
+        /// </summary>
         public static string GetLineWithTitleInner(this string text, IHaveAccount person, ANSIColour rulerColour, ANSIColour titleColour)
         {
             return text.GetLineWithTitle(person.Account.InnerLineFormatLength, person.Account.UseUnicode, rulerColour,
@@ -1126,15 +1305,38 @@ namespace MudSharp.Framework
         /// <returns>A collapsed string, e.g. "longdescription"</returns>
         public static string CollapseString(this string text)
         {
-            return CollapseStringRegex.Replace(text, m => string.Empty);
+            ArgumentNullException.ThrowIfNull(text);
+            var length = 0;
+            foreach (var ch in text)
+            {
+                if (ch is not (' ' or '_' or '-'))
+                {
+                    length++;
+                }
+            }
+
+            return length == text.Length ? text : string.Create(length, text, static (destination, source) =>
+            {
+                var index = 0;
+                foreach (var ch in source)
+                {
+                    if (ch is not (' ' or '_' or '-'))
+                    {
+                        destination[index++] = ch;
+                    }
+                }
+            });
         }
 
+        /// <summary>
+        /// Splits a message into chunks of at most 1950 UTF-16 characters, preferring newline boundaries and consuming the separating newline. Empty input produces one empty chunk.
+        /// </summary>
         public static IEnumerable<string> SplitStringsForDiscord(this string message)
         {
             List<string> list = new();
             while (message.Length > 1950)
             {
-                int lastNewline = message[..1950].LastIndexOf('\n');
+                int lastNewline = message.AsSpan(0, 1950).LastIndexOf('\n');
                 if (lastNewline == -1)
                 {
                     list.Add(message[..1950]);
@@ -1150,6 +1352,9 @@ namespace MudSharp.Framework
             return list;
         }
 
+        /// <summary>
+        /// Removes whitespace-only lines and carriage returns while retaining ANSI markup on content lines; optionally preserves a single isolated newline. An unterminated final line is retained.
+        /// </summary>
         public static string RemoveBlankLines(this string text, bool leaveLonelyNewlines = true)
         {
             StringBuilder sb = new();
@@ -1223,6 +1428,9 @@ namespace MudSharp.Framework
 
         public static Regex RegexCleanupRegex => new(@"\((?<option1>[a-z0-9]+)\|(?<option2>[a-z0-9]+)+\|*(?<option3>[a-z0-9]*)+\)", RegexOptions.IgnoreCase);
 
+        /// <summary>
+        /// Produces a display example by removing anchors and optional markers and choosing the first supported simple alternation; this is not a general regex inverse.
+        /// </summary>
         public static string TransformRegexIntoPattern(this Regex regex)
         {
             string text = regex
@@ -1376,11 +1584,17 @@ namespace MudSharp.Framework
 
         public static Encoding Latin1Encoder { get; } = Encoding.GetEncoding("iso-8859-1", new Latin1EncoderFallback(), DecoderFallback.ExceptionFallback);
 
+        /// <summary>
+        /// Normalises to Unicode Form C and encodes Latin-1, transliterating supported characters and representing unsupported characters with Unicode code-point labels.
+        /// </summary>
         public static string ConvertToLatin1(this string input)
         {
             return Latin1Encoder.GetString(Latin1Encoder.GetBytes(input.Normalize(NormalizationForm.FormC)));
         }
 
+        /// <summary>
+        /// Removes combining diacritics after Unicode Form D normalisation and replaces remaining non-ASCII characters with question marks.
+        /// </summary>
         public static string ConvertToAscii(this string input)
         {
             string normalizedString = input.Normalize(NormalizationForm.FormD);
@@ -1400,6 +1614,9 @@ namespace MudSharp.Framework
             return Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(stringBuilder.ToString()));
         }
 
+        /// <summary>
+        /// Applies AP-style title capitalisation using current culture, preserving acronyms and internal capitals and lowercasing selected small words except at boundaries.
+        /// </summary>
         public static string ToTitleCaseAP(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -1508,6 +1725,9 @@ namespace MudSharp.Framework
             return char.ToUpper(word[0]) + word[1..].ToLower();
         }
 
+        /// <summary>
+        /// Escapes common JSON control characters, quotes and backslashes using successive replacements; does not cover every control character or lone surrogate.
+        /// </summary>
         public static string EscapeForJsonNaive(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -1526,6 +1746,9 @@ namespace MudSharp.Framework
         }
 
 #nullable enable
+        /// <summary>
+        /// Escapes JSON string content without adding quotes, including control characters and lone surrogates. Preserves valid surrogate pairs, null and empty input; returns the original string when no escaping is needed.
+        /// </summary>
         public static string? EscapeForJson(this string? input)
         {
             if (string.IsNullOrEmpty(input))

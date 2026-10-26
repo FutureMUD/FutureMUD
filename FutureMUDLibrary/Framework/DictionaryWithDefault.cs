@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,21 +13,33 @@ namespace MudSharp.Framework;
 
 public static class DictionaryWithDefaultExtensions
 {
+    /// <summary>
+    /// Builds a dictionary using selected keys and source or projected values; later duplicate keys replace earlier values. A null source throws.
+    /// </summary>
     public static DictionaryWithDefault<TKey, TValue> ToDictionaryWithDefault<TKey, TValue>(this IEnumerable<TValue> collection, Func<TValue, TKey> keySelector) where TKey : notnull
     {
         return ToDictionaryWithDefault(collection, keySelector, x => x);
     }
 
+    /// <summary>
+    /// Builds a dictionary using selected keys and source or projected values with the supplied key comparer; later duplicate keys replace earlier values. A null source throws.
+    /// </summary>
     public static DictionaryWithDefault<TKey, TValue> ToDictionaryWithDefault<TKey, TValue>(this IEnumerable<TValue> collection, Func<TValue, TKey> keySelector, IEqualityComparer<TKey>? comparer) where TKey : notnull
     {
         return ToDictionaryWithDefault(collection, keySelector, x => x, comparer);
     }
 
+    /// <summary>
+    /// Builds a dictionary using selected keys and source or projected values; later duplicate keys replace earlier values. A null source throws.
+    /// </summary>
     public static DictionaryWithDefault<TKey, TValue> ToDictionaryWithDefault<TSource, TKey, TValue>(this IEnumerable<TSource> collection, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector) where TKey : notnull
     {
         return ToDictionaryWithDefault(collection, keySelector, valueSelector, null);
     }
 
+    /// <summary>
+    /// Builds a dictionary using selected keys and source or projected values with the supplied key comparer; later duplicate keys replace earlier values. A null source throws.
+    /// </summary>
     public static DictionaryWithDefault<TKey, TValue> ToDictionaryWithDefault<TSource, TKey, TValue>(this IEnumerable<TSource> collection, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector, IEqualityComparer<TKey>? comparer) where TKey : notnull
     {
         if (collection == null)

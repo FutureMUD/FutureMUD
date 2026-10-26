@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -270,7 +270,15 @@ namespace MudSharp.Framework
 
         public bool ContainsValue(U value)
         {
-            return _internal.Any(x => Equals(x.Value, value));
+            foreach (var values in _internal.Values)
+            {
+                if (values.Contains(value))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void Clear()
@@ -337,6 +345,9 @@ namespace MudSharp.Framework
 
     public static class CollectionDictionaryExtensions
     {
+        /// <summary>
+        /// Groups source values by their supplied or selected keys, preserving order and duplicate values within each key. Projected keys that compare equal share a list.
+        /// </summary>
         public static CollectionDictionary<TKey, TValue> ToCollectionDictionary<TKey, TValue>(this IEnumerable<(TKey Key, TValue Value)> enumerable, Func<(TKey, TValue), TKey> keySelector, Func<(TKey, TValue), TValue> valueSelector)
         {
             CollectionDictionary<TKey, TValue> dict = new();
@@ -347,6 +358,9 @@ namespace MudSharp.Framework
             return dict;
         }
 
+        /// <summary>
+        /// Groups source values by their supplied or selected keys, preserving order and duplicate values within each key. Projected keys that compare equal share a list.
+        /// </summary>
         public static CollectionDictionary<TKey, TValue> ToCollectionDictionary<TKey, TValue>(this IEnumerable<(TKey Key, TValue Value)> enumerable)
         {
             CollectionDictionary<TKey, TValue> dict = new();
@@ -357,6 +371,9 @@ namespace MudSharp.Framework
             return dict;
         }
 
+        /// <summary>
+        /// Groups source values by their supplied or selected keys, preserving order and duplicate values within each key. Projected keys that compare equal share a list.
+        /// </summary>
         public static CollectionDictionary<TKey, TValue> ToCollectionDictionary<TKey, TValue>(this IEnumerable<Tuple<TKey, TValue>> enumerable)
         {
             CollectionDictionary<TKey, TValue> dict = new();
@@ -367,6 +384,9 @@ namespace MudSharp.Framework
             return dict;
         }
 
+        /// <summary>
+        /// Groups source values by their supplied or selected keys, preserving order and duplicate values within each key. Projected keys that compare equal share a list.
+        /// </summary>
         public static CollectionDictionary<TKey, TValue> ToCollectionDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
         {
             CollectionDictionary<TKey, TValue> dict = new();
@@ -377,6 +397,9 @@ namespace MudSharp.Framework
             return dict;
         }
 
+        /// <summary>
+        /// Groups source values by their supplied or selected keys, preserving order and duplicate values within each key. Projected keys that compare equal share a list.
+        /// </summary>
         public static CollectionDictionary<TKeyR, TValueR> ToCollectionDictionary<TKey, TValue, TKeyR, TValueR>(this CollectionDictionary<TKey, TValue> dictionary, Func<TKey, TKeyR> keySelector, Func<TValue, TValueR> valueSelector)
         {
             CollectionDictionary<TKeyR, TValueR> dict = new();

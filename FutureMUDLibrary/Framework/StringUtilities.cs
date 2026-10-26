@@ -1,4 +1,4 @@
-﻿using Castle.DynamicProxy.Contributors;
+using Castle.DynamicProxy.Contributors;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
@@ -200,8 +200,6 @@ namespace MudSharp.Framework
         ///     Parses the string for colours specified using pound symbols and hexadecimal identifiers (e.g. #5a tall man#0) and
         ///     replaces them with ANSI colour sequences
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
         public static string SubstituteANSIColour(this string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -284,11 +282,17 @@ namespace MudSharp.Framework
             );
         }
 
+        /// <summary>
+        /// Removes recognised ANSI colour escape sequences. The conditional overload returns unchanged input when strip is false.
+        /// </summary>
         public static string StripANSIColour(this string input)
         {
             return _stripANSIRegex.Replace(input, string.Empty);
         }
 
+        /// <summary>
+        /// Removes recognised ANSI colour escape sequences. The conditional overload returns unchanged input when strip is false.
+        /// </summary>
         public static string StripANSIColour(this string input, bool strip)
         {
             return strip ? input.StripANSIColour() : input;
@@ -979,54 +983,74 @@ namespace MudSharp.Framework
             return sb.ToString().RemoveBlankLines();
         }
 
+        /// <summary>
+        /// Validates composite-format syntax and argument indexes, including aligned and escaped-brace placeholders. Required indexes must occur; overloads without a mask require every index. Null, negative counts and undersized masks return false.
+        /// </summary>
         public static bool IsValidFormatString(this string formatString, int expectedParameterCount)
         {
-            return formatString.IsValidFormatString(expectedParameterCount, new ReadOnlySpan<bool>(Enumerable.Repeat(true, expectedParameterCount).ToArray()));
+            if (expectedParameterCount < 0)
+            {
+                return false;
+            }
+
+            Span<bool> mandatory = expectedParameterCount <= 256
+                ? stackalloc bool[expectedParameterCount]
+                : new bool[expectedParameterCount];
+            mandatory.Fill(true);
+            return formatString.IsValidFormatString(expectedParameterCount, mandatory);
         }
 
+        /// <summary>
+        /// Validates composite-format syntax and argument indexes, including aligned and escaped-brace placeholders. Required indexes must occur; overloads without a mask require every index. Null, negative counts and undersized masks return false.
+        /// </summary>
         public static bool IsValidFormatString(this string formatString, ReadOnlySpan<bool> mandatoryMask)
         {
             return formatString.IsValidFormatString(mandatoryMask.Length, mandatoryMask);
         }
 
-        private static Regex IsValidFormatStringRegex = new(@"(?<!\{)\{\d+(:[^}]+)?\}(?!\})", RegexOptions.Compiled);
-
+        /// <summary>
+        /// Validates composite-format syntax and argument indexes, including aligned and escaped-brace placeholders. Required indexes must occur; overloads without a mask require every index. Null, negative counts and undersized masks return false.
+        /// </summary>
         public static bool IsValidFormatString(this string formatString, int expectedParameterCount, ReadOnlySpan<bool> mandatoryMask)
         {
 			if (formatString is null || expectedParameterCount < 0 || mandatoryMask.Length < expectedParameterCount)
 				return false;
 			try
 			{
-				// Validate complete composite-format syntax, including escaped/unmatched braces
-				// and indexes hidden from the placeholder-presence regex (for example alignment).
+				// Keep the runtime parser as the authority on composite-format syntax and index bounds.
 				if (CompositeFormat.Parse(formatString).MinimumArgumentCount > expectedParameterCount) return false;
 			}
 			catch (FormatException)
 			{
 				return false;
 			}
-            // This regex pattern matches {number} or {number:format} placeholders
-            MatchCollection matches = IsValidFormatStringRegex.Matches(formatString);
+            Span<bool> placeholdersPresent = expectedParameterCount <= 256
+                ? stackalloc bool[expectedParameterCount]
+                : new bool[expectedParameterCount];
+            placeholdersPresent.Clear();
 
-            // Track if all expected placeholders are present
-            bool[] placeholdersPresent = new bool[expectedParameterCount];
-
-            foreach (Match match in matches)
+            // Syntax is already validated. Skip escaped braces, then read each real argument index.
+            // Alignment and empty format specifiers do not change whether an argument is present.
+            for (var position = 0; position < formatString.Length; position++)
             {
-                string placeholder = match.Value;
-                string numberPart = placeholder.Split(new[] { ':', '}' })[0].Trim('{');
-                if (int.TryParse(numberPart, out int placeholderIndex))
+                if (formatString[position] != '{')
                 {
-                    if (placeholderIndex < expectedParameterCount)
-                    {
-                        placeholdersPresent[placeholderIndex] = true;
-                    }
-                    else
-                    {
-                        // Placeholder index is out of expected range
-                        return false;
-                    }
+                    continue;
                 }
+
+                if (formatString[position + 1] == '{')
+                {
+                    position++;
+                    continue;
+                }
+
+                var index = 0;
+                while (char.IsAsciiDigit(formatString[++position]))
+                {
+                    index = index * 10 + formatString[position] - '0';
+                }
+
+                placeholdersPresent[index] = true;
             }
 
             // Verify all expected placeholders are present

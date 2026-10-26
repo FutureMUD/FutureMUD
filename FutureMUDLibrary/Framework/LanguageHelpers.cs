@@ -37,6 +37,9 @@ namespace MudSharp.Framework
             { "user", false },
         };
 
+        /// <summary>
+        /// Adds a definite article unless the text already begins with “the”, “a”, or “an” (case-insensitive); optionally capitalises the article.
+        /// </summary>
         public static string The(this string input, bool proper)
         {
             if (input.StartsWith("the ", StringComparison.InvariantCultureIgnoreCase) ||
@@ -111,6 +114,9 @@ namespace MudSharp.Framework
             return GetAorAn(input, proper, colour);
         }
 
+        /// <summary>
+        /// Adds an indefinite article unless the text already has an article or is plural; optionally capitalises and colours the result.
+        /// </summary>
         public static string A_An_RespectPlurals(this string input, bool proper = false, ANSIColour colour = null)
         {
             if (input.ContainsPlural())
@@ -167,6 +173,9 @@ namespace MudSharp.Framework
             return _pluralOverrides.ContainsKey(lowerInput) ? _pluralOverrides[lowerInput] : _pluralizationService.Pluralize(input);
         }
 
+        /// <summary>
+        /// Returns whether any word in the input is not recognised as singular by the English pluralisation service.
+        /// </summary>
         public static bool ContainsPlural(this string input)
         {
             return !new ExplodedString(input).Words.All(x => _pluralizationService.IsSingular(x));

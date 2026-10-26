@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,9 @@ namespace MudSharp.Framework
 {
     public static class Utilities
     {
+        /// <summary>
+        /// Tests whether any candidate equals the receiver using object.Equals. Null matches null; an empty candidate array returns false.
+        /// </summary>
         public static bool In<T>(this T thing, params T[] values)
         {
             return values.Any(x => Equals(x, thing));
@@ -22,6 +25,9 @@ namespace MudSharp.Framework
             DiscardDelimiter
         }
 
+        /// <summary>
+        /// Returns the enum member name, optionally expanding camel case and applying a colour.
+        /// </summary>
         public static string DescribeEnum(this Enum value, bool explodeCamelCase = false, ANSIColour colour = null)
         {
             Type type = value.GetType();
@@ -36,6 +42,9 @@ namespace MudSharp.Framework
             return Enum.GetName(value.GetType(), value).SplitCamelCase(explodeCamelCase).Colour(colour);
         }
 
+        /// <summary>
+        /// Parses a declared numeric enum value, or an invariant-culture case-insensitive declared name with optional camel-case spaces. Returns false and default for unrecognised input.
+        /// </summary>
         public static bool TryParseEnum<T>(this string value, out T theEnum) where T : Enum
         {
             Type type = typeof(T);
@@ -153,11 +162,17 @@ namespace MudSharp.Framework
             return true;
         }
 
+        /// <summary>
+        /// Parses an enum value and returns the supplied fallback when parsing fails.
+        /// </summary>
         public static T ParseEnumWithDefault<T>(this string text, T fallback) where T : Enum
         {
             return TryParseEnum<T>(text, out T value) ? value : fallback;
         }
 
+        /// <summary>
+        /// Enumerates the enum values whose bits are present in the receiver.
+        /// </summary>
         public static IEnumerable<T> GetAllFlags<T>(this T flags) where T : Enum
         {
             foreach (T value in Enum.GetValues(flags.GetType()).Cast<T>())
@@ -169,6 +184,9 @@ namespace MudSharp.Framework
             }
         }
 
+        /// <summary>
+        /// Moves through the enum’s declared values by the requested signed number of positions, clamping at either end.
+        /// </summary>
         public static T Stage<T>(this T enumValue, int steps) where T : Enum
         {
             T[] enumValues = Enum.GetValues(enumValue.GetType()).Cast<T>().ToArray();
@@ -181,6 +199,9 @@ namespace MudSharp.Framework
             return enumValues[newIndex];
         }
 
+        /// <summary>
+        /// Moves forward through the enum’s declared values, clamping at the final value.
+        /// </summary>
         public static T StageUp<T>(this T enumValue, uint steps = 1) where T : Enum
         {
             T[] enumValues = Enum.GetValues(enumValue.GetType()).Cast<T>().ToArray();
@@ -191,6 +212,9 @@ namespace MudSharp.Framework
             return nextIndex < enumValues.Length ? enumValues[nextIndex] : enumValues.Last();
         }
 
+        /// <summary>
+        /// Moves backward through the enum’s declared values, clamping at the first value.
+        /// </summary>
         public static T StageDown<T>(this T enumValue, uint steps = 1) where T : Enum
         {
             T[] enumValues = Enum.GetValues(enumValue.GetType()).Cast<T>().ToArray();
@@ -201,6 +225,9 @@ namespace MudSharp.Framework
             return nextIndex >= 0 ? enumValues[nextIndex] : enumValues.First();
         }
 
+        /// <summary>
+        /// Returns the numeric difference between this enum value and another.
+        /// </summary>
         public static int StepsFrom<T>(this T value, T other) where T : Enum
         {
             Type eType = Enum.GetUnderlyingType(typeof(T));
@@ -209,6 +236,9 @@ namespace MudSharp.Framework
             return Convert.ToInt32(valueConverted) - Convert.ToInt32(otherConverted);
         }
 
+        /// <summary>
+        /// Enumerates the individual non-zero flags present in the receiver.
+        /// </summary>
         public static IEnumerable<T> GetSingleFlags<T>(this T flags) where T : Enum
         {
             foreach (T value in Enum.GetValues(flags.GetType()).Cast<T>())
@@ -220,6 +250,9 @@ namespace MudSharp.Framework
             }
         }
 
+        /// <summary>
+        /// Enumerates the individual non-zero flags present in the enum value.
+        /// </summary>
         public static IEnumerable<Enum> GetFlags(this Enum flags)
         {
             ulong flag = 1;
@@ -238,6 +271,9 @@ namespace MudSharp.Framework
             }
         }
 
+        /// <summary>
+        /// Returns the single attribute of the requested type on the named enum field, or null when absent. Unnamed values and multiple matching attributes are unsupported.
+        /// </summary>
         public static TAttribute GetAttribute<TAttribute>(this Enum value)
             where TAttribute : Attribute
         {
@@ -249,6 +285,9 @@ namespace MudSharp.Framework
                 .SingleOrDefault();
         }
 
+        /// <summary>
+        /// Splits a byte array at delimiter bytes and yields the segments between delimiters.
+        /// </summary>
         public static IEnumerable<byte[]> SplitDelimiter(this byte[] input, IEnumerable<byte> delimiters,
             ByteSplitOptions options = ByteSplitOptions.DiscardDelimiter)
         {
@@ -279,6 +318,9 @@ namespace MudSharp.Framework
             return values;
         }
 
+        /// <summary>
+        /// Appends a formatted line to the string builder and returns the same builder for chaining.
+        /// </summary>
         [StringFormatMethod("text")]
         public static StringBuilder AppendLineFormat(this StringBuilder sb, IFormatProvider format, string text,
             params object[] parameters)
@@ -286,6 +328,9 @@ namespace MudSharp.Framework
             return sb.AppendLine(string.Format(format, text, parameters));
         }
 
+        /// <summary>
+        /// Appends a formatted line to the string builder and returns the same builder for chaining.
+        /// </summary>
         [StringFormatMethod("text")]
         public static StringBuilder AppendLineFormat(this StringBuilder sb, string text, params object[] parameters)
         {
@@ -293,6 +338,9 @@ namespace MudSharp.Framework
         }
 
         private static readonly Dictionary<Type, ConstructorInfo> _genericListConstructors = new();
+        /// <summary>
+        /// Creates an empty list whose element type is the supplied type.
+        /// </summary>
         public static System.Collections.IList CreateList(this Type type)
         {
             if (_genericListConstructors.TryGetValue(type, out ConstructorInfo ctor))
@@ -306,6 +354,9 @@ namespace MudSharp.Framework
             return (System.Collections.IList)ci.Invoke(Array.Empty<object>());
         }
 
+        /// <summary>
+        /// Returns the inner XML content of the element as a string.
+        /// </summary>
         public static string InnerXML(this XElement el)
         {
             XmlReader reader = el.CreateReader();

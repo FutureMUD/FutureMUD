@@ -1,44 +1,21 @@
 # AIStorytellerSeeder
 
-## Start here to add content
+## Purpose and installation
 
-Edit [AIStorytellerSeeder.cs](../../../DatabaseSeeder/Seeders/AIStorytellerSeeder/AIStorytellerSeeder.cs): **Inline reference-document content and EnsureReferenceDocument invocation**. Keep source identity and dependent references together. The worked entry below is the smallest existing path to follow before adding a new definition.
+The optional starter pack installs Example Narrative Steward, three sample FutureProgs, and twelve reference documents. The `install` yes/no question, account prerequisite and seeder order are unchanged. An explicit seeder rerun is the only stock modernization entry point; server startup does not rewrite saved settings.
 
-## Purpose, operator choices and prerequisites
+New stock uses `gpt-6-luna`/`none` for attention, `gpt-6.1-terra`/`low` for events and `gpt-6.1-terra`/`medium` for time updates. Output budgets are 256/4,096/4,096. Execution options enable fixed five-second routine-event batching, a 120-second deadline and stable-prefix caching on compatible models. The sample retains its heartbeat subscriptions and existing operational pause default. These models require operator account access; the seeder does not contact OpenAI.
 
-Adds one complete AI storyteller example package.
-Baseline availability: **Enabled**. [AIStorytellerSeeder.cs](../../../DatabaseSeeder/Seeders/AIStorytellerSeeder/AIStorytellerSeeder.cs) owns `SeederQuestions`, `SeedData` and `ShouldSeedData`. Reflection discovery needs no manual registration.
+## Ownership and upgrades
 
-Operator question IDs: `install`. Read the linked `SeederQuestions` filters and validators for accepted values, defaults and conditional visibility; required database bindings cannot be replaced with guessed numeric IDs.
+`SeederManagedRecords` entries use owner `AIStorytellerSeeder`, module `starter-pack`, entity type and the original source name as stable key. Logical IDs resolve renamed managed records. Storytellers, progs and documents have separate field baselines, with prog parameter signatures reconciled as one field and reference restrictions preserved independently.
 
-Metadata prerequisite descriptions:
+A same-name legacy row is adopted only when all mapped scalar fields and, for progs, its ordered parameter signature match the historical source definition. Line-ending differences alone are accepted. Legacy storyteller adoption also requires verified linked sample prog ownership. Matching names alone never establish ownership. Unknown/customized legacy rows remain unclaimed and unchanged, with a report explaining why. Duplicate identities, competing claims and missing managed rows fail the transaction rather than guessing replacements.
 
-- The Core seeder must have created at least one account.
+After adoption, field-level reconciliation updates fields still equal to the previous stock baseline and preserves builder edits, including names, prompts, models, subscriptions, pause state, tool XML, prog bodies/parameters and reference visibility. The desired stock baseline is saved separately from preserved overrides so later reruns cannot reinterpret those overrides as stock. Fresh installation writes current definitions directly. Historical source strings exist only to recognize legacy records; unsupported focus-tool guidance is removed from current stock output.
 
-These are checks, not an installation guarantee. The [dependency map](Dependency_Map.md) distinguishes hard ordering edges from soft ordering hints.
+## Authoring and verification
 
-## Inputs, representative trace and practical authoring guide
+Keep reference identity, inline content, readiness check and `EnsureReferenceDocument` call together in the owning seeder. For changed stock prose, retain its prior definition as an explicit historical adoption candidate where legacy migration is required. Do not overwrite ambiguous same-name content or adopt a live builder value as a new stock baseline.
 
-Named entry: SeedData creates or loads AIStoryteller named Example Narrative Steward, sets model/prompts/progs/heartbeat flags and saves to AIStorytellers. It then calls EnsureReferenceDocument with AI Storyteller Primer and inline contents. Helper upserts AIStorytellerReferenceDocuments by name and assigns Description, FolderName, DocumentType, Keywords, DocumentContents and restrictions. Add a reference with a name constant, ShouldSeedData missing-document check, a SeedData call with all metadata/content and helper; same-name content is overwritten on rerun. Source content is inline C# prose. Transaction is explicit; package may be offered for extra/missing stock. No dedicated AIStoryteller test file located.
-
-All named fields and calls above are authored source. The addition steps are static instructions; this documentation task did not add content or execute them. Preserve existing identities, supply all constructor/helper arguments from the adjacent entry, and trace every referenced body, material, trait, tag, component, prog or model to its owning prerequisite. A new unsupported runtime type requires its implementation and registration as well as a source row.
-
-**Worked addition.** For a worked reference `Example Local Primer`, add a constant and inline reviewed contents, an EnsureReferenceDocument call with full folder/type/keywords/restrictions metadata, and the missing-document readiness check. Verify AIStorytellerReferenceDocuments, then the storyteller access/reference integration. Same-name documents are rewritten; use a distinct identity for customization. This does not establish live model/provider availability. These instructions were source-checked but not executed.
-
-Detailed runtime/builder contracts: [AI Storyteller Design](../../AI/AI_Storyteller_Design.md).
-
-## Declared rerun and ownership contract
-
-Metadata declares `Idempotent / RepairExisting`.
-
-This package is designed to be rerun safely.
-
-Reruns reuse and update existing stock storyteller sample records.
-
-The trace above describes actual identity, write and transaction behavior. Metadata is a declared contract, not proof of field-level preservation. The [shared executor](README.md#shared-execution-contract) records answers after `SeedData`; it cannot undo commits or earlier saves that have already completed.
-
-## Verification and related references
-
-The example was checked against source at the pinned baseline. No build, database or gameplay result is claimed. For a future addition, verify first install, selected-path admission, rerun and builder customization boundaries using the owning focused suite; inspect failure and partial-install behavior rather than assuming the success message proves completeness. Follow the [verification map](../../../.codex/references/verification-and-docs.md).
-
-See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).
+Focused regressions live in `DatabaseSeeder Unit Tests/AIStorytellerSeederTests.cs`: fresh/repeated installation, legacy adoption, line endings, customized legacy preservation, managed renames/edits and linked-prog ownership. In-memory tests establish reconciliation behavior but do not establish native MySQL rollback or live gameplay. See [runtime contract and opt-in live evaluation](../../AI/AI_Storyteller_Design.md), [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), and [verification map](../../../.codex/references/verification-and-docs.md).

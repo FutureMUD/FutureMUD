@@ -18,6 +18,9 @@ public interface IAIStoryteller : IFrameworkItem, ISaveable, IEditableItem
     int SpeechContextEventCount { get; }
     TimeSpan SpeechContextMaximumSeparation { get; }
 
+    /// <summary>Advance queued provider work and execute completed tools on the game loop.</summary>
+    void ProcessPendingWork();
+    string ShowUsage(ICharacter voyeur);
     void SubscribeEvents();
     void UnsubscribeEvents();
     void Delete();

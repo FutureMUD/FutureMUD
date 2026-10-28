@@ -381,6 +381,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
                 sw.Restart();
                 MudSharp.Server.ExceptionReporter.Operation = "Game loop: Scheduler";
                 Scheduler.CheckSchedules();
+                foreach (var storyteller in AIStorytellers.ToArray()) storyteller.ProcessPendingWork();
 				RecordLoopPhase(RuntimeLoopPhase.Scheduler, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)
                 {

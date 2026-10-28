@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Commands.Helpers;
 
 namespace MudSharp.Commands.Modules;
@@ -17,6 +17,7 @@ internal class AIStorytellerModule : BaseBuilderModule
 
 You can use the following syntax:
 
+	#3ais usage [<id|name>]#0 - shows since-startup usage for one or all storytellers
 	#3ais list#0 - lists all AI storytellers
 	#3ais edit <id|name>#0 - opens a storyteller for editing
 	#3ais edit new <name>#0 - creates a new storyteller
@@ -30,7 +31,16 @@ You can use the following syntax:
     [HelpInfo("aistoryteller", AIStorytellerHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void AIStoryteller(ICharacter actor, string command)
     {
-        GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.AIStorytellerHelper);
+        var arguments = new StringStack(command.RemoveFirstWord());
+        if (arguments.PeekSpeech().EqualTo("usage"))
+        {
+            arguments.PopSpeech();
+            var query = arguments.SafeRemainingArgument;
+            var targets = actor.Gameworld.AIStorytellers.Where(x => string.IsNullOrWhiteSpace(query) || x.Name.EqualTo(query) || x.Id.ToString() == query).ToList();
+            actor.OutputHandler.Send(targets.Count == 0 ? "No matching storyteller." : string.Join("\n", targets.Select(x => x.ShowUsage(actor))));
+            return;
+        }
+        GenericBuildingCommand(actor, arguments, EditableItemHelper.AIStorytellerHelper);
     }
 
     public const string AIStorytellerReferenceHelp =

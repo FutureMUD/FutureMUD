@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public class AIStorytellerSeeder : IDatabaseSeeder
+public partial class AIStorytellerSeeder : IDatabaseSeeder
 {
     private const string StorytellerName = "Example Narrative Steward";
     private const string FiveMinuteStatusProgName = "AIStorytellerStatusFiveMinute";
@@ -62,7 +62,7 @@ public class AIStorytellerSeeder : IDatabaseSeeder
 - one safe sample custom tool prog
 - twelve sample reference documents (one global, one storyteller-restricted, and ten reusable skill guides)
 
-This package is safe to run multiple times and updates/reuses existing sample records.";
+Reruns update recognized stock records and preserve builder customizations. Ambiguous same-name records are preserved and reported.";
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {
@@ -71,31 +71,31 @@ This package is safe to run multiple times and updates/reuses existing sample re
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
-        bool hasStoryteller = context.AIStorytellers.Any(x => x.Name == StorytellerName);
-        bool hasFiveMinuteProg = context.FutureProgs.Any(x => x.FunctionName == FiveMinuteStatusProgName);
-        bool hasHourlyProg = context.FutureProgs.Any(x => x.FunctionName == HourlyStatusProgName);
-        bool hasCustomToolProg = context.FutureProgs.Any(x => x.FunctionName == SafeCustomToolProgName);
-        bool hasPrimerDocument = context.AIStorytellerReferenceDocuments.Any(x => x.Name == PrimerDocumentName);
-        bool hasFactionDocument = context.AIStorytellerReferenceDocuments.Any(x => x.Name == FactionDocumentName);
-        bool hasRoomsSkillDocument = context.AIStorytellerReferenceDocuments.Any(x => x.Name == RoomsSkillDocumentName);
+        bool hasStoryteller = (HasManagedIdentity<AIStoryteller>(context, StorytellerName) || context.AIStorytellers.Any(x => x.Name == StorytellerName));
+        bool hasFiveMinuteProg = (HasManagedIdentity<FutureProg>(context, FiveMinuteStatusProgName) || context.FutureProgs.Any(x => x.FunctionName == FiveMinuteStatusProgName));
+        bool hasHourlyProg = (HasManagedIdentity<FutureProg>(context, HourlyStatusProgName) || context.FutureProgs.Any(x => x.FunctionName == HourlyStatusProgName));
+        bool hasCustomToolProg = (HasManagedIdentity<FutureProg>(context, SafeCustomToolProgName) || context.FutureProgs.Any(x => x.FunctionName == SafeCustomToolProgName));
+        bool hasPrimerDocument = (HasManagedIdentity<AIStorytellerReferenceDocument>(context, PrimerDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == PrimerDocumentName));
+        bool hasFactionDocument = (HasManagedIdentity<AIStorytellerReferenceDocument>(context, FactionDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == FactionDocumentName));
+        bool hasRoomsSkillDocument = (HasManagedIdentity<AIStorytellerReferenceDocument>(context, RoomsSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == RoomsSkillDocumentName));
         bool hasPathingSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == PathingSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, PathingSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == PathingSkillDocumentName));
         bool hasSituationMemorySkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == SituationMemorySkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, SituationMemorySkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == SituationMemorySkillDocumentName));
         bool hasEventTriageSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == EventTriageSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, EventTriageSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == EventTriageSkillDocumentName));
         bool hasToolProfileSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == ToolProfileSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, ToolProfileSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == ToolProfileSkillDocumentName));
         bool hasReferenceResearchSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == ReferenceResearchSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, ReferenceResearchSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == ReferenceResearchSkillDocumentName));
         bool hasTimeCalendarSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == TimeCalendarSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, TimeCalendarSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == TimeCalendarSkillDocumentName));
         bool hasPlayerIntelligenceSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == PlayerIntelligenceSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, PlayerIntelligenceSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == PlayerIntelligenceSkillDocumentName));
         bool hasCrimeStatePlaybookSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == CrimeStatePlaybookSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, CrimeStatePlaybookSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == CrimeStatePlaybookSkillDocumentName));
         bool hasInCharacterOutputSkillDocument =
-            context.AIStorytellerReferenceDocuments.Any(x => x.Name == InCharacterOutputSkillDocumentName);
+            (HasManagedIdentity<AIStorytellerReferenceDocument>(context, InCharacterOutputSkillDocumentName) || context.AIStorytellerReferenceDocuments.Any(x => x.Name == InCharacterOutputSkillDocumentName));
 
         if (hasStoryteller && hasFiveMinuteProg && hasHourlyProg && hasCustomToolProg && hasPrimerDocument &&
             hasFactionDocument && hasRoomsSkillDocument && hasPathingSkillDocument &&
@@ -127,6 +127,8 @@ This package is safe to run multiple times and updates/reuses existing sample re
             return "No changes were applied.";
         }
 
+        _reconciliationMessages.Clear();
+        _unownedProgFound = false;
         context.Database.BeginTransaction();
         try
         {
@@ -161,13 +163,7 @@ This package is safe to run multiple times and updates/reuses existing sample re
                 (ProgVariableTypes.Text, "Cue")
             );
 
-            AIStoryteller? storyteller = context.AIStorytellers.FirstOrDefault(x => x.Name == StorytellerName);
-            if (storyteller is null)
-            {
-                storyteller = new AIStoryteller();
-                context.AIStorytellers.Add(storyteller);
-            }
-
+            var storyteller = new AIStoryteller();
             storyteller.Name = StorytellerName;
             storyteller.Description =
                 "An example AI storyteller pack seeded by DatabaseSeeder for heartbeat-driven narrative management.";
@@ -200,6 +196,24 @@ Reply with "ignore" otherwise.
             storyteller.HeartbeatStatus30mProgId = null;
             storyteller.HeartbeatStatus1hProgId = hourlyProg.Id;
             storyteller.IsPaused = false;
+
+            var legacyStoryteller = ScalarValues(context, storyteller);
+            storyteller.Model = "gpt-6.1-terra";
+            storyteller.TimeModel = "gpt-6.1-terra";
+            storyteller.AttentionClassifierModel = "gpt-6-luna";
+            storyteller.TimeSystemPrompt = storyteller.SystemPrompt;
+            storyteller.ReasoningEffort = "1";
+            storyteller.TimeReasoningEffort = "2";
+            storyteller.AttentionClassifierReasoningEffort = "none";
+            storyteller.AttentionAgentPrompt = "Classify whether the supplied world events materially affect your narrative remit. Use the supplied JSON schema; give only a brief reason.";
+            var tools = XElement.Parse(storyteller.CustomToolCallsDefinition);
+            tools.Add(new XElement("ExecutionOptions", new XAttribute("version", 1),
+                new XElement("EventOutputTokens", 4096), new XElement("TimeOutputTokens", 4096),
+                new XElement("AttentionOutputTokens", 256), new XElement("RequestTimeoutSeconds", 120),
+                new XElement("BatchWindowSeconds", 5), new XElement("CachePolicy", "stable")));
+            storyteller.CustomToolCallsDefinition = tools.ToString();
+            storyteller = ReconcileEntity(context, StorytellerName, storyteller, legacyStoryteller,
+                context.AIStorytellers.Where(x => x.Name == StorytellerName).ToList(), !_unownedProgFound);
 
             context.SaveChanges();
 
@@ -640,7 +654,8 @@ Before sending:
 
             context.SaveChanges();
             context.Database.CommitTransaction();
-            return "Installed or updated AI Storyteller starter pack successfully.";
+            return "Installed or updated AI Storyteller starter pack successfully." +
+                (_reconciliationMessages.Count == 0 ? string.Empty : "\n" + string.Join("\n", _reconciliationMessages));
         }
         catch (Exception e)
         {
@@ -649,77 +664,48 @@ Before sending:
         }
     }
 
-    private static FutureProg EnsureProg(FuturemudDatabaseContext context, string functionName, string category,
+    private FutureProg EnsureProg(FuturemudDatabaseContext context, string functionName, string category,
         string subcategory, ProgVariableTypes returnType, string comment, string text,
         params (ProgVariableTypes Type, string Name)[] parameters)
     {
-        FutureProg? prog = context.FutureProgs.FirstOrDefault(x => x.FunctionName == functionName);
-        if (prog is null)
+        var desired = new FutureProg
         {
-            prog = new FutureProg
+            FunctionName = functionName, FunctionComment = comment, FunctionText = text,
+            ReturnType = (long)returnType, Category = category, Subcategory = subcategory,
+            Public = false, AcceptsAnyParameters = false, StaticType = (int)FutureProgStaticType.NotStatic
+        };
+        for (var i = 0; i < parameters.Length; i++)
+            desired.FutureProgsParameters.Add(new FutureProgsParameter
             {
-                FunctionName = functionName,
-                FunctionComment = comment,
-                FunctionText = text,
-                ReturnType = (long)returnType,
-                Category = category,
-                Subcategory = subcategory,
-                Public = false,
-                AcceptsAnyParameters = false,
-                StaticType = (int)FutureProgStaticType.NotStatic
-            };
-            context.FutureProgs.Add(prog);
-            context.SaveChanges();
-        }
-
-        prog.FunctionComment = comment;
-        prog.FunctionText = text;
-        prog.ReturnType = (long)returnType;
-        prog.Category = category;
-        prog.Subcategory = subcategory;
-        prog.Public = false;
-        prog.AcceptsAnyParameters = false;
-        prog.StaticType = (int)FutureProgStaticType.NotStatic;
-
-        List<FutureProgsParameter> existingParameters = prog.FutureProgsParameters.ToList();
-        foreach (FutureProgsParameter? parameter in existingParameters)
-        {
-            context.FutureProgsParameters.Remove(parameter);
-        }
-
-        for (int index = 0; index < parameters.Length; index++)
-        {
-            (ProgVariableTypes type, string? name) = parameters[index];
-            context.FutureProgsParameters.Add(new FutureProgsParameter
-            {
-                FutureProg = prog,
-                ParameterIndex = index,
-                ParameterTypeDefinition = type.ToStorageString(),
-                ParameterName = name
+                ParameterIndex = i, ParameterName = parameters[i].Name,
+                ParameterTypeDefinition = parameters[i].Type.ToStorageString()
             });
-        }
-
-        context.SaveChanges();
-        return prog;
+        var legacy = ScalarValues(context, desired);
+        var result = ReconcileEntity(context, functionName, desired, legacy,
+            context.FutureProgs.Where(x => x.FunctionName == functionName).ToList());
+        if (!context.SeederManagedRecords.Any(x => x.Seeder == nameof(AIStorytellerSeeder) &&
+            x.EntityType == nameof(FutureProg) && x.LogicalId == result.Id)) _unownedProgFound = true;
+        return result;
     }
 
-    private static void EnsureReferenceDocument(FuturemudDatabaseContext context, string name, string description,
+    private void EnsureReferenceDocument(FuturemudDatabaseContext context, string name, string description,
         string folderName, string documentType, string keywords, string contents, string restrictedStorytellerIds)
     {
-        AIStorytellerReferenceDocument? document = context.AIStorytellerReferenceDocuments.FirstOrDefault(x => x.Name == name);
-        if (document is null)
+        var desired = new AIStorytellerReferenceDocument
         {
-            document = new AIStorytellerReferenceDocument();
-            context.AIStorytellerReferenceDocuments.Add(document);
+            Name = name, Description = description, FolderName = folderName, DocumentType = documentType,
+            Keywords = keywords, DocumentContents = contents, RestrictedStorytellerIds = restrictedStorytellerIds
+        };
+        var legacy = ScalarValues(context, desired);
+        desired.DocumentContents = ModernizeDocument(contents);
+        if (name == EventTriageSkillDocumentName)
+        {
+            desired.Name = "Skill - Event Triage and Attention";
+            desired.Description = "How to classify routine event batches and act on relevant narrative developments.";
+            desired.Keywords = "skill,event-triage,attention,batching,situations";
         }
-
-        document.Name = name;
-        document.Description = description;
-        document.FolderName = folderName;
-        document.DocumentType = documentType;
-        document.Keywords = keywords;
-        document.DocumentContents = contents;
-        document.RestrictedStorytellerIds = restrictedStorytellerIds;
+        ReconcileEntity(context, name, desired, legacy,
+            context.AIStorytellerReferenceDocuments.Where(x => x.Name == name).ToList());
     }
 
     private static string BuildCustomToolDefinition(long customToolProgId)

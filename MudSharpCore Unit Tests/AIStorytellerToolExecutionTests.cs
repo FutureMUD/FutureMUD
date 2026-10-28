@@ -190,7 +190,7 @@ public class AIStorytellerToolExecutionTests
         Assert.IsNotNull(options.ToolChoice);
         Assert.AreEqual(ResponseToolChoiceKind.Required, options.ToolChoice.Kind);
         Assert.IsTrue(options.ParallelToolCallsEnabled);
-        Assert.AreEqual(1200, options.MaxOutputTokenCount);
+        Assert.AreEqual(4096, options.MaxOutputTokenCount);
         Assert.AreEqual("Sentinel instructions", options.Instructions);
         Assert.AreEqual(storyteller.ReasoningEffort, options.ReasoningOptions?.ReasoningEffortLevel);
         Assert.IsTrue(options.Tools.Count > 0);
@@ -1372,18 +1372,15 @@ public class AIStorytellerToolExecutionTests
     public void QueueStorytellerWork_RejectsWorkBeyondBoundedQueue()
     {
         AIStoryteller storyteller = CreateStoryteller();
-        TaskCompletionSource<object?> blocker = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
         for (int i = 0; i < 25; i++)
         {
-            Assert.IsTrue(storyteller.QueueStorytellerWork(() => blocker.Task));
+            Assert.IsTrue(storyteller.EnqueuePrompt("test", "Direct", "event", false, storyteller.SystemPrompt,
+                storyteller.Model, storyteller.ReasoningEffort, AIStoryteller.StorytellerToolProfile.Full));
         }
-
         Assert.AreEqual(25, storyteller.PendingStorytellerWorkCount);
-        Assert.IsFalse(storyteller.QueueStorytellerWork(() => Task.CompletedTask));
-
-        blocker.SetResult(null);
-        SpinWait.SpinUntil(() => storyteller.PendingStorytellerWorkCount == 0, TimeSpan.FromSeconds(2));
+        Assert.IsFalse(storyteller.EnqueuePrompt("test", "Direct", "event", false, storyteller.SystemPrompt,
+            storyteller.Model, storyteller.ReasoningEffort, AIStoryteller.StorytellerToolProfile.Full));
+        storyteller.Pause();
         Assert.AreEqual(0, storyteller.PendingStorytellerWorkCount);
     }
 

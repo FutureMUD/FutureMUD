@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Name;
+using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -342,7 +342,7 @@ public partial class AIStoryteller
             functionName: functionName,
             functionDescription: functionDescription,
             functionParameters: BinaryData.FromString(
-                NormalizeFunctionToolSchema(functionParametersJson)),
+                NormalizeFunctionToolSchema(AddRetrievalSchema(functionName, functionParametersJson))),
             strictModeEnabled: true
         ));
     }
@@ -641,108 +641,6 @@ public partial class AIStoryteller
         return names.Any() && names.All(x => x.EqualTo("Noop"));
     }
 
-	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
-		StorytellerToolProfile toolProfile, string systemPrompt, string model)
-    {
-        DateTime started = DateTime.UtcNow;
-        int malformedRetries = 0;
-        int missingToolCallRetries = 0;
-        bool hasObservedToolCall = false;
-
-        for (int depth = 0; depth < MaxToolCallDepth; depth++)
-        {
-            if (DateTime.UtcNow - started > MaxToolExecutionDuration)
-            {
-                LogStorytellerError("Tool execution duration exceeded safety budget.");
-                return;
-            }
-
-            try
-            {
-                CreateResponseOptions options = new(model, messages);
-                bool requireToolCall = !hasObservedToolCall;
-				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile, systemPrompt);
-                DebugAIMessaging("Engine -> Storyteller Continuation Request",
-                    $"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Tool Profile: {toolProfile}, Require Tool Call: {requireToolCall}, Context Messages: {messages.Count:N0}");
-
-                ResponseResult response = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
-                DebugResponseUsage("Storyteller -> Engine Usage", response);
-                DebugAIMessaging("Storyteller -> Engine Response", response.GetOutputText());
-                List<FunctionCallResponseItem> functionCalls = response.OutputItems.OfType<FunctionCallResponseItem>().ToList();
-                if (functionCalls.Any())
-                {
-                    messages.AddRange(response.OutputItems);
-                    DebugAIMessaging("Storyteller -> Engine Tool Requests",
-                        string.Join(
-                            "\n\n",
-                            functionCalls.Select(x =>
-                                $"""
-Function: {x.FunctionName}
-Call Id: {x.CallId.IfNullOrWhiteSpace(x.Id).IfNullOrWhiteSpace("(none)")}
-Arguments:
-{x.FunctionArguments.ToString().IfNullOrWhiteSpace("{}")}
-""")));
-                }
-                if (!functionCalls.Any())
-                {
-                    if (!hasObservedToolCall)
-                    {
-                        missingToolCallRetries++;
-                        if (missingToolCallRetries > MaxMissingToolCallRetries)
-                        {
-                            LogStorytellerError(
-                                $"Storyteller failed to produce a required tool call after {MaxMissingToolCallRetries:N0} retries.");
-                            return;
-                        }
-
-                        messages.Add(ResponseItem.CreateUserMessageItem(MissingToolCallFeedbackMessage));
-                        DebugAIMessaging("Engine -> Storyteller Retry Feedback",
-                            $"""
-Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N0}
-{MissingToolCallFeedbackMessage}
-""");
-                        continue;
-                    }
-
-                    DebugAIMessaging("Storyteller Tool Loop Complete",
-                        $"Round {depth + 1:N0} returned no function calls.");
-                    return;
-                }
-
-                hasObservedToolCall = true;
-                missingToolCallRetries = 0;
-                bool noopOnlyBatch = IsNoopOnlyFunctionCallBatch(functionCalls.Select(x => x.FunctionName));
-                (bool shouldContinue, int retries) = ProcessFunctionCallBatch(
-                    functionCalls.Select(x => (
-                        x.CallId.IfNullOrWhiteSpace(x.Id),
-                        x.FunctionName,
-                        (string?)x.FunctionArguments.ToString())),
-                    includeEchoTools,
-                    messages,
-                    malformedRetries);
-                malformedRetries = retries;
-                if (!shouldContinue)
-                {
-                    return;
-                }
-
-                if (noopOnlyBatch)
-                {
-                    DebugAIMessaging("Storyteller Tool Loop Complete",
-                        $"Round {depth + 1:N0} completed via Noop tool call.");
-                    return;
-                }
-            }
-            catch (Exception e)
-            {
-                LogStorytellerException(e);
-                return;
-            }
-        }
-
-        LogStorytellerError($"Tool call depth exceeded safety budget of {MaxToolCallDepth:N0} rounds.");
-    }
-
     private void LogStorytellerError(string message)
     {
         ErrorLoggerOverride?.Invoke(message);
@@ -841,7 +739,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
             argumentsJson = JsonDocument.Parse(argumentsText);
             JsonElement arguments = argumentsJson.RootElement;
-            return functionName switch
+            var result = functionName switch
             {
                 "Noop" => SuccessResult(new Dictionary<string, object>
                 {
@@ -872,6 +770,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 "CalendarDefinition" => HandleCalendarDefinition(arguments),
                 _ => HandleCustomFunctionCall(functionName, arguments, includeEchoTools)
             };
+            return BoundToolResult(functionName, arguments, result);
         }
         catch (JsonException e)
         {
@@ -1180,7 +1079,6 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             {
                 ["Id"] = x.Id,
                 ["Title"] = x.MemoryTitle,
-                ["Details"] = x.MemoryText,
                 ["CreatedOn"] = x.CreatedOn.ToString("O")
             })
             .ToList();
@@ -1243,7 +1141,6 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             {
                 ["Id"] = x.Id,
                 ["Title"] = x.MemoryTitle,
-                ["Details"] = x.MemoryText,
                 ["CreatedOn"] = x.CreatedOn.ToString("O")
             })
             .ToList();

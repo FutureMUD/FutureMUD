@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.TimeAndDate;
 using OpenAI.Responses;
 
@@ -12,8 +12,12 @@ public partial class AIStoryteller
 	#3description#0 - edits the description text in an editor
 	#3model <model>#0 - sets the event OpenAI model
 	#3model <event|time|attention> <model>#0 - sets a scoped OpenAI model
-	#3reasoning <minimal|low|medium|high>#0 - sets event reasoning effort
-	#3reasoning <event|time|attention> <minimal|low|medium|high>#0 - sets scoped reasoning effort
+	#3reasoning <none|minimal|low|medium|high|xhigh|max>#0 - sets event reasoning effort
+	#3reasoning <event|time|attention> <none|minimal|low|medium|high|xhigh|max>#0 - sets scoped reasoning effort
+	#3outputtokens <event|time|attention> <128-128000>#0 - sets the output budget including reasoning
+	#3timeout <5-600>#0 - sets the complete run deadline in seconds
+	#3batch <0-60>#0 - sets the fixed routine-event window in seconds (0 disables)
+	#3cache <stable|provider>#0 - selects stable-prefix or provider-default caching
 	#3attention#0 - edits the attention prompt in an editor
 	#3system#0 - edits the event system prompt in an editor
 	#3timesystem#0 - edits the time status update system prompt in an editor
@@ -37,8 +41,23 @@ public partial class AIStoryteller
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+        var changed = BuildingCommandInternal(actor, command);
+        if (changed) CancelPendingWork();
+        return changed;
+    }
+
+    private bool BuildingCommandInternal(ICharacter actor, StringStack command)
+    {
         switch (command.PopForSwitch())
         {
+            case "outputtokens":
+                return BuildingCommandExecutionOption(actor, command, "outputtokens");
+            case "timeout":
+                return BuildingCommandExecutionOption(actor, command, "timeout");
+            case "batch":
+                return BuildingCommandExecutionOption(actor, command, "batch");
+            case "cache":
+                return BuildingCommandExecutionOption(actor, command, "cache");
             case "name":
                 return BuildingCommandName(actor, command);
             case "description":
@@ -177,6 +196,12 @@ public partial class AIStoryteller
         }
 
         string model = command.SafeRemainingArgument;
+        var currentEffort = scope == AIStorytellerPromptScope.Time ? TimeReasoningEffort : scope == AIStorytellerPromptScope.Attention ? AttentionClassifierReasoningEffort : ReasoningEffort;
+        if (!IsSupportedEffort(model, currentEffort))
+        {
+            actor.OutputHandler.Send("That model does not support the current reasoning effort. Change reasoning first.");
+            return false;
+        }
         switch (scope)
         {
             case AIStorytellerPromptScope.Event:
@@ -226,10 +251,17 @@ public partial class AIStoryteller
         if (!TryParseReasoningEffort(command.SafeRemainingArgument, out ResponseReasoningEffortLevel effort))
         {
             actor.OutputHandler.Send(
-                $"That is not a valid reasoning effort. Use {"minimal".ColourCommand()}, {"low".ColourCommand()}, {"medium".ColourCommand()} or {"high".ColourCommand()}.");
+                $"That is not a valid reasoning effort. You can also use none, xhigh or max on supported models. Use {"minimal".ColourCommand()}, {"low".ColourCommand()}, {"medium".ColourCommand()} or {"high".ColourCommand()}.");
             return false;
         }
 #pragma warning restore OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+        var currentModel = scope == AIStorytellerPromptScope.Time ? TimeModel : scope == AIStorytellerPromptScope.Attention ? AttentionClassifierModel : Model;
+        if (!IsSupportedEffort(currentModel, effort))
+        {
+            actor.OutputHandler.Send("That reasoning effort is unsupported by this model.");
+            return false;
+        }
 
         switch (scope)
         {
@@ -1075,6 +1107,8 @@ public partial class AIStoryteller
         sb.AppendLine($"Attention Classifier Model: {AttentionClassifierModel.ColourValue()}");
         sb.AppendLine(
             $"Attention Classifier Reasoning Effort: {AttentionClassifierReasoningEffort.Describe().ColourValue()}");
+        sb.AppendLine($"Output tokens (event/time/attention): {EventOutputTokens.ToString("N0", actor)}/{TimeOutputTokens.ToString("N0", actor)}/{AttentionOutputTokens.ToString("N0", actor)}");
+        sb.AppendLine($"Run deadline: {RequestTimeoutSeconds.ToString("N0", actor)} seconds; batch window: {BatchWindowSeconds.ToString("N0", actor)} seconds; cache: {(UseExplicitCache ? "stable prefix on supported models" : "provider default")}");
         sb.AppendLine($"Is Paused: {IsPaused.ToColouredString()}");
         sb.AppendLine($"");
         sb.AppendLine("Description".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));

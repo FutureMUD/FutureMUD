@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -30,9 +30,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	private const int MaxMalformedToolCallRetries = 3;
 	private const int MaxMissingToolCallRetries = 2;
 	private const int MaxQueuedStorytellerWorkItems = 25;
-	private const int MaxStorytellerOutputTokens = 1200;
-	private const int MaxAttentionClassifierOutputTokens = 120;
-	private static readonly TimeSpan MaxToolExecutionDuration = TimeSpan.FromSeconds(30);
+	private const int MaxStorytellerOutputTokens = 4096;
+
+
     private const int MaxSituationTitlesInPrompt = 25;
     private const int MaxPromptCharacters = 24_000;
     private const int MaxDebugMessageCharacters = 32_000;
@@ -40,7 +40,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
     private static readonly TimeSpan DefaultSpeechContextMaximumSeparation = TimeSpan.FromMinutes(10);
     private const int MaximumSpeechContextEventCount = 50;
     private const string AttentionContractInstruction =
-        """Return only strict JSON in this shape: {"Decision":"interested","Reason":"optional short reason"} or {"Decision":"ignore"}. Do not include any additional text.""";
+        """Return only JSON matching the supplied schema. Decision must be "interested" or "ignore". Include Reason as a short explanation or null. Do not include any additional text.""";
     private const string MissingToolCallFeedbackMessage =
         "You must respond with at least one tool call. If no world change is needed, call Noop.";
     internal enum StorytellerToolProfile
@@ -81,6 +81,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
         HeartbeatStatus1hProg = gameworld.FutureProgs.Get(storyteller.HeartbeatStatus1hProgId ?? 0L);
         IsPaused = storyteller.IsPaused;
         XElement root = SafeLoadCustomToolRoot(storyteller.CustomToolCallsDefinition);
+        LoadExecutionOptions(root.Element("ExecutionOptions"));
         SpeechContextEventCount = ParseSpeechContextEventCount(root.Element("SpeechContextEventCount")?.Value);
         SpeechContextMaximumSeparation =
             ParseSpeechContextMaximumSeparation(root.Element("SpeechContextMaximumSeparationMilliseconds")?.Value);
@@ -115,16 +116,17 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
         Gameworld = gameworld;
         _name = name;
         Description = "An AI Storyteller";
-        Model = "gpt-5";
+        Model = "gpt-6.1-terra";
         TimeModel = Model;
-        AttentionClassifierModel = Model;
+        AttentionClassifierModel = "gpt-6-luna";
         SystemPrompt = "You are an AI storyteller for an RPI MUD world.";
         TimeSystemPrompt = SystemPrompt;
-        AttentionAgentPrompt =
-            "Reply with \"interested\" optionally followed by a short reason only when input matters for your narrative remit. Otherwise reply \"ignore\".";
-        ReasoningEffort = ResponseReasoningEffortLevel.Medium;
-        TimeReasoningEffort = ReasoningEffort;
-        AttentionClassifierReasoningEffort = ResponseReasoningEffortLevel.Low;
+        AttentionAgentPrompt = "Classify whether the world event matters for your narrative remit. Use the supplied JSON schema.";
+        ReasoningEffort = ResponseReasoningEffortLevel.Low;
+        TimeReasoningEffort = ResponseReasoningEffortLevel.Medium;
+        AttentionClassifierReasoningEffort = ResponseReasoningEffortLevel.None;
+        AttentionOutputTokens = 256;
+        BatchWindowSeconds = 5;
         SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld, string.Empty);
         SubscribeToRoomEvents = true;
         SubscribeToSpeechEvents = false;
@@ -201,8 +203,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	private readonly List<IRoom> _subscribedRooms = [];
 	private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
 	public IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories => _characterMemories;
-	private readonly SemaphoreSlim _storytellerWorkerSemaphore = new(1, 1);
-	private int _queuedStorytellerWorkItems;
+
 	private readonly object _attentionBypassLock = new();
 	private readonly HashSet<long> _bypassAttentionCharacterIds = [];
 	private readonly HashSet<long> _bypassAttentionRoomIds = [];
@@ -220,7 +221,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
         _characterMemories.Add(memory);
     }
 
-	internal int PendingStorytellerWorkCount => Volatile.Read(ref _queuedStorytellerWorkItems);
+	internal int PendingStorytellerWorkCount => _pendingRuns.Count + (_activeRun is null ? 0 : 1);
 
 	private void DebugAIMessaging(string stage, string payload, bool sensitivePayload = true)
 	{
@@ -265,7 +266,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
     private void DebugResponseUsage(string stage, ResponseResult response)
     {
-        DebugAIMessaging(stage, DescribeTokenUsage(response));
+        DebugAIMessaging(stage, DescribeTokenUsage(response), false);
     }
 
     public void SubscribeEvents()
@@ -397,6 +398,9 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
         return persistedValue.Trim().ToLowerInvariant() switch
         {
+            "none" => ResponseReasoningEffortLevel.None,
+            "xhigh" => ResponseReasoningEffortLevel.ExtraHigh,
+            "max" => ResponseReasoningEffortLevel.Max,
             "minimal" => ResponseReasoningEffortLevel.Minimal,
             "low" => ResponseReasoningEffortLevel.Low,
             "medium" => ResponseReasoningEffortLevel.Medium,
@@ -426,6 +430,15 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
         switch (text.Trim().ToLowerInvariant())
         {
+            case "none":
+                effortLevel = ResponseReasoningEffortLevel.None;
+                return true;
+            case "xhigh":
+                effortLevel = ResponseReasoningEffortLevel.ExtraHigh;
+                return true;
+            case "max":
+                effortLevel = ResponseReasoningEffortLevel.Max;
+                return true;
             case "minimal":
                 effortLevel = ResponseReasoningEffortLevel.Minimal;
                 return true;
@@ -465,12 +478,13 @@ Total Tokens: {usage.TotalTokenCount:N0}
             return "3";
         }
 
-        return "2";
+        return level.ToString();
     }
 
     private XElement BuildCustomToolRoot()
     {
         return new XElement("ToolCalls",
+            SaveExecutionOptions(),
             new XElement("SpeechContextEventCount", SpeechContextEventCount),
             new XElement("SpeechContextMaximumSeparationMilliseconds",
                 (long)SpeechContextMaximumSeparation.TotalMilliseconds),
@@ -541,7 +555,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
         AppendOpenSituationTitles(sb);
         ExecuteStorytellerPrompt(apiKey, $"Heartbeat {heartbeatType}", sb.ToString(), includeEchoTools: false,
-            systemPrompt: TimeSystemPrompt, model: TimeModel, reasoningEffort: TimeReasoningEffort);
+            systemPrompt: TimeSystemPrompt, model: TimeModel, reasoningEffort: TimeReasoningEffort, timeRole: true);
     }
 
     internal void PassHeartbeatEventToAIStorytellerForTesting(string heartbeatType)
@@ -635,7 +649,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
         StringBuilder sb = new();
         AppendOpenSituationTitles(sb, location, [emote?.DefaultSource as ICharacter]);
         sb.AppendLine("Your attention classifier flagged a world event as relevant.");
-        sb.AppendLine($"Location: {location.HowSeen(null)}");
+
         if (emote?.DefaultSource is ICharacter ch)
         {
             sb.AppendLine($"Source Character: {ch.PersonalName.GetName(NameStyle.FullName)}");
@@ -645,7 +659,6 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
         sb.AppendLine("Event Text:");
         sb.AppendLine(echo.StripANSIColour().StripMXP());
-        AppendAttentionBypassToolGuidance(sb);
         bool bypassAttention = TryGetAttentionBypassReason(location, [emote?.DefaultSource as ICharacter],
             out string bypassReason);
         ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true,
@@ -655,7 +668,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
             toolProfile: StorytellerToolProfile.EventFocused,
             attentionPromptOverride: echo,
             bypassAttention: bypassAttention,
-            bypassReason: bypassReason);
+            bypassReason: bypassReason, roomId: location.Id, sharedContext: BatchRoomContext(location));
     }
     private void HeartbeatManager_FiveMinuteHeartbeat()
     {
@@ -691,6 +704,8 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
     public void Delete()
     {
+        _deleted = true;
+        CancelPendingWork();
         Changed = false;
         UnsubscribeEvents();
         Gameworld.SaveManager.Abort(this);
@@ -711,7 +726,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
         Gameworld.Destroy(this);
     }
 
-    public void Pause() { IsPaused = true; Changed = true; }
+    public void Pause() { IsPaused = true; CancelPendingWork(); Changed = true; }
     public void Unpause() { IsPaused = false; Changed = true; }
 
     public override void Save()
@@ -772,7 +787,7 @@ public static class ReasoningExtensions
         {
             return "High";
         }
-        return "Unknown";
+        return level.ToString();
     }
 }
 

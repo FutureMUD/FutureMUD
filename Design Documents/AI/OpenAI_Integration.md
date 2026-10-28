@@ -12,7 +12,7 @@ The old `Microsoft.Extensions.AI` and `Microsoft.Extensions.AI.OpenAI` package r
 
 ## Request Lifecycle and Diagnostics
 
-OpenAI requests run away from the main game loop and have a 120-second cancellation timeout. Every request receives a unique `X-Client-Request-Id`. Console diagnostics record that client reference and, when OpenAI returns a response, its `x-request-id`. These references allow an administrator to correlate a builder-visible failure with the full server log and with OpenAI support without logging the API key.
+Shared builder/thread OpenAI requests run away from the main game loop and have a 120-second cancellation timeout. Every shared-handler request receives a unique `X-Client-Request-Id`. Console diagnostics record that client reference and, when OpenAI returns a response, its `x-request-id`. These references allow an administrator to correlate a builder-visible failure with the full server log and with OpenAI support without logging the API key.
 
 All exceptions must be caught inside the asynchronous request body. A catch around only the call that schedules background work does not observe later network or API failures. The shared handler therefore routes completion to the success callback and all exceptions, including timeouts and TLS failures, to the failure path.
 
@@ -33,3 +33,9 @@ They queue a request immediately and later return either suggestions or a correl
 If a request reports that it could not establish a secure network connection, inspect the full exception in the server console. On Windows, a process launched in a restricted or sandboxed security context can fail TLS setup with `SEC_E_NO_CREDENTIALS` before OpenAI receives the request. Run the MUD under its normal service/user identity with access to Windows TLS credentials; changing the API key or model will not repair that transport failure.
 
 If OpenAI returns an HTTP error, use the client request reference and logged OpenAI request ID to distinguish authentication, model access, rate-limit, and request-validation failures.
+
+## Storyteller runtime
+
+Storytellers use the same pinned OpenAI 2.14.0 SDK through an injectable protocol adapter. Request preparation and tool execution run on the game loop; asynchronous network tasks receive immutable JSON only. Scoped model/reasoning/output settings are preserved for the entire run, with a default 120-second cancellation deadline. Completed, refused, incomplete and failed responses are distinguished before tool execution. Pausing or deleting a storyteller cancels active work and discards queued activity.
+
+New stock uses a fast classifier and a separate narrative model. Explicit stable-prefix caching on verified compatible models uses a developer content breakpoint with a 30-minute lifetime; legacy/unknown models retain provider defaults. Raw protocol JSON supports those fields without upgrading the SDK. Full output items, including encrypted reasoning, survive continuations. `ais usage` exposes numerical usage and cache-write/read counters without exposing narrative content. The full builder, migration and opt-in evaluation contract is in [AI Storyteller Design](AI_Storyteller_Design.md).

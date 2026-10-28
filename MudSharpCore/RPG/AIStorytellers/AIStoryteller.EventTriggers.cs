@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Name;
+using MudSharp.Character.Name;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -39,10 +39,9 @@ public partial class AIStoryteller
         sb.AppendLine("A direct storyteller attention event was invoked via FutureProg.");
         sb.AppendLine("Event Text:");
         sb.AppendLine(attentionText.Trim());
-        ExecuteStorytellerPrompt(apiKey, "Direct Invocation", sb.ToString(), includeEchoTools: false,
+        return ExecuteStorytellerPrompt(apiKey, "Direct Invocation", sb.ToString(), includeEchoTools: false,
             systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
             toolProfile: StorytellerToolProfile.Full);
-        return true;
     }
 
     internal static void HandleCharacterSpeechInRoomEvent(ICharacter speaker, IPerceivable? target, string message,
@@ -154,7 +153,7 @@ public partial class AIStoryteller
         StringBuilder sb = new();
         AppendOpenSituationTitles(sb, location, [speaker, target as ICharacter]);
         sb.AppendLine("A character has spoken in a surveilled room.");
-        sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
+
         sb.AppendLine($"Speaker: {speaker.PersonalName.GetName(NameStyle.FullName)}");
         sb.AppendLine($"Language: {language.Name}");
         sb.AppendLine($"Accent: {accent.Name}");
@@ -166,14 +165,13 @@ public partial class AIStoryteller
         sb.AppendLine("Spoken Text:");
         sb.AppendLine(message.StripANSIColour().StripMXP());
         AppendRecentSpeechContext(sb, location, eventTimestampUtc);
-        AppendAttentionBypassToolGuidance(sb);
         bool bypassAttention = TryGetAttentionBypassReason(location, [speaker, target as ICharacter],
             out string bypassReason);
         ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true,
             systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
             toolProfile: StorytellerToolProfile.EventFocused,
             bypassAttention: bypassAttention,
-            bypassReason: bypassReason);
+            bypassReason: bypassReason, roomId: location.Id, sharedContext: BatchRoomContext(location));
     }
 
 	private void PassSignEventToAIStoryteller(IRoom location, ICharacter signer, IPerceivable? target, string message,
@@ -188,7 +186,7 @@ public partial class AIStoryteller
 		var sb = new StringBuilder();
 		AppendOpenSituationTitles(sb, location, [signer, target as ICharacter]);
 		sb.AppendLine("A character has signed in a surveilled room.");
-		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
+
 		sb.AppendLine($"Signer: {signer.PersonalName.GetName(NameStyle.FullName)}");
 		sb.AppendLine($"Signed Language: {language.Name}");
 		if (variety is not null)
@@ -201,13 +199,12 @@ public partial class AIStoryteller
 		}
 		sb.AppendLine("Signed Text:");
 		sb.AppendLine(message.StripANSIColour().StripMXP());
-		AppendAttentionBypassToolGuidance(sb);
 		var bypassAttention = TryGetAttentionBypassReason(location, [signer, target as ICharacter],
 			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Signs", sb.ToString(), includeEchoTools: true,
 			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.EventFocused,
-			bypassAttention: bypassAttention, bypassReason: bypassReason);
+			bypassAttention: bypassAttention, bypassReason: bypassReason, roomId: location.Id, sharedContext: BatchRoomContext(location));
 	}
 
     private void PassCrimeToAIStoryteller(IRoom location, ICrime crime)
@@ -243,7 +240,6 @@ public partial class AIStoryteller
 
         sb.AppendLine($"Witness Count: {crime.WitnessIds.Count():N0}");
         sb.AppendLine($"Real-Time Stamp (UTC): {crime.RealTimeOfCrime:O}");
-        AppendAttentionBypassToolGuidance(sb);
         bool bypassAttention = TryGetAttentionBypassReason(location, [crime.Criminal, crime.Victim],
             out string bypassReason);
         ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false,
@@ -337,14 +333,6 @@ public partial class AIStoryteller
         return sb.ToString();
     }
 
-    private static void AppendAttentionBypassToolGuidance(StringBuilder sb)
-    {
-        sb.AppendLine();
-        sb.AppendLine("Attention Focus Guidance:");
-        sb.AppendLine("If this event should stay in focus, call BypassAttention with either CharacterId or RoomId.");
-        sb.AppendLine("When that focus is no longer needed, call EndBypassAttention for the same target.");
-    }
-
     private bool TryGetAttentionBypassReason(IRoom location, IEnumerable<ICharacter?> involvedCharacters,
         out string reason)
     {
@@ -374,148 +362,23 @@ public partial class AIStoryteller
         return false;
     }
 
-    private bool TryRunAttentionClassifier(string apiKey, string attentionPrompt, out string attentionReason)
-    {
-        attentionReason = string.Empty;
-        string classifierPrompt =
-            $"{AttentionAgentPrompt.IfNullOrWhiteSpace(string.Empty).Trim()}\n\n{AttentionContractInstruction}";
-        string trimmedPrompt = TrimPromptText(attentionPrompt);
-        DebugAIMessaging("Engine -> Attention Classifier Request",
-            $"""
-Model: {AttentionClassifierModel}
-Reasoning: {AttentionClassifierReasoningEffort.Describe()}
-Prompt:
-{classifierPrompt}
-
-Echo:
-{trimmedPrompt}
-""");
-
-        ResponsesClient client = new(apiKey);
-        CreateResponseOptions options = new(AttentionClassifierModel, [
-            ResponseItem.CreateUserMessageItem(trimmedPrompt)
-        ]);
-		options.Instructions = classifierPrompt;
-		options.StoredOutputEnabled = false;
-        options.TruncationMode = ResponseTruncationMode.Auto;
-        options.ReasoningOptions ??= new();
-        options.ReasoningOptions.ReasoningEffortLevel = AttentionClassifierReasoningEffort;
-        options.MaxOutputTokenCount = MaxAttentionClassifierOutputTokens;
-        ResponseResult attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
-        DebugResponseUsage("Attention Classifier -> Engine Usage", attention);
-        string attentionResponse = attention.GetOutputText();
-        DebugAIMessaging("Attention Classifier -> Engine Response", attentionResponse);
-        if (!TryInterpretAttentionClassifierOutput(attentionResponse, out bool interested, out string reason))
-        {
-            DebugAIMessaging("Attention Classifier Decision",
-                "Invalid response ignored due to contract violation.");
-            return false;
-        }
-
-        if (!interested)
-        {
-            DebugAIMessaging("Attention Classifier Decision", "Ignored event.");
-            return false;
-        }
-
-        attentionReason = reason.IfNullOrWhiteSpace("No reason provided");
-        DebugAIMessaging("Attention Classifier Decision",
-            $"Interested. Reason: {attentionReason}");
-        return true;
-    }
-
-	internal bool QueueStorytellerWork(Func<Task> work)
-	{
-		if (Interlocked.Increment(ref _queuedStorytellerWorkItems) > MaxQueuedStorytellerWorkItems)
-		{
-			Interlocked.Decrement(ref _queuedStorytellerWorkItems);
-			LogStorytellerError(
-				$"Storyteller background work queue is full ({MaxQueuedStorytellerWorkItems:N0} pending/running items). New event dropped.");
-			return false;
-		}
-
-		_ = Task.Run(async () =>
-		{
-			await _storytellerWorkerSemaphore.WaitAsync().ConfigureAwait(false);
-            try
-            {
-                await work().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                LogStorytellerException(e);
-            }
-			finally
-			{
-				_storytellerWorkerSemaphore.Release();
-				Interlocked.Decrement(ref _queuedStorytellerWorkItems);
-			}
-		});
-		return true;
-	}
-
     private void ExecuteAttentionFilteredStorytellerPrompt(string apiKey, string trigger, string userPrompt,
         bool includeEchoTools, string systemPrompt, string model, ResponseReasoningEffortLevel reasoningEffort,
         StorytellerToolProfile toolProfile = StorytellerToolProfile.Full,
-        string? attentionPromptOverride = null, bool bypassAttention = false, string? bypassReason = null)
+        string? attentionPromptOverride = null, bool bypassAttention = false, string? bypassReason = null,
+        long? roomId = null, string sharedContext = "")
     {
-		QueueStorytellerWork(() =>
-		{
-            if (bypassAttention)
-            {
-                string bypassPrompt = AppendAttentionReasonToPrompt(userPrompt,
-                    bypassReason.IfNullOrWhiteSpace("Bypass attention is active for this event."));
-                ExecuteStorytellerPromptImmediate(apiKey, trigger, bypassPrompt, includeEchoTools, toolProfile,
-                    systemPrompt, model, reasoningEffort);
-                return Task.CompletedTask;
-            }
-
-            if (!TryRunAttentionClassifier(apiKey, attentionPromptOverride ?? userPrompt, out string attentionReason))
-            {
-                return Task.CompletedTask;
-            }
-
-            string finalPrompt = AppendAttentionReasonToPrompt(userPrompt, attentionReason);
-            ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools, toolProfile,
-                systemPrompt, model, reasoningEffort);
-            return Task.CompletedTask;
-        });
+        EnqueuePrompt(apiKey, trigger, userPrompt, includeEchoTools, systemPrompt, model, reasoningEffort,
+            toolProfile, !bypassAttention, attentionPromptOverride, roomId, sharedContext);
     }
 
-    private void ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools,
+    private bool ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools,
         string systemPrompt, string model, ResponseReasoningEffortLevel reasoningEffort,
-        StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
+        StorytellerToolProfile toolProfile = StorytellerToolProfile.Full, bool timeRole = false)
     {
-		QueueStorytellerWork(() =>
-		{
-            ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile, systemPrompt,
-                model, reasoningEffort);
-            return Task.CompletedTask;
-        });
+        return EnqueuePrompt(apiKey, trigger, userPrompt, includeEchoTools, systemPrompt, model, reasoningEffort,
+            toolProfile, timeRole: timeRole);
     }
 
-    private void ExecuteStorytellerPromptImmediate(string apiKey, string trigger, string userPrompt,
-        bool includeEchoTools, StorytellerToolProfile toolProfile, string systemPrompt, string model,
-        ResponseReasoningEffortLevel reasoningEffort)
-    {
-        string prompt = TrimPromptText(userPrompt);
-        DebugAIMessaging("Engine -> Storyteller Request",
-            $"""
-Model: {model}
-Reasoning: {reasoningEffort.Describe()}
-Trigger: {trigger}
-System Prompt:
-{systemPrompt}
-
-User Prompt:
-{prompt}
-""");
-
-        ResponsesClient client = new(apiKey);
-        List<ResponseItem> messages =
-        [
-            ResponseItem.CreateUserMessageItem(prompt)
-        ];
-		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt, model);
-	}
+    private static string BatchRoomContext(IRoom room) => $"Room #{room.Id}: {room.HowSeen(null, colour: false)}\n";
 }

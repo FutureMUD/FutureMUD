@@ -74,6 +74,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		IReadOnlyDictionary<string, string> effectiveAnswers =
 			CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
 		LoadSharedSeederData(effectiveAnswers);
+		NonHumanPersonWordSeederHelper.Ensure(_context, _personWordDefinition, "Supernatural", PersonWordsByRace);
 
 		var summary = new SupernaturalSeedSummary();
 		Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(summary);
@@ -109,11 +110,16 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		}
 
 		return HasMissingSupernaturalSupport(context) ||
+		       NonHumanPersonWordSeederHelper.HasMissing(context, PersonWordsByRace) ||
 		       MonsterAIStockTemplates.HasMissing(context, "Supernatural") ||
 		       NPCSkillPackageSeederHelper.HasMissingStockRacePackages(context, StockSkillPackageRaces())
 			? ShouldSeedResult.ExtraPackagesAvailable
 			: ShouldSeedResult.MayAlreadyBeInstalled;
 	}
+
+	internal static IReadOnlyDictionary<string, IReadOnlyList<string>> PersonWordsByRace => Templates.Values
+		.Where(template => template.UsesHumanoidCharacteristics)
+		.ToDictionary(template => template.Name, GetPersonWords, StringComparer.OrdinalIgnoreCase);
 
 	private static IEnumerable<StockNPCSkillPackageRace> StockSkillPackageRaces()
 	{

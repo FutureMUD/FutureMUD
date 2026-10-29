@@ -41,6 +41,8 @@ Metadata declares `Idempotent / InstallMissing`.
 
 Reruns install missing stock mythic races without duplicating existing entries.
 
+Stock person words carry a Boolean `Toon` applicability prog for the catalogue races that use each word and their descendants (`SameRace`). This also restricts the words when an ethnicity uses the dynamic `All Person Words` profile. Ordinary humanoid words retain their existing age/gender rules. Rerunning this seeder repairs unrestricted legacy words only when their value fields and an associated auto-generated stock person-word profile still match the original definitions. Existing applicability/ongoing-validity progs, altered value fields and unrecognised profiles are preserved. Missing words are installed with their gate already attached; identities and profile memberships are retained. Repairable legacy words make the package available again. Run the updated seeder against the intended world, then restart the server to reload the data; updating the executable alone does not change an existing database.
+
 The trace above describes actual identity, write and transaction behavior. Metadata is a declared contract, not proof of field-level preservation. The [shared executor](README.md#shared-execution-contract) records answers after `SeedData`; it cannot undo commits or earlier saves that have already completed.
 
 ## Verification and related references

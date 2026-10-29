@@ -46,6 +46,8 @@ Existing builder-customized worlds keep their records; stock-owned supernatural 
 
 Supernatural stock content is tracked by stable race, body, culture, name-culture, merit, attack, and corpse-model names.
 
+Stock person words carry Boolean `Toon` applicability progs, allowing every catalogue race that uses the word and its descendants (`SameRace`). Shared family words therefore remain available to all applicable family members, while an `All Person Words` profile cannot expose them to unrelated races. Rerunning repairs unrestricted legacy words only when their value fields and an associated auto-generated stock person-word profile still match the original definitions. Existing applicability/ongoing-validity progs, altered value fields and unrecognised profiles are preserved by this repair. Missing words receive gates on creation, without replacing existing IDs or changing profile memberships. Repairable words make the package available again. Run the updated seeder and restart the server to apply this data repair to an existing world; an executable update alone is insufficient. The wider supernatural refresh behaviour described above still applies on rerun.
+
 The trace above describes actual identity, write and transaction behavior. Metadata is a declared contract, not proof of field-level preservation. The [shared executor](README.md#shared-execution-contract) records answers after `SeedData`; it cannot undo commits or earlier saves that have already completed.
 
 ## Verification and related references

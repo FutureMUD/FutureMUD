@@ -115,6 +115,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         IReadOnlyDictionary<string, string> effectiveAnswers =
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         LoadSharedSeederData(effectiveAnswers);
+		NonHumanPersonWordSeederHelper.Ensure(_context, _personWordDefinition, "Mythical", PersonWordsByRace);
 		MonsterAIStockTemplates.Seed(_context, "Mythical");
         bool hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
         bool hasMissingAnimalAiTemplates = HasMissingMythicalAnimalAIStockTemplates(_context);
@@ -138,7 +139,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             _context.Database.CommitTransaction();
             return auxiliaryResult.HasChanges || packageResult.HasChanges
 				? $"Mythical races are already installed and their breathing, mobility, diet, combat balance profiles, {auxiliaryResult.RaceLinks} auxiliary combat links, and {packageResult.RaceLinksAdded} NPC skill package links have been refreshed."
-                : "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed.";
+                : "Mythical races are already installed and their breathing, mobility, diet, combat balance profiles, and stock person-word eligibility have been refreshed.";
         }
 
         foreach (MythicalRaceTemplate template in templatesToSeed)
@@ -213,6 +214,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         if (Templates.Keys.All(name => context.Races.Any(x => x.Name == name)))
         {
             return HasMissingMythicalDisfigurementTemplates(context) ||
+				   NonHumanPersonWordSeederHelper.HasMissing(context, PersonWordsByRace) ||
                    HasMythicalSatiationLimitUpdates(context) ||
                    HasMissingMythicalAnimalAIStockTemplates(context) ||
                    HasMissingMythicalDietSettings(context) ||
@@ -224,6 +226,10 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
         return ShouldSeedResult.ReadyToInstall;
     }
+
+	internal static IReadOnlyDictionary<string, IReadOnlyList<string>> PersonWordsByRace => Templates.Values
+		.Where(template => template.HumanoidVariety)
+		.ToDictionary(template => template.Name, template => template.PersonWords!, StringComparer.OrdinalIgnoreCase);
 
 	private static IEnumerable<StockNPCSkillPackageRace> StockSkillPackageRaces()
 	{

@@ -51,6 +51,8 @@ Any repair-capable or compatibility update path must be:
 
 For source-only catalogue fixes, prefer invariant tests that scan the seed definitions or generated specs so regressions fail before they become seeded data.
 
+Mythical and Supernatural person-word eligibility uses a narrow legacy repair: only plain, unrestricted stock values with the matching auto-generated stock profile receive a race applicability prog. Existing progs, ongoing-validity rules and edited value/profile shapes are not adopted or replaced by this repair. Fresh words are created with gates attached. The gates cover all catalogue races sharing the word and their descendants; package availability detects repairable legacy words. No question, ordering, replay profile or schema changes are required. See the individual seeder documents for the existing-world rerun and reload procedure and their wider rerun behaviour.
+
 ## Taxonomy
 
 `SeederManagedRecords` has an optional `SeedBaseline` longtext field for field-level three-way reconciliation. A null baseline denotes an existing record without established field ownership. Consumers using `SeederManagedRecordReconciler` preserve those fields, preserve builder additions/removals/edits on later runs, and keep the proposed stock baseline separate from the live overridden values. The helper requires identities to be resolved before use; a matching display name does not establish ownership. Existing fingerprint-only consumers retain their current behavior.

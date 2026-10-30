@@ -4,6 +4,7 @@ using MudSharp.Events;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Decorators;
+using System.Globalization;
 
 #nullable enable annotations
 
@@ -27,13 +28,17 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto, ICurrencyP
 
     public static IGameItemProto ItemPrototype { get; set; }
     public IStackDecorator Decorator { get; private set; }
+    public ICurrency? DefaultCurrency { get; private set; }
+    public decimal? DefaultAmount { get; private set; }
+    public bool HasDefaultPile => DefaultCurrency != null && DefaultAmount.HasValue;
     public override bool ReadOnly => true;
-    public override bool PreventManualLoad => true;
+    public override bool PreventManualLoad => !HasDefaultPile;
     public override string TypeDescription => "Currency Pile";
 
     public static void InitialiseItemType(IFuturemud gameworld)
     {
-        ItemPrototype = gameworld.ItemProtos.SingleOrDefault(x => x.IsItemType<CurrencyGameItemComponentProto>());
+        ItemPrototype = gameworld.ItemProtos.SingleOrDefault(x =>
+            x.Components.OfType<CurrencyGameItemComponentProto>().Any(c => !c.HasDefaultPile));
         if (ItemPrototype == null)
         {
             CurrencyGameItemComponentProto comp = new(gameworld, null);
@@ -52,6 +57,27 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto, ICurrencyP
 
     protected override void LoadFromXml(XElement root)
     {
+        var currencyAttribute = root.Attribute("DefaultCurrency");
+        var amountAttribute = root.Attribute("DefaultAmount");
+        if ((currencyAttribute == null) != (amountAttribute == null))
+            throw new FormatException("Currency pile defaults require both DefaultCurrency and DefaultAmount.");
+        if (currencyAttribute != null)
+        {
+            if (!long.TryParse(currencyAttribute.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var currencyId) ||
+                !decimal.TryParse(amountAttribute!.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var amount) || amount <= 0m)
+                throw new FormatException("Currency pile defaults require a valid currency ID and positive decimal amount.");
+            DefaultCurrency = Gameworld.Currencies.Get(currencyId) ??
+                              throw new FormatException($"Currency pile default references unresolved currency #{currencyId}.");
+            var coins = DefaultCurrency.FindCoinsForAmount(amount, out var exact);
+            if (!exact || coins.Count == 0 || coins.Any(x => x.Value <= 0))
+                throw new FormatException("Currency pile default amount must be exactly representable as positive coins.");
+            DefaultAmount = amount;
+        }
+        else
+        {
+            DefaultCurrency = null;
+            DefaultAmount = null;
+        }
         XAttribute attribute = root.Attribute("Decorator");
         Decorator = attribute != null
             ? Gameworld.StackDecorators.Get(long.Parse(attribute.Value))
@@ -74,7 +100,13 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto, ICurrencyP
 
     protected override string SaveToXml()
     {
-        return "<Definition Decorator=\"" + Decorator.Id + "\"/>";
+        var root = new XElement("Definition", new XAttribute("Decorator", Decorator.Id));
+        if (HasDefaultPile)
+        {
+            root.Add(new XAttribute("DefaultCurrency", DefaultCurrency!.Id));
+            root.Add(new XAttribute("DefaultAmount", DefaultAmount!.Value.ToString(CultureInfo.InvariantCulture)));
+        }
+        return root.ToString(SaveOptions.DisableFormatting);
     }
 
     public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -125,7 +157,12 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto, ICurrencyP
 
     public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
-        return new CurrencyGameItemComponent(this, parent, temporary);
+        if (!HasDefaultPile) return new CurrencyGameItemComponent(this, parent, temporary);
+        var coins = DefaultCurrency!.FindCoinsForAmount(DefaultAmount!.Value, out var exact);
+        if (!exact || coins.Count == 0 || coins.Any(x => x.Value <= 0))
+            throw new InvalidOperationException("Configured currency pile defaults are no longer exactly representable.");
+        return new CurrencyGameItemComponent(this, parent, DefaultCurrency,
+            coins.Select(x => Tuple.Create(x.Key, x.Value)), temporary);
     }
 
     public override IGameItemComponent LoadComponent(MudSharp.Models.GameItemComponent component, IGameItem parent)

@@ -9,8 +9,22 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Components;
 
-public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, ITurnable, IOpenable, ITearable
+public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, ITurnable, IOpenable, ITearable, IConsumablePaper
 {
+	private int PageToConsume(bool allowWritten) => allowWritten ? CurrentPage :
+		Enumerable.Range(1, _prototype.PageCount).FirstOrDefault(page => !TornPages.Contains(page) &&
+			!PagesAndReadables.Any(entry => entry.Page == page && entry.Writing is not null));
+
+	public bool CanConsumePage(ICharacter actor, bool allowWritten = false) => CanTear(actor) && PageToConsume(allowWritten) > 0;
+
+	public bool ConsumePage(ICharacter actor, bool allowWritten = false)
+	{
+		if (!CanConsumePage(actor, allowWritten)) return false;
+		CurrentPage = PageToConsume(allowWritten);
+		RemoveCurrentPage();
+		return true;
+	}
+
     protected BookGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -871,6 +885,29 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
         newPaper?.Changed = true;
 
+        RemoveCurrentPage();
+
+        if (actor != null)
+        {
+            actor.OutputHandler.Handle(
+                new MixedEmoteOutput(new Emote($"@ tear|tears out a page from $0.", actor, Parent)).Append(emote));
+        }
+        else
+        {
+            Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"A page is torn out of @.", Parent)));
+        }
+
+        if (newItem is not null)
+        {
+            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+            newItem.Login();
+        }
+
+        return newItem;
+    }
+
+    private void RemoveCurrentPage()
+    {
         TornPages.Add(CurrentPage);
         bool newPageFound = false;
         for (int i = CurrentPage + 1; i <= _prototype.PageCount; i++)
@@ -901,27 +938,10 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         if (!newPageFound)
         {
             CurrentPage = 0;
+            CalculateWritings();
         }
 
         Changed = true;
-
-        if (actor != null)
-        {
-            actor.OutputHandler.Handle(
-                new MixedEmoteOutput(new Emote($"@ tear|tears out a page from $0.", actor, Parent)).Append(emote));
-        }
-        else
-        {
-            Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"A page is torn out of @.", Parent)));
-        }
-
-        if (newItem is not null)
-        {
-            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
-            newItem.Login();
-        }
-
-        return newItem;
     }
 
     public bool CanTear(ICharacter actor)

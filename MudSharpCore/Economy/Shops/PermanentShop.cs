@@ -253,6 +253,10 @@ public class PermanentShop : Shop, IPermanentShop
             {
                 IGameItem newItem = item.Item.DeepCopy(true, false);
                 newItem.Skin = merchandise.Skin;
+                if (merchandise.LoadArguments.Contains("wearsize", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    WearableSizing.ApplyLoadArguments(newItem, merchandise.LoadArguments, null);
+                }
                 newItems.Add(newItem);
                 newItemsOriginalContainers[newItem] = item.Container;
                 quantityToRestock -= newItem.Quantity;
@@ -263,9 +267,8 @@ public class PermanentShop : Shop, IPermanentShop
         {
             if (merchandise.Item.Components.Any(x => x is StackableGameItemComponentProto))
             {
-                IGameItem newItem = merchandise.Item.CreateNew(null);
+                IGameItem newItem = merchandise.Item.CreateNew(null, merchandise.Skin, quantityToRestock, merchandise.LoadArguments).First();
                 newItem.Skin = merchandise.Skin;
-                newItem.GetItemType<StackableGameItemComponent>().Quantity = quantityToRestock;
                 newItems.Add(newItem);
                 Gameworld.Add(newItem);
             }
@@ -273,7 +276,7 @@ public class PermanentShop : Shop, IPermanentShop
             {
                 for (int i = 0; i < quantityToRestock; i++)
                 {
-                    IGameItem newItem = merchandise.Item.CreateNew(null);
+                    IGameItem newItem = merchandise.Item.CreateNew(null, merchandise.Skin, 1, merchandise.LoadArguments).First();
                     newItem.Skin = merchandise.Skin;
                     newItems.Add(newItem);
                     Gameworld.Add(newItem);

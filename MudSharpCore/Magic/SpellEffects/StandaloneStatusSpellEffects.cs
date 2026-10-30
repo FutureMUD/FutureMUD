@@ -222,7 +222,7 @@ public class SleepEffect : CharacterSpellEffectTemplateBase
 	protected override IMagicSpellEffect? CreateEffect(ICharacter caster, ICharacter target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
-		var sleepBlocker = target.EffectsOfType<IPreventSleepEffect>().FirstOrDefault();
+		var sleepBlocker = target.EffectsOfType<IPreventSleepEffect>().FirstOrDefault(effect => effect.Applies(target));
 		if (sleepBlocker is not null)
 		{
 			target.OutputHandler.Send(sleepBlocker.SleepPreventionEcho);

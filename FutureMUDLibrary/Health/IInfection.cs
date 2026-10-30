@@ -13,7 +13,8 @@ namespace MudSharp.Health
         Infectious,
         Gangrene,
         FungalGrowth,
-        SownSickness
+        SownSickness,
+        Configured
     }
 
     //A general indication about how advanced the infection is
@@ -58,6 +59,8 @@ namespace MudSharp.Health
         {
             switch (infection)
             {
+                case InfectionType.Configured:
+                    return "a configured illness";
                 case InfectionType.Simple:
                     return "a simple infection";
                 case InfectionType.Infectious:

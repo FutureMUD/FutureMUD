@@ -815,7 +815,7 @@ public partial class Body : IHaveNeeds, IEat
         }
 
         Actor.OutputHandler.Handle(new MixedEmoteOutput(new Emote(
-            $"@ swallow|swallows $0$?1| from $1||$$?2| on $2||$", Actor, swallowable.Parent, container?.Parent,
+            string.IsNullOrWhiteSpace(swallowable.ConsumptionEmote) ? "@ swallow|swallows $0$?1| from $1||$$?2| on $2||$" : swallowable.ConsumptionEmote, Actor, swallowable.Parent, container?.Parent,
             table?.Parent), flags: OutputFlags.SuppressObscured).Append(playerEmote));
 
         IEdible edible = swallowable.Parent.GetItemType<IEdible>();

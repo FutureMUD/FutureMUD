@@ -10,6 +10,7 @@ namespace MudSharp.Models
         public string ForagableTypes { get; set; }
         public int ForageDifficulty { get; set; }
         public int RelativeChance { get; set; }
+        public double YieldConsumptionPercentage { get; set; } = 100.0;
         public int MinimumOutcome { get; set; }
         public int MaximumOutcome { get; set; }
         public string QuantityDiceExpression { get; set; }

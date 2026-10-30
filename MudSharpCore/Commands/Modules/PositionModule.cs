@@ -1236,7 +1236,7 @@ The syntax is:
 	#3sleep [(<emote>)]#0", AutoHelp.HelpArg)]
     protected static void Sleep(ICharacter actor, string input)
     {
-        if (actor.EffectsOfType<IPreventSleepEffect>().FirstOrDefault() is { } sleepBlocker)
+        if (actor.EffectsOfType<IPreventSleepEffect>().FirstOrDefault(effect => effect.Applies(actor)) is { } sleepBlocker)
         {
             actor.Send(sleepBlocker.SleepPreventionEcho);
             return;

@@ -1519,6 +1519,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         {
             return false;
         }
+		if (MudSharp.Construction.RoomPolicyRules.MagicDenial(magician, target is null ? [] : [target]) is not null) return false;
 		var legacy = HasLegacyRoute(magician);
 
         if (Trigger is not ICastMagicTrigger castTrigger ||
@@ -1602,6 +1603,13 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
 		SpellInvocationContext? invocation, params SpellAdditionalParameter[] additionalParameters)
 	{
+		if (MudSharp.Construction.RoomPolicyRules.MagicDenial(magician,
+			(target is null ? Enumerable.Empty<IPerceivable>() : new[] { target })
+			.Concat(additionalParameters.Select(x => x.Item).OfType<IPerceivable>())) is { } environmentDenial)
+		{
+			magician.OutputHandler.Send(environmentDenial);
+			return;
+		}
 		if (magician.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IMindImpairmentEffect>().Any(x => x.Applies())) { magician.Send("Your impaired mind cannot form a spell."); return; }
 		var bindingTargets = target is PerceivableGroup group ? group.Members.ToArray() : target is null ? Array.Empty<IPerceivable>() : new[] { target };
 		if (magician.Body.DirectWornItems.SelectMany(x => x.Components).OfType<MudSharp.GameItems.Interfaces.IConditionalBindingItem>().Any(x => x.InterceptSpell(magician, this, bindingTargets)))
@@ -1754,9 +1762,11 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
         ICheck check = Gameworld.GetCheck(CheckType.CastSpellCheck);
         ICheck resistCheck = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck);
-        Dictionary<Difficulty, CheckOutcome> result = invocation is null || invocation.Configured is not null
-			? PerformCastCheck()
-			: Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, invocation.Outcome));
+		Dictionary<Difficulty, CheckOutcome> result = invocation?.Configured?.FixedOutcome is { } fixedOutcome
+			? Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, fixedOutcome))
+			: invocation is null || invocation.Configured is not null
+				? PerformCastCheck()
+				: Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, invocation.Outcome));
 		if (invocation?.Configured is { } checkedInvocation) checkedInvocation.CheckResult = result[CastingDifficulty];
         if ((invocation is null || invocation.Configured is not null) && result[CastingDifficulty].Outcome < MinimumSuccessThreshold)
         {
@@ -1800,6 +1810,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
 			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false, Func<bool>? stillEligible = null)
 		{
+			if (MudSharp.Construction.RoomPolicyRules.MagicDenial(magician, [effectTarget]) is not null) return false;
 			if (stillEligible?.Invoke() == false) return false;
 			var templates = effects.ToArray();
 			var prepared = new Dictionary<IMagicSpellEffectTemplate, IMagicSpellEffectApplication>();

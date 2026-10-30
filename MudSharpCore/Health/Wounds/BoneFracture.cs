@@ -468,7 +468,18 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
     }
 
     public double OriginalDamage { get; set; }
-    public double CurrentDamage { get; set; }
+	private double _currentDamage;
+    public double CurrentDamage
+	{
+		get => _currentDamage;
+		set
+		{
+			if (value < _currentDamage && Parent?.HealthStrategy is IHitPointHealingCeiling ceiling &&
+				(_ownerBody is null || ReferenceEquals(_parent?.Body, _ownerBody)))
+				value = ceiling.ConstrainHealedDamage(this, Math.Max(0.0, value));
+			_currentDamage = value;
+		}
+	}
 
     public WoundSeverity Severity => Parent.GetSeverityFor(this);
     public DamageType DamageType { get; protected set; }

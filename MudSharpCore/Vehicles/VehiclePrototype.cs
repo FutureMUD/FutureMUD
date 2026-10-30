@@ -758,7 +758,7 @@ A profile defines how the vehicle moves. A #3room#0 profile drives through ordin
 
 Room-exit environments govern where a profile can travel. #3surfacewater#0 requires surface water at ground level at both ends. #3silt#0 requires a silt surface at ground level at both ends. #3protected#0 keeps occupants out of normal immersion; #3exposed#0 suits open craft such as boards.
 
-	#3movement environment <id> <unrestricted|surfacewater|silt>#0 - sets the room-exit movement environment
+	#3movement environment <id> <unrestricted|land|surfacewater|silt>#0 - sets the room-exit movement environment
 	#3movement waterexposure <id> <protected|exposed>#0 - sets the surface-water occupant exposure policy
 
 RouteRoom profiles are for trains, large platforms and other travel along metre-based route rooms:
@@ -2648,6 +2648,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 			"surface-water" => VehicleMovementEnvironment.SurfaceWater,
 			"water" => VehicleMovementEnvironment.SurfaceWater,
 			"silt" => VehicleMovementEnvironment.Silt,
+			"land" => VehicleMovementEnvironment.Land,
 			_ => null
 		};
 	}

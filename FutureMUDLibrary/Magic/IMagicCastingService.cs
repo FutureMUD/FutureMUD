@@ -52,6 +52,8 @@ public interface IMagicCastingService
 	string? Preflight(ICharacter actor, long capabilityId, long spellId, int grade, bool overreach);
 	MagicCastingQuote Quote(MagicCastingIntent intent);
 	MagicCastingResult Cast(MagicCastingIntent intent);
+	/// <summary>Pure recognition in the selected language; does not check admission, pay, roll or cast.</summary>
+	bool RecognisesFormula(ICharacter actor, string formula, long? schoolId = null) => false;
 	/// <summary>Resolves a complete authored formula into the same guarded paid casting pipeline.</summary>
 	MagicCastingResult? CastFormula(ICharacter actor, string formula, string method = "Say", long? schoolId = null,
 		MagicCastingSpeech? speech = null) => new(MagicCastingStatus.Refused, "Formula casting is unavailable.");

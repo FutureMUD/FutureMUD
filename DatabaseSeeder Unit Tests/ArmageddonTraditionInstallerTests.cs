@@ -50,7 +50,12 @@ public class ArmageddonTraditionInstallerTests
 	private static ArmageddonTraditionInstallResult Run(FuturemudDatabaseContext db, ArmageddonTraditionInstallPlan plan)
 	{ db.ChangeTracker.Clear(); return ArmageddonTraditionInstaller.Install(db, plan); }
 	private static void Installed(ArmageddonTraditionInstallResult result) => Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
-	private static XElement Policy(FuturemudDatabaseContext db, string variant) => XElement.Parse(db.MagicCapabilities.Single(x => x.Name == "Partial " + variant).Definition).Element("Casting")!;
+	private static MagicCapability Capability(FuturemudDatabaseContext db, string variant)
+	{
+		var record = db.SeederManagedRecords.Single(x => x.StableKey == "arm.capability." + variant && !x.Retired);
+		return db.MagicCapabilities.Single(x => x.Id == record.LogicalId);
+	}
+	private static XElement Policy(FuturemudDatabaseContext db, string variant) => XElement.Parse(Capability(db, variant).Definition).Element("Casting")!;
 
 	[TestMethod] public void ExactSourceRowsPreserveRootsCapsAndSupportBridge()
 	{
@@ -100,7 +105,9 @@ public class ArmageddonTraditionInstallerTests
 			var template = db.MagicCapabilities.Find(1L)!.Definition; Installed(Run(db, plan));
 			foreach (var (variant, expected) in new[] { ("sorcerer", new[] { "Self", "Gentle", "Land" }), ("preserver", new[] { "Self", "Gentle" }), ("defiler", new[] { "Self", "Land" }) })
 			{
-				var xml = XElement.Parse(db.MagicCapabilities.Single(x => x.Name == "Partial " + variant).Definition);
+				var capability = Capability(db, variant);
+				Assert.AreEqual(System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(variant), capability.Name);
+				var xml = XElement.Parse(capability.Definition);
 				CollectionAssert.AreEquivalent(expected, xml.Element("Gathering")!.Elements("Method").Select(x => (string)x.Attribute("kind")!).ToArray());
 				Assert.IsFalse(xml.Element("Regenerators")!.Elements().Any()); Assert.IsTrue(xml.Element("Gathering")!.Elements().All(x => (double)x.Attribute("duration")! == 30));
 			}
@@ -132,7 +139,7 @@ public class ArmageddonTraditionInstallerTests
 	{
 		var (db, plan) = Fixture(); using (db)
 		{
-			Installed(Run(db, plan)); var cap = db.MagicCapabilities.Single(x => x.Name == "Partial sorcerer");
+			Installed(Run(db, plan)); var cap = Capability(db, "sorcerer");
 			cap.Name = "Builder caster"; var xml = XElement.Parse(cap.Definition); xml.Element("Casting")!.Elements("Admission").Last().Remove(); cap.Definition = xml.ToString();
 			var skill = db.TraitDefinitions.Single(x => x.Name == "heal"); skill.Name = "Builder remedy";
 			var expression = db.TraitExpressions.Find(skill.ExpressionId)!; expression.Expression = "55";

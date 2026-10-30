@@ -1,6 +1,7 @@
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Communication.Language;
+using MudSharp.Communication;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
@@ -313,9 +314,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                     : "loudly tell|tells $0";
         }
 
+        var speechOrigin = body.Location;
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
         HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent, speechEmission);
+		PassiveSpeechRelay.Relay(body, langinfo, speechOrigin);
     }
 
     public virtual void Talk(IBody body, IPerceivable target, string message, IEmote? emote = null)
@@ -356,9 +359,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                     : "murmur|murmurs to $0";
         }
 
+        var speechOrigin = body.Location;
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
         HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent, speechEmission);
+		PassiveSpeechRelay.Relay(body, langinfo, speechOrigin);
     }
 
     public void Transmit(IBody body, IGameItem target, string message, IEmote? emote = null)
@@ -539,9 +544,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                     : "tell|tells $0";
         }
 
+        var speechOrigin = body.Location;
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
         HandleSpeechEvents(body, target, message, AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent, speechEmission);
+		PassiveSpeechRelay.Relay(body, langinfo, speechOrigin);
     }
 
     public virtual void Whisper(IBody body, IPerceivable target, string message, IEmote? emote = null)
@@ -582,9 +589,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                     : "whisper|whispers to $0";
         }
 
+        var speechOrigin = body.Location;
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
         HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent, speechEmission);
+		PassiveSpeechRelay.Relay(body, langinfo, speechOrigin);
     }
 
     public virtual void Shout(IBody body, IPerceivable target, string message, IEmote? emote = null)
@@ -746,9 +755,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                     : "sing|sings to $0";
         }
 
+        var speechOrigin = body.Location;
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
             emote));
         HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent, speechEmission);
+		PassiveSpeechRelay.Relay(body, langinfo, speechOrigin);
     }
 
     private static void HandleSpeechEvents(IBody body, IPerceivable target, string message, AudioVolume volume,

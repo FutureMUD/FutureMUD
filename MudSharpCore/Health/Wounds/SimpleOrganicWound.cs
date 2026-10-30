@@ -870,6 +870,9 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
         set
         {
             double oldDamage = _currentDamage;
+			if (value < _currentDamage && Parent?.HealthStrategy is IHitPointHealingCeiling ceiling &&
+				(_ownerBody is null || ReferenceEquals((Parent as ICharacter)?.Body, _ownerBody)))
+				value = ceiling.ConstrainHealedDamage(this, Math.Max(0.0, value));
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
 			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();
@@ -1935,6 +1938,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
 
     private void RecoverOfflineStun(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed)
     {
+		if (!NaturalRecoveryRules.CanRecoverStun(ch)) return;
         if (_currentStun <= 0.0)
         {
             return;
@@ -1994,6 +1998,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
 
     private void RecoverActiveStun(ICharacter ch, double amountModifier, double externalCheckBonus)
     {
+		if (!NaturalRecoveryRules.CanRecoverStun(ch)) return;
         if (CurrentStun <= 0.0)
         {
             return;

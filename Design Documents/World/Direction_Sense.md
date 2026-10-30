@@ -6,6 +6,8 @@ An explicit compass guard challenge (`north !!`) also checks orientation. Eligib
 
 ## Command outcomes
 
+Active immwalk bypasses orientation checks, including an obscuration prog. During a misdirected departure, the initiating character sees the requested direction in movement output and status; observers see the actual direction. Opposite-direction cancellation uses that character's perceived direction. Arrival and traversal still use the actual exit. This also applies to mounted movement and manual vehicle control.
+
 The requested exit must resolve, be visible to the initiator under the existing exit visibility rules, and pass movement readiness before orientation is attempted. The ordinary rejection path handles invalid or blocked requests without a Direction Sense roll.
 
 When the configured obscuration predicate is true:

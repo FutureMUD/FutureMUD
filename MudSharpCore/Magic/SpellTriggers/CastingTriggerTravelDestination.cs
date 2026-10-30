@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.GameItems;
+using MudSharp.Effects.Concrete;
 using MudSharp.Magic.SpellEffects;
 
 namespace MudSharp.Magic.SpellTriggers;
@@ -11,8 +12,15 @@ internal static class TravelRuneSelector
 	{
 		var keys = words.Split(['.', ' '], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		if (keys.Length == 0 || keys.Any(x => x.StartsWith('#') || char.IsDigit(x[0]))) return null;
-		var items = caster.Gameworld.Items.Where(x => keys.All(key => x.HasKeyword(key, caster, true)) &&
-			SpellTravelAnchorResolver.TryResolve(caster, x, SpellTravelAnchorMode.AnchorRuneLiveRoom, out _, out _)).Take(2).ToArray();
+		var items = caster.Gameworld.Items.Where(item =>
+		{
+			if (!SpellTravelAnchorResolver.TryResolve(caster, item, SpellTravelAnchorMode.AnchorRuneLiveRoom, out var anchor, out _)) return false;
+			// Public world runes are globally addressed by their authored keywords once detection
+			// admits them. A remote room's light must not replace those keywords with "something".
+			return anchor!.Effect is PublicTravelAnchor
+				? keys.All(key => item.Keywords.Any(word => word.StartsWith(key, StringComparison.InvariantCultureIgnoreCase)))
+				: keys.All(key => item.HasKeyword(key, caster, true));
+		}).Take(2).ToArray();
 		return items.Length == 1 ? items[0] : null;
 	}
 }
@@ -25,7 +33,7 @@ public sealed class CastingTriggerWaystepDestination : CastingTriggerBase
 	{
 		SpellTriggerFactory.RegisterLoadTimeFactory("waystepdestination", (xml, spell) => new CastingTriggerWaystepDestination(xml, spell));
 		SpellTriggerFactory.RegisterBuilderFactory("waystepdestination", (_, spell) => (new CastingTriggerWaystepDestination(Builder(), spell), ""),
-			"Selects a weighted Waystep pool or exact owned live Anchor Rune", "character", new CastingTriggerWaystepDestination().BuildingCommandHelp);
+			"Selects a weighted Waystep pool or exact admitted live Anchor Rune", "character", new CastingTriggerWaystepDestination().BuildingCommandHelp);
 	}
 	private static XElement Builder() => new("Trigger", new XAttribute("type", "waystepdestination"), new XElement("MinimumPower", (int)SpellPower.Insignificant), new XElement("MaximumPower", (int)SpellPower.RecklesslyPowerful));
 	public override XElement SaveToXml() { var xml = Builder(); xml.SetElementValue("MinimumPower", (int)MinimumPower); xml.SetElementValue("MaximumPower", (int)MaximumPower); return xml; }
@@ -33,14 +41,14 @@ public sealed class CastingTriggerWaystepDestination : CastingTriggerBase
 	public override string TargetTypes => "character";
 	public override bool TriggerYieldsTarget => true;
 	public override bool TriggerMayFailToYieldTarget => true;
-	public override string SubtypeBuildingCommandHelp => "Use random, or rune <owned Anchor Rune keywords>. No room or item IDs.";
+	public override string SubtypeBuildingCommandHelp => "Use random, or rune <Anchor Rune keywords>. Requires ownership or the public rune's detection sense. No room or item IDs.";
 	public override void DoTriggerCast(ICharacter actor, StringStack additionalArguments)
 	{
 		if (!CheckBaseTriggerCase(actor, additionalArguments, out var power)) return;
 		var mode = additionalArguments.PopSpeech(); IGameItem? rune = null;
 		if (mode.EqualTo("rune")) rune = TravelRuneSelector.Resolve(actor, additionalArguments.SafeRemainingArgument);
 		else if (!mode.EqualTo("random") || !additionalArguments.IsFinished) { actor.OutputHandler.Send(SubtypeBuildingCommandHelp); return; }
-		if (mode.EqualTo("rune") && rune is null) { actor.OutputHandler.Send("Select one exact legally owned active Anchor Rune."); return; }
+		if (mode.EqualTo("rune") && rune is null) { actor.OutputHandler.Send("Select one unambiguous active Anchor Rune that you own or can access through its required detection sense."); return; }
 		Spell.CastSpell(actor, actor, power, new SpellAdditionalParameter { ParameterName = SpellTravelDestinationRequest.ParameterName, Item = new SpellTravelDestinationRequest(rune) });
 	}
 	public override string Show(ICharacter actor) => $"Waystep destination - {base.Show(actor)}";

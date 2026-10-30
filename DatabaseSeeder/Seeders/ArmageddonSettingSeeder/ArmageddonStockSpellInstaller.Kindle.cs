@@ -31,15 +31,10 @@ public static partial class ArmageddonStockSpellInstaller
 				throw new StockDependencyException("Kindle must retain existing ordinary body attributes; no derived trait or new stat is adopted.");
 		if (wisdom != settings.CapacityAttribute)
 			throw new StockDependencyException("Kindle's wisdom mapping must retain the installation's explicit native capacity attribute.");
-		var reserves = new Dictionary<string, long>(StringComparer.Ordinal);
-		foreach (var resourceKey in new ArmageddonStockProgression(settings.Mode).Capabilities.Select(x => x.ResourceKey).Distinct(StringComparer.Ordinal))
-		{
-			var tradition = resourceKey["arm.resource.".Length..];
-			var id = ProgressionIdentity<MagicResource>(db, resourceKey);
-			if (!db.MagicResources.Any(x => x.Id == id && (x.MagicResourceType & (int)MagicResourceType.PlayerResource) != 0))
-				throw new StockDependencyException("Kindle requires an exact native character reserve: " + tradition);
-			reserves.Add(tradition, id);
-		}
+		var mana = ProgressionIdentity<MagicResource>(db, ArmageddonProgressionInstaller.ManaResourceKey);
+		if (!db.MagicResources.Any(x => x.Id == mana && (x.MagicResourceType & (int)MagicResourceType.PlayerResource) != 0))
+			throw new StockDependencyException("Kindle requires the installed native character Mana resource.");
+		var reserves = new Dictionary<string, long>(StringComparer.Ordinal) { ["mana"] = mana };
 		return ArmageddonKindleContent.Create(strength, agility, wisdom, endurance, reserves);
 	}
 }

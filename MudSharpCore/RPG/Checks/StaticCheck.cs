@@ -1,5 +1,6 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
 
@@ -82,9 +83,9 @@ public class StaticCheck : FrameworkItem, ICheck
         double bonus =
             checkee.GetCurrentBonusLevel() +
             checkee.EffectsOfType<ICheckBonusEffect>()
-                   .Where(x => x.AppliesToCheck(Type))
+                   .Where(x => x.AppliesToCheck(Type) && (x is not IContextualCheckBonusEffect || x.Applies(checkee)))
                    .ToList()
-                   .Sum(x => x.CheckBonus) +
+                   .Sum(x => x is IContextualCheckBonusEffect contextual ? contextual.CheckBonusFor(Type) : x.CheckBonus) +
             checkee.Merits
                    .OfType<ICheckBonusMerit>()
                    .Where(x => x.Applies(checkee, target))
@@ -124,9 +125,9 @@ public class StaticCheck : FrameworkItem, ICheck
         double bonus =
             checkee.GetCurrentBonusLevel() +
             checkee.EffectsOfType<ICheckBonusEffect>()
-                   .Where(x => x.AppliesToCheck(Type))
+                   .Where(x => x.AppliesToCheck(Type) && (x is not IContextualCheckBonusEffect || x.Applies(checkee)))
                    .ToList()
-                   .Sum(x => x.CheckBonus) +
+                   .Sum(x => x is IContextualCheckBonusEffect contextual ? contextual.CheckBonusFor(Type) : x.CheckBonus) +
             checkee.Merits
                    .OfType<ICheckBonusMerit>()
                    .Where(x => x.Applies(checkee, target))
@@ -206,9 +207,11 @@ public class StaticCheck : FrameworkItem, ICheck
         }
 
         bonuses.AddRange(checkee.EffectsOfType<ICheckBonusEffect>()
-                                .Where(x => x.AppliesToCheck(Type))
+                                .Where(x => x.AppliesToCheck(Type) && (x is not IContextualCheckBonusEffect || x.Applies(checkee)))
                                 .ToList()
-                                .Select(x => Tuple.Create(x.ToString(), x.CheckBonus)));
+                                .Select(x => Tuple.Create(x.ToString(), x is IContextualCheckBonusEffect contextual
+					? contextual.CheckBonusFor(Type)
+					: x.CheckBonus)));
 
         bonuses.AddRange(checkee.Merits.OfType<ICheckBonusMerit>()
                                 .Where(x => x.Applies(checkee, target))

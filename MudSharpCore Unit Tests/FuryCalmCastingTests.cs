@@ -10,6 +10,7 @@ using Moq;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Construction;
+using MudSharp.Character.Heritage;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -17,6 +18,7 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
+using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Casting;
 using MudSharp.Magic.Emotions;
@@ -60,6 +62,101 @@ public class FuryCalmCastingTests
 		Assert.AreEqual(0, f.EmotionalRemovals); Assert.IsTrue(f.Applied(result));
 		var capped = f.Cast(7); Assert.AreEqual(MagicCastingStatus.Succeeded, capped.Status, capped.Message);
 		Assert.IsFalse(f.Applied(capped), "An unchanged capped deadline is not a useful mastery operation.");
+	}
+
+	[TestMethod]
+	public void ConfiguredFury_AddsSeparateNativeFrenzyOnlyForMatchingUnsuppressedRace()
+	{
+		using var eligible = new Fixture(EmotionalSpellKind.Fury); eligible.ConfigureFrenzy();
+		var result = eligible.Cast(1); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		var frenzy = eligible.Handler.Effects.OfType<CombatFrenzyEffect>().Single();
+		Assert.AreEqual(15.0, frenzy.OffenceBonus); Assert.AreEqual(15.0, frenzy.DefenceBonus);
+		Assert.AreEqual(5.0, frenzy.MeleeDamageBonus); Assert.AreEqual(4.0, frenzy.HungerMultiplier);
+		Assert.AreEqual(eligible.Scheduler.RemainingDuration(eligible.Parents.Single()), eligible.Scheduler.RemainingDuration(frenzy));
+
+		using var nonrace = new Fixture(EmotionalSpellKind.Fury); nonrace.ConfigureFrenzy();
+		nonrace.F.Body.SetupGet(x => x.Race).Returns(Mock.Of<IRace>(x => x.Id == 202));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, nonrace.Cast(1).Status); Assert.IsFalse(nonrace.Handler.Effects.OfType<CombatFrenzyEffect>().Any());
+
+		using var suppressed = new Fixture(EmotionalSpellKind.Fury); suppressed.ConfigureFrenzy(); suppressed.AddSuppressionDose(active: true);
+		Assert.AreEqual(MagicCastingStatus.Succeeded, suppressed.Cast(1).Status); Assert.IsFalse(suppressed.Handler.Effects.OfType<CombatFrenzyEffect>().Any());
+
+		using var latentSuppressed = new Fixture(EmotionalSpellKind.Fury); latentSuppressed.ConfigureFrenzy(); latentSuppressed.AddSuppressionDose(active: false);
+		Assert.AreEqual(MagicCastingStatus.Succeeded, latentSuppressed.Cast(1).Status); Assert.IsFalse(latentSuppressed.Handler.Effects.OfType<CombatFrenzyEffect>().Any());
+	}
+
+	[TestMethod]
+	public void LegacyEmotionalProfile_UnrelatedDrugMutationDoesNotInvalidatePreparedCast()
+	{
+		using var f = new Fixture(EmotionalSpellKind.Fury);
+		var unrelatedDrug = Mock.Of<IDrug>(x => x.Id == 999);
+		var dose = new DrugDosage { Drug = unrelatedDrug, Grams = 1.0, OriginalVector = DrugVector.Ingested,
+			Originator = f.F.Actor.Object, SpellOriginFamily = string.Empty, SpellOriginFormula = string.Empty };
+		f.F.Checkpoint = stage =>
+		{
+			if (stage == "Paying") f.F.Body.SetupGet(x => x.ActiveDrugDosages).Returns(new[] { dose });
+		};
+		var result = f.Cast(1);
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.IsFalse(f.Handler.Effects.OfType<CombatFrenzyEffect>().Any());
+	}
+
+	[TestMethod]
+	public void ConfiguredFuryRecast_ExtendsIndependentFrenzyDeadlineByResolvedFuryDuration()
+	{
+		using var f = new Fixture(EmotionalSpellKind.Fury); f.ConfigureFrenzy();
+		var frenzy = new CombatFrenzyEffect(f.F.Actor.Object, 15, 15, 5, 4);
+		f.Handler.AddEffect(frenzy, TimeSpan.FromSeconds(100));
+		f.Existing(EmotionalSpellKind.Fury, 2, 1000);
+		var result = f.Cast(1); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreSame(frenzy, f.Handler.Effects.OfType<CombatFrenzyEffect>().Single());
+		Assert.AreEqual(TimeSpan.FromSeconds(3700), f.Scheduler.RemainingDuration(frenzy));
+		Assert.AreEqual(TimeSpan.FromSeconds(3600), f.Scheduler.RemainingDuration(f.Parents.Single()));
+	}
+
+	[TestMethod]
+	public void CappedFuryRecast_ReportsAppliedWhenOnlyIndependentFrenzyExtends()
+	{
+		using var f = new Fixture(EmotionalSpellKind.Fury); f.ConfigureFrenzy();
+		var old = f.Existing(EmotionalSpellKind.Fury, 7, 21600);
+		var frenzy = new CombatFrenzyEffect(f.F.Actor.Object, 15, 15, 5, 4);
+		f.Handler.AddEffect(frenzy, TimeSpan.FromSeconds(100));
+		var result = f.Cast(7); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreSame(old, f.Parents.Single()); Assert.AreEqual(TimeSpan.FromSeconds(21600), f.Scheduler.RemainingDuration(old));
+		Assert.AreEqual(TimeSpan.FromSeconds(21700), f.Scheduler.RemainingDuration(frenzy));
+		Assert.IsTrue(f.Applied(result), "Extending the independent frenzy is a useful applied effect even at the Fury cap.");
+	}
+
+	[TestMethod]
+	public void ConfiguredCalm_SavedCastClearsFrenzyButExhaustedCounterDoesNot()
+	{
+		using var saved = new Fixture(EmotionalSpellKind.Calm); saved.ConfigureFrenzy(); saved.Resistance = Outcome.MajorPass;
+		var frenzy = new CombatFrenzyEffect(saved.F.Actor.Object, 15, 15, 5, 4); saved.Handler.AddEffect(frenzy, TimeSpan.FromSeconds(900));
+		var result = saved.Cast(3); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.IsFalse(saved.Handler.Effects.OfType<CombatFrenzyEffect>().Any()); Assert.IsFalse(saved.Parents.Any());
+
+		using var exhausted = new Fixture(EmotionalSpellKind.Calm); exhausted.ConfigureFrenzy();
+		var retained = new CombatFrenzyEffect(exhausted.F.Actor.Object, 15, 15, 5, 4); exhausted.Handler.AddEffect(retained, TimeSpan.FromSeconds(900));
+		exhausted.Existing(EmotionalSpellKind.Fury, 7, 1200);
+		var exhaustedResult = exhausted.Cast(3); Assert.AreEqual(MagicCastingStatus.Succeeded, exhaustedResult.Status, exhaustedResult.Message);
+		Assert.AreEqual(0, exhausted.SaveCalls); Assert.AreSame(retained, exhausted.Handler.Effects.OfType<CombatFrenzyEffect>().Single());
+	}
+
+	[TestMethod]
+	public void ConfiguredCalm_CallbackReplacementFrenzyIsPreservedAndQuarantined()
+	{
+		using var f = new Fixture(EmotionalSpellKind.Calm); f.ConfigureFrenzy(); f.Resistance = Outcome.MajorPass;
+		var old = new CombatFrenzyEffect(f.F.Actor.Object, 15, 15, 5, 4); f.Handler.AddEffect(old, TimeSpan.FromSeconds(900));
+		CombatFrenzyEffect? replacement = null;
+		f.FrenzyRemovalCallback = () =>
+		{
+			replacement = new CombatFrenzyEffect(f.F.Actor.Object, 1, 2, 3, 1);
+			f.Handler.AddEffect(replacement, TimeSpan.FromSeconds(600));
+		};
+		var result = f.Cast(3); Assert.AreEqual(MagicCastingStatus.NeedsReview, result.Status, result.Message);
+		Assert.IsFalse(f.Handler.Effects.Contains(old)); Assert.IsNotNull(replacement);
+		Assert.IsTrue(f.Handler.Effects.Contains(replacement)); Assert.AreEqual(1.0, replacement!.OffenceBonus);
+		Assert.IsFalse(f.Parents.Any());
 	}
 
 	[TestMethod]
@@ -205,9 +302,10 @@ public class FuryCalmCastingTests
 	[TestMethod]
 	public void ReflectedFury_UsesPreparedCasterCohort_GrantsNoIntendedOperationProgress()
 	{
-		using var f = new Fixture(EmotionalSpellKind.Fury); f.Existing(EmotionalSpellKind.Calm, 2, 1200);
+		using var f = new Fixture(EmotionalSpellKind.Fury); f.ConfigureFrenzy(); f.Existing(EmotionalSpellKind.Calm, 2, 1200);
 		var target = new Mock<MudSharp.Character.ICharacter>() { DefaultValue = DefaultValue.Mock };
 		var body = new Mock<MudSharp.Body.IBody>() { DefaultValue = DefaultValue.Mock };
+		body.SetupGet(x => x.Race).Returns(Mock.Of<IRace>(x => x.Id == 202));
 		target.SetupGet(x => x.Id).Returns(401); target.SetupGet(x => x.InstanceId).Returns(401);
 		target.SetupGet(x => x.Gameworld).Returns(f.F.World.Object); target.SetupGet(x => x.Body).Returns(body.Object);
 		body.SetupGet(x => x.Actor).Returns(target.Object); body.SetupGet(x => x.Gameworld).Returns(f.F.World.Object);
@@ -226,6 +324,7 @@ public class FuryCalmCastingTests
 		var child = (SpellSourceFuryEffect)f.Parents.Single().SpellEffects.Single(); Assert.AreEqual(5, child.State.SourceGrade);
 		Assert.AreEqual(TimeSpan.FromSeconds(12000), f.Scheduler.RemainingDuration(f.Parents.Single()));
 		Assert.IsFalse(effects.Effects.OfType<SpellEmotionalEffect>().Any()); Assert.IsTrue(effects.Effects.Contains(ward.Object));
+		Assert.AreEqual(1, f.Handler.Effects.OfType<CombatFrenzyEffect>().Count());
 		Assert.IsFalse(f.Applied(result)); Assert.AreEqual(1, f.F.Rolls);
 	}
 
@@ -366,6 +465,9 @@ public class FuryCalmCastingTests
 		internal int EmotionalRemovals;
 		internal Action? ParentCallback;
 		internal Action? BeforeChild;
+		internal Action? FrenzyRemovalCallback;
+		private IRace _frenzyRace = null!;
+		private IDrug _suppressionDrug = null!;
 
 		internal Fixture(EmotionalSpellKind kind)
 		{
@@ -380,7 +482,7 @@ public class FuryCalmCastingTests
 			F.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, duration) =>
 			{ Handler.AddEffect(effect, duration); if (effect is MagicSpellParent) ParentCallback?.Invoke(); });
 			F.Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, fire) =>
-			{ if (effect is SpellEmotionalEffect) EmotionalRemovals++; Handler.RemoveEffect(effect, fire); });
+			{ if (effect is SpellEmotionalEffect) EmotionalRemovals++; Handler.RemoveEffect(effect, fire); if (effect is CombatFrenzyEffect) FrenzyRemovalCallback?.Invoke(); });
 			F.Actor.Setup(x => x.CombinedEffectsOfType<IAdmittedHostileAttackEffect>()).Returns(() => Handler.Effects.OfType<IAdmittedHostileAttackEffect>());
 			F.Actor.Setup(x => x.EffectsOfType<IAdmittedHostileAttackEffect>(It.IsAny<Predicate<IAdmittedHostileAttackEffect>>()))
 				.Returns<Predicate<IAdmittedHostileAttackEffect>>(predicate => Handler.Effects.OfType<IAdmittedHostileAttackEffect>().Where(x => predicate is null || predicate(x)));
@@ -408,6 +510,38 @@ public class FuryCalmCastingTests
 				.Returns<IPerceivableHaveTraits, Difficulty, ITraitDefinition, IPerceivable, double, TraitUseType, (string, object)[]>((_, difficulty, _, _, _, _, _) =>
 				{ SaveCalls++; SaveDifficulty = difficulty; SaveCallback?.Invoke(); return Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Resistance)); });
 			F.World.Setup(x => x.GetCheck(CheckType.ResistMagicSpellCheck)).Returns(save.Object);
+			F.Actor.SetupGet(x => x.IsEmbodied).Returns(true);
+			F.Body.SetupGet(x => x.CurrentStamina).Returns(100.0);
+			F.Body.SetupGet(x => x.ActiveDrugDosages).Returns(Array.Empty<DrugDosage>());
+			F.Body.SetupGet(x => x.LatentDrugDosages).Returns(Array.Empty<DrugDosage>());
+		}
+
+		internal void ConfigureFrenzy()
+		{
+			_frenzyRace = Mock.Of<IRace>(x => x.Id == 201);
+			_suppressionDrug = Mock.Of<IDrug>(x => x.Id == 301);
+			F.World.SetupGet(x => x.Races).Returns(MagicCastingFixture.Collection(() => new[] { _frenzyRace }));
+			F.World.SetupGet(x => x.Drugs).Returns(MagicCastingFixture.Collection(() => new[] { _suppressionDrug }));
+			F.Body.SetupGet(x => x.Race).Returns(_frenzyRace);
+			var baseProfile = Spell.SpellEffects.Single() is SourceFuryEffect
+				? FuryCalmStockProfileTests.Fury() : FuryCalmStockProfileTests.Calm();
+			var profile = new EmotionalStockProfile(baseProfile.Kind, baseProfile.Group, baseProfile.UnitSeconds, baseProfile.CapUnits,
+				baseProfile.EligibilityProgId, baseProfile.Intensity, baseProfile.TraitId, baseProfile.UnitsPerSourcePoint,
+				baseProfile.Fallback, baseProfile.Terrains, baseProfile.Saves, baseProfile.BreakOnAdmittedAttack,
+				baseProfile.CanonicalGradePolicy,
+				baseProfile.Kind == EmotionalSpellKind.Fury ? new EmotionalFrenzyProfile(_frenzyRace.Id, _suppressionDrug.Id, 15, 15, 5, 4) : null,
+				baseProfile.Kind == EmotionalSpellKind.Calm);
+			((List<IMagicSpellEffectTemplate>)Spell.SpellEffects)[0] = baseProfile.Kind == EmotionalSpellKind.Fury
+				? new SourceFuryEffect(new XElement("Effect", profile.SaveToXml()), Spell)
+				: new SourceCalmEffect(new XElement("Effect", profile.SaveToXml()), Spell);
+		}
+
+		internal void AddSuppressionDose(bool active)
+		{
+			var dose = new DrugDosage { Drug = _suppressionDrug, Grams = 1.0, OriginalVector = DrugVector.Ingested,
+				Originator = F.Actor.Object, SpellOriginFamily = string.Empty, SpellOriginFormula = string.Empty };
+			F.Body.SetupGet(x => x.ActiveDrugDosages).Returns(active ? new[] { dose } : Array.Empty<DrugDosage>());
+			F.Body.SetupGet(x => x.LatentDrugDosages).Returns(active ? Array.Empty<DrugDosage>() : new[] { dose });
 		}
 
 		internal MagicSpellParent Existing(EmotionalSpellKind kind, int grade, int seconds, SpellPower power = SpellPower.Standard, double endurance = 5)

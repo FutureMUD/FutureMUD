@@ -61,6 +61,14 @@ public partial class ArmageddonStockSpellInstallerTests
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonTemplarInstaller.Module).ToDictionary(x => x.StableKey);
 		Assert.AreEqual(3, claims.Values.Count(x => x.EntityType == nameof(ChargenRole)));
 		Assert.AreEqual(32, claims.Values.Count(x => x.EntityType == nameof(MagicPower)));
+		Assert.AreEqual("psi", db.MagicSchools.Single(x => x.Id == claims["arm.school.lirathan_templar"].LogicalId).SchoolVerb);
+		foreach (var (key, name) in new[] { ("normal", "User of the Way"), ("psionicist", "Psionicist"), ("lirathan_templar", "Lirathan Templar") })
+			Assert.AreEqual(name, db.MagicCapabilities.Single(x => x.Id == claims["arm.capability." + key + "_psionics"].LogicalId).Name);
+		var contactId = claims["arm.power.lirathan.contact"].LogicalId!.Value;
+		var contactHelp = db.MagicPowers.Single(x => x.Id == contactId);
+		StringAssert.Contains(contactHelp.ShowHelp, "same shard");
+		Assert.IsFalse(contactHelp.ShowHelp.Contains("{range}"));
+		Assert.IsFalse(contactHelp.Blurb.Contains("same the same"));
 		var normalMerit = claims[ArmageddonTemplarInstaller.NormalPsionicsMeritKey].LogicalId!.Value;
 		var psionicistMerit = claims[ArmageddonTemplarInstaller.PsionicistMeritKey].LogicalId!.Value;
 		foreach (var mainRole in ArmageddonMundaneProgression.Roles.Where(x => x.Primary))
@@ -99,8 +107,8 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.StableKey == "arm.skill.analyze"), "Analyze must reuse the native capability binding.");
 		var analyze = db.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)MudSharp.RPG.Checks.CheckType.AnalyzeEligibilityCheck).TraitExpression.Expression;
 		foreach (var id in claims.Values.Where(x => x.EntityType == nameof(ChargenRole)).Select(x => x.LogicalId!.Value)) StringAssert.Contains(analyze, id.ToString());
-		var capProg = db.FutureProgs.Single(x => x.FunctionName == "SouthernTemplarReserveCap");
-		Assert.AreEqual((long)ProgVariableTypes.Number, capProg.ReturnType);
+		Assert.IsFalse(db.FutureProgs.Any(x => x.FunctionName == "SouthernTemplarReserveCap"), "Templars use the common Mana capacity rather than a separate grade-based pool.");
+		Assert.AreEqual(1, db.MagicResources.Count(x => (x.MagicResourceType & 1) != 0));
 		var progs = db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray();
 		using (var compiler = new OfflineProgCompilation(progs))
 			foreach (var row in claims.Values.Where(x => x.EntityType == nameof(MudSharp.Models.FutureProg))) compiler.Compile(row.LogicalId!.Value);
@@ -148,6 +156,9 @@ public partial class ArmageddonStockSpellInstallerTests
 		var cap = db.MagicCapabilities.Single(x => x.Id == claims["arm.capability.southern_templar"].LogicalId);
 		var casting = XElement.Parse(cap.Definition).Element("Casting")!;
 		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId, (long?)casting.Attribute("source"));
+		Assert.AreEqual((long?)casting.Attribute("source"), (long?)casting.Attribute("reserve"));
+		var restorer = ConditionalMagicItemPolicy.Load(XElement.Parse(db.GameItemComponentProtos.Single(x => x.Id == claims["arm.templar.southern.regen_medallion.component"].LogicalId).Definition));
+		Assert.AreEqual((long)casting.Attribute("reserve")!, restorer.ResourceId);
 		Assert.IsFalse((bool)casting.Attribute("enabled")!);
 		var shrine = db.GameItemComponentProtos.Single(x => x.Id == claims["arm.templar.southern.shrine.component"].LogicalId);
 		var policy = ConditionalMagicItemPolicy.Load(XElement.Parse(shrine.Definition));

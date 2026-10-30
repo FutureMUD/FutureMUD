@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body.Needs;
 using MudSharp.CharacterCreation;
@@ -97,6 +97,24 @@ public class NPC : Character.Character, INPC
 		StartNeedsHeartbeat();
 	}
 
+	internal void PrepareCommittedNativeNpc(ICharacterTemplate template)
+	{
+		PrepareCommittedNativeCharacter(template);
+		InitialiseNativeController();
+	}
+
+	internal void BindPreparedNativeNpcIdentity(object model) => BindPreparedNativeCharacterIdentity(model);
+	internal void SetPreparedNativeNpcLocation(MudSharp.Framework.SpatialLocation location) => SetPreparedSpatialState(location);
+
+	internal void CommitPreparedNativeNpcIdentity() => CommitPreparedNativeCharacterIdentity();
+
+	internal void ActivatePreparedCommittedNativeNpc()
+	{
+		ActivatePreparedCommittedNativeCharacter();
+		EnsureProductionWildlifeNeeds();
+		StartNeedsHeartbeat();
+	}
+
 	internal void ReleaseUnpublishedNativeNpc()
 	{
 		ReleaseEventSubscriptions();
@@ -119,58 +137,47 @@ public class NPC : Character.Character, INPC
 
     public void SetupEventSubscriptions()
     {
+		var heartbeat = Gameworld?.HeartbeatManager;
+		if (heartbeat is null) return;
         if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
         {
             ReleaseEventSubscriptions();
             return;
         }
 
-        if (AIs.Any(x => x.HandlesEvent(EventType.FiveSecondTick)))
+        if (HandlesEvent(EventType.FiveSecondTick))
         {
-            Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
-            Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += FiveSecondHeartbeat;
+            heartbeat.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
+            heartbeat.FuzzyFiveSecondHeartbeat += FiveSecondHeartbeat;
         }
 
-        if (AIs.Any(x => x.HandlesEvent(EventType.TenSecondTick)))
+        if (HandlesEvent(EventType.TenSecondTick))
         {
-            Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
-            Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat += TenSecondHeartbeat;
+            heartbeat.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
+            heartbeat.FuzzyTenSecondHeartbeat += TenSecondHeartbeat;
         }
 
-        if (AIs.Any(x => x.HandlesEvent(EventType.MinuteTick)))
+        if (HandlesEvent(EventType.MinuteTick))
         {
-            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
-            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += MinuteHeartbeat;
+            heartbeat.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
+            heartbeat.FuzzyMinuteHeartbeat += MinuteHeartbeat;
         }
 
-        if (AIs.Any(x => x.HandlesEvent(EventType.HourTick)))
+        if (HandlesEvent(EventType.HourTick))
         {
-            Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
-            Gameworld.HeartbeatManager.FuzzyHourHeartbeat += HourHeartbeat;
+            heartbeat.FuzzyHourHeartbeat -= HourHeartbeat;
+            heartbeat.FuzzyHourHeartbeat += HourHeartbeat;
         }
     }
 
     public void ReleaseEventSubscriptions()
     {
-        if (AIs.Any(x => x.HandlesEvent(EventType.FiveSecondTick)))
-        {
-            Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
-        }
-
-        if (AIs.Any(x => x.HandlesEvent(EventType.TenSecondTick)))
-        {
-            Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
-        }
-
-        if (AIs.Any(x => x.HandlesEvent(EventType.MinuteTick)))
-        {
-            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
-        }
-
-        if (AIs.Any(x => x.HandlesEvent(EventType.HourTick)))
-        {
-            Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
-        }
+		var heartbeat = Gameworld?.HeartbeatManager;
+		if (heartbeat is null) return;
+        heartbeat.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
+        heartbeat.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
+        heartbeat.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
+        heartbeat.FuzzyHourHeartbeat -= HourHeartbeat;
     }
 
     public override bool Quit(bool silent = false)

@@ -6,7 +6,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PaperSheetGameItemComponentProto : GameItemComponentProto, IWriteablePrototype, IReadablePrototype
+public class PaperSheetGameItemComponentProto : GameItemComponentProto, IConsumablePaperPrototype, IWriteablePrototype, IReadablePrototype
 {
     public override string TypeDescription => "PaperSheet";
 

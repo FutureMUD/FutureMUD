@@ -23,7 +23,6 @@ public static partial class ArmageddonTemplarInstaller
 {
 	private const string SouthernCastingKey = "arm.capability.southern_templar";
 	private const string SouthernCastingMeritKey = "arm.merit.southern_templar_casting";
-	private const string SouthernReserveKey = "arm.resource.southern_templar";
 	private const string SouthernMagicTraitKey = "arm.skill.southern_templar_magic";
 	private static readonly string[] SouthernElementalistKeys =
 	[
@@ -45,7 +44,7 @@ public static partial class ArmageddonTemplarInstaller
 			[(ProgVariableTypes.Character, "ch")], messages);
 		var capIds = SouthernElementalistKeys.ToDictionary(x => x, x => RequireOwned<MagicCapability>(db, x), StringComparer.Ordinal);
 		var priorCapId = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernCastingKey)?.LogicalId;
-		var southernClassCapability = $"Contains(magiccapabilities(@ch), ToMagicCapability(\"{(priorCapId is { } existingCap ? existingCap.ToString(CultureInfo.InvariantCulture) : "Southern Templar casting")}\"))";
+		var southernClassCapability = $"Contains(magiccapabilities(@ch), ToMagicCapability(\"{(priorCapId is { } existingCap ? existingCap.ToString(CultureInfo.InvariantCulture) : "Southern Templar")}\"))";
 		var southern = Prog(db, magic.AuthorityProgKey, "SouthernTemplarAuthority",
 			$"return @{enable.FunctionName}() and {southernClassCapability} and @{military.FunctionName}(@ch)",
 			[(ProgVariableTypes.Character, "ch")], messages);
@@ -68,23 +67,8 @@ public static partial class ArmageddonTemplarInstaller
 		var school = (MagicSchool)Put(db, "arm.school.southern_templar", new MagicSchool { Name = "Southern Templar",
 			SchoolVerb = "templar", SchoolAdjective = "templar", PowerListColour = "yellow" },
 			[nameof(MagicSchool.Name), nameof(MagicSchool.SchoolVerb), nameof(MagicSchool.SchoolAdjective), nameof(MagicSchool.PowerListColour)], messages);
-		var resourceTemplate = Owned<MagicResource>(db, "arm.resource.void");
-		var resourceDefinition = XElement.Parse(resourceTemplate.Definition);
-		var zeroProg = Owned<FutureProg>(db, "arm.prog.resource_zero");
-		var capProg = Prog(db, SouthernReserveKey + ".cap", "SouthernTemplarReserveCap", "return 100", [], messages, ProgVariableTypes.Number);
-		var sourceResource = RequireOwned<MagicResource>(db, ArmageddonProgressionInstaller.SourceResourceKey);
-		resourceDefinition.SetElementValue("ShouldStartWithResourceCharacterProg", no.Id);
-		resourceDefinition.SetElementValue("StartingResourceAmountCharacterProg", zeroProg.Id);
-		resourceDefinition.SetElementValue("ResourceCapProg", capProg.Id);
-		resourceDefinition.Elements("AttributeCapacity").Remove();
-		var priorResourceId = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernReserveKey)?.LogicalId;
-		if (db.MagicResources.Any(x => x.ShortName == "armsouth" && x.Id != priorResourceId))
-			throw new InvalidOperationException("An unowned magic resource already uses the Southern Templar reserve short name.");
-		var resource = (MagicResource)Put(db, SouthernReserveKey, new MagicResource { Name = "Southern Templar reserve",
-			ShortName = "armsouth", Type = "simple", MagicResourceType = resourceTemplate.MagicResourceType,
-			BottomColour = resourceTemplate.BottomColour, MidColour = resourceTemplate.MidColour, TopColour = resourceTemplate.TopColour,
-			Definition = resourceDefinition.ToString() }, [nameof(MagicResource.Name), nameof(MagicResource.ShortName), nameof(MagicResource.Type),
-			nameof(MagicResource.MagicResourceType), nameof(MagicResource.BottomColour), nameof(MagicResource.MidColour), nameof(MagicResource.TopColour), nameof(MagicResource.Definition)], messages);
+		var resource = Owned<MagicResource>(db, ArmageddonProgressionInstaller.ManaResourceKey);
+		var sourceResource = resource.Id;
 		var casting = new XElement("Casting", new XAttribute("version", 1), new XAttribute("identity", StableGuid("arm.capability.southern_templar")),
 			new XAttribute("enabled", false), new XAttribute("trait", skill.Id), new XAttribute("source", sourceResource),
 			new XAttribute("reserve", resource.Id), new XAttribute("passive", false), new XAttribute("startingVersion", 1),
@@ -100,9 +84,9 @@ public static partial class ArmageddonTemplarInstaller
 		var patron = new PatronCastingPolicy(southern.Id, territory.Id, magic.FixedGrade, true, true, true,
 			permanentKeys.Select(x => spellIds[x]).ToArray(), magic.SelectionLimit, incantations);
 		casting.Add(new XElement("Patron", JsonSerializer.Serialize(patron)));
-		if (db.MagicCapabilities.Any(x => x.Name == "Southern Templar casting") && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernCastingKey))
+		if (db.MagicCapabilities.Any(x => x.Name == "Southern Templar") && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == SouthernCastingKey))
 			throw new InvalidOperationException("Unowned Southern Templar capability name collision.");
-		var cap = (MagicCapability)Put(db, SouthernCastingKey, new MagicCapability { Name = "Southern Templar casting",
+		var cap = (MagicCapability)Put(db, SouthernCastingKey, new MagicCapability { Name = "Southern Templar",
 			CapabilityModel = "skilllevel", PowerLevel = 1, MagicSchoolId = school.Id,
 			Definition = new XElement("Definition", new XElement("ConcentrationTrait", skill.Id), new XElement("ConcentrationCapabilityExpression", "1"),
 				new XElement("ConcentrationDifficultyExpression", "5"), new XElement("Regenerators"), casting).ToString() },
@@ -147,7 +131,7 @@ public static partial class ArmageddonTemplarInstaller
 			material, [holdable], account, messages, isWorn: true, bodyId, [neck, throat]);
 		var shrine = Item(db, "arm.templar.southern.shrine", "a Southern Templar spell shrine", "shrine templar armageddon", "A configured site for selecting Southern Templar spells.",
 			material, [holdable], account, messages);
-		var medallion = Item(db, "arm.templar.southern.regen_medallion", "a Templar reserve medallion", "medallion reserve templar armageddon", "A charged medallion that restores Southern Templar reserve.",
+		var medallion = Item(db, "arm.templar.southern.regen_medallion", "a Templar reserve medallion", "medallion reserve templar armageddon", "A charged medallion that restores Mana.",
 			material, [holdable], account, messages);
 		var regaliaGroup = (ItemGroup)Put(db, "arm.templar.southern.regalia.group", new ItemGroup { Name = "Armageddon Southern Templar Regalia", Keywords = "southern templar regalia" },
 			[nameof(ItemGroup.Name), nameof(ItemGroup.Keywords)], messages);
@@ -169,7 +153,7 @@ public static partial class ArmageddonTemplarInstaller
 			ActivationMessage = "You exert your authority through the gem." };
 		var restorerPolicy = new ConditionalMagicItemPolicy { Kind = ConditionalMagicItemKind.ResourceRestorer,
 			EligibilityProgId = southern.Id, TerritoryProgId = territory.Id, ResourceId = resource.Id, Capacity = 6,
-			ActivationMessage = "The medallion restores your Southern Templar reserve.", RechargeMessage = "You recharge the medallion." };
+			ActivationMessage = "The medallion restores your Mana.", RechargeMessage = "You recharge the medallion." };
 		var issuerPolicy = new ConditionalMagicItemPolicy { Kind = ConditionalMagicItemKind.ItemIssuer, EligibilityProgId = southern.Id,
 			RequireWorn = true, BindingGroup = gemPolicy.BindingGroup, IssuedPrototypeIds = [gem.Id], ActivationMessage = "You form a binding gem from the regalia." };
 		var itemTemplates = new[]

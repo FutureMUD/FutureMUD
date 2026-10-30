@@ -8,6 +8,7 @@ namespace MudSharp.GameItems.Prototypes;
 public class VehicleExteriorGameItemComponentProto : GameItemComponentProto, IVehicleExteriorPrototype
 {
 	public long? VehiclePrototypeId { get; private set; }
+	public IReadOnlyDictionary<long, long> InteriorRoomTemplates { get; private set; } = new Dictionary<long, long>();
 
 	public VehicleExteriorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Vehicle Exterior")
@@ -55,12 +56,16 @@ public class VehicleExteriorGameItemComponentProto : GameItemComponentProto, IVe
 	protected override void LoadFromXml(XElement root)
 	{
 		VehiclePrototypeId = long.TryParse(root.Element("VehiclePrototypeId")?.Value, out var id) ? id : null;
+		InteriorRoomTemplates = (root.Element("InteriorRoomTemplates")?.Elements("Room") ?? [])
+			.ToDictionary(x => (long)x.Attribute("compartment"), x => (long)x.Attribute("template"));
 	}
 
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
-			new XElement("VehiclePrototypeId", VehiclePrototypeId)
+			new XElement("VehiclePrototypeId", VehiclePrototypeId),
+			new XElement("InteriorRoomTemplates", InteriorRoomTemplates.Select(x => new XElement("Room",
+				new XAttribute("compartment", x.Key), new XAttribute("template", x.Value))))
 		).ToString();
 	}
 

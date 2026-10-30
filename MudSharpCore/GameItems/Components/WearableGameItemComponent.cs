@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.GameItems.Inventory;
@@ -17,6 +17,50 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     protected WearableGameItemComponentProto _prototype;
     private IWearProfile _currentProfile;
+	public WearableFit Fit { get; private set; } = WearableFit.Unfitted;
+	private readonly List<FitCheckBypass> _fitCheckBypasses = [];
+	private sealed class FitCheckBypass(WearableGameItemComponent owner, IBody body) : IDisposable
+	{
+		internal IBody Body { get; } = body;
+		public void Dispose() => owner._fitCheckBypasses.Remove(this);
+	}
+	public IDisposable BypassSizingFor(IBody body)
+	{
+		var bypass = new FitCheckBypass(this, body);
+		_fitCheckBypasses.Add(bypass);
+		return bypass;
+	}
+	private bool SizingBypassed(IBody body) => _fitCheckBypasses?.Any(x => ReferenceEquals(x.Body, body)) == true;
+	public bool UsesSizing => _prototype.SizingEnabled && Gameworld.GetStaticBool("EnableWearableSizing");
+	public void SetFit(WearableFit fit)
+	{
+		ArgumentNullException.ThrowIfNull(fit);
+		Fit = fit;
+		Changed = true;
+	}
+	public WearableFit FitFor(IBody body)
+	{
+		if (_prototype.ScalarSizeProg is null) return WearableFit.ForBody(body);
+		var executor = body.Actor;
+		var size = _prototype.ScalarSizeProg.ExecuteDouble(executor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor) || !ReferenceEquals(body.Actor, executor)) return WearableFit.Unfitted;
+		return WearableFit.ForScalar(size);
+	}
+	public bool Fits(IBody body)
+	{
+		if (!UsesSizing || SizingBypassed(body) || Fit.Kind is WearableFitKind.Unfitted or WearableFitKind.Universal) return true;
+		if (Fit.Kind == WearableFitKind.Measurements)
+			return Fit.MatchesMeasurements(body, _prototype.HeightTolerance, _prototype.WeightTolerance);
+		if (_prototype.ScalarSizeProg is null) return false;
+		var executor = body.Actor;
+		var size = _prototype.ScalarSizeProg.ExecuteDouble(executor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor) || !ReferenceEquals(body.Actor, executor)) return false;
+		if (!double.IsFinite(size) || size < 0) return false;
+		var tolerance = Math.Floor(size / _prototype.ScalarToleranceDivisor) + _prototype.ScalarToleranceFlat;
+		return Math.Abs(size - Fit.Scalar) <= tolerance;
+	}
+	public WearableFit CaptureFitOnWear(IBody body) =>
+		UsesSizing && !SizingBypassed(body) && Fit.Kind == WearableFitKind.Unfitted ? FitFor(body) : Fit;
 
     public WearableGameItemComponent(WearableGameItemComponentProto proto, IGameItem parent, IBody sizefor,
         bool temporary = false) : base(parent, proto, temporary)
@@ -24,6 +68,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
         _prototype = proto;
         CurrentProfile = null;
         WornBy = null;
+		Fit = proto.InitialFit;
     }
 
     public WearableGameItemComponent(MudSharp.Models.GameItemComponent component, WearableGameItemComponentProto proto,
@@ -39,6 +84,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
         rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
+		Fit = rhs.Fit;
     }
 
     public override IGameItemComponentProto Prototype => _prototype;
@@ -55,6 +101,10 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
+		var replacement = newItem?.GetItemType<WearableGameItemComponent>();
+		if (replacement is not null && replacement._prototype.SizingEnabled == _prototype.SizingEnabled &&
+		    replacement._prototype.ScalarSizeProg?.Id == _prototype.ScalarSizeProg?.Id)
+			replacement.SetFit(Fit);
         if (WornBy == null)
         {
             return false;
@@ -93,11 +143,12 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     protected override string SaveToXml()
     {
-        return $"<Definition/>";
+        return new XElement("Definition", Fit.SaveToXml()).ToString();
     }
 
     protected void LoadFromXml(XElement root)
     {
+		Fit = root.Element("Fit") is { } fit ? WearableFit.FromXml(fit) : _prototype.InitialFit ?? WearableFit.Unfitted;
     }
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -203,6 +254,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     public WhyCannotDrapeReason WhyCannotWear(IBody wearer, IWearProfile profile)
     {
+		if (!Fits(wearer)) return WhyCannotDrapeReason.BadFit;
 		var locations = profile?.Profile(wearer);
 		if (locations is null) return WhyCannotDrapeReason.SpecificProfileNoMatch;
         if (Bulky)
@@ -235,11 +287,12 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
         var permitted = _prototype.WearableProg?.ExecuteBool(executor, Parent) ?? true;
 		// Eligibility may retire an animation and rebind this borrowed body.
         return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor) &&
-		       ReferenceEquals(wearer?.Actor, executor) && permitted;
+		       ReferenceEquals(wearer?.Actor, executor) && permitted && Fits(wearer);
     }
 
     public WhyCannotDrapeReason WhyCannotWear(IBody wearer)
     {
+		if (!Fits(wearer)) return WhyCannotDrapeReason.BadFit;
         if (_prototype.WearableProg?.ExecuteBool(wearer?.Actor) == false)
         {
             return WhyCannotDrapeReason.ProgFailed;
@@ -276,6 +329,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
                 return base.Decorate(voyeur, name, description, type, colour, flags);
             case DescriptionType.Full:
                 sb.AppendLine(description);
+				if (_prototype.SizingEnabled) sb.AppendLine(WearableSizing.Describe(this, voyeur));
                 sb.AppendLine();
                 if (voyeur is ICharacter ch)
                 {
@@ -304,7 +358,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
                 return sb.ToString();
             case DescriptionType.Evaluate:
-                sb.AppendLine($"This is something that can be worn by those with a body type of {Profiles.Select(x => x.DesignedBody).Distinct().Select(x => x.Name.ColourValue()).ListToString(conjunction: "or ")}.");
+				if (_prototype.SizingEnabled) sb.AppendLine(WearableSizing.Describe(this, voyeur));                sb.AppendLine($"This is something that can be worn by those with a body type of {Profiles.Select(x => x.DesignedBody).Distinct().Select(x => x.Name.ColourValue()).ListToString(conjunction: "or ")}.");
                 if (Bulky)
                 {
                     sb.AppendLine($"It is considered bulky, and cannot be worn over other bulky items.");

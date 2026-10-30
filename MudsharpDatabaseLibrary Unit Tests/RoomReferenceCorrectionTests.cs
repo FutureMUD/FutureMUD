@@ -120,6 +120,13 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void KeywordDescriptions_AreKnownProseAndNeverRewriteNumericRoomMentions()
+	{
+		const string xml = "<Effects><Effect><ApplicabilityProg>0</ApplicabilityProg><Type>KeywordDescriptions</Type><Original>0</Original><Remaining>0</Remaining><Effect><KeywordDescriptions><Entry><Keyword>Room 9000</Keyword><Prose><![CDATA[Room 9000 contains <Room id='9000'>a painted map</Room>.]]></Prose></Entry></KeywordDescriptions></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Rooms #8.EffectData"));
+	}
+
+	[TestMethod]
 	public void MagicSpellParent_ExactRecursiveChildrenPath_RemapsAndLeavesStoredSpellOpaque()
 	{
 		const string child = "<Effect><Type>ZeroGravityTether</Type><Effect><AnchorType>Room</AnchorType><AnchorId>9000</AnchorId></Effect></Effect>";
@@ -191,6 +198,29 @@ public class RoomReferenceCorrectionTests
 		{
 			Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
 		}
+	}
+
+	[TestMethod]
+	[DataRow("BlindnessStatus", "<Effect />")]
+	[DataRow("ClimbingStatus", "<Effect />")]
+	[DataRow("CombatTempoStatus", "<Multiplier>2</Multiplier>")]
+	[DataRow("DamageProtectionStatus", "<Protection multiplier='0.5' hits='1' remaining='1' spent='false' />")]
+	[DataRow("FlightStatus", "<Effect />")]
+	[DataRow("InfravisionStatus", "<Status key='infravision' granting='9000' obscuring='0' />")]
+	[DataRow("ListeningAwarenessStatus", "<Bonus>9000</Bonus>")]
+	[DataRow("MovementTempoStatus", "<Multiplier>0.5</Multiplier>")]
+	[DataRow("PacifismStatus", "<Effect />")]
+	[DataRow("PerceptionStatus", "<Status key='invisibility' granting='0' obscuring='9000' />")]
+	[DataRow("PoisonSenseStatus", "<Effect />")]
+	[DataRow("RoomWeather", "<Effect><WeatherEvent>9000</WeatherEvent></Effect>")]
+	[DataRow("SilenceStatus", "<Effect />")]
+	[DataRow("SpottingAwarenessStatus", "<Bonus>9000</Bonus>")]
+	[DataRow("PublicTravelAnchor", "<RequiredPerception>9000</RequiredPerception>")]
+	public void WorldfileStatusAndWeatherEffects_PreservePayloadWithoutRoomRewriting(string factory, string payload)
+	{
+		// Weather catalogue IDs and numeric status values are not legacy room references.
+		var xml = $"<Effects>\r\n<!-- retain formatting --><Effect><Type>{factory}</Type>{payload}</Effect>\r\n</Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
 	}
 
 	[TestMethod]

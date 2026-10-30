@@ -76,7 +76,17 @@ public partial class Body
 		CurrencyTransferKind kind, IGameItem? containerItem = null, ICharacter? containerOwner = null,
 		IBody? recipient = null, ICorpse? corpse = null, bool newStack = false,
 		IEmote? playerEmote = null, bool silent = false, IEnumerable<IHandleEvents>? witnessHandlers = null)
+		=> TransferPreparedCurrency(out _, currency, amount, exact, kind, containerItem, containerOwner,
+			recipient, corpse, newStack, playerEmote, silent, witnessHandlers);
+
+	private GameItem? TransferPreparedCurrency(out bool committed, ICurrency currency, decimal amount, bool exact,
+		CurrencyTransferKind kind, IGameItem? containerItem = null, ICharacter? containerOwner = null,
+		IBody? recipient = null, ICorpse? corpse = null, bool newStack = false,
+		IEmote? playerEmote = null, bool silent = false, IEnumerable<IHandleEvents>? witnessHandlers = null,
+		ICurrencyTransferParticipant? participant = null)
 	{
+		using var participantLifetime = participant;
+		committed = false;
 		var executor = Actor;
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		var origin = RouteSpatialService.Instance.GetEffectiveLocation(executor);
@@ -230,7 +240,8 @@ public partial class Body
 		if (!PreparedCurrent()) return null;
 		foreach (var debit in debits) ForeignCustodyTransferContext.EnsureItem(debit.State.Item, destructive: true);
 		ForeignCustodyTransferContext.EnsureItem(survivor, destructive: true);
-		if (!PreparedCurrent()) return null;
+		if (participant is not null && !participant.Prepare()) return null;
+		if (!PreparedCurrent() || participant is not null && (!participant.IsCurrent || !PreparedCurrent())) return null;
 		CommandExecutionScope.MarkCommitted(executor);
 		foreach (var map in maps) map.Key.ReplacePreparedCoins(map.Value);
 		if (merge is null)
@@ -253,11 +264,17 @@ public partial class Body
 			}
 		}
 		// All value and destination membership is coherent before save queues and observers run.
+		// Success concerns the transfer, even if a later observer consumes the destination pile.
+		committed = true;
+		participant?.Commit();
 		foreach (var map in maps) map.Key.MarkPreparedCoinsChanged();
 		InventoryChanged = true;
 		if (destinationBody is not null) destinationBody.InventoryChanged = true;
 		if (kind == CurrencyTransferKind.Put) container!.StorageOwner.Changed = true;
 		if (floor is not null) floor.ContentsChanged = true;
+		Exception? participantNotificationException = null;
+		try { participant?.Notify(); }
+		catch (Exception ex) { participantNotificationException = ex; }
 		if (kind == CurrencyTransferKind.Give && corpse is null && Gameworld.EconomyAnalytics is { } analytics)
 		{
 			analytics.RecordActivity(new EconomicActivityEvent(
@@ -325,6 +342,8 @@ public partial class Body
 		if (floor is not null && merge is null) floor.FinishPreparedCurrencyInsertion(survivor, floorPoint);
 		proximityChange?.Complete();
 		PublishCurrencyTransfer(kind, survivor, executor, containerItem, containerOwner, recipientActor, corpse, playerEmote, silent, witnesses, externalWitnesses);
+		if (participantNotificationException is not null)
+			throw new InvalidOperationException("The prepared currency participant committed, but its post-commit notification failed.", participantNotificationException);
 		return survivor.Deleted || survivor.Destroyed ? null : survivor;
 	}
 

@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Events;
 using MudSharp.FutureProg;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -160,6 +161,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			if (quote.Kind == MagicGatheringMethodKind.Land)
 			{
 				EmitLandEmotes(live, definition.LandActorStartEmote, definition.LandObserverStartEmote);
+				NotifyLandGatheringStart(live);
 			}
 			return new MagicGatheringResult(true,
 				$"You begin gathering {definition.Name.ColourName()}. It will take {duration.Describe(actor)} if uninterrupted.",
@@ -169,6 +171,20 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		{
 			RemoveLive(live);
 			return Refused($"The gathering action could not begin: {ex.Message}");
+		}
+	}
+
+	private static void NotifyLandGatheringStart(LiveOperation live)
+	{
+		var witnesses = live.Room.EventHandlersFor(live.Actor).OfType<IPerceivable>()
+			.Where(x => !ReferenceEquals(x, live.Actor)).Distinct().ToArray();
+		foreach (var witness in witnesses)
+		{
+			if (live.Actor.Location != live.Room) break;
+			if (witness is ICharacter character && character.Location != live.Room) continue;
+			// This is a notification of accepted work, not an input interceptor or debit.
+			witness.HandleEvent(EventType.CharacterBeginsLandMagicGatheringWitness, live.Actor, witness,
+				live.Room, live.Capability, live.Method.Key.ToString(), live.Quote.RequestedAmount, live.Id.ToString());
 		}
 	}
 

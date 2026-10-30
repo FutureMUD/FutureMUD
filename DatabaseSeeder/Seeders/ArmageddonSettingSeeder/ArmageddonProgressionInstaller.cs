@@ -18,7 +18,10 @@ namespace DatabaseSeeder.Seeders;
 public static partial class ArmageddonProgressionInstaller
 {
 	public const string Module = "stock-progression";
+	// Keep the owned historical identity while exposing a single real character Mana pool.
 	public const string SourceResourceKey = "arm.resource.source_energy";
+	public const string ManaResourceKey = SourceResourceKey;
+	public const string ManaGeneratorKey = "arm.generator.mana";
 	internal const string Version = "stock-progression-1";
 	private const string ImproverKey = "arm.improver.spell_practice";
 	private sealed record Spec(Type Type, string Key, string Name);
@@ -68,10 +71,10 @@ public static partial class ArmageddonProgressionInstaller
 				FunctionComment = "No free starting energy. Character capacity uses the native attribute expression.", Public = false, StaticType = 0 });
 			var capacity = Put("arm.resource.capacity", new TraitExpression { Name = "Reserve Capacity",
 				Expression = "max(2*variable,min(12*variable,100+3*(variable-13)))" });
-			// All canonical spells use one cost unit. The casting service maps it to the chosen route's reserve.
-			var source = Put(SourceResourceKey, new MagicResource { Name = "Source Energy", ShortName = "armsource", Type = "simple",
-				MagicResourceType = 0, BottomColour = "red", MidColour = "yellow", TopColour = "green",
-				Definition = Resource(Native(ArmageddonNativeBinding.AlwaysFalseProg), zero.Id, capacity.Id, settings.CapacityAttribute, false).ToString() });
+			// Spells, casting routes, gathering and charged items all use the same character Mana resource.
+			var source = Put(SourceResourceKey, new MagicResource { Name = "Mana", ShortName = "mana", Type = "simple",
+				MagicResourceType = 1, BottomColour = "red", MidColour = "yellow", TopColour = "green",
+				Definition = Resource(Native(ArmageddonNativeBinding.AlwaysFalseProg), zero.Id, capacity.Id, settings.CapacityAttribute).ToString() });
 			var improver = Put(ImproverKey, new Improver { Name = "Spell Practice", Type = "classic",
 				Definition = "<Definition Chance='0.1' Expression='0.5' ImproveOnFail='true' ImproveOnSuccess='true' DifficultyThresholdInterval='0' NoGainSecondsDiceExpression='60' ImprovementProg='0'/>" });
 			var traits = new Dictionary<string, long>(StringComparer.Ordinal);
@@ -91,24 +94,19 @@ public static partial class ArmageddonProgressionInstaller
 			}
 			var resourceIds = new Dictionary<string, long>(StringComparer.Ordinal);
 			var schoolIds = new Dictionary<string, long>(StringComparer.Ordinal);
-			var generators = new Dictionary<string, long>(StringComparer.Ordinal);
+			var generator = Put(ManaGeneratorKey, new MagicGenerator { Name = "Mana regeneration", Type = "linear",
+				Definition = new XElement("Definition", new XElement("WhichResource", source.Id), new XElement("AmountPerMinute", 2),
+					new XElement("ConsciousOnly", true), new XElement("RestMultiplier", 2)).ToString() });
 			foreach (var resourceKey in stock.Capabilities.Select(x => x.ResourceKey).Distinct())
 			{
 				var suffix = resourceKey["arm.resource.".Length..];
 				var name = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(suffix);
-				var resource = Put(resourceKey, new MagicResource { Name = name + " reserve", ShortName = "arm" + suffix,
-					Type = "simple", MagicResourceType = 1, BottomColour = "red", MidColour = "yellow", TopColour = "green",
-					Definition = Resource(Native(ArmageddonNativeBinding.AlwaysFalseProg), zero.Id, capacity.Id, settings.CapacityAttribute).ToString() });
-				resourceIds.Add(resourceKey, resource.Id);
+				// ResourceKey retains the source school identity; it no longer allocates another pool.
+				resourceIds.Add(resourceKey, source.Id);
 				var schoolKey = "arm.school." + suffix;
-				var school = Put(schoolKey, new MagicSchool { Name = name, SchoolVerb = "arm" + suffix,
+				var school = Put(schoolKey, new MagicSchool { Name = name, SchoolVerb = "cast",
 					SchoolAdjective = suffix, PowerListColour = "cyan" });
 				schoolIds.Add(schoolKey, school.Id);
-				if (suffix == "sorcerer") continue;
-				var generator = Put("arm.generator." + suffix, new MagicGenerator { Name = name + " regeneration", Type = "linear",
-					Definition = new XElement("Definition", new XElement("WhichResource", resource.Id), new XElement("AmountPerMinute", 2),
-						new XElement("ConsciousOnly", true), new XElement("RestMultiplier", 2)).ToString() });
-				generators.Add(resourceKey, generator.Id);
 			}
 			foreach (var cap in stock.Capabilities)
 			{
@@ -116,14 +114,14 @@ public static partial class ArmageddonProgressionInstaller
 				casting.SetAttributeValue("enabled", hydrate && settings.StockAvailabilityByDefault);
 				var definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
 					new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
-					new XElement("Regenerators", hydrate && generators.TryGetValue(cap.ResourceKey, out var generatorId)
-						? new XElement("Regenerator", generatorId) : null), casting);
+					new XElement("Regenerators", hydrate && !ArmageddonStockProgression.IsSorcerer(cap)
+						? new XElement("Regenerator", generator.Id) : null), casting);
 				if (gather is not null && ArmageddonStockProgression.IsSorcerer(cap))
 				{
 					casting.Add(ArmageddonStockGatheringInstaller.Support(cap.Key, gather));
 					definition.Add(ArmageddonStockGatheringInstaller.Methods(cap.Key, resourceIds[cap.ResourceKey], gather));
 				}
-				var capability = Put(cap.Key, new MagicCapability { Name = cap.Name, CapabilityModel = "skilllevel", PowerLevel = 1,
+				var capability = Put(cap.Key, new MagicCapability { Name = RoleName(cap), CapabilityModel = "skilllevel", PowerLevel = 1,
 					MagicSchoolId = schoolIds[cap.ResourceKey.Replace("arm.resource.", "arm.school.", StringComparison.Ordinal)],
 					Definition = definition.ToString() });
 				var merit = Put(cap.MeritKey, new Merit { Name = cap.Name + " caster", Type = "Magic Capability", MeritScope = 2, MeritType = 0,
@@ -148,7 +146,7 @@ public static partial class ArmageddonProgressionInstaller
 			transaction?.Commit();
 			committed = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class defaults: {(hydrate && settings.StockAvailabilityByDefault ? "enabled" : "closed")}; builder overrides are preserved. {(hydrateGathering ? "Four source Self/Land methods and three Gather support grants are installed with an independent editable permission." : "Source gathering remains a separate resumable policy stage.")} No player state changed.");
+			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, one shared Mana resource and one native regenerator. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class defaults: {(hydrate && settings.StockAvailabilityByDefault ? "enabled" : "closed")}; builder overrides are preserved. {(hydrateGathering ? "Four source Self/Land methods and three Gather support grants are installed with an independent editable permission." : "Source gathering remains a separate resumable policy stage.")} No player state changed.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)
@@ -175,7 +173,8 @@ public static partial class ArmageddonProgressionInstaller
 	{
 		var result = new List<Spec> { new(typeof(FutureProg), "arm.prog.resource_zero", "ArmageddonResourceZero"),
 			new(typeof(TraitExpression), "arm.resource.capacity", "Reserve Capacity"), new(typeof(Improver), ImproverKey, "Spell Practice"),
-			new(typeof(MagicResource), SourceResourceKey, "Source Energy") };
+			new(typeof(MagicResource), SourceResourceKey, "Mana"),
+			new(typeof(MagicGenerator), ManaGeneratorKey, "Mana regeneration") };
 		foreach (var key in stock.Bindings.Select(x => x.TraitKey).Distinct())
 		{
 			var name = TraitName(stock, key);
@@ -186,13 +185,11 @@ public static partial class ArmageddonProgressionInstaller
 		{
 			var suffix = resource["arm.resource.".Length..];
 			var name = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(suffix);
-			result.Add(new(typeof(MagicResource), resource, name + " reserve"));
 			result.Add(new(typeof(MagicSchool), "arm.school." + suffix, name));
-			if (suffix != "sorcerer") result.Add(new(typeof(MagicGenerator), "arm.generator." + suffix, name + " regeneration"));
 		}
 		foreach (var cap in stock.Capabilities)
 		{
-			result.Add(new(typeof(MagicCapability), cap.Key, cap.Name));
+			result.Add(new(typeof(MagicCapability), cap.Key, RoleName(cap)));
 			result.Add(new(typeof(Merit), cap.MeritKey, cap.Name + " caster"));
 			if (classes) result.Add(new(typeof(ChargenRole), cap.RoleKey, RoleName(cap)));
 		}

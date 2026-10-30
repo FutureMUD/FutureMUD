@@ -19,6 +19,12 @@ public interface ICommandHook : IHook
     string CommandText { get; set; }
 }
 
+/// <summary>Opt-in input handling: boolean payloads decide whether normal command dispatch continues.</summary>
+public interface IConditionalCommandHook : ICommandHook, IHookWithProgs
+{
+	bool UseProgResultForHandling { get; set; }
+}
+
 public interface IExecuteProgHook : IHook, IHookWithProgs
 {
     void AddProg(IFutureProg prog);

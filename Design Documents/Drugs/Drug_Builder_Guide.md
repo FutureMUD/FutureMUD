@@ -88,13 +88,47 @@ Set an effect intensity to `0%` or less to remove that effect type.
 | `VisionImpairment` | Reduced vision multiplier | None |
 | `ThermalImbalance` | Heat/cold imbalance pressure through the shared temperature model | None |
 | `PlanarState` | Manifested or noncorporeal planar overlay | `drug set type planar <corporeal|noncorporeal> [plane] [visible]` |
+| `Modifier` | Reversible trait, HP, exact resource capacity, offensive combat and defensive combat modifiers | `drug set type modifier <threshold> <trait|none> <trait bonus> <max HP bonus> <resource|none> <capacity bonus> [offence defence]` |
+| `Overdose` | Lethal threshold from active grams and a current native trait; optional shared group combines active mass across configured drugs | `drug set type overdose <trait> <grams per trait point> [group]` |
+| `Symptoms` | Recurring physical/sensory episodes and persistent symptom stages | `drug set type symptoms <option> ...`; see below |
 | `Coagulation` | Hemostatic and anticoagulant bleeding modifiers | `drug set type coagulation <external%> <reopen%> <internal%>` |
 | `Respiration` | Breathing-drive, hypoxia, and airway-support modifiers | `drug set type respiration <drive%> <hypoxia%> <airway%>` |
 | `NeedRate` | Hunger, thirst, and drunkenness-rate modifiers | `drug set type needrate <hunger%> <thirst%> <drunkenness%> <passive\|active\|both>` |
 | `Arousal` | Sleep, wakefulness, pass-out resistance, knockout, and consciousness thresholds | `drug set type arousal <mode\|check\|sleep\|knockout\|thresholds\|stamina> ...` |
-| `Dependence` | Persistent exposure, tolerance, and withdrawal metadata | `drug set type dependence <exposure\|tolerance\|withdrawal\|affected\|symptoms> ...` |
+| `Dependence` | Persistent exposure, tolerance, withdrawal and reversible exposure-scaled modifiers | `drug set type dependence <exposure\|tolerance\|withdrawal\|affected\|symptoms\|relapse\|capacity\|modifier> ...` |
 
 The required extra setup commands only work after you add a matching effect intensity.
+
+FutureProg can queue a direct native dose with `dosedrug(character, drug, grams, vector)`. The helper accepts positive finite grams and one advertised vector (`Inhaled`, `Ingested`, `Injected`, or `Touched`), and requires a living character's physical current body. It adds a latent dose and runs normal vector absorption, metabolism, dependence, and effects. The helper does not consume an item; a prog that represents eating or using a spice must decrement or delete its source item separately.
+
+## Recurring symptom profiles
+
+Start with `drug set type intensity Symptoms 100%`. Stage zero exists initially. For example:
+
+```text
+drug set type symptoms trait Endurance
+drug set type symptoms chance 0 1.0 / Max(1, resistance + 1)
+drug set type symptoms stamina 0 5
+drug set type symptoms echo 0 You break into a feverish sweat.
+```
+
+`chance`, `damage`, `pain`, `stun`, `stamina` and `transition` accept `<stage> <formula>`. Inputs are `intensity`, `resistance`, `fullness`, `sleeping`, `unconscious` and `stage`. Chances are 0–1 probabilities per configured trial; damage and resource amounts are per successful episode. `interval <seconds>` sets that trial interval (1–86,400 real seconds; default one). Normal absorption and metabolism determine how long symptoms remain active. Include `intensity` when stronger doses should cause stronger or more frequent episodes.
+
+Use `addstage` to append a stage, `initial <stage>` to select the initial stage, and `next <stage> <destination> ...` for transition destinations. Each destination defaults to weight one; `weight <stage> <destination> <formula>` supplies a custom nonnegative weight. An empty destination list disables transitions. `transition <stage> <formula>` sets their probability. Stages are zero-based. `awake <stage> true|false` gates transitions and episodes. `sleepfatal <stage> true|false` enables death only on a successful episode during sleep; it defaults to false. `damagetype <stage> <type>` selects native damage type, default Cellular. `echo <stage> <text>` appends a private sensory message; `echo <stage> clear` clears messages. `trait none` disables the resistance input. `drug show` displays the profile.
+
+Stage state persists while positive physical drug exposure remains, including temporary neutralisation. Cure or full clearance removes it. Restart preserves the stage without offline episodes. Dose refreshes and cures do not create episodes; the ten-second drug heartbeat processes elapsed trials. Private hallucination text does not create real items, attacks or room events.
+
+Permanent consequences are optional:
+
+```text
+drug set type symptoms onset Wisdom "0.001" -1 1
+drug set type symptoms perdose true
+drug set type symptoms expiry Wisdom "1" -1 0
+```
+
+`onset|expiry <trait> <quoted chance formula> <signed permanent amount> [minimum raw value]` sets one consequence for that trait and phase; zero amount removes it. The minimum defaults to zero. `onsetclear` and `expiryclear` clear a phase. Changes modify the owned raw value through normal persistence; they do not incorporate temporary bonuses. Default onset mode runs once on first active exposure. `perdose true` runs onset consequences immediately on each accepted administration, before absorption, so a later cure cannot undo the permanent change. Natural expiry happens only after final metabolism clearance; cure, purge and staff sobriety avoid it. `drug show` displays interval, phase rules and amounts.
+
+FutureProg can run `resistpoison(character, difficulty)` before an exposure. It returns true on a native poison-save pass; it does not administer or remove drugs. The dedicated check defaults to Endurance/Constitution times five without improvement and can be edited through the normal check/formula builders. Existing configured checks are preserved. A custom setting without a recognised attribute must bind its zero default formula explicitly. Use `dosedrug` only on the intended failed-save branch, and only for routes that are supposed to permit resistance.
 
 ## Expansion Payload Commands
 Add the effect family first:
@@ -151,11 +185,22 @@ drug set type dependence withdrawal 2.50 0.18
 drug set type dependence affected Analgesic
 drug set type dependence affected Respiration
 drug set type dependence symptoms -15% 120% 125% 70% 125% 45% 10% 0.20
+drug set type dependence relapse 200%
+drug set type dependence capacity 80% 70%
+drug set type dependence modifier 10 Endurance -1 0 0 0 0 0
+drug set type modifier 1 Endurance 1 0 0 0 2 0
+drug set type overdose Endurance 0.002
 ```
 
 The `symptoms` values are check modifier, hunger multiplier, thirst multiplier, stamina regeneration multiplier, stamina cost multiplier, nausea intensity, rage intensity, and sleep-prevention threshold.
 
 Dependence is persistent gameplay state. Use it for drugs where tolerance and withdrawal are intended story or balance consequences, not as a default for every medicine.
+
+Modifier steps use the highest configured threshold at or below the current normalized active intensity or dependence exposure, independently for each trait, HP, resource and combat target. They are discrete steps, not cumulative tiers. Values are additive; author penalties as negative bonuses. `Modifier` effects are temporary and disappear when the dose clears. Dependence modifier steps track persisted exposure and reverse as exposure decays. `capacity` applies multiplicative reductions to maximum HP and all player magic-resource capacities while withdrawal intensity is present. Relapse gain applies when exposure is below its historical peak; the default is `100%`.
+
+Existing effect families can cover other source spice behavior without extra drug types: use `Analgesic` for Thodeliv's pain relief and `StaminaRegen` for Krentakh's immediate stamina recovery.
+
+Overdose checks active grams against `current effective trait value × grams per trait point` on the body's ordinary drug update. With no group, each configured drug is checked separately. Drugs configured with the same case-insensitive group name contribute their active grams together; each member's own trait and grams-per-point threshold is still evaluated, and multiple doses of one drug are counted once as their summed mass. It calls the native character death path. Leave the Overdose payload unset to disable lethal overdose.
 
 ## Potency And Duration
 There are three separate knobs:
@@ -359,6 +404,31 @@ dip <ammo> in <source> [count <number|all>]
 
 Injected weapon poison delivery depends on wound severity, wound nature, and damage-type multipliers. Contact poison is the fallback if no injected delivery succeeds and the drug supports `Touched`.
 
+### Poison consequences and cleansing
+
+Symptom stages can add independently timed health-capacity consequences and native incapacitation policies:
+
+```text
+drug set type symptoms maxhp 0 -damage
+drug set type symptoms maxhpseconds 0 5400
+drug set type symptoms capacityonly 0 true
+drug set type symptoms sleepatexhaustion 0 true
+drug set type symptoms blockrecovery 0 true
+drug set type symptoms unconsciousrecoveryonly 0 true
+drug set type symptoms ceasecombat 0 true
+drug set type symptoms immune Vampire
+```
+
+These are independent settings; enable only the ones appropriate to the drug. `damage` means the same episode's actual rolled damage. Capacity-only modifiers need an HP strategy with `separatecapacitypenalties true` to avoid counting capacity loss as additional current-HP damage. Other strategies preserve their existing modifier rules. HP models can optionally enable `usestun`, configure `maxstun`/`healstun`, and enable `usecellulardamage` independently of heart simulation. Recovery blocking affects natural online/offline stun recovery, including only unconscious recipients when configured; direct healing remains available.
+
+The `removepoison` spell effect accepts ordered `group <quoted drug names or IDs...>`, `firstgroup true` and `aftermath true`. Grouping Skellebain variants makes them one cure family. Default spells still remove all configured matching toxins; ordered mode removes only the first present family. The optional fourth argument of `hasdrugdosage`/`purgedrugdosages` includes independent timed aftereffects. Omitting it leaves them intact. `removeweaponpoison(item)` removes coatings; `remapliquids` optionally accepts `requireOpen` and `requireCompleteMapping`, allowing magic to cleanse closed vessels while retaining unmapped contents. Player application should retain the default restrictive flags.
+
+## Prog-controlled weapon coatings
+
+`setweaponpoison(item, deliveryProgId)` adds a persistent, single-use scripted coating to one uncoated melee weapon or ammunition item. The delivery prog must accept `(character attacker, character victim, item weapon)` and administer its chosen dose itself. `hasweaponpoison(item)` includes both liquid and scripted coatings. A qualifying damaging wound spends the scripted charge before the prog runs, so resisted exposures still spend it. Ordinary native liquid-coating defaults are unchanged. Scripted policies can use an empty carrier mixture, survive save/load/morph, and transfer one charge to a separate projectile rather than duplicating across multi-projectile ammunition. A player-facing prog must validate custody/access; `canmanipulateitem(character,item)` exposes native manual-action/access and action-blocking checks. `actioncheck(character, checkType, difficulty)` runs an existing configured native check and returns check degrees.
+
+The Armageddon worldfile package wires these helpers into `poison <held item> [with <held vial>]`; its full source-specific rules are documented in [the poison mapping](../Seeding/Armageddon_Worldfile_Poison_Effects.md).
+
 ## Magic Poison And Removal
 Magic spell effects can add or remove drug payloads through the spell-effect builders:
 
@@ -391,6 +461,10 @@ Use `AnimalSeeder` as the venom reference. Its pattern is:
 
 Use `ItemSeeder.AntiquityMedical` as an example of item prototypes that consume the stock drug delivery component names, such as `Pill_Willow_Bark_Tea`, `TopicalCream_Honey_Poultice`, and `Smokeable_Henbane_Smoke`.
 
+### Administration policy
+
+Drug-wide administration policy is separate from effect types. Defaults retain ordinary proportional dosing. Use `fixeddose <grams>` to configure a positive fixed mass, then `dosebehaviour FixedDose` to use it for each positive administration. `dosebehaviour IgnoreAdditionalExposure` refuses another exposure while any positive active or latent dose of that drug remains. Combine flags with `dosebehaviour FixedDose, IgnoreAdditionalExposure`; use `dosebehaviour Normal` to restore ordinary behaviour. Fixed dosing never turns zero, negative or invalid input into an exposure. `drug show` displays the policy and configured mass. Progs can inspect `dosebehaviour`, `fixeddosegrams` and `fixedadministration`.
+
 ## Testing Checklist
 Before considering a drug content slice complete:
 
@@ -403,3 +477,42 @@ Before considering a drug content slice complete:
 - Smoke, incense, and inhalers apply grams per drag, pulse, or puff as intended.
 - Weapon poison liquids have touched or injected vectors and enough liquid capacity.
 - Stock seeder additions are idempotent and update the maintained seeded component catalogue when required.
+
+## Configuring an infection
+
+Create a separate symptom drug using ordinary effect intensities, modifiers and staged Symptoms. It must not have an Infection effect. Set no delivery vectors if it should only be used internally as a symptom profile. Then edit the exposure drug:
+
+```text
+drug set type intensity Infection 100%
+drug set type infection name Marsh Fever
+drug set type infection symptoms "Marsh Fever Symptoms"
+drug set type infection recovery FixedDuration
+drug set type infection duration 30000
+drug set type infection severity 1
+drug set type infection symptomscale 1
+drug set type infection exposure 1
+drug set type infection spread 0.0001
+drug set type infection symptomspread true
+drug set type infection episode 1
+drug set type infection cure true
+```
+
+`duration` and `interval` use real seconds. `exposure`, `spread` and `episode` are probabilities from zero to one, not percentages. `symptomspread true` makes successful recurring symptom episodes trigger transmission trials; false uses the configured interval and episode probability. `spread` is the probability per other eligible room occupant during a trial. Duplicate exposures do not restart an existing illness.
+
+Use `recovery Immune` for native immune progression and antibiotic resistance; `difficulty` sets the native virulence difficulty and `virulence` its multiplier. FixedDuration preserves its authored lifetime and does not clear early through immune/antibiotic progression. With `cure true`, existing targeted drug cures also remove the infection identified by this exposure drug. Natural completion may run symptom expiry consequences; explicit cures never do. Infection symptom profiles reuse pharmacological effects without physical doses, dependence or overdose accumulation. Symptoms formulas now also expose `stamina` (native current stamina).
+
+### Involuntary symptom outcomes
+
+Use `drug set type symptoms outcomeadd <stage> <weight> <action>` with `None`, `Sit`, `DropReadiedItems`, `ReleaseGrapple`, `Babble` or `Residue`. One outcome is chosen per successful episode; weights are relative. A `None` outcome with no text retains the stage's random sensory echo. Stages and outcomes use zero-based indexes shown by drug inspection.
+
+Edit with `drug set type symptoms <option> <stage> <outcome> <value>`:
+
+- `outcomeecho`: private text, or `clear`.
+- `outcomeemote`: native emote with `$0` as the victim, or `clear`.
+- `outcomeweight`: positive relative weight.
+- `outcomeseconds`: babbling duration, up to 86,400 real seconds.
+- `outcomerelease`: `true`/`false` to also release the victim's grapple.
+- `outcomeresidue`: `<material> <kilograms> [clothing wear-location name fragment]`; coats the body and matching worn items.
+- `outcomeremove`: remove that outcome (no value).
+
+Babbling does not refresh existing babbling. Grip loss drops wielded equipment through native inventory rules, leaving general inventory intact. Residue uses native washing. Symptom formulas accept `stamina` as well as intensity, resistance, fullness, sleeping, unconscious, stage and damage.

@@ -14,7 +14,18 @@ namespace DatabaseSeeder;
 
 internal sealed record SeederReplayAnswer(string Id, string Answer);
 
-internal sealed record SeederReplayStep(Type SeederType, IReadOnlyList<SeederReplayAnswer> Answers);
+internal enum SeederReplayDisposition
+{
+	Execute,
+	NotApplicable
+}
+
+internal sealed record SeederReplayStep(
+	Type SeederType,
+	IReadOnlyList<SeederReplayAnswer> Answers,
+	SeederReplayDisposition Disposition = SeederReplayDisposition.Execute,
+	string? NotApplicableReason = null,
+	Func<FuturemudDatabaseContext, bool>? NotApplicableWhen = null);
 
 internal sealed record SeederReplayProfile(
 	string Id,
@@ -30,12 +41,21 @@ internal sealed record SeederReplayValidationResult(IReadOnlyList<string> Errors
 internal sealed record SeederReplayRunResult(
 	SeederReplayProfile Profile,
 	IReadOnlyList<string> CompletedSeeders,
+	IReadOnlyList<string> NotApplicableSeeders,
 	string? FailedSeeder,
 	IReadOnlyList<string> UnstartedSeeders,
 	string? Failure,
 	Exception? Exception,
 	SeederReplayValidationResult Validation)
 {
+	internal SeederReplayRunResult(SeederReplayProfile profile, IReadOnlyList<string> completedSeeders,
+		string? failedSeeder, IReadOnlyList<string> unstartedSeeders, string? failure, Exception? exception,
+		SeederReplayValidationResult validation)
+		: this(profile, completedSeeders, Array.Empty<string>(), failedSeeder, unstartedSeeders, failure, exception,
+			validation)
+	{
+	}
+
 	internal bool Success => Validation.IsValid && string.IsNullOrWhiteSpace(Failure) && Exception is null;
 }
 
@@ -141,8 +161,26 @@ internal static class SeederReplayRunner
 
 		foreach (SeederReplayStep step in profile.Steps)
 		{
+			if (step.Disposition == SeederReplayDisposition.NotApplicable)
+			{
+				if (string.IsNullOrWhiteSpace(step.NotApplicableReason))
+				{
+					errors.Add($"{step.SeederType.Name} is marked not applicable without an explicit reason.");
+				}
+
+				if (step.NotApplicableWhen is null)
+				{
+					errors.Add($"{step.SeederType.Name} is marked not applicable without a live-context predicate.");
+				}
+			}
+			else if (step.NotApplicableReason is not null || step.NotApplicableWhen is not null)
+			{
+				errors.Add($"{step.SeederType.Name} has not-applicable metadata but is marked to execute.");
+			}
+
 			if (!seedersByType.TryGetValue(step.SeederType, out IDatabaseSeeder? seeder))
 			{
+				errors.Add($"The replay profile contains a step for unavailable or disabled seeder {step.SeederType.Name}.");
 				continue;
 			}
 
@@ -216,7 +254,7 @@ internal static class SeederReplayRunner
 		var validation = Validate(profile, seederList);
 		if (!validation.IsValid)
 		{
-			return FailureResult(profile, [], null, null, "The selected replay profile is no longer valid.", null,
+			return FailureResult(profile, [], [], null, null, "The selected replay profile is no longer valid.", null,
 				validation);
 		}
 
@@ -228,7 +266,7 @@ internal static class SeederReplayRunner
 				validation = new SeederReplayValidationResult([
 					"A replay prefix requires a declared boundary after at least one seeder step."
 				]);
-				return FailureResult(profile, [], null, null, "The selected replay prefix is invalid.", null, validation);
+				return FailureResult(profile, [], [], null, null, "The selected replay prefix is invalid.", null, validation);
 			}
 
 			profile = profile with { Steps = profile.Steps.Take(boundary).ToList() };
@@ -239,30 +277,46 @@ internal static class SeederReplayRunner
 			using var preflightContext = contextFactory();
 			if (preflightContext.Accounts.Any() || preflightContext.SeederChoices.Any())
 			{
-				return FailureResult(profile, [], null, null,
+				return FailureResult(profile, [], [], null, null,
 					"Replay profiles require a freshly migrated, unseeded database. This database already has bootstrap or seeder-answer data.",
 					null, validation);
 			}
 		}
 		catch (Exception exception)
 		{
-			return FailureResult(profile, [], null, null, "Could not inspect the target database before replay.", exception,
+			return FailureResult(profile, [], [], null, null, "Could not inspect the target database before replay.", exception,
 				validation);
 		}
 
 		var seedersByType = seederList.ToDictionary(x => x.GetType());
 		var completedSeeders = new List<string>();
+		var notApplicableSeeders = new List<string>();
 		foreach (SeederReplayStep step in profile.Steps)
 		{
 			IDatabaseSeeder seeder = seedersByType[step.SeederType];
+
 			progress?.Invoke($"Running {seeder.Name}...");
 			try
 			{
 				using FuturemudDatabaseContext context = contextFactory();
+				if (step.Disposition == SeederReplayDisposition.NotApplicable)
+				{
+					if (step.NotApplicableWhen?.Invoke(context) != true)
+					{
+						return FailureResult(profile, completedSeeders, notApplicableSeeders, seeder.Name, step,
+							$"{seeder.Name} was marked not applicable by the profile but its live-context predicate did not pass.",
+							null, validation);
+					}
+
+					notApplicableSeeders.Add(seeder.Name);
+					progress?.Invoke($"Skipping {seeder.Name}: {step.NotApplicableReason}");
+					continue;
+				}
+
 				SeederAssessment assessment = seeder.AssessSeedData(context);
 				if (assessment.Status == SeederAssessmentStatus.Blocked)
 				{
-					return FailureResult(profile, completedSeeders, seeder.Name, step,
+					return FailureResult(profile, completedSeeders, notApplicableSeeders, seeder.Name, step,
 						$"{seeder.Name} is blocked: {assessment.Explanation}", null, validation);
 				}
 
@@ -279,7 +333,7 @@ internal static class SeederReplayRunner
 
 					if (!suppliedAnswers.TryGetValue(question.Id, out string? answer))
 					{
-						return FailureResult(profile, completedSeeders, seeder.Name, step,
+						return FailureResult(profile, completedSeeders, notApplicableSeeders, seeder.Name, step,
 							$"{seeder.Name} needs an answer for active question {question.Id}.", null, validation);
 					}
 
@@ -287,7 +341,7 @@ internal static class SeederReplayRunner
 						SeederQuestionWorkflow.Validate(question, answer, context);
 					if (!answerValidation.Success)
 					{
-						return FailureResult(profile, completedSeeders, seeder.Name, step,
+						return FailureResult(profile, completedSeeders, notApplicableSeeders, seeder.Name, step,
 							$"{seeder.Name} answer for {question.Id} is no longer valid: {answerValidation.Error}", null,
 							validation);
 					}
@@ -298,7 +352,7 @@ internal static class SeederReplayRunner
 				SeederExecutionResult execution = SeederExecutionService.Execute(context, seeder, questions, answers, version);
 				if (!execution.Success)
 				{
-					return FailureResult(profile, completedSeeders, seeder.Name, step,
+					return FailureResult(profile, completedSeeders, notApplicableSeeders, seeder.Name, step,
 						$"{seeder.Name} failed during replay.", execution.Exception, validation);
 				}
 
@@ -306,17 +360,18 @@ internal static class SeederReplayRunner
 			}
 			catch (Exception exception)
 			{
-				return FailureResult(profile, completedSeeders, seeder.Name, step,
+				return FailureResult(profile, completedSeeders, notApplicableSeeders, seeder.Name, step,
 					$"{seeder.Name} could not be prepared for replay.", exception, validation);
 			}
 		}
 
-		return new SeederReplayRunResult(profile, completedSeeders, null, [], null, null, validation);
+		return new SeederReplayRunResult(profile, completedSeeders, notApplicableSeeders, null, [], null, null, validation);
 	}
 
 	private static SeederReplayRunResult FailureResult(
 		SeederReplayProfile profile,
 		IReadOnlyList<string> completedSeeders,
+		IReadOnlyList<string> notApplicableSeeders,
 		string? failedSeeder,
 		SeederReplayStep? failedStep,
 		string failure,
@@ -331,6 +386,7 @@ internal static class SeederReplayRunner
 		return new SeederReplayRunResult(
 			profile,
 			completedSeeders,
+			notApplicableSeeders,
 			failedSeeder,
 			unstartedSteps.Select(x => x.SeederType.Name).ToList(),
 			failure,
@@ -396,7 +452,18 @@ internal static class DebugSeederReplayProfiles
 			"earlymodern",
 			"medieval renaissance earlymodern industrial",
 			"earthrenaissanceeurope",
-			"custom")
+			"custom"),
+		CreateProfile(
+			"armageddon-native",
+			"Armageddon Native World",
+			"Full Debug replay with Armageddon time, celestial, skill and setting packages, followed by the native worldfile import.",
+			"Debug Armageddon",
+			"1",
+			"Medieval Age",
+			"medieval",
+			"medieval",
+			"earthmedievaleurope",
+			armageddon: true)
 	];
 
 	private static SeederReplayProfile CreateProfile(
@@ -409,10 +476,25 @@ internal static class DebugSeederReplayProfiles
 		string healthTechLevel,
 		string itemEras,
 		string culturePack,
-		string technologyProfile = "neutral")
+		string technologyProfile = "neutral",
+		bool armageddon = false)
 	{
 		var epoch = $"1 January {year}";
 		var moonEpoch = $"21 January {year}";
+		var items = Step<ItemSeeder>(
+			("eras", itemEras), ("technologyprofile", technologyProfile),
+			("technologypower", "Connectable_Male_To_MainsPlug"), ("technologypaper", "A4, Letter"),
+			("technologytelecom", "Telephone_Standard"), ("technologynetworkmedia", "NetworkAdapter_Wired"),
+			("technologyvehicle", "AttachableConnectable_PowerLead"), ("scope", "all"));
+		if (armageddon)
+		{
+			items = items with
+			{
+				Disposition = SeederReplayDisposition.NotApplicable,
+				NotApplicableReason = "The Armageddon skill package uses its worldfile inventory; the generic era recipe catalogue requires additional skills such as Pottery.",
+				NotApplicableWhen = db => db.SeederChoices.Any(x => x.Seeder == "Skill Package" && x.Choice == "skillpreset" && x.Answer == "Armageddon")
+			};
+		}
 		return new SeederReplayProfile(id, name, description,
 		[
 			Step<CoreDataSeeder>(
@@ -422,12 +504,12 @@ internal static class DebugSeederReplayProfiles
 				("password", DebugPassword),
 				("email", "debug-replay@futuremud.com")),
 			Step<TimeSeeder>(
-				("secondsmultiplier", "2"),
-				("mode", "gregorian-uk"),
+				("secondsmultiplier", armageddon ? "6" : "2"),
+				("mode", armageddon ? "armageddon" : "gregorian-uk"),
 				("startyear", year),
 				("ardaage", "3")),
 			Step<CelestialSeeder>(
-				("packages", "EarthSun EarthMoon Jupiter Rails Scripts MorningStar MorningGlow"),
+				("packages", armageddon ? "Armageddon" : "EarthSun EarthMoon Jupiter Rails Scripts MorningStar MorningGlow"),
 				("suncalendar", "1"),
 				("sunepoch", epoch),
 				("mooncalendar", "1"),
@@ -442,13 +524,13 @@ internal static class DebugSeederReplayProfiles
 			Step<CurrencySeeder>(("currency", "pounds")),
 			Step<AIStorytellerSeeder>(("install", "yes")),
 			Step<SkillPackageSeeder>(
-				("skillpreset", "Complex-NonGerund-Modern"),
-				("branching", "yes"),
-				("skillcapmodel", "rpi"),
-				("skillgainmodel", "labmud"),
-				("complexity", "complex"),
+				("skillpreset", armageddon ? "Armageddon" : "Complex-NonGerund-Modern"),
+				("branching", armageddon ? "no" : "yes"),
+				("skillcapmodel", armageddon ? "class" : "rpi"),
+				("skillgainmodel", armageddon ? "armageddon" : "labmud"),
+				("complexity", armageddon ? "armageddon" : "complex"),
 				("gerund", "no"),
-				("modern", "yes")),
+				("modern", armageddon ? "no" : "yes")),
 			Step<EconomySeeder>(
 				("era", economyEra),
 				("currency", "1"),
@@ -478,8 +560,8 @@ internal static class DebugSeederReplayProfiles
 				("rpp", "yes"),
 				("rppname", "Roleplay Point/RPP"),
 				("bp", "yes"),
-				("class", "no"),
-				("subclass", "no"),
+				("class", armageddon ? "yes" : "no"),
+				("subclass", armageddon ? "yes" : "no"),
 				("role-first", "race"),
 				("attributemode", "points"),
 				("skillmode", "boosts"),
@@ -502,11 +584,11 @@ internal static class DebugSeederReplayProfiles
 			Step<HealthSeeder>(("techlevel", healthTechLevel)),
 			Step<CookingSeeder>(),
 			Step<CombatSeeder>(
-				("installmuskets", "yes"),
+				("installmuskets", armageddon ? "no" : "yes"),
 				("installguns", "no"),
 				("random", "static"),
 				("parryoption", "yes"),
-				("skilloption", "weapons"),
+				("skilloption", armageddon ? "armageddon" : "weapons"),
 				("messagestyle", "sparse")),
 			Step<CultureSeeder>(
 				("culturepacks", culturePack),
@@ -525,25 +607,22 @@ internal static class DebugSeederReplayProfiles
 				("messagestyle", "sparse")),
 			Step<WildlifeCatalogueSeeder>(),
 			Step<RobotSeeder>(),
-			Step<ItemSeeder>(
-				("eras", itemEras),
-				("technologyprofile", technologyProfile),
-				("technologypower", "Connectable_Male_To_MainsPlug"),
-				("technologypaper", "A4, Letter"),
-				("technologytelecom", "Telephone_Standard"),
-				("technologynetworkmedia", "NetworkAdapter_Wired"),
-				("technologyvehicle", "AttachableConnectable_PowerLead"),
-				("scope", "all")),
+			items,
 			Step<AnimalButcherySeeder>(),
 			Step<SupernaturalSeeder>(
 				("model", "full"),
 				("random", "static"),
 				("messagestyle", "sparse")),
 			Step<ArmageddonSettingSeeder>((ArmageddonSettingSeeder.InstallQuestion, "no"),
-				(ArmageddonSettingSeeder.FullInstallQuestion, "no"), (ArmageddonSettingSeeder.WeatherQuestion, "no"), (ArmageddonSettingSeeder.ModeQuestion, "Classic"),
-				(ArmageddonSettingSeeder.CapacityQuestion, "0"), (ArmageddonSettingSeeder.NativeBindingsQuestion, "{}"),
+				(ArmageddonSettingSeeder.FullInstallQuestion, armageddon ? "yes" : "no"), (ArmageddonSettingSeeder.WeatherQuestion, "no"), (ArmageddonSettingSeeder.ModeQuestion, "Classic"),
+				(ArmageddonSettingSeeder.CapacityQuestion, armageddon ? "4" : "0"), (ArmageddonSettingSeeder.NativeBindingsQuestion, "{}"),
 				(ArmageddonSettingSeeder.BindingsQuestion, "none")),
 			Step<PsionicsSeeder>(("install-psionics", "yes")),
+			(armageddon
+				? Step<ArmageddonWorldfileSeeder>()
+				: NotApplicableStep<ArmageddonWorldfileSeeder>(
+					"This profile explicitly declines the Armageddon Setting; the native worldfile applies only when Armageddon Installation settings exist.",
+					db => ArmageddonInstallation.Read(db) is null)),
 			Step<EnvironmentalExposureSeeder>(("natural", "yes"), ("fantasy", "yes"))
 		]);
 	}
@@ -555,5 +634,11 @@ internal static class DebugSeederReplayProfiles
 			.Select(x => new SeederReplayAnswer(x.Id, x.Answer))
 			.ToList());
 	}
+
+	private static SeederReplayStep NotApplicableStep<T>(string reason,
+		Func<FuturemudDatabaseContext, bool> predicate, params (string Id, string Answer)[] answers)
+		where T : IDatabaseSeeder => new(typeof(T), answers
+		.Select(x => new SeederReplayAnswer(x.Id, x.Answer)).ToList(),
+			SeederReplayDisposition.NotApplicable, reason, predicate);
 }
 #endif

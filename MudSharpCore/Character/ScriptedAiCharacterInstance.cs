@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -143,43 +143,47 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public void SetupEventSubscriptions()
 	{
+		var heartbeat = Gameworld?.HeartbeatManager;
+		if (heartbeat is null) return;
 		if (_spellRetirementPending || State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
 		{
 			ReleaseEventSubscriptions();
 			return;
 		}
 
-		if (AIs.Any(x => x.HandlesEvent(EventType.FiveSecondTick)))
+		if (HandlesEvent(EventType.FiveSecondTick))
 		{
-			Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
-			Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += FiveSecondHeartbeat;
+			heartbeat.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
+			heartbeat.FuzzyFiveSecondHeartbeat += FiveSecondHeartbeat;
 		}
 
-		if (AIs.Any(x => x.HandlesEvent(EventType.TenSecondTick)))
+		if (HandlesEvent(EventType.TenSecondTick))
 		{
-			Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
-			Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat += TenSecondHeartbeat;
+			heartbeat.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
+			heartbeat.FuzzyTenSecondHeartbeat += TenSecondHeartbeat;
 		}
 
-		if (AIs.Any(x => x.HandlesEvent(EventType.MinuteTick)))
+		if (HandlesEvent(EventType.MinuteTick))
 		{
-			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
-			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += MinuteHeartbeat;
+			heartbeat.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
+			heartbeat.FuzzyMinuteHeartbeat += MinuteHeartbeat;
 		}
 
-		if (AIs.Any(x => x.HandlesEvent(EventType.HourTick)))
+		if (HandlesEvent(EventType.HourTick))
 		{
-			Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
-			Gameworld.HeartbeatManager.FuzzyHourHeartbeat += HourHeartbeat;
+			heartbeat.FuzzyHourHeartbeat -= HourHeartbeat;
+			heartbeat.FuzzyHourHeartbeat += HourHeartbeat;
 		}
 	}
 
 	public void ReleaseEventSubscriptions()
 	{
-		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
-		Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
-		Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
-		Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
+		var heartbeat = Gameworld?.HeartbeatManager;
+		if (heartbeat is null) return;
+		heartbeat.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
+		heartbeat.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
+		heartbeat.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
+		heartbeat.FuzzyHourHeartbeat -= HourHeartbeat;
 	}
 
 	public void AddAI(IArtificialIntelligence ai)

@@ -259,6 +259,21 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
 		IdRegistered?.Invoke(this);
 	}
 
+	/// <summary>Assigns a previously inserted identity without publishing it to observers.</summary>
+	protected void BindCommittedIdentity(object dbitem)
+	{
+		if (IdInitialised) throw new InvalidOperationException("This item already has a registered identity.");
+		SetIDFromDatabase(dbitem);
+		IdInitialised = true;
+	}
+
+	/// <summary>Publishes an identity that was bound by a committed native operation.</summary>
+	protected void NotifyCommittedIdentity()
+	{
+		if (!IdInitialised) throw new InvalidOperationException("This item has no bound identity.");
+		IdRegistered?.Invoke(this);
+	}
+
     public virtual InitialisationPhase InitialisationPhase => InitialisationPhase.Second;
 
     #endregion

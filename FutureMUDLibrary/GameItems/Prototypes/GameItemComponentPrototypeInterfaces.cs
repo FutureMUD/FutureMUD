@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Computers;
@@ -530,6 +531,11 @@ public interface ILiquidContainerPrototype : IExclusiveGameItemComponentPrototyp
 {
 }
 
+/// <summary>A liquid vessel with callback-free prepared contents publication.</summary>
+public interface IPreparedLiquidContainerPrototype : ILiquidContainerPrototype, IExclusiveGameItemComponentPrototype<IPreparedLiquidContainer>
+{
+}
+
 public interface ILiquidGridSupplierPrototype : IExclusiveGameItemComponentPrototype<ILiquidGridSupplier>
 {
 }
@@ -783,6 +789,10 @@ public interface ITablePrototype : IExclusiveGameItemComponentPrototype<ITable>
 {
 }
 
+public interface IConsumablePaperPrototype : IExclusiveGameItemComponentPrototype<IConsumablePaper>
+{
+}
+
 public interface ITearablePrototype : IExclusiveGameItemComponentPrototype<ITearable>
 {
 }
@@ -821,6 +831,8 @@ public interface IVariablePrototype : IExclusiveGameItemComponentPrototype<IVari
 
 public interface IVehicleExteriorPrototype : IExclusiveGameItemComponentPrototype<IVehicleExterior>, IProvideItemTargetProjectionsPrototype
 {
+	/// <summary>Optional compartment prototype to source-room mappings for authored interiors.</summary>
+	IReadOnlyDictionary<long, long> InteriorRoomTemplates => new Dictionary<long, long>();
 }
 
 public interface IVehicleAccessPointItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleAccessPointItem>,

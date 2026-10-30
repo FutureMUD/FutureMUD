@@ -28,5 +28,7 @@ public class DrugDependenceRuntimeTests
 
 		Assert.AreEqual(0.6, oneHeartbeat, 0.000001);
 		Assert.AreEqual(oneHeartbeat, afterOfflineTime, 0.000001);
+		Assert.AreEqual(1.2, ConcreteBody.DependenceActiveDoseGainForHeartbeat(1.5, 0.4,
+			TimeSpan.FromSeconds(10.0), 2.0), 0.000001);
 	}
 }

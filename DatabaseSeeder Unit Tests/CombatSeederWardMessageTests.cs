@@ -15,6 +15,41 @@ namespace MudSharp_Unit_Tests;
 public class CombatSeederWardMessageTests
 {
 	[TestMethod]
+	[DataRow("compact")]
+	[DataRow("sentences")]
+	[DataRow("sparse")]
+	public void SpecialAttackDefaults_CoverAllOutcomesAndPreserveCustomDefaults(string style)
+	{
+		using var context = BuildContext();
+		var custom = new DatabaseCombatMessage
+		{
+			Type = (int)BuiltInCombatMoveType.MagicPowerAttack, Message = "$0 channel|channels power at $1",
+			FailureMessage = "$0 channel|channels power at $1", Chance = 1.0, Priority = 1
+		};
+		context.CombatMessages.Add(custom);
+		// A conditional/partial message must not prevent installation of an unconditional fallback.
+		context.CombatMessages.Add(new DatabaseCombatMessage
+		{
+			Type = (int)BuiltInCombatMoveType.CouchedLanceAttack, Message = "custom", FailureMessage = "custom",
+			Chance = 1.0, Outcome = (int)MudSharp.RPG.Checks.Outcome.Pass
+		});
+		context.SaveChanges();
+		Assert.AreEqual(2, CombatSeeder.EnsureSpecialAttackDefaults(context, CombatSeederMessageStyleHelper.Parse(style)));
+		Assert.AreEqual(0, CombatSeeder.EnsureSpecialAttackDefaults(context, CombatSeederMessageStyleHelper.Parse(style)));
+		Assert.AreEqual("$0 channel|channels power at $1", custom.Message);
+		foreach (var type in new[] { BuiltInCombatMoveType.MagicPowerAttack, BuiltInCombatMoveType.CouchedLanceAttack, BuiltInCombatMoveType.MountedWeaponAttack })
+		{
+			var fallback = context.CombatMessages.Single(x => x.Type == (int)type && x.Outcome == null);
+			Assert.IsNull(fallback.Verb);
+			Assert.IsNull(fallback.ProgId);
+			Assert.AreEqual(1.0, fallback.Chance);
+			Assert.IsFalse(string.IsNullOrWhiteSpace(fallback.FailureMessage));
+			if (type != BuiltInCombatMoveType.MagicPowerAttack)
+				Assert.AreEqual(style != "compact", fallback.Message.EndsWith('.'));
+		}
+	}
+
+	[TestMethod]
 	public void EnsureWardCombatMessages_ExistingCombatMessages_AddsAndRetainsOneFallbackForEachWardStage()
 	{
 		using FuturemudDatabaseContext context = BuildContext();

@@ -149,7 +149,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 				return false;
 		}
 
-		return !IsOpeningBlocked(body);
+		return RoomPolicyRules.OpeningDenial(body?.Actor, InstalledExit) is null && !IsOpeningBlocked(body);
 	}
 
 	public WhyCannotOpenReason WhyCannotOpen(IBody? opener)
@@ -167,6 +167,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 				return WhyCannotOpenReason.AlreadyOpen;
 		}
 
+		if (RoomPolicyRules.OpeningDenial(opener?.Actor, InstalledExit) is not null) return WhyCannotOpenReason.AccessDenied;
 		return IsOpeningBlocked(opener) ? WhyCannotOpenReason.Locked : WhyCannotOpenReason.Unknown;
 	}
 

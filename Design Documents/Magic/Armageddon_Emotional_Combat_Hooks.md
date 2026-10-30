@@ -37,6 +37,8 @@ Flags describe observed writes: `SubjectRemoved` means the original captured sub
 
 ## Qualification and remaining acceptance
 
+The generic `ceasecombat(character)` FutureProg action exposes this optional native cessation capability. It prepares a ticket for the subject's exact current combat and target, then returns whether the original subject was removed. Unsupported combat implementations and refused/stale admissions return false. It does not call global `EndCombat`; other participants retain native retargeting. The Armageddon worldfile soldier stand-down prog uses it after source clan and visible-target checks. This scripting exposure does not activate the pending paid Calm/Fury bridge described below.
+
 See [the source-bound verification receipt](Armageddon_EmotionalCombatHooks_Verification.json) and [whole-plan progress](Armageddon_Completion_Progress.md). Focused managed checks cover identity/dedup, ownership migration, authority, body focus, target/combat ABA, exact issuer, inapplicable end effects, old Aim invalidation/release, callback replacements, third-party acquisition, actual Prog callback and exception controls. Native acceptance is recorded separately, with immutable source/binary capsules and owned disposable MySQL cleanup receipts.
 
 - [x] Preserve existing APIs and unrelated local work; isolate the published baseline.

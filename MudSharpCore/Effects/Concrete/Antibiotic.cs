@@ -23,6 +23,7 @@ public class Antibiotic : Effect, IInfectionResistanceEffect
     {
         switch (type)
         {
+            case InfectionType.Configured:
             case InfectionType.Simple:
             case InfectionType.Infectious:
             case InfectionType.Necrotic:

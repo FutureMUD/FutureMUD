@@ -9,9 +9,11 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.GameItems;
 using MudSharp.Magic;
 using MudSharp.Magic.Casting;
 using MudSharp.NPC.AI;
@@ -22,6 +24,77 @@ namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
+	[TestMethod]
+	[DataRow(true, "indoors")]
+	[DataRow(false, "indoors")]
+	[DataRow(true, "lethal")]
+	[DataRow(false, "lethal")]
+	public void WeightedTravel_PublicRunePoolPolicyIsOptionalAndPersists(bool poolRules, string restriction)
+	{
+		var f = new WeightedFixture(false, poolRules); f.AddPublicRune();
+		if (restriction == "indoors") f.Pair.Destination.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(RoomOutdoorsType.Indoors);
+		else f.WildTags.Add(f.LethalTag);
+		var effect = f.Pair.F.Spells.Single().SpellEffects.OfType<MudSharp.Magic.SpellEffects.WaystepEffect>().Single();
+		Assert.AreEqual(poolRules, ((MudSharp.Magic.SpellEffects.WaystepEffect)effect.Clone()).RuneUsesPoolRestrictions);
+		var result = f.Pair.F.Service.Cast(f.Intent(2) with { Targets = "rune quetalz" });
+		Assert.AreEqual(poolRules ? MagicCastingStatus.Refused : MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreSame(poolRules ? f.Pair.Source.Object : f.Pair.Destination.Object, f.Pair.CasterLocation);
+	}
+
+	[TestMethod]
+	public void WeightedTravel_UnfilteredPublicRuneStillRefusesNoMagicDestinationWithoutPayment()
+	{
+		var f = new WeightedFixture(false, false); f.AddPublicRune();
+		var policy = new Mock<IRoomPolicyEffect>();
+		policy.SetupGet(x => x.Restrictions).Returns(RoomRestrictions.Magic);
+		policy.Setup(x => x.Applies()).Returns(true);
+		f.Pair.Destination.Setup(x => x.EffectsOfType<IRoomPolicyEffect>(It.IsAny<Predicate<IRoomPolicyEffect>>())).Returns([policy.Object]);
+		var result = f.Pair.F.Service.Cast(f.Intent(2) with { Targets = "rune quetalz" });
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.AreEqual(0, f.Moves);
+		Assert.AreEqual(100.0, f.Pair.F.Balances[f.Pair.F.Resources[1]]);
+	}
+
+	[TestMethod]
+	public void WeightedTravel_PublicRuneUsesExactDestinationWithoutRandomDrawsOrSpellParent()
+	{
+		var f = new WeightedFixture(false); f.AddPublicRune();
+		var random = new TravelRandom(0); using var scope = Constants.PushRandom(random);
+		var result = f.Pair.F.Service.Cast(f.Intent(2) with { Targets = "rune quetalz" });
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreSame(f.Pair.Destination.Object, f.Pair.CasterLocation);
+		Assert.AreEqual(0, random.Draws);
+		Assert.AreEqual(1, f.Moves);
+	}
+
+	[TestMethod]
+	[DataRow("detection")]
+	[DataRow("carried")]
+	public void WeightedTravel_PublicRuneLosingAdmissionBeforePaymentRefusesWithoutPayment(string reason)
+	{
+		var f = new WeightedFixture(false); var rune = f.AddPublicRune();
+		f.Pair.F.Checkpoint = stage =>
+		{
+			if (stage != "BeforePayment") return;
+			if (reason == "detection") f.Pair.F.Actor.Setup(x => x.GetPerception(It.IsAny<PerceptionTypes>())).Returns(PerceptionTypes.None);
+			else rune.SetupGet(x => x.InInventoryOf).Returns(f.Pair.F.Body.Object);
+		};
+		var result = f.Pair.F.Service.Cast(f.Intent(2) with { Targets = "rune quetalz" });
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.AreEqual(0, f.Moves);
+		Assert.AreEqual(100.0, f.Pair.F.Balances[f.Pair.F.Resources[1]]);
+	}
+
+	[TestMethod]
+	public void WeightedTravel_PublicRuneLosingDetectionDuringMovementRefusesArrival()
+	{
+		var f = new WeightedFixture(false); f.AddPublicRune();
+		f.BeforeMove = () => f.Pair.F.Actor.Setup(x => x.GetPerception(It.IsAny<PerceptionTypes>())).Returns(PerceptionTypes.None);
+		f.Pair.F.Service.Cast(f.Intent(2) with { Targets = "rune quetalz" });
+		Assert.AreSame(f.Pair.Source.Object, f.Pair.CasterLocation);
+		Assert.AreEqual(0, f.Pair.F.Samples);
+	}
+
 	[TestMethod]
 	[DataRow(false, 1)] [DataRow(false, 2)] [DataRow(false, 3)] [DataRow(false, 4)] [DataRow(false, 5)] [DataRow(false, 6)] [DataRow(false, 7)]
 	[DataRow(true, 1)] [DataRow(true, 2)] [DataRow(true, 3)] [DataRow(true, 4)] [DataRow(true, 5)] [DataRow(true, 6)] [DataRow(true, 7)]
@@ -110,7 +183,7 @@ public partial class MagicEngineV4Tests
 		public int Moves { get; private set; }
 		public Action? BeforeMove { get; set; }
 		private readonly bool _banish;
-		public WeightedFixture(bool banish)
+		public WeightedFixture(bool banish, bool? runePoolRules = null)
 		{
 			_banish = banish; var f = Pair.F;
 			Pair.DestinationMembers.Clear(); Pair.SourceMembers.Add(Pair.Target.Object); Pair.TargetLocation = Pair.Source.Object;
@@ -137,7 +210,10 @@ public partial class MagicEngineV4Tests
 				It.IsAny<Difficulty>(), It.IsAny<ITraitDefinition>(), It.IsAny<IPerceivable>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
 				.Returns(Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Outcome.MajorFail)));
 			var content = ArmageddonWeightedTravelSpellContent.Create(21, 23, 24, 25, 26, [2], 1)[banish ? 1 : 0].Content;
-			var row = content.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2; row.Definition = content.BuildDefinition(10, 1, 0).ToString();
+			var row = content.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2;
+			var definition = content.BuildDefinition(10, 1, 0);
+			if (runePoolRules.HasValue) definition.Element("Effects")!.Elements().Single().SetElementValue("RuneUsesPoolRestrictions", runePoolRules.Value);
+			row.Definition = definition.ToString();
 			f.Spells.Clear(); f.Spells.Add(new MagicSpell(row, f.World.Object) { EffectDurationExpression = new TraitExpression("0", f.World.Object) });
 			void Move(bool target, IInvocation call)
 			{
@@ -153,5 +229,20 @@ public partial class MagicEngineV4Tests
 			Pair.Target.Setup(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), false, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Callback(new InvocationAction(call => Move(true, call)));
 		}
 		public MagicCastingIntent Intent(int grade) => new(Pair.F.Actor.Object, Pair.F.Earth.Id, 1, grade, false, _banish ? "traveller" : "random", OriginId: Guid.NewGuid());
+		public Mock<IGameItem> AddPublicRune()
+		{
+			var f = Pair.F; var item = new Mock<IGameItem>(); var effects = new List<IEffect>();
+			item.SetupGet(x => x.Id).Returns(950);
+			item.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns<IGameItem>(other => ReferenceEquals(other, item.Object));
+			item.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+			item.SetupGet(x => x.Location).Returns(Pair.Destination.Object);
+			item.SetupGet(x => x.TrueLocations).Returns([Pair.Destination.Object]);
+			item.SetupGet(x => x.Effects).Returns(effects);
+			item.SetupGet(x => x.Keywords).Returns(["quetalz"]);
+			f.Actor.Setup(x => x.GetPerception(It.IsAny<PerceptionTypes>())).Returns(PerceptionTypes.SenseMagical);
+			effects.Add(new PublicTravelAnchor(item.Object));
+			Pair.Items.Add(item.Object);
+			return item;
+		}
 	}
 }

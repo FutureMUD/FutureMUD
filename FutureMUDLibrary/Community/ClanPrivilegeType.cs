@@ -41,5 +41,6 @@ namespace MudSharp.Community
         CanManageClanVassals = 1 << 31,
         CanManageEstates = 1L << 32,
         UseClanProperty = 1L << 33,
+		CanDepositBankAccounts = 1L << 34,
     }
 }

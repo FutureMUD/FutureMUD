@@ -16,6 +16,7 @@ This document covers the core runtime model for health in FutureMUD:
 | `IBody` | Central integration point for a character's anatomy, wounds, blood, drugs, breathing, infections, organs, and needs |
 | `IHaveWounds` | Shared surface for anything that can take wounds, including characters and game items |
 | `IHealthStrategy` | Chooses how damage becomes wounds, how severity is calculated, and how health status is evaluated over time |
+| `IDamageProtectionEffect` | Post-armour multiplier and optional finite-hit commitment, resolved once for an incoming damage packet and its internal descendants; see [damage pipeline](./Damage_System_Design.md) |
 | `IWound` | Concrete localized injury state, including damage, bleeding, pain, stun, shock, treatment logic, and healing |
 | `IInfection` | Secondary complication attached to a wound and bodypart, with its own tick, spread, and damage behavior |
 
@@ -125,6 +126,8 @@ This entire runtime branch is gated by the static configuration `TemperatureImba
 ## Health Strategies
 `IHealthStrategy` is the runtime policy object that decides how an owner experiences damage and healing.
 
+When constructing a body from `ICharacterTemplate`, an explicit `HealthStrategy` becomes that body's override before anatomy initialization and is persisted with the body. A null template strategy continues to use `Race.DefaultHealthStrategy`. NPC templates can therefore select an HP strategy without changing the shared player race's health model.
+
 ### Strategy responsibilities
 Each strategy is responsible for:
 
@@ -146,6 +149,28 @@ Each strategy is responsible for:
 | `BrainConstructHealthStrategy` | Characters or entities | Construct model with brain-style vital targeting | Seeded for stock robot utility constructs |
 | `RobotHealthStrategy` | Characters or entities | Mechanical or synthetic model with robot wound semantics | Seeded for the articulated stock robot line |
 | `BaseHealthStrategy` | Shared base | Shared implementation infrastructure, not a stock selectable endpoint by itself | Not seeded directly |
+
+`BrainHitpoints` supports independent opt-in controls. `UseStun` tracks stun in HealingSimple wounds, uses configurable `MaximumStunExpression` and `HealingTickStunExpression`, reports the reserve in the HP prompt and produces native unconsciousness at exhaustion. Its default is off. `UseCellularDamage` allows cellular/toxin injury without requiring heart simulation; absent XML retains the former `CheckHeart` behaviour. `SeparateCapacityPenalties` defaults off and honours explicitly marked `ICapacityOnlyHitPointsPenalty` effects as healing ceilings, without counting their negative capacity bonus as additional current-HP loss. Current HP, critical injury, health percentages and wound penalties use consistent accounting. All compatible organic wound damage setters honour `IHitPointHealingCeiling`, preventing hidden healing below a reduced cap and free HP when a penalty expires. Ordinary maximum-HP effects retain their existing semantics.
+
+The builder options are `usestun`, `maxstun`, `healstun`, `usecellulardamage` and `separatecapacitypenalties`. These values survive strategy save/load/clone. The Armageddon worldfile import opts its HP strategies into them; other games retain their existing definitions. Natural stun recovery can be blocked independently through `IPreventNaturalStunRecoveryEffect`; both online and offline paths honour it, while explicit healing is unaffected.
+
+`ICurrentHitPointsStrategy` supplies model-specific current-HP accounting where needed. The shared `IHealthStrategy.CurrentHitPoints(owner)` extension otherwise keeps the native maximum-minus-wounds calculation. FutureProg `healthremaining`, configured item-consequence floors and psionic rejuvenation use this surface, so they agree with prompts and cure eligibility under an optional capacity ceiling. Rejuvenation also caps its target at the actual current healing capacity rather than charging for healing that the ceiling refuses.
+
+### Optional negative HP and critical recovery
+
+`BrainHitpoints` keeps existing death-at-zero behaviour unless `UseNegativeHitPoints` (`negativehp`) is enabled. With it enabled, signed current HP is still calculated from native wounds, without a second HP field. `DeathHitPoints` (`deathhp`), `UnconsciousHitPoints` (`unconscioushp`) and `MortallyWoundedHitPoints` (`mortalhp`) default to -11, 0 and -3. Death takes priority; living characters at or below the unconscious threshold remain natively unconscious. The mortal threshold marks critical injury and the HP prompt. Brain destruction, heart failure, stun and explicit death retain their independent semantics.
+
+`UseCriticalRecovery` (`criticalrecovery`) adds an opt-in active-body minute recovery policy through `ICriticalHealthRecoveryStrategy`. Builders select an attribute with `criticaltrait`, set native difficulty numbers with `criticaldifficulty` / `mortaldifficulty`, and set HP amounts with `criticalhealing` / `criticaldamage`. Each active minute in the configured unconscious HP range makes one native attribute check, healing on success or inflicting direct HP damage on failure. Normal damage healing is suspended throughout that range, including offline healing; stun recovery remains independent. Critical progression itself is not simulated offline. Until a recovery attribute is selected the optional recovery policy is inactive and does not suspend ordinary healing. These settings persist in the strategy definition and clone with it; old definitions remain disabled.
+
+An applicable `IgnoreHitPointUnconsciousness` character merit suppresses HP-based unconsciousness and the older critical-injury knockout, but never changes the HP death threshold or suppresses other causes. Its normal applicability prog can make it conditional. The Armageddon Mul race receives this merit as **Mul Rage**, applicable only while native combat frenzy is active.
+
+FutureProg `adjusthitpoints(character, amount)` supplies explicit nonmagical native HP repair (positive) or direct HP harm (negative). It requires a living character whose strategy exposes signed current HP, honours wound healing ceilings, does not heal stun, and never resurrects. Damage uses the native direct-consequence contract and can kill. It returns false for unsupported/invalid targets. The same operation powers critical recovery and imported bandaging. The read-only character prog property `isdead` exposes native death state, independently of HP, for treatment eligibility.
+
+### Direct costs with the HP strategy
+
+`BrainHitpoints` implements the existing independent direct-health-cost contract using native `HealingSimpleWound` cellular wounds. Damage is supported universally; stun requires `UseStun`; pain is unsupported. Direct costs bypass combat armour, protection effects and the ordinary `UseCellularDamage` switch. New and existing wounds receive exact native channel amounts, including consequences exceeding the initial bodypart cap. Wound persistence, recovery and consciousness remain native.
+
+Voluntary planning retains bodypart, severity and available-health/stun checks. Punitive item consequences may incapacitate and continue charging stun when health has reached the configured floor. With separate capacity accounting enabled, damage inputs account for any headroom above the visible HP cap so the quoted health loss is exact; this does not grant healing when the capacity penalty expires.
 
 ### Builder surface
 Health strategies now participate in the ordinary non-revisable editable-item workflow. Builders use `healthstrategy` (alias `hs`) to list, show, edit, create, and clone strategy definitions.
@@ -225,6 +250,10 @@ Infections are advanced by infection ticks rather than only by treatment command
 | `Infectious` | `InfectiousInfection` | Simple infection model plus proximity-based spread to other characters |
 | `FungalGrowth` | `FungalInfection` | Similar to simple infection, but resisted by antifungal effects rather than antibiotics and accelerated by wet or hot conditions |
 
+### Configured infection definitions
+
+`ConfiguredInfection` is a persistent whole-body illness defined by an Infection drug-effect profile. Its symptom drug is reconciled through the native drug-effect handlers without physical dosing. Definitions select native immune progression or fixed active-play duration, and periodic or symptom-episode-triggered room transmission. The legacy terrain infection selector excludes this family because it requires a particular definition drug, rather than an enum alone. Existing infection families and their persistence remain unchanged apart from an optional metadata column. See [drug architecture](../Drugs/Drug_System_Design.md#infection-causing-drugs-and-infection-owned-symptoms) and [builder workflow](../Drugs/Drug_Builder_Guide.md#configuring-an-infection).
+
 ### Infection interactions
 Infections currently interact with:
 
@@ -294,3 +323,9 @@ The current runtime already suggests several extension paths:
 - broader stock use of non-organic health strategies
 - clearer negative-health templates if a dedicated flaw subsystem is ever added
 - broader stock content that actually uses the newer infection, breathing, and recovery runtime hooks
+
+### Direct costs with the HP strategy
+
+`BrainHitpoints` implements the existing independent direct-health-cost contract using native `HealingSimpleWound` cellular wounds. Damage is supported universally; stun requires `UseStun`; pain is unsupported. Direct costs bypass combat armour, protection effects and the ordinary `UseCellularDamage` switch. New and existing wounds receive exact native channel amounts, including consequences exceeding the initial bodypart cap. Wound persistence, recovery and consciousness remain native.
+
+Voluntary planning retains bodypart, severity and available-health/stun checks. Punitive item consequences may incapacitate and continue charging stun when health has reached the configured floor. With separate capacity accounting enabled, damage inputs account for any headroom above the visible HP cap so the quoted health loss is exact; this does not grant healing when the capacity penalty expires.

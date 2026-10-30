@@ -11,6 +11,8 @@ using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Commands;
+using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Communication.Language;
@@ -20,6 +22,9 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Functions.Magic;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
 using MudSharp.Magic.Casting;
 using MudSharp.Magic.Vancian;
@@ -36,6 +41,57 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCastingIncantationTests
 {
+	[TestMethod]
+	public void Recognition_IsPureLanguageBoundAndPreservesRawNativeSpeechInput()
+	{
+		var s = new SpeechFixture(); var before = s.F.Flushes;
+		Assert.IsTrue(s.F.Service.RecognisesFormula(s.F.Actor.Object, SpeechFixture.Formula));
+		Assert.IsTrue(s.F.Service.RecognisesFormula(s.F.Actor.Object, "kral stone on self via Earth"));
+		Assert.IsFalse(s.F.Service.RecognisesFormula(s.F.Actor.Object, "ordinary chatter about spells"));
+		IFunction Arg(IProgVariable value)
+		{
+			var function = new Mock<IFunction>();
+			function.SetupGet(x => x.Result).Returns(value);
+			function.Setup(x => x.Execute(It.IsAny<IVariableSpace>())).Returns(StatementResult.Normal);
+			return function.Object;
+		}
+		var manager = new CharacterCommandManager();
+		foreach (var (name, word) in new[] { ("Say", "say"), ("Whisper", "whisper"), ("Whisper", "whisperto"), ("SingTo", "singto"), ("Emote", "emote"), ("armwater", "armwater") })
+			manager.Add(word, new Command<ICharacter>((_, _) => Assert.Fail("Recognition must never execute a command."), name: name));
+		var tree = new Mock<ICharacterCommandTree>(); tree.SetupGet(x => x.Commands).Returns(manager);
+		s.F.Actor.SetupGet(x => x.CommandTree).Returns(tree.Object);
+		var school = new Mock<IMagicSchool>(); school.SetupGet(x => x.SchoolVerb).Returns("armwater");
+		s.F.World.SetupGet(x => x.MagicSchools).Returns(MagicCastingFixture.Collection(() => new[] { school.Object }));
+		bool Input(string text)
+		{
+			var function = new IsMagicIncantationFunction([Arg(s.F.Actor.Object), Arg(new TextVariable(text))], s.F.World.Object, true);
+			Assert.AreEqual(StatementResult.Normal, function.Execute(Mock.Of<IVariableSpace>()));
+			return (bool)function.Result.GetObject;
+		}
+		Assert.IsTrue(Input("say kral stone on self via Earth"));
+		Assert.IsTrue(Input("whisperto someone (gesturing) kral stone on self via Earth"));
+		Assert.IsTrue(Input("whis kral stone on self via Earth"));
+		Assert.IsTrue(Input("singt someone (gesturing) kral stone on self via Earth"));
+		Assert.IsFalse(Input("say \"(nods)\" kral stone on self via Earth"));
+		Assert.IsFalse(Input("say cast cooking recipes"));
+		Assert.IsFalse(Input("emote kral stone on self via Earth"));
+		Assert.IsTrue(Input("armw quiet stone"));
+		Assert.IsFalse(Input("armw help"));
+		Assert.IsFalse(Input("armw status"));
+		manager.Add("cast", new Command<ICharacter>((_, _) => Assert.Fail("Recognition must not cast."), name: "cast"));
+		school.SetupGet(x => x.SchoolVerb).Returns("cast");
+		Assert.IsTrue(Input("cast \"Stone Skin\" grade 3 on self"));
+		Assert.IsTrue(Input("ca \"Stone Skin\" grade 3 on self"));
+		Assert.IsFalse(Input("cast help"));
+		Assert.IsFalse(Input("cast spells"));
+		Assert.IsFalse(Input("cast"));
+		Assert.AreEqual(0, s.F.Rolls); Assert.AreEqual(0, s.F.SkillUses);
+		Assert.AreEqual(100.0, s.F.Balances[s.F.Resources[1]]); Assert.AreEqual(before, s.F.Flushes);
+		Assert.AreEqual(0, s.Utterances.Count);
+		s.F.Actor.SetupGet(x => x.CurrentLanguage).Returns((ILanguage)null!);
+		Assert.IsFalse(s.F.Service.RecognisesFormula(s.F.Actor.Object, SpeechFixture.Formula));
+	}
+
 	internal sealed class SpeechFixture
 	{
 		public MagicCastingFixture F { get; } = new();
@@ -218,12 +274,18 @@ public class MagicCastingIncantationTests
 	}
 
 	[TestMethod]
-	[DataRow("named")][DataRow("formula")][DataRow("speech")][DataRow("alias")]
+	[DataRow("named")][DataRow("formula")][DataRow("speech")][DataRow("alias")][DataRow("shared")][DataRow("abbreviated")]
 	public void NativeAdapters_OneLanguageAwareUtterance_OnePaidOperation(string adapter)
 	{
 		var s = new SpeechFixture();
 		switch (adapter)
 		{
+			case "shared":
+				Mock.Get(s.F.School).SetupGet(x => x.SchoolVerb).Returns("cast");
+				MagicModule.MagicGeneric(s.F.Actor.Object, "cast \"Stone Skin\" grade 3 on self via Earth"); break;
+			case "abbreviated":
+				Mock.Get(s.F.School).SetupGet(x => x.SchoolVerb).Returns("cast");
+				MagicModule.MagicGeneric(s.F.Actor.Object, "ca \"Stone Skin\" grade 3 on self via Earth"); break;
 			case "named": MagicModule.MagicGeneric(s.F.Actor.Object, "earth cast \"Stone Skin\" grade 3 on self via Earth"); break;
 			case "formula": MagicModule.MagicGeneric(s.F.Actor.Object, "earth formula " + SpeechFixture.Formula); break;
 			case "speech": s.Speak(); break;

@@ -67,6 +67,8 @@ public sealed class SpellAnchorRuneEffect : SpellOwnedItemMarkEffect, ISpellTrav
 
 	private SpellAnchorRuneEffect(XElement root, IPerceivable owner) : base(root, owner) { }
 
+	public bool AllowsTravel(ICharacter actor) => IsActive && Owner is IGameItem item && item.IsOwnedBy(actor);
+
 	public override string Describe(IPerceiver voyeur) => "This owned item is marked as a travel anchor.";
 	protected override string SpecificEffectType => "SpellAnchorRune";
 }

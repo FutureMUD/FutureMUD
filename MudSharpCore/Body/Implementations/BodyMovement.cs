@@ -3,6 +3,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
@@ -44,6 +45,7 @@ public partial class Body
 
     private double _maximumStamina;
     private bool _resolvingStaminaCapacity;
+    private bool _staminaDepletionPending;
     private bool _staminaCapacityInitialised;
     public double MaximumStamina
     {
@@ -61,11 +63,20 @@ public partial class Body
 				if (_staminaCapacityInitialised && _currentStamina > capacity)
 				{
 					_currentStamina = capacity;
+					_staminaDepletionPending = _currentStamina <= 0.0;
 					StaminaChanged = true;
 				}
 				return capacity;
 			}
-			finally { _resolvingStaminaCapacity = false; }
+			finally
+			{
+				_resolvingStaminaCapacity = false;
+				if (_staminaDepletionPending)
+				{
+					_staminaDepletionPending = false;
+					RemoveStaminaDepletedEffectsIfExhausted();
+				}
+			}
         }
         set { _maximumStamina = value; _staminaCapacityInitialised = true; }
     }
@@ -90,6 +101,7 @@ public partial class Body
             {
                 StaminaChanged = true;
             }
+			RemoveStaminaDepletedEffectsIfExhausted();
         }
     }
 
@@ -105,6 +117,7 @@ public partial class Body
         _currentStamina += amount;
         _currentStamina = Math.Min(_currentStamina, MaximumStamina);
         StaminaChanged = true;
+		RemoveStaminaDepletedEffectsIfExhausted();
     }
 
     public void SpendStamina(double amount)
@@ -145,7 +158,27 @@ public partial class Body
         _currentStamina -= amount;
         _currentStamina = Math.Max(0.0, _currentStamina);
         StaminaChanged = true;
+		RemoveStaminaDepletedEffectsIfExhausted();
     }
+
+	private void RemoveStaminaDepletedEffectsIfExhausted()
+	{
+		if (_currentStamina > 0.0 || Actor is null || !ReferenceEquals(Actor.Body, this))
+		{
+			return;
+		}
+		if (_resolvingStaminaCapacity)
+		{
+			_staminaDepletionPending = true;
+			return;
+		}
+
+		foreach (var effect in Actor.EffectsOfType<IExpireAtZeroStaminaEffect>()
+			         .Where(effect => effect.Applies(Actor)).ToList())
+		{
+			Actor.RemoveEffect(effect);
+		}
+	}
 
     public IEnumerable<ISecondWindMerit> SecondWindsAvailable()
     {

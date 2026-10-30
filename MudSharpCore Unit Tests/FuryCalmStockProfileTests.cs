@@ -68,6 +68,43 @@ public class FuryCalmStockProfileTests
 	}
 
 	[TestMethod]
+	public void FuryOptionalFrenzyProfile_RoundTripsAndLegacyXmlDefaultsOff()
+	{
+		var baseProfile = Fury();
+		var frenzy = new EmotionalFrenzyProfile(77, 88, 15, 15, 5, 4);
+		var configured = new EmotionalStockProfile(baseProfile.Kind, baseProfile.Group, baseProfile.UnitSeconds, baseProfile.CapUnits,
+			baseProfile.EligibilityProgId, baseProfile.Intensity, baseProfile.TraitId, baseProfile.UnitsPerSourcePoint,
+			baseProfile.Fallback, baseProfile.Terrains, baseProfile.Saves, baseProfile.BreakOnAdmittedAttack,
+			baseProfile.CanonicalGradePolicy, frenzy, false);
+		var loaded = EmotionalStockProfile.Read(XElement.Parse(configured.SaveToXml().ToString()));
+		Assert.AreEqual(frenzy, loaded.FrenzyOnFury);
+		Assert.IsFalse(loaded.ClearCombatFrenzyOnCalm);
+		Assert.AreEqual("true", loaded.SaveToXml().Element("Frenzy")!.Attribute("additive")!.Value);
+
+		var legacy = baseProfile.SaveToXml();
+		legacy.Attribute("clearfrenzy")!.Remove();
+		var old = EmotionalStockProfile.Read(legacy);
+		Assert.IsNull(old.FrenzyOnFury);
+		Assert.IsFalse(old.ClearCombatFrenzyOnCalm);
+	}
+
+	[TestMethod]
+	public void FrenzyConfiguration_RejectsInvalidValuesAndWrongSpellKind()
+	{
+		var baseProfile = Fury();
+		Assert.ThrowsExactly<ArgumentException>(() => new EmotionalFrenzyProfile(77, 88, double.NaN, 15, 5, 4).Validate());
+		Assert.ThrowsExactly<ArgumentException>(() => new EmotionalFrenzyProfile(77, 88, 15, 15, 5, -1).Validate());
+		var calm = Calm();
+		Assert.ThrowsExactly<ArgumentException>(() => new EmotionalStockProfile(calm.Kind, calm.Group, calm.UnitSeconds, calm.CapUnits,
+			calm.EligibilityProgId, calm.Intensity, calm.TraitId, calm.UnitsPerSourcePoint, calm.Fallback, calm.Terrains,
+			calm.Saves, calm.BreakOnAdmittedAttack, calm.CanonicalGradePolicy, new EmotionalFrenzyProfile(77, 88, 1, 1, 1, 1), false));
+		Assert.ThrowsExactly<ArgumentException>(() => new EmotionalStockProfile(baseProfile.Kind, baseProfile.Group, baseProfile.UnitSeconds,
+			baseProfile.CapUnits, baseProfile.EligibilityProgId, baseProfile.Intensity, baseProfile.TraitId, baseProfile.UnitsPerSourcePoint,
+			baseProfile.Fallback, baseProfile.Terrains, baseProfile.Saves, baseProfile.BreakOnAdmittedAttack, baseProfile.CanonicalGradePolicy,
+			null, true));
+	}
+
+	[TestMethod]
 	[DataRow(1), DataRow(2), DataRow(3), DataRow(4), DataRow(5), DataRow(6), DataRow(7)]
 	public void CalmDurationAndSave_UseResidualGradeWithoutEnduranceDraw(int grade)
 	{

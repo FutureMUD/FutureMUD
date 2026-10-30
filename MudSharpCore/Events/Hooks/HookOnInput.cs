@@ -1,9 +1,9 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Models;
 
 namespace MudSharp.Events.Hooks;
 
-public class HookOnInput : HookBase, IHookWithProgs, ICommandHook, IExecuteProgHook
+public class HookOnInput : HookBase, IHookWithProgs, IConditionalCommandHook, IExecuteProgHook
 {
     private readonly List<IFutureProg> _futureProgs = new();
     public IEnumerable<IFutureProg> FutureProgs => _futureProgs;
@@ -38,45 +38,44 @@ public class HookOnInput : HookBase, IHookWithProgs, ICommandHook, IExecuteProgH
     }
 
     public string TargetCommand { get; set; }
+	public bool UseProgResultForHandling { get; set; }
 
     #region Overrides of HookBase
 
-    public override Func<EventType, object[], bool> Function => (type, paramList) =>
-                                                                         {
-                                                                             if (type != EventType.CommandInput && type != EventType.SelfCommandInput)
-                                                                             {
-                                                                                 return false;
-                                                                             }
+	public override Func<EventType, object[], bool> Function => HandleInput;
 
-                                                                             string cmd = (type == EventType.CommandInput ? paramList[2] : paramList[1]).ToString();
-                                                                             if (!cmd.EqualTo(TargetCommand))
-                                                                             {
-                                                                                 return false;
-                                                                             }
-
-                                                                             StringStack ss = (StringStack)(type == EventType.CommandInput ? paramList[3] : paramList[2]);
-                                                                             ss.PopSpeechAll();
-
-                                                                             foreach (IFutureProg prog in _futureProgs)
-                                                                             {
-                                                                                 if (type == EventType.CommandInput)
-                                                                                 {
-                                                                                     prog.Execute((ICharacter)paramList[0], paramList[1], cmd, ss.Memory);
-                                                                                 }
-                                                                                 else
-                                                                                 {
-                                                                                     prog.Execute((ICharacter)paramList[0], cmd, ss.Memory);
-                                                                                 }
-                                                                             }
-
-                                                                             return true;
-                                                                         };
+	private bool HandleInput(EventType type, object[] parameters)
+	{
+		if (type != EventType.CommandInput && type != EventType.SelfCommandInput) return false;
+		var command = parameters[type == EventType.CommandInput ? 2 : 1].ToString();
+		var allInput = UseProgResultForHandling && TargetCommand == "*";
+		if (!allInput && !command.EqualTo(TargetCommand)) return false;
+		var original = (StringStack)parameters[type == EventType.CommandInput ? 3 : 2];
+		if (allInput) command += original.RemainingArgument.LeadingSpaceIfNotEmpty();
+		// Declining an input must leave the caller's tokens and quotation boundaries intact.
+		var arguments = new StringStack(original.RemainingArgument);
+		arguments.PopSpeechAll();
+		var values = type == EventType.CommandInput
+			? new object[] { (ICharacter)parameters[0], parameters[1], command, arguments.Memory }
+			: new object[] { (ICharacter)parameters[0], command, arguments.Memory };
+		foreach (var prog in _futureProgs)
+		{
+			if (!UseProgResultForHandling)
+			{
+				prog.Execute(values);
+				continue;
+			}
+			if (prog?.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) == true && prog.ExecuteBool(values)) return true;
+		}
+		return !UseProgResultForHandling;
+	}
 
     #endregion
 
     public void LoadFromXml(XElement element)
     {
         TargetCommand = element.Element("TargetCommand").Value;
+		UseProgResultForHandling = (bool?)element.Element("UseProgResultForHandling") ?? false;
         foreach (XElement item in element.Elements("FutureProg"))
         {
             _futureProgs.Add(long.TryParse(item.Value, out long value)
@@ -90,6 +89,7 @@ public class HookOnInput : HookBase, IHookWithProgs, ICommandHook, IExecuteProgH
     {
         return new XElement("Definition",
             new XElement("TargetCommand", new XCData(TargetCommand)),
+			new XElement("UseProgResultForHandling", UseProgResultForHandling),
             from item in _futureProgs
             select new XElement("FutureProg", item.Id)
         );
@@ -101,7 +101,7 @@ public class HookOnInput : HookBase, IHookWithProgs, ICommandHook, IExecuteProgH
     }
 
     public override string InfoForHooklist =>
-        $"Executes {_futureProgs.SelectNotNull(x => x.MXPClickableFunctionName()).ListToString()}";
+        $"Executes {_futureProgs.SelectNotNull(x => x.MXPClickableFunctionName()).ListToString()}{(UseProgResultForHandling ? "; boolean results control handling" : "")}";
 
     /// <inheritdoc />
     public string CommandText

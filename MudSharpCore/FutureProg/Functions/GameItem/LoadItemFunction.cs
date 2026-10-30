@@ -3,20 +3,23 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Character;
 
 namespace MudSharp.FutureProg.Functions.GameItem;
 
 internal class LoadItemFunction : BuiltInFunction
 {
     private readonly IFuturemud _gameworld;
+    private readonly bool _useCharacterContext;
 
-    public LoadItemFunction(IList<IFunction> parameters, IFuturemud gameworld, bool usequantity, bool useparamstring, bool useUniqueName)
+    public LoadItemFunction(IList<IFunction> parameters, IFuturemud gameworld, bool usequantity, bool useparamstring, bool useUniqueName, bool useCharacterContext = false)
         : base(parameters)
     {
         _gameworld = gameworld;
         UseQuantity = usequantity;
         UseParamsString = useparamstring;
         UseUniqueName = useUniqueName;
+        _useCharacterContext = useCharacterContext;
     }
 
     public bool UseQuantity { get; set; }
@@ -66,11 +69,8 @@ internal class LoadItemFunction : BuiltInFunction
         string paramString = "";
         if (UseParamsString)
         {
-            paramString =
-                (string)
-                (UseQuantity
-                    ? ParameterFunctions[2].Result.GetObject
-                    : ParameterFunctions[1].Result.GetObject);
+            var paramIndex = _useCharacterContext ? 2 : UseQuantity ? 2 : 1;
+            paramString = (string)ParameterFunctions[paramIndex].Result.GetObject;
         }
 
         int quantity = 1;
@@ -84,7 +84,23 @@ internal class LoadItemFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IGameItem newItem = proto.CreateNew(null, null, quantity, paramString).First();
+        ICharacter? loader = _useCharacterContext ? ParameterFunctions[1].Result.GetObject as ICharacter : null;
+        if (_useCharacterContext && loader is null)
+        {
+            ErrorMessage = "The loaditem character argument must be a character.";
+            return StatementResult.Error;
+        }
+
+        IGameItem newItem;
+        try
+        {
+            newItem = proto.CreateNew(loader, null, quantity, paramString).First();
+        }
+        catch (ArgumentException error)
+        {
+            ErrorMessage = error.Message;
+            return StatementResult.Error;
+        }
         _gameworld.Add(newItem);
         newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
         newItem.Login();
@@ -212,6 +228,27 @@ internal class LoadItemFunction : BuiltInFunction
         RegisterTypedPrototype(true, false);
         RegisterTypedPrototype(false, true);
         RegisterTypedPrototype(true, true);
+        RegisterContextLoadItem(ProgVariableTypes.Number, false);
+        RegisterContextLoadItem(ProgVariableTypes.Text, true);
+        RegisterContextLoadItem(ProgVariableTypes.ItemPrototype, false);
+    }
+
+    private static void RegisterContextLoadItem(ProgVariableTypes prototypeType, bool useUniqueName)
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loaditem",
+            new[] { prototypeType, ProgVariableTypes.Character, ProgVariableTypes.Text },
+            (pars, gameworld) => new LoadItemFunction(pars, gameworld, false, true, useUniqueName, true),
+            new List<string> { useUniqueName ? "uniqueName" : "prototype", "character", "loadArguments" },
+            new List<string>
+            {
+                useUniqueName ? "The unique name of the item prototype to load" : "The ID or resolved item prototype to load",
+                "The character used to resolve target-relative wearable sizing arguments",
+                "The item variable and wearable sizing arguments"
+            },
+            "Loads a new item with the supplied character as the load-string target context. The load string can contain `wearsize=10`, `wearsize=universal`, or `wearsize=\"for self\"` / `wearsize=\"for <person>\"`. It does not put the item anywhere.",
+            "Items",
+            ProgVariableTypes.Item));
     }
 
     private static void RegisterTypedPrototype(bool useQuantity, bool useParameters)

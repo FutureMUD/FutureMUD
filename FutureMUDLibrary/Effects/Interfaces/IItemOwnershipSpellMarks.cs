@@ -13,12 +13,18 @@ public interface IItemTakeInterdictionEffect : IEffectSubtype
 	bool AllowsTake(ICharacter actor);
 }
 
-/// <summary>An exact item and owner binding for travel effects; display names are never identities.</summary>
-public interface ISpellTravelAnchorEffect : IEffectSubtype
+/// <summary>An exact live item binding with explicit admission for travel effects.</summary>
+public interface ILiveTravelAnchorEffect : IEffectSubtype
 {
 	long ItemId { get; }
-	ItemOwnershipReference OwnerReference { get; }
 	bool IsActive { get; }
+	bool AllowsTravel(ICharacter actor);
+}
+
+/// <summary>An owner-bound spell anchor; display names are never identities.</summary>
+public interface ISpellTravelAnchorEffect : ILiveTravelAnchorEffect
+{
+	ItemOwnershipReference OwnerReference { get; }
 }
 
 /// <summary>An Arcane Mark's frozen room, distinct from a rune item's current physical location.</summary>

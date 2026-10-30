@@ -113,8 +113,8 @@ public static partial class ArmageddonTemplarInstaller
 				[nameof(Language.Name), nameof(Language.LinkedTraitId), nameof(Language.DifficultyModel), nameof(Language.UnknownLanguageDescription), nameof(Language.LanguageObfuscationFactor)], messages);
 			foreach (var learner in new[] { false, true })
 				Put(db, "arm.accent.tatlum." + (learner ? "learner" : "standard"), new Accent { LanguageId = tatlum.Id, Name = learner ? "Learner" : "Standard",
-					Role = learner ? 2 : 0, Difficulty = learner ? 6 : 5, Group = "Templar language scaffold", Suffix = learner ? "with a learner's accent" : "",
-					VagueSuffix = learner ? "with an unfamiliar accent" : "", Description = learner ? "The pronunciation of someone learning Tatlum as an additional language." : "The usual pronunciation of Tatlum.",
+					Role = learner ? 2 : 0, Difficulty = learner ? 6 : 5, Group = "Templar language scaffold", Suffix = learner ? "with a learner's accent" : "in the standard accent",
+					VagueSuffix = learner ? "with an unfamiliar accent" : "in the standard accent", Description = learner ? "The pronunciation of someone learning Tatlum as an additional language." : "The usual pronunciation of Tatlum.",
 					ChargenAvailabilityProgId = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id },
 					[nameof(Accent.LanguageId), nameof(Accent.Name), nameof(Accent.Role), nameof(Accent.Difficulty), nameof(Accent.Group), nameof(Accent.Suffix), nameof(Accent.VagueSuffix), nameof(Accent.Description), nameof(Accent.ChargenAvailabilityProgId)], messages);
 		}

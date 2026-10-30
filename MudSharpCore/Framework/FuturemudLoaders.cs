@@ -572,7 +572,6 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             "Employment Scheduled Rule Evaluation"));
         Chargen.SetupChargen(this);
 		MudSharp.Form.Material.EnvironmentalExposureService.For(this).Refresh();
-        HeartbeatManager.StartHeartbeatTick();
 		HeartbeatManager.FuzzyMinuteHeartbeat -= ReconcileSpellOwnedNpcDeaths;
 		HeartbeatManager.FuzzyMinuteHeartbeat += ReconcileSpellOwnedNpcDeaths;
         Track.CreateGlobalHeartbeatEvent();
@@ -596,6 +595,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         {
             npc.HandleEvent(Events.EventType.NPCOnGameLoadFinished, npc);
         }
+		foreach (var location in Rooms.ToArray())
+		{
+			location.HandleEvent(Events.EventType.LocationOnGameLoadFinished, location);
+		}
 		ReconcileSpellOwnedNpcDeaths();
 
         GameStatistics.LastStartupSpan = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
@@ -610,6 +613,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             ConsoleUtilities.WriteLine("#9Was unable to connect to the Discord Server.#0");
         }
 
+        // Boot-finished hooks can populate a large world. Begin the live heartbeat
+        // after those callbacks so their runtime is not replayed as overdue ticks.
+        HeartbeatManager.StartHeartbeatTick();
         ConsoleUtilities.WriteLine("\n#ECreating listening server thread...#0");
     }
 
@@ -4951,7 +4957,9 @@ For information on the syntax to use in emotes (such as those included in bracke
                     }
                 }
 
-                Check newCheck = new()
+                Check newCheck = checkType == CheckType.PoisonResistanceCheck
+                    ? PoisonResistanceCheckDefaults.Create(FMDB.Context)
+                    : new()
                 {
                     CheckTemplate =
                         checkType switch

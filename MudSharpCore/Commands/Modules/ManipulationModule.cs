@@ -5709,6 +5709,11 @@ resolvedOpenable:
         {
             switch (openable.WhyCannotOpen(actor.Body))
             {
+				case WhyCannotOpenReason.AccessDenied:
+					actor.OutputHandler.Send(openable is IDoor deniedDoor
+						? RoomPolicyRules.OpeningDenial(actor, deniedDoor.InstalledExit) ?? "You are not permitted to open that."
+						: "You are not permitted to open that.");
+					break;
                 case WhyCannotOpenReason.Jammed:
                     actor.OutputHandler.Handle(
                         new MixedEmoteOutput(new Emote("@ try|tries to open $?1|$1's !0|$0|$, but it will not budge.",

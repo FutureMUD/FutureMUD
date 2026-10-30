@@ -17,7 +17,7 @@ namespace MudSharp.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.11")
+                .HasAnnotation("ProductVersion", "9.0.21")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
@@ -9127,8 +9127,18 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("DoseBehaviour")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("DrugVectors")
                         .HasColumnType("int(11)");
+
+                    b.Property<double>("FixedDoseGrams")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
 
                     b.Property<double>("IntensityPerGram")
                         .HasColumnType("double");
@@ -11854,6 +11864,11 @@ namespace MudSharp.Migrations
                     b.Property<int>("RelativeChance")
                         .HasColumnType("int(11)");
 
+                    b.Property<double>("YieldConsumptionPercentage")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(100.0);
+
                     b.HasKey("Id", "RevisionNumber")
                         .HasName("PRIMARY");
 
@@ -11989,7 +12004,7 @@ namespace MudSharp.Migrations
 
                     b.Property<string>("FunctionText")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("mediumtext")
                         .UseCollation("utf8mb4_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("FunctionText"), "utf8mb4");
@@ -14061,6 +14076,11 @@ namespace MudSharp.Migrations
 
                     b.Property<long?>("BodypartId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ExtraInformation")
+                        .HasColumnType("longtext");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ExtraInformation"), "utf8mb4");
 
                     b.Property<double>("Immunity")
                         .HasColumnType("double");
@@ -16988,6 +17008,15 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ListDescription"), "utf8");
+
+                    b.Property<string>("LoadArguments")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LoadArguments"), "utf8mb4");
 
                     b.Property<int>("MaximumStockLevelsToBuy")
                         .HasColumnType("int");

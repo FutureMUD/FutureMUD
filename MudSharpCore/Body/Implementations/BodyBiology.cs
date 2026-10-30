@@ -918,6 +918,9 @@ public partial class Body
     }
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage, StringBuilder sb)
+        => PassiveSufferDamageCore(damage, sb, true);
+
+	private IEnumerable<IWound> PassiveSufferDamageCore(IDamage damage, StringBuilder sb, bool applyDamageProtection)
     {
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
 		if (damage is not null) damage = MudSharp.Combat.Moves.MagicDefenseDamageScope.Filter(Actor, damage);
@@ -939,6 +942,11 @@ public partial class Body
 
         if (damage.ExposureContext is null && (damage.DamageType == DamageType.Cellular || damage.DamageType == DamageType.Hypoxia))
         {
+			if (applyDamageProtection)
+			{
+				IDamage inward = null;
+				if (!TryApplyDamageProtection(ref damage, ref inward) || damage is null) return Enumerable.Empty<IWound>();
+			}
             IWound existingWound = Wounds.FirstOrDefault(x => x.Bodypart == damage.Bodypart && damage.DamageType == x.DamageType &&
 				x is not IContinuousExposureWound { ExposureKey: not null });
             if (existingWound == null)
@@ -1094,6 +1102,8 @@ public partial class Body
             return wounds;
         }
 
+		if (applyDamageProtection && (!TryApplyDamageProtection(ref damage, ref internalDamage) || damage is null)) return wounds;
+
         if (damage.LodgableItem != null && wounds.Any(x => x.Lodged == damage.LodgableItem))
         {
             damage = new Damage(damage) { LodgableItem = null };
@@ -1223,11 +1233,11 @@ public partial class Body
         Damage newDamage = new(internalDamage) { Bodypart = organ, LodgableItem = null };
         if (passive)
         {
-            wounds.AddRange(PassiveSufferDamage(newDamage, sb));
+            wounds.AddRange(PassiveSufferDamageCore(newDamage, sb, false));
         }
         else
         {
-            wounds.AddRange(SufferDamage(newDamage));
+            wounds.AddRange(SufferDamageCore(newDamage, sb, false));
         }
 
         return true;
@@ -1330,11 +1340,11 @@ public partial class Body
 
                 if (passive)
                 {
-                    wounds.AddRange(PassiveSufferDamage(boneDamage, sb));
+                    wounds.AddRange(PassiveSufferDamageCore(boneDamage, sb, false));
                 }
                 else
                 {
-                    wounds.AddRange(SufferDamage(boneDamage, sb));
+                    wounds.AddRange(SufferDamageCore(boneDamage, sb, false));
                 }
 
                 if (organDamage != null && organDamage.DamageAmount > 0)
@@ -1415,8 +1425,11 @@ public partial class Body
     }
 
     public IEnumerable<IWound> SufferDamage(IDamage damage, StringBuilder sb)
+        => SufferDamageCore(damage, sb, true);
+
+	private IEnumerable<IWound> SufferDamageCore(IDamage damage, StringBuilder sb, bool applyDamageProtection)
     {
-        IWound[] wounds = PassiveSufferDamage(damage, sb).ToArray();
+        IWound[] wounds = PassiveSufferDamageCore(damage, sb, applyDamageProtection).ToArray();
         wounds.ProcessPassiveWounds();
         StartHealthTick();
         return wounds;
@@ -1695,6 +1708,10 @@ public partial class Body
             }
         }
 
+		if (HealthStrategy is ICriticalHealthRecoveryStrategy criticalRecovery)
+			criticalRecovery.PerformCriticalRecovery(Actor);
+		if (!IsActiveCharacterBody || Actor.State.IsDead()) return;
+
         foreach (IInfection infection in PartInfections.ToList())
         {
             infection.InfectionTick();
@@ -1747,6 +1764,14 @@ public partial class Body
         HandleHealthStatusResult(result);
     }
 
+	private void CeaseCombatForParalysis()
+	{
+		if (!CombinedEffectsOfType<ICeaseCombatOnParalysisEffect>().Any(effect => effect.Applies() && effect.CeaseCombatOnParalysis) ||
+			Actor.Combat is not ICombatSelectiveCessation combat) return;
+		var admission = combat.PrepareCessation(Actor, Actor.CombatTarget, Actor.Combat);
+		if (admission is not null) combat.CeaseCombatFor(admission);
+	}
+
     private HealthTickResult ApplyForcedParalysis(HealthTickResult result)
     {
         if (result.In(HealthTickResult.Dead, HealthTickResult.Unconscious, HealthTickResult.PassOut))
@@ -1786,10 +1811,13 @@ public partial class Body
 
                 if (Actor.State.HasFlag(CharacterState.Paralysed))
                 {
+					CeaseCombatForParalysis();
                     return;
                 }
 
                 Actor.State |= CharacterState.Paralysed;
+				CeaseCombatForParalysis();
+				if (!ReferenceEquals(Actor.Body, this)) return;
                 if (!SuppressHealthFeedback)
                 {
                     Actor.OutputHandler.Send("");

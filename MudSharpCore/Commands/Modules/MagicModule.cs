@@ -104,10 +104,15 @@ The syntax is:
 		return casting.HasAnyAcquisition(actor, admittedSpellIds);
     }
 
+    internal static bool IsImplicitCastCommand(string verb, string argument) => verb.EqualTo("cast") &&
+        !string.IsNullOrEmpty(argument) && !argument.EqualToAny("cast", "practice", "formula", "quiet", "area",
+            "gather", "vancian", "powers", "spells", "spell", "spellhelp", "help", "?");
+
     public static void MagicGeneric(ICharacter actor, string command)
     {
         StringStack ss = new(command);
         string invoked = ss.PopSpeech().ToLowerInvariant();
+        var invocationArguments = ss.RemainingArgument;
         string cmdText = ss.PopSpeech();
         IMagicSchool school = actor.Capabilities.Select(x => x.School).Distinct().FirstOrDefault(x =>
             x.SchoolVerb.StartsWith(invoked, StringComparison.InvariantCultureIgnoreCase));
@@ -116,6 +121,12 @@ The syntax is:
         {
             actor.OutputHandler.Send("Something went wrong with this command.");
             return;
+        }
+
+        if (IsImplicitCastCommand(school.SchoolVerb, cmdText))
+        {
+            ss = new StringStack(invocationArguments);
+            cmdText = "cast";
         }
 
         if (string.IsNullOrEmpty(cmdText))
@@ -266,16 +277,22 @@ The syntax is:
 
         string verb = power.Verbs.FirstOrDefault(x => x.EqualTo(cmdText)) ??
                    power.Verbs.First(x => x.StartsWith(cmdText, StringComparison.InvariantCultureIgnoreCase));
+		if (!power.IsPsionic && MudSharp.Construction.RoomPolicyRules.MagicDenial(actor, []) is { } roomDenial)
+		{
+			actor.OutputHandler.Send(roomDenial);
+			return;
+		}
         power.UseCommand(actor, verb, ss);
     }
 
     public static string SchoolVerbHelpText(string invoked)
     {
+        var castVerb = invoked.EqualTo("cast") ? invoked : invoked + " cast";
         return @$"You can use the following options with this magic command:
 
 	#3{invoked}#0 - see your current status, resources and sustained powers
 	#3{invoked} powers#0 - lists your powers
-	#3{invoked} cast <spell> grade <1..7> [overreach] on <target> [via <capability>]#0 - configured paid casting
+	#3{castVerb} <spell> grade <1..7> [overreach] on <target> [via <capability>]#0 - configured paid casting
 	#3{invoked} gather <capability> methods#0 - lists optional self and gentle gathering methods
 	#3{invoked} gather <capability> preview <method> <amount>#0 - shows a pure full-price quote
 	#3{invoked} gather <capability> <method> <amount>#0 - begins an interruptible gathering action
@@ -286,7 +303,7 @@ The syntax is:
 	#3{invoked} spells#0 - lists spells for this school
 	#3{invoked} spell <spell>#0 - shows help for a spell
 	#3{invoked} spellhelp <spell>#0 - shows help for a spell
-	#3{invoked} cast <spell> <power> [arguments]#0 - casts a spell; see individual spell help for target syntax";
+	#3{castVerb} <spell> <power> [arguments]#0 - casts a spell; see individual spell help for target syntax";
     }
 
     private static void MagicStatus(ICharacter actor, IMagicSchool school)
@@ -307,6 +324,11 @@ The syntax is:
 
         foreach (IMagicEffect effect in actor.CombinedEffectsOfType<IMagicEffect>().Where(x => x.School == school))
         {
+			if (effect is MindConnectedToEffect incoming)
+			{
+				sb.AppendLine($"You sense an incoming {effect.PowerOrigin.Name.Colour(Telnet.Magenta)} connection from {incoming.OriginatorEffect.MindPower.GetAppropriateHowSeen(incoming.OriginatorCharacter, actor)}.");
+				continue;
+			}
             sb.AppendLine($"You are currently sustaining the {effect.PowerOrigin.Name.Colour(Telnet.Magenta)} power.");
         }
 

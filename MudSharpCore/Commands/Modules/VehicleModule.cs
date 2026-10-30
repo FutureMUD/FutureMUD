@@ -1,3 +1,4 @@
+using System.Globalization;
 ﻿using MudSharp.Accounts;
 using MudSharp.Combat.Moves;
 using MudSharp.Commands.Trees;
@@ -34,7 +35,9 @@ internal partial class VehicleModule : Module<ICharacter>
 Syntax:
 	#3embark <vehicle>#0
 	#3embark <vehicle> <slot id|driver|passenger|crew>#0
-	#3embark <vehicle> [slot] via <access id|name>#0";
+	#3embark <vehicle> [slot] via <access id|name>#0
+
+Inside a room-scale vehicle, move to the compartment containing the desired slot, then use #3embark <vehicle> <slot>#0 to occupy it. You can enter through an open entrance before walking to a separate control room.";
 
 	[PlayerCommand("Embark", "embark")]
 	[RequiredCharacterState(CharacterState.Able)]
@@ -88,6 +91,15 @@ Syntax:
 			{
 				item = null;
 			}
+		}
+		if (vehicle is null)
+		{
+			var hosted = actor.Gameworld.Vehicles.FirstOrDefault(x => x.Prototype.Scale == VehicleScale.RoomScale &&
+				x.Compartments.Any(c => c.InteriorRoom is { } room && room.Id == actor.Location.Id));
+			if (hosted is not null && (hosted.Id.ToString(CultureInfo.InvariantCulture) == vehicleSelector ||
+			    hosted.Name.EqualTo(vehicleSelector) || hosted.ExteriorItem?.HasKeywords(
+				    vehicleSelector.Split(' ', StringSplitOptions.RemoveEmptyEntries), actor, abbreviated: true) == true))
+				vehicle = hosted;
 		}
 
 		if (vehicle is null)

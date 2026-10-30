@@ -44,6 +44,10 @@ public partial class ArmageddonStockSpellInstallerTests
 			{
 				Assert.AreEqual("item", expectedTarget);
 				expectedTarget = "itemchoice"; // Selected attribute or capacity on one carried item.
+				var manaBonus = root.Element("Effects")!.Elements().Single().Elements("Option")
+					.Where(x => (string?)x.Attribute("kind") == nameof(EquippedItemBonusKind.MagicResource)).Single();
+				Assert.AreEqual("mana", (string?)manaBonus.Attribute("name"));
+				Assert.AreEqual(source, (long)manaBonus.Attribute("target")!);
 			}
 			if (claim.StableKey == ArmageddonOpenThresholdSpellContent.Key)
 			{
@@ -297,7 +301,7 @@ public partial class ArmageddonStockSpellInstallerTests
 
 	[TestMethod]
 	[TestCategory("Integration")]
-	public void PrimitiveBindings_ExactNativeAttributesViewerPolicyAndVoidPayloadRemainDistinctFromCosts()
+	public void PrimitiveBindings_ExactNativeAttributesViewerPolicyAndCommonManaPayload()
 	{
 		using var db = Fixture();
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
@@ -312,8 +316,8 @@ public partial class ArmageddonStockSpellInstallerTests
 		var still = db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(c => c.StableKey == "arm.spell.still_limbs").LogicalId);
 		Assert.AreEqual(settings.CapacityAttribute, still.ResistingTraitDefinitionId); Assert.AreEqual((int)Difficulty.Normal, still.ResistingDifficulty);
 		var payload = (long)Effect("empty_aura").Element("Resource")!;
-		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.resource.void").LogicalId, payload);
-		Assert.AreNotEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId, payload);
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.ManaResourceKey).LogicalId, payload);
+		Assert.AreEqual(1, db.MagicResources.Count(x => (x.MagicResourceType & 1) != 0), "Resource effects and casting costs share the one character Mana pool.");
 		Assert.AreEqual("-5*grade", Effect("empty_aura").Element("Formula")!.Value);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
 	}
@@ -349,7 +353,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var settings = ArmageddonInstallation.Read(db)!;
 		if (missing == "strength") db.TraitDefinitions.Remove(db.TraitDefinitions.Single(x => x.Alias == "str"));
 		else if (missing == "viewer") db.FutureProgs.Single(x => x.Id == settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]).AcceptsAnyParameters = false;
-		else db.SeederManagedRecords.Single(x => x.StableKey == "arm.resource.void").Retired = true;
+		else db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.ManaResourceKey).Retired = true;
 		db.SaveChanges();
 		var result = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, result.Status, string.Join("\n", result.Messages));

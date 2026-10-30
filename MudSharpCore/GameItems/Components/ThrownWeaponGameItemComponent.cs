@@ -422,6 +422,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
                     }
 
                     wounds.ProcessPassiveWounds();
+					if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, Parent, wounds);
                     return;
                 }
 
@@ -436,6 +437,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
                         new Emote($"$0 strikes $1's {bodypart.FullDescription()}, and then falls to the ground!", target,
                             Parent, target)));
                 wounds.ProcessPassiveWounds();
+				if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, Parent, wounds);
                 return;
             }
 

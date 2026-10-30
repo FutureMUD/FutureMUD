@@ -1,5 +1,9 @@
 # FutureMUD Item System Presentation and Integration
 
+## Public travel rune visibility
+
+The saved `PublicTravelAnchor` effect conceals a world rune from perceivers without its configured native sense. With that sense, ordinary item visibility and inspection rules apply. Its separate global Waystep selector matches authored item keywords after admission, so a remote room's darkness does not replace the destination name with perceived-description keywords. Carried or contained runes are not destinations. The effect does not create a new item ownership record or alter ordinary item keyword targeting. See [configurable casting](../Magic/Configurable_Casting.md#public-world-runes) for the prog, persistence and casting contract.
+
 ## Spellbook and scroll presentation
 
 `spellbook show <item>` and `spellscroll show <item>` inspect structured instance contents; inspection never activates a scroll or adds global spell knowledge. School Vancian commands select the casting capability and route, while standalone commands support copying, inscription and activation. Visibility, manipulation, open-container access and configured comprehensible writing are checked by the common item-access service. Trusted FutureProg/craft callers use that same mutation service and live reservation tokens. See [player syntax](../Magic/Vancian_Magic_Player_Guide.md), [FutureProg contracts](../Magic/Vancian_Magic_FutureProg.md) and [stored-effect compatibility](../Magic/Vancian_Scroll_Compatibility.md).
@@ -52,6 +56,10 @@ Item prototypes provide the base descriptive layer:
 - optional long description override
 - extra descriptions gated by progs
 - builder comment metadata
+
+`Keyword Descriptions` components provide a separate inspection layer for prose that is addressed by authored keywords. Builders add entries with `add <keywords> | <description>` and remove them by entry number. `look <keyword>` checks these entries only after ordinary target and item-group lookup fails, and `look <keyword> on <item>` can inspect a visible item directly. Matching follows item keyword conventions, including each whitespace-separated alternative and the complete phrase. Only visible items in the current visual context are eligible. These entries are not `GameItemProtoExtraDescription` rows: those remain conditional overrides used by the normal item description resolver.
+
+Rooms can store the same entries in a permanent `KeywordDescriptions` saving effect. The normal effect envelope preserves the entries in `Room.EffectData` across load and save without adding a database column.
 
 Skins can override several of these presentation values without replacing the underlying item behaviour.
 
@@ -455,3 +463,13 @@ Liquids, consumable items, inhalers and incense fuel can bind magical substances
 ## Created meals, drink fills and Hovering Light
 
 Created food uses ordinary bite presentation, native eating and active needs; fractional/zero saved remainders survive reload without restoration. Hovering Light is a lit native wearable object on the recipient's configured profile and contributes to real recipient illumination. It remains independent of foreign worn equipment; expiry uses exact ownership rather than removing a whole inventory layer. Created water/wine fill an existing accessible open drink container and preserve its existing constituents. Incompatible recipes refuse instead of changing old contents. They remain ordinary drink/transfer/save quantities with no magical expiry.
+
+
+## Wearable fit inspection and progs
+
+Look and evaluate describe a sizing-enabled garment's saved fitting and whether it fits the viewer. `consider <individual>` already reports native height and weight; these are the measurements used by native measurement fitting. When sizing is enabled, an optional `DefaultWearableScalarSizeProg` adds the setting-specific scalar garment size; the worldfile import binds its source-compatible prog here. Shop listings summarise actual stocked fits, and ordinary item previews show the exact garment's fit without sizing it.
+
+FutureProg exposes `wearablefitstate(item)` plus `wearablefitscalar`, `wearablefitheight` and `wearablefitweight` (base units). `wearablefit(item)` returns a portable snapshot string. `setwearablefit(item, character)` captures the item's configured fitting for that individual; the text overload accepts a snapshot or explicit fit, and `setwearablefitscalar(item, number)` assigns a scalar directly. `wearablefits(item, character)` tests fitting without changing it. Non-wearables return empty text/zero/false as appropriate. These setters alter fitting only; they do not move, equip, repair or change item mass.
+
+
+`purchaseitemdelivery(buyer, seller, item, sourceRoom, currency, price, fit)` is a trusted service primitive for a concrete native wearable held directly in an ordinary stock room. It prepares exact cash and room delivery together, validates physical bodies and unchanged stock, then publishes payment, fit and item placement before notifications. Nonnegative zero-price service is supported. The calling prog owns ticket/depot permissions; this function does not grant access to stock rooms or discover items. The Armageddon tailoring collection progs use it to avoid charging for failed delivery or charging again on a ticket retry.

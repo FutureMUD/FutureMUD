@@ -330,6 +330,7 @@ public static partial class ArmageddonHeritage
 		InstallAccents(db, languages, actualCultures, messages);
 		InstallSirihishRacialAccents(db, languages["sirihish"], races, messages);
 		WireFreeSkills(db, storyboard, oldFree, actualCultures, races, skills, messages);
+		ArmageddonChargenPolicy.Install(db, messages);
 		db.SaveChanges();
 		using (var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray()))
 			foreach (var record in db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module && x.EntityType == nameof(FutureProg)).ToArray()) compiler.Compile(record.LogicalId!.Value);
@@ -385,7 +386,7 @@ public static partial class ArmageddonHeritage
 			}
 			// Explicit neutral scaffolds cover ancestry natives without a recovered regional accent.
 			Apply(db, "arm.accent." + slug + ".standard", new Accent { LanguageId = language.Id, Name = "Standard", Role = 0, Difficulty = 5, Group = "native scaffold",
-				Suffix = "", VagueSuffix = "", Description = $"The usual pronunciation of {language.Name}.", ChargenAvailabilityProgId = native.Id }, messages);
+				Suffix = "in the standard accent", VagueSuffix = "in the standard accent", Description = $"The usual pronunciation of {language.Name}.", ChargenAvailabilityProgId = native.Id }, messages);
 			Apply(db, "arm.accent." + slug + ".learner", new Accent { LanguageId = language.Id, Name = "Learner", Role = 2, Difficulty = 6, Group = "learner scaffold",
 				Suffix = "with a learner's accent", VagueSuffix = "with an unfamiliar accent", Description = $"The pronunciation of someone learning {language.Name} as an additional language.", ChargenAvailabilityProgId = foreign.Id }, messages);
 		}
@@ -411,9 +412,18 @@ public static partial class ArmageddonHeritage
 		var wrapper = Prog(db, key, "ArmageddonFreeSkills" + storyboard.Id, text.ToString(), ProgVariableTypes.Trait | ProgVariableTypes.Collection, messages, (ProgVariableTypes.Chargen, "ch"));
 		var xml = XElement.Parse(storyboard.StageDefinition);
 		var reference = xml.Element("FreeSkillsProg")!;
+		var currentFields = new Dictionary<string, string> { ["FreeSkillsProg"] = Json(reference.Value) };
+		var desiredFields = new Dictionary<string, string> { ["FreeSkillsProg"] = Json(wrapper.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)) };
+		var wiring = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == "arm.chargen.skills-wiring." + storyboard.Id);
+		var previous = wiring?.SeedBaseline is { } baseline ? JsonSerializer.Deserialize<Dictionary<string, string>>(baseline)! : new Dictionary<string, string>();
+		// Adopt known native pickers on the first policy upgrade; thereafter preserve builder type changes.
+		if (previous.ContainsKey("ChargenType") || storyboard.ChargenType is not ("SkillPicker" or "SkillCostPicker" or "SkillBoostSkipper" or "SkillSkipper"))
+			currentFields["ChargenType"] = Json(storyboard.ChargenType);
+		desiredFields["ChargenType"] = Json("SkillSkipper");
 		var merged = ArmageddonSettingLinks.Reconcile(db, "arm.chargen.skills-wiring." + storyboard.Id, nameof(ChargenScreenStoryboard), storyboard.Id,
-			new Dictionary<string, string> { ["FreeSkillsProg"] = Json(reference.Value) }, new Dictionary<string, string> { ["FreeSkillsProg"] = Json(wrapper.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)) }, messages);
+			currentFields, desiredFields, messages);
 		reference.Value = JsonSerializer.Deserialize<string>(merged["FreeSkillsProg"])!;
+		storyboard.ChargenType = JsonSerializer.Deserialize<string>(merged["ChargenType"])!;
 		storyboard.StageDefinition = xml.ToString();
 	}
 	private static long ExtractDelegate(string text)

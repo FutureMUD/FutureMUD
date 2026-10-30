@@ -10,7 +10,8 @@ namespace MudSharp.GameItems.Interfaces
         Jammed,
         NotOpenable,
         Unknown,
-        AlternateMechanism
+        AlternateMechanism,
+		AccessDenied
     }
 
     public enum WhyCannotCloseReason

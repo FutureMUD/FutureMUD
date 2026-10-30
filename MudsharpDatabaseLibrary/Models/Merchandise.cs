@@ -23,6 +23,7 @@ namespace MudSharp.Models
         public int MinimumStockLevels { get; set; }
         public double MinimumStockLevelsByWeight { get; set; }
         public bool PreserveVariablesOnReorder { get; set; }
+        public string LoadArguments { get; set; } = string.Empty;
         public long? SkinId { get; set; }
         public bool WillSell { get; set; }
         public bool WillBuy { get; set; }

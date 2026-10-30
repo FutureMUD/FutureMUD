@@ -9,8 +9,18 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Components;
 
-public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReadable
+public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReadable, IConsumablePaper
 {
+	public bool CanConsumePage(ICharacter actor, bool allowWritten = false) => Parent.Quantity == 1 &&
+		(allowWritten || !Readables.Any() && string.IsNullOrWhiteSpace(Title)) && ItemManipulationGuard.CanManipulate(actor, out _, Parent);
+
+	public bool ConsumePage(ICharacter actor, bool allowWritten = false)
+	{
+		if (!CanConsumePage(actor, allowWritten)) return false;
+		Parent.Delete();
+		return true;
+	}
+
     protected PaperSheetGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 

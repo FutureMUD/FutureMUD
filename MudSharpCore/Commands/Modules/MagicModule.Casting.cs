@@ -61,7 +61,7 @@ public partial class MagicModule
 			var known = service.Acquisition(actor, chosen.Id);
 			var sb = new StringBuilder($"{chosen.Name}\n{chosen.Description}\nKnowledge: {(known is null ? PatronKnowledge(chosen.Id) ? "current patron grant" : "not acquired" : $"controlled grade {known.ControlledGrade}; {known.Provenance}")}\nNative school: {chosen.School.Name}\n");
 			AppendRoutes(sb, chosen.Id);
-			sb.AppendLine($"{school.SchoolVerb} cast \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
+			sb.AppendLine($"{(school.SchoolVerb.EqualTo("cast") ? "cast" : school.SchoolVerb + " cast")} \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
 			if (capabilities.Any(x => x.CastingPolicy is { Patron: null } && actor.Capabilities.Any(c => c.Id == x.Id) && x.CastingPolicy.Admissions.Any(a => a.SpellId == chosen.Id)))
 				sb.AppendLine($"{school.SchoolVerb} practice \"{chosen.Name}\" grade <1..7> [overreach] [via <capability>] (target-free, explicitly authored practice only)");
 			if (chosen is MagicSpell { GradeProfile.Area: { } areaPolicy })

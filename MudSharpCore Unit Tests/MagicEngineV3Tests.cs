@@ -261,11 +261,14 @@ public class MagicEngineV3Tests
 	}
 
 	[TestMethod]
-	public void SleepEffect_DoesNotApplyWhenInsomniaBlocksSleep()
+	[DataRow(true)]
+	[DataRow(false)]
+	public void SleepEffect_DoesNotApplyWhenInsomniaBlocksSleep(bool applicable)
 	{
 		var output = new Mock<IOutputHandler>();
 		var target = CreateCharacter(2);
 		var blocker = new Mock<IPreventSleepEffect>();
+		blocker.Setup(x => x.Applies(target.Object)).Returns(applicable);
 		blocker.SetupGet(x => x.SleepPreventionEcho).Returns("No sleep.");
 		target.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		target.Setup(x => x.EffectsOfType<IPreventSleepEffect>(It.IsAny<Predicate<IPreventSleepEffect>>()))
@@ -276,8 +279,16 @@ public class MagicEngineV3Tests
 		var applied = effect.GetOrApplyEffect(CreateCharacter(1).Object, target.Object, OpposedOutcomeDegree.None,
 			SpellPower.Standard, CreateParent().Object, []);
 
-		Assert.IsNull(applied);
-		output.Verify(x => x.Send("No sleep.", true, false), Times.Once);
+		if (applicable)
+		{
+			Assert.IsNull(applied);
+			output.Verify(x => x.Send("No sleep.", true, false), Times.Once);
+		}
+		else
+		{
+			Assert.IsInstanceOfType<SpellSleepEffect>(applied);
+			output.Verify(x => x.Send("No sleep.", true, false), Times.Never);
+		}
 	}
 
 	[TestMethod]

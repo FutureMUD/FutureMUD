@@ -69,3 +69,13 @@ Shared XML/RNG contracts belong to `FutureMUDLibrary Unit Tests`; controller pla
 Fresh WeatherSeeder installs resolve a supported daylight celestial and its feed clock. Conventional seasons scale with its celestial year, hourly temperatures are periodic samples of day fraction, and multi-day drift periods use the clock's minutes per day. Literal-minute tick intervals remain minutes. The seeder refuses an existing weather catalogue; neither rerun refusal nor the hazards update retimes existing seasons or temperature tables. See the [WeatherSeeder guide](../Seeding/Seeders/WeatherSeeder.md).
 
 The optional [Armageddon setting weather](../Seeding/Seeders/ArmageddonSettingSeeder.md#regional-weather) adds four unassigned fictional climate templates with nine 77-day seasons and nine-hour heating. It uses the existing terrestrial transition model and shared dry/dust events; no persistence or public climate-interface changes are needed.
+
+
+## Local weather and dry residue
+
+`setroomweather(room, weatherId)` applies one saved local room effect; zero clears it. Local weather supplies current conditions, room addenda, wind, light and exposed atmosphere, without changing the regional controller, forecast or temperature baseline. Regional weather echoes are suppressed while the local effect applies. The effect does not run a separate event scheduler; setting-specific progs supply any periodic work. Events requiring their own five-second work are refused by the prog helper.
+
+Weather events optionally deposit a solid residue through native surface state: `residue <solid> <mass-per-game-minute> <maximum-mass>` (for example `residue dust 0.1g 5g`), or `residue none`. Exposed outdoor/climate-exposed bodies, carried/worn equipment and loose room items receive bounded deposits; underwater or sheltered recipients are excluded. Dry deposition marks the native state changed, preserving existing surface descriptions, weight, persistence and cleaning. Leaving the weather stops deposition but does not clean the recipient. Dust and sand use ordinary native solids with `(dusty)` and `(sandy)` residue descriptions; no new material category or hygiene system is introduced. Fresh stock dust variants use 0.1g per game minute capped at 5g when the core sand material and kilogram unit exist. Existing owned event definitions retain builder customisation.
+
+
+`depositroomresidue(room, materialId, amount, maximum)` invokes the same dry-deposition routine directly, in base mass units, without requiring a regional controller. The Armageddon source-specific NPC controller uses this action for its moving storms; its local weather event therefore has no automatic residue dose and cannot double-apply from regional processing.

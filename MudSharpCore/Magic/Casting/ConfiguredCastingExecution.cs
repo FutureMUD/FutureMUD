@@ -11,6 +11,8 @@ internal sealed record ConfiguredAreaApplication(ICharacter Target, double Damag
 internal sealed class ConfiguredCastingExecution(IReadOnlyList<CastingPayment> payments)
 {
 	public IReadOnlyList<CastingPayment> Payments { get; } = payments;
+	/// <summary>Uses a previously admitted device outcome without making a personal casting check.</summary>
+	public Outcome? FixedOutcome { get; init; }
 	public Action? BeforeMaterials { get; init; }
 	public Action? AfterCommit { get; init; }
 	public CheckOutcome? CheckResult { get; set; }

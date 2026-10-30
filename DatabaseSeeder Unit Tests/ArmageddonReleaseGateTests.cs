@@ -33,7 +33,9 @@ public class ArmageddonReleaseGateTests
 		IDatabaseSeeder exposure = new EnvironmentalExposureSeeder();
 		Assert.IsTrue(exposure.Metadata.OrderAfterSeederTypes!.Contains(typeof(ArmageddonSettingSeeder)));
 		Assert.IsFalse(exposure.Metadata.RequiredSeederTypes.Contains(typeof(ArmageddonSettingSeeder)));
-		var catalogue = SeederCatalogue.GetEnabledSeeders().Where(x => x is not ArmageddonSettingSeeder).ToArray();
+		var catalogue = SeederCatalogue.GetEnabledSeeders()
+			.Where(x => x is not ArmageddonSettingSeeder and not ArmageddonWorldfileSeeder)
+			.ToArray();
 		var plan = SeederCatalogue.GetDependencyPlan(catalogue);
 		Assert.AreEqual(0, plan.Errors.Count, string.Join("\n", plan.Errors));
 		var types = plan.OrderedSeeders.Select(x => x.GetType()).ToList();

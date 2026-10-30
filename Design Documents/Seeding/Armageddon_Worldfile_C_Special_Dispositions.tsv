@@ -1,0 +1,534 @@
+Entity	Vnum	Name	SourceFile	RecordLine	Association	Placement	MResetRooms	Disposition
+Room	1003	The Ancient Place of Kings	areas/z1.wld	43	C pulse hall_of_kings	room association		implemented approved departure reconstruction; source pulse attachment inert
+Room	13006	An Earthen Pit	areas/z13.wld	66	C up tor_upper_stopper	room association		implemented flight access
+Room	20162	Outside Caravan Gate	areas/z20.wld	2184	C open tuluk_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	20162	Outside Caravan Gate	areas/z20.wld	2184	C close tuluk_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	20163	Inside Caravan Gate	areas/z20.wld	2203	C open tuluk_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	20163	Inside Caravan Gate	areas/z20.wld	2203	C close tuluk_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	25165	UNUSED ROOM	areas/z25.wld	1900	C jump dw_jump	room association		implemented checked prog and teleport
+Room	25167	UNUSED ROOM	areas/z25.wld	1913	C jump dw_jump	room association		implemented checked prog and teleport
+Room	26361	High in the Air	areas/z26.wld	2962	C south storms_edge	room association		implemented passage denial
+Room	26362	High in the Air	areas/z26.wld	2969	C south storms_edge	room association		implemented passage denial
+Room	26363	High in the Air	areas/z26.wld	2977	C south storms_edge	room association		implemented passage denial
+Room	26364	High in the Air	areas/z26.wld	2985	C south storms_edge	room association		implemented passage denial
+Room	35007	Courtyard within House Tor	areas/z35.wld	96	C up tor_upper_stopper	room association		implemented flight access
+Room	35012	Courtyard within House Tor	areas/z35.wld	191	C up tor_upper_stopper	room association		implemented flight access
+Room	39010	Halfway up the pyramid	areas/z39.wld	118	C up lo_pyramid	room association		implemented race access
+Room	49673	Wave Dunes	areas/z49.wld	5488	C down kurac_tunnel	room association		implemented clan access
+Room	50008	Outside the Main Gate	areas/z50.wld	121	C open allanak_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50008	Outside the Main Gate	areas/z50.wld	121	C close allanak_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50021	King's Crossing	areas/z50.wld	307	C south tal_zen_tunnel	room association		implemented denied-attempt hazard; pure pathfinding
+Room	50316	Gan Zein Market	areas/z50.wld	2853	C pulse gan_zien_tribes	room association		implemented approved persistent random camp
+Room	50663	The Arena Floor	areas/z50.wld	5265	C open arena_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50663	The Arena Floor	areas/z50.wld	5265	C close arena_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50682	Entrance to the Arena Floor	areas/z50.wld	5575	C open arena_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50682	Entrance to the Arena Floor	areas/z50.wld	5575	C close arena_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50683	Beast Stables	areas/z50.wld	5597	C release arena_beast	room association		implemented approved release-only reconstruction;8 available native outfits,50664 destination;no missing50118
+Room	50821	Inside the Main Gate	areas/z50.wld	6660	C open allanak_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	50821	Inside the Main Gate	areas/z50.wld	6660	C close allanak_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64000	Old North Road Crossing	areas/z64.wld	1	C open luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64000	Old North Road Crossing	areas/z64.wld	1	C close luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64001	Within the South Gate of Luir's Outpost	areas/z64.wld	20	C open luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64001	Within the South Gate of Luir's Outpost	areas/z64.wld	20	C close luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64039	The North Gate of Luir's Outpost	areas/z64.wld	605	C open luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64039	The North Gate of Luir's Outpost	areas/z64.wld	605	C close luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64046	Old North Road	areas/z64.wld	741	C close luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	64046	Old North Road	areas/z64.wld	741	C open luirs_gate	room association		implemented conditional native open/close operation permissions and source callouts; no independent passage ban
+Room	65000	Nessalin's Final Resting Place	areas/z65.wld	1	C pulse random_room_messanger	room association		not activated; test/historical-player behaviour
+Room	66055	Inside the Box	areas/z66.wld	164	C up elevator	room association		approved stuck elevator66000 preservation; refusal and normal fall-through; four source stops absent
+Room	66055	Inside the Box	areas/z66.wld	164	C down elevator	room association		approved stuck elevator66000 preservation; refusal and normal fall-through; four source stops absent
+Room	70500	A Small Cave	areas/z70.wld	4557	C examine cave_writing	room association		implemented conditional inscription hooks; three native language proficiency tiers; approved legacy Untal
+Room	70500	A Small Cave	areas/z70.wld	4557	C read cave_writing	room association		implemented conditional inscription hooks; three native language proficiency tiers; approved legacy Untal
+Room	70500	A Small Cave	areas/z70.wld	4557	C look cave_writing	room association		implemented conditional inscription hooks; three native language proficiency tiers; approved legacy Untal
+Npc	2117	Kundik dwarf powerful dignified	npcs/z2.npc	1392	C buy clan_lieutenant	definition only; no M reset		NPC retained; ineffective paid service omitted by approval
+Npc	2117	Kundik dwarf powerful dignified	npcs/z2.npc	1392	C list clan_lieutenant	definition only; no M reset		NPC retained; ineffective paid service omitted by approval
+Npc	2974	Tom ghost ghostly wavering figure Thomas	npcs/z2.npc	4174	C ask skill_teacher	definition only; no M reset		pending behaviour mapping
+Npc	3004	woman angular dark-eyed cassia	npcs/z3.npc	61	C offer mount_seller	reset placed	64667	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	3004	woman angular dark-eyed cassia	npcs/z3.npc	61	C list mount_seller	reset placed	64667	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	3004	woman angular dark-eyed cassia	npcs/z3.npc	61	C buy mount_seller	reset placed	64667	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	3059	Asher mul stablehand crippled cripple	npcs/z3.npc	132	C rent animal_to_store_zim	definition only; no M reset		pending behaviour mapping
+Npc	3059	Asher mul stablehand crippled cripple	npcs/z3.npc	132	C offer animal_to_store_zim	definition only; no M reset		pending behaviour mapping
+Npc	3059	Asher mul stablehand crippled cripple	npcs/z3.npc	132	C ask animal_to_store_zim	definition only; no M reset		pending behaviour mapping
+Npc	3837	Dermit grizzled old man human	npcs/z3.npc	699	C rent animal_to_store	reset placed	35372	implemented native stable
+Npc	3837	Dermit grizzled old man human	npcs/z3.npc	699	C offer animal_to_store	reset placed	35372	implemented native stable
+Npc	3841	Makan young brown haired servant	npcs/z3.npc	808	C tailor tailor	definition only; no M reset		service design prepared
+Npc	3841	Makan young brown haired servant	npcs/z3.npc	808	C offer tailor	definition only; no M reset		service design prepared
+Npc	3841	Makan young brown haired servant	npcs/z3.npc	808	C steal tailor	definition only; no M reset		service design prepared
+Npc	3842	dalshon dal bald heavyset human	npcs/z3.npc	846	C rent wagon_to_store	reset placed	69836	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	3842	dalshon dal bald heavyset human	npcs/z3.npc	846	C offer wagon_to_store	reset placed	69836	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	6001	Raj tall black-haired	npcs/z6.npc	1	C pulse gyp_gate_guard	reset placed	6592	implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6001	Raj tall black-haired	npcs/z6.npc	1	C enter gyp_gate_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6001	Raj tall black-haired	npcs/z6.npc	1	C gather gyp_gate_guard	reset placed	6592	implemented accepted Land magic gathering start witness retaliation at protected home; ordinary foraging excluded; command not consumed
+Npc	6001	Raj tall black-haired	npcs/z6.npc	1	C open gyp_gate_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6001	Raj tall black-haired	npcs/z6.npc	1	C north gyp_gate_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6002	Marin tall lanky guard	npcs/z6.npc	38	C pulse gyp_gate_guard	reset placed	6592	implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6002	Marin tall lanky guard	npcs/z6.npc	38	C enter gyp_gate_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6002	Marin tall lanky guard	npcs/z6.npc	38	C gather gyp_gate_guard	reset placed	6592	implemented accepted Land magic gathering start witness retaliation at protected home; ordinary foraging excluded; command not consumed
+Npc	6002	Marin tall lanky guard	npcs/z6.npc	38	C open gyp_gate_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6002	Marin tall lanky guard	npcs/z6.npc	38	C north gyp_gate_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6030	Milo scout grim	npcs/z6.npc	536	C north gypsy_hornblower	reset placed	6522	implemented attached north-only public zone horn;source clan24/admin exemptions;unattached branches inactive
+Npc	6042	Sasha lean muscular woman human	npcs/z6.npc	837	C ask gyp_gate_guard	reset placed	6475	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6042	Sasha lean muscular woman human	npcs/z6.npc	837	C ask gyp_gate_guard	reset placed	6475	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6043	Korbin stock swarthy human man	npcs/z6.npc	887	C ask gyp_gate_guard	reset placed	6522	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6044	Antalya trim green eyed human woman	npcs/z6.npc	939	C ask gyp_gate_guard	reset placed	6475	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6045	Hejra dusky broad faced human man	npcs/z6.npc	992	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6046	anya short brown haired woman human	npcs/z6.npc	1037	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6047	Lothlo bluff faced one eyed human man	npcs/z6.npc	1081	C ask gyp_gate_guard	reset placed	6542	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6048	Sethra wiry short haired woman human	npcs/z6.npc	1142	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6050	Tresya dusky grey eyed woman human	npcs/z6.npc	1203	C ask gyp_gate_guard	reset placed	6682	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6051	Bozhka sturdy grey eyed man human	npcs/z6.npc	1251	C ask gyp_gate_guard	reset placed	6682	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6058	man tall short-haired man human Bishnak	npcs/z6.npc	1585	C north gypsy_hornblower	reset placed	6682	implemented attached north-only public zone horn;source clan24/admin exemptions;unattached branches inactive
+Npc	6059	Man dark, fiercely-tattooed basra	npcs/z6.npc	1622	C ask gyp_gate_guard	reset placed	6682	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6060	Man lanky brown-skinned haroshka rosh	npcs/z6.npc	1668	C ask gyp_gate_guard	reset placed	6682	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6110	Samoval Sam rugged dark-skinned	npcs/z6.npc	2947	C pulse gyp_gate_guard	definition only; no M reset		implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6111	Minderra Min wiry ponytailed	npcs/z6.npc	2985	C pulse gyp_gate_guard	definition only; no M reset		implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6113	Ronau slender short-haired	npcs/z6.npc	3061	C pulse gyp_gate_guard	definition only; no M reset		implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6114	Deshal thick-boned bearded man human	npcs/z6.npc	3100	C ask gyp_gate_guard	reset placed	6682	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6115	Torissa toned dark-skinned woman human	npcs/z6.npc	3149	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6116	Crysla lean almond-eyed woman human	npcs/z6.npc	3198	C ask gyp_gate_guard	reset placed	6720	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6117	Derai scraggly-bearded man human	npcs/z6.npc	3246	C ask gyp_gate_guard	reset placed	6572	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6118	Kyolas black-eyed broad-shouldered man human	npcs/z6.npc	3296	C ask gyp_gate_guard	reset placed	6101	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6118	Kyolas black-eyed broad-shouldered man human	npcs/z6.npc	3296	C pulse gyp_gate_guard	reset placed	6101	implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6118	Kyolas black-eyed broad-shouldered man human	npcs/z6.npc	3296	C enter gyp_gate_guard	reset placed	6101	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6118	Kyolas black-eyed broad-shouldered man human	npcs/z6.npc	3296	C open gyp_gate_guard	reset placed	6101	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6118	Kyolas black-eyed broad-shouldered man human	npcs/z6.npc	3296	C north gyp_gate_guard	reset placed	6101	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6118	Kyolas black-eyed broad-shouldered man human	npcs/z6.npc	3296	C gather gyp_gate_guard	reset placed	6101	implemented accepted Land magic gathering start witness retaliation at protected home; ordinary foraging excluded; command not consumed
+Npc	6120	Teja lanky narrow-nosed man human	npcs/z6.npc	3386	C ask gyp_gate_guard	reset placed	6475	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6121	Belal slim sinewy man human	npcs/z6.npc	3437	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6122	Gadzik gangly hunchbacked man human	npcs/z6.npc	3473	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6123	Jaylia lithe ponytailed woman human	npcs/z6.npc	3514	C ask gyp_gate_guard	definition only; no M reset		implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6124	Jatar sinewy scruffy-bearded man human	npcs/z6.npc	3558	C enter gyp_gate_guard	reset placed	6626	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6124	Jatar sinewy scruffy-bearded man human	npcs/z6.npc	3558	C open gyp_gate_guard	reset placed	6626	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6124	Jatar sinewy scruffy-bearded man human	npcs/z6.npc	3558	C north gyp_gate_guard	reset placed	6626	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6124	Jatar sinewy scruffy-bearded man human	npcs/z6.npc	3558	C gather gyp_gate_guard	reset placed	6626	implemented accepted Land magic gathering start witness retaliation at protected home; ordinary foraging excluded; command not consumed
+Npc	6127	Maiko stout ashen-haired man human	npcs/z6.npc	3703	C ask gyp_gate_guard	reset placed	6121	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6127	Maiko stout ashen-haired man human	npcs/z6.npc	3703	C open gyp_gate_guard	reset placed	6121	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6138	Man short broad-shoulder karosh	npcs/z6.npc	4224	C ask gyp_gate_guard	reset placed	6121	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6140	Man narrow-nosed jet-haired varail	npcs/z6.npc	4297	C ask gyp_gate_guard	reset placed	6455	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6157	man slender dark-eyed lyarash	npcs/z6.npc	5065	C tailor tailor	reset placed	6150	native ticketed tailoring with binding quote and native condition
+Npc	6157	man slender dark-eyed lyarash	npcs/z6.npc	5065	C offer tailor	reset placed	6150	native ticketed tailoring with binding quote and native condition
+Npc	6306	Morgan heavyset warrior	npcs/z6.npc	5358	C pulse gyp_oasis_guard	reset placed	6592	implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6306	Morgan heavyset warrior	npcs/z6.npc	5358	C enter gyp_oasis_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6306	Morgan heavyset warrior	npcs/z6.npc	5358	C gather gyp_oasis_guard	reset placed	6592	implemented accepted Land magic gathering start witness retaliation at protected home; ordinary foraging excluded; command not consumed
+Npc	6306	Morgan heavyset warrior	npcs/z6.npc	5358	C open gyp_oasis_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6306	Morgan heavyset warrior	npcs/z6.npc	5358	C east gyp_oasis_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6306	Morgan heavyset warrior	npcs/z6.npc	5358	C ask gyp_oasis_guard	reset placed	6592	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6310	Egan thin bronze	npcs/z6.npc	5457	C pulse gyp_oasis_guard	reset placed	6592	implemented native relationship cleanup and source home door/scan pulse rules; disabled or inconsistent off-home branches not invented; oasis vendetta omitted by decision
+Npc	6310	Egan thin bronze	npcs/z6.npc	5457	C enter gyp_oasis_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6310	Egan thin bronze	npcs/z6.npc	5457	C gather gyp_oasis_guard	reset placed	6592	implemented accepted Land magic gathering start witness retaliation at protected home; ordinary foraging excluded; command not consumed
+Npc	6310	Egan thin bronze	npcs/z6.npc	5457	C open gyp_oasis_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6310	Egan thin bronze	npcs/z6.npc	5457	C east gyp_oasis_guard	reset placed	6592	native admission/opening adaptation present; source-inert directional and off-home branches retain documented boundaries; see behaviour document
+Npc	6310	Egan thin bronze	npcs/z6.npc	5457	C ask gyp_oasis_guard	reset placed	6592	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	6365	Katelli woman braided black hair human Kat	npcs/z6.npc	5635	C ask gyp_gate_guard	reset placed	6126	implemented conditional addressed help/follow/bodyguard commands with source clan and oasis Marit permission
+Npc	13152	guard elite [Oash]	npcs/z13.npc	690	C west oash_gate_guard	definition only; no M reset		pending behaviour mapping
+Npc	13152	guard elite [Oash]	npcs/z13.npc	690	C pick oash_gate_guard	definition only; no M reset		pending behaviour mapping
+Npc	13152	guard elite [Oash]	npcs/z13.npc	690	C cast oash_gate_guard	definition only; no M reset		pending behaviour mapping
+Npc	13152	guard elite [Oash]	npcs/z13.npc	690	C open oash_gate_guard	definition only; no M reset		pending behaviour mapping
+Npc	13152	guard elite [Oash]	npcs/z13.npc	690	C close oash_gate_guard	definition only; no M reset		pending behaviour mapping
+Npc	13152	guard elite [Oash]	npcs/z13.npc	690	C pulse oash_gate_guard	definition only; no M reset		pending behaviour mapping
+Npc	13154	guard human kohmar Blandor	npcs/z13.npc	761	C south kohmar_blandor	definition only; no M reset		pending behaviour mapping
+Npc	13154	guard human kohmar Blandor	npcs/z13.npc	761	C cast kohmar_blandor	definition only; no M reset		pending behaviour mapping
+Npc	13632	grolith greasy haired lean man human	npcs/z13.npc	1434	C offer animal_to_store	reset placed	50065	implemented native stable
+Npc	13632	grolith greasy haired lean man human	npcs/z13.npc	1434	C rent animal_to_store	reset placed	50065	implemented native stable
+Npc	14903	Yastya translucent sickly woman wailing spirit	npcs/z14.npc	983	C cry banshee_wail	definition only; no M reset		pending behaviour mapping
+Npc	14903	Yastya translucent sickly woman wailing spirit	npcs/z14.npc	983	C moan banshee_wail	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C offer steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C barter steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C list steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C fill steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C offer steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C barter steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C list steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	17002	homely female woman cleric Silla	npcs/z17.npc	70	C fill steh_waterseller	definition only; no M reset		pending behaviour mapping
+Npc	20038	jahan rope-maker tradesman tailor	npcs/z20.npc	862	C tailor tailor	reset placed	20244	native ticketed tailoring with binding quote and native condition
+Npc	20038	jahan rope-maker tradesman tailor	npcs/z20.npc	862	C offer tailor	reset placed	20244	native ticketed tailoring with binding quote and native condition
+Npc	20038	jahan rope-maker tradesman tailor	npcs/z20.npc	862	C steal tailor	reset placed	20244	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	20053	gray-haired bartender Laurent	npcs/z20.npc	1234	C leave post_master	reset placed	20434	excluded orphan: reset-placed NPC has no source postal-office table entry and is not one of the four implemented offices
+Npc	20053	gray-haired bartender Laurent	npcs/z20.npc	1234	C assess post_master	reset placed	20434	excluded orphan: reset-placed NPC has no source postal-office table entry and is not one of the four implemented offices
+Npc	20053	gray-haired bartender Laurent	npcs/z20.npc	1234	C get post_master	reset placed	20434	excluded orphan: reset-placed NPC has no source postal-office table entry and is not one of the four implemented offices
+Npc	20054	seller elf lean	npcs/z20.npc	1266	C offer mount_seller	reset placed	20226	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	20054	seller elf lean	npcs/z20.npc	1266	C list mount_seller	reset placed	20226	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	20054	seller elf lean	npcs/z20.npc	1266	C buy mount_seller	reset placed	20226	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	20073	Mishai1 kohmar guard merc Mishai	npcs/z20.npc	1831	C up khomar_guard	definition only; no M reset		pending behaviour mapping
+Npc	20074	Shivald boy lad human blond	npcs/z20.npc	1864	C tell parchment_to_book	definition only; no M reset		pending behaviour mapping
+Npc	20082	noiran bartender tall broad shouldered	npcs/z20.npc	2100	C wake pc_innkeeper	shop keeper reference		not activated; test/historical-player behaviour
+Npc	20082	noiran bartender tall broad shouldered	npcs/z20.npc	2100	C sleep pc_innkeeper	shop keeper reference		not activated; test/historical-player behaviour
+Npc	20082	noiran bartender tall broad shouldered	npcs/z20.npc	2100	C get pc_innkeeper	shop keeper reference		not activated; test/historical-player behaviour
+Npc	20084	seben lanky tall dark skinned	npcs/z20.npc	2163	C list tuluk_templar_stable	definition only; no M reset		pending behaviour mapping
+Npc	20084	seben lanky tall dark skinned	npcs/z20.npc	2163	C ask tuluk_templar_stable	definition only; no M reset		pending behaviour mapping
+Npc	20084	seben lanky tall dark skinned	npcs/z20.npc	2163	C rent tuluk_templar_stable	definition only; no M reset		pending behaviour mapping
+Npc	20099	Anaxas Utep head wrinkled	npcs/z20.npc	2395	C ask skill_teacher	definition only; no M reset		pending behaviour mapping
+Npc	20107	Stonejaw mul arm-wrestler armwrestler	npcs/z20.npc	2631	C wake pc_innkeeper	definition only; no M reset		not activated; test/historical-player behaviour
+Npc	20107	Stonejaw mul arm-wrestler armwrestler	npcs/z20.npc	2631	C sleep pc_innkeeper	definition only; no M reset		not activated; test/historical-player behaviour
+Npc	20107	Stonejaw mul arm-wrestler armwrestler	npcs/z20.npc	2631	C get pc_innkeeper	definition only; no M reset		not activated; test/historical-player behaviour
+Npc	20112	clerk Nenyuki short	npcs/z20.npc	2769	C withdraw banker	reset placed	20623	implemented fixed bank branch
+Npc	20112	clerk Nenyuki short	npcs/z20.npc	2769	C deposit banker	reset placed	20623	implemented fixed bank branch
+Npc	20112	clerk Nenyuki short	npcs/z20.npc	2769	C balance banker	reset placed	20623	implemented fixed bank branch
+Npc	20113	clerk Nenyuki lean	npcs/z20.npc	2792	C withdraw banker	reset placed	28980	implemented fixed bank branch
+Npc	20113	clerk Nenyuki lean	npcs/z20.npc	2792	C deposit banker	reset placed	28980	implemented fixed bank branch
+Npc	20113	clerk Nenyuki lean	npcs/z20.npc	2792	C balance banker	reset placed	28980	implemented fixed bank branch
+Npc	20115	bartender barkeep man human well-built well Kiiren	npcs/z20.npc	2840	C assess post_master	reset placed	28028	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	20115	bartender barkeep man human well-built well Kiiren	npcs/z20.npc	2840	C get post_master	reset placed	28028	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	20115	bartender barkeep man human well-built well Kiiren	npcs/z20.npc	2840	C leave post_master	reset placed	28028	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	20119	workman human burly	npcs/z20.npc	2942	C rent wagon_to_store	reset placed	20068	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	20119	workman human burly	npcs/z20.npc	2942	C offer wagon_to_store	reset placed	20068	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	20159	stablehand half-elf	npcs/z20.npc	3147	C rent animal_to_store	reset placed	20223	implemented native stable
+Npc	20159	stablehand half-elf	npcs/z20.npc	3147	C offer animal_to_store	reset placed	20223	implemented native stable
+Npc	20402	cilops green-skin worm creature large	npcs/z20.npc	3464	C mount cilops_mount	definition only; no M reset		pending behaviour mapping
+Npc	20501	melep humanoid yellow	npcs/z20.npc	3613	C flee gol_krathu_belgoi	definition only; no M reset		pending behaviour mapping
+Npc	21003	Baerin elf copper-skinned guard	npcs/z21.npc	45	C pulse bw_soldier	reset placed	13006,21010	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	21004	elf warrior copper  Larin	npcs/z21.npc	77	C pulse bw_soldier	reset placed	13006,21055	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	21005	Elf warrior female copper	npcs/z21.npc	111	C pulse bw_soldier	reset placed	13006,21014,21016	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	21012	Galyn aged elf blind	npcs/z21.npc	323	C ask bw_historian	definition only; no M reset		implemented full source topic dialogue; approved Blackwing clan gate; native Allundean speech
+Npc	21013	Larnas lanky squinting elf tailor	npcs/z21.npc	359	C tailor tailor	reset placed	21232	native ticketed tailoring with binding quote and native condition
+Npc	21013	Larnas lanky squinting elf tailor	npcs/z21.npc	359	C offer tailor	reset placed	21232	native ticketed tailoring with binding quote and native condition
+Npc	21013	Larnas lanky squinting elf tailor	npcs/z21.npc	359	C steal tailor	reset placed	21232	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	21017	kank large grey	npcs/z21.npc	476	C pulse honey_kank	definition only; no M reset		implemented native periodic carried-honey suppression/creation;1-in150 per10s preserves source mean
+Npc	21203	Marker	npcs/z21.npc	1533	C tailor tailor	definition only; no M reset		service design prepared
+Npc	21203	Marker	npcs/z21.npc	1533	C offer tailor	definition only; no M reset		service design prepared
+Npc	21220	Givis m21220 slim tattooed elf	npcs/z21.npc	1815	C pulse bw_soldier	reset placed	21001	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	21221	Gavren lean copper copper-skinned elf m21221	npcs/z21.npc	1853	C pulse bw_soldier	reset placed	21001	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	21223	Ruis tanned elf youth m21223	npcs/z21.npc	1930	C pulse bw_soldier	reset placed	21001	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	21229	Hakien dark brown leathery elf	npcs/z21.npc	2143	C ask bw_historian	reset placed	21061	implemented full source topic dialogue; approved Blackwing clan gate; native Allundean speech
+Npc	21240	thin blue-eyed elf woman shaman apprentice Luinya	npcs/z21.npc	2535	C ask bw_kelwin_cure	reset placed	21055	implemented native NPC-only healing/cure progs; Mend Flesh reused, explicit toxin lists; live healing success unobserved
+Npc	21307	Auereve skeletal elf A2	npcs/z21.npc	2861	C ask skill_teacher	definition only; no M reset		pending behaviour mapping
+Npc	21333	Tontu well-toned blue-eyed elf m21333	npcs/z21.npc	2963	C pulse bw_soldier	reset placed	21001	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	24010	mantis sandy-yellow sandy yellow m24010	npcs/z24.npc	135	C pulse mantis_soldier	reset placed	13534,24000,24003,24029,24043,24045,24050,24071,24075,24142,24166,24176,24193,24267,24301,24303,24305	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	24011	mantis light-brown light brown m24011	npcs/z24.npc	170	C pulse mantis_soldier	reset placed	24005,24006,24009,24021,24044,24057,24094,24123,24127,24168,24178,24213,24228,24238,24304	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	24012	mantis earthy-brown earthy brown m24012	npcs/z24.npc	207	C pulse mantis_soldier	reset placed	24014,24027,24084,24098,24133,24156,24159,24178,24204,24259,24270,24300	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	24015	weaver aged mantis	npcs/z24.npc	316	C list mantis_vendor	reset placed	24302	implemented Mantis and source clan eligibility; visible carried stock list and free item transfer; keyword duplicate refusal; no monetary shop
+Npc	24015	weaver aged mantis	npcs/z24.npc	316	C ask mantis_vendor	reset placed	24302	implemented Mantis and source clan eligibility; visible carried stock list and free item transfer; keyword duplicate refusal; no monetary shop
+Npc	24015	weaver aged mantis	npcs/z24.npc	316	C pulse mantis_vendor	reset placed	24302	implemented source pit 13601 cleanup for actual attached vendor only; first-item meat/corpse consumption probability retained
+Npc	24016	carver weathered mantis	npcs/z24.npc	354	C list mantis_vendor	reset placed	24302	implemented Mantis and source clan eligibility; visible carried stock list and free item transfer; keyword duplicate refusal; no monetary shop
+Npc	24016	carver weathered mantis	npcs/z24.npc	354	C ask mantis_vendor	reset placed	24302	implemented Mantis and source clan eligibility; visible carried stock list and free item transfer; keyword duplicate refusal; no monetary shop
+Npc	24017	Chka mantis shaman aged	npcs/z24.npc	391	C list mantis_vendor	definition only; no M reset		implemented Mantis and source clan eligibility; visible carried stock list and free item transfer; keyword duplicate refusal; no monetary shop
+Npc	24017	Chka mantis shaman aged	npcs/z24.npc	391	C ask mantis_vendor	definition only; no M reset		implemented Mantis and source clan eligibility; visible carried stock list and free item transfer; keyword duplicate refusal; no monetary shop
+Npc	24050	m24050 sentinelmantis sentinel sleek brown mantis	npcs/z24.npc	623	C east cs_sentry	reset placed	24156	implemented private clan alert
+Npc	24050	m24050 sentinelmantis sentinel sleek brown mantis	npcs/z24.npc	623	C west cs_sentry	reset placed	24156	implemented private clan alert
+Npc	28005	stablehand gangly elven elf Koopi	npcs/z28.npc	108	C rent animal_to_store	reset placed	28025	implemented native stable
+Npc	28005	stablehand gangly elven elf Koopi	npcs/z28.npc	108	C offer animal_to_store	reset placed	28025	implemented native stable
+Npc	28305	Mizel tailor brown-skinned old	npcs/z28.npc	292	C tailor tailor	reset placed	13576	native ticketed tailoring with binding quote and native condition
+Npc	28305	Mizel tailor brown-skinned old	npcs/z28.npc	292	C offer tailor	reset placed	13576	native ticketed tailoring with binding quote and native condition
+Npc	28305	Mizel tailor brown-skinned old	npcs/z28.npc	292	C steal tailor	reset placed	13576	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	35706	soldier parade allanak_parade	npcs/z35.npc	946	C pulse allanak_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	37106	bandit mul	npcs/z37.npc	191	C offer az_waterseller	reset placed	37109	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37106	bandit mul	npcs/z37.npc	191	C barter az_waterseller	reset placed	37109	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37106	bandit mul	npcs/z37.npc	191	C list az_waterseller	reset placed	37109	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37106	bandit mul	npcs/z37.npc	191	C fill az_waterseller	reset placed	37109	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37701	lieutenant human member war-cleric	npcs/z37.npc	612	C pulse mal_krian_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	37702	captain human militiaman	npcs/z37.npc	652	C pulse mal_krian_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	37706	soldier member militia militiaman	npcs/z37.npc	706	C pulse mal_krian_soldier	reset placed	37708,37720,37724,37733,37740,37750,37752,37759,37765,37772,37785,37788,37802	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	37707	mul militiaman soldier	npcs/z37.npc	736	C pulse mal_krian_soldier	reset placed	37701,37707,37712,37733,37736,37748,37751,37755	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	37735	half-elven stablehand	npcs/z37.npc	1056	C offer mount_seller	reset placed	37781	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	37735	half-elven stablehand	npcs/z37.npc	1056	C list mount_seller	reset placed	37781	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	37735	half-elven stablehand	npcs/z37.npc	1056	C buy mount_seller	reset placed	37781	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	37736	agent nenyuki banker	npcs/z37.npc	1088	C withdraw banker	reset placed	37797	implemented fixed bank branch
+Npc	37736	agent nenyuki banker	npcs/z37.npc	1088	C deposit banker	reset placed	37797	implemented fixed bank branch
+Npc	37736	agent nenyuki banker	npcs/z37.npc	1088	C balance banker	reset placed	37797	implemented fixed bank branch
+Npc	37739	kalla well-mistress human female	npcs/z37.npc	1157	C offer mal_krian_waterseller	reset placed	37802	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37739	kalla well-mistress human female	npcs/z37.npc	1157	C barter mal_krian_waterseller	reset placed	37802	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37739	kalla well-mistress human female	npcs/z37.npc	1157	C list mal_krian_waterseller	reset placed	37802	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37739	kalla well-mistress human female	npcs/z37.npc	1157	C fill mal_krian_waterseller	reset placed	37802	implemented native water refill purchase; 3 bits per 50 mL, prorated and rounded up
+Npc	37740	half-elven half-elf beast-handler	npcs/z37.npc	1190	C rent animal_to_store	reset placed	37801	implemented native stable
+Npc	37740	half-elven half-elf beast-handler	npcs/z37.npc	1190	C offer animal_to_store	reset placed	37801	implemented native stable
+Npc	37746	Talcom tailor small-framed	npcs/z37.npc	1369	C tailor tailor	reset placed	37784	native ticketed tailoring with binding quote and native condition
+Npc	37746	Talcom tailor small-framed	npcs/z37.npc	1369	C offer tailor	reset placed	37784	native ticketed tailoring with binding quote and native condition
+Npc	37746	Talcom tailor small-framed	npcs/z37.npc	1369	C steal tailor	reset placed	37784	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	39004	halfling trader old	npcs/z39.npc	124	C list halfling_trader	reset placed	39002	implemented conditional barter/gift/list progs; actual whole-item exchange; source ecology register reward
+Npc	39004	halfling trader old	npcs/z39.npc	124	C trade halfling_trader	reset placed	39002	implemented conditional barter/gift/list progs; actual whole-item exchange; source ecology register reward
+Npc	39004	halfling trader old	npcs/z39.npc	124	C give halfling_trader	reset placed	39002	implemented conditional barter/gift/list progs; actual whole-item exchange; source ecology register reward
+Npc	39005	Lo halfling cheiftan shaman yoda	npcs/z39.npc	151	C pray lo_ptar	reset placed	39014	implemented approved native clan9/rank0 prayer induction; Ptarken hometown register and Kentu speech
+Npc	39009	Gilluin healer ranger halfling	npcs/z39.npc	260	C ask halfling_healer	reset placed	39425	implemented native NPC-only healing/cure progs; Mend Flesh reused, explicit toxin lists; live healing success unobserved
+Npc	45636	galith purple dotted left	npcs/z45.npc	1171	C tailor tailor	definition only; no M reset		service design prepared
+Npc	45636	galith purple dotted left	npcs/z45.npc	1171	C offer tailor	definition only; no M reset		service design prepared
+Npc	45711	galith disheveled black died 	npcs/z45.npc	1468	C offer mount_seller	definition only; no M reset		service design prepared
+Npc	45711	galith disheveled black died 	npcs/z45.npc	1468	C list mount_seller	definition only; no M reset		service design prepared
+Npc	45711	galith disheveled black died 	npcs/z45.npc	1468	C buy mount_seller	definition only; no M reset		service design prepared
+Npc	46704	Neiran man human guard tall kohmar	npcs/z46.npc	654	C ask kohmar_body_guards	reset placed	2011	implemented conditional Leader-authorised follow/bodyguard commands and native idle return to source office 20040; original reset room retained as provenance
+Npc	46704	Neiran man human guard tall kohmar	npcs/z46.npc	654	C pulse kohmar_body_guards	reset placed	2011	implemented conditional Leader-authorised follow/bodyguard commands and native idle return to source office 20040; original reset room retained as provenance
+Npc	46705	Dalan man human guard kohmar short stocky	npcs/z46.npc	691	C ask kohmar_body_guards	reset placed	2011	implemented conditional Leader-authorised follow/bodyguard commands and native idle return to source office 20040; original reset room retained as provenance
+Npc	46705	Dalan man human guard kohmar short stocky	npcs/z46.npc	691	C pulse kohmar_body_guards	reset placed	2011	implemented conditional Leader-authorised follow/bodyguard commands and native idle return to source office 20040; original reset room retained as provenance
+Npc	48001	dwarf bartender old	npcs/z48.npc	1	C leave post_master	reset placed	48061	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	48001	dwarf bartender old	npcs/z48.npc	1	C assess post_master	reset placed	48061	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	48001	dwarf bartender old	npcs/z48.npc	1	C get post_master	reset placed	48061	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	48008	elf villager	npcs/z48.npc	192	C offer mount_seller	reset placed	48068	source inert: attached seller has no catalogue case; no stock invented
+Npc	48008	elf villager	npcs/z48.npc	192	C list mount_seller	reset placed	48068	source inert: attached seller has no catalogue case; no stock invented
+Npc	48008	elf villager	npcs/z48.npc	192	C buy mount_seller	reset placed	48068	source inert: attached seller has no catalogue case; no stock invented
+Npc	48010	Guard man sand lord's	npcs/z48.npc	241	C pulse red_storm_soldier	reset placed	48001,48018	implemented approved conservative native justice baseline at source guard posts in zone48; native EnforcerAI
+Npc	48012	lad half elf young	npcs/z48.npc	297	C rent animal_to_store	reset placed	48069	implemented native stable
+Npc	48012	lad half elf young	npcs/z48.npc	297	C offer animal_to_store	reset placed	48069	implemented native stable
+Npc	48014	Soldier village sand lord's	npcs/z48.npc	350	C pulse red_storm_soldier	definition only; no M reset		implemented approved conservative native justice baseline at source guard posts in zone48; native EnforcerAI
+Npc	48019	mercenary merc village sand lord	npcs/z48.npc	476	C pulse red_storm_soldier	definition only; no M reset		implemented approved conservative native justice baseline at source guard posts in zone48; native EnforcerAI
+Npc	48102	sandstorm howling [should never be seen by pcs]	npcs/z48.npc	677	C pulse spec_roving_sandstorm	reset placed	48000	implemented: source-specific persistent prog controller, local native weather and dust residue, direct deposit loading with fifteen-minute native morph
+Npc	48102	sandstorm howling [should never be seen by pcs]	npcs/z48.npc	677	C talk spec_roving_sandstorm	reset placed	48000	not activated: raw debug-coordinate dialogue; storm positions remain native registers for administrator inspection
+Npc	49005	soldier human	npcs/z49.npc	70	C pulse cenyr_soldier	reset placed	49002,49003,49005,49007,49008,49010,49012,49013	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	50007	half-giant soldier m50007	npcs/z50.npc	172	C order allanak_soldier_stop	reset placed	50228,50243,50503,50505,50514,50522,50526,50542,50552,50556,50568,50803,50821,50825,50828,50870,50904,50905	implemented clan12 targeted stand-down through native selective cessation
+Npc	50027	soldier human nakki_soldier	npcs/z50.npc	639	C order allanak_soldier_stop	reset placed	13920,13921,13922,13923,50196,50201,50209,50247,50412,50502,50535,50601,50671,50830,50844,50868	implemented clan12 targeted stand-down through native selective cessation
+Npc	50028	soldier guard human m50028	npcs/z50.npc	673	C north spice_guard	reset placed	50821	implemented conditional input search with effective source power, nested unlocked containers and mounts; native reported contraband law; first detection passes, existing active Allanaki crimes refuse
+Npc	50028	soldier guard human m50028	npcs/z50.npc	673	C south spice_guard	reset placed	50821	implemented conditional input search with effective source power, nested unlocked containers and mounts; native reported contraband law; first detection passes, existing active Allanaki crimes refuse
+Npc	50028	soldier guard human m50028	npcs/z50.npc	673	C east spice_guard	reset placed	50821	implemented conditional input search with effective source power, nested unlocked containers and mounts; native reported contraband law; first detection passes, existing active Allanaki crimes refuse
+Npc	50028	soldier guard human m50028	npcs/z50.npc	673	C open spice_guard	reset placed	50821	source callback has no operative branch for this attachment; retained as inactive provenance
+Npc	50028	soldier guard human m50028	npcs/z50.npc	673	C close spice_guard	reset placed	50821	source callback has no operative branch for this attachment; retained as inactive provenance
+Npc	50028	soldier guard human m50028	npcs/z50.npc	673	C order allanak_soldier_stop	reset placed	50821	implemented clan12 targeted stand-down through native selective cessation
+Npc	50033	Ranlish bartender human man quiet	npcs/z50.npc	795	C leave post_master	reset placed	50937	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	50033	Ranlish bartender human man quiet	npcs/z50.npc	795	C assess post_master	reset placed	50937	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	50033	Ranlish bartender human man quiet	npcs/z50.npc	795	C get post_master	reset placed	50937	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	50033	Ranlish bartender human man quiet	npcs/z50.npc	795	C cast no_magick	reset placed	50937	implemented conditional NPC casting interdiction
+Npc	50035	Soldier human sentinelsoldier m50035	npcs/z50.npc	847	C order allanak_soldier_stop	reset placed	50002	implemented clan12 targeted stand-down through native selective cessation
+Npc	50055	soldier human m50055	npcs/z50.npc	1405	C south templar_gate	definition only; no M reset		pending behaviour mapping
+Npc	50068	mul mullish guard m50068	npcs/z50.npc	1896	C north merchant_gate	definition only; no M reset		pending behaviour mapping
+Npc	50068	mul mullish guard m50068	npcs/z50.npc	1896	C open merchant_gate	definition only; no M reset		pending behaviour mapping
+Npc	50124	human soldier [Arena_Guard] m50124	npcs/z50.npc	3189	C order allanak_soldier_stop	reset placed	35903	implemented clan12 targeted stand-down through native selective cessation
+Npc	50138	elite allanaki peacekeeper soldier	npcs/z50.npc	3608	C order allanak_soldier_stop	definition only; no M reset		implemented clan12 targeted stand-down through native selective cessation
+Npc	50164	Half-giant stablemaster bruttish	npcs/z50.npc	3768	C rent animal_to_store	reset placed	50431	implemented native stable
+Npc	50164	Half-giant stablemaster bruttish	npcs/z50.npc	3768	C offer animal_to_store	reset placed	50431	implemented native stable
+Npc	50202	soldier half-giant sentsold m50202	npcs/z50.npc	4087	C order allanak_soldier_stop	reset placed	50952	implemented clan12 targeted stand-down through native selective cessation
+Npc	50205	Soldier human sentinelsoldier m50205	npcs/z50.npc	4151	C south noble_gate	reset placed	50881	implemented source permissions and greetings through native DoorguardAI plus south exit policy; Oash Leader appointment and Fale rank retained
+Npc	50205	Soldier human sentinelsoldier m50205	npcs/z50.npc	4151	C order allanak_soldier_stop	reset placed	50881	implemented clan12 targeted stand-down through native selective cessation
+Npc	50413	templar blue 50413m	npcs/z50.npc	4734	C offer mount_seller	reset placed	50496	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	50413	templar blue 50413m	npcs/z50.npc	4734	C list mount_seller	reset placed	50496	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	50413	templar blue 50413m	npcs/z50.npc	4734	C buy mount_seller	reset placed	50496	implemented explicit source mount catalogue with native cash purchase and permitted auto-mount
+Npc	50420	The tall dark-eyed elf jindo bane	npcs/z50.npc	4935	C bet jindo_dice	reset placed	50121	implemented approved source wager progs and actual-cash settlement
+Npc	50422	banker nenyuki	npcs/z50.npc	5011	C withdraw banker	reset placed	50453	implemented fixed bank branch
+Npc	50422	banker nenyuki	npcs/z50.npc	5011	C deposit banker	reset placed	50453	implemented fixed bank branch
+Npc	50422	banker nenyuki	npcs/z50.npc	5011	C balance banker	reset placed	50453	implemented fixed bank branch
+Npc	50429	Ariada merchant smilingly smiling	npcs/z50.npc	5197	C buy custom_clothing	reset placed	50419	implemented native custom clothing catalogue, quote/purchase, prepaid fitted garment, ticket and ready-time collection
+Npc	50429	Ariada merchant smilingly smiling	npcs/z50.npc	5197	C offer custom_clothing	reset placed	50419	implemented native custom clothing catalogue, quote/purchase, prepaid fitted garment, ticket and ready-time collection
+Npc	50429	Ariada merchant smilingly smiling	npcs/z50.npc	5197	C list custom_clothing	reset placed	50419	implemented native custom clothing catalogue, quote/purchase, prepaid fitted garment, ticket and ready-time collection
+Npc	50440	lean human m50440	npcs/z50.npc	5467	C offer fire_breather	reset placed	50997	implemented targeted paid offer and4 source prose performances;unattached pulse inactive
+Npc	50454	Tallambre tailor	npcs/z50.npc	5786	C tailor tailor	reset placed	50899	native ticketed tailoring with binding quote and native condition
+Npc	50454	Tallambre tailor	npcs/z50.npc	5786	C offer tailor	reset placed	50899	native ticketed tailoring with binding quote and native condition
+Npc	50454	Tallambre tailor	npcs/z50.npc	5786	C steal tailor	reset placed	50899	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	50455	master	npcs/z50.npc	5813	C rent wagon_to_store	reset placed	50650	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	50455	master	npcs/z50.npc	5813	C offer wagon_to_store	reset placed	50650	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	50601	half-giant soldier m50601	npcs/z50.npc	7264	C order allanak_soldier_stop	definition only; no M reset		implemented clan12 targeted stand-down through native selective cessation
+Npc	50605	templar blue-robed m50605	npcs/z50.npc	7346	C rent wagon_to_store	reset placed	50502	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	50605	templar blue-robed m50605	npcs/z50.npc	7346	C offer wagon_to_store	reset placed	50502	implemented actual-vehicle offgrid storage with exact bearer chit; occupied wagons refused, animals unhitched outside, 50 bits on collection
+Npc	50606	dwarf beastmaster m50606	npcs/z50.npc	7375	C rent animal_to_store	reset placed	50501	implemented native stable
+Npc	50606	dwarf beastmaster m50606	npcs/z50.npc	7375	C offer animal_to_store	reset placed	50501	implemented native stable
+Npc	50607	Jailer half-giant m50607	npcs/z50.npc	7408	C release allanak_jailer	reset placed	50535	implemented visible addressed release with native controlled-grapple eligibility, shared Allanaki authority and native remand/belongings; unattached theft/stun/pulse not activated
+Npc	51002	sandviper sand viper viper51	npcs/z51.npc	16	C pulse snake	definition only; no M reset		pending behaviour mapping
+Npc	54204	Vash bartender trader rugged man	npcs/z54.npc	646	C list sewer_trader	reset placed	54533	implemented conditional barter/gift/list progs; actual whole-item exchange; source ecology register reward
+Npc	54204	Vash bartender trader rugged man	npcs/z54.npc	646	C trade sewer_trader	reset placed	54533	implemented conditional barter/gift/list progs; actual whole-item exchange; source ecology register reward
+Npc	54204	Vash bartender trader rugged man	npcs/z54.npc	646	C give sewer_trader	reset placed	54533	implemented conditional barter/gift/list progs; actual whole-item exchange; source ecology register reward
+Npc	58103	foam-mouthed skinny jozhal Woof	npcs/z58.npc	235	C pulse outrider	definition only; no M reset		implemented native aggression
+Npc	60099	marker holder	npcs/z60.npc	1	C pulse outrider	definition only; no M reset		implemented native aggression
+Npc	60100	outrider mercenary	npcs/z60.npc	18	C pulse outrider	reset placed	60161	implemented native aggression
+Npc	64000	Mercenary tall lean Kuraci merc	npcs/z64.npc	1	C pulse luir_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64001	Guard Kuraci haggard	npcs/z64.npc	36	C pulse luir_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64005	Outrider mercenary	npcs/z64.npc	157	C pulse outrider	definition only; no M reset		implemented native aggression
+Npc	64005	Outrider mercenary	npcs/z64.npc	157	C pulse luir_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64007	Innkeeper keeper Tarkon	npcs/z64.npc	214	C leave post_master	reset placed	64027	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	64007	Innkeeper keeper Tarkon	npcs/z64.npc	214	C assess post_master	reset placed	64027	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	64007	Innkeeper keeper Tarkon	npcs/z64.npc	214	C get post_master	reset placed	64027	implemented native physical postal service: address registration, postage assessment/send, recipient pickup, scheduled source-route transit, and approved Clan 28 courier pickup/delivery
+Npc	64025	Urdak Kuraci lieutenant	npcs/z64.npc	721	C buy clan_lieutenant	definition only; no M reset		NPC retained; ineffective paid service omitted by approval
+Npc	64025	Urdak Kuraci lieutenant	npcs/z64.npc	721	C list clan_lieutenant	definition only; no M reset		NPC retained; ineffective paid service omitted by approval
+Npc	64026	mercenary kuraci tall rugged 	npcs/z64.npc	751	C pulse luir_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64027	stablehand half-elf	npcs/z64.npc	783	C offer luirs_stablehand	reset placed	64032	implemented native stable
+Npc	64027	stablehand half-elf	npcs/z64.npc	783	C rent luirs_stablehand	reset placed	64032	implemented native stable
+Npc	64027	stablehand half-elf	npcs/z64.npc	783	C pulse luirs_stablehand	reset placed	64032	implemented native stable
+Npc	64045	hetrick skinny pale tailor	npcs/z64.npc	1403	C tailor tailor	reset placed	64655	native ticketed tailoring with binding quote and native condition
+Npc	64045	hetrick skinny pale tailor	npcs/z64.npc	1403	C offer tailor	reset placed	64655	native ticketed tailoring with binding quote and native condition
+Npc	64045	hetrick skinny pale tailor	npcs/z64.npc	1403	C steal tailor	reset placed	64655	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	64047	Stern-looking female guard lena	npcs/z64.npc	1469	C pulse luir_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64048	Lookout sharp-eyed soldier kuraci	npcs/z64.npc	1500	C pulse luir_soldier	reset placed	64003,64010,64041,64651,64653	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64049	Groge burly half-giant flat-nosed soldier	npcs/z64.npc	1535	C pulse luir_soldier	reset placed	64027	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64054	Tannor scarred white-haired half-elf Nor Hammer	npcs/z64.npc	1685	C buy clan_lieutenant	reset placed	64048	NPC retained; ineffective paid service omitted by approval
+Npc	64054	Tannor scarred white-haired half-elf Nor Hammer	npcs/z64.npc	1685	C list clan_lieutenant	reset placed	64048	NPC retained; ineffective paid service omitted by approval
+Npc	64057	Azdri sniffer hunched dark-veiled man	npcs/z64.npc	1792	C pulse outrider	definition only; no M reset		implemented native aggression
+Npc	64067	Amos coppery half-elf outrider tambastard	npcs/z64.npc	2091	C pulse luir_soldier	reset placed	64033	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64068	Bas tanned half-elf mercenary merc basharebastard	npcs/z64.npc	2133	C pulse luir_soldier	reset placed	64033	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	64132	Kalabash Kala dealer towering human grinning slick	npcs/z64.npc	3194	C bet jindo_dice	reset placed	64993	implemented approved source wager progs and actual-cash settlement
+Npc	64132	Kalabash Kala dealer towering human grinning slick	npcs/z64.npc	3194	C pulse jindo_dice	reset placed	64993	implemented attached periodic source flavour;6-in150 per10s preserves mean rate;no bankroll mutation
+Npc	64133	Zahira dealer sultry-eyed human woman	npcs/z64.npc	3230	C pulse gypsy_game_two	reset placed	64992	implemented attached periodic source flavour;6-in150 per10s preserves mean rate;no bankroll mutation
+Npc	64133	Zahira dealer sultry-eyed human woman	npcs/z64.npc	3230	C bet gypsy_game_two	reset placed	64992	implemented approved source wager progs and actual-cash settlement
+Npc	64134	Tariq dealer beak-nosed human	npcs/z64.npc	3262	C bet gypsy_game_three	reset placed	64991	implemented approved source wager progs and actual-cash settlement
+Npc	64134	Tariq dealer beak-nosed human	npcs/z64.npc	3262	C pulse gypsy_game_three	reset placed	64991	implemented attached periodic source flavour;6-in150 per10s preserves mean rate;no bankroll mutation
+Npc	64976	banker robust bearded man clev	npcs/z64.npc	3548	C withdraw banker	reset placed	64976	implemented fixed bank branch
+Npc	64976	banker robust bearded man clev	npcs/z64.npc	3548	C balance banker	reset placed	64976	implemented fixed bank branch
+Npc	64976	banker robust bearded man clev	npcs/z64.npc	3548	C deposit banker	reset placed	64976	implemented fixed bank branch
+Npc	65500	Auereve skeletal elf	npcs/z65.npc	120	C ask skill_teacher	definition only; no M reset		pending behaviour mapping
+Npc	66300	guard soldier m66300	npcs/z66.npc	251	C pulse allanak_soldier	reset placed	66004	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	66301	guard soldier m66301	npcs/z66.npc	290	C pulse allanak_soldier	reset placed	66075,66076	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	66302	soldier guard m66302	npcs/z66.npc	322	C pulse allanak_soldier	reset placed	66057,66058,66301,66304	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	66304	soldier guard stablemaster human m66304	npcs/z66.npc	381	C pulse allanak_soldier	reset placed	66056	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	66305	half-giant soldier	npcs/z66.npc	411	C pulse allanak_soldier	reset placed	66057	implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	67679	Chi Malachi lean blue outrider	npcs/z67.npc	691	C pulse luir_soldier	definition only; no M reset		implemented native justice adaptation; source city-dependent branches are inert with snapshot city fields 0; no speculative soldier duplication
+Npc	67679	Chi Malachi lean blue outrider	npcs/z67.npc	691	C pulse outrider	definition only; no M reset		implemented native aggression
+Npc	70105	crusty skinned gith crone	npcs/z70.npc	332	C tailor tailor	reset placed	70605	native ticketed tailoring with binding quote and native condition
+Npc	70105	crusty skinned gith crone	npcs/z70.npc	332	C offer tailor	reset placed	70605	native ticketed tailoring with binding quote and native condition
+Npc	70105	crusty skinned gith crone	npcs/z70.npc	332	C steal tailor	reset placed	70605	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	70105	crusty skinned gith crone	npcs/z70.npc	332	C tailor tailor	reset placed	70605	native ticketed tailoring with binding quote and native condition
+Npc	70105	crusty skinned gith crone	npcs/z70.npc	332	C offer tailor	reset placed	70605	native ticketed tailoring with binding quote and native condition
+Npc	70105	crusty skinned gith crone	npcs/z70.npc	332	C steal tailor	reset placed	70605	native ticketed tailoring and off-grid custody; ordinary native theft
+Npc	70111	kank black-shelled farley	npcs/z70.npc	428	C pulse honey_kank	reset placed	6552,66300	implemented native periodic carried-honey suppression/creation;1-in150 per10s preserves source mean
+Item	950	storm lightning black cloud	objects/z0.obj	2180	C pulse storm_cloud	item placement not audited here		implemented independent scheduled electrical cloud and saved source wind/pressure
+Item	1701	board bulletin	objects/z1.obj	3997	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1701	board bulletin	objects/z1.obj	3997	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1701	board bulletin	objects/z1.obj	3997	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1701	board bulletin	objects/z1.obj	3997	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1701	board bulletin	objects/z1.obj	3997	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1702	board bulletin	objects/z1.obj	4016	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1702	board bulletin	objects/z1.obj	4016	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1702	board bulletin	objects/z1.obj	4016	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1702	board bulletin	objects/z1.obj	4016	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1702	board bulletin	objects/z1.obj	4016	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1703	board bulletin	objects/z1.obj	4035	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1703	board bulletin	objects/z1.obj	4035	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1703	board bulletin	objects/z1.obj	4035	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1703	board bulletin	objects/z1.obj	4035	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1703	board bulletin	objects/z1.obj	4035	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1704	slate board black	objects/z1.obj	4054	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1704	slate board black	objects/z1.obj	4054	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1704	slate board black	objects/z1.obj	4054	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1704	slate board black	objects/z1.obj	4054	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1704	slate board black	objects/z1.obj	4054	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1707	board Tuluki messages wall	objects/z1.obj	4089	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1707	board Tuluki messages wall	objects/z1.obj	4089	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1707	board Tuluki messages wall	objects/z1.obj	4089	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1707	board Tuluki messages wall	objects/z1.obj	4089	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1707	board Tuluki messages wall	objects/z1.obj	4089	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1707	board Tuluki messages wall	objects/z1.obj	4089	C listen board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1708	board Allanaki wall	objects/z1.obj	4109	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1708	board Allanaki wall	objects/z1.obj	4109	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1708	board Allanaki wall	objects/z1.obj	4109	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1708	board Allanaki wall	objects/z1.obj	4109	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1708	board Allanaki wall	objects/z1.obj	4109	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1709	board	objects/z1.obj	4128	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1709	board	objects/z1.obj	4128	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1709	board	objects/z1.obj	4128	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1709	board	objects/z1.obj	4128	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1709	board	objects/z1.obj	4128	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1710	board salarri merchant	objects/z1.obj	4147	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1710	board salarri merchant	objects/z1.obj	4147	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1710	board salarri merchant	objects/z1.obj	4147	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1710	board salarri merchant	objects/z1.obj	4147	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1710	board salarri merchant	objects/z1.obj	4147	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1711	mekillot battered hide board ic bulletin	objects/z1.obj	4166	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1711	mekillot battered hide board ic bulletin	objects/z1.obj	4166	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1711	mekillot battered hide board ic bulletin	objects/z1.obj	4166	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1711	mekillot battered hide board ic bulletin	objects/z1.obj	4166	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1711	mekillot battered hide board ic bulletin	objects/z1.obj	4166	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1712	board bulletin inix hide tanned ooc_gith_board	objects/z1.obj	4185	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1712	board bulletin inix hide tanned ooc_gith_board	objects/z1.obj	4185	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1712	board bulletin inix hide tanned ooc_gith_board	objects/z1.obj	4185	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1712	board bulletin inix hide tanned ooc_gith_board	objects/z1.obj	4185	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1712	board bulletin inix hide tanned ooc_gith_board	objects/z1.obj	4185	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	1801	deck cards kruth	objects/z1.obj	4204	C deal kruth_deck	retained reset-backed item family		implemented finite 24-card deal via conditional item hook and saved per-deck mask; source ordered visible recipients and private card identities; no unattached shuffle/reset/examine
+Item	1952	HOK	objects/z1.obj	4795	C point hall_of_kings	item placement not audited here		approved Hall departure supplied by room interaction; no duplicate item teleport
+Item	2817	red robe	objects/z2.obj	5627	C reach allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	2817	red robe	objects/z2.obj	5627	C slap allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	13602	dice obsidian	objects/z13.obj	3513	C throw gypsy_dice	item placement not audited here		implemented single physical pair with two saved faces; source throw delegates ordinary roll
+Item	20001	robe red	objects/z20.obj	1	C reach tuluki_robe	item placement not audited here		inactive source output licence 59019 absent; no invented licence
+Item	20002	robe white	objects/z20.obj	16	C reach tuluki_robe	item placement not audited here		inactive source output licence 59019 absent; no invented licence
+Item	20350	robe black equivocal hooded	objects/z20.obj	2921	C reach tuluki_robe	item placement not audited here		inactive source output licence 59019 absent; no invented licence
+Item	20351	robe red jihaen hooded	objects/z20.obj	2936	C reach tuluki_robe	item placement not audited here		inactive source output licence 59019 absent; no invented licence
+Item	20610	tables	objects/z20.obj	3588	C sit spec_tables	item placement not audited here		implemented native seating and authored table groups; native speech volumes
+Item	20610	tables	objects/z20.obj	3588	C stand spec_tables	item placement not audited here		implemented native seating and authored table groups; native speech volumes
+Item	20610	tables	objects/z20.obj	3588	C look spec_tables	item placement not audited here		implemented native seating and authored table groups; native speech volumes
+Item	20610	tables	objects/z20.obj	3588	C help spec_tables	item placement not audited here		implemented native seating and authored table groups; native speech volumes
+Item	20610	tables	objects/z20.obj	3588	C talk spec_tables	item placement not audited here		implemented native seating and authored table groups; native speech volumes
+Item	21030	board totem message pole	objects/z21.obj	500	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	21030	board totem message pole	objects/z21.obj	500	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	21030	board totem message pole	objects/z21.obj	500	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	21030	board totem message pole	objects/z21.obj	500	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	21030	board totem message pole	objects/z21.obj	500	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	24099	board skin cured hide	objects/z24.obj	547	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	24099	board skin cured hide	objects/z24.obj	547	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	24099	board skin cured hide	objects/z24.obj	547	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	24099	board skin cured hide	objects/z24.obj	547	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	24099	board skin cured hide	objects/z24.obj	547	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	25015	tree japuaar slender tall fruit	objects/z25.obj	269	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	34501	hole black (portable_hole)	objects/z34.obj	249	C look nilaz_chest_prog	item placement not audited here		pending behaviour mapping
+Item	34501	hole black (portable_hole)	objects/z34.obj	249	C get nilaz_chest_prog	item placement not audited here		pending behaviour mapping
+Item	34501	hole black (portable_hole)	objects/z34.obj	249	C put nilaz_chest_prog	item placement not audited here		pending behaviour mapping
+Item	34501	hole black (portable_hole)	objects/z34.obj	249	C take nilaz_chest_prog	item placement not audited here		pending behaviour mapping
+Item	37014	wand poison	objects/z37.obj	193	C poisoning poison_wand	item placement not audited here		pending behaviour mapping
+Item	37099	leaf slimy	objects/z37.obj	306	C apply poison_curative	item placement not audited here		implemented native magical-poison cure prog; definition only, no invented placement
+Item	37113	pendant ruby	objects/z37.obj	519	C gather mana_pendant	item placement not audited here		pending behaviour mapping
+Item	37113	pendant ruby	objects/z37.obj	519	C donate mana_pendant	item placement not audited here		pending behaviour mapping
+Item	37805	board wall mal_krian	objects/z37.obj	2921	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	37805	board wall mal_krian	objects/z37.obj	2921	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	37805	board wall mal_krian	objects/z37.obj	2921	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	37805	board wall mal_krian	objects/z37.obj	2921	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	37805	board wall mal_krian	objects/z37.obj	2921	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	37810	scroll ancient anthrax	objects/z37.obj	2973	C say nasty_scroll	item placement not audited here		pending behaviour mapping
+Item	37810	scroll ancient anthrax	objects/z37.obj	2973	C look nasty_scroll	item placement not audited here		pending behaviour mapping
+Item	37810	scroll ancient anthrax	objects/z37.obj	2973	C read nasty_scroll	item placement not audited here		pending behaviour mapping
+Item	37810	scroll ancient anthrax	objects/z37.obj	2973	C examine nasty_scroll	item placement not audited here		pending behaviour mapping
+Item	37810	scroll ancient anthrax	objects/z37.obj	2973	C pulse nasty_scroll	item placement not audited here		pending behaviour mapping
+Item	37980	placer jailfood o37980	objects/z37.obj	3133	C pulse jail_program	item placement not audited here		implemented native low-needs room hooks requiring ground marker; authored holding cells also provisioned
+Item	39601	board tree message-tree	objects/z39.obj	1223	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	39601	board tree message-tree	objects/z39.obj	1223	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	39601	board tree message-tree	objects/z39.obj	1223	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	39601	board tree message-tree	objects/z39.obj	1223	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	39601	board tree message-tree	objects/z39.obj	1223	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	39701	whistle bone	objects/z39.obj	1272	C whistle halfling_whistle	retained reset-backed item family		implemented held/wielded hunting whistle; source race-dependent local and six-direction adjacent messages; native hearing checks; conditional input hook on base/reset variants
+Item	45405	patch mushrooms fungi greelza	objects/z45.obj	1420	C pulse generic_plant	item placement not audited here		source-inert: reset-backed Greelza has no generic_plant switch case; no fruit invented
+Item	45801	robe dark long (jannah)	objects/z45.obj	3276	C wear gaunt_robe	item placement not audited here		pending behaviour mapping
+Item	45801	robe dark long (jannah)	objects/z45.obj	3276	C remove gaunt_robe	item placement not audited here		pending behaviour mapping
+Item	45995	ride board bulletin	objects/z45.obj	3739	C look board	item placement not audited here		inactive unplaced board definition
+Item	45995	ride board bulletin	objects/z45.obj	3739	C delete board	item placement not audited here		inactive unplaced board definition
+Item	45995	ride board bulletin	objects/z45.obj	3739	C read board	item placement not audited here		inactive unplaced board definition
+Item	45995	ride board bulletin	objects/z45.obj	3739	C write board	item placement not audited here		inactive unplaced board definition
+Item	45995	ride board bulletin	objects/z45.obj	3739	C reply board	item placement not audited here		inactive unplaced board definition
+Item	50056	robe black	objects/z50.obj	919	C reach allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50056	robe black	objects/z50.obj	919	C reach allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50056	robe black	objects/z50.obj	919	C slap allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50501	pedestal	objects/z50.obj	5230	C frown luir_pedestal	item placement not audited here		pending behaviour mapping
+Item	50501	pedestal	objects/z50.obj	5230	C pulse luir_pedestal	item placement not audited here		pending behaviour mapping
+Item	50501	pedestal	objects/z50.obj	5230	C pray luir_pedestal	item placement not audited here		pending behaviour mapping
+Item	50600	red robe	objects/z50.obj	5842	C reach allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50600	red robe	objects/z50.obj	5842	C slap allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50601	robe blue	objects/z50.obj	5858	C reach allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50601	robe blue	objects/z50.obj	5858	C slap allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50602	table board	objects/z50.obj	5878	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50602	table board	objects/z50.obj	5878	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50602	table board	objects/z50.obj	5878	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50602	table board	objects/z50.obj	5878	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50602	table board	objects/z50.obj	5878	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50604	robe white 	objects/z50.obj	5904	C reach allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50604	robe white 	objects/z50.obj	5904	C slap allank_robe	item placement not audited here		implemented attached reach/slap via native ItemIssuer and binding authority; missing outputs omitted
+Item	50606	gem backdoor	objects/z50.obj	5940	C remove allank_gem	item placement not audited here		implemented attached remove/cast only through native ConditionalBinding; no pulse/wear/put activation
+Item	50606	gem backdoor	objects/z50.obj	5940	C cast allank_gem	item placement not audited here		implemented attached remove/cast only through native ConditionalBinding; no pulse/wear/put activation
+Item	50607	gem backdoor	objects/z50.obj	5969	C remove allank_gem	item placement not audited here		implemented attached remove/cast only through native ConditionalBinding; no pulse/wear/put activation
+Item	50607	gem backdoor	objects/z50.obj	5969	C cast allank_gem	item placement not audited here		implemented attached remove/cast only through native ConditionalBinding; no pulse/wear/put activation
+Item	50609	gem backdoor	objects/z50.obj	6017	C remove allank_gem	item placement not audited here		inactive unplaced gem definition
+Item	50701	board	objects/z50.obj	6264	C look board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50701	board	objects/z50.obj	6264	C delete board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50701	board	objects/z50.obj	6264	C read board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50701	board	objects/z50.obj	6264	C write board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50701	board	objects/z50.obj	6264	C reply board	item placement not audited here		implemented empty native board; source ID staff gates and native author/admin deletion
+Item	50999	board quest	objects/z50.obj	7687	C look board	item placement not audited here		inactive unplaced board definition
+Item	50999	board quest	objects/z50.obj	7687	C delete board	item placement not audited here		inactive unplaced board definition
+Item	50999	board quest	objects/z50.obj	7687	C read board	item placement not audited here		inactive unplaced board definition
+Item	50999	board quest	objects/z50.obj	7687	C write board	item placement not audited here		inactive unplaced board definition
+Item	50999	board quest	objects/z50.obj	7687	C reply board	item placement not audited here		inactive unplaced board definition
+Item	56101	seereye flowers blue carpet	objects/z56.obj	900	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56103	runebane spotted plant	objects/z56.obj	936	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56105	joylilt cluster yellow blossoms	objects/z56.obj	971	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56108	spiceweed pink flowers bed	objects/z56.obj	1023	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56110	tholinoc plant large	objects/z56.obj	1057	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56113	tembotooth plant white-flowered	objects/z56.obj	1113	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56115	arato plant low-growing	objects/z56.obj	1148	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56117	menelli flowers cluster	objects/z56.obj	1181	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56120	belgoikiss bunch flowers white	objects/z56.obj	1233	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56122	lifera clump thick leaves	objects/z56.obj	1267	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56124	citron citrodora plant  	objects/z56.obj	1301	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56128	glypah pale plant	objects/z56.obj	1372	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56131	smallage thickstemmed plant 	objects/z56.obj	1423	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56133	ternak clump leaves 	objects/z56.obj	1458	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56136	thornbush thornfruit	objects/z56.obj	1510	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	56138	sicorra vine leafy	objects/z56.obj	1544	C pulse generic_plant	item placement not audited here		implemented: source-mapped fruit in native plant container; saved source initial/six-pulse phase, effective variant budget and strict source weight check; direct ground membership only
+Item	64129	whistle slender baobab	objects/z64.obj	3239	C whistle mount_whistle	item placement not audited here		pending behaviour mapping
+Item	65940	kalan bush	objects/z65.obj	926	C pulse generic_plant	item placement not audited here		defined but unplaced: Kalan has a coded fruit mapping but no retained reset; callback not activated
+Item	69010	pendant blue silver-trimmed	objects/z69.obj	146	C gather mana_pendant	item placement not audited here		implemented saved charge and native common Mana/stamina transfers
+Item	69010	pendant blue silver-trimmed	objects/z69.obj	146	C donate mana_pendant	item placement not audited here		implemented saved charge and native common Mana/stamina transfers
+Item	70220	cactus tubular vines (snake_vines)	objects/z70.obj	1109	C pulse vines_wiggle	item placement not audited here		implemented: native scheduled source flavour for already loaded ground base/reset variants; source outcomes 1/2 of 25, nominal thirty-real-second cadence
+Item	70224	dartboard board	objects/z70.obj	1202	C throw dartboard	item placement not audited here		implemented command prog; source scoring and landing with native hand/intoxication/check support
+Item	70605	board bulletin	objects/z70.obj	2415	C look board	item placement not audited here		inactive unplaced board definition
+Item	70605	board bulletin	objects/z70.obj	2415	C write board	item placement not audited here		inactive unplaced board definition
+Item	70605	board bulletin	objects/z70.obj	2415	C delete board	item placement not audited here		inactive unplaced board definition
+Item	70605	board bulletin	objects/z70.obj	2415	C read board	item placement not audited here		inactive unplaced board definition
+Item	70605	board bulletin	objects/z70.obj	2415	C reply board	item placement not audited here		inactive unplaced board definition
+Item	70716	bonfire	objects/z70.obj	2492	C get gith_bonfire	item placement not audited here		pending behaviour mapping

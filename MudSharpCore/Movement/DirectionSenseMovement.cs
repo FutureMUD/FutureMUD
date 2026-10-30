@@ -7,6 +7,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Checks;
@@ -23,6 +24,7 @@ public static class DirectionSenseMovement
 
 	public static bool IsActive(ICharacter actor, IRoom origin)
 	{
+		if (actor.EffectsOfType<IImmwalkEffect>().Any()) return false;
 		if (!actor.Gameworld.GetStaticBool("DirectionSenseEnabled"))
 		{
 			return false;

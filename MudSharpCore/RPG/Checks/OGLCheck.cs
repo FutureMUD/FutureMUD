@@ -1,6 +1,7 @@
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Models;
 using MudSharp.RPG.Merits.Interfaces;
 
@@ -32,9 +33,9 @@ public class OGLCheck : StandardCheck
         double bonus =
             checkee.GetCurrentBonusLevel() +
             checkee.EffectsOfType<ICheckBonusEffect>()
-                   .Where(x => x.AppliesToCheck(Type))
+                   .Where(x => x.AppliesToCheck(Type) && (x is not IContextualCheckBonusEffect || x.Applies(checkee)))
                    .ToList()
-                   .Sum(x => x.CheckBonus) +
+                   .Sum(x => x is IContextualCheckBonusEffect contextual ? contextual.CheckBonusFor(Type) : x.CheckBonus) +
             checkee.Merits
                    .OfType<ICheckBonusMerit>()
                    .Where(x => x.Applies(checkee, target))
@@ -72,9 +73,9 @@ public class OGLCheck : StandardCheck
         double bonus =
             checkee.GetCurrentBonusLevel() +
             checkee.EffectsOfType<ICheckBonusEffect>()
-                   .Where(x => x.AppliesToCheck(Type))
+                   .Where(x => x.AppliesToCheck(Type) && (x is not IContextualCheckBonusEffect || x.Applies(checkee)))
                    .ToList()
-                   .Sum(x => x.CheckBonus) +
+                   .Sum(x => x is IContextualCheckBonusEffect contextual ? contextual.CheckBonusFor(Type) : x.CheckBonus) +
             checkee.Merits
                    .OfType<ICheckBonusMerit>()
                    .Where(x => x.Applies(checkee, target))
@@ -99,9 +100,9 @@ public class OGLCheck : StandardCheck
         double bonus =
             checkee.GetCurrentBonusLevel() +
             checkee.EffectsOfType<ICheckBonusEffect>()
-                   .Where(x => x.AppliesToCheck(Type))
+                   .Where(x => x.AppliesToCheck(Type) && (x is not IContextualCheckBonusEffect || x.Applies(checkee)))
                    .ToList()
-                   .Sum(x => x.CheckBonus) +
+                   .Sum(x => x is IContextualCheckBonusEffect contextual ? contextual.CheckBonusFor(Type) : x.CheckBonus) +
             checkee.Merits
                    .OfType<ICheckBonusMerit>()
                    .Where(x => x.Applies(checkee, target))

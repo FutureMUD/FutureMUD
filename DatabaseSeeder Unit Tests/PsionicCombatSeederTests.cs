@@ -104,7 +104,7 @@ public class PsionicCombatSeederTests
 		context.SaveChanges();
 		seeder.SeedData(context, answers);
 		Assert.AreEqual("Force Lance", power.Name);
-		StringAssert.Contains(power.ShowHelp, "Syntax: apsi forcelance");
+		StringAssert.Contains(power.ShowHelp, "Syntax: psi forcelance");
 		power.Name = "Custom Lance";
 		power.ShowHelp = "Custom instructions";
 		context.SaveChanges();

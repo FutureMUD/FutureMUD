@@ -27,5 +27,9 @@
         NeedRate = 23,
         Arousal = 24,
         Dependence = 25,
+        Modifier = 26,
+        Overdose = 27,
+        Symptoms = 28,
+        Infection = 29,
     }
 }

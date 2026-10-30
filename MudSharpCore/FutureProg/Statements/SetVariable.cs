@@ -107,7 +107,9 @@ See also #3+=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of ass
     {
 		if (variables.HasVariable(NameToSet))
         {
-			var existingType = variables.GetVariable(NameToSet).Type;
+			// Reference-type null() values are represented by a null IProgVariable.
+			// Their declared type was already checked by the compiler.
+			var existingType = variables.GetVariable(NameToSet)?.Type ?? TypeToSet;
 			if (TypeToSet != existingType && !TypeToSet.CompatibleWith(existingType))
 			{
 				ErrorMessage =

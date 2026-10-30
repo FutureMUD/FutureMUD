@@ -5,6 +5,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Construction.Boundary;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework.Revision;
@@ -143,6 +144,7 @@ public class WandererAI : ArtificialIntelligenceBase
 
         IEnumerable<IRoomExit> options =
             character.Location.ExitsFor(character)
+					 .Where(x => RoomPolicyRules.AllowsWandering(x.Destination))
                      .Where(
                          x => WillWanderIntoRoomProg?.ExecuteBool(character, x.Destination, character.Location) !=
                               false)

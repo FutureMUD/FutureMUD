@@ -47,6 +47,8 @@ Characters are added to `Crime.WitnessIds` when they actually view that video ev
 
 ## Death Sentences
 
+Automatic conviction snapshots the eligible criminal list before resolving crimes. After the last sentence, execution cases remain in custody, custodial cases transfer to prison and fine/bond-only cases use the normal release path, returning belongings. Fine severity interpolates from the configured standard amount at severity zero to the maximum at severity one; equal amounts give a fixed fine, including for automatic conviction.
+
 Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.
 
 When a legal authority applies a result with `Execution = true`, the condemned character receives an `AwaitingExecution` effect for that authority. The existing sentencing path sets the execution date one in-game day after sentence application. Execution patrols only select loaded, living characters whose execution date has arrived. A condemned character who is physically held in a remand cell can use `requestexecution` to bring their execution date forward to the current legal time and request an immediate execution-patrol dispatch.
@@ -307,3 +309,12 @@ Crime witness memory now separates historical witnessing from current recall and
 `VNPCWitnessReportDelaySeconds` defaults to zero, preserving immediate reporting. An opt-in value of 120 supports pre-report psychic intervention. Successful pending reports retain their due time, identity knowledge and reliability; suppression defers delivery, permanent forgetting prevents it, and restart delivery checks prevent duplicates. Resolved or removed incidents stop pending work.
 
 Staff inspect `witnessmemory <crime id>` and restore with `witnessmemory <crime id> restore <witness number>`. Restoration is audited. Permanent forgetting requires explicit restoration. These mechanics do not depend on `EnablePsychometricImpressions`. See [Psychic Powers, Impressions and Witness Memory](../Magic/Psychic_Powers_Impressions_and_Witness_Memory.md).
+
+
+## Prog-authored witnessed offences and prisoner handover
+
+`ILegalAuthority.ReportWitnessedCrime` records a specific applicable law even when it has no automatic hooks. The law must belong to that authority, the crime must be within jurisdiction, and a distinct colocated witness must see the accused. Normal law applicability, repeat suppression and crime-creation suppression apply. The native crime is registered and reported before event/media/storyteller callbacks; reporting does not automatically reveal the criminal's identity. This supports authored searches without enabling generic automatic possession/boundary offences. The `reportcrime(law, criminal, witness, victim, item, context)` prog function returns the crime or null; victim/item may be null.
+
+`enforceablecrime(character, authority)` returns the native patrol helper's highest-priority arrestable crime, including its physical-identity/finalisation/bail rules. It does not introduce a parallel wanted flag or expiry clock.
+
+`issubduedby(target, holder)` requires the holder's attached native grapple and the target's reciprocal under-control effect. Merely dragging, restraining or knocking someone unconscious is insufficient. `handovercriminal(holder, target, receiver, authority)` requires that physical control, a colocated conscious noncombat receiver with authority over the target's legal class, an arrestable crime and configured native remand/belongings facilities. It releases applicable physical controls through their native cleanup, rechecks body/scene and receiver permission, emits one handover echo, and invokes `IncarcerateCriminal` for belongings/remand. It does not implement a second belongings store or prison system. A callback may interrupt cleanup; refusal before commitment preserves custody, while an interruption after cleanup begins does not restore already released effects.

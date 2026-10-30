@@ -94,6 +94,12 @@ public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentL
 			Remove();
 			return false;
 		}
+		if (Vehicle.Prototype.ExteriorItemPrototype?.Components
+			.OfType<MudSharp.GameItems.Prototypes.IVehicleExteriorPrototype>().Any(x => x.InteriorRoomTemplates.Count > 0) == true)
+		{
+			_exit = source.ExitsFor(null).FirstOrDefault(x => ReferenceEquals(x.Destination, destination))?.Exit;
+			return _exit is not null;
+		}
 
 		var replacement = new TransientExit(
 			Vehicle.Gameworld,
@@ -127,7 +133,7 @@ public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentL
 			return;
 		}
 
-		Vehicle.Gameworld.ExitManager.UnregisterTransientExit(_exit);
+		if (_exit is ITransientExit) Vehicle.Gameworld.ExitManager.UnregisterTransientExit(_exit);
 		_exit = null;
 	}
 }
@@ -407,17 +413,30 @@ public static class RoomScaleVehicleInteriorService
 			return false;
 		}
 
+		var templateId = vehicle.Prototype.ExteriorItemPrototype?.Components
+			.OfType<MudSharp.GameItems.Prototypes.IVehicleExteriorPrototype>()
+			.Select(x => x.InteriorRoomTemplates.GetValueOrDefault(compartment.Prototype.Id)).FirstOrDefault(x => x != 0) ?? 0;
+		var template = templateId == 0 ? null : vehicle.Gameworld.Rooms.Get(templateId);
+		if (templateId != 0 && template is null)
+		{
+			reason = $"The authored interior template room #{templateId} is missing.";
+			return false;
+		}
 		var room = new Room(
 			vehicle.Location.CurrentOverlay.Package,
 			vehicle.Location.Zone,
-			vehicle.Location,
+			template ?? vehicle.Location,
 			false);
 		var overlay = (IEditableRoomOverlay)room.CurrentOverlay;
-		overlay.RoomName = $"{vehicle.Name} - {compartment.Name}";
-		overlay.RoomDescription = compartment.Prototype.Description;
-		overlay.Terrain = compartment.Prototype.InteriorTerrain;
-		overlay.OutdoorsType = compartment.Prototype.InteriorOutdoorsType;
-		overlay.AmbientLightFactor = AmbientLightFactor(compartment.Prototype.InteriorOutdoorsType);
+		if (template is null)
+		{
+			overlay.RoomName = $"{vehicle.Name} - {compartment.Name}";
+			overlay.RoomDescription = compartment.Prototype.Description;
+			overlay.Terrain = compartment.Prototype.InteriorTerrain;
+			overlay.OutdoorsType = compartment.Prototype.InteriorOutdoorsType;
+			overlay.AmbientLightFactor = AmbientLightFactor(compartment.Prototype.InteriorOutdoorsType);
+		}
+		else MudSharp.Effects.Concrete.RoomTemplateInstance.CopyTemplate(template, room, $"Vehicle{vehicle.Id}");
 		room.SetHostedVehicle(vehicle.Id, compartment.Id);
 		vehicle.Gameworld.SaveManager.Flush();
 

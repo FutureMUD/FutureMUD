@@ -189,4 +189,35 @@ public class EventTypeMetadataTests
         CollectionAssert.AreEqual(parameterNames, info.Parameters.Select(x => x.name).ToArray());
         CollectionAssert.AreEqual(progTypes, info.ProgTypes.ToArray());
     }
+
+    [TestMethod]
+    public void NeedsTransitionEvents_ExposeCapturedLocationAndWitness()
+    {
+        Assert.AreEqual(157, (int)EventType.CharacterHungry);
+        Assert.AreEqual(158, (int)EventType.CharacterInRoomHungry);
+        Assert.AreEqual(159, (int)EventType.CharacterStarving);
+        Assert.AreEqual(160, (int)EventType.CharacterInRoomStarving);
+        Assert.AreEqual(161, (int)EventType.CharacterThirsty);
+        Assert.AreEqual(162, (int)EventType.CharacterInRoomThirsty);
+        Assert.AreEqual(163, (int)EventType.CharacterParched);
+        Assert.AreEqual(164, (int)EventType.CharacterInRoomParched);
+
+        var selfTypes = new[] { ProgVariableTypes.Character, ProgVariableTypes.Location };
+        var witnessTypes = new[] { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Perceivable };
+        foreach (var type in new[] { EventType.CharacterHungry, EventType.CharacterStarving, EventType.CharacterThirsty, EventType.CharacterParched })
+        {
+            var info = type.GetAttribute<EventInfoAttribute>();
+            CollectionAssert.AreEqual(new[] { "character", "location" }, info.Parameters.Select(x => x.type).ToArray());
+            CollectionAssert.AreEqual(new[] { "character", "location" }, info.Parameters.Select(x => x.name).ToArray());
+            CollectionAssert.AreEqual(selfTypes, info.ProgTypes.ToArray());
+        }
+
+        foreach (var type in new[] { EventType.CharacterInRoomHungry, EventType.CharacterInRoomStarving, EventType.CharacterInRoomThirsty, EventType.CharacterInRoomParched })
+        {
+            var info = type.GetAttribute<EventInfoAttribute>();
+            CollectionAssert.AreEqual(new[] { "character", "location", "perceivable" }, info.Parameters.Select(x => x.type).ToArray());
+            CollectionAssert.AreEqual(new[] { "character", "location", "witness" }, info.Parameters.Select(x => x.name).ToArray());
+            CollectionAssert.AreEqual(witnessTypes, info.ProgTypes.ToArray());
+        }
+    }
 }

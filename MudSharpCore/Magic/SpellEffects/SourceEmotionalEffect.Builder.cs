@@ -11,7 +11,7 @@ namespace MudSharp.Magic.SpellEffects;
 
 public abstract partial class SourceEmotionalEffect
 {
-	public const string BuilderHelp = "Use intensity <number>, eligibility <prog>, lifetime <group> <seconds> <cap>, reset (discard the profile for repair); Fury: attribute <trait>, units <number>, terrain <ID> <numerator> <denominator> <bonus>, terrain remove <ID>, fallback <numerator> <denominator> <bonus>; Calm: savetrait <trait>, save <grade> <difficulty>, attackbreak on|off. Use one exclusive target effect, character/self trigger, duration expression 0 and no ordinary opposed trait.";
+	public const string BuilderHelp = "Use intensity <number>, eligibility <prog>, lifetime <group> <seconds> <cap>, reset (discard the profile for repair); Fury: attribute <trait>, units <number>, terrain <ID> <numerator> <denominator> <bonus>, terrain remove <ID>, fallback <numerator> <denominator> <bonus>, frenzy <race> <suppression drug> <offence> <defence> <melee damage> <hunger> or frenzy clear; Calm: savetrait <trait>, save <grade> <difficulty>, attackbreak on|off, clearfrenzy on|off. Use one exclusive target effect, character/self trigger, duration expression 0 and no ordinary opposed trait.";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -70,6 +70,30 @@ public abstract partial class SourceEmotionalEffect
 					var value = command.PopSpeech();
 					if (!value.EqualTo("on") && !value.EqualTo("off")) throw new ArgumentException("Use attackbreak on or off.");
 					candidate.SetAttributeValue("attackbreak", value.EqualTo("on")); break;
+				case "clearfrenzy" when Kind == EmotionalSpellKind.Calm:
+					var clearFrenzy = command.PopSpeech();
+					if (!clearFrenzy.EqualTo("on") && !clearFrenzy.EqualTo("off")) throw new ArgumentException("Use clearfrenzy on or off.");
+					candidate.SetAttributeValue("clearfrenzy", clearFrenzy.EqualTo("on")); break;
+				case "frenzy" when Kind == EmotionalSpellKind.Fury:
+					var raceToken = command.PopSpeech();
+					if (raceToken.EqualTo("clear"))
+					{
+						if (!command.IsFinished) throw new ArgumentException("Use frenzy clear without other arguments.");
+						candidate.Element("Frenzy")?.Remove(); break;
+					}
+					var race = Gameworld.Races.GetByIdOrName(raceToken);
+					var suppressionDrug = Gameworld.Drugs.GetByIdOrName(command.PopSpeech());
+					if (race is null || suppressionDrug is null) throw new ArgumentException("Select an existing race and suppression drug.");
+					var frenzy = new EmotionalFrenzyProfile(race.Id, suppressionDrug.Id,
+						double.Parse(command.PopSpeech(), NumberStyles.Float, actor), double.Parse(command.PopSpeech(), NumberStyles.Float, actor),
+						double.Parse(command.PopSpeech(), NumberStyles.Float, actor), double.Parse(command.PopSpeech(), NumberStyles.Float, actor));
+					frenzy.Validate();
+					candidate.Element("Frenzy")?.Remove();
+					candidate.Add(new XElement("Frenzy", new XAttribute("race", frenzy.RaceId),
+						new XAttribute("suppressiondrug", frenzy.SuppressionDrugId), new XAttribute("offence", frenzy.OffenceBonus),
+						new XAttribute("defence", frenzy.DefenceBonus), new XAttribute("meleedamage", frenzy.MeleeDamageBonus),
+						new XAttribute("hunger", frenzy.HungerMultiplier), new XAttribute("additive", true)));
+					break;
 				default: actor.OutputHandler.Send(BuilderHelp); return false;
 			}
 			if (!command.IsFinished) throw new ArgumentException("Unexpected extra arguments.");

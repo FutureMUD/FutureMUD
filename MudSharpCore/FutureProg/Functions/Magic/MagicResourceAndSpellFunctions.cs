@@ -94,11 +94,13 @@ internal abstract class MagicBuiltInFunctionBase : BuiltInFunction
 internal class MagicResourceLevelFunction : MagicBuiltInFunctionBase
 {
 	private readonly bool _useId;
+	private readonly bool _capacity;
 
-	private MagicResourceLevelFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool useId) :
+	internal MagicResourceLevelFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool useId, bool capacity = false) :
 		base(parameterFunctions, gameworld)
 	{
 		_useId = useId;
+		_capacity = capacity;
 	}
 
 	public override ProgVariableTypes ReturnType { get => ProgVariableTypes.Number; protected set { } }
@@ -121,7 +123,11 @@ internal class MagicResourceLevelFunction : MagicBuiltInFunctionBase
 			return StatementResult.Error;
 		}
 
-		Result = new NumberVariable(haver.MagicResourceAmounts.TryGetValue(resource!, out var amount) ? amount : 0.0);
+		var amount = _capacity ? resource!.ResourceCap(haver) : haver.MagicResourceAmounts.GetValueOrDefault(resource!);
+		if (_capacity && (!double.IsFinite(amount) || amount < 0 || amount > (double)decimal.MaxValue))
+		{ ErrorMessage = "Magic resource capacity is not a finite nonnegative FutureProg number."; return StatementResult.Error; }
+		try { Result = new NumberVariable(amount); }
+		catch (OverflowException) { ErrorMessage = "Magic resource value exceeds the FutureProg number range."; return StatementResult.Error; }
 		return StatementResult.Normal;
 	}
 
@@ -129,17 +135,19 @@ internal class MagicResourceLevelFunction : MagicBuiltInFunctionBase
 	{
 		Register(false, ProgVariableTypes.Text, "resource", "The name or id of the magic resource to inspect");
 		Register(true, ProgVariableTypes.Number, "resourceId", "The id of the magic resource to inspect");
+		Register(false, ProgVariableTypes.Text, "resource", "The name or id of the magic resource to inspect", true);
+		Register(true, ProgVariableTypes.Number, "resourceId", "The id of the magic resource to inspect", true);
 	}
 
-	private static void Register(bool useId, ProgVariableTypes resourceType, string resourceName, string resourceHelp)
+	private static void Register(bool useId, ProgVariableTypes resourceType, string resourceName, string resourceHelp, bool capacity = false)
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"magicresourcelevel",
+			capacity ? "magicresourcecapacity" : "magicresourcelevel",
 			new[] { ProgVariableTypes.MagicResourceHaver, resourceType },
-			(pars, gameworld) => new MagicResourceLevelFunction(pars, gameworld, useId),
+			(pars, gameworld) => new MagicResourceLevelFunction(pars, gameworld, useId, capacity),
 			new[] { "thing", resourceName },
 			new[] { "The character, item, or room whose magic resource level should be inspected", resourceHelp },
-			"Returns the current amount of the specified magic resource on a character, item, or room.",
+			capacity ? "Pure native maximum capacity query for a resource holder. Invalid/nonfinite capacities fail; nothing is granted or altered." : "Returns the current amount of the specified magic resource on a character, item, or room.",
 			"Magic",
 			ProgVariableTypes.Number));
 	}

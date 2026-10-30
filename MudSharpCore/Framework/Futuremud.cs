@@ -1475,6 +1475,14 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         }
     }
 
+	/// <summary>Publishes a prepared NPC to native lookup collections without running environmental callbacks.</summary>
+	internal void AddPreparedNativeNpc(MudSharp.NPC.NPC npc)
+	{
+		if (!_actors.Has(npc)) _actors.Add(npc);
+		if (!_NPCs.Has(npc)) _NPCs.Add(npc);
+		if (_cachedActors.Has(npc)) _cachedActors.Remove(npc);
+	}
+
     public void Add(IGameItem item)
     {
         _items.Add(item);

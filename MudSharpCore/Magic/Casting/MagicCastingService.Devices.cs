@@ -54,10 +54,13 @@ public sealed partial class MagicCastingService
 		if (device.DataError is { } error) return $"Device data is disabled: {error}";
 		var proto = (ChargedMagicDeviceGameItemComponentProto)device.Prototype;
 		if (proto.ConfigurationErrors().FirstOrDefault() is { } configuration) return configuration;
-		if (device.Charges > device.Capacity) return "The charge bank exceeds its revised capacity; staff review is required.";
-		if (!ReferenceEquals(device.Parent.GetItemType<IChargedMagicDevice>(), device) || actor.Body is null || actor.Location is null || !actor.Body.HeldOrWieldedItems.Any(x => ReferenceEquals(x, device.Parent)) ||
-			device.Parent.Deleted || !actor.CanSee(device.Parent) || !actor.CanManipulateItem(device.Parent).Truth)
-			return "Hold or wield a visible, manipulable device in your current body.";
+		if (device.Mode == MagicDeviceMode.StoredCharges && device.Charges > device.Capacity) return "The charge bank exceeds its revised capacity; staff review is required.";
+		if (device.Mode == MagicDeviceMode.EnergyReservoir && (device.Energy < 0 || device.Energy > device.MaximumEnergy)) return "The energy reservoir exceeds its configured bounds; staff review is required.";
+		var held = actor.Body?.HeldOrWieldedItems.Any(x => ReferenceEquals(x, device.Parent)) == true;
+		var worn = device.AllowsWornUse && actor.Body?.DirectWornItems.Any(x => ReferenceEquals(x, device.Parent)) == true;
+		if (!ReferenceEquals(device.Parent.GetItemType<IChargedMagicDevice>(), device) || actor.Body is null || actor.Location is null || !held && !worn ||
+			device.Parent.Deleted || !actor.CanSee(device.Parent) || !worn && !actor.CanManipulateItem(device.Parent).Truth)
+			return device.AllowsWornUse ? "Hold, wield or wear this visible device in your current body." : "Hold or wield a visible, manipulable device in your current body.";
 		if (device.Parent.GetItemType<IStackable>() is not null || device.Parent.GetItemType<IContainer>() is not null ||
 			device.Parent.GetItemType<ISpellScroll>() is not null || device.Parent.GetItemType<ISpellbook>() is not null)
 			return "A charged device cannot also be stackable, a container, a scroll or a spellbook.";
@@ -67,7 +70,9 @@ public sealed partial class MagicCastingService
 			// A successful authored callback can still mutate the body, item or configuration.
 			if (DeviceStructuralError(actor, identity, continuing) is { } structural) return structural;
 		}
-		if (device.Reservation is { } reservation && reservation != continuing) return "This item is reserved; persisted incomplete work requires staff review.";
+		if (device.Reservation is { } reservation && reservation != continuing ||
+			device.ReservoirReservation is { } reservoirReservation && reservoirReservation != continuing)
+			return "This item is reserved; persisted incomplete work requires staff review.";
 		return CastingQuarantineReason(actor, itemIds: [device.Parent.Id], continuingOperation: continuing);
 	}
 	private static bool DeviceTargetReachable(ICharacter actor, IPerceivable? target) => target is null ||
@@ -103,6 +108,8 @@ public sealed partial class MagicCastingService
 	private DeviceQuote QuoteDeviceProduction(ICharacter actor, ChargedMagicDeviceGameItemComponent device, long capabilityId,
 		long spellId, int grade, int count, Guid? continuing = null)
 	{
+		if (device.Mode != MagicDeviceMode.StoredCharges)
+			throw new InvalidOperationException("Energy reservoirs recharge through donations, not stored-charge production.");
 		if (VancianMagicService.ActionError(actor) is { } physical) throw new InvalidOperationException(physical);
 		if (DeviceItemError(actor, device, continuing) is { } itemError) throw new InvalidOperationException(itemError);
 		if (ResolveRoute(actor, capabilityId, spellId, grade, false, out var capability, out _, out var spell, out var trait,
@@ -272,6 +279,8 @@ public sealed partial class MagicCastingService
 	}
 	public MagicCastingResult ActivateDevice(ICharacter actor, IGameItem item, string targets)
 	{
+		if (item.GetItemType<IChargedMagicDevice>() is { Mode: MagicDeviceMode.EnergyReservoir })
+			return ActivateReservoir(actor, item, targets);
 		lock (_deviceGuard)
 		lock (Guard(actor))
 		{

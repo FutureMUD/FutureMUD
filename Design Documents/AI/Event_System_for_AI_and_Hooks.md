@@ -14,6 +14,10 @@ It covers:
 This is intentionally narrower than a full engine-wide event encyclopedia. The companion document [NPC_AI_and_Group_AI_Runtime.md](./NPC_AI_and_Group_AI_Runtime.md) covers the AI runtime itself.
 
 ## Primary Contracts
+
+`CharacterBeginsLandMagicGatheringWitness` (appended event ID 156) is an accepted-start notification, not an input interceptor. The payload order is actor, perceivable witness, captured location, magic capability, method-key text, requested amount, operation-ID text. It fires only for accepted Land magic gathering, and witness return values do not consume the command. Previews, refusals, other magic-gathering methods and foraging are excluded; see [magic gathering](../Magic/Magic_Gathering.md).
+
+`HookOnInput` keeps unconditional consumption as its default. Opt in with `hook conditional <hook> on` to let boolean payload progs decide handling: false continues to the next payload/normal command dispatch, while the first true consumes input. A declining hook preserves the original token stack, including quoted argument boundaries. All payloads must return boolean to enable this mode or add further progs while it is enabled. XML field `UseProgResultForHandling` persists the choice; missing fields retain legacy behaviour. In conditional mode only, command `*` matches all input and passes the complete original command (including raw argument quotes) in the command-text parameter. Ordinary exact hooks still pass the verb. Use `commandname(character, input)` to resolve native names/abbreviations without executing them. `hook list` reports the mode.
 | Contract | Role |
 | --- | --- |
 | `EventType` | The canonical enumeration of engine events |
@@ -64,7 +68,7 @@ If you change an event's runtime argument order without updating its metadata, b
 Many engine objects implement this surface, including perceivables and NPCs. AI does not normally install hooks on itself, but it does implement `HandleEvent` and `HandlesEvent` through `IArtificialIntelligence`.
 
 ### Why `HandlesEvent` Matters
-For AI, `HandlesEvent` is an operational subscription hint, not just a convenience method. `NPC.SetupEventSubscriptions()` inspects attached AIs and only subscribes the NPC to periodic heartbeats if one of its AIs claims that event.
+For AI, `HandlesEvent` is an operational subscription hint, not just a convenience method. `NPC.SetupEventSubscriptions()` uses the NPC's combined `HandlesEvent` result, including installed hooks and attached AIs. A hook-only NPC therefore resumes its periodic callbacks after reload or AI changes. Primary, secondary and scripted NPC instances release all four periodic subscriptions on inactivity/quit, regardless of which AI or hook originally requested them. Repeated setup removes then adds each requested delegate, preventing duplicates; dead/stasis instances remain unsubscribed.
 
 That is why overly broad `HandlesEvent` implementations are undesirable.
 
@@ -510,6 +514,12 @@ Important startup/load events include:
 - `CharacterEntersGame`
 - `NPCOnGameLoadFinished`
 - `ItemFinishedLoading`
+
+## Needs transition events
+
+`CharacterHungry`, `CharacterStarving`, `CharacterThirsty` and `CharacterParched` have `(character, location)` payloads. Matching `CharacterInRoom...` events append a perceivable witness. They fire when a changing native needs model enters the named category after committing the transition. Repeated heartbeats in the same category and character loading do not fire them. The location and witness list are captured before self callbacks, so callback movement does not redirect the original event. Room hooks receive the room as witness; local actions should still check that the character remains there. Feeding in a hook can cause a nested transition without replaying the original transition.
+
+FutureProg exposes native food/drink satiation hours, water litres, maximum food/drink satiation hours, and hunger/thirst category text. `fulfilneeds(character, foodHours, drinkHours, waterLitres)` uses native additive fulfilment. `satisfyneeds(character, food, drink)` adds only deficits to comfortable native reserves and accounts for native fulfilment multipliers; it does not lower existing reserves. No-needs characters are a successful no-op.
 
 ## Adding or Changing Events Safely
 When you add or change an event that AI or hooks may consume:

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Health;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
@@ -54,7 +55,7 @@ internal sealed class HealthCapacityFunction(IList<IFunction> parameters, bool r
 		{
 			value = channel switch
 			{
-				"health" => value - actor.Wounds.Sum(x => x.CurrentDamage),
+				"health" => actor.HealthStrategy.CurrentHitPoints(actor),
 				"stun" => value - actor.Wounds.Sum(x => x.CurrentStun),
 				"pain" => value - actor.Wounds.Sum(x => x.CurrentPain),
 				_ => actor.Body.CurrentStamina

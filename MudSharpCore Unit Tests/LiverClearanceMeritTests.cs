@@ -8,6 +8,7 @@ using Moq;
 using MudSharp.Body.PartProtos;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Effects;
 using MudSharp.Health;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.CharacterMerits;
@@ -33,6 +34,9 @@ public class LiverClearanceMeritTests
 		actor.SetupGet(x => x.Merits).Returns(new IMerit[] { merit.Object });
 		var body = TestObjectFactory.CreateUninitialized<ConcreteBody>();
 		body.Actor = actor.Object;
+		typeof(ConcreteBody).GetProperty(nameof(ConcreteBody.EffectHandler))!.SetValue(body, new EffectHandler(body));
+		typeof(ConcreteBody).GetField("_latentDrugDosages", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(body, new List<DrugDosage>());
 		body.BaseLiverAlcoholRemovalKilogramsPerHour = 0.1;
 		typeof(ConcreteBody).GetField("_cachedOrganFunctionsByType", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(body, new DoubleCounter<Type> { [typeof(LiverProto)] = function });

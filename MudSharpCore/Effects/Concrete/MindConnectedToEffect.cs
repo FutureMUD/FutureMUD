@@ -5,6 +5,14 @@ namespace MudSharp.Effects.Concrete;
 
 public class MindConnectedToEffect : Effect, IMagicEffect
 {
+	private bool _eventsRegistered;
+	private bool _removed;
+
+	public override void Login()
+	{
+		base.Login();
+		RegisterEvents();
+	}
     public ICharacter CharacterOwner { get; protected set; }
     public ICharacter OriginatorCharacter { get; protected set; }
     public ConnectMindEffect OriginatorEffect { get; protected set; }
@@ -30,6 +38,8 @@ public class MindConnectedToEffect : Effect, IMagicEffect
 
     protected void RegisterEvents()
     {
+		if (_eventsRegistered || _removed) return;
+		_eventsRegistered = true;
         CharacterOwner.OnQuit += CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnDeleted += CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnDeath += CharacterOwner_OnNoLongerValid;
@@ -38,6 +48,8 @@ public class MindConnectedToEffect : Effect, IMagicEffect
 
     public void ReleaseEvents()
     {
+		if (!_eventsRegistered) return;
+		_eventsRegistered = false;
         CharacterOwner.OnQuit -= CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnDeleted -= CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnDeath -= CharacterOwner_OnNoLongerValid;
@@ -56,7 +68,10 @@ public class MindConnectedToEffect : Effect, IMagicEffect
 
     public override void RemovalEffect()
     {
+		if (_removed) return;
+		_removed = true;
         ReleaseEvents();
+		OriginatorCharacter.RemoveEffect(OriginatorEffect, true);
     }
 
     #endregion

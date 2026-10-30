@@ -20,6 +20,29 @@ namespace MudSharp_Unit_Tests;
 public class VehicleEnvironmentRulesTests
 {
 	[TestMethod]
+	public void LandMovementRejectsWaterAndSiltWithoutChangingUnrestrictedMovement()
+	{
+		var land = new Mock<IRoom>();
+		var water = new Mock<IRoom>();
+		water.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+		var siltTerrain = new Mock<ITerrain>();
+		siltTerrain.SetupGet(x => x.Immersion).Returns(new TerrainImmersionProfile(TerrainMedium.Silt, SizeCategory.Titanic));
+		var silt = new Mock<IRoom>();
+		silt.Setup(x => x.Terrain(null)).Returns(siltTerrain.Object);
+		var profile = new Mock<IVehicleMovementProfilePrototype>();
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Land);
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
+		vehicle.SetupGet(x => x.Location).Returns(land.Object);
+		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		Assert.IsTrue(vehicle.Object.CanTraverseEnvironment(land.Object, RoomLayer.GroundLevel, out _));
+		Assert.IsFalse(vehicle.Object.CanTraverseEnvironment(water.Object, RoomLayer.GroundLevel, out _));
+		Assert.IsFalse(vehicle.Object.CanTraverseEnvironment(silt.Object, RoomLayer.GroundLevel, out _));
+		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
+		Assert.IsTrue(vehicle.Object.CanTraverseEnvironment(silt.Object, RoomLayer.GroundLevel, out _));
+	}
+
+	[TestMethod]
 	public void IsSurfaceWater_GroundLevelSwimmingRoom_ReturnsTrue()
 	{
 		var room = new Mock<IRoom>();
@@ -183,7 +206,7 @@ public class VehicleEnvironmentRulesTests
 			.GetField("BuildingHelp", BindingFlags.Static | BindingFlags.NonPublic)!
 			.GetRawConstantValue()!;
 
-		StringAssert.Contains(help, "movement environment <id> <unrestricted|surfacewater|silt>");
+		StringAssert.Contains(help, "movement environment <id> <unrestricted|land|surfacewater|silt>");
 		StringAssert.Contains(help, "movement waterexposure <id> <protected|exposed>");
 		StringAssert.Contains(help, "movement propulsion add <movement id>");
 		StringAssert.Contains(help, "movement enginepower <id> <watts>");

@@ -85,7 +85,7 @@ public abstract class ConcentrationConsumingEffect : Effect, IConcentrationConsu
                              ConcentrationPointsConsumed)
                          .Highest(imposedDifficulty);
         ICheck check = Gameworld.GetCheck(CheckType.MagicConcentrationOnWounded);
-        CheckOutcome outcome = check.Check(CharacterOwner, difficulty);
+        CheckOutcome outcome = check.Check(CharacterOwner, difficulty, capability.ConcentrationTrait);
         if (totalConcentration > concentrationCapability && outcome.Outcome.IsFail())
         {
             CharacterOwner.RemoveEffect(this, true);

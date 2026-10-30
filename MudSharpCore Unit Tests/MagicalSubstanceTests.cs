@@ -29,6 +29,23 @@ namespace MudSharp_Unit_Tests;
 public class MagicalSubstanceTests
 {
 	[TestMethod]
+	public void ScriptedDose_UsesNativePayloadAndRejectsInvalidExposure()
+	{
+		var f = new Fixture();
+		f.Substance.SetupGet(x => x.Bindings).Returns(Array.Empty<SubstanceBinding>());
+		f.Substance.SetupGet(x => x.Vectors).Returns(DrugVector.Ingested);
+		Assert.IsFalse(MagicalExposure.Scripted(f.Actor.Object, f.Substance.Object, 0, DrugVector.Ingested));
+		Assert.IsFalse(MagicalExposure.Scripted(f.Actor.Object, f.Substance.Object, double.NaN, DrugVector.Ingested));
+		Assert.IsFalse(MagicalExposure.Scripted(f.Actor.Object, f.Substance.Object, 1, DrugVector.Injected));
+		Assert.AreEqual(0, f.Stamina);
+		Assert.IsTrue(MagicalExposure.Scripted(f.Actor.Object, f.Substance.Object, 1, DrugVector.Ingested));
+		Assert.AreEqual(10, f.Stamina, 1e-9, "An unbound scripted preparation uses the same native spell payload without caster resources.");
+		f.Substance.SetupGet(x => x.ReadinessErrors).Returns(new[] { "Invalid payload" });
+		Assert.IsFalse(MagicalExposure.Scripted(f.Actor.Object, f.Substance.Object, 1, DrugVector.Ingested));
+		Assert.AreEqual(10, f.Stamina, 1e-9);
+	}
+
+	[TestMethod]
 	public void RespiratoryGasCarrier_UsesElapsedBaseVolumeForMagicalDose()
 	{
 		var f = new Fixture();

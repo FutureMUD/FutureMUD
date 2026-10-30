@@ -58,6 +58,9 @@ The content-facing companion is [Drug Builder Guide](./Drug_Builder_Guide.md).
 - `ThermalImbalance`
 - `Antifungal`
 - `PlanarState`
+- `Modifier`
+- `Overdose`
+- `Symptoms`
 
 ## Additional Info Payloads
 Most drug types only need a scalar intensity. For those scalar-only effects, the runtime `ExtraInfo` payload is
@@ -73,6 +76,21 @@ that null rather than inventing placeholder metadata. These drug types have extr
 | `MagicAbility` | `MagicAbilityAdditionalInfo` | Magic capability ids to grant |
 | `OrganFunction` | `OrganFunctionAdditionalInfo` | Organ type ids to modify |
 | `PlanarState` | `PlanarStateAdditionalInfo` | State, plane id, and default-plane visibility |
+| `Modifier` | `DrugModifierAdditionalInfo` | Intensity-thresholded temporary trait, maximum-health, exact magic-resource capacity, offensive combat, and defensive combat modifiers |
+| `Overdose` | `OverdoseAdditionalInfo` | Native trait and grams-per-trait-point threshold for lethal active-dose overdose; optional case-insensitive group combines the raw active grams of configured group members, while an empty group retains per-drug thresholds |
+| `Symptoms` | `DrugSymptomsAdditionalInfo` | JSON profile for recurring physical/sensory episodes and saved probabilistic symptom stages |
+
+### Recurring symptoms
+
+Symptom stages additionally support a signed `MaximumHitPointsBonus` formula, `MaximumHitPointsDurationSeconds`, and an optional capacity-only policy. The `damage` input is the same episode's actual rolled damage, so `-damage` does not roll a second amount. The independently scheduled saved modifier can outlast active dosage. Racial symptom immunities, exhaustion-triggered native sleep, unconscious-only natural stun recovery blocking, and opt-in selective combat cessation on paralysis are configurable. Defaults leave existing profiles unchanged. Saved effective intensity preserves recovery-block state across offline healing; normal reconciliation still owns active/neutralised intensity.
+
+`Symptoms` (persisted type 28) adds configurable episodes without changing delivery. Its JSON profile configures a trial interval, resistance trait, initial stage, permanent onset/expiry trait changes, and stages with probability and damage/pain/stun/stamina formulas, native damage type, private sensory messages, awake-only processing, opt-in sleeping lethality and probabilistic stage destinations. Destination weight formulas default to one. Inputs are `intensity`, `resistance`, `fullness` (food-satiated hours), `sleeping` and `unconscious` (0/1), and `stage`. Probabilities are per configured trial; physical amounts are per successful episode. Chances are clamped to 0–1 and invalid/nonfinite results become zero.
+
+The existing drug heartbeat accumulates active time, capped at ten seconds per update, and advances trials at the configured interval (default one second). Dose changes and cures cannot advance episodes. Effective intensity respects native resistance and neutralisation. Saved body-owned `DrugSymptomEffect` state retains stage and activation/onset markers through restart without offline catch-up. Neutralisation makes a state dormant while physical doses remain; clearing all physical doses removes it. Damage uses native wounds; stamina uses native expenditure. Existing nausea, paralysis and trait modifiers retain their own effects.
+
+Permanent trait consequences use `TraitRawValue` and the native owner-scoped `SetTraitValue`, with a signed amount and lower bound. Default onset mode runs once on first effective active exposure. Per-dose mode instead runs synchronously when a positive dose is accepted, using the administered dose's native resistance/tolerance-adjusted intensity; a later selective cure cannot undo an already applied permanent change. Per-dose consequences are not queued, so absorption and restart cannot replay cancelled dose counters. Natural expiry runs only when metabolism removes the final positive active/latent dose. Purge, cure and `Sober()` do not invoke it. Onset cure/death/body-change callbacks stop further onset changes; natural-expiry state is detached before callbacks so a newly administered dose receives a fresh state.
+
+`resistpoison(character, difficulty)` exposes the dedicated native `PoisonResistanceCheck` (244). It is a check action, not a dosing operation or pure feasibility query. Skill seeders and runtime missing-check bootstrap supply an Endurance/Constitution-based standard check without improvement; existing builder policy is preserved. A missing binding in a setting with unrecognised attribute names is a zero formula requiring explicit builder configuration. Callers choose which routes permit a save. Passive drug resistance remains separate, and invalid/changed physical bodies abort the prog rather than becoming an accidental failed save.
 
 The concrete `Drug` loader parses the persisted `AdditionalEffects` string into these payload types. Missing or malformed id payload tokens are skipped by the list parsers rather than crashing load. `PlanarState` defaults to `noncorporeal` on the default plane if old or partial payload data is encountered.
 
@@ -81,12 +99,14 @@ The concrete `Drug` loader parses the persisted `AdditionalEffects` string into 
 
 `DrugIntensity` rows are keyed by `(DrugId, DrugType)` and store the per-effect relative intensity plus the optional payload string. `Drug.Save()` rewrites all intensity rows for the drug rather than patching individual rows.
 
-`BodyDrugDose` rows store active and latent dose state on a body. The persisted state includes body id, drug id, grams, original vector, and active flag. The runtime `Originator` field on `DrugDosage` is not persisted; it is useful for live systems such as spell poison effects that need to remove the dose they created.
+`BodyDrugDose` rows store active and latent dose state on a body. The persisted state includes body id, drug id, grams, original vector, and active flag. The runtime `Originator` object on `DrugDosage` is not persisted. Spell-owned doses separately persist their origin spell ID, family and formula, so a family-specific cure can still select residual doses after restart or after the parent effect expires. Legacy originless doses remain unowned.
 
 Liquids and gases can both carry a drug payload through `IFluid.Drug` and `IFluid.DrugGramsPerUnitVolume`. This is material-level content, not part of the drug definition itself.
 
 ## Dosing And Heartbeat Flow
 All normal dose entry points call `IBody.Dose(IDrug drug, DrugVector vector, double grams, object originator = null)`.
+
+FutureProg's `dosedrug(character, drug, grams, vector)` validates positive finite grams, one advertised vector, a living character, and its physical current body before queuing a latent dose. It does not consume items; the calling prog owns item quantity/deletion. Accepted vector text is `Inhaled`, `Ingested`, `Injected`, or `Touched`.
 
 `Body.Dose(...)`:
 
@@ -172,6 +192,8 @@ Physical nausea may also be supplied by a persistent timed `MundaneNausea` effec
 | `VisionImpairment` | Creates or updates `VisionImpairmentDrugEffect`; vision multiplier is clamped at `max(0, 1 - intensity)`. |
 | `ThermalImbalance` | Applies progress to the shared thermal imbalance model if `TemperatureImbalanceEnabled` is true. |
 | `PlanarState` | Creates or updates `DrugInducedPlanarStateEffect`, a priority-50 planar overlay that can make a body manifested or noncorporeal on a chosen plane. |
+| `Modifier` | Applies the highest matching intensity step per target for temporary trait, HP, resource capacity, and offensive/defensive combat modifiers. Trait bonuses are additive; HP and resource capacity steps are flat additions. Effects clear when the active dose clears. |
+| `Overdose` | Compares active grams against current effective configured trait × grams per trait point. An empty group checks each drug separately; a shared case-insensitive group sums raw active grams from its configured member drugs, then applies each member's own threshold. Reaching the threshold uses the native character death path; missing or invalid payload data disables the effect. |
 
 Important static configuration keys include:
 
@@ -285,6 +307,8 @@ Supported editing operations include:
 `show drug <which>` and `show drugs` expose read-only display paths. Staff can use `drugs <target>` to inspect active and latent dosages through `DrugDosageDescriber`.
 
 ## FutureProg Surface
+
+`hasdrugdosage(character, drug, family)` is a pure query over matching poison effects and active/latent doses. `purgedrugdosages(character, drug, family)` removes only that explicit native drug, optionally restricted to an exact spell-origin family. Empty family selects all origins of that drug. Neither helper guesses which drugs are poison, removes unrelated medicines/alcohol, nor changes other drugs' doses. Mutation captures the target's physical body and checks it around effect-removal callbacks; a body change stops further removal.
 Drugs are `ProgVariableTypes.Drug`.
 
 Lookup and inspection include:
@@ -376,10 +400,45 @@ The following effect families are first-class drug types. They use the same `IDr
 - Payload: exposure gain/decay, tolerance threshold, minimum effectiveness, withdrawal onset/decay, affected drug types, and withdrawal symptoms.
 - Persistence: `Bodies_DrugExposures` stores one row per `BodyId + DrugId` with exposure, peak exposure, withdrawal intensity, and last updated UTC time.
 - Runtime hooks: drug heartbeats decay exposure from `LastUpdatedAtUtc`, add exposure from active matching doses, reduce effective intensity for configured affected effect types, and create withdrawal effects when exposure drops below onset after prior dependence.
+- Relapse: configured relapse exposure gain applies while current exposure is below its decaying historical peak; the default multiplier is `1.0` and leaves existing exposure progression unchanged.
 - Withdrawal expression: symptoms reuse existing pathways such as check modifiers, need-rate effects, stamina multipliers, nausea, rage, and sleep prevention.
+- Reversible modifiers: the same threshold-step payload used by active `Modifier` effects can apply trait, HP, exact resource capacity, offence, and defence modifiers based on persisted dependence exposure. Withdrawal can separately multiply maximum HP and player resource capacities. These modifiers clear as exposure/withdrawal decays; permanent trait values are never changed.
+- Capacity ordering: additive changes precede multipliers. A modified maximum HP is at least one; a finite modified magic-resource capacity can be zero. Invalid base resource formulas remain invalid and cannot be repaired by a positive modifier. Mutating an installed capacity effect calls `IEffectHandler.NotifyEffectUpdated` to reconcile existing balances immediately.
 - Caps and gates: `DrugDependenceEnabled` disables the feature globally. Minimum tolerance effectiveness defaults to at least `25%` unless a drug explicitly configures a lower floor.
 
+
+## Drug-wide administration policy
+
+`IDrug.DoseBehaviour` stores combinable `Normal` (zero), `FixedDose` and `IgnoreAdditionalExposure` flags independently of pharmacological effect types. `FixedDoseGrams` supplies the mass for a valid positive fixed-dose administration. Both ordinary and immediate body admission paths enforce these policies before changing dosage state or triggering per-dose consequences. Duplicate refusal checks positive active and latent doses of the same drug identity, across vectors and origins. It does not prevent a different drug or a new exposure after clearance/cure. Defaults preserve existing drugs' proportional mass-based behaviour. Builders configure `fixeddose` and `dosebehaviour`; FutureProg exposes the flags, fixed mass and a `fixedadministration` boolean.
+
+## Configured poison cleansing
+
+Poison cures may additionally configure ordered native drug families and opt into timed-aftereffect removal. `removepoison group <drugs...>` appends a family; `firstgroup true` selects only the first present family, while the default retains all-matching removal. `aftermath true` includes independent `IDrugAftereffect` consequences for the selected drugs. Prepared casting captures the chosen family rather than silently switching to another one after payment. `hasdrugdosage` and `purgedrugdosages` have an optional fourth Boolean to include these aftereffects; existing three-argument calls retain their previous meaning. Item cleansing reuses `removeweaponpoison` and `remapliquids` with explicit closed-vessel/partial-map options.
+
+## Scripted weapon coating policy
+
+`WeaponPoisonCoating` optionally persists `DeliveryProg` and `SingleUseOnWound`. Missing fields preserve ordinary native liquid coatings, their per-hit volumes/chances and evaporation. A scripted single-use coating can have an empty carrier mixture: the prog owns the exposure and receives `(Character attacker, Character victim, Item weapon)`. The normal melee, ammunition and thrown-weapon hit paths select a positive-damage native injected-poison-eligible wound and verify it belongs to the current body. A single-use coating is removed before the prog runs, including when its dose is resisted. Multiple wounds cannot replay it. Projectile copying and stack splitting transfer a single scripted charge once; morphing and XML persistence preserve the policy.
+
+FutureProg exposes `setweaponpoison(item, deliveryProgId)` for one uncoated weapon/ammunition item, `hasweaponpoison(item)`, `canmanipulateitem(actor,item)` for native voluntary manipulation admission, and `actioncheck(actor, checkType, difficulty)` to run the installed check policy. `setweaponpoison` is a trusted prog action; player-facing callers must establish custody/access before using it. The worldfile vial progs do so explicitly. The scripted delivery path does not add a second random native delivery roll when the delivery prog supplies its own resistance roll.
 
 ## Magical substance integration
 
 Magical substances reuse delivery measurements and absorption coefficients while retaining separate spell lifecycles. A carrier can deliver both systems. See [Magical Substances](../Magic/Magical_Substances.md).
+
+## Infection-causing drugs and infection-owned symptoms
+
+`DrugType.Infection` stores a builder-configurable `DrugInfectionAdditionalInfo` definition in the existing drug effect metadata. Its carrier drug is the stable definition identity. A separate non-infecting drug supplies the symptom effects. No setting names or source poison indices occur in the runtime implementation.
+
+An admitted positive administration can establish one whole-body `ConfiguredInfection` per definition, subject to the configured exposure probability and Infection intensity multiplier. Infection-only carriers create no physical active/latent doses. Carriers with other effect types also retain their ordinary physical pharmacology. Symptom profiles cannot themselves contain Infection, preventing recursive disease creation. Duplicate infections do not refresh their duration. `IgnoreAdditionalExposure` also recognises an existing infection established by that drug.
+
+The infection contributes severity-scaled symptom intensity to native drug reconciliation without manufacturing doses. This reuses trait/HP/resource modifiers, paralysis, nausea and other pharmacological effect handlers. It does not create dependence or overdose mass. Each infection maintains separately tagged recurring symptom state, independent of physical exposure to the same profile or another infection using that profile. Neutralisation can suppress symptoms without curing the illness. Curing/deleting an infection removes its contributions, retaining unrelated drugs and infections.
+
+Recovery can follow native immune checks, antibiotic/immune resistance and intensity progression, or a fixed active-play duration. Fixed duration advances on the active drug heartbeat, with no offline or long-stall catch-up. Infection persistence stores its definition drug ID, source family and remaining seconds in `Infections.ExtraInformation`; existing infections keep null metadata. Whole-body configured infections are retained during body loading, and simulation copies preserve their remaining duration. Natural completion invokes the owned symptom profile's expiry consequences once. Cure/deletion does not invoke them, and deletion cancels pending first-save initialisation as well as persisted records.
+
+Transmission is builder-configurable: either periodic probability trials, or a trial on each successful recurring symptom episode. Each trial considers other living, non-stasis occupants of the current room; chance and duplicate admission are configurable. Transmission establishes the infection directly, without a physical carrier dose. Source-family identity is retained for targeted cures. An infection whose definition enables `CureWithDrug` participates in existing drug-purge queries and actions under its carrier drug ID and optional origin family; ordered-family spells retain their current selection semantics.
+
+### Weighted involuntary symptom outcomes
+
+Each symptom stage optionally supplies `Outcomes`. After an episode passes its chance roll, one positive finite weighted outcome is selected. Empty outcomes retain existing private-echo behaviour. An empty `None` outcome uses the stage's ordinary private echoes; other outcomes replace that echo. Private text and validated observer emotes accompany optional native sitting, readied-item dropping, grapple release, timed babbling or surface residue deposition. These actions work equally for physical drugs and infection-owned symptom profiles. They do not execute during inspection, reconciliation or cure.
+
+Configuration is saved in the existing Symptoms JSON payload. Babbling is a separately saved timed effect implementing `IBabbleSpeechEffect`, so native communication strategies supporting that contract apply. Repeated episodes do not refresh an existing babble effect. Residue uses native surface state and washing; selected clothing uses a configurable wear-location name fragment. Native drop rules remain in force, and drops never enumerate abstract inventory. Builders control episode weights, action, private/public text, duration, optional grapple release, material and residue mass.

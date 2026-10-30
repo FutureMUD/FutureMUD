@@ -36,6 +36,8 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IProgVariable
     bool IsAccountOwner(IShop shop);
     bool IsAccountOwner(IFrameworkItem owner);
     bool IsAuthorisedAccountUser(ICharacter character);
+	/// <summary>Deposit permission does not grant balance, history, withdrawal or management access.</summary>
+	bool IsAuthorisedAccountDepositor(ICharacter character) => IsAuthorisedAccountUser(character);
     IFrameworkItem AccountOwner { get; }
 	long AccountOwnerId { get; }
 	string AccountOwnerFrameworkItemType { get; }

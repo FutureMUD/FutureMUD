@@ -27,14 +27,45 @@ Traveller resists and moves that traveller to the caster. Grade-one through six 
 bounds are respectively strictly less than and at most `20*grade`; grade seven waives
 only that distance bound. They keep distinct component plans. Draw uses the existing
 sparse Conjuration ranks through an explicit numeric minimum selector; it does not
-change the historical S3 rank hierarchy. Waystep selects either one legally owned
-active Anchor Rune's live room or a mapped weighted pool. Banish Traveller uses its
+change the historical S3 rank hierarchy. Waystep selects either one admitted
+active Anchor Rune's live room or a mapped weighted pool. Owner-bound spell runes
+retain their legal-ownership admission. A persistent public world rune instead
+requires its configured native detection sense, and must be placed directly in a
+room rather than carried or contained. Banish Traveller uses its
 own resisted local target and weighted pool; the archived rune/no-save exception
 refuses because no native authority for waiving that save is bound. Urban/wilderness
 weights are 10/90, then uniform zone and room selection, with a separate explicit
 same-zone elemental pool. Pool tags do not automatically mark existing world rooms.
 All relocation routes retain permanent endpoint, plane, projection, ward, body and
 native membership checks, with exact compensation or NeedsReview after uncertainty.
+
+### Public world runes
+
+`addpublictravelanchoreffect(item, "SenseMagical")` gives an item a saved public
+travel-anchor effect. The sense argument accepts a named native perception type;
+`None` makes the rune unrestricted. The configured sense reveals the item through
+the ordinary visibility pipeline and authorises its use as a destination. It does
+not grant a spell, visibility through containers, or a ward/plane bypass. Invalid
+arguments or an existing conflicting anchor return null; an identical existing
+public anchor is returned without stacking. Normal effect removal removes both
+the concealment and travel authority. This effect has no spell parent or invented
+owner and saves its perception requirement on the item.
+
+Waystep's `rune <keywords>` selector searches current loaded anchors globally and
+requires exactly one admitted match. Numeric IDs are refused. Selection binds the
+exact item/effect/live room and is rechecked before payment and during movement;
+loss of detection, pickup, containment, removal or relocation invalidates the old
+selection. Existing Arcane Marks still require their owner-bound directly carried
+item and saved room, and cannot be replaced by a public rune.
+
+Waystep's effect option `runepoolrules` toggles saved `RuneUsesPoolRestrictions`
+(default true for legacy definitions). When false, an explicit rune bypasses the
+random pool's restricted/lethal tags and outdoor-only filter. Random selections
+retain all those filters. Both routes still check same-plane placement, no-magic
+room policies, wards and native relocation safety before payment and in flight.
+The Armageddon worldfile importer disables rune pool rules on its owned Waystep
+spell, matching the separate source rune route. Banish Traveller still has no rune
+selector and receives no save-waiver change.
 
 Storm Locus is an outdoor Lightning room hazard for `30*grade` seconds. Each due
 ten-second pulse commits its cursor before applying `2*grade` native electrical
@@ -122,6 +153,8 @@ Replace `earth` with the admitting capability's school verb. Spell and capabilit
 containing spaces require quotes; IDs also work. `via` is optional only when one current
 capability admits that spell. A richer reserve never selects a route automatically.
 The native spell school still controls its ordinary wards and resistance.
+
+When the school verb itself is `cast`, omit the repeated subcommand: `cast "Stone Skin" grade 3 on self` is equivalent to `earth cast "Stone Skin" grade 3 on self`. School help, spell listings, formula, practice, quiet, area, gathering and Vancian subcommands retain their meanings. Command recognition treats help/list/status requests as non-casting; shorthand named casts still trigger casting interception. Shared school verbs are supported for mutually exclusive class capabilities; builders should grant one casting school and one psionic profile per character in the Armageddon setting.
 
 The normal casting route requires the focused, conscious, speaking body and a functioning
 free hand. Native target permissions, planar reach, component plans and lockouts still
@@ -533,6 +566,8 @@ Unrelated records remain usable.
 
 ## FutureProg
 
+`ismagicincantation(character, text)` is a pure query against the native formula/POWER-alias parser in the character's selected language. It does not check current route availability, acquire knowledge, charge, roll, progress, speak or cast. `ismagiccastingcommand(character, input)` accepts the complete original command, preserving quoted text and native parenthetical-emote parsing. It resolves the character's native command tree, including abbreviations, then recognises school cast/quiet/formula/area/practice, legacy cast, and spoken formulas. It does not execute commands. Ordinary dialogue and school help/status return false. `IMagicCastingService.RecognisesFormula` exposes the formula-only read-only seam. Conditional wildcard input hooks can supply original input and decline ordinary dialogue without consuming it.
+
 | Function | Return | Contract |
 | --- | --- | --- |
 | `hasacquiredspell(character, magicspell)` | Boolean | Pure canonical knowledge query, including inactive routes and empty reserves. |
@@ -669,6 +704,8 @@ Native school wards can set `OneUse` with Incoming/Reflect, editable with the ex
 Stock Turn the Elements selects the explicit S2 Fire school, no inferred union, with floor7 and30*grade seconds. The school is builder editable. Stone Skin binds ordinary physical Agility where unique, otherwise the supported ordinary Dexterity mobility equivalent (the labmud preset); ambiguous candidates hold. The alias retains its exact native ID when a later attribute appears. It creates no attribute, and the spell description records the actual mapped attribute name.
 
 ## Gated S4 focus and device stock
+
+The worldfile import additionally uses the optional native `EnergyReservoir` device mode for four placed staves. A reservoir has a fixed registered spell, configurable per-grade energy costs and resource donations, and does not use frozen producer-bound charges or acquired casting routes. Its invocation-local fixed outcome suppresses the personal cast check while preserving native target resistance and wards. Room-wide character, configured-area and direct-room-corpse adapters prepare the existing native effects, then spend energy once for the activation. Frozen-charge compatibility gates remain unchanged. See [charged-device integration](Armageddon_Charged_Device_Integration.md) for commands, persistence, the approved source mappings and verification.
 
 The fixed installer follows the152 spell definitions with `ArmageddonStockFocusDeviceInstaller`.
 It owns ten `arm.focus.<tradition>` prototypes and `arm.item.blank_wand` / `arm.item.blank_staff`,

@@ -101,6 +101,17 @@ public static class MagicalExposure
 			foreach (var binding in substance.Bindings.Where(x => x.Carrier == carrier && x.Id == id))
 				Queue(recipient, substance, amount * binding.QuantityPerUnit, vector, new(), false);
 	}
+
+	/// <summary>Delivers an explicitly scripted dose through the ordinary substance resolution pipeline.</summary>
+	public static bool Scripted(IPerceivable recipient, IMagicalSubstance substance, double amount, DrugVector vector)
+	{
+		if (recipient is not (ICharacter or IBody or IGameItem) || !ReferenceEquals(recipient.Gameworld, substance.Gameworld) ||
+			!SubstanceDose.IsPositive(amount) || !Enum.IsDefined(vector) || vector == DrugVector.None ||
+			!substance.Vectors.HasFlag(vector) || substance.ReadinessErrors.Any()) return false;
+		using var scope = BeginExposure();
+		Queue(recipient, substance, amount, vector, new(), false);
+		return true;
+	}
 	private static void Queue(IPerceivable recipient, IMagicalSubstance substance, double quantity, DrugVector vector, SubstanceCharge charge, bool surface)
 	{
 		if (!SubstanceDose.IsPositive(quantity)) return;

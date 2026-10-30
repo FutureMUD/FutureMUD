@@ -1720,6 +1720,8 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Drug>(entity =>
             {
+                entity.Property(e => e.DoseBehaviour).HasColumnType("int(11)").HasDefaultValue(0);
+                entity.Property(e => e.FixedDoseGrams).HasColumnType("double").HasDefaultValue(0.0);
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.DrugVectors).HasColumnType("int(11)");
@@ -2944,6 +2946,11 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.RelativeChance).HasColumnType("int(11)");
 
+                entity.Property(e => e.YieldConsumptionPercentage)
+                    .HasColumnType("double")
+                    .HasDefaultValue(100.0)
+                    .HasSentinel(100.0);
+
                 entity.HasOne(d => d.EditableItem)
                     .WithMany(p => p.Foragables)
                     .HasForeignKey(d => d.EditableItemId)
@@ -2978,7 +2985,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.FunctionText)
                     .IsRequired()
-                    .HasColumnType("text")
+                    .HasColumnType("mediumtext")
                     .HasCharSet("utf8mb4")
                     .UseCollation("utf8mb4_general_ci");
 
@@ -4069,6 +4076,8 @@ namespace MudSharp.Database
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.BodypartId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.ExtraInformation).HasColumnType("longtext").HasCharSet("utf8mb4");
 
                 entity.Property(e => e.InfectionType).HasColumnType("int(11)");
 

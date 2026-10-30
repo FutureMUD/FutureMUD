@@ -36,7 +36,8 @@ public enum VehicleMovementEnvironment
 {
 	Unrestricted = 0,
 	SurfaceWater = 1,
-	Silt = 2
+	Silt = 2,
+	Land = 3
 }
 
 public enum VehiclePropulsionType

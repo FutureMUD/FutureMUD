@@ -6,6 +6,8 @@ namespace MudSharp.Effects.Concrete;
 
 public class ConnectMindEffect : ConcentrationConsumingEffect, IMagicEffect, ICheckBonusEffect
 {
+	private bool _eventsRegistered;
+	private bool _removed;
     public ICharacter TargetCharacter { get; protected set; }
     public MindConnectedToEffect ChildEffect { get; protected set; }
 
@@ -22,10 +24,13 @@ public class ConnectMindEffect : ConcentrationConsumingEffect, IMagicEffect, ICh
 
     protected override void RegisterEvents()
     {
+		if (_eventsRegistered || _removed) return;
+		_eventsRegistered = true;
         base.RegisterEvents();
         CharacterOwner.OnStateChanged += CharacterOwner_OnStateChanged;
         CharacterOwner.OnDeath += CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnQuit += CharacterOwner_OnNoLongerValid;
+		CharacterOwner.OnDeleted += CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnLocationChanged += CharacterOwner_OnLocationChanged;
         Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += DoSustainCostsTick;
     }
@@ -59,10 +64,13 @@ public class ConnectMindEffect : ConcentrationConsumingEffect, IMagicEffect, ICh
 
     public override void ReleaseEvents()
     {
+		if (!_eventsRegistered) return;
+		_eventsRegistered = false;
         base.ReleaseEvents();
         CharacterOwner.OnStateChanged -= CharacterOwner_OnStateChanged;
         CharacterOwner.OnDeath -= CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnQuit -= CharacterOwner_OnNoLongerValid;
+		CharacterOwner.OnDeleted -= CharacterOwner_OnNoLongerValid;
         CharacterOwner.OnLocationChanged -= CharacterOwner_OnLocationChanged;
         Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= DoSustainCostsTick;
     }
@@ -79,6 +87,8 @@ public class ConnectMindEffect : ConcentrationConsumingEffect, IMagicEffect, ICh
 
     public override void RemovalEffect()
     {
+		if (_removed) return;
+		_removed = true;
         ReleaseEvents();
         CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote(MindPower.SelfEmoteForDisconnect, CharacterOwner,
             CharacterOwner, TargetCharacter)));

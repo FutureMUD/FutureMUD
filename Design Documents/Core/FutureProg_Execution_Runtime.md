@@ -10,6 +10,14 @@ Submitting `prog set append` retains the existing source and appends the editor 
 
 ## Purpose
 
+Persisted program source uses MySQL `mediumtext`, preserving the existing UTF-8 collation and required-value contract. Large generated world-population programs can exceed the former 64 KB `text` limit; this expands source storage without changing the language, compiler or execution model. Migration rollback to `text` requires sources to fit that smaller column first.
+
+`loadeditems()` and `loadedcharacters()` return snapshots of currently loaded world entities, without loading offline database records. The character snapshot uses the combined active actor collection, including both players and NPCs. Characters expose `npctemplateid` (zero for players) for native population predicates. `setlockpattern(item, number)` sets native key/lock patterns using whole numbers from zero through Int32.MaxValue; invalid inputs leave patterns unchanged.
+
+`LocationOnGameLoadFinished` fires for loaded rooms after persisted NPCs are available, allowing native boot population hooks to inspect existing actors before creating replacements. The global heartbeat starts after boot-completion callbacks and Discord startup, so time spent executing boot population hooks does not accumulate overdue heartbeat ticks.
+
+`setliquid(item, liquidId)` retains its full-fill/invalid-ID-empty behaviour. The three-argument overload `setliquid(item, liquidId, volume)` sets an exact final volume in base fluid units, accepts explicit zero emptying, and rejects invalid IDs or negative/nonfinite/over-capacity volumes before changing contents.
+
 FutureProg is compiled ahead of execution and is routinely used in high-frequency game checks. The runtime therefore treats execution time and transient allocation as first-class constraints while preserving script syntax, strong typing, null/error behaviour, case-insensitive variable access, persistence, and built-in semantics.
 
 The type representation and persistence contract are documented separately in [FutureProg Type System](./FutureProg_Type_System.md).
@@ -29,6 +37,8 @@ Compilation remains a lower priority than execution. Compiler changes must prese
 `IVariableSpace` remains name based. Root names and compiler-produced local names are canonical lower case, while authored casing is retained for display and external schemas. Dot-reference nodes likewise store a canonical property name, and direct `GetProperty` calls retain ordinal case-insensitive compatibility.
 
 Lexical blocks use `LocalVariableSpace` over their parent scope. `for`, `foreach`, and `while` create one local scope per loop execution and clear its local entries before each iteration. Parent assignments still flow to the parent, while iteration-only declarations reset exactly as they did when every iteration allocated a fresh scope.
+
+Reference-type `null()` values can be represented by a null `IProgVariable`. Assignment to a previously cleared reference therefore uses the compiler-checked assignment type when the existing value has no runtime type; clearing a variable does not prevent later reassignment, including from nested scopes. Compile-time type compatibility remains enforced.
 
 ### Slot-frame prototype
 
@@ -53,6 +63,8 @@ Ordinary sequential protected calls therefore begin at depth zero. Nested user-p
 Input adapters normalise collection elements to `IProgVariable` once. They avoid an intermediate wrapper list before `CollectionVariable` performs its required normalisation. Dictionary input is translated directly into the dictionary owned by `DictionaryVariable`, and collection-dictionary translation uses explicit loops rather than nested iterator pipelines.
 
 Typed result adapters unwrap `IProgVariable.GetObject` consistently for collections, dictionaries, and collection dictionaries. Primitive text, number, and boolean values therefore have the same result shape across all three adapters.
+
+`removeitem` accepts a compatible element type and removes the first matching value from a local collection, leaving later duplicates intact. Primitive wrappers compare by their underlying value, text compares case-insensitively, and an absent value leaves the collection unchanged. Both `removeitem values value` and `removeitem @values value` use this behaviour; incompatible types are rejected at compilation.
 
 Execution frames and loop scopes own only transient variable references and are not pooled. Clearing a reused local scope drops its entries before the next iteration. Compiled function nodes retain their most recent `Result`, as in the established architecture; compiled ASTs are therefore not general-purpose object-ownership boundaries and may retain the last referenced entity until that node next executes. This pass adds no long-lived memoisation beyond the bounded fully-static result.
 
@@ -117,8 +129,57 @@ The `startcombat` built-in assigns its world to the new `ProgCombat` before join
 - Loop-local declarations begin each iteration absent from the local scope.
 - Collection and dictionary adapters avoid redundant materialisation where ownership is internal.
 - Optimisations that fail their benchmark gate are removed rather than retained speculatively.
+## Native physical-state and furniture functions
+
+`drunkennesslevel(character)` reads native needs categories as severity 0 through 5: sober, buzzed, tipsy, drunk, very drunk, and blackout/paralytic. `isoffhand(character, item)` checks the item's actual current left/right holding or wielding location against the character's dominant hand; neutral inventory slots return false. `spendstamina(character, amount)` uses native affordability and expenditure, returning false without spending for invalid or unaffordable amounts.
+
+`attachchair(chairItem, tableItem)` attaches a native unassigned chair through the table's normal capacity checks and persisted chair relationship. The same existing assignment succeeds without another mutation; a chair assigned elsewhere is refused. Identical parents and containment cycles are refused before changing either item. This supplies a prog action for existing furniture, not another seating or speech system.
+
+Needs queries/actions and threshold-event contracts are described in [AI events and hooks](../AI/Event_System_for_AI_and_Hooks.md). Saved combat-delay effects created by `addcombattempoeffect` are described in [combat strategy runtime](../Combat/Combat_Strategy_Runtime.md).
+
 ## Electronic Access-Control Item Functions
 
 Trusted FutureProgs can mutate credential state without physical tools or power and do not emit authentication pulses. Keypads expose `keypadcode(item)` and `setkeypadcode(item, code)`. Biometric readers expose `biometricadd`, `biometricremove`, `biometricclear`, `biometricallows`, and `biometricids`. Cards expose `keycardaddcode`, `keycardremovecode`, `keycardclearcodes`, `keycardhascode`, and `keycardcodes`; readers use the parallel `keycardreader...` functions. Mutation functions return true only for a valid state change, while incompatible query items return empty text, false, or an empty collection.
 
 Typical hooks rotate a keypad with `setkeypadcode(@door, "4821")`, enroll or revoke an identity when access policy changes, issue several zone codes to one card with repeated `keycardaddcode`, and synchronize a reader by clearing then adding the current policy codes. Scheduled revocation should remove the credential from both issued cards and accepting readers when policy requires both sides to forget it.
+
+
+## Saved native character statuses
+
+Trusted progs can create spell-independent statuses without inventing a caster or parent spell. `addblindnesseffect`, `addsilenceeffect`, `addflighteffect`, `addvisualinviseffect`, `adddetectinvisibleeffect`, `adddetectetherealeffect`, `adddetectmagickeffect`, `addinfravisioneffect`, `addsneakeffect`, `addhideeffect`, `adddetectpoisoneffect`, `addclimbingeffect` and `addpacifismeffect` accept a character and optional duration in seconds. Omitted/zero duration is indefinite. They return the new effect, an existing matching effect without stacking or refreshing, or null for invalid input. Pacifism attaches to the body consumed by native combat admission; other statuses attach to the character. Hiding uses the native terrain hide check. Flight grants capability; callers separately request a flight posture. Climbing grants native climbing ability without inventing a starting grip or posture. Poison sensing uses the native toxin-inspection contract.
+
+`addmovementtempoeffect(character, multiplier)` creates a saved native movement-delay multiplier within 0.1–10. `addspottingeffect(character [, bonus])` and `addlisteningeffect(character [, bonus])` grant their corresponding native check bonus while awake, conscious and outside combat; omitted bonus is the configured `CheckBonusPerDifficultyLevel`. Explicit bonuses must be within -1000–1000. Matching awareness statuses do not stack or refresh.
+
+Listening awareness also permits adjacent-room ordinary speech through one authored exit at the same layer. Native volume attenuation and listening checks apply; closed doors increase difficulty. Self-loops and duplicate exits cannot duplicate delivery. Nearby NPC speech events follow the existing raw-text/language event contract and run after local speech events. NPC output-handler terminal delivery is not required for an NPC to witness speech. Yelling, shouting and radio transmission retain their existing propagation.
+
+`adddamageprotectioneffect(character, multiplier, hits)` creates a saved post-armour body-damage protection. Multiplier must be within 0–1 and hits a nonnegative integer; zero hits means unlimited. Matching configurations are not stacked or refreshed. One qualifying hit consumes a finite charge before removal callbacks, including when callbacks reenter damage. See [damage pipeline](../Health/Damage_System_Design.md) for packet, preview and health-cost boundaries.
+
+`applyplanarstate(target, state, plane, crosscloseddoors, canmanifest, candissipate)` adds explicit permissions to the existing three-argument operation. Existing overloads retain their defaults. The Armageddon onload mapping uses false for all three permissions; no permission to cross magical barriers is implied.
+
+## Native relationship and item queries
+
+Character `.following` returns its current native follow target. `.bodyguarding` returns only an already loaded target, while `.bodyguardingid` retains the assigned ID (zero for none). Neither query loads offline characters. `.isguarding` reports native character, item or exit guarding. NPC `bodyguard` inspection, clearing and retargeting likewise avoid loading an absent former target merely to notify it.
+
+`targetitem(viewer, items, keyword)` selects a visible item from the supplied item collection using native keyword and numbered-target rules, returning null if none matches. This supports carried-stock dialogue without creating merchandise or replacing real item custody with prototype counts.
+
+
+## Witnessed legal reports and handover
+
+`reportcrime(law, criminal, witness, victim, item, context)` records and reports one applicable witnessed violation through its native legal authority, including laws without automatic hooks. Returns the crime or null; victim/item may be null. `enforceablecrime(character, authority)` selects the native patrol arrestability/identity candidate or null. `issubduedby(target, holder)` checks actual attached native controlled grappling, rather than generic helplessness. `handovercriminal(holder, target, receiver, authority)` validates and cleans physical custody before invoking native remand and belongings handling, returning whether intake occurred. See [law runtime](../Economy/Law_System_Runtime.md) for callback, permission and refusal boundaries.
+
+
+`setroomweather(location, weatherEventId)` sets a saved native room-weather effect, deduplicating identical settings; zero clears it and restores regional conditions. Invalid IDs, cross-world rooms and events requiring independent five-second processing are refused. It changes local current weather only; regional forecasts and the temperature baseline remain regional. The Armageddon sandstorm controller keeps its route, random chances, position registers and deposit loading in generated progs.
+
+`depositroomresidue(location, solidId, amount, maximum)` adds dry native surface residue to exposed bodies and belongings, bounded by each recipient's existing amount of that material. Amounts use base mass units. Invalid materials, nonpositive amounts/caps and sheltered rooms refuse. The action uses ordinary native surface persistence, descriptions and cleaning; no new saved dust-marker effect is created.
+
+## Paid liquid refills and NPC delivery
+
+`liquidrefillcost(item, liquidId, unitVolume, unitPrice)` returns the price of the missing volume, rounded up to a whole base currency unit; zero means full and -1 means invalid, closed, projection-only or incompatible contents. The vessel must support `IPreparedLiquidContainer` (implemented by the ordinary liquid-container component); machinery, implants and projected grid sources are not accepted by this sale helper. Only an empty vessel or one whose constituents have the requested origin liquid is compatible. Existing matching constituents are preserved when the refill is added. Invalid/fractional/out-of-range liquid IDs are rejected.
+
+`purchaseliquidrefill(buyer, seller, item, currency, liquidId, unitVolume, unitPrice)` uses that same quote and native exact held-cash transfer. The vessel must remain directly held or wielded by the buyer, open, unchanged and accessible; the awake noncombat seller must remain colocated. Refusal returns false without filling. Currency and the prepared refill are published before notifications.
+
+`purchasenpc(buyer, seller, templateId, currency, amount)` returns one delivered NPC or null on refusal. It accepts approved simple accountless native templates supported by the existing deferred native creation adapter. Preparation, native admission and final cash checks precede publication; an abandoned private candidate is released and its owned database rows removed. A successful animal is placed beside the buyer without assigning ownership or forcing mounting. Call native `canmount`/`mount` separately when immediate riding is desired. Postcommit observer errors do not reverse a completed purchase.
+
+## Empty-vehicle relocation
+
+`vehicleoccupied(item)` includes live and offline compartment residents, but permits cargo. `relocateemptyvehicle(item, location, unhitchCharacters)` moves one existing empty stationary vehicle between ordinary rooms and can release draft characters at its origin. `purchasevehicletransfer(buyer, seller, item, location, currency, amount)` uses a prepared native cash participant to publish payment and relocation together; receipt policy remains in the calling prog. Both relocation actions preserve actual vehicle/interior/cargo identities and refuse occupied vehicles, active journeys, route rooms and attached vehicle trains. See the [vehicle contract](../Vehicle_System.md#prog-relocation-of-empty-vehicles).

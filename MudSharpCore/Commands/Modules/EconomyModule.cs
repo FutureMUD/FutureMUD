@@ -5444,7 +5444,7 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
         _ = int.TryParse(ss.PopSpeech(), out int accn);
 
         IBankAccount account =
-            bank.BankAccounts.FirstOrDefault(x => ((accn > 0 && x.AccountNumber == accn) || x.Name.StartsWith(ss.Last, StringComparison.InvariantCultureIgnoreCase)) && x.IsAuthorisedAccountUser(actor));
+            bank.BankAccounts.FirstOrDefault(x => ((accn > 0 && x.AccountNumber == accn) || x.Name.StartsWith(ss.Last, StringComparison.InvariantCultureIgnoreCase)) && BankAccountAccessRules.CanPerform(x, actor, text));
         if (account == null)
         {
             actor.OutputHandler.Send("You don't have access to any bank account with that account number or alias.");

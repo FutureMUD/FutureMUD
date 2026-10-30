@@ -13,6 +13,8 @@ It is written for a mixed audience:
 Where guidance is based directly on current command and runtime behavior, it is presented as verified current state. Where guidance describes the safest extension path for future work, it is presented as inferred implementation guidance.
 
 ## Working With the Economy Today
+Currency piles used as authored system defaults can carry both `DefaultCurrency` and `DefaultAmount` attributes in their prototype `<Definition>`. Seed only an exactly representable positive amount. Omitting both attributes preserves the generic empty pile; supplying only one or invalid configuration fails prototype loading. Persisted piles are never replenished during load or copy, and normal pile factories add only their explicitly requested coins.
+
 The current economy implementation is rich and only partially seed-driven. In practice, builders combine stock seed packages with admin commands, editable-item workflows, and ordinary world-building content such as cells, items, progs, and clans.
 
 ### Primary command surfaces
@@ -31,6 +33,8 @@ Employment analytics remove terminal control characters from legacy player-autho
 See the [common builder workflow](../Building/Generic_Editable_Item_Builder_Workflows.md) for selection, persistence, revision review and catalogue filtering. Market lists accept IDs and positive/negative keywords; `market list zone <id|name>` and `mi list market <id|name>` / `template <id|name>` narrow related records. Bank/property/auction lists reject unsupported custom filters instead of silently ignoring them.
 
 Bank account inspection uses operational bank commands at a branch, not `bank set accounts` or `bank set account`: `bank accounts` lists accessible accounts; authorised managers can use `bank manager accounts` and `bank manager account <account>`. Bank account-type deletion remains unsupported because accounts and transaction history refer to their types. Property declared tenants currently support individual characters; clan/shop tenant addition is unsupported and reports that limitation with the individual-tenant alternative.
+
+Clan privilege `CanDepositBankAccounts` authorises deposits into clan-owned accounts without account-management rights. It does not grant account listing, balance, transaction history, withdrawals, transfers or payment-item access. Full `CanManageBankAccounts` permission retains its existing access. Deposit receipts identify the paid amount and account alias without disclosing the balance.
 
 Builder clone syntax includes both source and destination: `mit clone "Seasonal Supply" "Winter Supply"`, `mi clone <source> <new name>`, and `mc clone <source> <new name>`. Quote multiword source names. Bank cloning is unsupported; create a bank with `bank edit new <name> <code> <economiczone>` and configure it explicitly. Customer accounts, balances and branches are not copied.
 
@@ -611,6 +615,10 @@ Business operations should call `IEconomyAnalyticsService.RecordActivity` once a
 
 ## FutureProg Reference Conversions
 
+For scripted wagers, inspect `cantransfercurrency(currency, amount, from, to)` before play, then settle the net amount with `transfercurrency`. Both use actual held cash and native exact-denomination/capacity rules. Preflight is not a reservation; settlement can still refuse if participants changed. Announce payment only after settlement succeeds. Never replace a refused transfer with `givecurrency`, which creates new money.
+
+For scripted barter, select real held stock with `targethelditem(owner, viewer, keyword)` and call `exchangeitems(giver, offered, partner, requested)`. Both custody changes commit together before native callbacks. Put eligibility, valuation and source dialogue in the command prog, then emit its exchange echo after success. Gifts can use `giveitem`; no shop or merchandise record is required for one-for-one barter. Post-commit callback exceptions must not trigger an automatic retry of either cash or item actions.
+
 Builders can resolve shops, markets, market categories, properties and economic zones using `toshop`, `tomarket`, `tomarketcategory`, `toproperty` and `toeconomiczone` with an ID or name. `tobankaccounttype` accepts a global ID or a bank followed by an ID/name; `tomerchandise` similarly takes a shop for scoped lookup. Property keys, leases, lease orders and sale orders have numeric-only `To` aliases. Missing lookups return null of the declared type. These are read-only reference lookups with no persistence or transaction changes.
 
 See [Reference Conversion Functions](../Core/FutureProg_Type_System.md#reference-conversion-functions) for the complete conversion audit and characteristic overload contracts.
@@ -618,3 +626,13 @@ See [Reference Conversion Functions](../Core/FutureProg_Type_System.md#reference
 ## Manual FutureProg economy values
 
 The [shared argument resolver](../Core/FutureProg_Type_System.md#shared-manual-argument-resolution) resolves bank accounts in the caller's gameworld by global account ID or bank name/code plus account number. Bank-code prefixes must be unambiguous; inactive accounts remain valid references for inspection and scripting. Explicit `null` is distinct from a failed lookup. This performs no banking transaction and changes no banking persistence.
+
+## Prog-authored liquid and animal vendors
+
+Use `liquidrefillcost` to display a full-refill quote and `purchaseliquidrefill` to repeat validation and settle the same purchase through native held cash. Prices use native currency base units; choose the source unit volume explicitly. Refill prices round the final prorated amount up to a whole base unit. The seller supplies unlimited configured liquid through this helper, so finite-stock content needs a different supply workflow.
+
+Use `purchasenpc` for an explicitly priced approved simple NPC template and inspect its returned character before further actions. It delivers an animal beside the buyer; native mounting, permissions and size rules remain separate. It creates no ownership record or replenishing population spawner. These prog interactions supplement ordinary permanent shops without creating NPC-owned shops.
+
+## Prog-authored wagon depots
+
+Wagon depots can use ordinary unconnected rooms, persistent item registers and physical bearer tickets. The Armageddon import records the exact wagon and depot on its chit and the exact chit on the wagon; it checks both references and the stored location on collection. `purchasevehicletransfer` joins native held-cash settlement to empty-vehicle relocation. The imported fee is 50 bits on collection, with no fee on lodging, daily charge or repair service. Occupants, including offline compartment residents, block storage; draft animals are unhitched and remain at the frontage.

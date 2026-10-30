@@ -22,7 +22,7 @@ public partial class Character
     public bool CanMovePosition(IPositionState whichPosition, bool ignoreMovement = false)
     {
         return PositionState != whichPosition &&
-               EffectsOfType<IPreventPositionChange>().All(x => !x.PreventsChange(PositionState, whichPosition)) &&
+               EffectsOfType<IPreventPositionChange>().Where(x => x.Applies(this)).All(x => !x.PreventsChange(PositionState, whichPosition)) &&
                CanMovePosition(whichPosition, PositionModifier, PositionTarget, true, ignoreMovement);
     }
 
@@ -33,9 +33,9 @@ public partial class Character
             return "You are already " + whichPosition.DefaultDescription() + ".";
         }
 
-        if (EffectsOfType<IPreventPositionChange>().Any(x => x.PreventsChange(PositionState, whichPosition)))
+        if (EffectsOfType<IPreventPositionChange>().Where(x => x.Applies(this)).Any(x => x.PreventsChange(PositionState, whichPosition)))
         {
-            return EffectsOfType<IPreventPositionChange>().First(x => x.PreventsChange(PositionState, whichPosition))
+            return EffectsOfType<IPreventPositionChange>().Where(x => x.Applies(this)).First(x => x.PreventsChange(PositionState, whichPosition))
                                                           .WhyPreventsChange(PositionState, whichPosition);
         }
 

@@ -97,14 +97,15 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 		foreach (var basic in new[] { true, false })
 		{
 			var name = basic ? "Basic Psionics" : "Advanced Psionics";
-			var verb = basic ? "psi" : "apsi";
+			var verb = "psi";
 			var school = context.MagicSchools.SingleOrDefault(x => x.Name == name);
 			if (school is null)
 			{
-				if (context.MagicSchools.Any(x => x.SchoolVerb == verb)) throw new InvalidOperationException($"Conflicting school verb {verb}.");
+				// Profiles share a command verb; each character receives one psionic profile.
 				school = new MagicSchool { Name = name, SchoolVerb = verb, SchoolAdjective = "psychic", PowerListColour = "boldmagenta" };
 				context.MagicSchools.Add(school); context.SaveChanges();
 			}
+			if (school.SchoolVerb == "apsi") school.SchoolVerb = verb;
 			var powers = new List<(MagicPower Power, int Band)>();
 			foreach (var stock in PsionicStockContent.Powers.Where(x => !basic || x.Basic))
 			{
@@ -154,10 +155,12 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 			}
 			if (!basic) powers.AddRange(InstallSpellPowers(context, school, trait, resource, yes, no, error, human.Id));
 			if (!basic) powers.AddRange(InstallCombatPowers(context, school, trait, resource, yes, error));
-			var capability = context.MagicCapabilities.SingleOrDefault(x => x.Name == name);
+			var capabilityName = basic ? "Psionic Adept" : "Psionicist";
+			var capability = context.MagicCapabilities.SingleOrDefault(x => x.MagicSchoolId == school.Id && (x.Name == name || x.Name == capabilityName));
+			if (capability?.Name == name) capability.Name = capabilityName;
 			if (capability is null)
 			{
-				context.MagicCapabilities.Add(new MagicCapability { Name = name, CapabilityModel = "skilllevel", PowerLevel = basic ? 1 : 2, MagicSchoolId = school.Id,
+				context.MagicCapabilities.Add(new MagicCapability { Name = capabilityName, CapabilityModel = "skilllevel", PowerLevel = basic ? 1 : 2, MagicSchoolId = school.Id,
 					Definition = new XElement("Definition", new XElement("ConcentrationTrait", trait.Id), new XElement("ConcentrationCapabilityExpression", "3"),
 						new XElement("ConcentrationDifficultyExpression", "5"), new XElement("Regenerators", new XElement("Regenerator", generator.Id)),
 						powers.Select(x => new XElement("Power", new XAttribute("trait", trait.Id), new XAttribute("minvalue", x.Band), new XAttribute("power", x.Power.Id)))).ToString() });
@@ -198,7 +201,7 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 			var displayName = PsionicPlayerContent.Powers[verb].Name;
 			var power = FindPower(context, school, verb, displayName, name);
 			var spellId = power is null ? null : (long?)XElement.Parse(power.Definition).Element("Spell");
-			var spell = spellId.HasValue ? context.MagicSpells.SingleOrDefault(x => x.Id == spellId.Value) : context.MagicSpells.SingleOrDefault(x => x.Name == name && x.MagicSchoolId == school.Id);
+			var spell = spellId.HasValue ? context.MagicSpells.SingleOrDefault(x => x.Id == spellId.Value) : context.MagicSpells.SingleOrDefault(x => (x.Name == name || x.Name == displayName) && x.MagicSchoolId == school.Id);
 			if (spellId.HasValue && spell is null) throw new InvalidOperationException($"Missing backing spell for {displayName}: {spellId.Value}.");
 			var newSpell = spell is null;
 			if (spell is null)
@@ -219,7 +222,7 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 					effect.Add(new XElement("Race", humanRaceId), new XElement("FormKey", "psionic-astral"));
 				}
 				if (verb == "illusion") effect.Add(new XElement("Description", "A faint, translucent shimmer veils this figure."), new XElement("AudienceScope", "Caster"), new XElement("OverrideKey", "psionic-example"));
-				spell = new MagicSpell { Name = name, Blurb = PsionicPlayerContent.Powers[verb].Description, Description = PsionicPlayerContent.Help(verb, school.SchoolVerb, true),
+				spell = new MagicSpell { Name = displayName, Blurb = PsionicPlayerContent.Powers[verb].Description, Description = PsionicPlayerContent.Help(verb, school.SchoolVerb, true),
 					MagicSchoolId = school.Id, SpellKnownProgId = no, CastingTraitDefinitionId = trait.Id,
 					CastingDifficulty = (int)Difficulty.Normal, MinimumSuccessThreshold = (int)Outcome.MinorPass,
 					ResistingDifficulty = verb == "possess" ? (int)Difficulty.Normal : null, ResistingTraitDefinitionId = verb == "possess" ? trait.Id : null,
@@ -237,6 +240,7 @@ Also see #3VNPCWitnessReportDelaySeconds#0, which defaults to zero; changing to 
 				context.MagicSpells.Add(spell); context.SaveChanges();
 			}
 			else if (spell.MagicSchoolId != school.Id) throw new InvalidOperationException($"Conflicting spell identity {name}.");
+			if (spell.Name == name) spell.Name = displayName;
 			const string oldSpellDescription = "Uses ordinary spell targeting, materials, costs, resistance and cleanup. Power access controls spell knowledge.";
 			if (spell.Description == oldSpellDescription)
 			{

@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 ﻿using MudSharp.Form.Characteristics;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.RPG.Checks;
@@ -94,7 +96,7 @@ public class IdentityObscurerGameItemComponent : GameItemComponent, IObscureIden
                                                                        .Strip_A_An();
                                                          });
 
-    public string OverriddenFullDescription => KeywordSubstitutionRegex.Replace(_prototype.OverriddenFullDescription, match =>
+    public string? OverriddenFullDescription => _prototype.PreserveFullDescription ? null : KeywordSubstitutionRegex.Replace(_prototype.OverriddenFullDescription, match =>
                                                         {
                                                             if (match.Groups["option"].Value.EqualTo("item"))
                                                             {

@@ -23,7 +23,7 @@ public static partial class ArmageddonTemplarInstaller
 		IReadOnlyDictionary<string, ChargenRole> roles, IReadOnlyDictionary<string, TraitDefinition> skills, ICollection<string> messages)
 	{
 		var school = (MagicSchool)Put(db, "arm.school.lirathan_templar", new MagicSchool { Name = "Psionics",
-			SchoolVerb = "lpsi", SchoolAdjective = "psionic", PowerListColour = "boldmagenta" },
+			SchoolVerb = "psi", SchoolAdjective = "psionic", PowerListColour = "boldmagenta" },
 			[nameof(MagicSchool.Name), nameof(MagicSchool.SchoolVerb), nameof(MagicSchool.SchoolAdjective), nameof(MagicSchool.PowerListColour)], messages);
 		var canInvoke = TextOrBooleanPowerProg(db, "arm.templar.lirathan.power.allowed", "return true", ProgVariableTypes.Boolean, messages);
 		var unavailable = TextOrBooleanPowerProg(db, "arm.templar.lirathan.power.unavailable", "return \"That Lirathan psionic power is unavailable.\"", ProgVariableTypes.Text, messages);
@@ -92,7 +92,7 @@ public static partial class ArmageddonTemplarInstaller
 					new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
 			var row = Put(db, "arm.power.lirathan." + spec.Key, new MagicPower { Name = spec.Name.Replace("Lirathan ", "", StringComparison.Ordinal), MagicSchoolId = school.Id,
 				PowerModel = spec.Model, Blurb = "A technique of the Way, powered by mental effort.",
-				ShowHelp = $"Use LPSI {spec.Verb.ToUpperInvariant()} with the target or invocation described by the power.", Definition = definition.ToString() },
+				ShowHelp = $"Use PSI {spec.Verb.ToUpperInvariant()} with the target or invocation described by the power.", Definition = definition.ToString() },
 				[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages);
 			powers.Add(spec.Key, row);
 		}
@@ -133,8 +133,8 @@ public static partial class ArmageddonTemplarInstaller
 			var key = entry.Verb is "say" or "connectback" ? entry.Verb : entry.Trait.Split('.').Last();
 			var definition = xml.ToString();
 			var row = Put(db, "arm.power.lirathan." + key, new MagicPower { Name = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace('_', ' ')), MagicSchoolId = school.Id,
-				PowerModel = stock.Type, Blurb = stock.Help.Replace("{range}", "the same plane", StringComparison.Ordinal),
-				ShowHelp = stock.Help, Definition = definition },
+				PowerModel = stock.Type, Blurb = stock.Help.Replace("{range}", entry.Advanced ? "shard" : "zone", StringComparison.Ordinal),
+				ShowHelp = stock.Help.Replace("{range}", entry.Advanced ? "shard" : "zone", StringComparison.Ordinal), Definition = definition },
 				[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages);
 			powers.Add(key, row);
 		}
@@ -148,15 +148,15 @@ public static partial class ArmageddonTemplarInstaller
 			new XElement("AllSchools", true), new XElement("HideActivity", true), new XElement("AuditDifficultyStages", 2),
 			new XElement("BodilyCost", new XAttribute("base", 10), new XAttribute("skillTrait", silentTrait.Id), new XAttribute("willpowerTrait", willpower.Id), new XAttribute("verbs", "silentpsi")),
 			new XElement("StunUpkeep", new XAttribute("skillTrait", silentTrait.Id), new XAttribute("wisdomTrait", wisdom.Id), new XAttribute("freeProg", freeUpkeep.Id), new XAttribute("attemptsPerMinute", 60)));
-		powers.Add("silentpsi", (MagicPower)Put(db, "arm.power.lirathan.silentpsi", new MagicPower { Name = "Lirathan Silent Psi", MagicSchoolId = school.Id,
-			PowerModel = "mindconceal", Blurb = "Conceal mental identity and activity.", ShowHelp = "Use LPSI SILENTPSI or LPSI ENDSILENTPSI to veil or reveal your mental signature.", Definition = silentXml.ToString() },
+		powers.Add("silentpsi", (MagicPower)Put(db, "arm.power.lirathan.silentpsi", new MagicPower { Name = "Silent Psi", MagicSchoolId = school.Id,
+			PowerModel = "mindconceal", Blurb = "Conceal mental identity and activity.", ShowHelp = "Use PSI SILENTPSI or PSI ENDSILENTPSI to veil or reveal your mental signature.", Definition = silentXml.ToString() },
 			[nameof(MagicPower.Name), nameof(MagicPower.MagicSchoolId), nameof(MagicPower.PowerModel), nameof(MagicPower.Blurb), nameof(MagicPower.ShowHelp), nameof(MagicPower.Definition)], messages));
 
 		var allPowers = powers.Select(x => (Key: x.Key, Power: x.Value, Trait: skills[TraitForPower(x.Key)] )).ToArray();
 		var capabilityDefinition = new XElement("Definition", new XElement("ConcentrationTrait", skills["arm.skill.allspeak"].Id),
 			new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"), new XElement("Regenerators"),
 			allPowers.Select(x => new XElement("Power", new XAttribute("trait", x.Trait.Id), new XAttribute("minvalue", 1), new XAttribute("power", x.Power.Id))));
-		var capability = (MagicCapability)Put(db, "arm.capability.lirathan_templar_psionics", new MagicCapability { Name = "Lirathan Templar Psionics",
+		var capability = (MagicCapability)Put(db, "arm.capability.lirathan_templar_psionics", new MagicCapability { Name = "Lirathan Templar",
 			CapabilityModel = "skilllevel", PowerLevel = 2, MagicSchoolId = school.Id, Definition = capabilityDefinition.ToString() },
 			[nameof(MagicCapability.Name), nameof(MagicCapability.CapabilityModel), nameof(MagicCapability.PowerLevel), nameof(MagicCapability.MagicSchoolId), nameof(MagicCapability.Definition)], messages);
 		var no = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse");

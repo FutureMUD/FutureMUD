@@ -243,7 +243,8 @@ namespace MudSharp.RPG.Checks
 		GuardingExitChallengeCheck = 240,
 		GuardingItemChallengeCheck = 241,
 		BlindFightingCheck = 242,
-		MountControlCheck = 243
+		MountControlCheck = 243,
+		PoisonResistanceCheck = 244
     }
 
     public enum FailIfTraitMissingType

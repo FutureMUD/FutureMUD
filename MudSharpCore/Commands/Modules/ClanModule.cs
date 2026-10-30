@@ -640,15 +640,16 @@ All of the following commands must happen with an edited clan selected:
             TimeSpan ts = TimeSpan.FromDays(30);
             sb.AppendLine(StringUtilities.GetTextTable(
             from clan in clans
-            let membership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan)
+            let members = clan.Memberships.ToArray()
+            let characters = members.Select(x => x.MemberCharacter).OfType<ICharacter>().ToArray()
             select new List<string>
             {
                 clan.Id.ToString("N0", actor),
                 clan.FullName,
                 clan.Alias,
-                clan.Memberships.Count().ToString("N0", actor),
-                clan.Memberships.Count(x => x.MemberCharacter.State.IsAlive()).ToString("N0", actor),
-                clan.Memberships.Count(x => (DateTime.UtcNow - x.MemberCharacter.LastLogoutDateTime) < ts).ToString("N0", actor),
+                members.Length.ToString("N0", actor),
+                characters.Count(x => x.State.IsAlive()).ToString("N0", actor),
+                characters.Count(x => (DateTime.UtcNow - x.LastLogoutDateTime) < ts).ToString("N0", actor),
                 clan.ShowClanMembersInWho.ToColouredString(),
                 clan.ShowFamousMembersInNotables.ToColouredString(),
                 clan.Sphere ?? ""

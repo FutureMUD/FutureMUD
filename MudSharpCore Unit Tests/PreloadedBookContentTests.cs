@@ -35,6 +35,46 @@ public class PreloadedBookContentTests
 	private const long PaperProtoId = 4L;
 
 	[TestMethod]
+	public void SheetConsumption_ProtectsWrittenSheetsUntilExplicitlyAllowed()
+	{
+		var world = CreateGameworld(CreateLanguage(LanguageId, "Common"), CreateScript(ScriptId, "Latin", 1.0), CreateColour(ColourId, "black"), 200);
+		var parent = Mock.Get(CreateParent(world.Object, 201));
+		parent.SetupGet(x => x.Quantity).Returns(1);
+		var sheet = (PaperSheetGameItemComponent)CreatePaperProto(world.Object, 200).CreateNew(parent.Object);
+		Assert.IsTrue(sheet.CanConsumePage(null));
+		sheet.Readables.Add(CreateWriting(30, "Letter", 6, "Private fixture text."));
+		Assert.IsFalse(sheet.ConsumePage(null));
+		parent.Verify(x => x.Delete(), Times.Never);
+		Assert.IsTrue(sheet.ConsumePage(null, true));
+		parent.Verify(x => x.Delete(), Times.Once);
+	}
+
+	[TestMethod]
+	public void PageConsumption_PrefersBlankPagesAndRequiresExplicitWrittenDestruction()
+	{
+		var world = CreateGameworld(CreateLanguage(LanguageId, "Common"), CreateScript(ScriptId, "Latin", 1.0), CreateColour(ColourId, "black"), 200);
+		var proto = CreateBookProto(world.Object, BookDefinition(3, "Manual",
+			WritingElement(1, 1, "Preserve this page.", "Fixture"), WritingElement(3, 1, "Preserve this too.", "Fixture")));
+		var book = (BookGameItemComponent)proto.CreateNew(CreateParent(world.Object, 200));
+		Assert.IsFalse(book.CanConsumePage(null));
+		book.Open();
+		Assert.IsTrue(book.CanConsumePage(null));
+		Assert.AreEqual(1, book.CurrentPage, "The query does not turn the book.");
+		Assert.IsTrue(book.ConsumePage(null));
+		CollectionAssert.AreEquivalent(new[] { 2 }, book.TornPages.ToArray());
+		Assert.IsFalse(book.CanConsumePage(null));
+		Assert.IsFalse(book.ConsumePage(null));
+		Assert.IsTrue(book.ConsumePage(null, true));
+		CollectionAssert.AreEquivalent(new[] { 2, 3 }, book.TornPages.ToArray());
+		Assert.AreEqual(1, book.CurrentPage);
+		Assert.AreEqual("Preserve this page.", book.Readables.Single().ParseFor(null));
+		Assert.IsTrue(book.ConsumePage(null, true));
+		Assert.AreEqual(0, book.CurrentPage);
+		Assert.IsFalse(book.CanConsumePage(null, true));
+		Assert.IsFalse(book.Readables.Any());
+	}
+
+	[TestMethod]
 	public void PrintedWriting_LoadsThroughFactoryWithNullableAuthorAndProvenance()
 	{
 		var language = CreateLanguage(LanguageId, "Common");

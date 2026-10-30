@@ -1090,6 +1090,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
 	internal void ClearPreparedContainerSourcePosition() => SetPreparedSpatialState(null);
 
+	/// <summary>Sets the exterior position after a native empty-vehicle relocation has been validated.</summary>
+	internal void SetPreparedVehicleLocation(SpatialLocation location) => SetPreparedSpatialState(location);
+
+	/// <summary>Only for a validated native held-item exchange, before observers run.</summary>
+	internal void SetPreparedHeldCustody(IBody holder)
+	{
+		GetItemType<HoldableGameItemComponent>().HeldBy = holder;
+		_containedIn = null;
+		SetPreparedSpatialState(null);
+	}
+
 	internal void CopyCurrencyPreviewOwner(IGameItem source)
 	{
 		if (!_currencyPreview) throw new InvalidOperationException("Only an unpublished currency preview can copy an owner silently.");

@@ -64,6 +64,18 @@ public static class VehicleEnvironmentRules
 	public static bool CanTraverseEnvironment(this IVehicle? vehicle, IRoom? destination, RoomLayer destinationLayer,
 		out string reason)
 	{
+		if (vehicle?.MovementProfile?.MovementEnvironment == VehicleMovementEnvironment.Land)
+		{
+			if (vehicle.RoomLayer != RoomLayer.GroundLevel || destinationLayer != RoomLayer.GroundLevel ||
+			    vehicle.Location.IsSurfaceWater(vehicle.RoomLayer) || vehicle.Location.IsSiltSurface(vehicle.RoomLayer) ||
+			    destination.IsSurfaceWater(destinationLayer) || destination.IsSiltSurface(destinationLayer))
+			{
+				reason = $"{vehicle.Name} requires a land surface at both ends of its movement.";
+				return false;
+			}
+			reason = string.Empty;
+			return true;
+		}
 		if (vehicle.IsSiltVehicle())
 		{
 			if (!vehicle!.Location.IsSiltSurface(vehicle.RoomLayer))

@@ -1325,8 +1325,11 @@ public partial class Body
     }
 
     public bool CanGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
+        => CanGet(item, quantity, ignoreFlags, true);
+
+    private bool CanGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags, bool requireReach)
     {
-        if (item is not null && (item.Location is not null || item.ContainedIn is not null || item.InInventoryOf is not null))
+        if (requireReach && item is not null && (item.Location is not null || item.ContainedIn is not null || item.InInventoryOf is not null))
         {
             var reach = Actor.CanReachItem(item, requireInventoryPermission: false);
             if (!reach.Truth)
@@ -1667,13 +1670,11 @@ public partial class Body
             return false;
         }
 
-        IGrab grabLoc = HoldLocs.FirstOrDefault(x =>
-                          (x.CanGrab(item, this) == WearlocGrabResult.Success &&
-                           x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
-                          (Actor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig)) ??
-                      HoldLocs.First(x => x.CanGrab(item, this) == WearlocGrabResult.Success ||
-                                          (Actor.IsAdministrator() &&
-                                           x.CanGrab(item, this) == WearlocGrabResult.FailTooBig));
+        var grabLoc = SelectGetGrabLocation(item, HoldLocs, Actor);
+        if (grabLoc is null)
+        {
+            return false;
+        }
         _heldItems.Add(Tuple.Create(item, grabLoc));
         _carriedItems.Add(item);
         UpdateDescriptionHeld(item);
@@ -1797,20 +1798,30 @@ public partial class Body
 		};
 	}
 
+	private IGrab? SelectGetGrabLocation(IGameItem item, IEnumerable<IGrab> locations, ICharacter executor)
+	{
+		var candidates = locations.ToArray();
+		bool CanGrab(IGrab part) => part.CanGrab(item, this) == WearlocGrabResult.Success ||
+			(executor.IsAdministrator() && part.CanGrab(item, this) == WearlocGrabResult.FailTooBig);
+		// An abstract inventory accepts many items and leaves physical hands available for wielding.
+		return candidates.FirstOrDefault(x => !x.Unary && CanGrab(x)) ??
+			candidates.FirstOrDefault(x => x.Unary &&
+				((x.CanGrab(item, this) == WearlocGrabResult.Success &&
+				  x.Alignment.LeftRightOnly() == executor.Handedness.LeftRightOnly()) ||
+				 (executor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig))) ??
+			candidates.FirstOrDefault(x => x.Unary && CanGrab(x));
+	}
+
 	private PreparedGet? PrepareGetPlacement(IGameItem item, bool allowMerge)
 	{
 		var executor = Actor;
 		var merge = allowMerge ? HeldOrWieldedItems.ToArray().FirstOrDefault(x => x.CanMerge(item)) : null;
 		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
 		if (merge is not null) return new PreparedGet(null, merge, executor, Location, RoomLayer) { RoutePosition = RoutePositionMetres };
-		var hands = HoldLocs.Where(hand => !_heldItems.Any(x => ReferenceEquals(x.Item2, hand)) &&
-			!_wieldedItems.Any(x => ReferenceEquals(x.Item2, hand))).ToArray();
-		var hand = hands.FirstOrDefault(x =>
-			(x.CanGrab(item, this) == WearlocGrabResult.Success &&
-			 x.Alignment.LeftRightOnly() == executor.Handedness.LeftRightOnly()) ||
-			(executor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig)) ??
-			hands.FirstOrDefault(x => x.CanGrab(item, this) == WearlocGrabResult.Success ||
-				(executor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig));
+		var hands = HoldLocs.Where(hand => !hand.Unary ||
+			(!_heldItems.Any(x => ReferenceEquals(x.Item2, hand)) &&
+			 !_wieldedItems.Any(x => ReferenceEquals(x.Item2, hand)))).ToArray();
+		var hand = SelectGetGrabLocation(item, hands, executor);
 		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
 		return merge is null && hand is null ? null : new PreparedGet(hand, merge, executor, Location, RoomLayer) { RoutePosition = RoutePositionMetres };
 	}
@@ -1907,8 +1918,9 @@ public partial class Body
 					return true;
 				}
 			}
-			if (ReferenceEquals(Actor, placement.Executor) && placement.Hand is not null && !_heldItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)) &&
-				!_wieldedItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)))
+			if (ReferenceEquals(Actor, placement.Executor) && placement.Hand is not null &&
+				(!placement.Hand.Unary || (!_heldItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)) &&
+				 !_wieldedItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)))))
 			{
 				_heldItems.Add(Tuple.Create(item, placement.Hand));
 				UpdateDescriptionHeld(item);
@@ -3532,6 +3544,7 @@ public partial class Body
 
     public bool LoadtimeWear(IGameItem item, IWearProfile profile)
     {
+		using var fittingRestore = item.GetItemType<IWearable>()?.BypassSizingFor(this);
         if (!CanWear(item, profile))
         {
             return false;
@@ -3588,6 +3601,8 @@ public partial class Body
 
         if (!CanContinue()) return;
         var wearLocations = profile.Profile(this).Select(x => (item, x.Key, x.Value)).ToList();
+		var wearable = item.GetItemType<IWearable>();
+		var fittedSize = wearable.CaptureFitOnWear(this);
         if (!CanContinue()) return;
 
         if (!silent)
@@ -3607,6 +3622,7 @@ public partial class Body
         _heldItems.RemoveAll(x => x.Item1 == item);
         _wieldedItems.RemoveAll(x => x.Item1 == item);
         _wornItems.AddRange(wearLocations);
+        if (fittedSize is not null && fittedSize != wearable.Fit) wearable.SetFit(fittedSize);
         item.GetItemType<IWearable>().UpdateWear(this, profile);
         UpdateDescriptionWorn(item);
         InventoryChanged = true;
@@ -4673,6 +4689,20 @@ public partial class Body
     public void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote? playerEmote = null)
     {
 		TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.Give, recipient: target, playerEmote: playerEmote);
+	}
+
+	public bool TryGiveCurrency(ICurrency currency, IBody target, decimal amount, bool exact, bool silent = false)
+	{
+		TransferPreparedCurrency(out var committed, currency, amount, exact, CurrencyTransferKind.Give, recipient: target, silent: silent);
+		return committed;
+	}
+
+	public bool TryGiveCurrency(ICurrency currency, IBody target, decimal amount, bool exact,
+		ICurrencyTransferParticipant participant, bool silent = false)
+	{
+		TransferPreparedCurrency(out var committed, currency, amount, exact, CurrencyTransferKind.Give,
+			recipient: target, silent: silent, participant: participant);
+		return committed;
 	}
 
     public bool CanGive(ICurrency currency, ICorpse target, decimal amount, bool exact)

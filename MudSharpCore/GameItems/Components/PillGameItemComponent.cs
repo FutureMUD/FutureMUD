@@ -7,6 +7,7 @@ namespace MudSharp.GameItems.Components;
 public class PillGameItemComponent : GameItemComponent, ISwallowable
 {
     protected PillGameItemComponentProto _prototype;
+    public string ConsumptionEmote => _prototype.ConsumptionEmote;
 
     public override IGameItemComponentProto Prototype => _prototype;
 

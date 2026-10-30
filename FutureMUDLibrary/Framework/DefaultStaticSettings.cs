@@ -17,6 +17,10 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "EnableWearableSizing", "false" },
+			{ "DefaultWearableScalarSizeProg", "0" },
+			{ "TailoringTraitId", "0" },
+			{ "TailoringToolTagId", "0" },
 			{ "BlindFightingEnabled", "false" },
 			{ "VehiclePilotEnabled", "false" },
 			{ "VehiclePilotTraitId", "0" },

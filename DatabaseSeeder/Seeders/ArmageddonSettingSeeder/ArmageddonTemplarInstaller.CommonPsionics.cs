@@ -88,15 +88,15 @@ public static partial class ArmageddonTemplarInstaller
 				new XAttribute("willpowerTrait", willpower), new XAttribute("verbs", spec.Verb)));
 			var help = spec.Key switch
 			{
-				"rejuvenate" => "Use LPSI REJUVENATE <health|hunger|thirst|sobriety|stamina>. Spend stun to improve that condition; failure worsens it.",
-				"vanish" => "Use LPSI VANISH <room|near|far|veryfar> or LPSI ENDVANISH. Wider ranges require 25, 50 and 75 skill. Near covers adjacent rooms, far your zone and veryfar your shard.",
-				"sense_presence" => "Use LPSI SENSEPRESENCE or LPSI ENDSENSEPRESENCE. Sense nearby minds through sneaking and unconcealed psionic vanishing.",
-				"conceal" => "Use LPSI CONCEAL or LPSI ENDCONCEAL to veil or reveal your mental signature.",
-				"compel" => "Use LPSI COMPEL <contacted target> <command> to impose one restricted command remotely.",
-				"project" => "Use LPSI PROJECT <contacted target> <feeling> to project an emotion.",
-				"suggest" => "Use LPSI SUGGEST <contacted target> <thought> to plant a thought.",
-				"probe" => "Use LPSI PROBE <contacted target>. More skill reveals physical details, attributes, identity, plans, affiliations and contacts. The target must be of the same race.",
-				_ => $"Use LPSI {spec.Verb.ToUpperInvariant()} <contacted target>."
+				"rejuvenate" => "Use PSI REJUVENATE <health|hunger|thirst|sobriety|stamina>. Spend stun to improve that condition; failure worsens it.",
+				"vanish" => "Use PSI VANISH <room|near|far|veryfar> or PSI ENDVANISH. Wider ranges require 25, 50 and 75 skill. Near covers adjacent rooms, far your zone and veryfar your shard.",
+				"sense_presence" => "Use PSI SENSEPRESENCE or PSI ENDSENSEPRESENCE. Sense nearby minds through sneaking and unconcealed psionic vanishing.",
+				"conceal" => "Use PSI CONCEAL or PSI ENDCONCEAL to veil or reveal your mental signature.",
+				"compel" => "Use PSI COMPEL <contacted target> <command> to impose one restricted command remotely.",
+				"project" => "Use PSI PROJECT <contacted target> <feeling> to project an emotion.",
+				"suggest" => "Use PSI SUGGEST <contacted target> <thought> to plant a thought.",
+				"probe" => "Use PSI PROBE <contacted target>. More skill reveals physical details, attributes, identity, plans, affiliations and contacts. The target must be of the same race.",
+				_ => $"Use PSI {spec.Verb.ToUpperInvariant()} <contacted target>."
 			};
 			var power = (MagicPower)Put(db, "arm.power.psionicist." + spec.Key, new MagicPower
 			{
@@ -120,7 +120,7 @@ public static partial class ArmageddonTemplarInstaller
 				selected.Select(x => new XElement("Power", new XAttribute("trait", powers[x].Trait), new XAttribute("minvalue", 1), new XAttribute("power", powers[x].Power.Id))));
 			var capability = (MagicCapability)Put(db, "arm.capability." + key + "_psionics", new MagicCapability
 			{
-				Name = name + " Psionics", CapabilityModel = "skilllevel", PowerLevel = key == "normal" ? 1 : 3,
+				Name = key == "normal" ? "User of the Way" : name, CapabilityModel = "skilllevel", PowerLevel = key == "normal" ? 1 : 3,
 				MagicSchoolId = school.Id, Definition = definition.ToString()
 			}, ["Name", "CapabilityModel", "PowerLevel", "MagicSchoolId", "Definition"], messages);
 			Put(db, meritKey, new Merit { Name = capability.Name, Type = "Magic Capability", MeritType = 0, MeritScope = 2,

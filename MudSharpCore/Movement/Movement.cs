@@ -73,6 +73,17 @@ public class Movement : IMovement
 
     /// <inheritdoc />
     public IRoomExit Exit { get; }
+	private ICharacter? _disorientedMover;
+	private IRoomExit? _intendedExit;
+
+	internal void SetPerceivedExit(ICharacter actor, IRoomExit intended)
+	{
+		_disorientedMover = actor;
+		_intendedExit = intended;
+	}
+
+	public IRoomExit ExitFor(IPerceiver voyeur) => Phase == MovementPhase.OriginalRoom &&
+		ReferenceEquals(voyeur, _disorientedMover) ? _intendedExit ?? Exit : Exit;
 
     public RoomLayer OriginLayer { get; }
     private readonly ICharacter _originalMover;
@@ -654,7 +665,7 @@ public class Movement : IMovement
     public string DescribeEnterMove(IPerceiver voyeur)
     {
         StringBuilder sb = new();
-        string suffix = Phase == MovementPhase.OriginalRoom ? Exit.OutboundMovementSuffix : Exit.InboundMovementSuffix;
+        string suffix = Phase == MovementPhase.OriginalRoom ? ExitFor(voyeur).OutboundMovementSuffix : Exit.InboundMovementSuffix;
         List<ICharacter> seenMovers = CharacterMovers
                          .Where(x => voyeur.CanSee(x))
                          .Where(x => !Mounts.Contains(x) || !NonDraggers.Contains(x))
@@ -704,7 +715,7 @@ public class Movement : IMovement
     public string DescribeBeginMove(IPerceiver voyeur)
     {
         StringBuilder sb = new();
-        string suffix = Phase == MovementPhase.OriginalRoom ? Exit.OutboundMovementSuffix : Exit.InboundMovementSuffix;
+        string suffix = Phase == MovementPhase.OriginalRoom ? ExitFor(voyeur).OutboundMovementSuffix : Exit.InboundMovementSuffix;
         List<ICharacter> seenMovers = CharacterMovers
                          .Where(x => voyeur.CanSee(x))
                          .Where(x => !Mounts.Contains(x) || !NonDraggers.Contains(x))
@@ -749,7 +760,7 @@ public class Movement : IMovement
     public string Describe(IPerceiver voyeur)
     {
         StringBuilder sb = new();
-        string suffix = Phase == MovementPhase.OriginalRoom ? Exit.OutboundMovementSuffix : Exit.InboundMovementSuffix;
+        string suffix = Phase == MovementPhase.OriginalRoom ? ExitFor(voyeur).OutboundMovementSuffix : Exit.InboundMovementSuffix;
         List<ICharacter> seenMovers = CharacterMovers
                          .Where(x => voyeur.CanSee(x))
                          .Where(x => !Mounts.Contains(x) || !NonDraggers.Contains(x))
@@ -852,11 +863,11 @@ public class Movement : IMovement
             foreach (ICharacter ch in helpers)
             {
                 ch.OutputHandler.Send(
-                    $"You{(helpers.Count > 1 ? " and your fellow helpers" : "")} begin to assist {leader.HowSeen(ch)} with dragging {target.HowSeen(ch)} {Exit.OutboundMovementSuffix}.".Wrap(ch.InnerLineFormatLength));
+                    $"You{(helpers.Count > 1 ? " and your fellow helpers" : "")} begin to assist {leader.HowSeen(ch)} with dragging {target.HowSeen(ch)} {ExitFor(ch).OutboundMovementSuffix}.".Wrap(ch.InnerLineFormatLength));
             }
 
             leader.OutputHandler.Send(
-                $"You{(helpers.Any() ? " and your helpers" : "")} begin to drag {target.HowSeen(leader)} {Exit.OutboundMovementSuffix}.".Wrap(leader.InnerLineFormatLength));
+                $"You{(helpers.Any() ? " and your helpers" : "")} begin to drag {target.HowSeen(leader)} {ExitFor(leader).OutboundMovementSuffix}.".Wrap(leader.InnerLineFormatLength));
         }
 
         foreach (ICharacter mover in CharacterMovers)

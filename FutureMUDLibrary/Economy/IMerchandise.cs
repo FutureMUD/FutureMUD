@@ -21,6 +21,7 @@ namespace MudSharp.Economy
         bool AutoReordering { get; }
         decimal EffectiveAutoReorderPrice { get; }
         bool PreserveVariablesOnReorder { get; }
+        string LoadArguments { get; }
         int MinimumStockLevels { get; }
         double MinimumStockLevelsByWeight { get; }
         decimal BasePrice { get; }

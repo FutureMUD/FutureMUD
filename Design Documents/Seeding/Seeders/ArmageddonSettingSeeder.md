@@ -1,6 +1,14 @@
 # Armageddon Setting Seeder
 
-Installs classes, subclasses, magic, racial backgrounds, languages, equipment and game settings inspired by classical Armageddon, including class-based skill branching. Use the Armageddon skill package and enable classes/subclasses in Chargen for that experience. It supplies setting content rather than a built world of cities and rooms; races and Templar classes still require builder approval for player selection.
+Installs classes, subclasses, magic, racial backgrounds, languages, equipment and game settings inspired by classical Armageddon, including class-based skill branching. Use the Armageddon skill package and enable classes/subclasses in Chargen for that experience. It supplies setting content rather than a built world of cities and rooms. Human, City Elf, Desert Elf, Dwarf, Half-Giant and Mul are available; Half-Elf, the shared Elf parent and restricted Templar classes retain their separate admission policies.
+
+## Character creation defaults
+
+The Setting seeder uses native `SkillSkipper`: class/subclass mandatory grants and the existing composed `FreeSkillsProg` supply starting skills, without generic skill purchases or boosts. The original delegate and unrelated storyboard XML are preserved. Native accent and knowledge pickers remain in place; heritage language grants and culture-specific accent availability drive them. An empty Profession category becomes optional while required Class/Subclass choices remain required.
+
+Other installed races and cultures are unavailable in player creation. Generic Planar State merits and Robot Diagnostics/Maintenance/Surgery knowledge are also unavailable at chargen, without deleting definitions or changing in-game learning and NPC content. These individual policy fields have ownership baselines: later builder overrides survive reruns. Recognised older skill pickers migrate to SkillSkipper when this policy is first introduced; subsequent deliberate screen-type changes survive.
+
+The separate Worldfile seeder replaces the untouched Guest Lounge starting-location placeholder with the Gaj in Allanak (Vnum50615), when that room and the default location role exist. Custom locations and non-default commencement progs are preserved. Setting-only installs still need a builder-authored starting world. Account email verification, outbound email and application approval settings are operator policy and are not changed. The walkthrough's email bypass and automatic approval remain local conveniences.
 
 Both Human inventory choices are supported: `hands` uses grabbing/wielding hands, while `inventory` uses wield-only hands with a separate inventory. Creature anatomy preserves that choice, creates quadruped forepaws from either hand type and assigns natural strikes to both hands. An installation stopped at anatomy can be resumed with the same settings; earlier completed batches are retained.
 
@@ -64,3 +72,7 @@ Ownership uses package `ArmageddonMagicSeeder`, module `setting-weather-v1`, sta
 The package does not reconstruct the absent historical regional weather file, wind-front/advection engine, diseases, ecology or tides. See [time/sky source and adaptation evidence](../../Armageddon/Armageddon_Time_And_Celestial_Proposal.md) and [weather system](../../World/Weather_System.md). Qualification uses the existing analyzer fixture with five sampled years after one burn-in year, seeds 123456,8675309,424242, the occupancy targets above, zero prohibited weather and sheltered seasonal/hourly means within 2°C of configured baselines.
 
 Measured occupancy ranges, all test receipts and native installation/controller qualification are recorded in the [weather verification report](../../World/Weather_Verification.md#non-terrestrial-timing-and-armageddon-weather--25-october-2026).
+
+### Player-facing magic and accents
+
+Class casting schools share `cast`; the selected class supplies the casting school. Use `cast "<spell>" grade <1..7> on <target>`, with `cast help`, `cast formula`, `cast practice` and `cast gather` retaining their native meanings. Elemental capability names include Elementalist; sorcerous capabilities use their class names. Psionic profiles share `psi` and are mutually exclusive through class selection. Standard accents explicitly render both recognised and vague suffixes as "in the standard accent". Stock-owned changes reconcile through existing ownership records without reenrolling characters.

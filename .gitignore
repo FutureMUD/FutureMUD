@@ -40,6 +40,13 @@ MudSharp/bin/*
 /.artifacts/weather/
 /.artifacts
 
+# Private ArmSolo inputs and generated exports must never be committed or shipped.
+ArmageddonWorldfiles.json.gz
+ArmageddonWorldfileSpecialText.json
+ArmageddonWorldfiles.manifest.json
+ArmSolo*/
+codedump.c
+
 # Local diagnostics and temporary converter exports
 /build-diag.log
 /build-thermal.log

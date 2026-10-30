@@ -1,5 +1,7 @@
 ﻿using MudSharp.Body;
 using MudSharp.Character.Heritage;
+using MudSharp.Construction;
+using MudSharp.Events;
 using MudSharp.Effects.Concrete;
 
 namespace MudSharp.Body.Needs;
@@ -29,6 +31,18 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         return FulfilNeedsCore(fulfiller, ignoreDelays, null, null);
     }
 
+    internal (double Hunger, double Thirst, double Drunkenness) GetFulfilmentMultipliers()
+    {
+        var effects = Owner.CombinedEffectsOfType<INeedRateEffect>()
+            .Where(x => x.Applies(Owner))
+            .Where(x => x.AppliesToActive)
+            .ToList();
+        return (
+            effects.Aggregate(1.0, (multiplier, effect) => multiplier * effect.HungerMultiplier),
+            effects.Aggregate(1.0, (multiplier, effect) => multiplier * effect.ThirstMultiplier),
+            effects.Aggregate(1.0, (multiplier, effect) => multiplier * effect.DrunkennessMultiplier));
+    }
+
     public NeedsResult FulfilNeedsOnSelectedBody(INeedFulfiller fulfiller, IBody selectedBody, Func<bool> isCurrent)
     {
         ArgumentNullException.ThrowIfNull(selectedBody);
@@ -49,10 +63,7 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         EnsureSelected();
         NeedsResult oldStatus = Status;
 
-        List<INeedRateEffect> effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToActive).ToList();
-        double hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
-        double thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
-        double drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
+        var (hungerMult, thirstMult, drunkMult) = GetFulfilmentMultipliers();
         double satiationDelta = fulfiller.SatiationPoints * hungerMult;
         double thirstDelta = fulfiller.ThirstPoints * thirstMult;
         double alcoholDelta = fulfiller.AlcoholLitres * drunkMult;
@@ -162,6 +173,10 @@ public abstract class ChangingNeedsModelBase : INeedsModel
     protected NeedsResult NeedsChanged(NeedsResult oldStatus, bool hungrier, bool thirstier, bool drunker)
     {
         NeedsResult newStatus = Status;
+        var hungerTransition = (oldStatus & NeedsResult.HungerOnly) != (newStatus & NeedsResult.HungerOnly);
+        var thirstTransition = (oldStatus & NeedsResult.ThirstOnly) != (newStatus & NeedsResult.ThirstOnly);
+        var actor = Owner;
+        var location = actor.Location;
 
         // Food Messages
         bool foodChanged = (oldStatus & NeedsResult.HungerOnly) != (newStatus & NeedsResult.HungerOnly);
@@ -309,7 +324,79 @@ public abstract class ChangingNeedsModelBase : INeedsModel
                 break;
         }
 
+        DispatchNeedsTransitions(actor, location, oldStatus, newStatus);
+
         return newStatus;
+    }
+
+    internal static void DispatchNeedsTransitions(ICharacter actor, ILocation? location, NeedsResult oldStatus,
+        NeedsResult newStatus)
+    {
+        var hungerEvent = GetHungerEntryEvent(oldStatus, newStatus);
+        var thirstEvent = GetThirstEntryEvent(oldStatus, newStatus);
+        if (!hungerEvent.HasValue && !thirstEvent.HasValue)
+        {
+            return;
+        }
+
+        var witnesses = location?.EventHandlersFor(actor).Where(x => !ReferenceEquals(x, actor)).ToArray()
+                        ?? Array.Empty<IHandleEvents>();
+
+        // Snapshot both actor location (passed by caller) and handlers before callbacks. A self
+        // hook that moves the actor or recursively changes needs cannot redirect this transition.
+        if (hungerEvent.HasValue)
+        {
+            actor.HandleEvent(hungerEvent.Value, actor, location);
+            var witnessEvent = hungerEvent == EventType.CharacterHungry
+                ? EventType.CharacterInRoomHungry
+                : EventType.CharacterInRoomStarving;
+            foreach (var witness in witnesses)
+            {
+                witness.HandleEvent(witnessEvent, actor, location, witness);
+            }
+        }
+
+        if (thirstEvent.HasValue)
+        {
+            actor.HandleEvent(thirstEvent.Value, actor, location);
+            var witnessEvent = thirstEvent == EventType.CharacterThirsty
+                ? EventType.CharacterInRoomThirsty
+                : EventType.CharacterInRoomParched;
+            foreach (var witness in witnesses)
+            {
+                witness.HandleEvent(witnessEvent, actor, location, witness);
+            }
+        }
+    }
+
+    internal static EventType? GetHungerEntryEvent(NeedsResult oldStatus, NeedsResult newStatus)
+    {
+        if ((oldStatus & NeedsResult.HungerOnly) == (newStatus & NeedsResult.HungerOnly))
+        {
+            return null;
+        }
+
+        return (newStatus & NeedsResult.HungerOnly) switch
+        {
+            NeedsResult.Hungry => EventType.CharacterHungry,
+            NeedsResult.Starving => EventType.CharacterStarving,
+            _ => null
+        };
+    }
+
+    internal static EventType? GetThirstEntryEvent(NeedsResult oldStatus, NeedsResult newStatus)
+    {
+        if ((oldStatus & NeedsResult.ThirstOnly) == (newStatus & NeedsResult.ThirstOnly))
+        {
+            return null;
+        }
+
+        return (newStatus & NeedsResult.ThirstOnly) switch
+        {
+            NeedsResult.Thirsty => EventType.CharacterThirsty,
+            NeedsResult.Parched => EventType.CharacterParched,
+            _ => null
+        };
     }
 
     internal static double CalculateStarvationLevel(double foodSatiatedHours)

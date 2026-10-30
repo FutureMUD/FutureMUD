@@ -7,7 +7,7 @@ using MudSharp.Magic;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using CultureInfo = System.Globalization.CultureInfo;
 using System.Linq;
 
 namespace MudSharp.Health
@@ -194,13 +194,48 @@ namespace MudSharp.Health
         public required double WithdrawalNauseaIntensity { get; set; }
         public required double WithdrawalRageIntensity { get; set; }
         public required double SleepPreventionThreshold { get; set; }
+        public double RelapseExposureMultiplier { get; set; } = 1.0;
+        public double WithdrawalMaximumHitPointsMultiplier { get; set; } = 1.0;
+        public double WithdrawalMagicResourceCapacityMultiplier { get; set; } = 1.0;
+        public List<DrugModifierStep> ModifierSteps { get; set; } = new();
 
         public override string DatabaseString =>
-            $"{ExposureGainPerGram.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ExposureDecayPerDay.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ToleranceThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {MinimumToleranceMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalDecayPerDay.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalCheckPenalty.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalHungerMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalThirstMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalStaminaRegenMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalStaminaCostMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalNauseaIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalRageIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {SleepPreventionThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{AffectedDrugTypes.Select(x => ((int)x).ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ")}";
+            $"{ExposureGainPerGram.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ExposureDecayPerDay.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ToleranceThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {MinimumToleranceMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalDecayPerDay.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalCheckPenalty.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalHungerMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalThirstMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalStaminaRegenMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalStaminaCostMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalNauseaIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalRageIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {SleepPreventionThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{AffectedDrugTypes.Select(x => ((int)x).ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ")}|{RelapseExposureMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalMaximumHitPointsMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalMagicResourceCapacityMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{DrugModifierStepSerialization.Serialize(ModifierSteps)}";
+    }
+
+    public sealed record DrugModifierStep(double Threshold, long TraitId = 0, double TraitBonus = 0.0,
+        double MaximumHitPointsBonus = 0.0, long MagicResourceId = 0, double MagicResourceCapacityBonus = 0.0,
+        double OffensiveCheckBonus = 0.0, double DefensiveCheckBonus = 0.0);
+
+    public class DrugModifierAdditionalInfo : DrugAdditionalInfo
+    {
+        public List<DrugModifierStep> Steps { get; set; } = new();
+        public override string DatabaseString => DrugModifierStepSerialization.Serialize(Steps);
+    }
+
+    public class OverdoseAdditionalInfo : DrugAdditionalInfo
+    {
+        public long TraitId { get; set; }
+        public double GramsPerTraitPoint { get; set; }
+        public string Group { get; set; } = string.Empty;
+        public override string DatabaseString => string.IsNullOrWhiteSpace(Group)
+            ? $"{TraitId.ToString(CultureInfo.InvariantCulture)} {GramsPerTraitPoint.ToString("R", CultureInfo.InvariantCulture)}"
+            : $"{TraitId.ToString(CultureInfo.InvariantCulture)} {GramsPerTraitPoint.ToString("R", CultureInfo.InvariantCulture)}|{Group.Trim()}";
+    }
+
+    internal static class DrugModifierStepSerialization
+    {
+        public static string Serialize(IEnumerable<DrugModifierStep> steps) => string.Join(";", steps.OrderBy(x => x.Threshold)
+            .Select(x => string.Join(" ", x.Threshold.ToString("R", CultureInfo.InvariantCulture), x.TraitId.ToString(CultureInfo.InvariantCulture),
+                x.TraitBonus.ToString("R", CultureInfo.InvariantCulture), x.MaximumHitPointsBonus.ToString("R", CultureInfo.InvariantCulture),
+                x.MagicResourceId.ToString(CultureInfo.InvariantCulture), x.MagicResourceCapacityBonus.ToString("R", CultureInfo.InvariantCulture),
+                x.OffensiveCheckBonus.ToString("R", CultureInfo.InvariantCulture), x.DefensiveCheckBonus.ToString("R", CultureInfo.InvariantCulture))));
     }
 
     public interface IDrug : IEditableItem, IProgVariable
     {
+        DrugDoseBehaviour DoseBehaviour => DrugDoseBehaviour.Normal;
+        double FixedDoseGrams => 0.0;
         DrugVector DrugVectors { get; }
         IEnumerable<DrugType> DrugTypes { get; }
         T AdditionalInfoFor<T>(DrugType type) where T : DrugAdditionalInfo;

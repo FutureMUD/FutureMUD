@@ -29,14 +29,14 @@ public static class SpellTravelAnchorResolver
 		out ResolvedSpellTravelAnchor? anchor, out string? error)
 	{
 		anchor = null;
-		error = "A current, legally held typed travel anchor is required.";
+		error = "A current travel anchor that admits you is required.";
 		if (caster.Body is not { } body || !ReferenceEquals(body.Actor, caster) ||
 			item.Id <= 0 || item.Deleted || item.Destroyed ||
 			!ReferenceEquals(caster.Gameworld, item.Gameworld) ||
-			!ReferenceEquals(caster.Gameworld.Items.Get(item.Id), item) || !item.IsOwnedBy(caster)) return false;
+			!ReferenceEquals(caster.Gameworld.Items.Get(item.Id), item)) return false;
 		if (mode == SpellTravelAnchorMode.ArcaneMarkedRoom)
 		{
-			if (!ReferenceEquals(item.InInventoryOf, body) || item.ContainedIn is not null ||
+			if (!item.IsOwnedBy(caster) || !ReferenceEquals(item.InInventoryOf, body) || item.ContainedIn is not null ||
 				!item.TrueLocations.Contains(caster.Location)) return false;
 			var marks = item.Effects.OfType<ISpellMarkedRoomEffect>().Where(x => x.IsActive && x.ItemId == item.Id &&
 				x is IMagicTagEffect { Caster: { } marker } &&
@@ -47,10 +47,10 @@ public static class SpellTravelAnchorResolver
 		}
 		else if (mode == SpellTravelAnchorMode.AnchorRuneLiveRoom)
 		{
-			var runes = item.Effects.OfType<ISpellTravelAnchorEffect>()
+			var runes = item.Effects.OfType<ILiveTravelAnchorEffect>()
 				.Where(x => x.IsActive && x.ItemId == item.Id).ToArray();
 			var rooms = item.TrueLocations.Distinct<IRoom>(ReferenceEqualityComparer.Instance).ToArray();
-			if (runes.Length != 1 || rooms.Length != 1 || rooms[0].Temporary ||
+			if (runes.Length != 1 || !runes[0].AllowsTravel(caster) || rooms.Length != 1 || rooms[0].Temporary ||
 				!ReferenceEquals(caster.Gameworld.Rooms.Get(rooms[0].Id), rooms[0])) return false;
 			anchor = new(mode, item, runes[0], rooms[0]);
 		}

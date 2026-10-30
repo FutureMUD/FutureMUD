@@ -215,7 +215,7 @@ public static partial class ArmageddonStockSpellInstaller
 	}
 
 	private static ArmageddonCanonicalSpellContribution ResolveSimple(FuturemudDatabaseContext db, string key) =>
-		ArmageddonSimpleStockContent.Create(new(ProgressionIdentity<MagicResource>(db, "arm.resource.void"),
+		ArmageddonSimpleStockContent.Create(new(ProgressionIdentity<MagicResource>(db, ArmageddonProgressionInstaller.ManaResourceKey),
 			ProgressionIdentity<MagicSchool>(db, "arm.school.fire"))).Single(x => x.Content.Key == key);
 
 	private static ArmageddonCanonicalSpellContribution ResolveGradedWeapon(FuturemudDatabaseContext db, string key)

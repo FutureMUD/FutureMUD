@@ -386,6 +386,9 @@ public class SimpleWound : PerceivedItem, IContinuousExposureWound
         get => _currentDamage;
         set
         {
+			if (value < _currentDamage && Parent?.HealthStrategy is IHitPointHealingCeiling ceiling &&
+				(_ownerBody is null || ReferenceEquals((_parent as ICharacter)?.Body, _ownerBody)))
+				value = ceiling.ConstrainHealedDamage(this, Math.Max(0.0, value));
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
 			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();

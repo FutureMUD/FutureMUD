@@ -46,11 +46,12 @@ public abstract class Infection : LateInitialisingItem, IInfection
     {
         Changed = false;
         OnDelete();
+        Gameworld.SaveManager.Abort(this);
+        if (_id == 0) return;
         using (new FMDB())
         {
             if (_id != 0)
             {
-                Gameworld.SaveManager.Abort(this);
                 Models.Infection infection = FMDB.Context.Infections.Find(Id);
                 if (infection != null)
                 {
@@ -73,10 +74,13 @@ public abstract class Infection : LateInitialisingItem, IInfection
             dbitem.VirulenceMultiplier = Virulence;
             dbitem.Intensity = Intensity;
             dbitem.Immunity = Immunity;
+            dbitem.ExtraInformation = SaveExtraInformation();
         }
 
         Changed = false;
     }
+
+    protected virtual string SaveExtraInformation() => null;
 
     public abstract InfectionType InfectionType { get; }
     public abstract InfectionStage InfectionStage { get; set; }
@@ -210,6 +214,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
         dbitem.Intensity = Intensity;
         dbitem.InfectionType = (int)InfectionType;
         dbitem.Immunity = Immunity;
+        dbitem.ExtraInformation = SaveExtraInformation();
         return dbitem;
     }
 
@@ -248,6 +253,8 @@ public abstract class Infection : LateInitialisingItem, IInfection
                        body.Organs.FirstOrDefault(x => x.Id == (infection.BodypartId ?? 0));
         switch ((InfectionType)infection.InfectionType)
         {
+            case InfectionType.Configured:
+                return new ConfiguredInfection(infection, body);
             case InfectionType.Simple:
                 return new SimpleInfection(infection, body, wound, bodypart);
             case InfectionType.Necrotic:
@@ -266,7 +273,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
     }
 
     //Return true if the infection is due to be cleared out due to being healed enough to go away.
-    public bool InfectionHealed()
+    public virtual bool InfectionHealed()
     {
         return Immunity >= 1.0 && InfectionStage == InfectionStage.StageZero;
     }

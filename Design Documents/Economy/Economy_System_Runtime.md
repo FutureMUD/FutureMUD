@@ -16,6 +16,10 @@ It focuses on the code centred on `MudSharp.Economy`, but also includes the adja
 This document is intentionally current-state focused. Where it includes forward-looking guidance, that guidance is called out as inferred rather than presented as existing behavior.
 
 ## Layered Shape
+### Currency pile prototypes
+
+The generic currency pile prototype remains an empty, system-created pile. A system-only currency pile prototype may instead store both `DefaultCurrency` (currency ID) and `DefaultAmount` (invariant-culture decimal) in its component definition. These values are validated on load, including exact positive coin representation. Only newly created instances receive the configured coins; loading persisted coin XML and copying an existing item retain their existing contents. Explicit currency pile creation and previews use only their supplied coin counts.
+
 ### Optional active haggling
 
 Haggling is a whole-game opt-in (`HagglingEnabled=false`). Shops can opt out independently. `HaggleTraitId` selects a builder/seeder-owned skill; `HaggleCheck` uses its `variable` trait expression with the normal improving Skill Check template. Enabling haggling does not create or grant a skill and requires no NPC shopkeeper.
@@ -85,6 +89,10 @@ The current runtime model is:
 
 Body currency Get (floor or container), Put, Drop, and Give (living body or corpse) prepare all selected source piles and the exact destination before changing money. Preparation pins denomination maps, legal ownership, native custody and membership, the actor and recipient bodies, open-container state, and the selected hand or compatible merge survivor. The final gate executes authority policy before checking the captured body and spatial snapshots, so a valid policy that moves the actor cannot commit money from the old location or layer. The final commit debits every source and credits one survivor with coherent destination membership before loading hooks, ownership notifications, inventory events or witnesses run. An absorbed candidate carries no coins from that transfer; ordinary merge and Drop `newStack` behavior are retained.
 
+`IBody.TryGiveCurrency` reports whether that prepared cash transfer committed, independently of whether a callback subsequently consumes the destination pile. `cantransfercurrency(currency, amount, from, to)` is the pure ordinary exact held-cash Give preflight; it reserves nothing. `transfercurrency` uses the prepared native Give path, with silent ordinary output and normal events. It transfers existing cash and never mints replacement winnings. Non-positive amounts, missing participants and self-transfers are refused. Exact denomination, ownership, proximity, body and capacity rules still apply. Exceptions from observers can propagate after a committed transfer; they do not undo payment and are not a reason to retry it.
+
+`IBody.TryExchangeItems` and `exchangeitems(giver, offered, partner, requested)` exchange two actual whole held native items without merging. Both ordinary Give checks must pass before either item moves. Native custody, component, quantity, ownership, body and spatial snapshots are revalidated, then both held memberships and holder pointers change before observers run. Native Get/Give notifications describe that committed exchange; later observer actions are not rolled back. Unsupported bodies/items and worn, wielded or contained items are refused. `giveitem(giver, item, recipient)` exposes the existing whole-item `GiveWithoutMerge` action, including ordinary output and events; `targethelditem(owner, viewer, keyword)` performs visible native held-inventory keyword matching. The exchange action has no automatic echo, leaving its business rules and narration to progs.
+
 Currency Can/Why queries use unpublished previews: they do not register items, enqueue persistence, install hooks, execute load programs or notify owners. Committed loading and cleanup finish even if ordered-NPC control expires, while reentrant commands from that original order retain their normal authority checks. Empty-source cleanup removes only the captured membership and rechecks after deletion observers; a refill or new custody claim survives. This is an in-process callback boundary, not a database transaction or crash-recovery guarantee.
 
 Important consequences of the current implementation:
@@ -140,6 +148,8 @@ The current implementation ties taxation most directly to shops, hotel-room rent
 
 ### Banking
 Banking is implemented as a fully persisted runtime subsystem rather than a thin abstraction.
+
+`IBankAccount.IsAuthorisedAccountDepositor` defaults to existing full-user authorisation. Clan-owned runtime accounts additionally permit non-archived members with `CanDepositBankAccounts`. Command lookup grants this narrower path only for deposit; account listing, balances, history, withdrawals and management retain full authorisation. No schema change is needed for the appended 64-bit clan privilege.
 
 Current verified banking entities include:
 
@@ -757,3 +767,23 @@ Orders progress through durable queued, preparing, ready, served, failed, cancel
 Menu fulfilment supports unaltered stock, open-and-bring, craft-and-bring, craft-and-plate, and takeaway packaging. A plate and per-menu inner package are ordinary real container items. The outer bag is configured once for the restaurant, and all compatible ready takeaway roots for a recipient are packed together. Up to 24 roots use an exact packing search with a shared budget of 10,000 candidate steps; exhausted searches retain the complete first-fit plan. Larger collections use next-fit decreasing after sorting, with one placement pass and no recursive search. Small ordinary orders retain optimal packing when found within the budget; difficult or large orders may use extra bags to keep service responsive. Every produced root and packaging layer is persisted against the order so failures, cleanup, and recovery have an auditable trail. Queue estimates combine configured menu preparation, the configured craft's real phase duration, handling time, queued work, quantity, and the batching window. Ready lines are held for related table lines where practical and released when every related line is ready or the configured maximum grouping wait expires.
 
 Restaurant employment hosts can use the native `restaurantingredients` manager goal. Its `restaurantstock` condition derives the inputs for every active craft-backed menu item, checks all configured ingredient stores, and creates ordinary purchase-and-delivery work for enough ingredients to make the configured number of meals. The native planner deliberately blocks and reports unsupported craft-input forms rather than guessing an unsafe stock requirement.
+
+## Prepared currency purchase participants
+
+The additive `IBody.TryGiveCurrency` overload accepts an `ICurrencyTransferParticipant` for a native purchase. `Prepare` performs fallible work before the final cash/custody revalidation; `IsCurrent` checks the prepared goods state. `Commit` publishes goods through callback-free writes after the prepared cash maps and destination membership have been applied. `Notify` runs after both sides commit. The transfer owns disposal on all return paths; participants must make disposal idempotent and release only uncommitted candidates. A postcommit notification exception is retained while ordinary cash finalization completes, then reported without pretending that settlement was reversed. Existing currency calls use the original overload.
+
+Liquid refills and NPC delivery use this contract. It provides in-process ordering with the existing save queues, rather than a new durable cross-entity transaction or shop subsystem.
+
+Prepared purchase participants also support empty-vehicle relocation. Native canonical vehicle location and exterior room membership commit together with payment, followed by docking, spatial, connection and saving notifications. Depot and bearer-ticket validation remain content progs rather than new economy storage entities.
+
+
+## Merchandise load arguments
+
+`Merchandise.LoadArguments` is persisted text, default empty for existing merchandise. Builders configure it with `shop merch set loadargs <arguments|clear>`. Both permanent and transient shop auto-restocking create replacement items through the shared string-based item factory with this payload and skin. Preserve-variable reordering continues to copy surviving variables/fitting, applying an explicit configured `wearsize` override when present. Target fitting arguments are converted to an invariant fit snapshot at configuration time, so automatic restocking needs no character target context. Listings report actual stocked fit variants, while preview continues to inspect an actual item.
+
+
+### Paid parcel custody and generic stored-item delivery
+
+`purchasehelditemcustody(buyer, seller, parcel, storage, currency, price)` joins a directly held portable parcel to the existing prepared cash transfer. It preserves the actual item and its contained objects. Loose currency must be enclosed, so the parcel itself cannot also be selected as postage. Worn, wielded, attached and vehicle/dwelling items are refused. Preflight checks physical custody and ordinary rooms; payment and storage membership publish before inventory callbacks. Failure before commit retains both cash and parcel.
+
+The six-argument `purchaseitemdelivery(buyer, seller, item, storage, currency, price)` delivers ordinary stored items without modifying fit; its seven-argument text form additionally applies a concrete wearable fit. Both deliver at the buyer's current room layer, and zero-price delivery retains the same custody checks. The seven-argument boolean overload accepts `requireInventory`: when true, native hand and carrying eligibility must permit direct receipt, otherwise the item remains in storage. This lets postal couriers decline parcels they cannot carry without exposing them on the floor. Caller progs own service authorization and receipts.

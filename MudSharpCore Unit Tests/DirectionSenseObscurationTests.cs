@@ -23,6 +23,16 @@ namespace MudSharp_Unit_Tests;
 public class DirectionSenseObscurationTests
 {
 	[TestMethod]
+	public void Immwalk_BypassesObscurationEvenWhenBlind()
+	{
+		var f = new Fixture();
+		f.Body.SetupGet(x => x.VisionPercentage).Returns(0.0);
+		f.Actor.Setup(x => x.EffectsOfType<MudSharp.Effects.Interfaces.IImmwalkEffect>(It.IsAny<Predicate<MudSharp.Effects.Interfaces.IImmwalkEffect>>()))
+			.Returns([Mock.Of<MudSharp.Effects.Interfaces.IImmwalkEffect>()]);
+		Assert.IsFalse(DirectionSenseMovement.IsActive(f.Actor.Object, f.Origin.Object));
+		f.World.Verify(x => x.GetCheck(It.IsAny<CheckType>()), Times.Never);
+	}
+	[TestMethod]
 	[DataRow(Difficulty.Hard, false)]
 	[DataRow(Difficulty.VeryHard, true)]
 	[DataRow(Difficulty.Insane, true)]

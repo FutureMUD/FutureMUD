@@ -172,6 +172,8 @@ public static class VehicleFactory
 		}
 		exterior.HandleEvent(EventType.ItemFinishedLoading, exterior);
 		exterior.Login();
+		MudSharp.Effects.Concrete.RoomTemplateInstance.InitialiseRooms(vehicle.Compartments
+			.Select(x => x.InteriorRoom).Where(x => x is not null));
 		prototype.Gameworld.SaveManager.Flush();
 		return vehicle;
 	}

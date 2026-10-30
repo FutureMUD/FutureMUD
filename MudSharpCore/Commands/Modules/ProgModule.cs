@@ -1952,6 +1952,7 @@ The syntax for this command is as follows:
 	#3hook rename <hook> <name>#0 - renames a hook
 	#3hook prog <hook> <prog>#0 - changes or toggles the prog payload of a hook
 	#3hook command <hook> <command>#0 - changes the command for a command triggered hook
+	#3hook conditional <hook> [on|off]#0 - lets boolean input progs decide handling; command * receives all original input
 	#3hook install <hook> <target>#0 - installs a hook on a target
 	#3hook remove <hook> <target>#0 - removes a hook on a target
 	#3hook defaults#0 - shows all default hooks
@@ -2009,11 +2010,27 @@ You can use the following filters with #3hook list#0:
             case "command":
                 HookCommand(actor, ss);
                 return;
+			case "conditional":
+				HookConditional(actor, ss);
+				return;
             default:
                 actor.OutputHandler.Send(HookHelpText.SubstituteANSIColour());
                 return;
         }
     }
+
+	private static void HookConditional(ICharacter actor, StringStack ss)
+	{
+		if (actor.Gameworld.Hooks.GetByIdOrName(ss.PopSpeech()) is not IConditionalCommandHook hook)
+		{ actor.OutputHandler.Send("Choose a prog-driven command input hook."); return; }
+		var enabled = !hook.UseProgResultForHandling;
+		if (!ss.IsFinished && !bool.TryParse(ss.SafeRemainingArgument.ToLowerInvariant() switch { "on" => "true", "off" => "false", var value => value }, out enabled))
+		{ actor.OutputHandler.Send("Specify on or off, or omit it to toggle."); return; }
+		if (enabled && hook.FutureProgs.Any(x => !x.ReturnType.CompatibleWith(ProgVariableTypes.Boolean)))
+		{ actor.OutputHandler.Send("Every payload must return boolean before enabling conditional handling."); return; }
+		hook.UseProgResultForHandling = enabled; hook.Changed = true;
+		actor.OutputHandler.Send($"Boolean prog results {(enabled ? "now" : "no longer")} control whether this hook handles input.");
+	}
 
     private static void HookCommand(ICharacter actor, StringStack ss)
     {
@@ -2102,6 +2119,8 @@ You can use the following filters with #3hook list#0:
             return;
         }
 
+		if (hook is IConditionalCommandHook { UseProgResultForHandling: true } && !prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
+		{ actor.OutputHandler.Send("Conditional input hooks require boolean payload progs."); return; }
         phook.AddProg(prog);
         phook.Changed = true;
         actor.OutputHandler.Send($"The {hook.Name.ColourName()} hook now executes the {prog.MXPClickableFunctionName()} prog.");

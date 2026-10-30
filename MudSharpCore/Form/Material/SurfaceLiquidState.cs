@@ -54,6 +54,7 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 {
 	private readonly IFuturemud _gameworld;
 	private readonly Action? _changed;
+	private readonly Action? _beforeMutation;
 	private readonly List<SurfaceResidue> _residues = new();
 	private int _liquidNotificationDepth;
 	private sealed class LiquidNotificationScope(SurfaceLiquidState state) : IDisposable
@@ -71,6 +72,7 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 	{
 		_gameworld = gameworld;
 		_changed = changed;
+		_beforeMutation = beforeMutation;
 		ContaminatingLiquid = LiquidMixture.CreateEmpty(gameworld);
 		ContaminatingLiquid.BeforeMutation = beforeMutation;
 		ContaminatingLiquid.OnLiquidMixtureChanged += _ => LiquidChanged();
@@ -480,6 +482,14 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 		}
 
 		_residues.Add(new SurfaceResidue(material, originalLiquid, weight));
+	}
+
+	public void DepositResidue(ISolid material, double weight)
+	{
+		if (!double.IsFinite(weight) || weight <= 0) return;
+		_beforeMutation?.Invoke();
+		AddResidue(material, null, weight);
+		_changed?.Invoke();
 	}
 
 	private IEnumerable<(ILiquid Liquid, double Volume)> GroupLiquidsForShortDescription()

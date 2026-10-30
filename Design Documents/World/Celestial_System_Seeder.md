@@ -5,6 +5,8 @@
 
 ## Stock Packages
 
+The authored Armageddon moons retain their source phase calendars and paths. Their gameplay light profiles peak at 15 lux for Jihae and 30 lux for Lirathu at 60 degrees elevation, before phase scaling; at 30 degrees the values are 7.5 and 15 lux. Light is zero at and below the horizon, and a new moon remains dark. These are authored visibility settings, not recovered physical measurements. The package's existing preservation policy still leaves already-installed celestial definitions unchanged on rerun; an existing world requires a deliberate light-profile update.
+
 | Package | Objects created | Notes |
 | --- | --- | --- |
 | `EarthSun` | `Sun` | Self-contained Earth-surface root sun |

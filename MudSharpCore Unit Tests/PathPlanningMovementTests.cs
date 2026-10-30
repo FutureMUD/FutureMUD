@@ -14,9 +14,11 @@ using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
+using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Movement;
 using MudSharp.NPC.AI;
@@ -26,6 +28,37 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PathPlanningMovementTests
 {
+	[TestMethod]
+	public void ScriptedMovementAdmission_BlocksActiveMovementAndParalysisBeforeNativeFeasibility()
+	{
+		var f = new Fixture();
+		var state = typeof(MudSharp.Character.Character).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var movement = typeof(MudSharp.Character.Character).GetField("_movement", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		state.SetValue(f.Actor, CharacterState.Awake);
+		bool Allowed() => (bool)((IProgVariable)f.Actor).GetProperty("canmove").GetObject;
+		Assert.IsTrue(Allowed());
+		movement.SetValue(f.Actor, Mock.Of<IMovement>());
+		Assert.IsFalse(Allowed());
+		movement.SetValue(f.Actor, null); state.SetValue(f.Actor, CharacterState.Paralysed);
+		Assert.IsFalse(Allowed());
+		Assert.AreSame(PositionStanding.Instance, f.Actor.PositionState);
+	}
+
+	[TestMethod]
+	public void DeniedPassage_PlanningAndFeasibilityArePure_ActualMoveInvokesHazardOnce()
+	{
+		var f = new Fixture(); var policy = new Mock<IRoomExitPolicyEffect>();
+		policy.Setup(x => x.DenialReason(f.Actor, f.First.Object)).Returns("A force bars your passage.");
+		f.Origin.Setup(x => x.EffectsOfType<IRoomExitPolicyEffect>(It.IsAny<Predicate<IRoomExitPolicyEffect>>())).Returns([policy.Object]);
+		f.Actor.Register(new Mock<MudSharp.PerceptionEngine.IOutputHandler>().Object);
+		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(f.First.Object));
+		Assert.IsFalse(f.Actor.CanMove(f.First.Object, CanMoveFlags.None));
+		policy.Verify(x => x.OnDeniedAttempt(It.IsAny<ICharacter>(), It.IsAny<IRoomExit>()), Times.Never);
+		Assert.IsFalse(f.Actor.Move(f.First.Object));
+		policy.Verify(x => x.OnDeniedAttempt(f.Actor, f.First.Object), Times.Once);
+		Assert.AreSame(f.Origin.Object, f.Actor.Location);
+	}
+
 	[TestMethod]
 	public void RemoteLeg_PlanningAllowsIt_ExecutionStillRequiresItsActualOrigin()
 	{
@@ -134,5 +167,6 @@ public class PathPlanningMovementTests
 			return actor;
 		}
 		public void At(IRoom room) => Location = room;
+		public override bool HandleEvent(EventType type, params dynamic[] arguments) => false;
 	}
 }

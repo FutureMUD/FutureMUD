@@ -33,6 +33,7 @@ public partial class CombatSeeder
         EnsureWardCombatMessages(context, CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]));
 		EnsureClinchCombatMessages(context, CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]));
 		EnsureMountedCombatMessages(context);
+		EnsureSpecialAttackDefaults(context, CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]));
 
         // Seed Combat Strategies
         SeedCombatStrategies(context, questionAnswers);

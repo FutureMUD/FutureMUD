@@ -50,6 +50,9 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     public string EntranceKeyword { get; protected set; }
     public string EntranceDescription { get; protected set; }
     public override string TypeDescription => "Dwelling";
+	public IReadOnlyList<long> TemplateRoomIds { get; private set; } = Array.Empty<long>();
+	public bool SharedInterior { get; private set; }
+	public bool UsesAuthoredRooms => SharedInterior || TemplateRoomIds.Count > 0;
 
     public override bool WarnBeforePurge => true;
 
@@ -75,6 +78,9 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
         DoorSize = (SizeCategory)int.Parse(root.Element("DoorSize")?.Value ?? "0");
         EntranceKeyword = root.Element("EntranceKeyword")?.Value ?? "building";
         EntranceDescription = root.Element("EntranceDescription")?.Value ?? "the building";
+		TemplateRoomIds = (root.Element("TemplateRooms")?.Elements("Room") ?? Enumerable.Empty<XElement>())
+			.Select(x => (long)x).Distinct().ToArray();
+		SharedInterior = (bool?)root.Element("SharedInterior") ?? false;
     }
 
     #endregion
@@ -88,7 +94,9 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
             new XElement("DoorProto", DoorProto?.Id ?? 0L),
             new XElement("DoorSize", (int)DoorSize),
             new XElement("EntranceKeyword", new XCData(EntranceKeyword)),
-            new XElement("EntranceDescription", new XCData(EntranceDescription))
+            new XElement("EntranceDescription", new XCData(EntranceDescription)),
+			new XElement("TemplateRooms", TemplateRoomIds.Select(x => new XElement("Room", x))),
+			new XElement("SharedInterior", SharedInterior)
         ).ToString();
     }
 
@@ -302,7 +310,9 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
 
     #endregion
 
-    public IEnumerable<IRoom> GetTemplateRooms => (TemplateEntryRoom?.RoomsInVicinity(10U,
+    public IEnumerable<IRoom> GetTemplateRooms => TemplateRoomIds.Count > 0
+		? TemplateRoomIds.Select(x => Gameworld.Rooms.Get(x)).Where(x => x != null).ToArray()
+		: (TemplateEntryRoom?.RoomsInVicinity(10U,
                 exit => true,
                 room => !room.Temporary
             ) ?? Enumerable.Empty<IRoom>()).ToList();

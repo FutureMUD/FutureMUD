@@ -135,14 +135,14 @@ public static partial class ArmageddonProgressionInstaller
 	{
 		var name = spec.Name.ToLowerInvariant();
 		var resourceShortName = spec.Type == typeof(MagicResource)
-			? spec.Key == SourceResourceKey ? "armsource" : "arm" + spec.Key["arm.resource.".Length..] : "";
-		var schoolVerb = spec.Type == typeof(MagicSchool) ? "arm" + spec.Key["arm.school.".Length..] : "";
+			? spec.Key == SourceResourceKey ? "mana" : "arm" + spec.Key["arm.resource.".Length..] : "";
+		// Shared cast verbs are intentional; the selected class supplies the casting school.
 		return spec.Type == typeof(FutureProg) ? db.FutureProgs.Any(x => x.FunctionName.ToLower() == name) :
 			spec.Type == typeof(TraitExpression) ? db.TraitExpressions.Any(x => x.Name.ToLower() == name) :
 			spec.Type == typeof(TraitDefinition) ? db.TraitDefinitions.Any(x => x.Name.ToLower() == name) :
 			spec.Type == typeof(Improver) ? db.Improvers.Any(x => x.Name.ToLower() == name) :
 			spec.Type == typeof(MagicResource) ? db.MagicResources.Any(x => x.Name.ToLower() == name || x.ShortName.ToLower() == resourceShortName) :
-			spec.Type == typeof(MagicSchool) ? db.MagicSchools.Any(x => x.Name.ToLower() == name || x.SchoolVerb.ToLower() == schoolVerb) :
+			spec.Type == typeof(MagicSchool) ? db.MagicSchools.Any(x => x.Name.ToLower() == name) :
 			spec.Type == typeof(MagicGenerator) ? db.MagicGenerators.Any(x => x.Name.ToLower() == name) :
 			spec.Type == typeof(MagicCapability) ? db.MagicCapabilities.Any(x => x.Name.ToLower() == name) :
 			spec.Type == typeof(Merit) ? db.Merits.Any(x => x.Name.ToLower() == name) : db.ChargenRoles.Any(x => x.Name.ToLower() == name);

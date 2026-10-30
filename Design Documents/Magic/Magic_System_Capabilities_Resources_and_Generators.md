@@ -296,6 +296,7 @@ FutureProg can inspect and alter live resource levels on any `IHaveMagicResource
 Current helpers are:
 
 - `magicresourcelevel(thing, resource)`
+- `magicresourcecapacity(thing, resource)` (pure native cap lookup; never refills the holder; invalid, negative or non-finite capacities fail the prog action)
 - `setmagicresource(thing, resource, amount)` / `setmagicresourcelevel(thing, resource, amount)`
 - `addmagicresource(thing, resource, amount)` / `addmagicresourcelevel(thing, resource, amount)`
 - `subtractmagicresource(thing, resource, amount)` / `subtractmagicresourcelevel(thing, resource, amount)`

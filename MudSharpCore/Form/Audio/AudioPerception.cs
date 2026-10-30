@@ -17,6 +17,11 @@ public static class AudioPerception
 		IPerceiver source,
 		AudioVolume receivedVolume,
 		Proximity proximity)
+		=> CanHear(listener, source, receivedVolume, proximity, 0);
+
+	/// <summary>Runs native audio checks with additional bounded difficulty for intervening obstacles.</summary>
+	public static bool CanHear(ICharacter listener, IPerceiver source, AudioVolume receivedVolume,
+		Proximity proximity, int additionalDifficultyStages)
 	{
 		ArgumentNullException.ThrowIfNull(listener);
 		ArgumentNullException.ThrowIfNull(source);
@@ -32,6 +37,7 @@ public static class AudioPerception
 		}
 
 		var difficulty = listener.Location.LocalAudioDifficulty(listener, receivedVolume, proximity);
+		difficulty = difficulty.StageUp(Math.Max(0, additionalDifficultyStages));
 		return listener.Gameworld.GetCheck(CheckType.GenericListenCheck)
 		               .Check(listener, difficulty, source)
 		               .IsPass();

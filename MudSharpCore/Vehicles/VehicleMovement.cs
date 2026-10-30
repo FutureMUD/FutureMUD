@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Effects.Interfaces;
@@ -121,6 +121,7 @@ internal static class VehicleMovementCommand
 		}
 
 		var misdirected = pilotMisdirected;
+		var intendedExit = exit;
 		if (exit is not INonCardinalRoomExit &&
 		    Constants.CardinalDirectionStringToDirection.TryGetValue(direction, out var manualDirection) &&
 		    DirectionSenseMovement.IsCompassDirection(manualDirection) &&
@@ -149,7 +150,7 @@ internal static class VehicleMovementCommand
 			exit = selected;
 		}
 
-		new VehicleMovement(vehicle, actor, exit, misdirected).InitialAction();
+		new VehicleMovement(vehicle, actor, exit, misdirected, intendedExit).InitialAction();
 		return VehicleMovementCommandResult.StartedOrQueued;
 	}
 
@@ -166,7 +167,7 @@ internal static class VehicleMovementCommand
 		if (Constants.CardinalDirectionStringToDirection.ContainsKey(direction) && !actor.QueuedMoveCommands.Any())
 		{
 			var targetDirection = Constants.CardinalDirectionStringToDirection[direction];
-			if (actor.Movement.Exit is { } currentExit &&
+			if ((actor.Movement.ExitFor(actor) ?? actor.Movement.Exit) is { } currentExit &&
 			    targetDirection.IsOpposingDirection(currentExit.OutboundDirection) &&
 			    actor.Movement.CanBeVoluntarilyCancelled &&
 			    actor.Movement.IsMovementLeader(actor))
@@ -201,10 +202,13 @@ public class VehicleMovement : IMovement
 	private VehiclePropulsionMovePlan _propulsionPlan;
 	private VehicleMotiveCohort _motiveCohort;
 	private readonly bool _misdirected;
+	private readonly IRoomExit? _intendedExit;
+	public IRoomExit ExitFor(IPerceiver voyeur) => Phase == MovementPhase.OriginalRoom && ReferenceEquals(voyeur, _originalMover) ? _intendedExit ?? Exit : Exit;
 
-	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, IRoomExit exit, bool misdirected = false)
+	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, IRoomExit exit, bool misdirected = false, IRoomExit? intendedExit = null)
 	{
 		_misdirected = misdirected;
+		_intendedExit = intendedExit;
 		_vehicle = vehicle;
 		_originalMover = originalMover;
 		Exit = exit;
@@ -343,10 +347,10 @@ public class VehicleMovement : IMovement
 		var riders = VisibleVehicleOccupants(voyeur);
 		if (riders.Any())
 		{
-			return $"{RiderDescription(riders, voyeur)} {BeVerb(riders, voyeur)} riding {VehicleDescription(voyeur)} {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper().Colour(Telnet.Yellow);
+			return $"{RiderDescription(riders, voyeur)} {BeVerb(riders, voyeur)} riding {VehicleDescription(voyeur)} {ExitFor(voyeur).OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper().Colour(Telnet.Yellow);
 		}
 
-		return $"{VehicleDescription(voyeur)} is moving {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper().Colour(Telnet.Yellow);
+		return $"{VehicleDescription(voyeur)} is moving {ExitFor(voyeur).OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper().Colour(Telnet.Yellow);
 	}
 
 	public bool SeenBy(IPerceiver voyeur, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
@@ -599,10 +603,10 @@ public class VehicleMovement : IMovement
 		var riders = VisibleVehicleOccupants(voyeur);
 		if (riders.Any())
 		{
-			return $"{RiderDescription(riders, voyeur)} {BeginVerb(riders, voyeur)} riding {VehicleDescription(voyeur)} {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
+			return $"{RiderDescription(riders, voyeur)} {BeginVerb(riders, voyeur)} riding {VehicleDescription(voyeur)} {ExitFor(voyeur).OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
 		}
 
-		return $"{VehicleDescription(voyeur)} begins moving {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
+		return $"{VehicleDescription(voyeur)} begins moving {ExitFor(voyeur).OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
 	}
 
 	private string DescribeEnterMove(IPerceiver voyeur)

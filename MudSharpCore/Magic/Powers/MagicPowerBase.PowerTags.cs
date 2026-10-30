@@ -25,9 +25,11 @@ public abstract partial class MagicPowerBase
 	/// <summary>One ordinary activation admission: explicit tag policy, the existing prog, then tag recheck.</summary>
 	public bool CanInvokePower(ICharacter actor, params object?[] arguments)
 	{
+		if (!IsPsionic && MudSharp.Construction.RoomPolicyRules.MagicDenial(actor, arguments.OfType<IPerceivable>()) is not null) return false;
 		if (!TagsAllowInvocation(actor) || !BodilyCostReady(actor)) return false;
 		var parameters = new object?[] { actor }.Concat(arguments).ToArray();
-		return CanInvokePowerProg?.ExecuteBool(parameters) != false && TagsAllowInvocation(actor);
+		return CanInvokePowerProg?.ExecuteBool(parameters) != false && TagsAllowInvocation(actor) &&
+		       (IsPsionic || MudSharp.Construction.RoomPolicyRules.MagicDenial(actor, arguments.OfType<IPerceivable>()) is null);
 	}
 	private bool BuildingCommandPowerTag(ICharacter actor, StringStack command)
 	{

@@ -29,6 +29,7 @@ public class WeatherForecastContractTests
 		Assert.AreEqual(0L, legacy.AtmosphereGasId);
 		var configured = legacy with { LightningChance = 0.02, AtmosphericLightningChance = 0.4, Damage = 125,
 			AtmosphereGasId = 19, GroundDamageFactor = 0, ForecastDescription = "a choking dust storm", ThunderDistance = 4 };
+		configured = configured with { ResidueMaterialId = 12, ResiduePerMinute = 0.1, ResidueMaximum = 5 };
 		Assert.AreEqual(configured, WeatherHazardSettings.FromXml(configured.ToXml()));
 	}
 

@@ -37,6 +37,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         AutoReorderPrice = rhs.AutoReorderPrice;
         AutoReordering = rhs.AutoReordering;
         PreserveVariablesOnReorder = rhs.PreserveVariablesOnReorder;
+        LoadArguments = rhs.LoadArguments;
         WillBuy = rhs.WillBuy;
         WillSell = rhs.WillSell;
         MinimumConditionToBuy = rhs.MinimumConditionToBuy;
@@ -62,6 +63,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         DefaultMerchandiseForItem = isDefault;
         PreferredDisplayContainer = preferredContainer;
         PreserveVariablesOnReorder = true;
+        LoadArguments = string.Empty;
         _listDescription = customListDescription;
         WillBuy = false;
         WillSell = true;
@@ -108,6 +110,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         MinimumStockLevels = merch.MinimumStockLevels;
         MinimumStockLevelsByWeight = merch.MinimumStockLevelsByWeight;
         PreserveVariablesOnReorder = merch.PreserveVariablesOnReorder;
+        LoadArguments = merch.LoadArguments ?? string.Empty;
         WillBuy = merch.WillBuy;
         WillSell = merch.WillSell;
         MinimumConditionToBuy = merch.MinimumConditionToBuy;
@@ -136,6 +139,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         dbitem.MinimumStockLevelsByWeight = MinimumStockLevelsByWeight;
         dbitem.PreferredDisplayContainerId = PreferredDisplayContainer?.Id;
         dbitem.PreserveVariablesOnReorder = PreserveVariablesOnReorder;
+        dbitem.LoadArguments = LoadArguments;
         dbitem.Name = Name;
         dbitem.SkinId = _skinId;
         dbitem.ShopId = Shop.Id;
@@ -165,6 +169,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         dbitem.AutoReordering = AutoReordering;
         dbitem.AutoReorderPrice = AutoReorderPrice;
         dbitem.PreserveVariablesOnReorder = PreserveVariablesOnReorder;
+        dbitem.LoadArguments = LoadArguments;
         dbitem.PreferredDisplayContainerId = PreferredDisplayContainer?.Id;
         dbitem.DefaultMerchandiseForItem = DefaultMerchandiseForItem;
         dbitem.ItemProtoId = _itemId;
@@ -239,6 +244,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set reorder off#0 - turns auto-reordering off
 	#3shop merch set reorder <price>|<percentage> <quantity> [<weight>]#0 - enables auto-reordering with the specified price, quantity and optional minimum weight
 	#3shop merch set preserve#0 - toggles preservation of item variables when reordering
+	#3shop merch set loadargs <arguments|clear>#0 - sets item load arguments for new or restocked items
 	#3shop merch set decay#0 - toggles morph/decay timers being paused on this item".SubstituteANSIColour());
             }
             else
@@ -333,6 +339,9 @@ public class Merchandise : LateInitialisingItem, IMerchandise
                     return BuildingCommandReorder(actor, command);
                 case "preserve":
                     return BuildingCommandPreserve(actor, command);
+                case "loadargs":
+                case "loadarguments":
+                    return BuildingCommandLoadArguments(actor, command);
                 case "skin":
                     return BuildingCommandSkin(actor, command);
                 case "decay":
@@ -676,6 +685,46 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         return true;
     }
 
+    private bool BuildingCommandLoadArguments(ICharacter actor, StringStack command)
+    {
+        if (MerchandiseType != MerchandiseType.Item)
+        {
+            actor.OutputHandler.Send("Load arguments can only be configured for item merchandise.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(LoadArguments.Length == 0
+                ? "No load arguments are configured for this merchandise."
+                : $"Current load arguments: {LoadArguments.ColourCommand()}");
+            return true;
+        }
+
+        var arguments = command.RemainingArgument;
+        if (arguments.EqualToAny("clear", "reset", "delete"))
+        {
+            LoadArguments = string.Empty;
+            Changed = true;
+            actor.OutputHandler.Send("This merchandise will no longer apply load arguments to newly stocked items.");
+            return true;
+        }
+
+        try
+        {
+            LoadArguments = MudSharp.GameItems.WearableSizing.NormaliseLoadArguments(arguments, actor, Gameworld, Item);
+        }
+        catch (ArgumentException ex)
+        {
+            actor.OutputHandler.Send(ex.Message.ColourError());
+            return false;
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"This merchandise will apply the load arguments {LoadArguments.ColourCommand()} to newly stocked items.");
+        return true;
+    }
+
     private bool BuildingCommandReorder(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -967,6 +1016,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         if (actor.IsAdministrator())
         {
             sb.AppendLine();
+            sb.AppendLine($"Load Arguments: {(string.IsNullOrWhiteSpace(LoadArguments) ? "None" : LoadArguments.ColourCommand())}");
             sb.AppendLine($"Auto Reordering: {AutoReordering.ToString(actor).ColourValue()}");
             if (AutoReordering)
             {
@@ -995,6 +1045,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
     public decimal EffectiveAutoReorderPrice => AutoReorderPrice < 0.0M ? EffectivePrice * -1.0M * AutoReorderPrice : AutoReorderPrice;
 
     public bool PreserveVariablesOnReorder { get; private set; }
+    public string LoadArguments { get; private set; } = string.Empty;
     public int MinimumStockLevels { get; private set; }
     public double MinimumStockLevelsByWeight { get; private set; }
     public bool DefaultMerchandiseForItem { get; private set; }

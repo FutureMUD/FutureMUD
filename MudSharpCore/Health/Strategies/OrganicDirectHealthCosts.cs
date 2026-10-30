@@ -10,11 +10,11 @@ using MudSharp.Health.Wounds;
 
 namespace MudSharp.Health.Strategies;
 
-/// <summary>Exact cellular-wound pricing shared only by compatible organic health strategies.</summary>
+/// <summary>Exact cellular-wound pricing shared by compatible organic and simple HP health strategies.</summary>
 internal static class OrganicDirectHealthCosts
 {
 	internal static bool TryPlan(IHealthStrategy strategy, IHaveWounds owner, IBodypart bodypart, double damage, double pain,
-		double stun, WoundSeverity maximumSeverity, out DirectHealthCostPlan plan, out string error, bool allowIncapacitation = false)
+		double stun, WoundSeverity maximumSeverity, out DirectHealthCostPlan plan, out string error, bool allowIncapacitation = false, bool simpleHitpoints = false)
 	{
 		plan = null!;
 		error = null!;
@@ -89,7 +89,7 @@ internal static class OrganicDirectHealthCosts
 		}
 
 		var existingCellular = bodypartWounds.FirstOrDefault(x => x.DamageType == DamageType.Cellular);
-		if (existingCellular is not null && existingCellular is not SimpleOrganicWound)
+		if (existingCellular is not null && !(simpleHitpoints ? existingCellular is HealingSimpleWound : existingCellular is SimpleOrganicWound))
 		{
 			error = "The selected existing cellular wound does not support a safe direct health cost.";
 			return false;
@@ -113,9 +113,9 @@ internal static class OrganicDirectHealthCosts
 			return false;
 		}
 
-		if (!allowIncapacitation && (!FitsWithin(owner.Wounds.Sum(x => x.CurrentDamage), damage, strategy.MaxHP(owner)) ||
-			!FitsWithin(owner.Wounds.Sum(x => x.CurrentPain), pain, strategy.MaxPain(owner)) ||
-			!FitsWithin(owner.Wounds.Sum(x => x.CurrentStun), stun, strategy.MaxStun(owner))))
+		if (!allowIncapacitation && ((!simpleHitpoints && !FitsWithin(owner.Wounds.Sum(x => x.CurrentDamage), damage, strategy.MaxHP(owner))) ||
+			(!simpleHitpoints && !FitsWithin(owner.Wounds.Sum(x => x.CurrentPain), pain, strategy.MaxPain(owner))) ||
+			((!simpleHitpoints || stun > 0) && !FitsWithin(owner.Wounds.Sum(x => x.CurrentStun), stun, strategy.MaxStun(owner)))))
 		{
 			error = "Your current condition cannot safely absorb that health cost.";
 			return false;
@@ -134,7 +134,7 @@ internal static class OrganicDirectHealthCosts
 		{
 			if ((damage > 0.0 && !IsPositiveFinite(bodypart.DamageModifier)) ||
 				(pain > 0.0 && !IsPositiveFinite(bodypart.PainModifier)) ||
-				(stun > 0.0 && !IsPositiveFinite(bodypart.StunModifier)))
+				(stun > 0.0 && !simpleHitpoints && !IsPositiveFinite(bodypart.StunModifier)))
 			{
 				error = "The selected body part has an invalid health-cost modifier.";
 				return false;
@@ -150,7 +150,7 @@ internal static class OrganicDirectHealthCosts
 				painInput /= bodypart.PainModifier;
 			}
 
-			if (stun > 0.0)
+			if (stun > 0.0 && !simpleHitpoints)
 			{
 				stunInput /= bodypart.StunModifier;
 			}
@@ -166,9 +166,9 @@ internal static class OrganicDirectHealthCosts
 		return true;
 	}
 
-	internal static IReadOnlyList<IWound> Apply(IHealthStrategy strategy, IHaveWounds owner, DirectHealthCostPlan plan)
+	internal static IReadOnlyList<IWound> Apply(IHealthStrategy strategy, IHaveWounds owner, DirectHealthCostPlan plan, bool simpleHitpoints = false)
 	{
-		if (owner is not ICharacter character)
+		if (owner is not ICharacter character || !character.Body.Bodyparts.Contains(plan.Bodypart))
 		{
 			throw new InvalidOperationException("Direct health costs require a character owner.");
 		}
@@ -185,30 +185,36 @@ internal static class OrganicDirectHealthCosts
 
 		if (plan.ExistingWound is not null)
 		{
-			if (plan.ExistingWound is not SimpleOrganicWound existing || !owner.Wounds.Contains(existing) ||
-				existing.Bodypart != plan.Bodypart || existing.DamageType != DamageType.Cellular)
+			if (!(simpleHitpoints ? plan.ExistingWound is HealingSimpleWound : plan.ExistingWound is SimpleOrganicWound) || !owner.Wounds.Contains(plan.ExistingWound) ||
+				!ReferenceEquals(plan.ExistingWound.Parent, owner) || plan.ExistingWound.Bodypart != plan.Bodypart || plan.ExistingWound.DamageType != DamageType.Cellular)
 			{
 				throw new InvalidOperationException("The planned cellular wound is no longer available.");
 			}
 
-			existing.SufferAdditionalDamage(damage);
-			return [existing];
+			plan.ExistingWound.SufferAdditionalDamage(damage);
+			return [plan.ExistingWound];
 		}
 
-		var wounds = strategy.SufferDamage(owner, damage, plan.Bodypart).ToList();
-		if (wounds.Count != 1 || wounds[0] is not SimpleOrganicWound wound ||
+		// Direct costs bypass combat routing, including optional cellular-damage immunity.
+		var wounds = simpleHitpoints
+			? new List<IWound> { new HealingSimpleWound(owner.Gameworld, owner, plan.DamageInput, DamageType.Cellular,
+				plan.Bodypart, null, null, character, character.Body, plan.StunInput) }
+			: strategy.SufferDamage(owner, damage, plan.Bodypart).ToList();
+		var wound = wounds.SingleOrDefault();
+		if (wounds.Count != 1 || !(simpleHitpoints ? wound is HealingSimpleWound : wound is SimpleOrganicWound) ||
 			!ReferenceEquals(wound.Parent, owner) || wound.Bodypart != plan.Bodypart || wound.DamageType != DamageType.Cellular)
 			throw new InvalidOperationException("The direct health plan did not produce its expected native cellular wound.");
 		// New wounds cap their initial damage at the part's HP. An incapacitating consequence may
 		// exceed that cap; the established additional-damage path uses exact native channel units.
-		var shortfall = plan.ExpectedDamage - wound.CurrentDamage;
+		var expectedDamage = simpleHitpoints ? plan.DamageInput * plan.Bodypart.DamageModifier : plan.ExpectedDamage;
+		var shortfall = expectedDamage - wound.CurrentDamage;
 		if (shortfall > 0.000001)
 			wound.SufferAdditionalDamage(new Damage
 			{
 				ActorOrigin = character, Bodypart = plan.Bodypart, DamageType = DamageType.Cellular,
 				DamageAmount = shortfall, PainAmount = 0, StunAmount = 0
 			});
-		if (Math.Abs(wound.CurrentDamage - plan.ExpectedDamage) > 0.000001)
+		if (Math.Abs(wound.CurrentDamage - expectedDamage) > 0.000001)
 			throw new InvalidOperationException("The direct health plan did not apply its exact native damage.");
 		return wounds;
 	}

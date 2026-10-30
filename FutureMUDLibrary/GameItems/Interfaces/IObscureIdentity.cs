@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 ﻿using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,8 @@ namespace MudSharp.GameItems.Interfaces
     {
         bool CurrentlyApplies { get; }
         string OverriddenShortDescription { get; }
-        string OverriddenFullDescription { get; }
+        /// <summary>Null preserves the wearer's ordinary full description.</summary>
+        string? OverriddenFullDescription { get; }
         Difficulty SeeThroughDisguiseDifficulty { get; }
     }
 }

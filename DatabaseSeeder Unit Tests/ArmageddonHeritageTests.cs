@@ -118,6 +118,7 @@ public class ArmageddonHeritageTests
 		Assert.AreEqual(0, db.Scripts.Count());
 		Assert.AreEqual(originalBody, original.FunctionText);
 		var storyboard = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectSkills);
+		Assert.AreEqual("SkillSkipper", storyboard.ChargenType);
 		var definition = XElement.Parse(storyboard.StageDefinition);
 		Assert.AreEqual("Preserve this builder text", definition.Element("Blurb")!.Value);
 		var wrapper = db.FutureProgs.Single(x => x.Id == long.Parse(definition.Element("FreeSkillsProg")!.Value));
@@ -137,6 +138,7 @@ public class ArmageddonHeritageTests
 		db.Races.Single(x => x.Id == 101).SweatRateInLitresPerMinute = 99; // Bootstrap changes must not become new stock defaults.
 		var culture = db.Cultures.Single(x => x.Name == "Allanaki");
 		culture.PersonWordMale = "Builder person";
+		storyboard.ChargenType = "SkillPicker"; // A deliberate later builder override survives reconciliation.
 		db.CulturesNameCultures.Remove(db.CulturesNameCultures.Single(x => x.CultureId == culture.Id && x.Gender == 0));
 		db.SaveChanges();
 		ArmageddonHeritage.Install(db, messages);
@@ -144,6 +146,7 @@ public class ArmageddonHeritageTests
 		Assert.AreEqual(0.01, dwarf.SweatRateInLitresPerMinute);
 		Assert.AreEqual(0.03, db.Races.Single(x => x.Name == "Mul").SweatRateInLitresPerMinute);
 		Assert.AreEqual("Builder person", culture.PersonWordMale);
+		Assert.AreEqual("SkillPicker", storyboard.ChargenType);
 		Assert.AreEqual(4, db.CulturesNameCultures.Count(x => x.CultureId == culture.Id));
 		Assert.AreEqual(originalBody, original.FunctionText);
 		Assert.AreEqual(ids.Count, db.SeederManagedRecords.Count());

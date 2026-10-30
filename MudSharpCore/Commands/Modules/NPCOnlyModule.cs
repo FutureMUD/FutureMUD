@@ -214,15 +214,17 @@ The syntax is:
                 return;
             }
 
-            actor.OutputHandler.Send(
-                $"You're currently bodyguarding {actor.Gameworld.TryGetCharacter(npc.BodyguardingCharacterID.Value).HowSeen(actor)}.");
+			var assigned = actor.Gameworld.Actors.Get(npc.BodyguardingCharacterID.Value);
+            actor.OutputHandler.Send(assigned is null
+				? $"You're assigned to an unloaded character (#{npc.BodyguardingCharacterID.Value.ToString("N0", actor)})."
+				: $"You're currently bodyguarding {assigned.HowSeen(actor)}.");
             return;
         }
 
         ICharacter oldCh;
         if (ss.Peek().EqualToAny("none", "clear", "off"))
         {
-            oldCh = actor.Gameworld.TryGetCharacter(npc.BodyguardingCharacterID ?? 0, true);
+            oldCh = actor.Gameworld.Actors.Get(npc.BodyguardingCharacterID ?? 0);
             oldCh?.OutputHandler?.Send($"{npc.HowSeen(oldCh, true)} is no longer bodyguarding you.");
             npc.BodyguardingCharacterID = null;
             actor.OutputHandler.Send("You're no longer bodyguarding anyone.");
@@ -242,7 +244,7 @@ The syntax is:
             return;
         }
 
-        oldCh = actor.Gameworld.TryGetCharacter(npc.BodyguardingCharacterID ?? 0, true);
+        oldCh = actor.Gameworld.Actors.Get(npc.BodyguardingCharacterID ?? 0);
         oldCh?.OutputHandler?.Send($"{npc.HowSeen(oldCh, true)} is no longer bodyguarding you.");
         npc.BodyguardingCharacterID = CharacterInstanceIdentityComparer.IdentityId(target);
         target.OutputHandler.Send($"{npc.HowSeen(target, true)} is now bodyguarding you.");

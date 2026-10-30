@@ -34,6 +34,8 @@ The editor lists each setting with its own syntax and explanation. Setting comma
 
 `set check` lists missing references and incompatible payloads. An invalid substance is skipped during delivery, so finish the definition before using it. A definition can be built before any carrier is bound.
 
+Progs can call `applymagicalsubstance(character, substanceId, quantity, vector)` for an explicit dose, including an unbound preparation. This uses the normal readiness, dose, interdiction, resistance and payload pipeline without casting costs. Quantity uses the preparation's reference-dose units; vector is a supported exposure name such as `ingested`. The boolean result reports admission, not successful healing or another payload result. Invalid IDs, quantities, vectors, dead or nonphysical recipients are refused. Item consumption remains the caller's responsibility. This lets an on-swallow prog apply an existing eligibility predicate before delivering a preparation; do not also bind that preparation to the item, which would dose it twice.
+
 `rejuvenateland` is explicitly unsupported as a substance payload. Its physical-cell treatment, captured spell lifetime, costs and authoritative progress require an ordinary direct spell invocation; no dose or stored-payload adapter is supplied.
 
 ### Quantity and potency

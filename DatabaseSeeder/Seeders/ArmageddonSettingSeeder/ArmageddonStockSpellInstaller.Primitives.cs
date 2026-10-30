@@ -45,13 +45,13 @@ public static partial class ArmageddonStockSpellInstaller
 			if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) || !prog.MatchesParameters([ProgVariableTypes.Character]))
 				throw new StockDependencyException("The fixed native always-true applicability prog must accept its Character viewer.");
 		}
-		// Explicit authored reserve default. Synthetic source-energy remains solely the casting cost unit.
-		var claim = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == "arm.resource.void");
+		// Source GET_MANA is one shared character resource for spell costs and reserve effects.
+		var claim = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == ArmageddonProgressionInstaller.ManaResourceKey);
 		if (claim is not { Retired: false, LogicalId: > 0, RevisionNumber: null, SeedBaseline: not null } ||
 			claim.Module != ArmageddonProgressionInstaller.Module || claim.ManifestVersion != ArmageddonProgressionInstaller.Version ||
 			claim.EntityType != nameof(MagicResource) || !db.MagicResources.Any(x => x.Id == claim.LogicalId && x.MagicResourceType == 1) ||
 			db.SeederManagedRecords.Any(x => x.Id != claim.Id && x.EntityType == claim.EntityType && x.LogicalId == claim.LogicalId))
-			throw new StockDependencyException("Empty Aura requires its exact unique S2 Void reserve; no inferred target reserve or synthetic cost resource is used.");
+			throw new StockDependencyException("Empty Aura requires the exact owned character Mana resource.");
 		if (key == ArmageddonNativeReserveSpellContent.SecondBreathKey) return ArmageddonNativeReserveSpellContent.SecondBreath();
 		if (key == ArmageddonNativeReserveSpellContent.EmptyAuraKey) return ArmageddonNativeReserveSpellContent.EmptyAura(claim.LogicalId.Value);
 		return ArmageddonPrimitiveSpellContent.Create(new(strength, resistance, applicability, claim.LogicalId.Value, Difficulty.Normal))

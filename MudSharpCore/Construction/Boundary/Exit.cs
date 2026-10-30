@@ -97,6 +97,7 @@ public class Exit : PerceivedItem, IExit
         dbexit.MaximumSizeToEnterUpright = (int)MaximumSizeToEnterUpright;
         dbexit.ClimbDifficulty = (int)ClimbDifficulty;
         dbexit.IsClimbExit = IsClimbExit;
+		dbexit.FallRoom = FallRoom?.Id;
         dbexit.BlockedLayers = BlockedLayers.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues();
         FMDB.Context.Exits.Add(dbexit);
         if (RoomExits[0] is NonCardinalRoomExit nexit1)
@@ -133,7 +134,7 @@ public class Exit : PerceivedItem, IExit
         return dbexit;
     }
 
-    public Exit(IFuturemud gameworld, IRoom origin, IRoom destination, Exit otherExit)
+    public Exit(IFuturemud gameworld, IRoom origin, IRoom destination, Exit otherExit, IRoom templateOrigin = null)
     {
         Gameworld = gameworld;
         _noSave = true;
@@ -143,21 +144,28 @@ public class Exit : PerceivedItem, IExit
         DoorSize = otherExit.DoorSize;
         _rooms.Add(origin);
         _rooms.Add(destination);
+		var reverse = templateOrigin is not null && otherExit.RoomExits[1].Origin.Id == templateOrigin.Id;
+		var first = otherExit.RoomExits[reverse ? 1 : 0];
+		var second = otherExit.RoomExits[reverse ? 0 : 1];
 
-        if (otherExit.RoomExits[0] is NonCardinalRoomExit exit)
+        if (first is NonCardinalRoomExit exit)
         {
             RoomExits[0] = new NonCardinalRoomExit(this, exit, origin, destination);
             RoomExits[1] =
-                new NonCardinalRoomExit(this, (NonCardinalRoomExit)otherExit.RoomExits[1], destination, origin);
+                new NonCardinalRoomExit(this, (NonCardinalRoomExit)second, destination, origin);
         }
         else
         {
-            RoomExits[0] = new RoomExit(this, otherExit.RoomExits[0], origin, destination);
-            RoomExits[1] = new RoomExit(this, otherExit.RoomExits[1], destination, origin);
+            RoomExits[0] = new RoomExit(this, first, origin, destination);
+            RoomExits[1] = new RoomExit(this, second, destination, origin);
         }
 
         MaximumSizeToEnter = otherExit.MaximumSizeToEnter;
         MaximumSizeToEnterUpright = otherExit.MaximumSizeToEnterUpright;
+		IsClimbExit = otherExit.IsClimbExit;
+		ClimbDifficulty = otherExit.ClimbDifficulty;
+		_blockedLayers.AddRange(otherExit.BlockedLayers);
+		FallRoom = otherExit.FallRoom is null ? null : otherExit.FallRoom.Id == first.Origin.Id ? origin : destination;
 
         _noSave = false;
     }

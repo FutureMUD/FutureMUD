@@ -10,6 +10,17 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Magic.Emotions;
 
 public sealed record EmotionalTerrainBinding(long TerrainId, EmotionalTerrainRule Rule);
+public sealed record EmotionalFrenzyProfile(long RaceId, long SuppressionDrugId, double OffenceBonus,
+	double DefenceBonus, double MeleeDamageBonus, double HungerMultiplier)
+{
+	public void Validate()
+	{
+		if (RaceId <= 0 || SuppressionDrugId <= 0 || !double.IsFinite(OffenceBonus) ||
+			!double.IsFinite(DefenceBonus) || !double.IsFinite(MeleeDamageBonus) ||
+			!double.IsFinite(HungerMultiplier) || HungerMultiplier < 0.0)
+			throw new ArgumentException("Frenzy requires existing positive race/drug IDs and finite Combat Frenzy values (hunger must be nonnegative).");
+	}
+}
 
 /// <summary>Immutable editable content. This is not casting admission or an emotional runtime hook.</summary>
 public sealed class EmotionalStockProfile
@@ -18,6 +29,16 @@ public sealed class EmotionalStockProfile
 		long eligibilityProgId, double intensity, long traitId, double unitsPerSourcePoint,
 		EmotionalTerrainRule fallback, IEnumerable<EmotionalTerrainBinding> terrains,
 		IEnumerable<KeyValuePair<int, Difficulty>> saves, bool breakOnAdmittedAttack, bool canonicalGradePolicy = false)
+		: this(kind, group, unitSeconds, capUnits, eligibilityProgId, intensity, traitId, unitsPerSourcePoint,
+			fallback, terrains, saves, breakOnAdmittedAttack, canonicalGradePolicy, null, false)
+	{
+	}
+
+	public EmotionalStockProfile(EmotionalSpellKind kind, string group, int unitSeconds, int capUnits,
+		long eligibilityProgId, double intensity, long traitId, double unitsPerSourcePoint,
+		EmotionalTerrainRule fallback, IEnumerable<EmotionalTerrainBinding> terrains,
+		IEnumerable<KeyValuePair<int, Difficulty>> saves, bool breakOnAdmittedAttack, bool canonicalGradePolicy,
+		EmotionalFrenzyProfile? frenzyOnFury, bool clearCombatFrenzyOnCalm)
 	{
 		if (!Enum.IsDefined(kind)) throw new ArgumentException("Select Fury or Calm.");
 		if (DetectInvisibleEffect.PolicyError(new(group, unitSeconds, capUnits)) is { } error)
@@ -55,6 +76,9 @@ public sealed class EmotionalStockProfile
 		if (canonicalGradePolicy && (unitSeconds != 60 || capUnits != 7 || intensity != (kind == EmotionalSpellKind.Fury ? 5 : 11) || terrainList.Length != 0 ||
 			(kind == EmotionalSpellKind.Fury ? unitsPerSourcePoint != 1 || fallback != new EmotionalTerrainRule(1, 1, 0) : !breakOnAdmittedAttack)))
 			throw new ArgumentException("Canonical grade policy requires 60 seconds per grade, a seven-grade cap, active native emotion intensity and exact native grade mappings.");
+		if (frenzyOnFury is not null && kind != EmotionalSpellKind.Fury || clearCombatFrenzyOnCalm && kind != EmotionalSpellKind.Calm)
+			throw new ArgumentException("Combat frenzy configuration is only valid for its matching Fury or Calm spell.");
+		frenzyOnFury?.Validate();
 		Kind = kind; Group = group; UnitSeconds = unitSeconds; CapUnits = capUnits;
 		EligibilityProgId = eligibilityProgId; Intensity = intensity; TraitId = traitId;
 		UnitsPerSourcePoint = unitsPerSourcePoint; Fallback = fallback;
@@ -62,6 +86,8 @@ public sealed class EmotionalStockProfile
 		Saves = new ReadOnlyDictionary<int, Difficulty>(saveList.ToDictionary(x => x.Key, x => x.Value));
 		BreakOnAdmittedAttack = breakOnAdmittedAttack;
 		CanonicalGradePolicy = canonicalGradePolicy;
+		FrenzyOnFury = frenzyOnFury;
+		ClearCombatFrenzyOnCalm = clearCombatFrenzyOnCalm;
 	}
 
 	public EmotionalSpellKind Kind { get; }
@@ -77,7 +103,9 @@ public sealed class EmotionalStockProfile
 	public IReadOnlyDictionary<int, Difficulty> Saves { get; }
 	public bool BreakOnAdmittedAttack { get; }
 	public bool CanonicalGradePolicy { get; }
-	public const string HistoricalExceptionLimit = "Undead, Quickening, Insomnia and Mul/Thodeliv exceptions remain unmapped; no native setting IDs are inferred.";
+	public EmotionalFrenzyProfile? FrenzyOnFury { get; }
+	public bool ClearCombatFrenzyOnCalm { get; }
+	public const string HistoricalExceptionLimit = "Undead, Quickening and Insomnia remain unmapped; source-specific IDs are explicit profile bindings, never runtime name inference.";
 
 	public EmotionalTerrainRule TerrainRule(long terrainId)
 	{
@@ -140,6 +168,8 @@ public sealed class EmotionalStockProfile
 			throw new InvalidOperationException("Map a compiling boolean eligibility prog with (target, caster) parameters.");
 		if (Terrains.Any(x => world.Terrains.Get(x.TerrainId) is null))
 			throw new InvalidOperationException("A mapped native terrain no longer exists.");
+		if (FrenzyOnFury is { } frenzy && (world.Races.Get(frenzy.RaceId) is null || world.Drugs.Get(frenzy.SuppressionDrugId) is null))
+			throw new InvalidOperationException("The configured frenzy race or suppression drug no longer exists.");
 	}
 
 	public XElement SaveToXml() => new("SourceProfile", new XAttribute("version", 1), new XAttribute("kind", Kind),
@@ -147,27 +177,36 @@ public sealed class EmotionalStockProfile
 		new XAttribute("trait", TraitId), new XAttribute("units", UnitsPerSourcePoint),
 		new XAttribute("attackbreak", BreakOnAdmittedAttack),
 		CanonicalGradePolicy ? new XAttribute("gradepolicy", "Canonical") : null,
+		new XAttribute("clearfrenzy", ClearCombatFrenzyOnCalm),
 		new XElement("Lifetime", new XAttribute("group", Group), new XAttribute("seconds", UnitSeconds), new XAttribute("cap", CapUnits)),
 		WriteRule("Fallback", Fallback),
 		new XElement("Terrains", Terrains.Select(x => WriteRule("Terrain", x.Rule, x.TerrainId))),
 		new XElement("Saves", Saves.OrderBy(x => x.Key).Select(x => new XElement("Grade", new XAttribute("number", x.Key),
 			new XAttribute("difficulty", (int)x.Value)))),
-		new XElement("HistoricalExceptions", new XAttribute("status", "unmapped")));
+		new XElement("HistoricalExceptions", new XAttribute("status", "unmapped")),
+		FrenzyOnFury is { } frenzy ? new XElement("Frenzy", new XAttribute("race", frenzy.RaceId),
+			new XAttribute("suppressiondrug", frenzy.SuppressionDrugId), new XAttribute("offence", frenzy.OffenceBonus),
+			new XAttribute("defence", frenzy.DefenceBonus), new XAttribute("meleedamage", frenzy.MeleeDamageBonus),
+			new XAttribute("hunger", frenzy.HungerMultiplier), new XAttribute("additive", true)) : null);
 
 	public static EmotionalStockProfile Read(XElement root)
 	{
-		var names = new[] { "Lifetime", "Fallback", "Terrains", "Saves", "HistoricalExceptions" };
-		if (names.Any(name => root.Elements(name).Count() != 1) || root.Elements().Any(x => x.Name.Namespace != XNamespace.None || !names.Contains(x.Name.LocalName)))
+		var names = new[] { "Lifetime", "Fallback", "Terrains", "Saves", "HistoricalExceptions", "Frenzy" };
+		if (names.Take(5).Any(name => root.Elements(name).Count() != 1) || root.Elements("Frenzy").Count() > 1 || root.Elements().Any(x => x.Name.Namespace != XNamespace.None || !names.Contains(x.Name.LocalName)))
 			throw new ArgumentException("The profile must have exactly one of each supported configuration section.");
 		if (root.Name != "SourceProfile" || (int?)root.Attribute("version") != 1 ||
 			!Enum.TryParse<EmotionalSpellKind>((string?)root.Attribute("kind"), false, out var kind) ||
 			root.Element("HistoricalExceptions")?.Attribute("status")?.Value != "unmapped")
 			throw new ArgumentException("Unsupported source profile kind/version or historical exception mapping.");
 		var lifetime = root.Element("Lifetime") ?? throw new ArgumentException("A lifetime profile is required.");
-		var attributes = new[] { "version", "kind", "eligibility", "intensity", "trait", "units", "attackbreak", "gradepolicy" };
+		var attributes = new[] { "version", "kind", "eligibility", "intensity", "trait", "units", "attackbreak", "gradepolicy", "clearfrenzy" };
 		if (root.Attributes().Any(x => x.Name.Namespace != XNamespace.None || !attributes.Contains(x.Name.LocalName)) ||
 			root.Attribute("gradepolicy") is { } policy && policy.Value != "Canonical")
 			throw new ArgumentException("Unknown emotional profile attribute or requested-grade policy.");
+		if (root.Element("Frenzy") is { } frenzyElement &&
+			(frenzyElement.Attributes().Any(x => x.Name.Namespace != XNamespace.None || !new[] { "race", "suppressiondrug", "offence", "defence", "meleedamage", "hunger", "additive" }.Contains(x.Name.LocalName)) ||
+			(string?)frenzyElement.Attribute("additive") != "true" || frenzyElement.HasElements))
+			throw new ArgumentException("Frenzy configuration must use the supported additive duration profile.");
 		return new(kind, (string?)lifetime.Attribute("group") ?? "", (int)lifetime.Attribute("seconds")!,
 			(int)lifetime.Attribute("cap")!, (long)root.Attribute("eligibility")!, (double)root.Attribute("intensity")!,
 			(long)root.Attribute("trait")!, (double)root.Attribute("units")!,
@@ -176,7 +215,11 @@ public sealed class EmotionalStockProfile
 				.Select(x => new EmotionalTerrainBinding((long)x.Attribute("id")!, ReadRule(x))),
 			(root.Element("Saves") ?? throw new ArgumentException("Save mappings are required.")).Elements("Grade")
 				.Select(x => new KeyValuePair<int, Difficulty>((int)x.Attribute("number")!, (Difficulty)(int)x.Attribute("difficulty")!)),
-			(bool)root.Attribute("attackbreak")!, root.Attribute("gradepolicy") is not null);
+			(bool)root.Attribute("attackbreak")!, root.Attribute("gradepolicy") is not null,
+			root.Element("Frenzy") is { } frenzy ? new EmotionalFrenzyProfile((long)frenzy.Attribute("race")!,
+				(long)frenzy.Attribute("suppressiondrug")!, (double)frenzy.Attribute("offence")!, (double)frenzy.Attribute("defence")!,
+				(double)frenzy.Attribute("meleedamage")!, (double)frenzy.Attribute("hunger")!) : null,
+			(bool?)root.Attribute("clearfrenzy") ?? false);
 	}
 
 	private static XElement WriteRule(string name, EmotionalTerrainRule rule, long? id = null) => new(name,

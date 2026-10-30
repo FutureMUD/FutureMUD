@@ -1,11 +1,104 @@
 # Charged devices: runtime and installed-world checkpoints
 
+## Worldfile compatibility audit — 30 October 2026
+
+The mapping below was approved after the compatibility audit. The current tranche adds optional native reservoir devices and imports the four functional placed staves. The original frozen-charge mode remains available. Walkthrough deployment is separate from this implementation.
+
+### Actual supplied devices
+
+The pinned worldfile package has 25 type-3 wands and 17 type-4 staves. Typed O/G/E/P references outside excluded zones 57/76 identify ten distinct definitions (eleven reset rows because Vnum6310 occurs twice). None is directly listed in the packaged shop production/new-item arrays, forage entries or the sole craft's inputs/outputs. This does not rule out every dynamic script supply route.
+
+| Vnum | Source item | Type | Maximum/current Mana | Maximum power field | Spell / effective reset state |
+| --- | --- | --- | --- | --- | --- |
+| 25109 | a gnarled thuja staff | Staff | 2000 / 1934 | 8 | Rain of Fire (21) |
+| 25606 | a mechanical steel cannon | Staff | 2000 / 2000 | 7 | Fireball (11) |
+| 25914 | a dragon-headed obsidian staff | Staff | 3000 / 3000 | 5 | Animate Dead (28) |
+| 65509 | an iron torc | Staff | 500 / 500 | 8 | Banishment (45); P reset in zone 13 |
+| 6310 | a twisted agafari crook | Staff | 0 / 0 | 0 | No spell |
+| 30037 | the mantle of orbs | Wand | 0 / 0 | 0 | Levitate (26), but no capacity or usable power |
+| 30043 | the world helm | Wand | 0 / 0 | 0 | No spell |
+| 30044 | the crown of insight | Wand | 0 / 0 | 0 | No spell |
+| 30045 | a crystal wedge | Wand | 0 / 0 | 0 | No spell |
+| 45430 | a flower-tipped wand | Wand | 0 / 0 | 0 | No spell; P reset in zone 45 |
+
+Base and effective reset values agree for these records. Values 0/1/2/3 mean maximum Mana, maximum power, current Mana and spell ID. None has the source `[ARTIFACT]` marker. Reset extraction must include P records and distinguish G's three-field prefix from E/P's four-field prefix; raw argument searches or G/E-only scans give incorrect counts.
+
+### Source activation and recharge
+
+`other.c:3370+` donates a positive integer amount of personal Mana into an equipped wand/staff at 1:1, refusing insufficient personal Mana or a resulting reservoir above capacity. It does not require acquired knowledge of the stored spell or use casting components. `handler.c:1942+` searches every equipment slot, including worn jewellery; the message about holding the item is narrower than its actual lookup.
+
+`other.c:3490–3714` uses an equipped item and a quoted power word. The seven words are wek, yuqa, kral, een, pav, sul and mon. Although the Power array is zero-based, `parser.c:260+ old_search_block` increments its match counter before returning: invocation levels are **1–7**, not 0–6. Therefore maximum-power field 8 admits all seven words, but is not an executable eighth grade. It must still be retained for the cost calculation.
+
+Wands resolve one local character or local/carried/equipped object. Staves pass no named target; each spell's staff branch determines the recipient set. There is no acquired-spell requirement or generic item-control skill roll. Silence/Babble prevents a valid power word. Reservoir debit occurs before the spell handler, so handler-level refusal can still consume energy. Native wards, resistance and delivery restrictions should remain rather than copying unsafe legacy dispatch.
+
+Wand cost is `600 + 200*(level-1)`. Nonartifact wands clamp maximum capacity to at most `1100 + 100*maximumPower` before checking affordability, then lose another 100 capacity on a paid activation. The stored current energy is not clamped with the maximum. Staff capacity does not erode. Wands impose a one-pulse wait; the staff path adds no equivalent wait here.
+
+Staff cost is `10 * mana_amount_level(maximumPower, level, spellId)` (`sp_parser.c:1934+`), including integer division and the spell's minimum-Mana floor. The helper first increments maximumPower. Exact costs by legal word, useful for a proposed reservoir mode:
+
+| Device | wek | yuqa | kral | een | pav | sul | mon |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 25109 / 65509 | 50 | 60 | 70 | 80 | 100 | 120 | 160 |
+| 25606 | 200 | 200 | 200 | 200 | 200 | 200 | 250 |
+| 25914 | 80 | 100 | 120 | 160 | 250 | unavailable | unavailable |
+
+### Native payload compatibility
+
+Existing `ChargedMagicDevice` has a homogeneous bank of fixed-grade frozen spell charges (capacity 1–100), optional activation eligibility/checks, persistent reservation/consumption and explicit focus mode. Wand/staff kind currently changes presentation/default capacity, not target fanout. Release accepts one reachable target and rejects groups. Recharge requires an acquired casting route, pays normal native spell costs and components per charge, and requires reproducible stored potency. Instances and copies start empty; there is no seeder-ready authored reservoir or initial-payload constructor. Initial stock needs explicit authored device provenance, not a fictitious character producer.
+
+All four functional source payloads need native carrier work, not merely item XML:
+
+| Source payload | Source staff behaviour | Native equivalent and blocker |
+| --- | --- | --- |
+| Rain of Fire | Requires open sky; room attack with additional source caster/down-room consequences | Cinder Rain (`arm.spell.cinder_rain`): configured area recipients, identity-safe damage and retained burning. Device release has no area route; stored compatibility rejects identity-safe damage and burning. |
+| Fireball | Attacks every eligible other non-immortal occupant, including allies | Ember Lance (`arm.spell.ember_lance`): native single-target damage exists, but its identity-safe prepared-victim mode is explicitly excluded from stored delivery. Staff fanout is also absent. |
+| Animate Dead | Tries each corpse directly in room contents | Raise Servitor (`arm.spell.raise_servitor`): exact-corpse lifecycle and control exist, but `animatecorpse` is excluded from device/snapshot compatibility; room-corpse selection needs an adapter. |
+| Banishment | Tries each eligible other non-immortal occupant | Banish Traveller (`arm.spell.banish_traveller`): resistance and weighted travel exist, but prepared travel and post-payment destination sampling are excluded from stored delivery; staff fanout needs an adapter. |
+
+Source staff dispatch is in `spells.c:123+`, `298+`, `2431+`, `4384+`. Rain of Fire's underlying source effect (`magick.c:11569+`) can also hurt the caster for one-third damage, affect a room below, burn equipment, and apply chance-based immolation. Installed Cinder Rain instead uses its already-authored native damage/burning and local-other recipient policy. Reusing that payload is a deliberate adaptation, not exact source parity.
+
+Native gates: `MagicCastingService.Devices.cs:33–48` combines a device-effect whitelist with `ScrollSpellCompatibility.Errors`; `StoredSpellSnapshot.Devices.cs` captures a producer-bound frozen payload. `ScrollSpellCompatibility` explicitly refuses identity-safe damage, burning, animatecorpse and banishtraveller. Removing whitelist entries alone would not provide the required prepared targets, selected grade, retained context or lifecycle.
+
+### Approved mapping
+
+1. Prefer a reusable optional **energy-reservoir mode** within native devices over converting these four staves to fixed charges. Preserve per-instance current/maximum energy, fixed payload, selectable grades 1–7 and configurable per-grade costs; reuse existing custody, journal and persistence protections. Existing frozen-charge devices retain their mode. Seed the source integer reservoirs/costs and use 1 native Mana per donated source unit. This preserves pooled donations and weaker/more numerous versus stronger/fewer uses.
+2. Use native `Anyone` activation eligibility without an extra control roll, and a configurable equipped-item access policy so the torc works while worn. Keep speech, physical manipulation, no-magic, wards and resistance. Donation needs available Mana, not acquired knowledge of the payload; no focus fallback or spell-learning grant.
+3. Preserve source staff recipient scope through reusable character-area and room-corpse delivery adapters, with one device debit per activation and per-target eligibility/resistance. Fireball and Banishment include eligible allies and exclude user/staff. Do not turn the cannon into a single-target wand or animate only one corpse silently.
+4. Reuse installed native spell effects and formulas for the initial tranche. Explicitly retain Cinder Rain's existing adaptation unless separately approved to restore source self-damage, downward spill and equipment burning. Preserve its source open-sky activation requirement.
+5. Use native preflight refusal without spending energy when the command/location is invalid or no eligible recipients exist; once committed, spend once even if every eligible target resists. This intentionally improves on the source's debit-before-handler refusals.
+6. Leave the six zero-capacity/invalid devices inert and do not invent supply for unplaced definitions. They are not merely empty rechargeable magic devices. Defer wand capacity erosion until there is an admitted functional wand to exercise it, or explicitly approve a reusable degradation policy now. No placed functional staff needs erosion.
+
+The approved tranche includes all four functional staves, including corpse animation and multi-recipient banishment. The maximum-power-8 field affects the cost profile, but exposes only the seven actual words. Wand capacity erosion remains deferred.
+
+Evidence is source/code and pinned-data inspection only. No runtime tests or live database operations were performed for this audit.
+
 Authority: `Armageddon_Magic_Completion_Implementation_Brief.md`, Library
 `libfile_a4606cd0097081918d6c9d9e220e6da0`, full supported text read (905 lines),
 sections N22/N23. Base: `1ad24d636925da64e7a82ffa858b0af470e56b0a`.
 That historical isolated lane did not edit the central ledger, repertoire tables or native dispatch. The later N22 installed-world qualification below updates the continuation ledger and ordinary command registration.
 
 ## Builder and player use
+
+### Energy reservoirs
+
+`ChargedMagicDevice` now has an optional `EnergyReservoir` mode. It references one native spell and one resource, an initial and maximum energy amount, and a positive integer cost for each admitted grade. Each instance persists its current energy and reservation with the existing checksum and compare-and-swap persistence. Newly loaded prototypes use configured initial energy; copying an existing item produces an empty reservoir. Incompatible mode/capacity revisions refuse without discarding stored state.
+
+```text
+magicdevice show <item>
+magicdevice use <item> <grade or power word>
+magicdevice donate <item> <whole amount>
+```
+
+Grades 1–7 also accept `wek`, `yuqa`, `kral`, `een`, `pav`, `sul`, `mon`. Donation transfers the configured resource at 1:1 and refuses requests beyond capacity or the donor's available balance. Reservoir use does not require acquiring the spell and does not teach it. The Armageddon prototypes use `Anyone` eligibility and no control check, with equipped access including worn items. Native physical and speech restrictions still apply.
+
+Builder settings are `reservoir mode energyreservoir`, `reservoir spell <spell>`, `reservoir resource <resource>`, `reservoir energy <maximum> <initial>`, `reservoir cost <grade> <cost>`, `reservoir clearcosts`, `reservoir worn yes|no`, `reservoir delivery othercharacters|roomcorpses|nativearea`, and `reservoir opensky yes|no`. Delivery uses native effect preparation and eligibility, rather than expanding the frozen scroll whitelist. One journalled debit covers the whole activation. Invalid commands, unavailable grades, invalid locations and empty eligible target sets refuse before spending; committed resistance or ward outcomes do not refund energy.
+
+The worldfile seeder installs the four mapped placed staves on base/effective prototypes and already-created opening stock. It leaves the six inert devices and unplaced definitions without invented magic supply. Source cost curves and initial energy are recorded above. The Cinder Rain staff requires open sky and retains the installed spell's native damage/burning adaptation. Wand erosion is not implemented in this tranche.
+
+Reservoir configuration currently admits charged-only roles without an additional control check. Qualified delivery adapters cover identity-safe damage, native damage/burning area policies without chain-lightning shared sampling, durable corpse animation and weighted banishment. An arbitrary spell or additional caster payload does not become compatible merely by assigning its ID. The original frozen-charge whitelist is unchanged.
+
+Implementation verification: runtime and seeder builds pass. The focused seeder suite passes six tests, including exact costs, initial capacities, four active mappings, six inert exclusions and neighbouring rune/bandaging regressions. The final focused runtime selection passes 183 tests. Runtime regression receipts are under `.artifacts/walkthrough/reservoir-*`; they cover old charge banks, persisted energy and reservations, empty copying, revision compatibility, resource-callback custody changes, worn donations, no-target refusal, all-target resistance, single-payment room attacks and native banishment/burning. No live database update or walkthrough restart was performed. Build logs include existing warnings and unavailable NuGet vulnerability-feed warnings.
+
+### Frozen charges and focus mode
 
 Attach the registered `ChargedMagicDevice` component and an ordinary holdable component
 to a nonstacking item. Its instances start empty; copying produces an empty bank.

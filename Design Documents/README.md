@@ -244,6 +244,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Seeding
 
+- [Armageddon Worldfile Seeder Design](./Seeding/Armageddon_Worldfile_Seeder_Design.md) - question-free historical world import, confirmed mappings, implementation boundaries and acceptance.
+- [Armageddon Worldfile Format Reference](./Seeding/Armageddon_Worldfile_Format_Reference.md) - source grammars, code consumers, field layouts and corpus audit.
 - [Database seeder source and authoring guides](./Seeding/Seeders/README.md) — complete concrete inventory, dependency map and reviewed source evidence.
 - [Attribute Describer Ranges](./Seeding/Attribute_Describer_Ranges.md)
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)

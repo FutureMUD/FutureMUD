@@ -30,6 +30,8 @@ public interface ISurfaceLiquidState
 	ILiquid? LiquidRequired { get; }
 	double LiquidAmountConsumed { get; }
 	void AddLiquid(LiquidMixture liquid);
+	/// <summary>Adds dry residue and notifies the owning surface so native persistence and cleaning state update.</summary>
+	void DepositResidue(ISolid material, double weight);
 	bool TryAddDriedLiquid(LiquidMixture liquid, bool roomSurface = false);
 	LiquidMixture? RemoveLiquidVolume(double volume);
 	bool CleanWithLiquid(LiquidMixture? liquid, double amount);

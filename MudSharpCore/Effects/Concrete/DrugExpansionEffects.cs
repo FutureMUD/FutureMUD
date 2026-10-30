@@ -4,8 +4,52 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Body.Traits;
+using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
+
+public sealed class DrugTraitModifierEffect : Effect, ITraitBonusEffect, IMaximumHitPointsBonusEffect
+{
+	public DrugTraitModifierEffect(IPerceivable owner) : base(owner) { }
+	protected override string SpecificEffectType => "DrugTraitModifier";
+	public Dictionary<long, double> TraitBonuses { get; } = new();
+	public long SourceBodyId { get; set; }
+	public double MaximumHitPointsBonus { get; set; }
+	public double MaximumHitPointsMultiplier { get; set; } = 1.0;
+	public bool AppliesToTrait(ITraitDefinition trait) => TraitBonuses.ContainsKey(trait.Id);
+	public bool AppliesToTrait(ITrait trait) => AppliesToTrait(trait.Definition);
+	public double GetBonus(ITrait trait, TraitBonusContext context = TraitBonusContext.None) => TraitBonuses.GetValueOrDefault(trait.Definition.Id);
+	private bool IsCurrentSource => Owner is not ICharacter actor || SourceBodyId <= 0 || actor.Body?.Id == SourceBodyId;
+	public override bool Applies() => IsCurrentSource && base.Applies();
+	public override bool Applies(object target) => IsCurrentSource && base.Applies(target);
+	public override bool Applies(object target, object thirdparty) => IsCurrentSource && base.Applies(target, thirdparty);
+	public override bool Applies(object target, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None) => IsCurrentSource && base.Applies(target, flags);
+	public override string Describe(IPerceiver voyeur) => "Temporary drug trait and maximum health modifiers.";
+}
+
+public sealed class DrugCombatCheckModifierEffect : Effect, ICheckBonusEffect
+{
+	public DrugCombatCheckModifierEffect(IBody owner, bool offensive) : base(owner) => Offensive = offensive;
+	public bool Offensive { get; }
+	public double CheckBonus { get; set; }
+	protected override string SpecificEffectType => Offensive ? "DrugOffensiveCheckModifier" : "DrugDefensiveCheckModifier";
+	public bool AppliesToCheck(CheckType type) => Offensive ? type.IsOffensiveCombatAction() : type.IsDefensiveCombatAction();
+	public override string Describe(IPerceiver voyeur) => $"Drug {(Offensive ? "offensive" : "defensive")} check modifier.";
+}
+
+public sealed class DrugResourceCapacityModifierEffect : Effect, IMagicResourceCapacityBonusEffect
+{
+	public DrugResourceCapacityModifierEffect(IBody owner, long resourceId) : base(owner) => MagicResourceId = resourceId;
+	protected override string SpecificEffectType => "DrugResourceCapacityModifier";
+	public long MagicResourceId { get; }
+	public double MagicResourceCapacityBonus { get; set; }
+	public double MagicResourceCapacityMultiplier { get; set; } = 1.0;
+	public override string Describe(IPerceiver voyeur) => $"Temporary drug capacity modifier for resource {MagicResourceId}.";
+}
 
 public class DrugCoagulationEffect : Effect, IBleedingModifierEffect
 {
@@ -150,7 +194,7 @@ public class DrugSleepEffect : Effect, ISleepEffect
 			character.State.HasFlag(CharacterState.Sleeping) ||
 			character.Combat is not null ||
 			character.PositionState.CompareTo(character.Race.MinimumSleepingPosition) == PositionHeightComparison.Higher ||
-			character.EffectsOfType<IPreventSleepEffect>().Any())
+			character.EffectsOfType<IPreventSleepEffect>().Any(effect => effect.Applies(character)))
 		{
 			return;
 		}

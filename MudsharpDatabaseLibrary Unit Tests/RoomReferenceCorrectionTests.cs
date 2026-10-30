@@ -215,6 +215,7 @@ public class RoomReferenceCorrectionTests
 	[DataRow("RoomWeather", "<Effect><WeatherEvent>9000</WeatherEvent></Effect>")]
 	[DataRow("SilenceStatus", "<Effect />")]
 	[DataRow("SpottingAwarenessStatus", "<Bonus>9000</Bonus>")]
+	[DataRow("PublicTravelAnchor", "<RequiredPerception>9000</RequiredPerception>")]
 	public void WorldfileStatusAndWeatherEffects_PreservePayloadWithoutRoomRewriting(string factory, string payload)
 	{
 		// Weather catalogue IDs and numeric status values are not legacy room references.

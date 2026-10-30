@@ -1,6 +1,7 @@
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Magic.Environment;
+using MudSharp.Effects.Interfaces;
 
 namespace MudSharp.Effects;
 
@@ -59,7 +60,7 @@ public class EffectHandler : IEffectHandler
 
     public void AddEffect(IEffect effect)
     {
-		using var atmosphereChange = Parent is MudSharp.Construction.IRoom room && effect is IAffectAtmosphere
+		using var atmosphereChange = Parent is MudSharp.Construction.IRoom room && effect is IAffectAtmosphere or IRoomWeatherEffect
 			? MudSharp.Form.Material.EnvironmentalExposureService.ChangingEnvironment(room) : null;
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
         if (!_effects.Contains(effect))
@@ -81,6 +82,14 @@ public class EffectHandler : IEffectHandler
 		NotifyNauseaInputChange(effect);
     }
 
+	/// <summary>Reconciles runtime inputs after a mutable effect's values change in place.</summary>
+	public void NotifyEffectUpdated(IEffect effect)
+	{
+		if (!_effects.Contains(effect)) return;
+		NotifyCastingInputChange(effect);
+		NotifyNauseaInputChange(effect);
+	}
+
     public void AddEffect(IEffect effect, TimeSpan duration)
     {
         AddEffect(effect);
@@ -96,7 +105,7 @@ public class EffectHandler : IEffectHandler
 
     public void RemoveEffect(IEffect effect, bool fireRemovalAction = false)
     {
-		using var atmosphereChange = Parent is MudSharp.Construction.IRoom room && effect is IAffectAtmosphere
+		using var atmosphereChange = Parent is MudSharp.Construction.IRoom room && effect is IAffectAtmosphere or IRoomWeatherEffect
 			? MudSharp.Form.Material.EnvironmentalExposureService.ChangingEnvironment(room) : null;
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(Parent);
         if (fireRemovalAction || effect is ILandRejuvenationEffect ||
@@ -105,7 +114,7 @@ public class EffectHandler : IEffectHandler
             effect.RemovalEffect();
         }
 
-        _effects.Remove(effect);
+		var removed = _effects.Remove(effect);
 		NotifyCastingInputChange(effect);
 		NotifyNauseaInputChange(effect);
         Gameworld.EffectScheduler.Unschedule(effect);
@@ -119,6 +128,12 @@ public class EffectHandler : IEffectHandler
         {
             _hasSaveableScheduledEffects = false;
         }
+		if (removed && effect is IHealthCheckAfterRemovalEffect healthCheckEffect &&
+		    Parent is MudSharp.Character.ICharacter { Body: not null } character &&
+		    healthCheckEffect.ShouldCheckHealthAfterRemoval(character))
+		{
+			character.CheckHealthStatus();
+		}
     }
 
     public void RemoveAllEffects()
@@ -149,7 +164,7 @@ public class EffectHandler : IEffectHandler
 	private void NotifyCastingInputChange(IEffect effect)
 	{
 		var physicalInput = effect is ISilencedEffect or IBodypartIneffectiveEffect or ILimbIneffectiveEffect or IForceParalysisEffect;
-		var capacityInput = effect is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect or MudSharp.Magic.IEquippedItemBonusEffect;
+		var capacityInput = effect is ITraitBonusEffect or MudSharp.Health.IMaximumHitPointsBonusEffect or MudSharp.Health.IMagicResourceCapacityBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect or MudSharp.Magic.IEquippedItemBonusEffect;
 		if (!physicalInput && !capacityInput) return;
 		var actor = Parent as MudSharp.Character.ICharacter ?? (Parent as MudSharp.Body.IBody)?.Actor ??
 			(Parent as MudSharp.GameItems.IGameItem)?.InInventoryOf?.Actor;
@@ -162,9 +177,9 @@ public class EffectHandler : IEffectHandler
 
 	private IDisposable? DeferAttributeCapacityChanges(IEnumerable<IEffect> effects)
 	{
-		if (!effects.Any(x => x is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect ||
+		if (!effects.Any(x => x is ITraitBonusEffect or MudSharp.Health.IMaximumHitPointsBonusEffect or MudSharp.Health.IMagicResourceCapacityBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect ||
 			x is IMagicSpellEffectParent parent && parent.SpellEffects.Any(child =>
-				child is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect or MudSharp.Magic.IEquippedItemBonusEffect))) return null;
+				child is ITraitBonusEffect or MudSharp.Health.IMaximumHitPointsBonusEffect or MudSharp.Health.IMagicResourceCapacityBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect or MudSharp.Magic.IEquippedItemBonusEffect))) return null;
 		var actor = Parent as MudSharp.Character.Character ??
 			(Parent as MudSharp.Body.IBody)?.Actor as MudSharp.Character.Character;
 		return actor?.DeferCastingCapacityReconciliationForMutation();

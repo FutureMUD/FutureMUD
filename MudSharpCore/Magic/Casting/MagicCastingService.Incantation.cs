@@ -7,9 +7,14 @@ namespace MudSharp.Magic.Casting;
 
 public sealed partial class MagicCastingService
 {
+	public static IReadOnlyList<string> SpokenCommandNames { get; } = Array.AsReadOnly(new[]
+	{ "say", ".", "tell", "sayto", "talk", "talkto", "whisper", "whisperto", "loudsay", "loudtell", "yell", "yellat", "shout", "shoutat", "sing", "singto" });
 	private sealed record FormulaMatch(MagicSpell Spell, int Grade, bool Overreach, string Targets, string? Via,
 		MagicCastingMode Mode = MagicCastingMode.Manifest, long? CapabilityId = null);
 	private sealed record FormulaCandidate(MagicSpell Spell, ControlledSpellIncantation Profile, IMagicCastingCapability? Capability);
+
+	public bool RecognisesFormula(ICharacter actor, string formula, long? schoolId = null) =>
+		MatchFormula(actor, formula, schoolId, out _, out _) is not null;
 
 	public MagicCastingResult? CastFormula(ICharacter actor, string formula, string method = "Say", long? schoolId = null,
 		MagicCastingSpeech? speech = null)

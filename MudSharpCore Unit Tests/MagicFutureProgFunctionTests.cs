@@ -32,6 +32,7 @@ public class MagicFutureProgFunctionTests
 		foreach (var expected in new[]
 		         {
 			         "magicresourcelevel",
+			         "magicresourcecapacity",
 			         "setmagicresource",
 			         "addmagicresource",
 			         "subtractmagicresource",
@@ -212,6 +213,14 @@ public class MagicFutureProgFunctionTests
 
 		Assert.AreEqual(StatementResult.Normal, subtract.Execute(variables));
 		Assert.AreEqual(75.0M, subtract.Result.GetObject);
+		Assert.AreEqual(75.0, haver.MagicResourceAmounts[resource.Object]);
+		var capacity = Compile("magicresourcecapacity", gameworld.Object,
+			Constant(haver, ProgVariableTypes.MagicResourceHaver), Constant(1.0M, ProgVariableTypes.Number));
+		Assert.AreEqual(StatementResult.Normal, capacity.Execute(variables));
+		Assert.AreEqual(100.0M, capacity.Result.GetObject);
+		Assert.AreEqual(75.0, haver.MagicResourceAmounts[resource.Object], "Capacity inspection must not refill the reserve.");
+		resource.Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns(double.NaN);
+		Assert.AreEqual(StatementResult.Error, capacity.Execute(variables));
 		Assert.AreEqual(75.0, haver.MagicResourceAmounts[resource.Object]);
 	}
 

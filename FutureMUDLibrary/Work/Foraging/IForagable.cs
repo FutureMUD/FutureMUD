@@ -31,6 +31,11 @@ namespace MudSharp.Work.Foraging
         int RelativeChance { get; }
 
         /// <summary>
+        ///     Percentage of one room yield consumed by a successful forage. Zero permits non-depleting outputs.
+        /// </summary>
+        double YieldConsumptionPercentage { get; }
+
+        /// <summary>
         ///     The minimum outcome required to forage this item
         /// </summary>
         Outcome MinimumOutcome { get; }

@@ -17,7 +17,7 @@ using DB = MudSharp.Models;
 
 namespace MudSharp.Vehicles;
 
-public class Vehicle : SaveableItem, IVehicle
+public partial class Vehicle : SaveableItem, IVehicle
 {
 	private readonly List<IVehicleOccupancy> _occupancies = new();
 	private readonly List<IVehicleCompartment> _compartments = new();
@@ -384,6 +384,16 @@ public class Vehicle : SaveableItem, IVehicle
 
 		RebuildCompartmentLinks();
 		RebuildDockings();
+		var templates = Prototype.ExteriorItemPrototype?.Components
+			.OfType<MudSharp.GameItems.Prototypes.IVehicleExteriorPrototype>()
+			.SelectMany(x => x.InteriorRoomTemplates).ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<long, long>();
+		if (templates.Count > 0)
+		{
+			var map = _compartments.Where(x => templates.ContainsKey(x.Prototype.Id) && x.InteriorRoom is not null)
+				.ToDictionary(x => Gameworld.Rooms.Get(templates[x.Prototype.Id]), x => x.InteriorRoom);
+			MudSharp.Effects.Concrete.RoomTemplateInstance.CopyExits(map);
+			RebuildCompartmentLinks();
+		}
 		reason = string.Empty;
 		return true;
 	}
@@ -578,6 +588,8 @@ public class Vehicle : SaveableItem, IVehicle
 	public bool CanBoard(ICharacter actor, IVehicleOccupantSlotPrototype slot, out string reason)
 	{
 		slot ??= FirstAvailableSlot();
+		if (actor?.Location is { } interior && IsHostedInterior(interior))
+			return CanBoardCore(actor, slot, null, out reason);
 		var access = ResolveBoardingAccess(actor, slot, null);
 		if (_accessPoints.Any() && access is null)
 		{
@@ -619,7 +631,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 		if (Prototype.Scale == VehicleScale.RoomScale)
 		{
-			if (accessPoint is null || ActiveDockingForBoarding(actor, accessPoint) is null)
+			if (!IsHostedInterior(actor.Location) && (accessPoint is null || ActiveDockingForBoarding(actor, accessPoint) is null))
 			{
 				reason = "You must be at an open docking access point to board that room-scale vehicle.";
 				return false;
@@ -649,6 +661,11 @@ public class Vehicle : SaveableItem, IVehicle
 			reason = $"The {slot.Compartment.Name} hosted interior is unavailable. An administrator must recover it before boarding.";
 			return false;
 		}
+		if (Prototype.Scale == VehicleScale.RoomScale && IsHostedInterior(actor.Location) && !this.IsAtOccupantSlotLocation(actor, slot))
+		{
+			reason = $"Move to {slot.Compartment.Name} before taking that vehicle slot.";
+			return false;
+		}
 
 		if (_occupancies.Count(x => x.Slot.Id == slot.Id) >= slot.Capacity)
 		{
@@ -663,6 +680,8 @@ public class Vehicle : SaveableItem, IVehicle
 	public bool CanBoard(ICharacter actor, IVehicleOccupantSlotPrototype slot, IVehicleAccessPoint accessPoint, out string reason)
 	{
 		slot ??= FirstAvailableSlot();
+		if (actor?.Location is { } interior && IsHostedInterior(interior))
+			return CanBoardCore(actor, slot, null, out reason);
 		if (_accessPoints.Any() && accessPoint is null)
 		{
 			accessPoint = ResolveBoardingAccess(actor, slot, null);
@@ -713,7 +732,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
 		IRoom boardingDestination = null;
-		if (Prototype.Scale == VehicleScale.RoomScale)
+		if (Prototype.Scale == VehicleScale.RoomScale && !IsHostedInterior(actor.Location))
 		{
 			var docking = ActiveDockingForBoarding(actor, accessPoint);
 			boardingDestination = DockingExitFrom(docking, actor.Location)?.Destination;

@@ -70,6 +70,7 @@ public class Foragable : EditableItem, IForagable
             $"Relative Chance: {RelativeChance.ToString("N0", actor).ColourValue()}"
         }.ArrangeStringsOntoLines(2, (uint)actor.LineFormatLength));
         sb.AppendLineFormat("Output: {0}", DescribeOutput(actor));
+        sb.AppendLineFormat("Yield Consumption: {0}", (YieldConsumptionPercentage / 100.0).ToString("P", actor).ColourValue());
         sb.AppendLineFormat("Foragable Types: {0}",
             ForagableTypes.Any()
                 ? ForagableTypes.Select(x => x.Colour(Telnet.Green)).ListToString()
@@ -106,6 +107,7 @@ public class Foragable : EditableItem, IForagable
                 CommodityTagId = HasCommodityMaterial ? CommodityTag?.Id : null,
                 CommodityWeightExpression = HasCommodityMaterial ? CommodityWeightExpression : null,
                 RelativeChance = RelativeChance,
+                YieldConsumptionPercentage = YieldConsumptionPercentage,
                 EditableItem = new Models.EditableItem()
             };
 
@@ -179,6 +181,7 @@ public class Foragable : EditableItem, IForagable
             dbitem.MaximumOutcome = (int)MaximumOutcome;
             dbitem.QuantityDiceExpression = QuantityDiceExpression ?? "1";
             dbitem.RelativeChance = RelativeChance;
+            dbitem.YieldConsumptionPercentage = YieldConsumptionPercentage;
             FMDB.Context.SaveChanges();
         }
 
@@ -240,6 +243,7 @@ public class Foragable : EditableItem, IForagable
         _foragableTypes = ParseForagableTypes(foragable.ForagableTypes);
         _forageDifficulty = (Difficulty)foragable.ForageDifficulty;
         _relativeChance = foragable.RelativeChance;
+        _yieldConsumptionPercentage = foragable.YieldConsumptionPercentage;
         _minimumOutcome = (Outcome)foragable.MinimumOutcome;
         _maximumOutcome = (Outcome)foragable.MaximumOutcome;
         _onForageProg = Gameworld.FutureProgs.Get(foragable.OnForageProgId ?? 0);
@@ -272,6 +276,7 @@ public class Foragable : EditableItem, IForagable
 	#3weight <weight>#0 - sets a fixed commodity weight
 	#3weight variable <expression>#0 - sets a variable commodity weight expression, in base mass units, with #6outcome#0 available
 	#3chance <#>#0 - the relative weight of this option being found
+	#3consumption <percentage>#0 - percentage of one room yield used (0% does not deplete yield)
 	#3quantity <# or dice>#0 - a number or dice expression for the item quantity found
 	#3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this output
 	#3outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
@@ -295,6 +300,8 @@ public class Foragable : EditableItem, IForagable
                 return BuildingCommandOutcome(actor, command);
             case "chance":
                 return BuildingCommandChance(actor, command);
+            case "consumption":
+                return BuildingCommandConsumption(actor, command);
             case "onforage":
                 return BuildingCommandOnForage(actor, command);
             case "canforage":
@@ -315,6 +322,20 @@ public class Foragable : EditableItem, IForagable
                 actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
                 return false;
         }
+    }
+
+    private bool BuildingCommandConsumption(ICharacter actor, StringStack command)
+    {
+        if (!double.TryParse(command.SafeRemainingArgument.TrimEnd('%'), NumberStyles.Float,
+                actor, out var percentage) || !double.IsFinite(percentage) || percentage < 0.0 || percentage > 100.0)
+        {
+            actor.OutputHandler.Send("What percentage of one room yield should a successful forage consume (0% to 100%)?");
+            return false;
+        }
+
+        YieldConsumptionPercentage = percentage;
+        actor.OutputHandler.Send($"This foragable will consume {(percentage / 100.0).ToString("P", actor).ColourValue()} of one room yield on success.");
+        return true;
     }
 
     private bool BuildingCommandCommodity(ICharacter actor, StringStack command)
@@ -925,6 +946,23 @@ public class Foragable : EditableItem, IForagable
     }
 
     private int _relativeChance;
+
+    private double _yieldConsumptionPercentage = 100.0;
+
+    public double YieldConsumptionPercentage
+    {
+        get => _yieldConsumptionPercentage;
+        set
+        {
+            if (!double.IsFinite(value) || value < 0.0 || value > 100.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "Yield consumption must be between 0 and 100 percent.");
+            }
+
+            _yieldConsumptionPercentage = value;
+            Changed = true;
+        }
+    }
 
     public int RelativeChance
     {

@@ -48,6 +48,16 @@ public class RoomExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 
 		var profile = vehicle is null ? null : MovementProfile(vehicle);
+		if (RoomPolicyRules.ExitDenial(actor, exit) is { } exitDenial)
+		{
+			reason = exitDenial;
+			return false;
+		}
+		if (RoomPolicyRules.Restricts(exit.Destination, RoomRestrictions.Vehicles))
+		{
+			reason = "Vehicles cannot travel into that location.";
+			return false;
+		}
 		var result = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit, profile));
 		reason = result.Reason;
 		return result.CanMove;
@@ -113,6 +123,16 @@ public class RoomExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 
 		var profile = movementProfile ?? (vehicle is null ? null : MovementProfile(vehicle));
+		if (RoomPolicyRules.ExitDenial(actor, exit) is { } exitDenial)
+		{
+			reason = exitDenial;
+			return false;
+		}
+		if (RoomPolicyRules.Restricts(exit.Destination, RoomRestrictions.Vehicles))
+		{
+			reason = "Vehicles cannot travel into that location.";
+			return false;
+		}
 		readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit,
 			profile, committedPropulsionPlan, externalPullers, automaticOperation));
 		if (!readiness.CanMove || readiness.MovePlan is null)

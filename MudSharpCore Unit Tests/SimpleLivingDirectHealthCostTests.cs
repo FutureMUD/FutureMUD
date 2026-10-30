@@ -7,6 +7,8 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
+using MudSharp.Body.PartProtos;
+using MudSharp.RPG.Checks;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
@@ -161,6 +163,156 @@ public class SimpleLivingDirectHealthCostTests
 		fixture.Actor.Verify(x => x.ProcessPassiveWound(wound), Times.Exactly(2));
 	}
 
+	[TestMethod]
+	public void HitpointConsequence_UsesExactNativeChannelsAndPreservesHealthFloor()
+	{
+		using NativeHealthFixture fixture = new(capacity: 10, hitpoints: true);
+		fixture.Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>()))
+			.Callback<IEnumerable<IWound>>(wounds => fixture.Wounds.AddRange(wounds));
+		fixture.Body.SetupGet(x => x.CurrentStamina).Returns(100);
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object,
+			new MudSharp.Magic.ItemConsequence(15, 20, 30, 10, true)));
+		var wound = fixture.Wounds.Single();
+		Assert.IsInstanceOfType<MudSharp.Health.Wounds.HealingSimpleWound>(wound);
+		Assert.AreEqual(15, wound.CurrentDamage, 1e-6);
+		Assert.AreEqual(20, wound.CurrentStun, 1e-6);
+		fixture.Body.Verify(x => x.SpendStamina(30), Times.Once);
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object,
+			new MudSharp.Magic.ItemConsequence(200, 100, HealthFloor: 10)));
+		Assert.AreSame(wound, fixture.Wounds.Single());
+		Assert.AreEqual(90, wound.CurrentDamage, 1e-6);
+		Assert.AreEqual(120, wound.CurrentStun, 1e-6);
+		Assert.IsTrue(MudSharp.Magic.ConfiguredItemConsequence.Apply(fixture.Actor.Object,
+			new MudSharp.Magic.ItemConsequence(200, 20, HealthFloor: 10)));
+		Assert.AreEqual(90, wound.CurrentDamage, 1e-6);
+		Assert.AreEqual(140, wound.CurrentStun, 1e-6);
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void HitpointCosts_RespectOptionalStunAndVoluntaryCapacity(bool stun)
+	{
+		using NativeHealthFixture fixture = new(hitpoints: true, stun: stun);
+		Assert.IsFalse(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object,
+			0, 1, 0, WoundSeverity.Horrifying, out _, out _));
+		Assert.AreEqual(stun, fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object,
+			0, 0, 20, WoundSeverity.Horrifying, out _, out _));
+		Assert.IsFalse(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object,
+			101, 0, 0, WoundSeverity.Horrifying, out _, out _));
+		Assert.IsTrue(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object,
+			15, 0, 0, WoundSeverity.Horrifying, out var plan, out var error), error);
+		var wound = fixture.Strategy.ApplyDirectHealthCost(fixture.Actor.Object, plan).Single();
+		Assert.AreEqual(15, wound.CurrentDamage, 1e-6);
+		Assert.AreEqual(0, wound.CurrentStun);
+	}
+
+	[TestMethod]
+	public void HitpointCosts_CapacityOnlyPenaltyChargesVisibleHealthExactly()
+	{
+		using NativeHealthFixture fixture = new(hitpoints: true);
+		typeof(BrainHitpointsStrategy).GetProperty("SeparateCapacityPenalties")!.SetValue(fixture.Strategy, true);
+		var penalty = new MudSharp.Effects.Concrete.TimedMaximumHitPointsEffect(fixture.Body.Object, -20, 1, capacityOnly: true);
+		fixture.Body.Setup(x => x.EffectsOfType<IMaximumHitPointsBonusEffect>(It.IsAny<Predicate<IMaximumHitPointsBonusEffect>>()))
+			.Returns(new[] { penalty });
+		Assert.AreEqual(80, fixture.Strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.IsTrue(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object,
+			15, 0, 0, WoundSeverity.Horrifying, out var plan, out var error), error);
+		Assert.AreEqual(15, plan.ExpectedDamage);
+		fixture.Wounds.AddRange(fixture.Strategy.ApplyDirectHealthCost(fixture.Actor.Object, plan));
+		Assert.AreEqual(65, fixture.Strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.IsTrue(fixture.Strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object,
+			10, 0, 0, WoundSeverity.Horrifying, out plan, out error), error);
+		fixture.Strategy.ApplyDirectHealthCost(fixture.Actor.Object, plan);
+		Assert.AreEqual(55, fixture.Strategy.CurrentHitPoints(fixture.Actor.Object));
+	}
+
+	[TestMethod]
+	public void HitPointAdjustment_RepairsAndHarmsThroughNegativeRangeWithoutChangingStun()
+	{
+		using NativeHealthFixture fixture = new(capacity: 10, hitpoints: true);
+		var strategy = (BrainHitpointsStrategy)fixture.Strategy;
+		typeof(BrainHitpointsStrategy).GetProperty(nameof(strategy.UseNegativeHitPoints))!.SetValue(strategy, true);
+		fixture.Body.Setup(x => x.OrganFunction<BrainProto>()).Returns(1);
+		fixture.Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>()))
+			.Callback<IEnumerable<IWound>>(wounds => fixture.Wounds.AddRange(wounds));
+		var state = CharacterState.Awake;
+		fixture.Actor.SetupGet(x => x.State).Returns(() => state);
+		fixture.Actor.Setup(x => x.CheckHealthStatus()).Callback(() => state = strategy.EvaluateStatus(fixture.Actor.Object) switch
+		{
+			HealthTickResult.Dead => CharacterState.Dead,
+			HealthTickResult.Unconscious => CharacterState.Unconscious,
+			_ => CharacterState.Awake
+		});
+		Assert.IsTrue(HitPointChanges.Apply(fixture.Actor.Object, -106));
+		Assert.AreEqual(-6, strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.AreEqual(HealthTickResult.Unconscious, strategy.EvaluateStatus(fixture.Actor.Object));
+		Assert.AreEqual(0, fixture.Wounds.Sum(x => x.CurrentStun));
+		Assert.IsTrue(HitPointChanges.Apply(fixture.Actor.Object, 9));
+		Assert.AreEqual(3, strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.AreEqual(HealthTickResult.None, strategy.EvaluateStatus(fixture.Actor.Object));
+		Assert.IsTrue(HitPointChanges.Apply(fixture.Actor.Object, -9));
+		Assert.IsTrue(HitPointChanges.Apply(fixture.Actor.Object, -5));
+		Assert.AreEqual(-11, strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.AreEqual(HealthTickResult.Dead, strategy.EvaluateStatus(fixture.Actor.Object));
+		Assert.AreEqual(CharacterState.Dead, fixture.Actor.Object.State);
+		Assert.IsFalse(HitPointChanges.Apply(fixture.Actor.Object, 100));
+		Assert.AreEqual(-11, strategy.CurrentHitPoints(fixture.Actor.Object));
+		fixture.Actor.Verify(x => x.CheckHealthStatus(), Times.Exactly(4));
+		Assert.AreEqual(1, fixture.Wounds.Count);
+	}
+
+	[TestMethod]
+	public void CriticalRecovery_FailedCheckCanKillAtBoundaryAndDoesNotRunForDeadCharacters()
+	{
+		using NativeHealthFixture fixture = new(hitpoints: true);
+		var strategy = (BrainHitpointsStrategy)fixture.Strategy;
+		typeof(BrainHitpointsStrategy).GetProperty(nameof(strategy.UseNegativeHitPoints))!.SetValue(strategy, true);
+		typeof(BrainHitpointsStrategy).GetProperty(nameof(strategy.UseCriticalRecovery))!.SetValue(strategy, true);
+		var trait = Mock.Of<ITraitDefinition>();
+		typeof(BrainHitpointsStrategy).GetProperty(nameof(strategy.CriticalRecoveryTrait))!.SetValue(strategy, trait);
+		fixture.Body.Setup(x => x.OrganFunction<BrainProto>()).Returns(1);
+		fixture.Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>()))
+			.Callback<IEnumerable<IWound>>(wounds => fixture.Wounds.AddRange(wounds));
+		Assert.IsTrue(HitPointChanges.Apply(fixture.Actor.Object, -110));
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(fixture.Actor.Object, Difficulty.Hard, trait, null, 0.0, TraitUseType.Practical,
+			It.IsAny<(string, object)[]>())).Returns(new CheckOutcome { Outcome = Outcome.Fail });
+		Mock.Get(fixture.Actor.Object.Gameworld).Setup(x => x.GetCheck(CheckType.GenericAttributeCheck)).Returns(check.Object);
+		strategy.PerformCriticalRecovery(fixture.Actor.Object);
+		Assert.AreEqual(-11, strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.AreEqual(HealthTickResult.Dead, strategy.EvaluateStatus(fixture.Actor.Object));
+		fixture.Actor.SetupGet(x => x.State).Returns(CharacterState.Dead);
+		strategy.PerformCriticalRecovery(fixture.Actor.Object);
+		check.Verify(x => x.Check(fixture.Actor.Object, Difficulty.Hard, trait, null, 0.0, TraitUseType.Practical,
+			It.IsAny<(string, object)[]>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void HitPointPolicy_SaveLoadPreservesOptionalThresholdsAndDefaultRemainsDisabled()
+	{
+		using NativeHealthFixture fixture = new(hitpoints: true);
+		var strategy = (BrainHitpointsStrategy)fixture.Strategy;
+		Assert.IsFalse(strategy.UseNegativeHitPoints);
+		Assert.IsFalse(strategy.UseCriticalRecovery);
+		typeof(BrainHitpointsStrategy).GetProperty(nameof(strategy.UseNegativeHitPoints))!.SetValue(strategy, true);
+		typeof(BrainHitpointsStrategy).GetProperty(nameof(strategy.DeathHitPoints))!.SetValue(strategy, -15.0);
+		var definition = (XElement)typeof(BaseHealthStrategy).GetMethod("SaveDefinition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(strategy, null)!;
+		var loaded = (BrainHitpointsStrategy)BaseHealthStrategy.LoadStrategy(new Db.HealthStrategy
+		{
+			Id = 2, Name = "Reloaded HP", Type = "BrainHitpoints", Definition = definition.ToString()
+		}, fixture.Actor.Object.Gameworld);
+		Assert.IsTrue(loaded.UseNegativeHitPoints);
+		Assert.AreEqual(-15, loaded.DeathHitPoints);
+		Assert.AreEqual(-3, loaded.MortallyWoundedHitPoints);
+		Assert.AreEqual(0, loaded.UnconsciousHitPoints);
+		Assert.IsFalse(loaded.UseCriticalRecovery);
+		Assert.AreEqual(Difficulty.Normal, loaded.CriticalRecoveryDifficulty);
+		Assert.AreEqual(Difficulty.Hard, loaded.MortalRecoveryDifficulty);
+		Assert.AreEqual(1, loaded.CriticalRecoveryHealing);
+		Assert.AreEqual(1, loaded.CriticalRecoveryDamage);
+	}
+
 	private sealed class NativeHealthFixture : IDisposable
 	{
 		public Mock<ICharacter> Actor { get; } = new() { DefaultValue = DefaultValue.Mock };
@@ -170,7 +322,7 @@ public class SimpleLivingDirectHealthCostTests
 		public List<IWound> Wounds { get; } = [];
 		public IHealthStrategy Strategy { get; }
 
-		public NativeHealthFixture(double capacity = 100.0, bool complex = false)
+		public NativeHealthFixture(double capacity = 100.0, bool complex = false, bool hitpoints = false, bool stun = true)
 		{
 			Mock<IFuturemud> gameworld = new() { DefaultValue = DefaultValue.Mock };
 			gameworld.SetupGet(x => x.SaveManager).Returns(Saves.Object);
@@ -200,15 +352,18 @@ public class SimpleLivingDirectHealthCostTests
 			Actor.SetupGet(x => x.Wounds).Returns(() => Wounds);
 			Actor.SetupGet(x => x.Effects).Returns(Array.Empty<IEffect>());
 
-			Strategy = LoadStrategy(gameworld.Object, complex);
+			Strategy = LoadStrategy(gameworld.Object, complex, hitpoints, stun);
 			Actor.SetupGet(x => x.HealthStrategy).Returns(Strategy);
 		}
 
-		private static IHealthStrategy LoadStrategy(IFuturemud gameworld, bool complex)
+		private static IHealthStrategy LoadStrategy(IFuturemud gameworld, bool complex, bool hitpoints, bool stun)
 		{
+			BrainHitpointsStrategy.RegisterHealthStrategyLoader();
 			SimpleLivingHealthStrategy.RegisterHealthStrategyLoader();
 			ComplexLivingHealthStrategy.RegisterHealthStrategyLoader();
 			var definition = new XElement("Definition",
+				new XElement("UseStun", stun),
+				new XElement("UseCellularDamage", false),
 				new XElement("MaximumHitPointsExpression", 1),
 				new XElement("MaximumStunExpression", 1),
 				new XElement("MaximumPainExpression", 1),
@@ -219,7 +374,7 @@ public class SimpleLivingDirectHealthCostTests
 			{
 				Id = 1,
 				Name = "Native direct-health test strategy",
-				Type = complex ? "ComplexLiving" : "SimpleLiving",
+				Type = hitpoints ? "BrainHitpoints" : complex ? "ComplexLiving" : "SimpleLiving",
 				Definition = definition.ToString()
 			}, gameworld);
 		}

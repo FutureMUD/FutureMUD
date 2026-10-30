@@ -10,6 +10,10 @@ public sealed record WeatherHazardSettings
 {
 	public string ForecastDescription { get; init; } = "";
 	public long AtmosphereGasId { get; init; }
+	public long ResidueMaterialId { get; init; }
+	/// <summary>Residue weight in the engine's base mass unit per exposed recipient per game-minute tick.</summary>
+	public double ResiduePerMinute { get; init; }
+	public double ResidueMaximum { get; init; }
 	public double LightningChance { get; init; }
 	public double AtmosphericLightningChance { get; init; }
 	public double Damage { get; init; } = 100;
@@ -25,6 +29,7 @@ public sealed record WeatherHazardSettings
 
 	public XElement ToXml() => new("Hazards",
 		new XElement("Forecast", ForecastDescription), new XElement("Atmosphere", AtmosphereGasId),
+		new XElement("ResidueMaterial", ResidueMaterialId), new XElement("ResiduePerMinute", ResiduePerMinute), new XElement("ResidueMaximum", ResidueMaximum),
 		new XElement("Lightning", LightningChance), new XElement("AtmosphericLightning", AtmosphericLightningChance),
 		new XElement("Damage", Damage), new XElement("Pain", Pain), new XElement("Stun", Stun),
 		new XElement("GroundWeight", GroundWeight), new XElement("CharacterWeight", CharacterWeight), new XElement("ItemWeight", ItemWeight),
@@ -36,6 +41,8 @@ public sealed record WeatherHazardSettings
 		if (element is null) return new();
 		var atmosphere = (long?)element.Element("Atmosphere") ?? 0;
 		if (atmosphere < 0) throw new FormatException("Invalid weather atmosphere gas ID.");
+		var residue = (long?)element.Element("ResidueMaterial") ?? 0;
+		if (residue < 0) throw new FormatException("Invalid weather residue material ID.");
 		double Number(string name, double fallback, double max = double.MaxValue)
 		{
 			var value = (double?)element.Element(name) ?? fallback;
@@ -45,6 +52,7 @@ public sealed record WeatherHazardSettings
 		return new()
 		{
 			ForecastDescription = (string?)element.Element("Forecast") ?? "", AtmosphereGasId = atmosphere,
+			ResidueMaterialId = residue, ResiduePerMinute = Number("ResiduePerMinute", 0), ResidueMaximum = Number("ResidueMaximum", 0),
 			LightningChance = Number("Lightning", 0, 1), AtmosphericLightningChance = Number("AtmosphericLightning", 0, 1),
 			Damage = Number("Damage", 100), Pain = Number("Pain", 100), Stun = Number("Stun", 100),
 			GroundWeight = Number("GroundWeight", 90), CharacterWeight = Number("CharacterWeight", 5), ItemWeight = Number("ItemWeight", 5),

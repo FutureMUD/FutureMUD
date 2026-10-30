@@ -55,6 +55,7 @@ public partial class Body : PerceiverItem, IBody
         _weight = template.SelectedWeight;
         Actor = character;
         Race = template.SelectedRace;
+        _healthStrategy = template.HealthStrategy;
         _breathingStrategy = Race.BreathingStrategy;
         Ethnicity = template.SelectedEthnicity;
         Prototype = template.SelectedRace.BaseBody;
@@ -807,7 +808,7 @@ public partial class Body : PerceiverItem, IBody
             //of the body part. Let its pointer expire, we don't need to hold onto it
             if (infection.Wound == null)
             {
-                if (infection.Bodypart != null)
+                if (infection.Bodypart != null || infection is MudSharp.Health.IDrugSymptomInfection)
                 {
                     _partInfections.Add(infection);
                 }

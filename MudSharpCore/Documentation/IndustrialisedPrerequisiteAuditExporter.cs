@@ -54,7 +54,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 	private static readonly HashSet<string> SystemOrContextOwned = new(StringComparer.OrdinalIgnoreCase)
 	{
 		"ActiveCraft", "Bodypart", "Commodity", "Corpse", "CurrencyPile", "Dwelling", "Pile", "ProgLight",
-		"ProgLock", "ProgPowerSupply", "Puddle", "StableTicket"
+		"ProgLock", "ProgPowerSupply", "Puddle", "StableTicket", "Keyword Descriptions"
 	};
 
 	private static readonly HashSet<string> HonestAlternateAvailable = new(StringComparer.OrdinalIgnoreCase)

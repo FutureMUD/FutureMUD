@@ -8,7 +8,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BookGameItemComponentProto : GameItemComponentProto, IWriteablePrototype, IReadablePrototype, ITurnablePrototype, IOpenablePrototype, ITearablePrototype
+public class BookGameItemComponentProto : GameItemComponentProto, IConsumablePaperPrototype, IWriteablePrototype, IReadablePrototype, ITurnablePrototype, IOpenablePrototype, ITearablePrototype
 {
 	public override string TypeDescription => "Book";
 

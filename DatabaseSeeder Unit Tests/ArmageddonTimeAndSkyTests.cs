@@ -28,6 +28,48 @@ namespace DatabaseSeederUnitTests;
 public class ArmageddonTimeAndSkyTests
 {
 	private const long Day = 540;
+	[TestMethod]
+	public void Sky_MoonsIlluminateNightButNotBelowTheHorizon()
+	{
+		foreach (var moon in _sky.Skip(1))
+		{
+			var brightestNight = 0.0;
+			for (long minute = 0; minute < Year; minute += 30)
+			{
+				var state = moon.Evaluate(minute * 60);
+				if (state.Elevation <= 0) Assert.AreEqual(0.0, state.SourceLux);
+				if (_sky[0].Evaluate(minute * 60).Elevation < 0)
+					brightestNight = Math.Max(brightestNight, state.SourceLux);
+			}
+			Assert.IsTrue(brightestNight > 5.0, "Each moon should provide meaningful illumination during some nights.");
+		}
+	}
+	[TestMethod]
+	[DataRow(50, 0, 0, 75.0)]
+	[DataRow(20, 1, 0, 75.0)]
+	[DataRow(64, 0, 0, 75.0)]
+	[DataRow(50, 0, 1, 0.0)]
+	[DataRow(50, 14, 0, 0.0)]
+	[DataRow(48, 3, 0, 0.0)]
+	[DataRow(1, 3, 134217728, 25.0)]
+	public void WorldfileLighting_PreservesDarknessAndWildTerrain(int zone, int sector, int flags, double expected)
+	{
+		Assert.AreEqual(expected, ArmageddonWorldfileLighting.AddedLight(zone, sector, flags));
+	}
+
+	[TestMethod]
+	public void WorldfileLighting_AttachesNativeSkyWithoutDuplicateAssignments()
+	{
+		using var context = Context();
+		new TimeSeeder().SeedData(context, TimeAnswers);
+		new CelestialSeeder().SeedData(context, SkyAnswers);
+		Assert.IsTrue(ArmageddonWorldfileLighting.AttachSky(context, 1));
+		Assert.IsTrue(ArmageddonWorldfileLighting.AttachSky(context, 1));
+		Assert.AreEqual(3, context.ShardsCelestials.Count(x => x.ShardId == 1));
+		context.ShardsCelestials.Add(new ShardsCelestials { ShardId = 2, CelestialId = 999 });
+		context.SaveChanges();
+		Assert.Throws<InvalidOperationException>(() => ArmageddonWorldfileLighting.AttachSky(context, 2));
+	}
 	private const long Year = 693 * Day;
 	private static string[] _definitions = [];
 	private static CompiledAuthoredCelestial[] _sky = [];

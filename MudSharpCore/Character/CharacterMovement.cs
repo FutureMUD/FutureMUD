@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
@@ -311,6 +311,8 @@ public partial class Character
 		{
 			return (true, null);
 		}
+		if (RoomPolicyRules.EntryDenial(this, exit, GetRequiredMovementPosition(exit)) is { } policyDenial)
+			return (false, new EmoteOutput(new Emote(policyDenial, this)));
 
 		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().Any(x => MudSharp.Movement.ExitBarrierTraversal.Blocks(x, this, exit)) && !this.CanCrossMagicalBarriersPlanar())
 		{
@@ -539,7 +541,7 @@ public partial class Character
             case RoomLayer.InTrees:
             case RoomLayer.HighInTrees:
             case RoomLayer.OnRooftops:
-                return Race.CanClimb || (PositionState == PositionFlying.Instance ? CanContinueFlying().Truth : CanFly().Truth);
+                return this.HasClimbingAbility() || (PositionState == PositionFlying.Instance ? CanContinueFlying().Truth : CanFly().Truth);
             case RoomLayer.InAir:
             case RoomLayer.HighInAir:
                 return PositionState == PositionFlying.Instance ? CanContinueFlying().Truth : CanFly().Truth;
@@ -689,7 +691,7 @@ public partial class Character
         MoveCore(exit, emote, ignoreSafeMovement, false);
 
     private bool MoveCore(IRoomExit exit, IEmote? emote, bool ignoreSafeMovement, bool silent,
-        bool mountControlChecked = false)
+        bool mountControlChecked = false, ICharacter? directionObserver = null, IRoomExit? intendedExit = null)
     {
         if (Movement != null)
         {
@@ -701,7 +703,8 @@ public partial class Character
         {
             if (!mountControlChecked && !silent) return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
             if (!mountControlChecked && !MountGearService.CanControlMount(RidingMount, this)) return false;
-            return RidingMount is Character mount && mount.MoveCore(exit, emote, ignoreSafeMovement, silent);
+            return RidingMount is Character mount && mount.MoveCore(exit, emote, ignoreSafeMovement, silent,
+                directionObserver: directionObserver, intendedExit: intendedExit);
         }
 
         ConvertGrapplesToDrags();
@@ -716,6 +719,7 @@ public partial class Character
         if (!response.Result)
         {
             if (!silent) OutputHandler.Send(response.ErrorMessage);
+			response.DenyingRoomPolicy?.OnDeniedAttempt(this, exit);
             if (!silent) HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
             return false;
         }
@@ -731,6 +735,8 @@ public partial class Character
             mover.Movement = movement;
         }
 
+		if (movement is MudSharp.Movement.Movement roomMovement && directionObserver is not null && intendedExit is not null)
+			roomMovement.SetPerceivedExit(directionObserver, intendedExit);
         movement.InitialAction();
         return true;
     }
@@ -886,6 +892,7 @@ public partial class Character
         {
             return CanMoveResponse.True;
         }
+
 
         if (!flags.HasFlag(CanMoveFlags.IgnoreCancellableActionBlockers) && Effects.Any(x => x.IsBlockingEffect("movement") && !x.CanBeStoppedByPlayer))
         {
@@ -1096,6 +1103,9 @@ public partial class Character
             return CanMoveResponse.True;
         }
 
+		if (RoomPolicyRules.EntryDenial(this, exit, requiredPosition, out var denyingPolicy) is { } policyDenial)
+			return new CanMoveResponse { Result = false, ErrorMessage = policyDenial, DenyingRoomPolicy = denyingPolicy };
+
         response = ZeroGravityMovementHelper.CanMoveInZeroGravity(this, exit);
         if (!response.Result)
         {
@@ -1131,7 +1141,7 @@ public partial class Character
             };
         }
 
-        if (exit.IsClimbExit && !Race.CanClimb)
+        if (exit.IsClimbExit && !this.HasClimbingAbility())
         {
             return new CanMoveResponse
             {
@@ -1648,7 +1658,7 @@ public partial class Character
                         !DirectionSenseMovement.IsSafeVisibleCompassExit(this, Location, selected) ||
                         !initiatingMover.CanMove(selected, CanMoveFlags.None).Result ||
                         !MudSharp.Movement.Movement.CanStartMovement(initiatingMover, selected, requireSafe: true) ||
-                        !MoveCore(selected, emote, false, true, mountControlChecked: true))
+                        !MoveCore(selected, emote, false, true, mountControlChecked: true, directionObserver: this, intendedExit: exit))
                     {
                         DirectionSenseMovement.NoProgress(this);
                         return false;
@@ -2108,6 +2118,8 @@ public partial class Character
 
     private (bool Truth, string Error) CanFlyInternal(bool allowAlreadyFlying, IFlightEffect ignoredEffect = null)
     {
+		if (RoomPolicyRules.Restricts(Location, RoomRestrictions.Flight) && !EffectsOfType<IImmwalkEffect>().Any())
+			return (false, "You cannot fly in this location.");
         if (!allowAlreadyFlying)
         {
             (bool truth, string error) = CheckGeneralMovementRestrictions("fly");
@@ -3104,6 +3116,8 @@ public partial class Character
 
     public (bool Truth, string Error) CanClimbUp()
     {
+		if (RoomPolicyRules.Restricts(Location, RoomRestrictions.Climbing) && !EffectsOfType<IImmwalkEffect>().Any())
+			return (false, "There is no way to climb here.");
         (bool truth, string error) = CheckGeneralMovementRestrictions("climb");
         if (!truth)
         {
@@ -3115,7 +3129,7 @@ public partial class Character
             return (false, "You cannot climb when you are underwater. That's called swimming.");
         }
 
-        if (!Race.CanClimb)
+        if (!this.HasClimbingAbility())
         {
             return (false, "Your kind are not built for climbing.");
         }
@@ -3153,6 +3167,8 @@ public partial class Character
 
     public (bool Truth, string Error) CanClimbDown()
     {
+		if (RoomPolicyRules.Restricts(Location, RoomRestrictions.Climbing) && !EffectsOfType<IImmwalkEffect>().Any())
+			return (false, "There is no way to climb here.");
         (bool truth, string error) = CheckGeneralMovementRestrictions("climb");
         if (!truth)
         {
@@ -3164,7 +3180,7 @@ public partial class Character
             return (false, "You cannot climb when you are underwater. That's called swimming.");
         }
 
-        if (!Race.CanClimb)
+        if (!this.HasClimbingAbility())
         {
             return (false, "Your kind are not built for climbing.");
         }

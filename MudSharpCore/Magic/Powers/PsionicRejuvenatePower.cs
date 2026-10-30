@@ -46,8 +46,8 @@ public sealed class PsionicRejuvenatePower : PsionicTargetedPowerBase
 		// Sobriety uses centilitres, keeping the conversion bounded in the native model.
 		var (current, minimum, maximum) = mode switch
 		{
-			"health" => (actor.HealthStrategy.MaxHP(actor) - actor.Wounds.Sum(x => x.CurrentDamage), 1.0,
-				actor.HealthStrategy.MaxHP(actor) - actor.Wounds.Sum(x => x.CurrentDamage) + wounds.Sum(x => x.CurrentDamage)),
+			"health" => (actor.HealthStrategy.CurrentHitPoints(actor), 1.0,
+				Math.Min(actor.HealthStrategy.MaxHP(actor), actor.HealthStrategy.CurrentHitPoints(actor) + wounds.Sum(x => x.CurrentDamage))),
 			"stamina" => (actor.CurrentStamina, 0.0, actor.MaximumStamina),
 			"hunger" => (needs.FoodSatiatedHours, -0.25 * foodLimit, foodLimit),
 			"thirst" => (needs.DrinkSatiatedHours, -0.5 * drinkLimit, drinkLimit),

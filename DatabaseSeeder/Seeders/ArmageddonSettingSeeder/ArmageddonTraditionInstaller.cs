@@ -36,7 +36,7 @@ public static partial class ArmageddonTraditionInstaller
 		}))
 		.Concat(Variants.SelectMany(x => new[]
 		{
-			new Definition(typeof(MagicCapability), "arm.capability." + x, "Partial " + x,
+			new Definition(typeof(MagicCapability), "arm.capability." + x, CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x),
 				["external.school", "external.mana", "external.gathering", "external.implemented_spells", "external.support_skills"]),
 			new Definition(typeof(Merit), "arm.merit." + x, "Partial " + x + " caster", ["arm.capability." + x, "external.progs"])
 		})).ToList();

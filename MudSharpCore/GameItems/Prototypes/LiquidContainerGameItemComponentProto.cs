@@ -8,7 +8,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LiquidContainerGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ILockablePrototype
+public class LiquidContainerGameItemComponentProto : GameItemComponentProto, IPreparedLiquidContainerPrototype, ILockablePrototype
 {
     public double LiquidCapacity { get; set; }
     public bool Closable { get; set; }

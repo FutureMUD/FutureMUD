@@ -466,6 +466,7 @@ The syntax is either:
 To view your general surroundings: #3look#0
 To view the sky and visible celestial bodies: #3look sky#0
 To look at something in particular: #3look <thing>#0
+To inspect a detail on an item: #3look <keyword> on <item>#0
 To look inside something: #3look in <thing>#0
 To look at something someone else has: #3look <person> <thing>#0
 To look at a door installed in an exit: #3look <direction> <doorkeywords>#0
@@ -584,6 +585,13 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
             IGameItemGroup targetGroup = groups.GetFromItemListByKeyword(arg, actor);
             if (targetGroup == null)
             {
+                var fullTargetText = string.Join(" ", new[] { arg, ss.SafeRemainingArgument }
+                    .Where(x => !string.IsNullOrWhiteSpace(x)));
+                if (TryLookAtKeywordDescription(actor, fullTargetText))
+                {
+                    return;
+                }
+
                 actor.OutputHandler.Send("You do not see that to look at.");
                 return;
             }
@@ -700,6 +708,44 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
             actor.Body.Look(target);
         }
     }
+
+	private static bool TryLookAtKeywordDescription(ICharacter actor, string query)
+	{
+		if (string.IsNullOrWhiteSpace(query)) return false;
+
+		var explicitOn = query.LastIndexOf(" on ", StringComparison.OrdinalIgnoreCase);
+		if (explicitOn > 0)
+		{
+			var descriptionQuery = query[..explicitOn].Trim();
+			var itemQuery = query[(explicitOn + 4)..].Trim();
+			if (itemQuery.Length > 0 && actor.Target(itemQuery) is IGameItem explicitItem && actor.CanSee(explicitItem))
+			{
+				var description = MudSharp.GameItems.KeywordDescriptionResolver.Find(descriptionQuery, false,
+					[(true, explicitItem.Components.OfType<MudSharp.GameItems.IKeywordDescriptionProvider>())]);
+				if (description is not null)
+				{
+					actor.OutputHandler.Send(description.Description);
+					return true;
+				}
+			}
+		}
+
+		var visualRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
+			RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
+		var contextualItems = actor.Body.ExternalItems.Concat(PerceivablesWithinRouteRange<IGameItem>(actor, visualRange)).Distinct().ToArray();
+		var providers = contextualItems.Select(item => (actor.CanSee(item),
+			item.Components.OfType<MudSharp.GameItems.IKeywordDescriptionProvider>())).ToList();
+		providers.Add((actor.CanSee(actor.Location), actor.Location.EffectsOfType<MudSharp.Effects.Concrete.KeywordDescriptionsEffect>().Where(x => x.Applies(actor))
+			.Cast<MudSharp.GameItems.IKeywordDescriptionProvider>()));
+		var contextualDescription = MudSharp.GameItems.KeywordDescriptionResolver.Find(query, false, providers);
+		if (contextualDescription is not null)
+		{
+			actor.OutputHandler.Send(contextualDescription.Description);
+			return true;
+		}
+
+		return false;
+	}
 
 	private static bool TryHandleDirectionalRouteScan(
 		ICharacter actor,

@@ -73,7 +73,7 @@ internal sealed class CombatCheck(ICheck inner, IFuturemud gameworld) : ICheck
 		// OGL applies the ordinary innate bonus directly to its DC, so do not also stage
 		// the BF floor with that same bonus. BonusAbsent deliberately accepts no bonuses.
 		var bonus = inner is BonusAbsentCheck ? 0.0 : (stageSharedBonus ? actor.GetCurrentBonusLevel() : 0.0) +
-			actor.EffectsOfType<ICheckBonusEffect>().Where(x => x.AppliesToCheck(CheckType.BlindFightingCheck) &&
+			actor.EffectsOfType<ICheckBonusEffect>().Where(x => x.Applies(actor) && x.AppliesToCheck(CheckType.BlindFightingCheck) &&
 				(stageSharedBonus || !x.AppliesToCheck(Type))).Sum(x => x.CheckBonus) +
 			actor.Merits.OfType<ICheckBonusMerit>().Where(x => x.Applies(actor, target))
 				.Where(x => stageSharedBonus || x.CheckBonus(character, target, Type) == 0.0)

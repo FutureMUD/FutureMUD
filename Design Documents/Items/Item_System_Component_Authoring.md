@@ -17,6 +17,10 @@ Use `ItemManipulationGuard.CanManipulate` in actorful feasibility, diagnostic an
 
 A null actor retains system/load/morph operations. Raw transfer and signal primitives remain available to those operations. Telekinesis supplies an internal actor-specific eligibility scope and revalidates on execution; body inventory requirements still apply. Neural control of internal implants installed in the actor remains non-manual; external endpoints are not exempt. Configured zero-hand instruments, scans of the actor's configured biometric part, projectile resolution and breath-operated blowgun firing use their own capability rules. See [the audit ledger](Physical_Manipulation_Audit.md).
 
+## Oral consumption emotes
+
+Pill prototypes accept `emote <text|default>` to customise their oral-consumption echo. The emote receives `$0` as the consumed item, `$1` as its optional container and `$2` as its optional table. Missing or empty `ConsumptionEmote` XML retains the normal swallowing echo. Drug dosing, `OnSwallowProg`, consumption events and item deletion retain their native order. This permits oral medicines such as drinkable antidote vials without a parallel consumption system. The `swallowitem(character,item)` prog helper performs native swallowing with character-state, general action-blocking, access and anatomy checks.
+
 ## The Real Workflow
 Adding a new item capability usually means all of the following:
 1. Decide whether there should be a public interface in `FutureMUDLibrary`.
@@ -244,6 +248,10 @@ Do not add `GetDamage` or another damage-expression path to sling or blowgun com
 Do not create bespoke ammunition components for ordinary projectile variants. Sling bullets and blowgun darts use the generic `Ammunition` component and rely on the `AmmunitionType` row's `RangedWeaponTypes` and `SpecificType` fields to match the weapon's `RangedWeaponType` and specific ammunition grade. Poisoned or drugged darts layer through the existing `WeaponPoisonCoating` and ammunition wound-delivery systems instead of changing the base ammunition contract.
 
 ### Writing and inscribing components
+
+`PaperSheet` and `Book` implement `IConsumablePaper`. FutureProg `canconsumepage(character, item [, allowWritten])` previews consumption, and `consumepage` commits it. The item must be in the character's external inventory and native manipulation checks apply. A book must be open. By default the first surviving blank book page is selected without altering written/drawn pages; the preview never turns the book. Explicit `allowWritten = true` selects the current page, permitting deliberate destruction. Loose sheets with writing, drawings or a title require that explicit option; stacked sheets must first be separated. Consuming a sheet deletes it; consuming a book page records the native torn-page state and preserves the binding. This is physical consumption, not deletion of shared immutable writing records.
+
+Books and paper sheets expose the exclusive `IConsumablePaperPrototype` marker alongside their runtime `IConsumablePaper` contract. This prevents a prototype from attaching two competing sources of consumable pages and keeps prototype lookups consistent with runtime page consumption.
 
 Use `PaperSheet` for paper-like loose sheets and scrolls, and `Book` for paged codex-style objects. Both expose the standard `IWriteable` and `IReadable` contracts.
 

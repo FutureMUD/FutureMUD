@@ -182,6 +182,9 @@ public partial class Body
 
         switch (openable.WhyCannotOpen(this))
         {
+			case WhyCannotOpenReason.AccessDenied:
+				WhyCannotOpen = " access is denied.";
+				break;
             case WhyCannotOpenReason.AlreadyOpen:
                 WhyCannotOpen = " is already open.";
                 break;

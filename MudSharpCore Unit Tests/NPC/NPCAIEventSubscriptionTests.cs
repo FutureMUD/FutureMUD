@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
 using MudSharp.Events;
+using MudSharp.Events.Hooks;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
@@ -80,6 +81,7 @@ public class NPCAIEventSubscriptionTests
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		var npc = (MudNpc)RuntimeHelpers.GetUninitializedObject(typeof(MudNpc));
+		SetField(typeof(PerceivedItem), npc, "_installedHooks", new List<IHook>());
 		SetField(typeof(MudNpc), npc, "_AIs", new List<IArtificialIntelligence>(ais ?? []));
 		typeof(LateKeywordedInitialisingItem)
 			.GetProperty("Gameworld", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
@@ -95,6 +97,7 @@ public class NPCAIEventSubscriptionTests
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		var secondary = (NpcCharacterInstance)RuntimeHelpers.GetUninitializedObject(typeof(NpcCharacterInstance));
+		SetField(typeof(PerceivedItem), secondary, "_installedHooks", new List<IHook>());
 		SetField(typeof(NpcCharacterInstance), secondary, "_AIs",
 			new List<IArtificialIntelligence>(ais ?? []));
 		typeof(LateKeywordedInitialisingItem)

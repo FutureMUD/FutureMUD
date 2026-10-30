@@ -1,6 +1,8 @@
 # FutureMUD Economy System: Seeder State and Gaps
 
 ## Scope
+System currency pile prototypes can optionally seed a fixed positive, exactly representable starting amount through paired `DefaultCurrency` and `DefaultAmount` definition attributes. This supports authored worldfile cash containers without changing generic pile creation or persisted item reloads; it is prototype configuration, not a builder editing surface.
+
 Haggle is generic runtime support with opt-in static defaults. SkillPackageSeeder creates the dedicated improving `HaggleCheck` using a variable trait; operators or later content seeders select `HaggleTraitId`. No setting-specific Haggle trait, shopkeeper, retail shop, merchandise exclusions or employee grants are installed automatically. Shop configuration is nullable XML in a dedicated column, preserving existing shop behaviour until whole-game enablement. The accompanying code-first migration and refreshed installer blank snapshot must ship together.
 
 This document explains:
@@ -161,6 +163,8 @@ Why it is seed-friendly now:
 
 ### Bank templates and account-type templates
 These are practical seeding candidates because the runtime model is already explicit about what a bank needs and what an account type controls.
+
+The one-shot Armageddon Worldfile package now configures fixed branches, zero-balance clan accounts, unfilled Banker management appointments and deposit-only rank permissions, plus native stables with configured lodging fees. It does not import historical account/member balances. See the [worldfile behaviour dispositions](../Seeding/Armageddon_Worldfile_Behaviour_Dispositions.md) for the fidelity boundary and proposed wagon custody, animal-sale, tailoring, refill and postal services.
 
 Feasible stock examples:
 
@@ -371,6 +375,8 @@ Restaurants are runtime-ready but deliberately have no stock cafe or restaurant 
 
 ### Economy analytics fresh-install state
 
+The Armageddon worldfile package additionally authors command progs for three source gambling games and two carried-item barter traders. These use native cash transfer and whole-item exchange actions, rather than NPC-owned shops. Dice/pebble wagers require a one-stake NPC bankroll; the wheel retains the source five-stake admission requirement and net +3/+2/0/-1 payouts. Initial money comes from the imported NPC cash definition; successful wagers move that actual cash. Halfling zone-39 gifts update the installed Armageddon ecology register only after successful item delivery. These are one-shot setting records and do not import historical balances or player transactions.
+
 Employment-market and PC-income analytics extend the existing integer snapshot metrics and semantic activity ledger without a migration, new seeder settings or blank-database snapshot changes. New captures include employment counts and rolling real-day PC job/project/clan income. Existing captures are retained without invented employment history. Legacy job collection and clan payday hooks begin recording on deployment; an older overall ledger coverage date does not establish complete payroll coverage before those hooks were installed. Free specialist counts depend on the world's loaded employment-worker NPCs and their configured capabilities; no generic NPC population is seeded for these reports.
 
 Migration `20260904111218_AddEconomyAnalytics` creates `EconomicActivityRecords`, `EconomySnapshots`, and `EconomySnapshotEntries` with bounded-query indexes and adds these game-wide defaults:
@@ -382,3 +388,12 @@ Migration `20260904111218_AddEconomyAnalytics` creates `EconomicActivityRecords`
 The runtime default registry additionally exposes `EconomyAnalyticsGlobalDisplayCurrencyId = 0`. It is intentionally content-neutral rather than seeded with a world-specific database ID: `0` makes analytics use the world's first currency, and `economy config currency <currency>` persists an explicit selection when the world operator chooses one. `EconomyAnalyticsCashGiftsEnabled = false` is also supplied by runtime bootstrap for fresh and existing worlds; it requires no migration or manual setup. Operators can explicitly enable individual cash-gift history through static configuration if its usefulness warrants the storage cost.
 
 No economy content package is required. The service creates its first baseline after the world, items, characters, and economy hosts finish loading. The activity ledger starts empty and its reports state their actual coverage start; the seeder does not import or reinterpret old bank/shop histories. Operators that do not want durable trend data can set snapshots off immediately (or after installation) without affecting live reports or future activity-volume collection. Existing snapshot rows are retained indefinitely in this initial version; database-constrained games should disable collection before history growth becomes material.
+
+## Armageddon source vendors
+
+The worldfile importer activates two reset-backed unlimited-water sellers at three bits per 50 mL, prorated and rounded up to a whole bit, and four explicitly populated live-mount catalogues with their 18 assigned source-priced entries. A fifth attached mount seller has no source catalogue and remains inactive; an uninitialised seventh slot in another catalogue is omitted. Imported animals are delivered beside their buyer and mounted only when native rules permit. Wagon storage, tailoring commissions and physical post remain deferred service designs.
+
+The worldfile importer also activates the four attached flat-fee wagon-storage attendants through native progs, exact-instance bearer chits and unconnected storage rooms. The actual vehicle/interior/cargo survives storage. Collection costs 50 bits; occupied wagons are refused and unharnessed animals remain outside. The unattached daily-fee/repair callback remains inactive. Tailoring and physical post are the remaining deferred service designs.
+
+
+Merchandise load arguments are backed by the `MerchandiseLoadArguments` migration, which gives existing records an empty payload. The blank database snapshot must include that migration. Garment fitting itself uses existing component XML and adds no per-item database rows or size foreign keys.

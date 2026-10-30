@@ -23,7 +23,7 @@ public partial class ArmageddonStockSupportInstallerTests
 			Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
 		db.ChangeTracker.Clear();
 		var claims = db.SeederManagedRecords.AsNoTracking().ToDictionary(x => x.StableKey, x => x.LogicalId);
-		Assert.AreEqual(13, db.FutureProgs.Count(x => x.Subcategory == "Gathering"));
+		Assert.AreEqual(13, db.FutureProgs.Count(x => x.Subcategory == "Armageddon Gathering"));
 		Assert.AreEqual(3, db.VariableDefinitions.Count());
 		Assert.AreEqual(0, db.VariableValues.Count());
 		var profile = XElement.Parse(db.MagicGenerators.Single(x => x.Id == claims[ArmageddonProgressionInstaller.LandProfileKey]).Definition);

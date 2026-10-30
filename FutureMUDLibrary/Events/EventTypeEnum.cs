@@ -777,6 +777,31 @@ namespace MudSharp.Events
 		HaggleResult = 153,
 
 		[EventInfo("Fires on local witnesses after a customer completes shop price negotiation; issuer is null for a skill result.", ["character", "perceivable", "shop", "text", "number", "number", "number", "character"], ["customer", "witness", "shop", "scope", "outcome", "saleadjustment", "buyadjustment", "issuer"])]
-		WitnessHaggleResult = 154
+		WitnessHaggleResult = 154,
+
+		[EventInfo("Fires once on each loaded location after world loading and existing NPC startup events finish. Parameters are the location.", ["location"], ["location"], [ProgVariableTypeCode.Location])]
+		LocationOnGameLoadFinished = 155,
+
+		[EventInfo("Fires on local perceivable witnesses when a validated Land magic-gathering action starts. Preview, rejected attempts, other gathering methods and foraging do not fire it. Notification results do not consume the gathering command.",
+			["character", "perceivable", "location", "magiccapability", "text", "number", "text"],
+			["actor", "witness", "location", "capability", "method", "amount", "operation"])]
+        CharacterBeginsLandMagicGatheringWitness = 156,
+
+        [EventInfo("Fires on a character when they enter the hungry state.", ["character", "location"], ["character", "location"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location])]
+        CharacterHungry = 157,
+        [EventInfo("Fires on local perceivables when they witness a character enter the hungry state.", ["character", "location", "perceivable"], ["character", "location", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable])]
+        CharacterInRoomHungry = 158,
+        [EventInfo("Fires on a character when they enter the starving state.", ["character", "location"], ["character", "location"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location])]
+        CharacterStarving = 159,
+        [EventInfo("Fires on local perceivables when they witness a character enter the starving state.", ["character", "location", "perceivable"], ["character", "location", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable])]
+        CharacterInRoomStarving = 160,
+        [EventInfo("Fires on a character when they enter the thirsty state.", ["character", "location"], ["character", "location"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location])]
+        CharacterThirsty = 161,
+        [EventInfo("Fires on local perceivables when they witness a character enter the thirsty state.", ["character", "location", "perceivable"], ["character", "location", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable])]
+        CharacterInRoomThirsty = 162,
+        [EventInfo("Fires on a character when they enter the parched state.", ["character", "location"], ["character", "location"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location])]
+        CharacterParched = 163,
+        [EventInfo("Fires on local perceivables when they witness a character enter the parched state.", ["character", "location", "perceivable"], ["character", "location", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable])]
+        CharacterInRoomParched = 164
     }
 }

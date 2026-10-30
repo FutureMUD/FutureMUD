@@ -347,7 +347,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             }
 
             foreach (ICharacter criminal in KnownCrimes.Where(x => x.EligableForAutomaticConviction()).Select(x => x.Criminal)
-                                                .Distinct())
+                                                .Distinct().ToList())
             {
                 AwaitingSentencing awaitingEffect = criminal.EffectsOfType<AwaitingSentencing>(x => x.LegalAuthority == this)
                                              .FirstOrDefault();
@@ -376,12 +376,23 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 }
 
                 criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);
+				CompleteAutomaticSentencing(criminal);
             }
         }
     }
     #endregion
 
     #region Helper Methods
+	internal void CompleteAutomaticSentencing(ICharacter criminal)
+	{
+		if (criminal.EffectsOfType<AwaitingExecution>(x => x.LegalAuthority == this).Any()) return;
+		if (criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this).Any())
+		{
+			SendCharacterToPrison(criminal);
+			return;
+		}
+		ReleaseCharacterToFreedom(criminal);
+	}
 
     public void ConvictCrime(ICharacter criminal, ICrime crime, PunishmentResult result)
     {

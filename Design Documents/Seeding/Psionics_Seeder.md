@@ -109,3 +109,5 @@ Reruns upgrade recognised prefixed stock names and old stock help in place, pres
 
 
 Player-content validation: all nine default suites passed (4,156 tests), including every Debug replay profile and runtime stock-definition identity round trips. Seeder Debug and Release builds passed. Two disposable-world reruns retained IDs and selected Human for projection; live help checks rendered Mind Contact, Somatic Sense, Astral Projection and Psychic Circle with syntax. LabMUD was only read to compare its first twelve power help entries.
+
+Basic and Advanced profiles both use `psi`; grant one psionic profile per character. Their capability labels are Psionic Adept and Psionicist. Backing spells use player-facing power names rather than the legacy Advanced Psionics prefix. Reruns recognise legacy names and retain IDs and builder-renamed spells.

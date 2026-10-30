@@ -102,3 +102,6 @@ The ordered applicability/intensity inputs are documented in the builder guide. 
 * [Verification report](Environmental_Exposure_Verification.md)
 * [Magical substances](../Magic/Magical_Substances.md)
 * [Damage system](../Health/Damage_System_Design.md)
+
+
+Weather can also deposit a configured dry solid on exposed bodies and belongings during its native minute event. `ISurfaceLiquidState.DepositResidue` reuses the existing surface residue state, not a second saved contamination effect. The body aggregate distributes its dose across native external parts, and dry entry points notify the owner so ordinary persistence and contamination presentation update. The weather's per-minute amount and per-recipient material cap are optional; zero leaves existing weather unchanged. Native cleaning remains responsible for removal.

@@ -53,6 +53,7 @@ The valid sub-commands and their syntaxes are as follows:
 
 		#6variable=value|id#0 - sets a specific variable
 		#6variable=""value""#0 - same as above, for variable values with spaces
+		#6wearsize=<number|unfitted|universal>#0 - sets a wearable's explicit fit; quote multiword values such as wearSize=""for <person>"" or wearSize=""height 175 cm weight 70 kg"".
 		#6*<skin name|id>#0 - sets a skin for the item. Must be the first extra argument
 
 	#3item edit new#0 - creates a new item prototype
@@ -358,7 +359,7 @@ The editable fields are:
                     return false;
                 }
 
-                loadArguments = command.SafeRemainingArgument;
+                loadArguments = command.RemainingArgument;
                 return true;
             }
 
@@ -395,7 +396,7 @@ The editable fields are:
                 return false;
             }
 
-            loadArguments = command.SafeRemainingArgument;
+            loadArguments = command.RemainingArgument;
             return true;
         }
 

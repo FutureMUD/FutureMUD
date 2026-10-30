@@ -184,6 +184,15 @@ internal class ApplyPlanarStateFunction : PlanarFunctionBase
 			"Applies a saved planar state to a perceivable on a named plane.",
 			"Planes",
 			ProgVariableTypes.Boolean));
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"applyplanarstate",
+			[ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text,
+				ProgVariableTypes.Boolean, ProgVariableTypes.Boolean, ProgVariableTypes.Boolean],
+			(pars, world) => new ApplyPlanarStateFunction(pars, world),
+			["target", "state", "plane", "crosscloseddoors", "canmanifest", "candissipate"],
+			["The target.", "corporeal or noncorporeal.", "Plane name or ID.", "May cross closed doors.", "May manifest by command.", "May dissipate by command."],
+			"Applies a saved planar state with explicit door-crossing and player transition permissions. Other perception, interaction and inventory rules retain the selected native state's defaults.",
+			"Planes", ProgVariableTypes.Boolean));
 	}
 
 	private ApplyPlanarStateFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions, gameworld)
@@ -220,6 +229,21 @@ internal class ApplyPlanarStateFunction : PlanarFunctionBase
 		{
 			Result = new BooleanVariable(false);
 			return StatementResult.Normal;
+		}
+		if (ParameterFunctions.Count == 6)
+		{
+			if (ParameterFunctions.Skip(3).Any(x => x.Result?.GetObject is not bool))
+			{
+				Result = new BooleanVariable(false);
+				return StatementResult.Normal;
+			}
+			definition = new PlanarPresenceDefinition(definition.PresencePlaneIds, definition.VisibleToPlaneIds,
+				definition.PerceivesPlaneIds, Enum.GetValues<PlanarInteractionKind>().ToDictionary(kind => kind,
+					kind => (IEnumerable<long>)definition.InteractionPlaneIds(kind)), definition.SuspendsPhysicalContact,
+				definition.PropagatesInventory, (bool)ParameterFunctions[3].Result.GetObject,
+				definition.CanCrossMagicalBarriers, definition.VisibleToEtherealPerception,
+				(bool)ParameterFunctions[4].Result.GetObject, (bool)ParameterFunctions[5].Result.GetObject,
+				definition.TransitionProfile);
 		}
 
 		target.RemoveAllEffects<PlanarStateEffect>(x => true, true);

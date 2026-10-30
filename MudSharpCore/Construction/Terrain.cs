@@ -1388,14 +1388,14 @@ The following additional models require you to specify a liquid to go with them:
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"Which type of infection do you want to set for this terrain? The valid types are: {Enum.GetValues(typeof(InfectionType)).OfType<InfectionType>().Select(x => x.Describe().Colour(Telnet.Magenta)).ListToString()}.");
+                $"Which type of infection do you want to set for this terrain? The valid types are: {Enum.GetValues(typeof(InfectionType)).OfType<InfectionType>().Where(x => x != InfectionType.Configured).Select(x => x.Describe().Colour(Telnet.Magenta)).ListToString()}.");
             return false;
         }
 
-        if (!Utilities.TryParseEnum<InfectionType>(command.PopSpeech(), out InfectionType theEnum))
+        if (!Utilities.TryParseEnum<InfectionType>(command.PopSpeech(), out InfectionType theEnum) || theEnum == InfectionType.Configured)
         {
             actor.OutputHandler.Send(
-                $"That is not a valid infection type. The valid types are: {Enum.GetValues(typeof(InfectionType)).OfType<InfectionType>().Select(x => x.Describe().Colour(Telnet.Magenta)).ListToString()}.");
+                $"That is not a valid infection type. The valid types are: {Enum.GetValues(typeof(InfectionType)).OfType<InfectionType>().Where(x => x != InfectionType.Configured).Select(x => x.Describe().Colour(Telnet.Magenta)).ListToString()}.");
             return false;
         }
 

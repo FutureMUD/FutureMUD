@@ -20,6 +20,16 @@ public class WeaponPoisonCoating : Effect, IWeaponPoisonCoatingEffect, IEffectAd
 		ContaminatingLiquid = liquid;
 	}
 
+	public WeaponPoisonCoating(IPerceivable owner, LiquidMixture liquid, IFutureProg applicabilityProg,
+		IFutureProg deliveryProg, bool singleUseOnWound) : this(owner, liquid, applicabilityProg)
+	{
+		DeliveryProg = deliveryProg;
+		SingleUseOnWound = singleUseOnWound;
+	}
+
+	public IFutureProg DeliveryProg { get; private set; }
+	public bool SingleUseOnWound { get; private set; }
+
 	protected WeaponPoisonCoating(XElement effect, IPerceivable owner) : base(effect, owner)
 	{
 		LoadFromDb(effect.Element("Effect"));
@@ -50,6 +60,8 @@ public class WeaponPoisonCoating : Effect, IWeaponPoisonCoatingEffect, IEffectAd
 
 	private void LoadFromDb(XElement root)
 	{
+		DeliveryProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("DeliveryProg")?.Value ?? "0"));
+		SingleUseOnWound = bool.Parse(root.Element("SingleUseOnWound")?.Value ?? "false");
 		if (root.Element("Liquid") != null)
 		{
 			ContaminatingLiquid = new LiquidMixture(new[]
@@ -68,7 +80,8 @@ public class WeaponPoisonCoating : Effect, IWeaponPoisonCoatingEffect, IEffectAd
 
 	protected override XElement SaveDefinition()
 	{
-		return new XElement("Effect", ContaminatingLiquid.SaveToXml());
+		return new XElement("Effect", ContaminatingLiquid.SaveToXml(),
+			new XElement("DeliveryProg", DeliveryProg?.Id ?? 0), new XElement("SingleUseOnWound", SingleUseOnWound));
 	}
 
 	protected override string SpecificEffectType { get; } = "WeaponPoisonCoating";
@@ -82,13 +95,15 @@ public class WeaponPoisonCoating : Effect, IWeaponPoisonCoatingEffect, IEffectAd
 
 	public override string Describe(IPerceiver voyeur)
 	{
+		if (DeliveryProg is not null)
+			return $"Weapon poison coating delivered by {DeliveryProg.FunctionName}, single use: {SingleUseOnWound.ToColouredString()}.";
 		return
 			$"Weapon poison coating with {ContaminatingLiquid.Instances.Select(x => x.Liquid.Name).Distinct().ListToString()} {Gameworld.UnitManager.Describe(ContaminatingLiquid.TotalVolume, Framework.Units.UnitType.FluidVolume, voyeur)}";
 	}
 
 	public override IEffect NewEffectOnItemMorph(IGameItem oldItem, IGameItem newItem)
 	{
-		return oldItem == Owner ? new WeaponPoisonCoating(newItem, ContaminatingLiquid.Clone(), ApplicabilityProg) : null;
+		return oldItem == Owner ? new WeaponPoisonCoating(newItem, ContaminatingLiquid.Clone(), ApplicabilityProg, DeliveryProg, SingleUseOnWound) : null;
 	}
 
 	public void AddLiquid(LiquidMixture liquid)

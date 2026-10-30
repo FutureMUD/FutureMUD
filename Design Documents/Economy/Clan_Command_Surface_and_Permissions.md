@@ -11,6 +11,8 @@ This document describes the intended runtime command architecture for clans afte
 
 This document covers runtime command handling, not the full clan builder/edit surface.
 
+The administrator `clan list` reports all membership records in Members. Alive and Active (logout within 30 days) count only members whose character can currently be resolved. Unavailable characters do not crash the listing or get assumed alive/active; each member is resolved once per listing.
+
 ## Architectural Split
 
 The clan runtime now follows a thinner command-module pattern:

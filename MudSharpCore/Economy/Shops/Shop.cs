@@ -10,6 +10,7 @@ using MudSharp.Events;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine.Lists;
@@ -1662,6 +1663,21 @@ public abstract partial class Shop : SaveableItem, IShop
             Framework.Units.UnitType.Mass, voyeur);
     }
 
+    private string DescribeMerchandiseFits(IMerchandise merchandise, IPerceiver voyeur)
+    {
+        var fitDescriptions = StockedItems(merchandise)
+            .Select(x => x.GetItemType<IWearable>())
+            .OfType<IWearable>()
+            .Where(x => x.UsesSizing)
+            .Select(x => WearableSizing.Describe(x, voyeur))
+            .GroupBy(x => x)
+            .OrderBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase)
+            .Select(x => $"{x.Count().ToString("N0", voyeur)} × {x.Key}")
+            .ToList();
+
+        return fitDescriptions.ListToString(separator: "; ");
+    }
+
     private string DescribeMerchandisePrice(IMerchandise merchandise, decimal price, IPerceiver voyeur)
     {
         var priceText = Currency.Describe(price, CurrencyDescriptionPatternType.Short);
@@ -1705,6 +1721,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
+                    DescribeMerchandiseFits(merch.Key, actor),
                     DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
                     DescribeDealSummary(merch.Key, purchaser, actor),
@@ -1716,6 +1733,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     "#",
                     "Name",
                     "Description",
+                    "Fit",
                     "Price",
                     "Included Tax",
                     "Deals",
@@ -1741,6 +1759,7 @@ public abstract partial class Shop : SaveableItem, IShop
                 merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
+                    DescribeMerchandiseFits(merch.Key, actor),
                     DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     DescribeDealSummary(merch.Key, purchaser, actor),
                     DescribeMerchandiseVariants(merch.Key, actor),
@@ -1751,6 +1770,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     "#",
                     "Name",
                     "Description",
+                    "Fit",
                     "Price",
                     "Deals",
                     "Variants?",
@@ -1805,6 +1825,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
+                    DescribeMerchandiseFits(merch.Key, actor),
                     DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
                     DescribeDealSummary(merch.Key, purchaser, actor),
@@ -1816,6 +1837,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     "#",
                     "Name",
                     "Description",
+                    "Fit",
                     "Price",
                     "Included Tax",
                     "Deals",
@@ -1841,6 +1863,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
+                    DescribeMerchandiseFits(merch.Key, actor),
                     DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     DescribeDealSummary(merch.Key, purchaser, actor),
                     DescribeMerchandiseVariants(merch.Key, actor),
@@ -1851,6 +1874,7 @@ public abstract partial class Shop : SaveableItem, IShop
                     "#",
                     "Name",
                     "Description",
+                    "Fit",
                     "Price",
                     "Deals",
                     "Variants?",

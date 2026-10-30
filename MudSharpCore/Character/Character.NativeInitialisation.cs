@@ -3,6 +3,7 @@
 using MudSharp.Body.Needs;
 using MudSharp.CharacterCreation;
 using MudSharp.Magic.Lifecycle;
+using MudSharp.Events.Hooks;
 using MudSharp.Communication.Language;
 using MudSharp.Framework.Save;
 
@@ -11,6 +12,43 @@ namespace MudSharp.Character;
 public partial class Character
 {
 	protected enum NativeInitialisationMode { Immediate, Deferred }
+	private IReadOnlyList<IDefaultHook>? _preparedNativeHooks;
+
+	internal void PrepareCommittedNativeCharacter(ICharacterTemplate template)
+	{
+		if (!_deferredNativeInitialisation) throw new InvalidOperationException("Native creation was not deferred.");
+		NeedsModel = NeedsModelFactory.LoadNeedsModel(CharacterCreation.Chargen.NeedsModelProg is { } prog
+			? (string)prog.Execute(template) : "NoNeeds", this);
+		Body.TotalBloodVolumeLitres = TotalBloodVolume(this);
+		Body.CurrentBloodVolumeLitres = Body.TotalBloodVolumeLitres;
+		InitialiseTemplateLanguageChoices(template);
+		InitialiseStamina();
+		CurrentStamina = MaximumStamina;
+		_preparedNativeHooks = Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToArray();
+	}
+
+	internal void BindPreparedNativeCharacterIdentity(object model) => BindCommittedIdentity(model);
+
+	internal void CommitPreparedNativeCharacterIdentity() => NotifyCommittedIdentity();
+
+	protected void ActivatePreparedCommittedNativeCharacter()
+	{
+		if (!_deferredNativeInitialisation || _preparedNativeHooks is null)
+			throw new InvalidOperationException("Native character preparation was not completed.");
+		_deferredNativeInitialisation = false;
+		SetNoSave(false);
+		Body.SetNoSave(false);
+		foreach (var knowledge in CharacterKnowledges.OfType<SaveableItem>()) knowledge.SetNoSave(false);
+		foreach (var membership in ClanMemberships)
+			if (!membership.Clan.Memberships.Contains(membership)) membership.Clan.Memberships.Add(membership);
+		foreach (var hook in _preparedNativeHooks)
+			if (InstallHook(hook.Hook)) HooksChanged = true;
+		_preparedNativeHooks = null;
+		RefreshForcedTransformationHeartbeatRegistration();
+		ReconcileCastingResourceCapacities();
+		Changed = true;
+		Body.Changed = true;
+	}
 
 	protected void ActivateCommittedNativeCharacter(ICharacterTemplate template, object model)
 	{

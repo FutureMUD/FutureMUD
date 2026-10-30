@@ -15,6 +15,8 @@ This is the primary AI reference. The companion document [Event_System_for_AI_an
 
 ## Scope
 
+`ClanSentryAI` is an auxiliary departure observer. Configure its clan, cardinal directions, two-argument alert format and optional hide attempt through `ai ... set clan|direction|format|hide`. It reports only visible outsiders leaving the sentry's room while the sentry is conscious and out of combat. Reports go directly and privately to loaded conscious members of the configured clan; they are not public room output. The definition stores configuration only, with no shared mutable per-NPC state.
+
 Prog-targeted pathing AIs treat an unset or missing pathing-enabled prog as disabled. This applies to fresh builder defaults and legacy saved zero or stale prog IDs, including SemiAggressive and TrackingAggressor AIs. A configured prog retains its existing boolean decision.
 This document covers:
 
@@ -213,8 +215,8 @@ Live NPC event dispatch is owned by `NPC`:
 
 Periodic tick wiring is explicit:
 
-- `NPC.SetupEventSubscriptions()` subscribes only to the heartbeat events that at least one attached AI says it handles
-- `NPC.ReleaseEventSubscriptions()` detaches them again on quit/unload
+- `NPC.SetupEventSubscriptions()` subscribes only to heartbeat events claimed by the combined installed-hook/AI `HandlesEvent` result, including hook-only NPCs
+- `NPC.ReleaseEventSubscriptions()` always detaches all four periodic delegates on quit/unload/inactivity, even if an AI has since been removed; repeated setup does not duplicate subscriptions. Primary, secondary and scripted NPC instances share this rule, and dead/stasis instances stay detached.
 
 That means `HandlesEvent` is not just documentation. It directly controls whether the NPC is subscribed to expensive repeating heartbeats.
 
@@ -891,3 +893,10 @@ This is selected combat-action authority, not a general deferred-command system 
 Ordered selected actions and their unchanged native moves also retain the exact combat context. Pure participation checks surround the executable policy, so leaving or replacing combat cannot transfer an old selected action into another fight or authorize a child resolution after a callback.
 
 Retrieve, stand, change-position and reposition moves also revalidate after their own internal defender responses, before inventory or posture mutation. Refusal is sticky for that move and suppresses its action stamina cost. This qualifies those four paths; the remaining attack/manual/message/defence-Prog callback gaps are recorded in [the callback audit](../Magic/Armageddon_QueuedCommand_Callback_Audit.md). The original queued-authority checkpoint was rejected during parent review and remains uncleared as a comprehensive claim.
+
+
+## Imported guard interactions
+
+The Armageddon worldfile package composes conditional input hooks, native follow/bodyguard commands, periodic progs and `DoorguardAI`. Permission decisions remain package progs, including independently assigned Leader appointments. Noble-gate opening is asynchronous native door handling; a matching room-exit policy enforces permissions while the door is already open. Guard relationship queries and cleanup use loaded actors only, retaining an assigned ID for stale-target cleanup without materialising offline characters.
+
+Defiler retaliation subscribes to the accepted Land magic gathering start witness event, not generic input or foraging. The event does not consume the command; an ensuing native combat action may interrupt its timed gathering normally. See [behaviour dispositions](../Seeding/Armageddon_Worldfile_Behaviour_Dispositions.md) for source attachments, exclusions and idle movement policies.

@@ -695,6 +695,10 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
                 case CheckType.DirectionSenseRecoveryCheck:
                     DirectionSenseSeederHelper.EnsureUnboundChecks(context);
                     continue;
+				case CheckType.PoisonResistanceCheck:
+					PoisonResistanceSeederHelper.Ensure(context, conAttribute);
+					context.SaveChanges();
+					continue;
 				case CheckType.PeekCheck:
 				case CheckType.PeekRevealCheck:
 					if (skills.TryGetValue("Peek", out var peekSkill))

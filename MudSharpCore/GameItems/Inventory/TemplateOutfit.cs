@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.Construction;
 using MudSharp.Framework.Revision;
@@ -599,7 +599,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 		}
 		else
 		{
-			item.LoadArguments = command.SafeRemainingArgument;
+			item.LoadArguments = command.RemainingArgument;
 			actor.OutputHandler.Send($"Template item {item.TemplateKey.ColourName()} will use those load arguments.");
 		}
 		Changed = true;
@@ -739,7 +739,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 						actor.OutputHandler.Send("Use the separate item args command to change load arguments.");
 						return Fail();
 					}
-					item.LoadArguments = command.SafeRemainingArgument;
+					item.LoadArguments = command.RemainingArgument;
 					return ValidateItemPlacement(actor, item) ? true : Fail();
 				default:
 					actor.OutputHandler.Send("Valid placements are worn [profile], wielded, inventory, room, container <key>, attached [belt key] or sheathed [sheath key].");
@@ -1043,10 +1043,27 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			}
 		}
 
+		var normalisedLoadArguments = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+		foreach (var templateItem in _items.OrderBy(x => x.WearOrder))
+		{
+			try
+			{
+				normalisedLoadArguments[templateItem.TemplateKey] = WearableSizing.NormaliseLoadArguments(
+					CombinedLoadArguments(templateItem.LoadArguments,
+						templateItem.GameItemProto.GetItemType<WearableGameItemComponentProto>() is null
+							? WearableSizing.RemoveLoadArguments(loadArguments) : loadArguments),
+					target, Gameworld, templateItem.GameItemProto);
+			}
+			catch (ArgumentException error)
+			{
+				throw new InvalidOperationException($"Template item {templateItem.TemplateKey} has invalid load arguments: {error.Message}", error);
+			}
+		}
+
 		var createdItems = new Dictionary<string, IGameItem>(StringComparer.InvariantCultureIgnoreCase);
 		foreach (var templateItem in _items.OrderBy(x => x.WearOrder))
 		{
-			var item = templateItem.GameItemProto.CreateNew(target, templateItem.Skin, 1, CombinedLoadArguments(templateItem.LoadArguments, loadArguments)).First();
+			var item = templateItem.GameItemProto.CreateNew(target, templateItem.Skin, 1, normalisedLoadArguments[templateItem.TemplateKey]).First();
 			item.SetOwner(target);
 			Gameworld.Add(item);
 			item.RoomLayer = target.RoomLayer;
@@ -1102,7 +1119,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 				case OutfitTemplateItemPlacement.Wielded:
 					if (target.Body.CanWield(item))
 					{
-						item.Get(null);
+						item.Get(target.Body);
 						target.Body.Wield(item, silent: true);
 					}
 					else if (target.Body.CanGet(item, 0))
@@ -1186,6 +1203,8 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 
 	private static string CombinedLoadArguments(string itemLoadArguments, string templateLoadArguments)
 	{
+		// Preserve established characteristic precedence; only fitting prefers a per-item override.
+		if (WearableSizing.HasLoadArguments(itemLoadArguments)) templateLoadArguments = WearableSizing.RemoveLoadArguments(templateLoadArguments);
 		return string.Join(" ",
 			new[]
 			{

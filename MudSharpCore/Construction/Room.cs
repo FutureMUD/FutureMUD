@@ -658,7 +658,8 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     public IWeatherEvent CurrentWeather(IPerceiver voyeur)
     {
-        return WeatherController?.CurrentWeatherEvent;
+        return EffectsOfType<IRoomWeatherEffect>().FirstOrDefault(x => x.Applies())?.WeatherEvent ??
+               WeatherController?.CurrentWeatherEvent;
     }
 
     public ISeason CurrentSeason(IPerceiver voyeur)
@@ -1000,6 +1001,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 			movingCharacter.MoveTo(this, roomLayer, exit, noSave);
 		}
 		if (receipt is not null && !receipt.AfterMoveTo(movingCharacter)) return;
+		if (!nativeLogin && !noSave && RoomPolicyRules.ApplyEntryHazard(this, movingCharacter)) return;
 		if (!_isCombatSimulationRoom)
 		{
 			OwningZone.Enter(movingCharacter, exit);
@@ -1576,6 +1578,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     private void WeatherControllerChangedController(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather)
     {
+        if (EffectsOfType<IRoomWeatherEffect>().Any(x => x.Applies())) return;
         foreach (IHandleEvents handler in EventHandlers)
         {
             if ((handler is IPerceiver p ? WeatherForObserver(p) : WeatherController) != sender)
@@ -1589,6 +1592,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     private void WeatherControllerEchoController(IWeatherController sender, string echo)
     {
+        if (EffectsOfType<IRoomWeatherEffect>().Any(x => x.Applies())) return;
         foreach (ICharacter actor in Characters.Where(x =>
                      WeatherForObserver(x) == sender))
         {

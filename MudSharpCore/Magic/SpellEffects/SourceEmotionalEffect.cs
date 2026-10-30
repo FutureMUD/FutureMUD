@@ -49,7 +49,7 @@ public abstract partial class SourceEmotionalEffect : IMagicSpellEffectTemplate,
 	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => trigger is CastingTriggerCharacter or CastingTriggerSelf;
 	public string Show(ICharacter actor) => $"Source {Kind}: " +
 		(Profile is { } profile
-			? $"group {profile.Group}; {profile.UnitSeconds.ToString("N0", actor)} seconds/unit; cap {profile.CapUnits.ToString("N0", actor)}; intensity {profile.Intensity.ToString("N2", actor)}; native trait #{profile.TraitId.ToString("N0", actor)}; units {profile.UnitsPerSourcePoint.ToString("N2", actor)}; attack break {profile.BreakOnAdmittedAttack.ToColouredString()}."
+			? $"group {profile.Group}; {profile.UnitSeconds.ToString("N0", actor)} seconds/unit; cap {profile.CapUnits.ToString("N0", actor)}; intensity {profile.Intensity.ToString("N2", actor)}; native trait #{profile.TraitId.ToString("N0", actor)}; units {profile.UnitsPerSourcePoint.ToString("N2", actor)}; attack break {profile.BreakOnAdmittedAttack.ToColouredString()}; Fury frenzy {(profile.FrenzyOnFury is null ? "off" : $"race #{profile.FrenzyOnFury.RaceId}, suppression drug #{profile.FrenzyOnFury.SuppressionDrugId}, {profile.FrenzyOnFury.OffenceBonus:N2}/{profile.FrenzyOnFury.DefenceBonus:N2}/{profile.FrenzyOnFury.MeleeDamageBonus:N2}, hunger {profile.FrenzyOnFury.HungerMultiplier:N2}")}; Calm clears frenzy {profile.ClearCombatFrenzyOnCalm.ToColouredString()}."
 			: $"invalid profile: {ProfileError}") +
 		$"\n{EmotionalStockProfile.HistoricalExceptionLimit}\n{RuntimeIntegrationError}";
 

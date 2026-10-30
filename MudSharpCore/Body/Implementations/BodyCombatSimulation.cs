@@ -77,7 +77,9 @@ public partial class Body
 			var targetPart = sourceInfection.Bodypart is null
 				? null
 				: Bodyparts.Concat(Organs).FirstOrDefault(x => x.Id == sourceInfection.Bodypart.Id);
-			var infection = Infection.LoadNewInfection(
+			var infection = sourceInfection is MudSharp.Health.Infections.ConfiguredInfection configured
+				? new MudSharp.Health.Infections.ConfiguredInfection(configured, this)
+				: Infection.LoadNewInfection(
 				sourceInfection.InfectionType,
 				sourceInfection.VirulenceDifficulty,
 				sourceInfection.Intensity,

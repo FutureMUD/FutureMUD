@@ -28,6 +28,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Editor;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Characteristics;
@@ -1911,7 +1912,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public bool NoMercy
     {
-        get => _noMercy;
+        get => _noMercy || EffectsOfType<INoMercyEffect>().Any(effect => effect.Applies(this));
         set
         {
             _noMercy = value;

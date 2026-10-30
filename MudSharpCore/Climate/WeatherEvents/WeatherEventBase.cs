@@ -288,6 +288,8 @@ public abstract partial class WeatherEventBase : SaveableItem, IWeatherEvent, IH
 	#3morning|afternoon|dusk|dawn|night#0 - toggles a time of day applying
 	#3forecast <summary>#0 - sets the short forecast description
 	#3atmosphere <gas|none>#0 - replaces exposed atmosphere while this weather lasts
+	#3residue <solid> <mass-per-minute> <maximum-mass>#0 - deposits native residue, e.g. residue dust 0.1g 5g
+	#3residue none#0 - disables residue deposition
 	#3lightning chance|atmospheric <0-1>#0 - sets local/atmospheric lightning chance per game minute
 	#3lightning damage <damage> <pain> <stun>#0 - sets direct electrical damage
 	#3lightning targets <ground> <character> <item>#0 - sets target weights
@@ -305,6 +307,7 @@ public abstract partial class WeatherEventBase : SaveableItem, IWeatherEvent, IH
         {
             case "forecast":
             case "atmosphere":
+            case "residue":
             case "lightning":
                 return BuildingCommandHazard(actor, command, command.Last.ToLowerInvariant());
             case "name":

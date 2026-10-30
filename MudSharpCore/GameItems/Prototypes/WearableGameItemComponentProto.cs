@@ -2,6 +2,7 @@
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Size;
 
 #nullable enable annotations
 
@@ -11,6 +12,14 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
 {
     protected readonly List<IWearProfile> _profiles = new();
     private bool _displayInventoryWhenWorn = true;
+    public bool SizingEnabled { get; protected set; }
+    public bool FitOnFirstWear { get; protected set; } = true;
+    public double HeightTolerance { get; protected set; } = 0.15;
+    public double WeightTolerance { get; protected set; } = 0.30;
+    public IFutureProg ScalarSizeProg { get; protected set; }
+    public double ScalarToleranceDivisor { get; protected set; } = 20.0;
+    public double ScalarToleranceFlat { get; protected set; } = 1.0;
+    public WearableFit InitialFit { get; protected set; } = WearableFit.Unfitted;
 
     protected WearableGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)
@@ -102,6 +111,19 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
         element = root.Element("Waterproof");
         Waterproof = element != null ? bool.Parse(element.Value) : false;
         WaterproofDamageRatio = element != null ? (double)element.Attribute("ratio") : 0.5;
+
+        element = root.Element("Sizing");
+        if (element is not null)
+        {
+            SizingEnabled = (bool?)element.Attribute("enabled") ?? false;
+            FitOnFirstWear = (bool?)element.Attribute("firstwear") ?? true;
+            HeightTolerance = (double?)element.Attribute("heightTolerance") ?? 0.15;
+            WeightTolerance = (double?)element.Attribute("weightTolerance") ?? 0.30;
+            ScalarSizeProg = Gameworld.FutureProgs.Get((long?)element.Attribute("scalarProg") ?? 0);
+            ScalarToleranceDivisor = (double?)element.Attribute("scalarDivisor") ?? 20.0;
+            ScalarToleranceFlat = (double?)element.Attribute("scalarFlat") ?? 1.0;
+            InitialFit = WearableFit.FromXml(element.Element("Fit"));
+        }
     }
 
     protected override string SaveToXml()
@@ -115,6 +137,14 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
                 new XElement("LayerWeightConsumption", LayerWeightConsumption),
                 new XElement("Waterproof", new XAttribute("ratio", WaterproofDamageRatio),
                     new XCData(Waterproof.ToString())),
+                new XElement("Sizing", new XAttribute("enabled", SizingEnabled),
+                    new XAttribute("firstwear", FitOnFirstWear),
+                    new XAttribute("heightTolerance", HeightTolerance),
+                    new XAttribute("weightTolerance", WeightTolerance),
+                    new XAttribute("scalarProg", ScalarSizeProg?.Id ?? 0),
+                    new XAttribute("scalarDivisor", ScalarToleranceDivisor),
+                    new XAttribute("scalarFlat", ScalarToleranceFlat),
+                    InitialFit.SaveToXml()),
                 new XElement("Profiles", new XAttribute("Default", DefaultProfile?.Id ?? 0),
                     from profile in _profiles
                     select new XElement("Profile", profile.Id))).ToString();
@@ -134,7 +164,16 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
 	#3waterproof [<percentage>]#0 - sets an item to waterproof at HP remaining above specified threshold.
 	#3damage <amount>#0 - for a value between 0 and 1, sets the percentage of total hitpoints remaining before this item no longer hides things below it.
 	#3prog <prog>#0 - sets a prog that determines who can wear this item. Requires a prog that returns a bool and accepts a character and an item.
-	#3failprog <prog>#0 - sets a prog that determines what echo a person should get when they can't wear the item because of the other prog. Requires a prog that returns a text and accepts a character and an item.";
+	#3failprog <prog>#0 - sets a prog that determines what echo a person should get when they can't wear the item because of the other prog. Requires a prog that returns a text and accepts a character and an item." + SizingHelp;
+
+    private const string SizingHelp = @"
+	#3sizing on|off#0 - enables or disables size checks for this wearable.
+	#3sizing firstwear|fixed#0 - captures an unfitted item on first successful wear or leaves its authored fit fixed.
+	#3sizing tolerance <height%> <weight%>#0 - sets the allowed measurement difference (for example 15% 30%).
+	#3sizing scalar <prog|none>#0 - selects a character-to-number prog for legacy scalar sizes.
+	#3sizing scalartolerance <positive divisor> <nonnegative flat>#0 - sets scalar fit slack to size/divisor plus flat units.
+	#3sizing initial <size>#0 - sets the fit on new instances (a number, universal, or height/weight specification).
+Sizing is opt-in. Measurement sizes use the body's native height and weight units.";
 
     public override string ShowBuildingHelp => BuildingHelp;
 
@@ -167,6 +206,8 @@ public class WearableGameItemComponentProto : GameItemComponentProto, IWearableP
             case "layer":
             case "layerweight":
                 return BuildingCommandLayerWeight(actor, command);
+            case "sizing":
+                return BuildingCommand_Sizing(actor, command);
             default:
                 return base.BuildingCommand(actor, command);
         }
@@ -241,7 +282,8 @@ This item {7} bulky.
 This item {5} hidden to others when worn. 
 {8}. 
 {6}
-It has a layer weight of {9}.",
+It has a layer weight of {9}.
+{10}. {11}",
             "Wearable Item Component".Colour(Telnet.Cyan),
             _profiles.Select(
                          x =>
@@ -259,7 +301,11 @@ It has a layer weight of {9}.",
             Waterproof
                 ? $"It is waterproof when above {WaterproofDamageRatio.ToString("P3", actor).Colour(Telnet.Green)} damage"
                 : "It is not waterproof",
-            LayerWeightConsumption.ToStringN2Colour(actor)
+            LayerWeightConsumption.ToStringN2Colour(actor),
+            SizingEnabled ? "Size checks are enabled" : "Size checks are disabled",
+            SizingEnabled
+                ? $"New items {(FitOnFirstWear ? "fit to their first successful wearer" : "use the fixed initial fit")}; height tolerance {HeightTolerance:P0}, weight tolerance {WeightTolerance:P0}; initial fit {InitialFit.Kind} {(InitialFit.Kind == WearableFitKind.Scalar ? InitialFit.Scalar.ToString("N2", actor) : "")}. Scalar sizing uses {(ScalarSizeProg is null ? "no configured prog" : $"{ScalarSizeProg.FunctionName} (#{ScalarSizeProg.Id:N0})")}, with size / {ScalarToleranceDivisor:N2} + {ScalarToleranceFlat:N2} tolerance."
+                : "Enable sizing on this prototype to enforce a stored fit."
         );
     }
 
@@ -297,12 +343,166 @@ It has a layer weight of {9}.",
 
     public override bool CanSubmit()
     {
-        return WearableProg == null || WhyCannotWearProg != null;
+        return (WearableProg == null || WhyCannotWearProg != null) &&
+               (!SizingEnabled || FitOnFirstWear || InitialFit.Kind != WearableFitKind.Unfitted);
     }
 
     #endregion
 
     #region Sub Building Commands
+
+    private bool BuildingCommand_Sizing(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.Send(SizingHelp.SubstituteANSIColour());
+            return false;
+        }
+
+        var option = command.PopSpeech().ToLowerInvariant();
+        switch (option)
+        {
+            case "on":
+            case "enable":
+                SizingEnabled = true;
+                Changed = true;
+                actor.Send("Wearable size checks are enabled for new and existing instances of this prototype.");
+                return true;
+            case "off":
+            case "disable":
+                SizingEnabled = false;
+                Changed = true;
+                actor.Send("Wearable size checks are disabled for this prototype.");
+                return true;
+            case "firstwear":
+                FitOnFirstWear = true;
+                Changed = true;
+                actor.Send("Unfitted new items will capture their fit on the first successful wear.");
+                return true;
+            case "fixed":
+                FitOnFirstWear = false;
+                Changed = true;
+                actor.Send(InitialFit.Kind == WearableFitKind.Unfitted
+                    ? "New instances use the unfitted state until you set a fixed initial fit."
+                    : $"New instances use the fixed {InitialFit.Kind} fit.");
+                return true;
+            case "tolerance":
+                if (command.IsFinished)
+                {
+                    actor.Send("Specify height and weight tolerances as percentages, for example sizing tolerance 15% 30%.");
+                    return false;
+                }
+
+                var heightText = command.PopSpeech();
+                if (command.IsFinished || !TryReadTolerance(heightText, out var heightTolerance) ||
+                    !TryReadTolerance(command.PopSpeech(), out var weightTolerance))
+                {
+                    actor.Send("Both tolerances must be between 0% and 100%.");
+                    return false;
+                }
+
+                HeightTolerance = heightTolerance;
+                WeightTolerance = weightTolerance;
+                Changed = true;
+                actor.Send($"Wearable fit tolerances are now {HeightTolerance:P0} for height and {WeightTolerance:P0} for weight.");
+                return true;
+            case "scalar":
+                if (command.IsFinished)
+                {
+                    actor.Send("Specify a character-to-number prog or none to clear it.");
+                    return false;
+                }
+
+                var progText = command.SafeRemainingArgument;
+                if (progText.EqualTo("none") || progText.EqualTo("clear"))
+                {
+                    ScalarSizeProg = null;
+                    Changed = true;
+                    actor.Send("The legacy scalar sizing prog has been cleared.");
+                    return true;
+                }
+
+                var prog = long.TryParse(progText, out var progId)
+                    ? Gameworld.FutureProgs.Get(progId)
+                    : Gameworld.FutureProgs.GetByName(progText);
+                if (prog is null || prog.ReturnType != ProgVariableTypes.Number ||
+                    !prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
+                {
+                    actor.Send("That must be a prog that accepts one character and returns a number.");
+                    return false;
+                }
+
+                ScalarSizeProg = prog;
+                Changed = true;
+                actor.Send($"Legacy scalar sizing now uses {prog.FunctionName} (#{prog.Id:N0}).");
+                return true;
+            case "scalartolerance":
+                if (command.IsFinished)
+                {
+                    actor.Send("Specify a positive size divisor and a nonnegative flat amount, for example sizing scalartolerance 20 1.");
+                    return false;
+                }
+
+                var divisorText = command.PopSpeech();
+                if (command.IsFinished || !double.TryParse(divisorText, out var divisor) || !double.IsFinite(divisor) || divisor <= 0 ||
+                    !double.TryParse(command.PopSpeech(), out var flat) || !double.IsFinite(flat) || flat < 0)
+                {
+                    actor.Send("The divisor must be positive and the flat tolerance must be nonnegative.");
+                    return false;
+                }
+
+                ScalarToleranceDivisor = divisor;
+                ScalarToleranceFlat = flat;
+                Changed = true;
+                actor.Send($"Scalar fit slack is now size / {ScalarToleranceDivisor:N2} + {ScalarToleranceFlat:N2} units.");
+                return true;
+            case "initial":
+                if (command.IsFinished)
+                {
+                    actor.Send("Specify a scalar size, universal, unfitted, or height and weight measurements.");
+                    return false;
+                }
+
+                if (!MudSharp.GameItems.WearableSizing.TryParse(command.SafeRemainingArgument, actor, Gameworld,
+                        out var fit, out var error))
+                {
+                    actor.Send(error);
+                    return false;
+                }
+
+                InitialFit = fit;
+                Changed = true;
+                actor.Send($"New wearable instances will start with the {fit.Kind} fit.");
+                return true;
+            default:
+                actor.Send(SizingHelp.SubstituteANSIColour());
+                return false;
+        }
+    }
+
+    private static bool TryReadTolerance(string text, out double tolerance)
+    {
+        text = text.Trim();
+        if (text.EndsWith('%'))
+        {
+            if (!double.TryParse(text[..^1], out var percent) || !double.IsFinite(percent) || percent < 0 || percent > 100)
+            {
+                tolerance = 0;
+                return false;
+            }
+
+            tolerance = percent / 100.0;
+            return true;
+        }
+
+        if (!double.TryParse(text, out tolerance) || !double.IsFinite(tolerance) || tolerance < 0 || tolerance > 1)
+        {
+            tolerance = 0;
+            return false;
+        }
+
+        return true;
+    }
 
     private bool BuildingCommand_FailProg(ICharacter actor, StringStack command)
     {

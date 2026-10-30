@@ -179,6 +179,14 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
 
         foreach (var coating in Parent.EffectsOfType<IWeaponPoisonCoatingEffect>().ToList())
         {
+			if (coating.DeliveryProg is not null)
+			{
+				// A scripted single-use policy is one charge, not a divisible liquid volume.
+				var splitPolicy = new WeaponPoisonCoating(newItem, coating.ContaminatingLiquid.Clone(), null, coating.DeliveryProg, coating.SingleUseOnWound);
+				newItem.AddEffect(splitPolicy);
+				Parent.RemoveEffect(coating, true);
+				continue;
+			}
             var amount = coating.ContaminatingLiquid.TotalVolume * proportion;
             if (amount <= 0.0)
             {

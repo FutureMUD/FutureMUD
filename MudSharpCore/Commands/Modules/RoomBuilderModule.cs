@@ -1811,6 +1811,10 @@ The syntax is:
     internal const string RoomSetHelpText = @"Valid options for #3room set#0 are as follows:
 
 	#3room set uniquename <name|none>#0 - sets or clears the global identifier without an overlay package
+	#3room set policy [<restriction>|capacity <count>|cost <prog|clear>|clear]#0 - shows or edits persistent room policies
+	#3room set observation [<observer room> <prefix|clear>]#0 - shows or edits visual communication links from here
+	#3room set access [<direction> [opening] <deny|flying|prog|clear> <denial message>]#0 - shows or edits directional access rules
+	#3room set accessattempt <direction> <prog|clear>#0 - sets a denied movement attempt prog
 	#3room set name <name>#0 - sets the name of the room
 	#3room set desc#0 - drops you into an editor to edit the room description
 	#3room set suggestdesc#0 - uses configured AI description generation to suggest a description
@@ -1865,6 +1869,18 @@ The syntax is:
 		{
 			input.PopSpeech();
 			RoomSetUniqueName(actor, input);
+			return;
+		}
+
+		if (input.Peek().EqualTo("policy") || input.Peek().EqualTo("observation") || input.Peek().EqualTo("access") || input.Peek().EqualTo("accessattempt"))
+		{
+			switch (input.PopSpeech().ToLowerInvariant())
+			{
+				case "policy": RoomSetPolicy(actor, input); break;
+				case "observation": RoomSetObservation(actor, input); break;
+				case "access": RoomSetAccess(actor, input); break;
+				case "accessattempt": RoomSetAccessAttempt(actor, input); break;
+			}
 			return;
 		}
 

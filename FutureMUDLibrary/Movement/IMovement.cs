@@ -41,6 +41,8 @@ namespace MudSharp.Movement
         /// deliberately has no exit because it remains inside one room.
         /// </summary>
         IRoomExit? Exit { get; }
+		/// <summary>The departure the viewer believes they chose; traversal always uses Exit.</summary>
+		IRoomExit? ExitFor(IPerceiver voyeur) => Exit;
         MovementPhase Phase { get; }
         IEnumerable<ICharacter> CharacterMovers { get; }
         public IParty Party { get; }

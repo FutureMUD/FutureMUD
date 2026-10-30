@@ -40,6 +40,8 @@ namespace MudSharp.Movement
         public bool? WouldBeAbleToCross { get; init; }
         public IPositionState? HighestMovingPositionState { get; init; }
         public IMoveSpeed? FastestMoveSpeed { get; init; }
+		/// <summary>A denied passage's action callback; feasibility and pathfinding never invoke it.</summary>
+		public IRoomExitPolicyEffect? DenyingRoomPolicy { get; init; }
 
         public static implicit operator bool(CanMoveResponse source)
         {

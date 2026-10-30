@@ -158,7 +158,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits) + MudSharp.Magic.EquippedItemBonuses.BonusFor(owner as ICharacter, MudSharp.Magic.EquippedItemBonusKind.Health);
+        return owner is not ICharacter charOwner ? MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits) : ApplyMaximumHitPointsEffects(charOwner, MaximumHitPointsExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Health));
     }
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)

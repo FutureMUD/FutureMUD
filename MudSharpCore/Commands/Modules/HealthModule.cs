@@ -2882,12 +2882,12 @@ The syntax is:
                 if (infection.Bodypart == null)
                 {
                     sb.AppendLine(
-                        $"{infection.VirulenceDifficulty.Describe()} {infection.InfectionType.Describe()} in whole body, Intensity {infection.Intensity.ToString("P3", actor).ColourValue()} Immunity {infection.Immunity.ToString("P3", actor).ColourValue()}");
+                        $"{infection.VirulenceDifficulty.Describe()} {(infection is IDrugSymptomInfection ? infection.Name : infection.InfectionType.Describe())} in whole body, Intensity {infection.Intensity.ToString("P3", actor).ColourValue()} Immunity {infection.Immunity.ToString("P3", actor).ColourValue()}");
                 }
                 else
                 {
                     sb.AppendLine(
-                        $"{infection.VirulenceDifficulty.Describe()} {infection.InfectionType.Describe()} on {infection.Bodypart.FullDescription()}, Intensity {infection.Intensity.ToString("P3", actor).ColourValue()} Immunity {infection.Immunity.ToString("P3", actor).ColourValue()}");
+                        $"{infection.VirulenceDifficulty.Describe()} {(infection is IDrugSymptomInfection ? infection.Name : infection.InfectionType.Describe())} on {infection.Bodypart.FullDescription()}, Intensity {infection.Intensity.ToString("P3", actor).ColourValue()} Immunity {infection.Immunity.ToString("P3", actor).ColourValue()}");
                 }
             }
         }

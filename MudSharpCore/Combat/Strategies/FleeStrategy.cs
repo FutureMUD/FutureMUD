@@ -20,7 +20,7 @@ public class FleeStrategy : StandardMeleeStrategy
             return move;
         }
 
-        if (combatant is not ICharacter ch || combatant.EffectsOfType<IRageEffect>().Any())
+        if (combatant is not ICharacter ch || combatant.EffectsOfType<IRageEffect>().Any(effect => effect.Applies(ch) && effect.IsRaging))
         {
             return null;
         }

@@ -54,7 +54,7 @@ public partial class ArmageddonStockSpellInstallerTests
 				Assert.AreEqual(0.25, (double)method.Attribute("duration")!);
 				Assert.IsTrue((long)method.Attribute("permission")! > 0);
 				Assert.IsTrue((long)method.Attribute("damageProg")! > 0);
-				Assert.AreEqual(claims[spec.ResourceKey].LogicalId, (long)method.Attribute("destination")!);
+				Assert.AreEqual(claims[ArmageddonProgressionInstaller.ManaResourceKey].LogicalId, (long)method.Attribute("destination")!);
 			}
 			if (sorcerer)
 			{

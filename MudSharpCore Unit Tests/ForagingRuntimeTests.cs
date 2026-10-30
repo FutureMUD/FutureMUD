@@ -16,6 +16,7 @@ using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Magic.Environment;
 using MudSharp.NPC.AI;
@@ -864,12 +865,24 @@ public class ForagingRuntimeTests
 	}
 
 	[TestMethod]
-	[DataRow(false)]
-	[DataRow(true)]
+	[DataRow(false, 100.0, 0.999, false)]
+	[DataRow(true, 100.0, 0.999, false)]
+	[DataRow(true, 0.0, 0.0, true)]
+	[DataRow(true, 25.0, 0.25, true)]
+	[DataRow(true, 25.0, 0.249, false)]
+	[DataRow(true, 100.0, 1.0, true)]
+	[DataRow(false, 0.0, 0.0, true)]
+	[DataRow(false, 25.0, 0.25, true)]
+	[DataRow(false, 25.0, 0.249, false)]
+	[DataRow(false, 100.0, 1.0, true)]
+	[DataRow(false, 0.0, 0.0, false, true)]
+	[DataRow(false, 0.0, 0.0, false, false, true)]
 	[DoNotParallelize]
-	public void Forage_DiscreteItemAndCommodityOutput_RejectsFractionalYield(bool commodityOutput)
+	public void Forage_OutputConsumesConfiguredPercentage(bool commodityOutput, double consumption, double stock, bool succeeds,
+		bool removeProfile = false, bool removeType = false)
 	{
 		using var forageTime = new ForageTimeExpressionScope();
+		using var commodityPrototype = new CommodityPrototypeScope();
 		const long profileId = 82L;
 		var profile = CreateProfileMock(profileId, ("food", 2.0));
 		var profiles = new RevisableAll<IForagableProfile>();
@@ -885,18 +898,29 @@ public class ForagingRuntimeTests
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<IHeartbeatManager>());
 		gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
 		gameworld.Setup(x => x.GetCheck(CheckType.ForageCheck)).Returns(check.Object);
-		var room = CreateLoadedRoom(gameworld.Object, profileId, "food", 0.999);
+		var room = CreateLoadedRoom(gameworld.Object, profileId, "food", stock);
+		var output = new Mock<IGameItem>();
+		var proto = new Mock<IGameItemProto>();
+		proto.Setup(x => x.CreateNew(It.IsAny<MudSharp.Character.ICharacter>())).Returns(output.Object);
 		var foragable = new Mock<IForagable>();
+		var hook = new Mock<IFutureProg>();
+		foragable.SetupGet(x => x.OnForageProg).Returns(hook.Object);
+		foragable.SetupGet(x => x.YieldConsumptionPercentage).Returns(consumption);
+		foragable.SetupGet(x => x.QuantityDiceExpression).Returns("1");
 		foragable.SetupGet(x => x.ForagableTypes).Returns(["food"]);
 		foragable.SetupGet(x => x.ForageDifficulty).Returns(Difficulty.Normal);
 		if (commodityOutput)
 		{
 			foragable.SetupGet(x => x.CommodityMaterial).Returns(Mock.Of<ISolid>());
 			foragable.SetupGet(x => x.CommodityWeightExpression).Returns("1");
+			var commodity = new Mock<ICommodity>();
+			commodity.SetupProperty(x => x.Weight, 0.0);
+			output.Setup(x => x.GetItemType<ICommodity>()).Returns(commodity.Object);
+			CommodityGameItemComponentProto.ItemPrototype = proto.Object;
 		}
 		else
 		{
-			foragable.SetupGet(x => x.ItemProto).Returns(Mock.Of<IGameItemProto>());
+			foragable.SetupGet(x => x.ItemProto).Returns(proto.Object);
 		}
 
 		profile.SetupGet(x => x.Foragables).Returns([foragable.Object]);
@@ -904,7 +928,8 @@ public class ForagingRuntimeTests
 			              It.IsAny<IReadOnlyDictionary<Difficulty, CheckOutcome>>(), "food"))
 		       .Returns(foragable.Object);
 		var character = new Mock<MudSharp.Character.ICharacter>();
-		PhysicalManipulationTestHelper.SetUpUsableHands(character);
+		var body = PhysicalManipulationTestHelper.SetUpUsableHands(character);
+		body.Setup(x => x.CanGet(output.Object, 0, ItemCanGetIgnore.None)).Returns(true);
 		character.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		character.SetupGet(x => x.Location).Returns(room);
 		SimpleCharacterAction? action = null;
@@ -921,9 +946,21 @@ public class ForagingRuntimeTests
 		forageMethod.Invoke(null, [character.Object, "forage food"]);
 
 		Assert.IsNotNull(action);
+		if (removeProfile)
+		{
+			room.ForagableProfile = null!;
+		}
+		if (removeType)
+		{
+			profile.SetupGet(x => x.MaximumYieldPoints).Returns(new Dictionary<string, double>());
+		}
 		action.Action(character.Object);
-		Assert.AreEqual(0.999, room.GetForagableYield("food"));
-		gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);
+		if (!removeProfile && !removeType)
+		{
+			Assert.AreEqual(succeeds ? stock - consumption / 100.0 : stock, room.GetForagableYield("food"), 0.000001);
+		}
+		gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), succeeds ? Times.Once : Times.Never);
+		hook.Verify(x => x.Execute(It.IsAny<object[]>()), succeeds ? Times.Once : Times.Never);
 	}
 
 	[TestMethod]
@@ -970,11 +1007,15 @@ public class ForagingRuntimeTests
 	}
 
 	[TestMethod]
-	public void ForagerAI_DiscreteFoodRequiresAWholeYield()
+	[DataRow(100.0, false)]
+	[DataRow(25.0, false)]
+	[DataRow(0.0, true)]
+	public void ForagerAI_DiscreteFoodRespectsConsumption(double consumption, bool availableWithoutStock)
 	{
 		var proto = new Mock<IGameItemProto>();
 		proto.Setup(x => x.IsItemType<FoodGameItemComponentProto>()).Returns(true);
 		var foragable = new Mock<IForagable>();
+		foragable.SetupGet(x => x.YieldConsumptionPercentage).Returns(consumption);
 		foragable.SetupGet(x => x.ItemProto).Returns(proto.Object);
 		foragable.SetupGet(x => x.ForagableTypes).Returns(new[] { "food" });
 		foragable.Setup(x => x.CanForage(It.IsAny<MudSharp.Character.ICharacter>(), Outcome.MajorPass)).Returns(true);
@@ -982,7 +1023,8 @@ public class ForagingRuntimeTests
 		profile.SetupGet(x => x.Foragables).Returns(new[] { foragable.Object });
 		var room = new Mock<IRoom>();
 		room.SetupGet(x => x.ForagableProfile).Returns(profile.Object);
-		room.Setup(x => x.CanConsumeYield("food", 1.0)).Returns(false);
+		room.SetupGet(x => x.ForagableTypes).Returns(["food"]);
+		room.Setup(x => x.CanConsumeYield("food", consumption / 100.0)).Returns(false);
 		var needs = new Mock<INeedsModel>();
 		needs.SetupGet(x => x.Status).Returns(NeedsResult.Hungry);
 		var race = new Mock<IRace>();
@@ -994,13 +1036,13 @@ public class ForagingRuntimeTests
 		character.SetupGet(x => x.Race).Returns(race.Object);
 		character.SetupGet(x => x.Location).Returns(room.Object);
 
-		Assert.IsFalse(ForagerAIHelpers.HasEligibleForageableFood(character.Object, room.Object));
-		Assert.IsFalse(ForagerAIHelpers.TryForageForFood(character.Object));
+		Assert.AreEqual(availableWithoutStock, ForagerAIHelpers.HasEligibleForageableFood(character.Object, room.Object));
+		Assert.AreEqual(availableWithoutStock, ForagerAIHelpers.TryForageForFood(character.Object));
 
-		room.Setup(x => x.CanConsumeYield("food", 1.0)).Returns(true);
+		room.Setup(x => x.CanConsumeYield("food", consumption / 100.0)).Returns(true);
 		Assert.IsTrue(ForagerAIHelpers.HasEligibleForageableFood(character.Object, room.Object));
 		Assert.IsTrue(ForagerAIHelpers.TryForageForFood(character.Object));
-		character.Verify(x => x.ExecuteCommand("forage food"), Times.Once);
+		character.Verify(x => x.ExecuteCommand("forage food"), Times.Exactly(availableWithoutStock ? 2 : 1));
 	}
 
 	[TestMethod]
@@ -1074,6 +1116,7 @@ public class ForagingRuntimeTests
 		}, gameworld.Object);
 
 		CollectionAssert.AreEqual(new[] { "food", "wood" }, foragable.ForagableTypes.ToArray());
+		Assert.AreEqual(100.0, foragable.YieldConsumptionPercentage);
 	}
 
 	[TestMethod]
@@ -1222,6 +1265,7 @@ public class ForagingRuntimeTests
 		foragable.SetupGet(x => x.ForagableTypes).Returns(new[] { forageType });
 		foragable.SetupGet(x => x.ForageDifficulty).Returns(difficulty);
 		foragable.SetupGet(x => x.RelativeChance).Returns(100);
+		foragable.SetupGet(x => x.YieldConsumptionPercentage).Returns(100.0);
 		return foragable;
 	}
 
@@ -1324,6 +1368,16 @@ public class ForagingRuntimeTests
 		public void Dispose()
 		{
 			_games.Remove(_game);
+		}
+	}
+
+	private sealed class CommodityPrototypeScope : IDisposable
+	{
+		private readonly IGameItemProto _previous = CommodityGameItemComponentProto.ItemPrototype;
+
+		public void Dispose()
+		{
+			CommodityGameItemComponentProto.ItemPrototype = _previous;
 		}
 	}
 

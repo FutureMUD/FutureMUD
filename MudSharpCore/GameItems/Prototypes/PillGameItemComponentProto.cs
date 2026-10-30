@@ -3,6 +3,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
 using MudSharp.Health;
+using MudSharp.PerceptionEngine.Parsers;
 
 #nullable enable annotations
 
@@ -25,6 +26,7 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
     public IDrug Drug { get; set; }
     public double GramsPerPill { get; set; }
     public IFutureProg OnSwallowProg { get; set; }
+    public string? ConsumptionEmote { get; private set; }
 
     public override string TypeDescription => "Pill";
 
@@ -33,12 +35,13 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
         Drug = Gameworld.Drugs.Get(long.Parse(root.Element("Drug").Value));
         GramsPerPill = double.Parse(root.Element("GramsPerPill").Value);
         OnSwallowProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnSwallowProg")?.Value ?? "0"));
+        ConsumptionEmote = (string?)root.Element("ConsumptionEmote");
     }
 
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\n\nThis is a pill item with {4} of the drug {5}. When swallowed, it {6}.",
+            "{0} (#{1:N0}r{2:N0}, {3})\n\nThis is a pill item with {4} of the drug {5}. When swallowed, it {6}.\nConsumption emote: {7}",
             "Pill Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -48,7 +51,8 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
             "No Drug Set".Colour(Telnet.Red),
             OnSwallowProg == null
                 ? "does not execute any prog"
-                : $"executes the {$"{OnSwallowProg.FunctionName} (#{OnSwallowProg.Id})".FluentTagMXP("send", $"href='show futureprog {OnSwallowProg.Id}'")}"
+                : $"executes the {$"{OnSwallowProg.FunctionName} (#{OnSwallowProg.Id})".FluentTagMXP("send", $"href='show futureprog {OnSwallowProg.Id}'")}",
+            string.IsNullOrWhiteSpace(ConsumptionEmote) ? "Default".ColourValue() : ConsumptionEmote.ColourCommand()
         );
     }
 
@@ -57,7 +61,8 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
         return new XElement("Definition",
             new XElement("GramsPerPill", GramsPerPill),
             new XElement("Drug", Drug?.Id ?? 0),
-            new XElement("OnSwallowProg", OnSwallowProg?.Id ?? 0)
+            new XElement("OnSwallowProg", OnSwallowProg?.Id ?? 0),
+            new XElement("ConsumptionEmote", new XCData(ConsumptionEmote ?? string.Empty))
         ).ToString();
     }
 
@@ -93,7 +98,7 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
     #region Building Commands
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tdrug <which> - sets the drug contained in this pill\n\tdose <weight> - sets the dose of drug in the pill by weight\n\tprog <which> - sets a prog to run when someone swalllows the pill\n\tprog clear - clears the on-swallow prog";
+        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tdrug <which> - sets the drug contained in this pill\n\tdose <weight> - sets the dose of drug in the pill by weight\n\tprog <which> - sets a prog to run when someone swallows the pill\n\tprog clear - clears the on-swallow prog\n\temote <text|default> - sets an optional oral-consumption emote ($0 item, $1 container, $2 table)";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -101,6 +106,18 @@ public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePr
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "emote":
+                var text = command.SafeRemainingArgument;
+                if (text.EqualTo("default")) text = string.Empty;
+                else
+                {
+                    var emote = new Emote(text, actor, actor, actor, actor);
+                    if (!emote.Valid) { actor.Send(emote.ErrorMessage); return false; }
+                }
+                ConsumptionEmote = text;
+                Changed = true;
+                actor.Send("The oral-consumption emote was updated.");
+                return true;
             case "grams":
             case "dose":
                 return BuildingCommandDose(actor, command);

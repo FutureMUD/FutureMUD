@@ -113,6 +113,26 @@ public sealed class BodySurfaceLiquidState : ILocalisedSurfaceLiquidState
 		return true;
 	}
 
+	public void DepositResidue(ISolid material, double weight)
+	{
+		if (!double.IsFinite(weight) || weight <= 0) return;
+		_beforeMutation?.Invoke();
+		var parts = _parts().OrderBy(x => x.Id).ToArray();
+		if (parts.Length == 0)
+		{
+			_states.TryAdd(0, new SurfaceLiquidState(_world, _changed, _beforeMutation));
+			_states[0].AddResidue(material, null, weight);
+		}
+		else
+		{
+			var total = parts.Sum(x => Math.Max(0, x.RelativeHitChance));
+			foreach (var part in parts)
+				((SurfaceLiquidState)ForPart(part)).AddResidue(material, null,
+					weight * (total > 0 ? Math.Max(0, part.RelativeHitChance) / total : 1.0 / parts.Length));
+		}
+		_changed();
+	}
+
 	public LiquidMixture? RemoveLiquidVolume(double volume)
 	{
 		var total = LiquidVolume;

@@ -8,6 +8,7 @@ using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
@@ -337,15 +338,20 @@ public abstract partial class CombatBase : ICombat
         CheckOutcome result = Gameworld.GetCheck(CheckType.CombatRecoveryCheck).Check(haveTraits, recoverDifficulty);
 #if DEBUG
         TimeSpan time = TimeSpan.FromSeconds(baseTime * RecoveryTimeExpression.EvaluateWith(haveTraits,
-            values: [("recovery", result.CheckDegrees())]) * CombatSpeedMultiplier);
+            values: [("recovery", result.CheckDegrees())]) * CombatSpeedMultiplier * CombatDelayMultiplier(perceiver));
         Console.WriteLine(
             $"Combat Delay {perceiver.HowSeen(perceiver, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)}: {time}");
         return time;
 #else
 			return TimeSpan.FromSeconds(baseTime * RecoveryTimeExpression.EvaluateWith(haveTraits,
-				values: [("recovery", result.CheckDegrees())]) * CombatSpeedMultiplier);
+				values: [("recovery", result.CheckDegrees())]) * CombatSpeedMultiplier * CombatDelayMultiplier(perceiver));
 #endif
     }
+
+	private static double CombatDelayMultiplier(IPerceiver perceiver) => perceiver is ICharacter character
+		? character.CombinedEffectsOfType<ICombatDelayMultiplierEffect>().Where(x => x.Applies())
+			.Aggregate(1.0, (value, effect) => value * effect.Multiplier)
+		: 1.0;
 
     protected virtual void HandleCombatResult(IPerceiver perceiver, ICombatMove move, ICombatMove response, CombatMoveResult result)
     {

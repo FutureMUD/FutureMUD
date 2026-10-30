@@ -98,6 +98,15 @@ public static class ExposureDiagnostic
 				damage = racial.AbsorbDamage(damage, body.Race.NaturalArmourQuality, body.Race.NaturalArmourMaterial, body.Actor, ref wounds).PassThroughDamage;
 			if (damage is not null && patch.Part?.NaturalArmourType is { } natural)
 				damage = natural.AbsorbDamage(damage, body.Race.NaturalArmourQuality, patch.Material, body.Actor, ref wounds).SufferedDamage;
+			if (damage?.DamageAmount > 0)
+			foreach (var protection in body.CombinedEffectsOfType<IDamageProtectionEffect>()
+				.Distinct<IDamageProtectionEffect>(ReferenceEqualityComparer.Instance).Where(x => x.ApplicabilityProg is null))
+			{
+				var protectionMultiplier = protection.DamageMultiplier;
+				if (!double.IsFinite(protectionMultiplier) || protectionMultiplier is < 0 or > 1) continue;
+				if (protectionMultiplier == 0) return null;
+				damage = new Damage(damage, protectionMultiplier);
+			}
 		}
 		else if (patch.Target is IGameItem item)
 		{

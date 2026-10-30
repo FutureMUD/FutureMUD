@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -153,8 +155,18 @@ public class ChargedMagicDeviceTests
 		try
 		{
 			using var batch = new MagicResourceCapacityAdmission([new(holder.Object, resource.Object, 10, 100)]).OpenScope();
-			System.Threading.Tasks.Task.Run(() => Assert.ThrowsExactly<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10))).GetAwaiter().GetResult();
+			var ownerThread = Environment.CurrentManagedThreadId;
+			// A synchronously waited Task.Run can inline on the owner thread. Use a dedicated
+			// worker while retaining ExecutionContext flow so this really tests an escaped batch.
+			Task.Factory.StartNew(() =>
+			{
+				Assert.AreNotEqual(ownerThread, Environment.CurrentManagedThreadId);
+				Assert.ThrowsExactly<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
+			}, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).GetAwaiter().GetResult();
 			using var debit = MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10);
+			Assert.IsNotNull(debit);
+			Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var admitted, out _));
+			Assert.AreEqual(100, admitted);
 			throw new ApplicationException("Owned fixture failure");
 		}
 		catch (ApplicationException) { }

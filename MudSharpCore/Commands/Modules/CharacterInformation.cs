@@ -632,6 +632,15 @@ The alias #3con#0 works the same way.", AutoHelp.HelpArgOrNoArg)]
             $"{gender.Subjective(true)} {gender.Is()} about {actor.Gameworld.UnitManager.Describe(target.Height, UnitType.Length, actor).ColourValue()} tall and {target.DescribeCharacteristic("Height", actor.Body).IfEmpty("of similar height").ColourValue()} relative to you.");
         sb.AppendLine(
             $"{gender.Subjective(true)} {(gender.UseThirdPersonVerbForms ? "weighs" : "weigh")} about {actor.Gameworld.UnitManager.DescribeMostSignificant(target.Weight, UnitType.Mass, actor).ColourValue()}.");
+		if (actor.Gameworld.GetStaticBool("EnableWearableSizing") &&
+		    actor.Gameworld.FutureProgs.Get(actor.Gameworld.GetStaticLong("DefaultWearableScalarSizeProg")) is { } sizingProg)
+		{
+			var originalBody = target.Body;
+			var garmentSize = sizingProg.ExecuteDouble(target);
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(target.Body, originalBody)) return;
+			if (double.IsFinite(garmentSize) && garmentSize >= 0)
+				sb.AppendLine($"For garment fitting, {gender.Subjective()} {gender.Is()} size {garmentSize.ToString("N0", actor).ColourValue()}.");
+		}
         if (actor.Race.SameRace(target.Race) || target.Race.SameRace(actor.Race) || actor.IsAdministrator())
         {
             sb.AppendLine($"You'd guess their ethnicity to be {target.Ethnicity.Name.ColourValue()}.");

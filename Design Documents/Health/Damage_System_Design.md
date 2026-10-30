@@ -38,7 +38,11 @@ Unless a section explicitly calls out both paths, the numerical tables below des
 ## Core Runtime Order
 For ordinary external stock-human hits, the runtime order is:
 
-`attack damage -> worn armour -> racial natural armour -> bodypart natural armour -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
+`attack damage -> worn armour -> magical armour -> racial natural armour -> bodypart natural armour -> flat damage protection -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
+
+`IDamageProtectionEffect` is a saved, spell-independent post-armour multiplier with a pure preview value and a separate live commitment. The body resolves it once against the external/inward damage pair; explicit recursive bone/organ damage bypasses that stage, while independent direct organ damage still uses it. Cellular/hypoxia creation and existing-wound increments use the same policy. Only a surviving positive `DamageAmount` packet spends a finite hit; full armour absorption, zero/pain-only packets and diagnostic previews do not. All damage channels scale together and packet guards, transfer and exposure metadata survive copying.
+
+`adddamageprotectioneffect(character, multiplier, hits)` creates this status: multiplier 0/hits 1 is a one-hit shield; multiplier 0.5/hits 0 is continuous half damage. Identical configurations do not stack or refresh. An exhausted shield becomes inapplicable and dirty before removal, so exposure settlement cannot reuse it and interrupted removal cannot resurrect it after reload. Applicability callbacks, exact body/effect attachment, command authority and damage mutation guards are checked before commitment; previews never commit. One incoming invocation includes its recursive injuries, but multipart/explosion packets are separate hits. Direct strategy costs and equipment damage already incurred are not reversed. Complex bone/organ formulas after this stage need not produce exactly half total wounds.
 
 Important runtime details:
 

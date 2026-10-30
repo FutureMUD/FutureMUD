@@ -178,6 +178,11 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         };
     }
 
+	public bool IsAuthorisedAccountDepositor(ICharacter character) => IsAuthorisedAccountUser(character) ||
+		AccountOwner is IClan clan && clan.Memberships
+			.FirstOrDefault(x => !x.IsArchivedMembership && x.MemberId == CharacterInstanceIdentityComparer.IdentityId(character))?.NetPrivileges
+			.HasFlag(ClanPrivilegeType.CanDepositBankAccounts) == true;
+
     private void SyncLegacyOwnerFields()
     {
         _characterOwnerId = null;

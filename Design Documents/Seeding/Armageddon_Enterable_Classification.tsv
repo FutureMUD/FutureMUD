@@ -1,0 +1,376 @@
+Vnum	Description	Entrance	Front	TravelFlags	Disposition	BoundedRooms	Reason	Source
+19	an enormous, earthen arch	45403	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z0.obj:379
+30	a swirling vortex of black light	0	0	0	No entry		No valid positive entrance reference	objects/z0.obj:467
+800	an immortal wagon	405	400	1	Vehicle	7	Reviewed transport definition with bounded interior	objects/z0.obj:1927
+850	a blue, wooden callbox	3197	3197	1	Dwelling	1	Bounded interior template	objects/z0.obj:1957
+903	a large black wagon	2017	2018	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z0.obj:2109
+904	a grey wooden wagon	2019	2020	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z0.obj:2127
+905	a large grey wagon	2021	2022	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z0.obj:2145
+1601	a small merchant wagon	1104	1103	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z1.obj:3893
+1602	A destroyed merchant wagon	1114	0	1	Dwelling	5	Bounded interior template	objects/z1.obj:3907
+1603	An abandoned passenger wagon	1124	0	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z1.obj:3926
+1604	the small rickety hut	1134	0	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z1.obj:3945
+1606	a dust-covered wagon	1705	1706	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z1.obj:3964
+2045	a Salarri merchant wagon	13131	13135	3	Vehicle	6	Reviewed transport definition with bounded interior	objects/z2.obj:468
+2049	the sturdy yam hut	0	0	0	No entry		No valid positive entrance reference	objects/z2.obj:529
+2148	a dark-wood Kadian wagon	35503	35504	1	Vehicle	8	Reviewed transport definition with bounded interior	objects/z2.obj:1938
+2353	the thuja grove	2254	0	0	Dwelling	9	Bounded interior template	objects/z2.obj:3278
+2547	the stone pillar	34016	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z2.obj:4570
+2552	a large merchant wagon	34019	34025	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z2.obj:4653
+2048	a large baobab closet	2983	0	1	Dwelling	1	Bounded interior template	objects/z2.obj:5320
+3001	a small red and black tent	3003	0	0	Dwelling	1	Bounded interior template	objects/z3.obj:1
+3029	a massive wagon	3028	3042	1	Vehicle	18	Reviewed transport definition with bounded interior	objects/z3.obj:496
+3052	a painted agafari stage	3251	0	0	Dwelling	2	Bounded interior template	objects/z3.obj:656
+3060	a dilapidated storehouse	3062	0	0	Dwelling	2	Bounded interior template	objects/z3.obj:723
+3062	a bowed, mekillot-drawn wagon	3070	3071	1	Vehicle	6	Reviewed transport definition with bounded interior	objects/z3.obj:754
+3150	a faded wooden wagon	3891	3893	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z3.obj:1481
+3400	an agafari gazebo	3804	0	0	Dwelling	1	Bounded interior template	objects/z3.obj:3148
+3751	a small pen	3763	0	0	Dwelling	1	Bounded interior template	objects/z3.obj:4522
+4181	a long tent of dark red hides and sandcloth	4190	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:418
+4182	a large, domed tent of yellow hides	3024	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:439
+4183	a small, crowded encampment	4186	0	0	Dwelling	4	Bounded interior template	objects/z4.obj:457
+4196	a small, dyed tent	4192	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:707
+4200	an adobe building	4302	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z4.obj:783
+4303	a small corral	3536	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:1090
+4304	a trapezoidal pen	4325	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:1107
+4305	a small adobe shelter	3538	0	0	Dwelling	2	Bounded interior template	objects/z4.obj:1123
+4306	a large, crooked tent	4326	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:1137
+4325	a low adobe building	4328	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z4.obj:1442
+4340	a ragged tent	4329	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:1703
+4347	a winding track	4310	0	0	Shared entrance	24	Permanent shop retains shared trading rooms	objects/z4.obj:1809
+4606	a large pavillion	4606	0	0	Dwelling	2	Bounded interior template	objects/z4.obj:2087
+4609	a small, fortified outpost	4610	0	0	Dwelling	9	Bounded interior template	objects/z4.obj:2105
+4612	a large sand-colored tent	4617	0	1	Dwelling	1	Bounded interior template	objects/z4.obj:2163
+4620	a tall, sand-colored pavillion	4625	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z4.obj:2177
+4630	a small, herd farm	4631	0	0	Dwelling	5	Bounded interior template	objects/z4.obj:2194
+4637	a small animal farm	4637	0	0	Dwelling	3	Bounded interior template	objects/z4.obj:2252
+4704	a small, dusty ranch	4701	0	0	Dwelling	10	Bounded interior template	objects/z4.obj:2354
+4708	a thornbrush leanto	4718	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:2422
+4716	a rocky outcropping	4711	0	0	Dwelling	7	Bounded interior template	objects/z4.obj:2562
+4717	a rank-smelling hide tent	4720	0	0	Dwelling	1	Bounded interior template	objects/z4.obj:2580
+6001	the sprawling encampment	6001	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:17
+6005	a low stone building	6012	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:84
+6009	the large blue tent	6018	0	0	Dwelling	4	Bounded interior template	objects/z6.obj:150
+6011	a squat stone hut	13326	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:183
+6023	a vine-covered trellis	6024	0	0	Excluded		Missing entrance; unused in retained setting	objects/z6.obj:382
+6028	the cave	6027	0	0	Excluded		Missing entrance; unused in retained setting	objects/z6.obj:465
+6032	a long red canvas tent	6035	0	0	Dwelling	5	Bounded interior template	objects/z6.obj:531
+6043	a small orange tent	6043	6043	0	Excluded		Missing entrance; unused in retained setting	objects/z6.obj:710
+6050	the circular green tent	6040	0	0	Dwelling	6	Bounded interior template	objects/z6.obj:858
+6090	a light-tan tent	13335	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:1635
+6091	a hide pavilion	6091	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:1649
+6094	a broad, beaded entranceway	6171	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:1706
+6095	a long, low clay-brick building	6160	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:1724
+6096	an elaborately decorated, chime-hung pavilion	6141	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z6.obj:1744
+6097	a green, wood-framed awning	6146	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z6.obj:1762
+6100	an airy, clay-brick market stall	6144	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z6.obj:1822
+6101	a ragged hide tent	6030	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:1839
+6102	a large blue and orange tent	6142	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z6.obj:1857
+6103	a multicolored patchwork tent	6145	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z6.obj:1875
+6104	a sturdy, hide-walled pavilion	6143	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z6.obj:1893
+6105	a long adobe building	13317	0	0	Dwelling	6	Bounded interior template	objects/z6.obj:1908
+6106	a blue painted clay-brick building	6150	0	0	Dwelling	3	Bounded interior template	objects/z6.obj:1922
+6107	a clay-brick building	6151	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:1942
+6108	a clay-brick building	6147	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:1959
+6109	a building with a blue awning	6149	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:1977
+6110	a clay-brick building	6152	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:1993
+6111	a one-story clay-brick building	6148	0	0	Dwelling	3	Bounded interior template	objects/z6.obj:2010
+6112	a squat one-story clay-brick building	6159	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:2031
+6113	an elaborately corniced clay-brick building	6103	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2046
+6115	a two-story clay-brick building	6100	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:2082
+6134	a large tent of weathered canvas	3565	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2425
+6145	a billowing purple pavilion	13324	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:2545
+6146	a single-story adobe building	6022	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2559
+6147	a chimney-topped adobe shop	6052	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2573
+6148	a squat abode building	6030	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2587
+6149	a small adobe shop	6049	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:2601
+6150	a long, two story adobe building	6050	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:2615
+6155	a low adobe building	6065	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2694
+6156	a large, circular pavilion	6154	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2712
+6157	a white, billowy-walled pavilion	6155	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:2730
+6158	a walled village	6121	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:2748
+6159	a peaked yellow and green tent	6169	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:2764
+6161	a tall, brick-pillared pavilion	6168	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:2780
+6162	a round, pennant-draped sky-blue tent	6161	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:2801
+6163	a bone-curtained passage	6170	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:2819
+6165	a one-story clay-brick building	6148	0	0	Dwelling	3	Bounded interior template	objects/z6.obj:2856
+6166	a low platformed sparring circle	6066	0	0	Shared entrance	2	Self-containing enterable reset; preserve arena geography	objects/z6.obj:2874
+6251	a gardening shed	0	0	0	No entry		No valid positive entrance reference	objects/z6.obj:3788
+6364	a sprawling, multicolored tent	6300	0	0	Dwelling	7	Bounded interior template	objects/z6.obj:5231
+6601	a large red and blue striped tent	13343	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:7849
+6602	a low-walled corral	6205	0	0	Excluded		Missing entrance; unused in retained setting	objects/z6.obj:7866
+6603	a large green tent	13347	0	0	Dwelling	4	Bounded interior template	objects/z6.obj:7882
+6605	a small, hide-walled encampment	6202	0	0	Excluded		Missing entrance; unused in retained setting	objects/z6.obj:7919
+6911	an interior chamber	13328	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:11537
+6912	a dusty, brick-walled escru pen	6201	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:11551
+6968	an interior chamber	13324	0	0	Dwelling	2	Bounded interior template	objects/z6.obj:11588
+6969	an interior chamber	6114	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:11603
+6994	a walled village	6101	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:11636
+6996	an open-sided, tarp covered pavilion	3566	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:11652
+6997	a low, squat clay-brick guard tower	6158	0	0	Dwelling	1	Bounded interior template	objects/z6.obj:11670
+6998	a brightly painted square tent	6167	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z6.obj:11688
+6999	a slim two-story clay-brick building	6174	0	0	Dwelling	6	Bounded interior template	objects/z6.obj:11706
+7501	the rickety caravan	7501	7502	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z7.obj:61
+13022	a small fenced garden	50350	0	0	Dwelling	2	Bounded interior template	objects/z13.obj:389
+13114	the closet	13027	0	0	Dwelling	1	Bounded interior template	objects/z13.obj:860
+13401	a small wagon	13111	13112	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z13.obj:3080
+13402	the rickety wagon	13991	13990	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z13.obj:3094
+13403	a colorful, jingling wagon	13403	13409	1	Vehicle	25	Reviewed transport definition with bounded interior	objects/z13.obj:3113
+13404	the blockish wagon	13451	0	1	Vehicle	11	Reviewed transport definition with bounded interior	objects/z13.obj:3137
+13405	the skin-covered wagon	13469	13467	1	Vehicle	4	Reviewed transport definition with bounded interior	objects/z13.obj:3158
+13407	the long, wooden wagon	13230	13234	1	Vehicle	7	Reviewed transport definition with bounded interior	objects/z13.obj:3192
+13408	a small, skin-covered wagon	13481	13483	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z13.obj:3211
+13409	a small, blue-painted wooden wagon	13572	13574	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z13.obj:3236
+13458	a massive sandcloth pavillion	13342	0	0	Dwelling	1	Bounded interior template	objects/z13.obj:3255
+13511	the small alcove	13533	0	0	Shared entrance	9	Overlaps the shared argosy entrance; retain original population	objects/z13.obj:3456
+13983	a bone-frame hide shelter	67056	0	0	Dwelling	2	Bounded interior template	objects/z13.obj:6193
+14315	an unnaturally thick cylini tree	14543	14999	0	Shared entrance	3	Front room outside bounded graph	objects/z14.obj:567
+14316	the top of a huge cylini tree	14545	14999	0	Shared entrance	3	Front room outside bounded graph	objects/z14.obj:588
+14319	a small soft-wood hut	14551	0	0	Dwelling	1	Bounded interior template	objects/z14.obj:646
+14907	a dark, forboding cave	3055	0	0	Dwelling	4	Bounded interior template	objects/z14.obj:4121
+15200	a small patchwork tent	15200	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z15.obj:15
+15205	A battered merchant wagon	15205	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z15.obj:29
+15210	a large colorful tent	15210	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z15.obj:43
+15215	the Kashtan's pavillion	15215	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z15.obj:57
+15220	a modest blue tent	15220	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z15.obj:71
+17001	a small tent encampment	17130	0	1	Dwelling	32	Bounded interior template	objects/z17.obj:17
+17002	a collapsed escarpment	17010	0	1	Dwelling	3	Bounded interior template	objects/z17.obj:33
+17008	a stone spire	17030	0	0	Dwelling	11	Bounded interior template	objects/z17.obj:137
+17012	a silt skimmer	17025	17028	2	Vehicle	5	Reviewed transport definition with bounded interior	objects/z17.obj:204
+17013	a small island	17050	0	0	Dwelling	9	Bounded interior template	objects/z17.obj:222
+17014	a large, engraved archway	17050	0	0	Dwelling	9	Bounded interior template	objects/z17.obj:240
+17035	a sandstone spire	17100	0	0	Dwelling	32	Bounded interior template	objects/z17.obj:614
+18101	a large, airy canvas tent	18112	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z18.obj:123
+18102	a small sky-blue canvas tent	18116	0	0	Dwelling	1	Bounded interior template	objects/z18.obj:138
+18103	a long, sturdy peak-roofed stall	18117	0	0	Dwelling	2	Bounded interior template	objects/z18.obj:158
+18301	an enormous purple and grey canvas tent	18340	0	0	Dwelling	9	Bounded interior template	objects/z18.obj:380
+18302	a flowing passage	18345	0	0	Dwelling	9	Bounded interior template	objects/z18.obj:400
+18303	a lantern-lined pavilion	18348	0	0	Dwelling	9	Bounded interior template	objects/z18.obj:420
+18304	a large orange tent	18346	0	0	Dwelling	9	Bounded interior template	objects/z18.obj:438
+18305	a dusty blue and white tent	18344	0	0	Dwelling	9	Bounded interior template	objects/z18.obj:458
+18306	a long mekillot hide pavilion	18361	0	0	Dwelling	2	Bounded interior template	objects/z18.obj:477
+18307	a long mekillot-hide pavilion	18362	0	0	Dwelling	2	Bounded interior template	objects/z18.obj:491
+18308	an enormous blue and white tent	18363	0	0	Dwelling	4	Bounded interior template	objects/z18.obj:505
+18310	a spacious yellow and green tent	18364	0	0	Dwelling	6	Bounded interior template	objects/z18.obj:533
+18311	a low, rusty-red tent	18367	0	0	Dwelling	6	Bounded interior template	objects/z18.obj:547
+18312	an angular blue and red tent	18368	0	0	Dwelling	6	Bounded interior template	objects/z18.obj:561
+18313	a tall tent of patchwork hides	18369	0	0	Dwelling	6	Bounded interior template	objects/z18.obj:575
+18314	a lumpy, mottled-brown tent	18373	0	0	Dwelling	6	Bounded interior template	objects/z18.obj:589
+18315	a red and white striped tent	18374	0	0	Dwelling	6	Bounded interior template	objects/z18.obj:603
+18316	a large, yellow-streaked tent	0	0	0	No entry		No valid positive entrance reference	objects/z18.obj:617
+18317	a grey, orange and blue patchwork tent	13357	0	0	Dwelling	16	Bounded interior template	objects/z18.obj:631
+18318	a bulging white canvas tent	13359	0	0	Dwelling	16	Bounded interior template	objects/z18.obj:645
+18319	a taut-walled erdlu-hide tent	13361	0	0	Dwelling	16	Bounded interior template	objects/z18.obj:659
+18320	a large deep-blue tent	13358	0	0	Dwelling	16	Bounded interior template	objects/z18.obj:673
+18321	an enormous sand-colored tent	13360	0	0	Dwelling	16	Bounded interior template	objects/z18.obj:687
+18322	a modest green canvas tent	13372	0	0	Dwelling	3	Bounded interior template	objects/z18.obj:701
+18323	a large hide pavilion	18395	0	0	Dwelling	1	Bounded interior template	objects/z18.obj:715
+18324	a wide, purple and green tent	18343	0	0	Dwelling	9	Bounded interior template	objects/z18.obj:731
+18325	a blue-glazed mud-brick tower	0	0	0	No entry		No valid positive entrance reference	objects/z18.obj:751
+18900	the airy, olive-colored stall	50797	0	0	Dwelling	1	Bounded interior template	objects/z18.obj:939
+19035	a dust-caked cart	19437	19437	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z19.obj:332
+19150	another dimension	19402	0	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z19.obj:1002
+19151	another dimension	19403	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z19.obj:1026
+19537	the dark-stained wagon	3089	3088	1	Vehicle	7	Reviewed transport definition with bounded interior	objects/z19.obj:2591
+19555	a dust-caked covered cart	13228	13228	1	Vehicle	2	Reviewed transport definition with bounded interior	objects/z19.obj:2774
+20079	an arena compound	35716	0	0	Dwelling	7	Bounded interior template	objects/z20.obj:1210
+20800	a red wrist wrap	20050	20050	0	Excluded		Missing entrance; unused in retained setting	objects/z20.obj:3773
+20801	a yellow wrist wrap	50829	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z20.obj:3791
+21000	the Heru's pavillion	21050	0	0	Dwelling	3	Bounded interior template	objects/z21.obj:1
+21001	a modest blue tent	21055	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:21
+21002	a large red tent	21056	0	0	Shared entrance	2	Permanent shop retains shared trading rooms	objects/z21.obj:38
+21003	a battered merchant wagon	21057	21059	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z21.obj:59
+21004	a blackened carru hide tent	3011	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:81
+21038	a well-made brown and red striped teepee	3008	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:650
+21039	a large, fortified encampment	21001	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z21.obj:670
+21042	a large wooden platform	21249	0	3	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z21.obj:726
+21057	a hide tent	21061	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:975
+21062	a tent made from animal hides	21349	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:1045
+21095	a black, red-striped tent	3010	0	0	Dwelling	2	Bounded interior template	objects/z21.obj:1659
+21105	a rope-walled animal pen	3004	0	0	Dwelling	2	Bounded interior template	objects/z21.obj:1860
+21106	a rope-walled animal pen	21231	0	0	Dwelling	2	Bounded interior template	objects/z21.obj:1881
+21900	a large round tent	3001	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:3985
+21901	a large round tent	3002	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:4002
+21902	an animal hide tent	3005	0	0	Dwelling	1	Bounded interior template	objects/z21.obj:4018
+21903	a carru-hide tent, draped over with sandcloth	3006	0	0	Dwelling	2	Bounded interior template	objects/z21.obj:4036
+22999	a broken old wagon	22217	0	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z22.obj:933
+23019	an enormous nest	23833	0	0	Dwelling	1	Bounded interior template	objects/z23.obj:340
+23400	a dust-covered wagon	23500	23501	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z23.obj:837
+23502	a green bottle	1001	1001	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z23.obj:883
+24032	a gigantic mekillot skeleton	24275	0	1	Dwelling	1	Bounded interior template	objects/z24.obj:317
+25007	a ash-caked mud smokehouse	25686	0	0	Dwelling	1	Bounded interior template	objects/z25.obj:120
+25008	a domed red-mud hut	25697	0	0	Dwelling	1	Bounded interior template	objects/z25.obj:140
+25016	the entrance to a barren cave	25009	0	0	Dwelling	4	Bounded interior template	objects/z25.obj:288
+25017	a cave between two rocks	25348	0	0	Dwelling	8	Bounded interior template	objects/z25.obj:302
+25902	a tall, narrow bone cage	13534	13534	3	Dwelling	1	Bounded interior template	objects/z25.obj:2528
+28001	a large cave	28001	0	0	Shared entrance	47	Permanent shop retains shared trading rooms	objects/z28.obj:19
+28095	a fenced-in vineyard	28993	0	1	Shared entrance	41	Permanent bank retains shared geography	objects/z28.obj:531
+28096	a utility shack	3193	0	0	Dwelling	1	Bounded interior template	objects/z28.obj:552
+28097	a shallow cave	28957	0	0	Dwelling	1	Bounded interior template	objects/z28.obj:571
+28099	a narrow cave	28997	0	0	Dwelling	2	Bounded interior template	objects/z28.obj:602
+28105	a refugee tent-camp	28076	0	0	Shared entrance	4	Permanent shop retains shared trading rooms	objects/z28.obj:693
+28106	the small village	28042	0	0	Shared entrance	47	Permanent shop retains shared trading rooms	objects/z28.obj:709
+28107	the small village	28002	0	0	Shared entrance	47	Permanent shop retains shared trading rooms	objects/z28.obj:726
+28301	a carru-hide tent-stand	28373	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z28.obj:966
+28302	a stand of stacked barrels	28374	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z28.obj:984
+28304	a fruit-stand	28375	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z28.obj:1020
+28305	a wooden stables	28393	0	0	Shared entrance	93	Permanent shop retains shared trading rooms	objects/z28.obj:1037
+28500	a small encampment	28500	0	0	Dwelling	5	Bounded interior template	objects/z28.obj:1069
+28501	a large green and black tent	3201	0	0	Dwelling	1	Bounded interior template	objects/z28.obj:1083
+28502	a dark grey tent	3202	0	0	Dwelling	1	Bounded interior template	objects/z28.obj:1099
+28503	the long, brown tent	28510	0	0	Excluded		Missing entrance; unused in retained setting	objects/z28.obj:1117
+28504	a small, light-blue tent	3025	0	0	Dwelling	4	Bounded interior template	objects/z28.obj:1135
+28506	a tan supply tent	3200	0	0	Dwelling	1	Bounded interior template	objects/z28.obj:1168
+28951	a small refugee tent camp	28950	0	0	Shared entrance	4	Permanent shop retains shared trading rooms	objects/z28.obj:1516
+29800	a small blue wagon	29996	29999	1	Excluded		Missing entrance; unused in retained setting	objects/z29.obj:597
+30049	An old raft	30024	30024	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:686
+30072	a hole in the wall	30020	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:702
+30555	the argosy	30501	30506	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:788
+30615	a heavy iron key	30514	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:906
+30620	The magical red cape	30666	0	0	Dwelling	1	Bounded interior template	objects/z30.obj:941
+30800	The Windy Plains	30500	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:1030
+30801	The petrified forest	30050	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:1045
+30802	the stone basin	30714	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:1060
+30803	the citadel	30520	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z30.obj:1075
+30900	the portal	30666	0	0	Dwelling	1	Bounded interior template	objects/z30.obj:1090
+35036	an ornate gazebo	35042	0	0	Dwelling	1	Bounded interior template	objects/z35.obj:233
+35913	a vermillion tent	35900	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z35.obj:3029
+35925	a bright blue tent	35901	0	0	Dwelling	1	Bounded interior template	objects/z35.obj:3255
+35926	an amber-colored tent	35902	0	0	Dwelling	1	Bounded interior template	objects/z35.obj:3272
+35927	a squat, persimmon-colored tent	35903	0	0	Dwelling	1	Bounded interior template	objects/z35.obj:3290
+36901	the giant village	36813	36800	1	Shared entrance	1	Front room outside bounded graph	objects/z36.obj:162
+37500	the small cabin	37501	0	0	Shared entrance	4	Permanent shop retains shared trading rooms	objects/z37.obj:1454
+37504	a blue pavillion	37505	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z37.obj:1524
+37505	an encampment	37506	37507	0	Shared entrance	2	Permanent shop retains shared trading rooms	objects/z37.obj:1541
+37551	a small brown tent	37508	0	0	Dwelling	1	Bounded interior template	objects/z37.obj:1589
+37950	the siltskimmer	37991	37992	2	Vehicle	4	Reviewed transport definition with bounded interior	objects/z37.obj:3119
+38451	a large den	38499	0	0	Dwelling	1	Bounded interior template	objects/z38.obj:132
+38452	A long thick crevice	38482	0	0	Dwelling	1	Bounded interior template	objects/z38.obj:154
+38454	a small noisy building	38470	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z38.obj:186
+38458	a pathway between buildings	3180	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z38.obj:258
+38459	a large noisy building	38441	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z38.obj:274
+39501	the halfling encampment	39001	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z39.obj:1124
+39502	the lodge	39012	0	0	Dwelling	1	Bounded interior template	objects/z39.obj:1142
+39503	the small thatch hut	39013	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z39.obj:1158
+39504	the green hut	39014	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z39.obj:1174
+39505	the dark halfling camp	39016	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z39.obj:1191
+39602	a twisted old agafari	13432	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z39.obj:1242
+43049	the wagon	43800	43801	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z43.obj:599
+43051	the wagon	43802	43803	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z43.obj:628
+43053	The Grand Gate 	43003	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z43.obj:657
+43054	the tent	43700	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z43.obj:671
+43055	the tent	43701	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z43.obj:685
+43056	the black tent	43702	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z43.obj:699
+44055	a small, destroyed camp	44225	0	0	Dwelling	4	Bounded interior template	objects/z44.obj:826
+45001	a sand-colored tent	13041	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z45.obj:1
+45740	a mekillot hide tent	45920	0	0	Dwelling	1	Bounded interior template	objects/z45.obj:3172
+45741	a mekillot hide tent	45921	0	0	Dwelling	1	Bounded interior template	objects/z45.obj:3192
+45860	a small stone walled encampment	45960	0	0	Dwelling	4	Bounded interior template	objects/z45.obj:3382
+45865	a large dwelling	45965	0	0	Dwelling	1	Bounded interior template	objects/z45.obj:3460
+45901	a small alcove	45902	45912	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z45.obj:3547
+45992	a circle of stones	6671	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z45.obj:3711
+45993	a circle of stones	45403	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z45.obj:3725
+49022	the mud-brick encampment	49021	49021	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z49.obj:46
+49050	a rocky outcropping	49050	0	0	Dwelling	1	Bounded interior template	objects/z49.obj:176
+49205	a small hole	49274	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z49.obj:434
+50001	the gypsy's tent	50495	0	0	Dwelling	1	Bounded interior template	objects/z50.obj:1
+50016	a small merchant wagon	50981	50981	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z50.obj:255
+50063	the large closet	50318	50318	0	Excluded		Missing entrance; unused in retained setting	objects/z50.obj:1052
+50073	a canvas-sided, scarlet booth	50452	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:1212
+50082	the hide-covered wagon	2021	2022	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z50.obj:1334
+50210	a small stand	50472	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:2924
+50211	a small stand	50473	0	0	Dwelling	1	Bounded interior template	objects/z50.obj:2939
+50212	a small stand	50474	0	0	Dwelling	1	Bounded interior template	objects/z50.obj:2955
+50213	a small stand	50475	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:2971
+50214	the Kohmari Stand	13970	0	0	Excluded		Missing entrance; unused in retained setting	objects/z50.obj:2987
+50215	the Voryeki Stand	50497	0	0	Dwelling	1	Bounded interior template	objects/z50.obj:3004
+50216	a stand	50477	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:3018
+50217	a knife stand	50782	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:3034
+50218	a stand	50763	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:3050
+50219	a stand	50783	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:3067
+50220	A two story building	13756	0	1	Dwelling	6	Bounded interior template	objects/z50.obj:3083
+50332	the well	54166	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z50.obj:4291
+50400	an ancient wagon	1800	0	1	Vehicle	13	Reviewed transport definition with bounded interior	objects/z50.obj:4876
+50623	a mekillot-hide pavilion	50355	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:6195
+50624	a sandcloth tent	50356	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:6214
+50625	a slate-colored cloth tent	50357	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z50.obj:6231
+50874	a shadowy alcove	50620	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z50.obj:6935
+52002	the shattered remains of a wagon	52901	52000	1	Shared entrance	2	Front room outside bounded graph	objects/z52.obj:34
+52200	a small tent camp	52900	0	0	Dwelling	1	Bounded interior template	objects/z52.obj:196
+52201	a red and white tent	0	0	0	No entry		No valid positive entrance reference	objects/z52.obj:223
+52202	a small clump of dust	0	0	0	No entry		No valid positive entrance reference	objects/z52.obj:237
+54004	A tall, boxy wagon	54201	54204	1	Vehicle	4	Reviewed transport definition with bounded interior	objects/z54.obj:61
+55000	the Tan-Muark fortress	55000	-1	-1	No entry	14	Source no-enter flag	objects/z55.obj:1
+56061	a stand of pymlithe trees	56918	0	0	Dwelling	2	Bounded interior template	objects/z56.obj:367
+56062	a stand of pymlithe trees	56920	0	0	Dwelling	2	Bounded interior template	objects/z56.obj:384
+56063	a stand of pymlithe trees	56922	0	0	Dwelling	2	Bounded interior template	objects/z56.obj:401
+56064	a stand of pymlithe trees	56924	0	0	Dwelling	2	Bounded interior template	objects/z56.obj:418
+56065	a stand of pymlithe trees	56926	0	0	Dwelling	2	Bounded interior template	objects/z56.obj:435
+56072	a small green tent	56937	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:551
+56073	a sweat lodge	56936	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:568
+56074	a small painted tent	56935	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:586
+56080	a large hide tent	56934	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:692
+56081	a small encampment	56928	0	0	Dwelling	6	Bounded interior template	objects/z56.obj:709
+56083	a thorn-walled encampment	56938	0	0	Dwelling	7	Bounded interior template	objects/z56.obj:743
+56084	a small hide tent	56945	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:760
+56085	a small, leaning tent	56946	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:778
+56086	a small hide tent	56947	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:796
+56087	a large hide tent	56948	0	0	Dwelling	1	Bounded interior template	objects/z56.obj:816
+56900	a small, gaudy carriage	3501	3502	1	Vehicle	2	Reviewed transport definition with bounded interior	objects/z56.obj:3469
+58075	a large, white cake	2982	2982	1	Dwelling	1	Bounded interior template	objects/z58.obj:1461
+58201	the slave quarters	58007	0	0	Dwelling	2	Bounded interior template	objects/z58.obj:2608
+61005	a narrow crevice	61098	0	0	Dwelling	1	Bounded interior template	objects/z61.obj:70
+61006	a small crevice	61097	0	0	Dwelling	1	Bounded interior template	objects/z61.obj:87
+61009	a winding stairway	61620	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z61.obj:138
+64119	window_thing win	0	64045	0	No entry		No valid positive entrance reference	objects/z64.obj:2850
+64139	a patchwork stand made from hides	64660	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z64.obj:3441
+64192	a squat grey building	13004	0	0	Shared entrance	4	Permanent shop retains shared trading rooms	objects/z64.obj:4386
+64556	a large dark-green and grey stall	64656	0	0	Shared entrance	1	Permanent shop retains shared trading rooms	objects/z64.obj:6695
+64573	a long stall painted with desert murals	64658	0	0	Shared entrance	2	Permanent shop retains shared trading rooms	objects/z64.obj:7033
+64574	a long stall painted with desert murals	64657	0	0	Shared entrance	2	Permanent shop retains shared trading rooms	objects/z64.obj:7060
+64576	a large stand bearing the Kuraci banner	3092	0	0	Dwelling	1	Bounded interior template	objects/z64.obj:7106
+64703	the massive argosy	13532	13526	3	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z64.obj:7361
+64715	a narrow red stall	64655	0	0	Dwelling	1	Bounded interior template	objects/z64.obj:7484
+64800	a small courier wagon	64990	64989	1	Vehicle	2	Reviewed transport definition with bounded interior	objects/z64.obj:7503
+64802	a small wagon	64999	64997	3	Vehicle	3	Reviewed transport definition with bounded interior	objects/z64.obj:7539
+64804	the painted wagon	64991	0	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z64.obj:7581
+64805	the curtained area backstage	64996	0	0	Dwelling	1	Bounded interior template	objects/z64.obj:7608
+65312	a crevice	65300	0	0	Dwelling	2	Bounded interior template	objects/z65.obj:239
+65800	a shimmering portal	52414	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z65.obj:589
+65801	a small, firey gem	1201	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z65.obj:607
+65805	a shimmering portal	13361	0	0	Dwelling	16	Bounded interior template	objects/z65.obj:681
+65942	an emerald green portal	0	0	0	No entry		No valid positive entrance reference	objects/z65.obj:956
+65943	an emerald green portal	1000	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z65.obj:970
+66000	a large open box	66055	66055	2	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z66.obj:1
+66003	a military wagon	66056	66058	1	Vehicle	4	Reviewed transport definition with bounded interior	objects/z66.obj:52
+67201	an inix drawn cart	13471	13472	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z67.obj:466
+67808	a destroyed wagon	13570	13571	1	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z67.obj:735
+67811	a low sandstone animal pen	67960	0	0	Shared entrance	2	Permanent shop retains shared trading rooms	objects/z67.obj:787
+67812	a small stone dwelling	0	0	0	No entry		No valid positive entrance reference	objects/z67.obj:804
+67901	a small guard post	13474	0	0	Dwelling	1	Bounded interior template	objects/z67.obj:868
+67902	A small alcove is set into the wall	13475	0	0	Dwelling	3	Bounded interior template	objects/z67.obj:886
+67950	a wide agafari platform	67952	0	1	Dwelling	1	Bounded interior template	objects/z67.obj:932
+69005	a small hole in the wreckage	69509	0	0	Dwelling	12	Bounded interior template	objects/z69.obj:72
+69095	a faded wooden wagon	3891	3893	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z69.obj:267
+70111	the armored wagon	70652	0	0	Dwelling	2	Bounded interior template	objects/z70.obj:370
+70112	the rickety tent	13462	0	0	Dwelling	1	Bounded interior template	objects/z70.obj:392
+70113	a dark cave	13464	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z70.obj:409
+70235	the red stone tower	13596	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z70.obj:1420
+70241	a dark alcove	13559	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z70.obj:1508
+70244	a shadowy cave	13561	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z70.obj:1552
+70245	a twisted old agafari	13562	0	0	Shared entrance		Open or unbounded graph; preserve existing geography	objects/z70.obj:1567
+70302	the central dome	71300	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1737
+70305	a broken sand dome	71305	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1804
+70306	a broken sand dome	71330	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1821
+70307	a broken sand dome	71326	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1838
+70308	a broken sand dome	71322	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1855
+70309	a broken sand dome	71319	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1872
+70310	a broken sand dome	71315	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1889
+70311	a broken sand dome	71312	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1906
+70312	a broken sand dome	71308	0	0	Dwelling	35	Bounded interior template	objects/z70.obj:1923
+71601	a makeshift wooden hut	71640	0	0	Dwelling	1	Bounded interior template	objects/z71.obj:64
+72836	a small courier wagon	3780	3782	1	Vehicle	3	Reviewed transport definition with bounded interior	objects/z72.obj:1114
+76030	a large green tent	76006	0	0	Excluded		Missing entrance; unused in retained setting	objects/z76.obj:490
+76032	a red and blue striped tent	76010	0	0	Excluded		Missing entrance; unused in retained setting	objects/z76.obj:522
+76033	a hide-walled corral	76014	0	0	Excluded		Missing entrance; unused in retained setting	objects/z76.obj:539
+76034	a small baobab wagon	76016	76021	1	Excluded		Missing entrance; unused in retained setting	objects/z76.obj:555

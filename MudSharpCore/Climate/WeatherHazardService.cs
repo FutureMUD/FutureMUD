@@ -27,6 +27,8 @@ internal static class WeatherHazardService
 	internal static void Tick(IWeatherEvent weather, IRoom room, Func<double> random)
 	{
 		var config = weather.Hazards;
+		if (room.CurrentWeather(null) == weather && AtmosphereExposed(room) && config is not null)
+			WeatherResidue.Deposit(room, config);
 		if (room.CurrentWeather(null) != weather || room.OutdoorsType(null) != RoomOutdoorsType.Outdoors ||
 			config is null || config.LightningChance <= 0 && config.AtmosphericLightningChance <= 0) return;
 		var strike = config.LightningChance > 0 && random() < config.LightningChance;

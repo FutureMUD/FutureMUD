@@ -7,12 +7,15 @@ using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
-internal class LiquidContainerGameItemComponent : GameItemComponent, ILiquidContainer, ILockable
+internal class LiquidContainerGameItemComponent : GameItemComponent, IPreparedLiquidContainer, ILockable
 {
     protected LiquidContainerGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
     private LiquidMixture _liquidMixture;
+
+	public void CommitPreparedLiquidMixture(LiquidMixture mixture) => _liquidMixture = mixture;
+	public void FinishPreparedLiquidMixture() => Changed = true;
 
     public LiquidMixture LiquidMixture
     {

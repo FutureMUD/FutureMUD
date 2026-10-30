@@ -14,6 +14,7 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
 
     public string OverriddenShortDescription { get; protected set; }
     public string OverriddenFullDescription { get; protected set; }
+	public bool PreserveFullDescription { get; protected set; }
     public Difficulty SeeThroughDisguiseDifficulty { get; protected set; }
     public string RemovalEcho { get; protected set; }
 
@@ -61,6 +62,7 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
         RemovalEcho = root.Element("RemovalEcho").Value;
         OverriddenShortDescription = root.Element("ShortDescription").Value;
         OverriddenFullDescription = root.Element("FullDescription").Value;
+		PreserveFullDescription = (bool?)root.Element("PreserveFullDescription") ?? false;
         SeeThroughDisguiseDifficulty = (Difficulty)int.Parse(root.Element("Difficulty").Value);
 
         foreach (XElement sub in root.Element("Keywords").Elements())
@@ -86,6 +88,7 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
                 new XElement("RemovalEcho", new XCData(RemovalEcho ?? "")),
                 new XElement("ShortDescription", new XCData(OverriddenShortDescription)),
                 new XElement("FullDescription", new XCData(OverriddenFullDescription)),
+				new XElement("PreserveFullDescription", PreserveFullDescription),
                 new XElement("Difficulty", (int)SeeThroughDisguiseDifficulty),
                 new XElement("Keywords",
                     from keyword in _keywordSubstitutions
@@ -140,7 +143,7 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
     #region Building Commands
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tadd <characteristic> <value> - adds a characteristic to be obscured\n\tremove <characteristic> - removes an obscured characteristic\n\tdifficulty <difficulty> - sets the difficulty to see through the disguise\n\tkeyword <keyword> <replace> - sets a keyword to be replaced in the @key and @sub tags.\n\tkeyword remove <keyword> - removes a keyword to be replaced\n\tsdesc <desc> - sets the override sdesc\n\tfdesc <desc> - set the override full description\n\techo <echo> - sets the removal echo addendum";
+        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tadd <characteristic> <value> - adds a characteristic to be obscured\n\tremove <characteristic> - removes an obscured characteristic\n\tdifficulty <difficulty> - sets the difficulty to see through the disguise\n\tkeyword <keyword> <replace> - sets a keyword to be replaced in the @key and @sub tags.\n\tkeyword remove <keyword> - removes a keyword to be replaced\n\tsdesc <desc> - sets the override sdesc\n\tfdesc <desc> - set the override full description\n\tpreservefull - toggles retaining the wearer's normal full description\n\techo <echo> - sets the removal echo addendum";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -218,6 +221,11 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "preservefull":
+				PreserveFullDescription = !PreserveFullDescription;
+				Changed = true;
+				actor.OutputHandler.Send($"Preserve the wearer's normal full description: {PreserveFullDescription.ToColouredString()}.");
+				return true;
             case "removalecho":
             case "removal echo":
             case "echo":
@@ -240,6 +248,7 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
             case "short description":
             case "short_description":
                 return BuildingCommandSDesc(actor, command);
+            case "fdesc":
             case "full":
             case "full description":
             case "full desc":
@@ -364,7 +373,7 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\n\nIt is an identity obscurer when worn. It is {4} to see through.\nRemoval Echo: {5}\nSDesc Override: {6}\nFDesc Override: {7}\nObscures: {8}\nKeyword Substitions: {9}.",
+            "{0} (#{1:N0}r{2:N0}, {3})\n\nIt is an identity obscurer when worn. It is {4} to see through.\nRemoval Echo: {5}\nSDesc Override: {6}\nFDesc Override: {7}\nPreserve wearer full description: {10}\nObscures: {8}\nKeyword Substitions: {9}.",
             "IdentityObscurer Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -376,7 +385,8 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IO
             (from obscure in _obscuredForms select $"{obscure.Key.Name.ColourName()}: {obscure.Value.ColourValue()}")
             .ListToString(),
             (from sub in _keywordSubstitutions select $"{sub.Key.ColourName()}->{sub.Value.ColourValue()}")
-            .ListToString()
+            .ListToString(),
+			PreserveFullDescription.ToColouredString()
         );
     }
 }

@@ -45,6 +45,8 @@ public class DirectionSenseVehicleTests
 		{
 			Assert.IsNotNull(f.Actor.Object.Movement);
 			Assert.AreEqual(expected, f.Actor.Object.Movement.Exit.OutboundDirection);
+			Assert.AreEqual(CardinalDirection.North, f.Actor.Object.Movement.ExitFor(f.Actor.Object)!.OutboundDirection);
+			Assert.AreEqual(expected, f.Actor.Object.Movement.ExitFor(Mock.Of<IPerceiver>())!.OutboundDirection);
 			f.Vehicle.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>()), Times.Once);
 		}
 	}

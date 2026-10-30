@@ -5,6 +5,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
@@ -1507,7 +1508,7 @@ public partial class ComplexLivingHealthStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Health);
+        return owner is not ICharacter charOwner ? 0.0 : ApplyMaximumHitPointsEffects(charOwner, MaximumHitPointsExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Health));
     }
 
     public override double MaxStun(IHaveWounds owner)
@@ -1577,7 +1578,8 @@ public partial class ComplexLivingHealthStrategy : BaseHealthStrategy
         }
 
         if (thing.Wounds.Sum(x => x.CurrentStun) >= maxStun &&
-            !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
+            !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()) &&
+            !charOwner.EffectsOfType<IPreventStunUnconsciousnessEffect>().Any(effect => effect.Applies(charOwner)))
         {
             return HealthTickResult.Unconscious;
         }

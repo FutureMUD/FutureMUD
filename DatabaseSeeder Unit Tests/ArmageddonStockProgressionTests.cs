@@ -32,11 +32,13 @@ public partial class ArmageddonStockProgressionTests
 		Assert.AreEqual(mode == ArmageddonProgressionMode.Classic ? 153 : 11,
 			db.TraitDefinitions.Count(x => x.OwnerScope == 1));
 		Assert.IsTrue(db.TraitDefinitions.Where(x => x.OwnerScope == 1).All(x => x.BranchMultiplier == 0));
-		Assert.AreEqual(8, db.MagicResources.Count(x => x.MagicResourceType == 1));
-		Assert.AreEqual(1, db.MagicResources.Count(x => x.MagicResourceType == 0));
+		Assert.AreEqual(1, db.MagicResources.Count(x => x.MagicResourceType == 1));
+		Assert.AreEqual(0, db.MagicResources.Count(x => x.MagicResourceType == 0));
 		var sourceId = result.Identities[ArmageddonProgressionInstaller.SourceResourceKey];
 		Assert.IsTrue(db.MagicCapabilities.AsEnumerable().All(x => (long)XElement.Parse(x.Definition).Element("Casting")!.Attribute("source")! == sourceId));
-		Assert.AreEqual(7, db.MagicGenerators.Count());
+		Assert.IsTrue(db.MagicCapabilities.AsEnumerable().All(x => (long)XElement.Parse(x.Definition).Element("Casting")!.Attribute("reserve")! == sourceId));
+		Assert.AreEqual("Mana", db.MagicResources.Single().Name);
+		Assert.AreEqual(1, db.MagicGenerators.Count());
 		Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 		foreach (var cap in db.MagicCapabilities)
@@ -131,7 +133,7 @@ public partial class ArmageddonStockProgressionTests
 		using var db = ArmageddonInstallationSettingsTests.Fixture(false);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		ArmageddonInstallation.Prepare(factory, ArmageddonProgressionMode.Simple);
-		db.MagicCapabilities.Add(new MagicCapability { Name = "Earth" });
+		db.MagicCapabilities.Add(new MagicCapability { Name = "Earth Elementalist" });
 		db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, ArmageddonProgressionInstaller.Install(factory).Status);
 		Assert.AreEqual(1, db.SeederManagedRecords.Count());
@@ -143,5 +145,19 @@ public partial class ArmageddonStockProgressionTests
 		db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, ArmageddonProgressionInstaller.Install(factory).Status);
 		Assert.AreEqual(10, db.MagicCapabilities.Count());
+	}
+
+	[TestMethod]
+	public void Ownership_UnownedManaShortNameCollision_BlocksBeforeCreatingStock()
+	{
+		using var db = ArmageddonInstallationSettingsTests.Fixture(false);
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		ArmageddonInstallation.Prepare(factory, ArmageddonProgressionMode.Simple);
+		db.MagicResources.Add(new MagicResource { Name = "A builder resource", ShortName = "mana" });
+		db.SaveChanges();
+		Assert.AreEqual(ArmageddonInstallStatus.Blocked, ArmageddonProgressionInstaller.Install(factory).Status);
+		Assert.AreEqual(1, db.MagicResources.Count());
+		Assert.AreEqual(0, db.MagicCapabilities.Count());
+		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.StableKey == ArmageddonProgressionInstaller.ManaResourceKey));
 	}
 }

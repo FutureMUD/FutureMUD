@@ -298,11 +298,17 @@ public class OutfitTemplateTests
 			new[] { TemplateItem("spear", proto, OutfitTemplateItemPlacement.Wielded) });
 		var target = Target(System.Array.Empty<IOutfit>(), out var location, out var body, out _);
 		body.Setup(x => x.CanWield(created.Object, ItemCanWieldFlags.None)).Returns(true);
+		IBody claimedBody = null;
+		created.Setup(x => x.Get(It.IsAny<IBody>())).Callback<IBody>(x => claimedBody = x).Returns(created.Object);
+		body.Setup(x => x.Wield(created.Object, null, true, ItemCanWieldFlags.None))
+			.Callback(() => Assert.AreSame(body.Object, claimedBody,
+				"Native wield completion requires the created item to be claimed by the target body."))
+			.Returns(true);
 
 		template.Materialise(target.Object);
 
 		location.Verify(x => x.Insert(created.Object, false), Times.Once);
-		created.Verify(x => x.Get(null), Times.Once);
+		created.Verify(x => x.Get(body.Object), Times.Once);
 		body.Verify(x => x.Wield(created.Object, null, true, ItemCanWieldFlags.None), Times.Once);
 	}
 
@@ -344,6 +350,46 @@ public class OutfitTemplateTests
 		template.Materialise(target.Object, loadArguments: "colour=red");
 
 		Assert.AreEqual("shade=dark colour=red", capturedLoadArguments);
+	}
+
+	[TestMethod]
+	public void BuilderLoadArgumentsPreserveQuotedFittingTargets()
+	{
+		var proto = Prototype(1, wearable: true);
+		var item = TemplateItem("coat", proto, OutfitTemplateItemPlacement.Room);
+		var world = new Mock<IFuturemud>();
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		var template = new TemplateOutfit(world.Object, "Test", "Test", OutfitExclusivity.NonExclusive, [item]);
+		Assert.IsTrue(template.BuildingCommand(actor.Object, new StringStack("item args coat wearsize=\"for self\" colour=\"dark blue\"")));
+		Assert.AreEqual("wearsize=\"for self\" colour=\"dark blue\"", template.Items.Single().LoadArguments);
+	}
+
+	[TestMethod]
+	public void MaterialiseMixedOutfit_SizesOnlyWearables_AndKeepsPerItemFitOverride()
+	{
+		var world = new Mock<IFuturemud>();
+		var coat = Item(100, Prototype(1, wearable: true), "a coat");
+		var sword = Item(101, Prototype(2), "a sword");
+		var nativeWearable = TestObjectFactory.CreateUninitialized<WearableGameItemComponentProto>();
+		Mock.Get(coat.Object.Prototype).Setup(x => x.GetItemType<WearableGameItemComponentProto>()).Returns(nativeWearable);
+		var captured = new Dictionary<long, string>();
+		foreach (var entry in new[] { coat, sword })
+		{
+			var created = entry.Object;
+			Mock.Get(created.Prototype).Setup(x => x.CreateNew(It.IsAny<ICharacter>(), null, 1, It.IsAny<string>()))
+				.Callback<ICharacter, IGameItemSkin, int, string>((_, _, _, args) => captured[created.Prototype.Id] = args)
+				.Returns([created]);
+		}
+		var template = new TemplateOutfit(world.Object, "Test", "Test", OutfitExclusivity.NonExclusive,
+		[
+			TemplateItem("coat", coat.Object.Prototype, OutfitTemplateItemPlacement.Room, loadArguments: "shade=dark wearsize=universal"),
+			TemplateItem("sword", sword.Object.Prototype, OutfitTemplateItemPlacement.Room)
+		]);
+		var target = Target(Array.Empty<IOutfit>(), out _, out _, out _);
+		template.Materialise(target.Object, loadArguments: "colour=red wearsize=measurements:1.75,70");
+		Assert.AreEqual("shade=dark wearsize=universal colour=red", captured[1]);
+		Assert.AreEqual("colour=red", captured[2]);
 	}
 
 	[TestMethod]

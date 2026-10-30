@@ -75,7 +75,7 @@ public class PsionicsSeederTests
 		Assert.AreEqual(4, context.MagicSpells.Count());
 		foreach (var stock in MudSharp.Magic.PsionicStockContent.SpellPowers)
 		{
-			var spell = context.MagicSpells.Single(x => x.Name == "Advanced Psionics: " + stock.Verb);
+			var spell = context.MagicSpells.Single(x => x.Name == MudSharp.Magic.PsionicPlayerContent.Powers[stock.Verb].Name);
 			Assert.AreEqual(stock.Seconds.ToString(), context.TraitExpressions.Find(spell.EffectDurationExpressionId)!.Expression);
 			Assert.IsTrue(stock.Cost > 0 && stock.Cost <= MudSharp.Magic.PsionicStockContent.FocusCap);
 			foreach (var (field, echo) in MudSharp.Magic.PsionicPowerEmotes.Spells[stock.Verb])
@@ -122,7 +122,7 @@ public class PsionicsSeederTests
 			StringAssert.Contains(power.ShowHelp, context.MagicSchools.Find(power.MagicSchoolId)!.SchoolVerb + " ", power.Name);
 			Assert.IsFalse(power.ShowHelp.Contains("EnablePsychometric") || power.ShowHelp.Contains("builder") || power.ShowHelp.Contains("example power") || power.ShowHelp.Contains("{range}"), power.Name);
 		}
-		var projection = XElement.Parse(context.MagicSpells.Single(x => x.Name == "Advanced Psionics: project").Definition);
+		var projection = XElement.Parse(context.MagicSpells.Single(x => x.Name == MudSharp.Magic.PsionicPlayerContent.Powers["project"].Name).Definition);
 		Assert.AreEqual(context.Races.Single(x => x.Name == "Human").Id, (long)projection.Element("Effects")!.Element("Effect")!.Element("Race")!);
 	}
 
@@ -143,7 +143,7 @@ public class PsionicsSeederTests
 		context.SaveChanges();
 		seeder.SeedData(context, answers);
 		Assert.AreEqual("Somatic Sense", power.Name);
-		StringAssert.Contains(power.ShowHelp, "apsi somaticsense");
+		StringAssert.Contains(power.ShowHelp, "psi somaticsense");
 		power.Name = "Vital Awareness";
 		power.Blurb = "Custom blurb";
 		power.ShowHelp = "Custom help";
@@ -174,7 +174,7 @@ public class PsionicsSeederTests
 		var seeder = new PsionicsSeeder();
 		var answers = new Dictionary<string, string>();
 		seeder.SeedData(context, answers);
-		var spell = context.MagicSpells.Single(x => x.Name == "Advanced Psionics: project");
+		var spell = context.MagicSpells.Single(x => x.Name == MudSharp.Magic.PsionicPlayerContent.Powers["project"].Name);
 		var xml = XElement.Parse(spell.Definition);
 		xml.Element("Effects")!.Element("Effect")!.SetElementValue("Race", context.Races.OrderBy(x => x.Id).First().Id);
 		spell.Definition = xml.ToString();

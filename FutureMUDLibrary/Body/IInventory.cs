@@ -515,7 +515,15 @@ namespace MudSharp.Body
         /// <summary>Transfers one complete item through ordinary give checks/events without merging it into another stack.</summary>
         IGameItem? GiveWithoutMerge(IGameItem item, IBody target, IEmote? playerEmote = null);
 
+		/// <summary>Exchanges two whole held native items without merging. Both custody changes commit before callbacks; ordinary give checks apply to both legs.</summary>
+		bool TryExchangeItems(IGameItem offered, IBody partner, IGameItem requested) => false;
+
         void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote? playerEmote = null);
+
+		/// <summary>Returns whether a native prepared cash gift committed; refuses unsupported body implementations.</summary>
+		bool TryGiveCurrency(ICurrency currency, IBody target, decimal amount, bool exact, bool silent = false) => false;
+		bool TryGiveCurrency(ICurrency currency, IBody target, decimal amount, bool exact,
+			MudSharp.Economy.Currency.ICurrencyTransferParticipant participant, bool silent = false) => false;
 
         bool CanGive(IGameItem item, ICorpse target, int quantity = 0);
 

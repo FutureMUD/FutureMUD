@@ -5,12 +5,14 @@ using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.FutureProg;
 using MudSharp.Magic.Emotions;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic;
@@ -20,9 +22,12 @@ public partial class MagicSpell
 	private SourceEmotionalEffect? EmotionalTemplate => _spellEffects.OfType<SourceEmotionalEffect>().SingleOrDefault();
 	private sealed record EmotionalMember(MagicSpellParent Parent, Guid Identity, SpellEmotionalEffect Child,
 		EmotionalRetainedState State, DateTime Expiry, bool Applicable);
+	private sealed record FrenzyMember(CombatFrenzyEffect Effect, long BodyId, double Offence, double Defence, double MeleeDamage, double Hunger, DateTime Expiry);
+	private sealed record DrugDoseMember(DrugDosage Dose, double Grams, IDrug Drug, long DrugId, bool Active);
 	private sealed record EmotionalRecipient(ICharacter Character, IBody Body, ICharacter Focus, long Instance, CharacterState State, IRoom Room, RoomLayer Layer,
 		ICombat? Combat, IPerceiver? CombatTarget, EmotionalMember[] Members, EmotionalCounter Counter,
-		ICombatCessationAdmission? Cessation, EmotionalRetainedState? Incoming);
+		ICombatCessationAdmission? Cessation, EmotionalRetainedState? Incoming, IRace Race, bool TrackRace, long? TrackedSuppressionDrugId,
+		bool TrackDrugDoses, bool TrackFrenzies, DrugDoseMember[] DrugDoses, FrenzyMember[] Frenzies);
 	private sealed record EmotionalSelection(long SpellId, int Version, int Grade, SpellPower Power,
 		ICharacter Caster, IBody Body, IRoom Room, RoomLayer Layer, ITerrain Terrain, ITraitDefinition Trait,
 		IFutureProg Eligibility, string ProgText, string CompileError, ProgVariableTypes[] Parameters, XElement Configuration, EmotionalRecipient[] Recipients)
@@ -70,7 +75,8 @@ public partial class MagicSpell
 			var index = Array.IndexOf(bounds, bound);
 			bounds[index] = bound with { Incoming = new(bound.Counter.RemainingIncomingGrade, power, profile.Intensity, endurance) };
 			// Validate retained arithmetic, including conflicting equal-grade Calm mappings, before any debit.
-			ResolveEmotionalLifetime(token, bounds[index], profile);
+			var ordinaryLifetime = ResolveEmotionalLifetime(token, bounds[index], profile);
+			ValidateFrenzyDeadline(profile, bounds[index], ordinaryLifetime);
 		}
 		ConfirmEmotionalStructure(token, effect);
 		return token;
@@ -97,7 +103,32 @@ public partial class MagicSpell
 			if (cessation?.IsCurrent != true)
 				throw new InvalidOperationException("Calm requires supported selective combat cessation before payment.");
 		}
-		return new(target, target.Body, target.Body.Actor, target.InstanceId, target.State, target.Location, target.RoomLayer, combat, opponent, members, counter, cessation, null);
+		var body = target.Body;
+		var trackRace = profile.Kind == EmotionalSpellKind.Calm && profile.ClearCombatFrenzyOnCalm ||
+			profile.Kind == EmotionalSpellKind.Fury && profile.FrenzyOnFury is not null;
+		var trackDrugDoses = profile.Kind == EmotionalSpellKind.Fury && profile.FrenzyOnFury is { } doseProfile && body.Race.Id == doseProfile.RaceId;
+		long? trackedSuppressionDrugId = trackDrugDoses ? profile.FrenzyOnFury!.SuppressionDrugId : null;
+		var drugDoses = trackDrugDoses
+			? body.ActiveDrugDosages.Where(x => x.Drug.Id == trackedSuppressionDrugId).Select(x => new DrugDoseMember(x, x.Grams, x.Drug, x.Drug.Id, true))
+				.Concat(body.LatentDrugDosages.Where(x => x.Drug.Id == trackedSuppressionDrugId).Select(x => new DrugDoseMember(x, x.Grams, x.Drug, x.Drug.Id, false))).ToArray()
+			: [];
+		var trackFrenzies = profile.Kind == EmotionalSpellKind.Calm && profile.ClearCombatFrenzyOnCalm ||
+			trackDrugDoses && profile.FrenzyOnFury is { } configuredFrenzy &&
+				!drugDoses.Any(x => x.DrugId == configuredFrenzy.SuppressionDrugId);
+		var expiryObserver = Gameworld.EffectScheduler as IEffectExpiryObserver;
+		var frenzies = trackFrenzies ? target.Effects.OfType<CombatFrenzyEffect>().Where(x => x.SourceBodyId == body.Id).Select(x =>
+		{
+			if (expiryObserver is null || !Gameworld.EffectScheduler.IsScheduled(x) || expiryObserver.ScheduledExpiry(x) is not { } expiry || expiry <= RuntimeClock.UtcNow)
+				throw new InvalidOperationException("A current-body combat frenzy has no valid native expiry deadline.");
+			return new FrenzyMember(x, x.SourceBodyId, x.OffenceBonus, x.DefenceBonus, x.MeleeDamageBonus, x.HungerMultiplier, expiry);
+		}).ToArray() : [];
+		if (frenzies.Length > 1) throw new InvalidOperationException("Multiple current-body combat frenzy effects cannot be safely combined by a source emotion.");
+		if (trackFrenzies && profile.FrenzyOnFury is { } frenzy && frenzies.Length == 1 &&
+			(frenzies[0].Offence != frenzy.OffenceBonus || frenzies[0].Defence != frenzy.DefenceBonus ||
+			 frenzies[0].MeleeDamage != frenzy.MeleeDamageBonus || frenzies[0].Hunger != frenzy.HungerMultiplier))
+			throw new InvalidOperationException("An existing current-body frenzy has a different combat profile and cannot be extended by this Fury.");
+		return new(target, body, body.Actor, target.InstanceId, target.State, target.Location, target.RoomLayer, combat, opponent, members, counter, cessation, null,
+			body.Race, trackRace, trackedSuppressionDrugId, trackDrugDoses, trackFrenzies, drugDoses, frenzies);
 	}
 
 	private EmotionalMember[] CaptureEmotionalMembers(ICharacter target)
@@ -156,9 +187,12 @@ public partial class MagicSpell
 			token.Eligibility.ReturnType != ProgVariableTypes.Boolean || token.CompileError != token.Eligibility.CompileError ||
 			!token.Parameters.SequenceEqual(token.Eligibility.Parameters) || profile.Kind == EmotionalSpellKind.Fury && token.Trait.TraitType != TraitType.Attribute)
 			throw new InvalidOperationException("The source emotional body, terrain, trait or profile binding changed.");
+		if (profile.FrenzyOnFury is { } frenzy &&
+			(Gameworld.Races.Get(frenzy.RaceId) is null || Gameworld.Drugs.Get(frenzy.SuppressionDrugId) is null))
+			throw new InvalidOperationException("The configured frenzy race or suppression drug no longer exists.");
 	}
 
-	private void ConfirmEmotionalRecipient(EmotionalRecipient bound, EmotionalMember[] members, MagicSpellParent? added = null, bool afterCessation = false)
+	private void ConfirmEmotionalRecipient(EmotionalRecipient bound, EmotionalMember[] members, MagicSpellParent? added = null, bool afterCessation = false, bool afterFrenzyRemoval = false)
 	{
 		var target = bound.Character;
 		if (!ReferenceEquals(bound.Body, target.Body) || !ReferenceEquals(bound.Focus, target.Body.Actor) || bound.Instance != target.InstanceId ||
@@ -166,6 +200,9 @@ public partial class MagicSpell
 			!afterCessation && (!ReferenceEquals(bound.Combat, target.Combat) || !ReferenceEquals(bound.CombatTarget, target.CombatTarget) ||
 				bound.Cessation is not null && !bound.Cessation.IsCurrent))
 			throw new InvalidOperationException("The admitted emotional recipient or combat pair changed.");
+		if (bound.TrackRace && !ReferenceEquals(bound.Race, target.Body.Race) || bound.TrackDrugDoses && !DrugDosesUnchanged(bound) ||
+			bound.TrackFrenzies && (afterFrenzyRemoval ? target.Effects.OfType<CombatFrenzyEffect>().Any(x => x.SourceBodyId == bound.Body.Id) : !FrenzyCohortUnchanged(bound)))
+			throw new InvalidOperationException("The admitted emotional recipient's race, drug doses or combat frenzy changed.");
 		var observer = (IEffectExpiryObserver)Gameworld.EffectScheduler;
 		var live = target.Effects.OfType<SpellEmotionalEffect>().Where(x => !ReferenceEquals(x.ParentEffect, added)).ToArray();
 		var parents = target.Effects.OfType<MagicSpellParent>().Where(x => !ReferenceEquals(x, added) && x.SpellEffects.OfType<SpellEmotionalEffect>().Any()).ToArray();
@@ -176,6 +213,89 @@ public partial class MagicSpell
 			x.Parent.SpellEffects.Count() != 1 || !x.Parent.SpellEffects.Contains(x.Child) ||
 			!Gameworld.EffectScheduler.IsScheduled(x.Parent) || observer.ScheduledExpiry(x.Parent) != x.Expiry || x.Expiry <= RuntimeClock.UtcNow))
 			throw new InvalidOperationException("The admitted source emotional cohort changed; replacement state is preserved.");
+	}
+
+	private static bool ShouldApplyFrenzy(EmotionalStockProfile profile, EmotionalRecipient bound) =>
+		profile.Kind == EmotionalSpellKind.Fury && profile.FrenzyOnFury is { } frenzy && bound.Race.Id == frenzy.RaceId &&
+		!bound.DrugDoses.Any(x => x.DrugId == frenzy.SuppressionDrugId);
+
+	private void ValidateFrenzyDeadline(EmotionalStockProfile profile, EmotionalRecipient bound, EmotionalLifetime ordinaryLifetime)
+	{
+		if (!ShouldApplyFrenzy(profile, bound)) return;
+		var expiry = (bound.Frenzies.SingleOrDefault()?.Expiry ?? RuntimeClock.UtcNow) + ordinaryLifetime.Duration;
+		if (expiry <= RuntimeClock.UtcNow || expiry > DateTime.MaxValue)
+			throw new InvalidOperationException("The source Fury and accumulated frenzy lifetime cannot be represented by the native clock.");
+	}
+
+	private bool ApplyOrExtendFrenzy(EmotionalRecipient bound, EmotionalStockProfile profile, TimeSpan ordinaryFuryDuration)
+	{
+		if (!ShouldApplyFrenzy(profile, bound)) return false;
+		var character = bound.Character;
+		var body = bound.Body;
+		if (!ReferenceEquals(character.Body, body) || !ReferenceEquals(bound.Race, body.Race) || bound.TrackDrugDoses && !DrugDosesUnchanged(bound) ||
+			bound.TrackFrenzies && !FrenzyCohortUnchanged(bound))
+			throw new InvalidOperationException("The admitted character, race, drug doses or frenzy changed before the source frenzy could be applied.");
+		if (!character.IsEmbodied || character.State.HasFlag(CharacterState.Dead) ||
+			character.InstanceKind == CharacterInstanceKind.AstralProjection || body.CurrentStamina <= 0.0)
+			return false;
+		var mapping = profile.FrenzyOnFury!;
+		if (bound.Frenzies.SingleOrDefault() is { } old)
+		{
+			if (old.Expiry <= RuntimeClock.UtcNow || old.Expiry + ordinaryFuryDuration > DateTime.MaxValue)
+				throw new InvalidOperationException("The accumulated frenzy deadline is no longer representable.");
+			Gameworld.EffectScheduler.ExtendSchedule(old.Effect, ordinaryFuryDuration);
+			var expiry = ((IEffectExpiryObserver)Gameworld.EffectScheduler).ScheduledExpiry(old.Effect);
+			if (expiry != old.Expiry + ordinaryFuryDuration || !character.Effects.Contains(old.Effect))
+				throw new InvalidOperationException("The existing combat frenzy could not be extended in place.");
+			return ordinaryFuryDuration > TimeSpan.Zero;
+		}
+		var frenzy = new CombatFrenzyEffect(character, mapping.OffenceBonus, mapping.DefenceBonus,
+			mapping.MeleeDamageBonus, mapping.HungerMultiplier);
+		character.AddEffect(frenzy, ordinaryFuryDuration);
+		var scheduledExpiry = Gameworld.EffectScheduler.IsScheduled(frenzy)
+			? ((IEffectExpiryObserver)Gameworld.EffectScheduler).ScheduledExpiry(frenzy) : null;
+		var expectedExpiry = RuntimeClock.UtcNow + ordinaryFuryDuration;
+		if (!character.Effects.Contains(frenzy) || !Gameworld.EffectScheduler.IsScheduled(frenzy) ||
+			scheduledExpiry is not { } scheduled || scheduled <= RuntimeClock.UtcNow || (scheduled - expectedExpiry).Duration() > TimeSpan.FromSeconds(1) ||
+			!ReferenceEquals(character.Body, body) || !ReferenceEquals(body.Race, bound.Race) || !DrugDosesUnchanged(bound) ||
+			character.Effects.OfType<CombatFrenzyEffect>().Count(x => x.SourceBodyId == body.Id) != 1)
+			throw new InvalidOperationException("The native combat frenzy was not attached with a valid deadline.");
+		return true;
+	}
+
+	private void ClearCapturedFrenzies(EmotionalRecipient bound)
+	{
+		if (!bound.TrackFrenzies || bound.Frenzies.Length == 0) return;
+		if (!FrenzyCohortUnchanged(bound)) throw new InvalidOperationException("The admitted combat frenzy changed before Calm could remove it.");
+		foreach (var member in bound.Frenzies)
+		{
+			if (!ReferenceEquals(bound.Body, bound.Character.Body) || !bound.Character.Effects.Contains(member.Effect) ||
+				!FrenzyCohortUnchanged(bound))
+				throw new InvalidOperationException("The admitted combat frenzy was replaced; Calm preserved the replacement.");
+			bound.Character.RemoveEffect(member.Effect, true);
+			if (bound.Character.Effects.Contains(member.Effect) || bound.Character.Effects.OfType<CombatFrenzyEffect>().Any(x => x.SourceBodyId == bound.Body.Id))
+				throw new InvalidOperationException("Calm callbacks replaced or retained a combat frenzy; no replacement was removed.");
+		}
+	}
+
+	private static bool DrugDosesUnchanged(EmotionalRecipient bound)
+	{
+		if (!bound.TrackDrugDoses || bound.TrackedSuppressionDrugId is not { } drugId) return true;
+		var active = bound.Body.ActiveDrugDosages.Where(x => x.Drug.Id == drugId).ToArray();
+		var latent = bound.Body.LatentDrugDosages.Where(x => x.Drug.Id == drugId).ToArray();
+		return active.Length + latent.Length == bound.DrugDoses.Length && bound.DrugDoses.All(x =>
+			(x.Active ? active : latent).Contains(x.Dose) && x.Dose.Grams == x.Grams && ReferenceEquals(x.Dose.Drug, x.Drug) && x.Dose.Drug.Id == x.DrugId);
+	}
+
+	private bool FrenzyCohortUnchanged(EmotionalRecipient bound)
+	{
+		if (!bound.TrackFrenzies) return true;
+		var current = bound.Character.Effects.OfType<CombatFrenzyEffect>().Where(x => x.SourceBodyId == bound.Body.Id).ToArray();
+		if (current.Length != bound.Frenzies.Length) return false;
+		var observer = Gameworld.EffectScheduler as IEffectExpiryObserver;
+		return bound.Frenzies.All(x => current.Contains(x.Effect) && x.Effect.SourceBodyId == x.BodyId &&
+			x.Effect.OffenceBonus == x.Offence && x.Effect.DefenceBonus == x.Defence && x.Effect.MeleeDamageBonus == x.MeleeDamage &&
+			x.Effect.HungerMultiplier == x.Hunger && Gameworld.EffectScheduler.IsScheduled(x.Effect) && observer?.ScheduledExpiry(x.Effect) == x.Expiry);
 	}
 
 	private void PrepareEmotionalInvocation(ICharacter caster, IPerceivable? target, SpellPower power)
@@ -192,7 +312,11 @@ public partial class MagicSpell
 		{
 			if (effect.Selection is not EmotionalSelection token) throw new InvalidOperationException(SourceEmotionalEffect.RuntimeIntegrationError);
 			ConfirmEmotionalStructure(token, effect);
-			foreach (var bound in token.Recipients.Where(x => x.Counter.Continue)) ResolveEmotionalLifetime(token, bound, effect.Profile!);
+			foreach (var bound in token.Recipients.Where(x => x.Counter.Continue))
+			{
+				var profile = effect.Profile!;
+				ValidateFrenzyDeadline(profile, bound, ResolveEmotionalLifetime(token, bound, profile));
+			}
 		}
 	}
 
@@ -251,6 +375,12 @@ public partial class MagicSpell
 				throw new InvalidOperationException("Calm cessation callbacks replaced combat; no emotional child was applied to the new fight.");
 			ConfirmEmotionalRecipient(bound, members.ToArray(), afterCessation: true);
 		}
+		if (profile.Kind == EmotionalSpellKind.Calm && profile.ClearCombatFrenzyOnCalm)
+		{
+			ClearCapturedFrenzies(bound);
+			ConfirmEmotionalRecipient(bound, members.ToArray(), afterCessation: ceased, afterFrenzyRemoval: true);
+			changed |= bound.Frenzies.Length > 0;
+		}
 		if (saved) return new(changed ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.Rejected, null);
 		var lifetime = ResolveEmotionalLifetime(phase.Selection, bound, profile);
 		var old = members.SingleOrDefault(x => x.Applicable && x.Child.Kind == profile.Kind);
@@ -274,7 +404,8 @@ public partial class MagicSpell
 				{ Expiry = expiry.Value, State = profile.CanonicalGradePolicy ? lifetime.State : old.State };
 			ConfirmEmotionalRecipient(bound, members.ToArray(), afterCessation: ceased);
 			target.EffectsChanged = true;
-			return new(changed || expiry != old.Expiry || profile.CanonicalGradePolicy && old.State != lifetime.State
+			var frenzyChanged = ApplyOrExtendFrenzy(bound, profile, lifetime.Duration);
+			return new(changed || expiry != old.Expiry || profile.CanonicalGradePolicy && old.State != lifetime.State || frenzyChanged
 				? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		}
 		var head = new MagicSpellParent(target, this, phase.Selection.Caster, lifetime.State.Power, outcome) { ResolvedDuration = lifetime.Duration };
@@ -328,6 +459,7 @@ public partial class MagicSpell
 				throw new InvalidOperationException("Previous Calm child cleanup was not confirmed.");
 		}
 		ConfirmNew(); ConfirmEmotionalRecipient(bound, members.ToArray(), head, ceased);
+		if (profile.Kind == EmotionalSpellKind.Fury) ApplyOrExtendFrenzy(bound, profile, lifetime.Duration);
 		return new(MagicEffectOperationStatus.Applied, child);
 	}
 }

@@ -186,7 +186,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         if (armageddon && HasCombatFoundation(context))
         {
             ValidateArmageddonCombatIdentities(context);
-            return "Armageddon combat identities and builder customisations retained. No combat data or player values changed.";
+			var added = EnsureSpecialAttackDefaults(context, CombatSeederMessageStyleHelper.Parse(effectiveAnswers["messagestyle"]));
+            return $"Armageddon combat identities and builder customisations retained. Added {added} missing default combat messages; no existing combat data or player values changed.";
         }
         context.Database.BeginTransaction();
         if (HasCombatFoundation(context))
@@ -299,6 +300,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 		count += EnsureWardCombatMessages(context, CombatSeederMessageStyleHelper.Parse(answers["messagestyle"]));
 		count += EnsureClinchCombatMessages(context, CombatSeederMessageStyleHelper.Parse(answers["messagestyle"]));
+		count += EnsureSpecialAttackDefaults(context, CombatSeederMessageStyleHelper.Parse(answers["messagestyle"]));
 		foreach (var strategyName in new[]
 		         {
 			         "Dual Wielder", "Dual Wielder (Auto)",

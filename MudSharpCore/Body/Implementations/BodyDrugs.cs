@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body.PartProtos;
+using MudSharp.Body.Traits;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Health;
@@ -87,6 +88,14 @@ public partial class Body
     private void Dose(IDrug drug, DrugVector vector, double grams, object originator, Guid? spellOriginId,
         string spellOriginFamily, string spellOriginFormula)
     {
+        if (!DrugDosePolicy.CanAccept(this, drug)) return;
+        grams = DrugDosePolicy.Normalise(drug, grams);
+        if (grams <= 0.0) return;
+        if (drug.DrugTypes.Contains(DrugType.Infection))
+        {
+            MudSharp.Health.Infections.ConfiguredInfection.TryExpose(this, drug, spellOriginFamily);
+            if (drug.DrugTypes.All(x => x == DrugType.Infection)) return;
+        }
         DrugsChanged = true;
         DrugDosage latent = _latentDrugDosages.FirstOrDefault(x =>
             x.Drug == drug &&
@@ -101,6 +110,7 @@ public partial class Body
         }
 
         latent.Grams += grams;
+        ApplyAdministeredDrugConsequences(drug, grams);
         CheckDrugTick();
     }
 
@@ -119,11 +129,18 @@ public partial class Body
     private void DoseImmediate(IDrug drug, DrugVector vector, double grams, object originator, Guid? spellOriginId,
         string spellOriginFamily, string spellOriginFormula)
     {
+        if (!DrugDosePolicy.CanAccept(this, drug)) return;
+        grams = DrugDosePolicy.Normalise(drug, grams);
         if (grams <= 0.0)
         {
             return;
         }
 
+        if (drug.DrugTypes.Contains(DrugType.Infection))
+        {
+            MudSharp.Health.Infections.ConfiguredInfection.TryExpose(this, drug, spellOriginFamily);
+            if (drug.DrugTypes.All(x => x == DrugType.Infection)) return;
+        }
         DrugsChanged = true;
         DrugDosage active = _activeDrugDosages.FirstOrDefault(x =>
             x.Drug == drug &&
@@ -137,6 +154,7 @@ public partial class Body
         }
 
         active.Grams += grams;
+        ApplyAdministeredDrugConsequences(drug, grams);
         ApplyDrugEffects();
         CheckDrugTick();
         CheckHealthStatus();
@@ -157,6 +175,24 @@ public partial class Body
 
     private bool _drugTickOn;
 
+    private void ApplyAdministeredDrugConsequences(IDrug drug, double grams)
+    {
+        if (!double.IsFinite(grams) || grams <= 0.0 || !drug.DrugTypes.Contains(DrugType.Symptoms)) return;
+        var info = drug.AdditionalInfoFor<DrugSymptomsAdditionalInfo>(DrugType.Symptoms);
+        if (info is null || !info.OnsetPerDose) return;
+        var symptoms = EffectsOfType<DrugSymptomEffect>().FirstOrDefault(x => x.DrugId == drug.Id && x.SourceInfectionDrugId == 0);
+        if (symptoms is null)
+        {
+            symptoms = new DrugSymptomEffect(this, drug.Id, info.InitialStage);
+            AddEffect(symptoms);
+        }
+        var adjustedGrams = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor))
+            .Aggregate(grams, (value, merit) => value * merit.MultiplierForDrug(drug));
+        var intensity = IntensityPerGramMass(DrugEffectIntensity(drug, DrugType.Symptoms, adjustedGrams,
+            Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor))));
+        symptoms.ApplyAdministeredDose(intensity);
+    }
+
     internal static bool DependenceRecordRequiresHeartbeat(double exposure, double peakExposure,
         double withdrawalIntensity)
     {
@@ -166,11 +202,11 @@ public partial class Body
     }
 
     internal static double DependenceActiveDoseGainForHeartbeat(double activeGrams, double exposureGainPerGram,
-        TimeSpan elapsedSinceLastPersistedUpdate)
+        TimeSpan elapsedSinceLastPersistedUpdate, double relapseMultiplier = 1.0)
     {
         // Active drug doses are not metabolised for offline time, so dependence gain follows the same one-heartbeat model.
         _ = elapsedSinceLastPersistedUpdate;
-        return activeGrams <= 0.0 ? 0.0 : activeGrams * exposureGainPerGram;
+        return activeGrams <= 0.0 ? 0.0 : activeGrams * exposureGainPerGram * relapseMultiplier;
     }
 
     private bool HasDependenceRecordsNeedingHeartbeat()
@@ -190,7 +226,7 @@ public partial class Body
 
         var needsDependenceHeartbeat = HasDependenceRecordsNeedingHeartbeat();
         if (_activeDrugDosages.Any() || _latentDrugDosages.Any() || NeedsModel.AlcoholLitres > 0.0 ||
-            needsDependenceHeartbeat ||
+            PartInfections.OfType<IDrugSymptomInfection>().Any() || needsDependenceHeartbeat ||
             CombinedEffectsOfType<ICauseDrugEffect>().Any())
         {
             if (_drugTickOn)
@@ -201,6 +237,8 @@ public partial class Body
             Gameworld.HeartbeatManager.TenSecondHeartbeat -= DrugTenSecondHeartbeat;
             Gameworld.HeartbeatManager.TenSecondHeartbeat += DrugTenSecondHeartbeat;
             _drugTickOn = true;
+            foreach (var symptoms in EffectsOfType<DrugSymptomEffect>()) symptoms.ResetClock();
+            foreach (var infection in PartInfections.OfType<MudSharp.Health.Infections.ConfiguredInfection>()) infection.ResetClock();
             DrugTenSecondHeartbeat();
             StartHealthTick();
             return;
@@ -208,7 +246,7 @@ public partial class Body
 
         needsDependenceHeartbeat = HasDependenceRecordsNeedingHeartbeat();
         if (!_activeDrugDosages.Any() && !_latentDrugDosages.Any() && NeedsModel.AlcoholLitres <= 0.0 &&
-            !needsDependenceHeartbeat &&
+            !PartInfections.OfType<IDrugSymptomInfection>().Any() && !needsDependenceHeartbeat &&
             !CombinedEffectsOfType<ICauseDrugEffect>().Any() && _drugTickOn)
         {
             EndDrugTick();
@@ -234,9 +272,29 @@ public partial class Body
             return;
         }
 
+        foreach (var infection in PartInfections.OfType<MudSharp.Health.Infections.ConfiguredInfection>().ToArray())
+        {
+            infection.Tick();
+            if (!IsActiveCharacterBody || !ReferenceEquals(Actor.Body, this) || Actor.State.HasFlag(CharacterState.Dead)) return;
+        }
+        EvaluateInfections();
         ProcessLatentDrugs();
         UpdateDrugDependenceExposure();
         ApplyDrugEffects();
+        if (Actor.State.HasFlag(CharacterState.Dead) || !IsActiveCharacterBody || !ReferenceEquals(Actor.Body, this))
+        {
+            EndDrugTick();
+            return;
+        }
+        foreach (var symptoms in EffectsOfType<DrugSymptomEffect>().ToArray())
+        {
+            symptoms.Tick();
+            if (Actor.State.HasFlag(CharacterState.Dead) || !IsActiveCharacterBody || !ReferenceEquals(Actor.Body, this))
+            {
+                EndDrugTick();
+                return;
+            }
+        }
         MetaboliseActiveDrugs();
         CheckHealthStatus();
     }
@@ -265,7 +323,7 @@ public partial class Body
                 _activeDrugDosages.Add(activeDose);
             }
 
-            double amount = Math.Max(0.0001, rate * drug.Grams);
+            double amount = Math.Min(drug.Grams, Math.Max(0.0001, rate * drug.Grams));
             activeDose.Grams += amount;
             drug.Grams -= amount;
             if (drug.Grams <= 0)
@@ -318,6 +376,7 @@ public partial class Body
         {
             EffectHandler.RemoveAllEffects<DrugWithdrawalEffect>(fireRemovalAction: true);
             Actor.RemoveAllEffects(x => x.IsEffectType<DrugWithdrawalSleepPreventionEffect>(), true);
+            RefreshDrugModifierEffects();
             return;
         }
 
@@ -362,8 +421,11 @@ public partial class Body
                               .Sum(x => x.Grams);
             if (activeGrams > 0.0)
             {
+                var relapseMultiplier = record.Exposure + 0.000001 < record.PeakExposure
+                    ? info.RelapseExposureMultiplier
+                    : 1.0;
                 record.Exposure += DependenceActiveDoseGainForHeartbeat(activeGrams, info.ExposureGainPerGram,
-                    elapsed);
+                    elapsed, relapseMultiplier);
                 record.PeakExposure = Math.Max(record.PeakExposure, record.Exposure);
             }
 
@@ -397,6 +459,7 @@ public partial class Body
         }
 
         ApplyWithdrawalEffects();
+        RefreshDrugModifierEffects();
     }
 
     private void ApplyWithdrawalEffects()
@@ -463,6 +526,159 @@ public partial class Body
         }
     }
 
+    private static DrugModifierStep? BestModifierStep(IEnumerable<DrugModifierStep> steps, double intensity,
+        Func<DrugModifierStep, bool> hasTarget) => steps.Where(x => x.Threshold <= intensity && hasTarget(x))
+        .OrderByDescending(x => x.Threshold).FirstOrDefault();
+
+    private void RefreshDrugModifierEffects()
+    {
+        var traitBonuses = new Dictionary<long, double>();
+        var resourceBonuses = new Dictionary<long, double>();
+        var dependenceRecords = Gameworld.GetStaticBool(DrugDependenceEnabledStaticConfiguration)
+            ? _drugExposureRecords.ToList()
+            : [];
+        double hpBonus = 0.0;
+        double hpMultiplier = 1.0;
+        double offensiveBonus = 0.0;
+        double defensiveBonus = 0.0;
+        var modifierContributions = new List<(DrugModifierAdditionalInfo Info, double Intensity)>();
+        var modifierNeutralisation = 0.0;
+        var modifierTotalIntensity = 0.0;
+        var specificMerits = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
+        var resistanceMerits = Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
+
+        void ApplySteps(IEnumerable<DrugModifierStep> steps, double intensity)
+        {
+            var list = steps.ToList();
+            foreach (var traitId in list.Where(x => x.TraitId > 0 && x.TraitBonus != 0.0).Select(x => x.TraitId).Distinct())
+            {
+                var step = BestModifierStep(list, intensity, x => x.TraitId == traitId && x.TraitBonus != 0.0);
+                if (step is not null) traitBonuses[traitId] = traitBonuses.GetValueOrDefault(traitId) + step.TraitBonus;
+            }
+            var hp = BestModifierStep(list, intensity, x => x.MaximumHitPointsBonus != 0.0);
+            if (hp is not null) hpBonus += hp.MaximumHitPointsBonus;
+            foreach (var resourceId in list.Where(x => x.MagicResourceId > 0 && x.MagicResourceCapacityBonus != 0.0).Select(x => x.MagicResourceId).Distinct())
+            {
+                var step = BestModifierStep(list, intensity, x => x.MagicResourceId == resourceId && x.MagicResourceCapacityBonus != 0.0);
+                if (step is not null) resourceBonuses[resourceId] = resourceBonuses.GetValueOrDefault(resourceId) + step.MagicResourceCapacityBonus;
+            }
+            var offensive = BestModifierStep(list, intensity, x => x.OffensiveCheckBonus != 0.0);
+            if (offensive is not null) offensiveBonus += offensive.OffensiveCheckBonus;
+            var defensive = BestModifierStep(list, intensity, x => x.DefensiveCheckBonus != 0.0);
+            if (defensive is not null) defensiveBonus += defensive.DefensiveCheckBonus;
+        }
+
+        foreach (var (drug, grams) in ActiveDrugIntensities().Where(x => x.Value > 0.0))
+        {
+            var adjustedGrams = specificMerits.Aggregate(1.0, (value, merit) => value * merit.MultiplierForDrug(drug)) * grams;
+            if (drug.DrugTypes.Contains(DrugType.Modifier))
+            {
+                var intensity = DrugEffectIntensity(drug, DrugType.Modifier, adjustedGrams, resistanceMerits);
+                modifierTotalIntensity += intensity;
+                modifierContributions.Add((drug.AdditionalInfoFor<DrugModifierAdditionalInfo>(DrugType.Modifier), intensity));
+            }
+            if (drug.DrugTypes.Contains(DrugType.NeutraliseDrugEffect) &&
+                drug.AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect).NeutralisedTypes.Contains(DrugType.Modifier))
+            {
+                modifierNeutralisation += drug.IntensityForType(DrugType.NeutraliseDrugEffect) * adjustedGrams;
+            }
+        }
+
+        var modifierIntensityScale = NetDrugModifierIntensityScale(modifierTotalIntensity, modifierNeutralisation);
+        foreach (var (info, intensity) in modifierContributions)
+        {
+            ApplySteps(info.Steps, IntensityPerGramMass(intensity * modifierIntensityScale));
+        }
+
+        foreach (var record in dependenceRecords)
+        {
+            var info = DependenceInfoFor(record.Drug);
+            if (info is null) continue;
+            ApplySteps(info.ModifierSteps, record.Exposure);
+            hpMultiplier = WeightedMultiplier(hpMultiplier, info.WithdrawalMaximumHitPointsMultiplier, record.WithdrawalIntensity);
+        }
+
+        var bodyTraitBonuses = traitBonuses.Where(x => Gameworld.Traits.Get(x.Key)?.OwnerScope == TraitOwnerScope.Body).ToDictionary(x => x.Key, x => x.Value);
+        var characterTraitBonuses = traitBonuses.Where(x => Gameworld.Traits.Get(x.Key)?.OwnerScope == TraitOwnerScope.Character).ToDictionary(x => x.Key, x => x.Value);
+        var modifier = EffectsOfType<DrugTraitModifierEffect>().FirstOrDefault();
+        if (bodyTraitBonuses.Any() || hpBonus != 0.0 || hpMultiplier != 1.0)
+        {
+            modifier ??= new DrugTraitModifierEffect(this);
+            var previousBonuses = modifier.TraitBonuses.ToDictionary(x => x.Key, x => x.Value);
+            var previousHpBonus = modifier.MaximumHitPointsBonus;
+            var previousHpMultiplier = modifier.MaximumHitPointsMultiplier;
+            modifier.TraitBonuses.Clear();
+            foreach (var entry in bodyTraitBonuses) modifier.TraitBonuses[entry.Key] = entry.Value;
+            modifier.MaximumHitPointsBonus = hpBonus;
+            modifier.MaximumHitPointsMultiplier = hpMultiplier;
+            if (!EffectsOfType<DrugTraitModifierEffect>().Any()) EffectHandler.AddEffect(modifier);
+            else if (!SameBonuses(previousBonuses, bodyTraitBonuses) || previousHpBonus != hpBonus || previousHpMultiplier != hpMultiplier)
+                EffectHandler.NotifyEffectUpdated(modifier);
+        }
+        else if (modifier is not null) EffectHandler.RemoveEffect(modifier, true);
+
+        foreach (var stale in Actor.EffectsOfType<DrugTraitModifierEffect>().Where(x => x.SourceBodyId != Id).ToList()) Actor.RemoveEffect(stale, true);
+        var actorModifier = Actor.EffectsOfType<DrugTraitModifierEffect>().FirstOrDefault(x => x.SourceBodyId == Id);
+        if (characterTraitBonuses.Any())
+        {
+            actorModifier ??= new DrugTraitModifierEffect(Actor);
+            actorModifier.SourceBodyId = Id;
+            var previousBonuses = actorModifier.TraitBonuses.ToDictionary(x => x.Key, x => x.Value);
+            actorModifier.TraitBonuses.Clear();
+            foreach (var entry in characterTraitBonuses) actorModifier.TraitBonuses[entry.Key] = entry.Value;
+            actorModifier.MaximumHitPointsBonus = 0.0;
+            actorModifier.MaximumHitPointsMultiplier = 1.0;
+            if (!Actor.EffectsOfType<DrugTraitModifierEffect>().Any(x => x.SourceBodyId == Id)) Actor.AddEffect(actorModifier);
+            else if (!SameBonuses(previousBonuses, characterTraitBonuses))
+            {
+                Gameworld.MagicCasting?.NotifyCapacityChange(Actor);
+                Gameworld.MagicCasting?.NotifyPracticeInputsChanged(Actor);
+            }
+        }
+        else if (actorModifier is not null) Actor.RemoveEffect(actorModifier, true);
+
+        foreach (var resourceId in resourceBonuses.Keys.Union(Gameworld.MagicResources
+                     .Where(x => x.ResourceType.HasFlag(MagicResourceType.PlayerResource)).Select(x => x.Id)).Where(x => x > 0).Distinct())
+        {
+            var effect = EffectsOfType<DrugResourceCapacityModifierEffect>().FirstOrDefault(x => x.MagicResourceId == resourceId);
+            var penaltyMultiplier = dependenceRecords.Select(x => (Record: x, Info: DependenceInfoFor(x.Drug)))
+                .Where(x => x.Info is not null)
+                .Aggregate(1.0, (current, x) => WeightedMultiplier(current, x.Info!.WithdrawalMagicResourceCapacityMultiplier, x.Record.WithdrawalIntensity));
+            var bonus = resourceBonuses.GetValueOrDefault(resourceId);
+            if (bonus != 0.0 || penaltyMultiplier != 1.0)
+            {
+                effect ??= new DrugResourceCapacityModifierEffect(this, resourceId);
+                var wasPresent = EffectsOfType<DrugResourceCapacityModifierEffect>().Any(x => x.MagicResourceId == resourceId);
+                var oldBonus = effect.MagicResourceCapacityBonus;
+                var oldMultiplier = effect.MagicResourceCapacityMultiplier;
+                effect.MagicResourceCapacityBonus = bonus;
+                effect.MagicResourceCapacityMultiplier = penaltyMultiplier;
+                if (!wasPresent) EffectHandler.AddEffect(effect);
+                else if (oldBonus != bonus || oldMultiplier != penaltyMultiplier) EffectHandler.NotifyEffectUpdated(effect);
+            }
+            else if (effect is not null) EffectHandler.RemoveEffect(effect, true);
+        }
+
+        SetCombatModifier(true, offensiveBonus);
+        SetCombatModifier(false, defensiveBonus);
+    }
+
+    private static bool SameBonuses(Dictionary<long, double> left, Dictionary<long, double> right) =>
+        left.Count == right.Count && left.All(x => right.TryGetValue(x.Key, out var value) && value == x.Value);
+
+    private void SetCombatModifier(bool offensive, double bonus)
+    {
+        var effect = EffectsOfType<DrugCombatCheckModifierEffect>().FirstOrDefault(x => x.Offensive == offensive);
+        if (bonus == 0.0)
+        {
+            if (effect is not null) EffectHandler.RemoveEffect(effect, true);
+            return;
+        }
+        effect ??= new DrugCombatCheckModifierEffect(this, offensive);
+        effect.CheckBonus = bonus;
+        if (!EffectsOfType<DrugCombatCheckModifierEffect>().Any(x => x.Offensive == offensive)) EffectHandler.AddEffect(effect);
+    }
+
     private double ToleranceMultiplierForDrugType(IDrug drug, DrugType drugType)
     {
         if (!Gameworld.GetStaticBool(DrugDependenceEnabledStaticConfiguration))
@@ -505,7 +721,51 @@ public partial class Body
         return Math.Max(minimum, Math.Min(maximum, value));
     }
 
-	private DoubleCounter<IDrug> ActiveDrugIntensities()
+    internal static bool IsDrugOverdoseThresholdReached(double activeGrams, double effectiveTraitValue,
+        double gramsPerTraitPoint)
+    {
+        return double.IsFinite(activeGrams) && activeGrams > 0.0 && double.IsFinite(effectiveTraitValue) &&
+               double.IsFinite(gramsPerTraitPoint) && gramsPerTraitPoint > 0.0 &&
+               activeGrams >= Math.Max(0.0, effectiveTraitValue) * gramsPerTraitPoint;
+    }
+
+    internal static double NetDrugModifierIntensityScale(double totalIntensity, double neutralisationIntensity) =>
+        totalIntensity <= 0.0 ? 0.0 : Math.Max(0.0, (totalIntensity - neutralisationIntensity) / totalIntensity);
+
+    internal static double ActiveGramsForOverdoseGroup(IEnumerable<(long DrugId, string Group)> configurations,
+        IEnumerable<(long DrugId, double Grams)> activeDoses, string group)
+    {
+        var matchingDrugIds = configurations.Where(x => string.Equals(x.Group, group, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.DrugId).ToHashSet();
+        return activeDoses.Where(x => matchingDrugIds.Contains(x.DrugId)).Sum(x => x.Grams);
+    }
+
+    private void CheckDrugOverdose()
+    {
+        if (!IsActiveCharacterBody || !ReferenceEquals(Actor.Body, this) || Actor.State.HasFlag(CharacterState.Dead)) return;
+        var overdoseDrugs = ActiveDrugDosages.Select(x => x.Drug).Distinct()
+            .Where(x => x.DrugTypes.Contains(DrugType.Overdose)).ToList();
+        var overdoseConfigurations = overdoseDrugs.Select(drug => (Drug: drug,
+            Config: drug.AdditionalInfoFor<OverdoseAdditionalInfo>(DrugType.Overdose))).ToList();
+        foreach (var (drug, overdose) in overdoseConfigurations)
+        {
+            if (Actor.State.HasFlag(CharacterState.Dead)) break;
+            var trait = Gameworld.Traits.Get(overdose.TraitId);
+            if (trait is null || overdose.GramsPerTraitPoint <= 0.0) continue;
+            var activeDoseGrams = string.IsNullOrWhiteSpace(overdose.Group)
+                ? ActiveDrugDosages.Where(x => x.Drug.Id == drug.Id).Sum(x => x.Grams)
+                : ActiveGramsForOverdoseGroup(
+                    overdoseConfigurations.Select(x => (x.Drug.Id, x.Config.Group)),
+                    ActiveDrugDosages.Select(x => (x.Drug.Id, x.Grams)), overdose.Group);
+            if (IsDrugOverdoseThresholdReached(activeDoseGrams, Actor.TraitValue(trait), overdose.GramsPerTraitPoint))
+            {
+                Actor.Die();
+                break;
+            }
+        }
+    }
+
+	private DoubleCounter<IDrug> ActiveDrugIntensities(bool includeInfections = true)
 	{
         DoubleCounter<IDrug> drugIntensities = new();
         foreach (DrugDosage drug in ActiveDrugDosages)
@@ -524,6 +784,12 @@ public partial class Body
             }
         }
 
+        foreach (var infection in includeInfections ? PartInfections.OfType<IDrugSymptomInfection>() : Enumerable.Empty<IDrugSymptomInfection>())
+        {
+            if (infection.SymptomDrug is not { } profile || profile.IntensityPerGram <= 0 || profile.DrugTypes.Contains(DrugType.Infection)) continue;
+            var grams = InfectionEquivalentGrams(infection);
+            if (double.IsFinite(grams) && grams > 0) drugIntensities[profile] += grams;
+        }
 		return drugIntensities;
 	}
 
@@ -575,6 +841,16 @@ public partial class Body
 		nausea.IntensityPerGramMass = Weight > 0.0 ? IntensityPerGramMass(net) : 0.0;
 		nausea.BloodAlcoholContent = bac;
 	}
+
+    private double InfectionEquivalentGrams(IDrugSymptomInfection infection) =>
+        infection.SymptomIntensity * Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001 /
+        (infection.SymptomDrug?.IntensityPerGram ?? 1.0);
+
+    public void RefreshDrugEffects()
+    {
+        if (_loading || !ReferenceEquals(Actor.Body, this)) return;
+        ApplyDrugEffects();
+    }
 
     private void ApplyDrugEffects()
     {
@@ -653,7 +929,7 @@ public partial class Body
                     continue;
                 }
 
-                if (drugEffect == DrugType.Dependence)
+                if (drugEffect is DrugType.Dependence or DrugType.Infection)
                 {
                     continue;
                 }
@@ -740,6 +1016,53 @@ public partial class Body
                 ? 0.0
                 : Math.Max(0.0, (total - neutralisingEffects.ValueOrDefault(type)) / total);
         }
+
+        var symptomDrugIds = new HashSet<long>();
+        var physicalSymptomDrugIds = _activeDrugDosages.Concat(_latentDrugDosages)
+            .Where(x => x.Grams > 0.0).Select(x => x.Drug.Id).ToHashSet();
+        foreach (var (drug, grams) in ActiveDrugIntensities(includeInfections: false))
+        {
+            if (!drug.DrugTypes.Contains(DrugType.Symptoms) || grams <= 0.0 || !physicalSymptomDrugIds.Contains(drug.Id)) continue;
+            var adjustedGrams = specificMerits.Aggregate(grams, (value, merit) => value * merit.MultiplierForDrug(drug));
+            var intensity = IntensityPerGramMass(DrugEffectIntensity(drug, DrugType.Symptoms, adjustedGrams, resistanceMerits)) *
+                            NetIntensityScale(DrugType.Symptoms);
+            if (!double.IsFinite(intensity) || intensity <= 0.0) continue;
+            symptomDrugIds.Add(drug.Id);
+            var symptoms = EffectsOfType<DrugSymptomEffect>().FirstOrDefault(x => x.DrugId == drug.Id && x.SourceInfectionDrugId == 0);
+            if (symptoms is null)
+            {
+                symptoms = new DrugSymptomEffect(this, drug.Id,
+                    drug.AdditionalInfoFor<DrugSymptomsAdditionalInfo>(DrugType.Symptoms).InitialStage);
+                AddEffect(symptoms);
+            }
+            if (symptoms.Intensity <= 0.0) symptoms.ResetClock();
+            symptoms.Intensity = intensity;
+            symptoms.ApplyOnset();
+        }
+        foreach (var symptoms in EffectsOfType<DrugSymptomEffect>().Where(x => x.SourceInfectionDrugId == 0 && !symptomDrugIds.Contains(x.DrugId)))
+            symptoms.Intensity = 0.0;
+        RemoveAllEffects<DrugSymptomEffect>(x => x.SourceInfectionDrugId == 0 && !physicalSymptomDrugIds.Contains(x.DrugId));
+        var infections = PartInfections.OfType<IDrugSymptomInfection>().ToArray();
+        foreach (var infection in infections)
+        {
+            if (infection.SymptomDrug is not { } profile || !profile.DrugTypes.Contains(DrugType.Symptoms)) continue;
+            var adjustedGrams = specificMerits.Aggregate(InfectionEquivalentGrams(infection), (value, merit) => value * merit.MultiplierForDrug(profile));
+            var intensity = IntensityPerGramMass(DrugEffectIntensity(profile, DrugType.Symptoms, adjustedGrams, resistanceMerits)) * NetIntensityScale(DrugType.Symptoms);
+            var symptoms = EffectsOfType<DrugSymptomEffect>().FirstOrDefault(x => x.SourceInfectionDrugId == infection.DefinitionDrugId);
+            if (symptoms is not null && symptoms.DrugId != profile.Id)
+            {
+                RemoveEffect(symptoms, true);
+                symptoms = null;
+            }
+            if (symptoms is null)
+            {
+                symptoms = new DrugSymptomEffect(this, profile.Id, profile.AdditionalInfoFor<DrugSymptomsAdditionalInfo>(DrugType.Symptoms).InitialStage, infection.DefinitionDrugId);
+                AddEffect(symptoms);
+            }
+            symptoms.Intensity = double.IsFinite(intensity) ? Math.Max(0, intensity) : 0;
+            symptoms.ApplyOnset();
+        }
+        RemoveAllEffects<DrugSymptomEffect>(x => x.SourceInfectionDrugId != 0 && !infections.Any(i => i.DefinitionDrugId == x.SourceInfectionDrugId));
 
         foreach (var (info, rawIntensity) in coagulationContributions)
         {
@@ -1397,6 +1720,14 @@ public partial class Body
             EffectHandler.RemoveAllEffects<DrugInducedMagicCapability>(fireRemovalAction: true);
         }
 
+        RefreshDrugModifierEffects();
+        CheckDrugOverdose();
+		if (Actor.State.HasFlag(CharacterState.Dead) || !IsActiveCharacterBody || !ReferenceEquals(Actor.Body, this))
+		{
+			EndDrugTick();
+			return;
+		}
+
         // Kick off the health tick if necessary
         if (effectIntensities.Any() || NeedsModel.AlcoholLitres > 0.0)
         {
@@ -1406,6 +1737,7 @@ public partial class Body
 
     private void MetaboliseActiveDrugs()
     {
+        var naturallyRemovedDrugIds = new HashSet<long>();
         double rate = LiverAlcoholRemovalKilogramsPerHour * 10000.0 / 3600.0;
         foreach (DrugDosage drug in ActiveDrugDosages.ToList())
         {
@@ -1414,10 +1746,18 @@ public partial class Body
             if (drug.Grams <= 0)
             {
                 _activeDrugDosages.Remove(drug);
+                naturallyRemovedDrugIds.Add(drug.Drug.Id);
             }
 
             DrugsChanged = true;
         }
+        var remainingDrugIds = _activeDrugDosages.Concat(_latentDrugDosages)
+            .Where(x => x.Grams > 0.0).Select(x => x.Drug.Id).ToHashSet();
+        var expiredSymptoms = EffectsOfType<DrugSymptomEffect>().Where(x =>
+            x.SourceInfectionDrugId == 0 && naturallyRemovedDrugIds.Contains(x.DrugId) && !remainingDrugIds.Contains(x.DrugId)).ToArray();
+        // Detach the whole batch before callbacks: expiry of A can administer a new dose of B.
+        foreach (var symptoms in expiredSymptoms) RemoveEffect(symptoms);
+        foreach (var symptoms in expiredSymptoms) symptoms.ApplyNaturalExpiry();
     }
 
     private void SaveDrugs(MudSharp.Models.Body body)

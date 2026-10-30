@@ -126,6 +126,8 @@ namespace MudSharp.Body
         void DoseImmediate(IDrug drug, DrugVector vector, double grams, object originator);
         void RemoveDrugDosages(Predicate<DrugDosage> predicate);
         void CheckDrugTick();
+		/// <summary>Reconcile drug and infection symptom contributions without advancing their clocks.</summary>
+		void RefreshDrugEffects();
 		/// <summary>Reconciles nausea symptoms without processing a drug heartbeat or metabolising doses.</summary>
 		void RefreshNausea();
         void Sober();

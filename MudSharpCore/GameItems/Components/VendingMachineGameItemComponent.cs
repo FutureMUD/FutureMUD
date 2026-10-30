@@ -197,7 +197,7 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
         if (command.IsFinished)
         {
             character.Send(StringUtilities.HMark +
-                           "What item do you want to add to the vending machine? Syntax is vendingmachine add <proto> <keyword> <cost> \"<description>\" \"<load args>\" <onloadprog>");
+                           "What item do you want to add to the vending machine? Syntax is vendingmachine add <proto> <keyword> <cost> \"<description>\" \"<load args>\" <onloadprog> or args <raw load args>");
             return;
         }
 
@@ -265,7 +265,13 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
         string extraText = "";
         if (!command.IsFinished)
         {
-            extraText = command.PopSpeech();
+            if (command.PeekSpeech().EqualTo("args"))
+            {
+                command.PopSpeech();
+                extraText = command.RemainingArgument;
+                command = new StringStack("");
+            }
+            else extraText = command.PopSpeech();
             if (!command.IsFinished)
             {
                 var onloadText = command.PopSpeech();
@@ -279,6 +285,16 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
                 }
             }
         }
+
+		try
+		{
+			_ = WearableSizing.NormaliseLoadArguments(extraText, character, Gameworld, proto);
+		}
+		catch (ArgumentException error)
+		{
+			character.Send(StringUtilities.HMark + $"Those item load arguments are invalid: {error.Message}");
+			return;
+		}
 
         _selections.Add(new VendingMachineSelection
         {
@@ -905,7 +921,16 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
             return false;
         }
 
-        IGameItem newItem = selection.Prototype.CreateNew(character, null, 1, selection.LoadArguments).First();
+        IGameItem newItem;
+        try
+        {
+            newItem = selection.Prototype.CreateNew(character, null, 1, selection.LoadArguments).First();
+        }
+        catch (ArgumentException error)
+        {
+            character.Send($"This vending selection is unavailable because its load arguments are invalid: {error.Message}");
+            return false;
+        }
         newItem.Login();
         newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
         _contents.Add(newItem);

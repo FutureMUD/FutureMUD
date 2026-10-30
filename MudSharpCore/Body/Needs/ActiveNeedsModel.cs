@@ -51,7 +51,10 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
         var rates = EnvironmentalNeedsRates.Calculate(Owner.Race.HungerRate, Owner.Race.ThirstRate,
             Owner.Body.WaterLossLitresPerHour,
             applicableMerits.OfType<IEnvironmentalNeedsMerit>().Select(x => x.GetNeedsAdjustment(Owner)));
-        List<INeedRateEffect> effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToPassive).ToList();
+        List<INeedRateEffect> effects = Owner.CombinedEffectsOfType<INeedRateEffect>()
+			.Where(x => x.Applies(Owner))
+			.Where(x => x.AppliesToPassive)
+			.ToList();
         double hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
         double thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
         double drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);

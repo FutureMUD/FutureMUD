@@ -1369,6 +1369,14 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     return;
                 }
 
+                var currentProfile = actor.Location.ForagableProfile;
+                if (currentProfile == null || !currentProfile.MaximumYieldPoints.ContainsKey(type) ||
+                    specificForagable != null && !currentProfile.Foragables.Contains(specificForagable))
+                {
+                    actor.Send("You can no longer forage for that result here.");
+                    return;
+                }
+
                 ICheck forageCheck = actor.Gameworld.GetCheck(specificForagable == null ? CheckType.ForageCheck : CheckType.ForageSpecificCheck);
                 Dictionary<Difficulty, CheckOutcome> forageOutcome =
                     forageCheck.CheckAgainstAllDifficulties(actor, Difficulty.Normal, null,
@@ -1384,7 +1392,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                 }
                 else
                 {
-                    foragable = profile.GetForageResult(actor, forageOutcome, type);
+                    foragable = currentProfile.GetForageResult(actor, forageOutcome, type);
                 }
 
                 if (foragable == null)
@@ -1397,7 +1405,8 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     return;
                 }
 
-                if (!actor.Location.CanConsumeYield(type, 1.0))
+                var yieldConsumption = foragable.YieldConsumptionPercentage / 100.0;
+                if (yieldConsumption > 0.0 && !actor.Location.CanConsumeYield(type, yieldConsumption))
                 {
                     actor.OutputHandler.Handle(
                         new EmoteOutput(
@@ -1431,7 +1440,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         return;
                     }
 
-                    if (!actor.Location.TryConsumeYield(type, 1.0))
+                    if (yieldConsumption > 0.0 && !actor.Location.TryConsumeYield(type, yieldConsumption))
                     {
                         actor.OutputHandler.Handle(
                             new EmoteOutput(
@@ -1474,7 +1483,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         return;
                     }
 
-                    if (!actor.Location.TryConsumeYield(type, 1.0))
+                    if (yieldConsumption > 0.0 && !actor.Location.TryConsumeYield(type, yieldConsumption))
                     {
                         actor.OutputHandler.Handle(
                             new EmoteOutput(

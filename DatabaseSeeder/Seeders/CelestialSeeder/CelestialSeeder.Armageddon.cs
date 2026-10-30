@@ -96,7 +96,7 @@ public partial class CelestialSeeder
 			LightMode = sun ? AuthoredLightMode.Absolute : AuthoredLightMode.PhaseScaled,
 			// Starter light tuning, not measurements recovered from Armageddon.
 			LightProfile = sun ? [new(-90, 0), new(-12, 0), new(0, 400), new(30, 70000), new(60, 98000)]
-				: [new(-90, 0), new(0, 0), new(30, jihae ? 0.15 : 0.3), new(60, jihae ? 0.3 : 0.6)],
+				: [new(-90, 0), new(0, 0), new(30, jihae ? 7.5 : 15), new(60, jihae ? 15 : 30)],
 			Milestones = [new("custom:conjunction", 77L * ArmageddonDayMinutes, 0)]
 		};
 

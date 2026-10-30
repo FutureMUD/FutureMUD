@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using MudSharp.Character;
+using MudSharp.Health;
 
 #nullable enable
 namespace MudSharp.Magic;
@@ -20,12 +23,31 @@ public static class MagicResourceCapacity
 		error = null;
 		try
 		{
-			if (MagicResourceCapacityAdmission.TryTakeCapacity(resource, holder, out cap)) return true;
-			if (resource is IMagicResourceCapacity configured)
+			var hasAdmissionCapacity = MagicResourceCapacityAdmission.TryTakeCapacity(resource, holder, out cap);
+			if (!hasAdmissionCapacity && resource is IMagicResourceCapacity configured)
 			{
 				if (!configured.TryGetResourceCap(holder, out cap, out error)) return false;
 			}
-			else cap = resource.ResourceCap(holder);
+			else if (!hasAdmissionCapacity) cap = resource.ResourceCap(holder);
+			if (!double.IsFinite(cap) || cap < 0.0)
+			{
+				error = "Capacity must be finite and non-negative.";
+				return false;
+			}
+			if (!hasAdmissionCapacity && holder is ICharacter actor && actor.Body is not null)
+			{
+				var modifiers = actor.Body.EffectsOfType<IMagicResourceCapacityBonusEffect>()
+					.Where(x => x.MagicResourceId == resource.Id).ToArray();
+				if (modifiers.Any(x => !double.IsFinite(x.MagicResourceCapacityBonus) ||
+				                      !double.IsFinite(x.MagicResourceCapacityMultiplier) || x.MagicResourceCapacityMultiplier < 0.0))
+				{
+					error = "Capacity modifiers must be finite and multipliers non-negative.";
+					return false;
+				}
+				cap = (cap + modifiers.Sum(x => x.MagicResourceCapacityBonus)) * modifiers.Aggregate(1.0,
+					(current, x) => current * x.MagicResourceCapacityMultiplier);
+				if (double.IsFinite(cap)) cap = Math.Max(0.0, cap);
+			}
 			if (double.IsFinite(cap) && cap >= 0) return true;
 			error = "Capacity must be finite and non-negative.";
 			return false;

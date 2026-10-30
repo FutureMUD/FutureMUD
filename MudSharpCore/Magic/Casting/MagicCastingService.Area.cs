@@ -136,6 +136,15 @@ public sealed partial class MagicCastingService
 		return result.AsReadOnly();
 	}
 
+	internal IReadOnlyList<ConfiguredAreaApplication> PrepareReservoirArea(ICharacter actor, MagicSpell spell, int grade)
+	{
+		var intent = new MagicCastingIntent(actor, 0, spell.Id, grade, false, "here", MagicCastingMode.Area);
+		var plan = PrepareArea(intent, spell);
+		var selected = SelectAreaApplications(plan);
+		return Array.AsReadOnly(selected.Select(x => new ConfiguredAreaApplication(x.Target,
+			x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, plan, spell))).ToArray());
+	}
+
 	private double? SampleAreaSharedDamage(AreaPlan plan, int grade)
 	{
 		if (plan.Policy.ChainLightning is null) return null;

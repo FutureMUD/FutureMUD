@@ -1,4 +1,6 @@
 using MudSharp.Body;
+using MudSharp.Body.Needs;
+using MudSharp.Character.Heritage;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Roles;
@@ -6,6 +8,7 @@ using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
+using MudSharp.NPC;
 
 namespace MudSharp.Character;
 
@@ -18,6 +21,20 @@ public partial class Character
         IProgVariable returnVar;
         switch (property.ToLowerInvariant())
         {
+            case "foodsatiatedhours":
+                return NeedsNumber(NeedsModel.FoodSatiatedHours);
+            case "drinksatiatedhours":
+                return NeedsNumber(NeedsModel.DrinkSatiatedHours);
+            case "waterlitres":
+                return NeedsNumber(NeedsModel.WaterLitres);
+            case "hungerstatus":
+                return new TextVariable((NeedsModel.Status & NeedsResult.HungerOnly).Describe());
+            case "thirststatus":
+                return new TextVariable((NeedsModel.Status & NeedsResult.ThirstOnly).Describe());
+            case "maximumfoodsatiatedhours":
+                return NeedsNumber(Race?.MaximumFoodSatiatedHours ?? RacialSatiationDefaults.MaximumFoodSatiatedHours);
+            case "maximumdrinksatiatedhours":
+                return NeedsNumber(Race?.MaximumDrinkSatiatedHours ?? RacialSatiationDefaults.MaximumDrinkSatiatedHours);
             case "name":
                 returnVar = new TextVariable(PersonalName.GetName(NameStyle.GivenOnly));
                 break;
@@ -54,6 +71,11 @@ public partial class Character
             case "height":
                 returnVar = new NumberVariable(Body.Height);
                 break;
+			case "currentspeed": return new TextVariable(CurrentSpeed?.Name ?? "");
+			case "issneaking": return new BooleanVariable(EffectsOfType<ISneakEffect>().Any());
+			case "canmove": return new BooleanVariable(CharacterState.Able.HasFlag(State) && Movement is null && CanMove(MudSharp.Movement.CanMoveFlags.None).Result);
+			case "isawake": return new BooleanVariable(State.IsConscious() && !State.HasFlag(CharacterState.Sleeping));
+			case "isdead": return new BooleanVariable(State.IsDead());
             case "weight":
                 returnVar = new NumberVariable(Body.Weight);
                 break;
@@ -186,6 +208,8 @@ public partial class Character
                 break;
             case "npc":
                 return new BooleanVariable(!IsPlayerCharacter);
+            case "npctemplateid":
+                return new NumberVariable(this is MudSharp.NPC.INPC npc ? npc.Template.Id : 0L);
             case "guest":
                 return new BooleanVariable(IsGuest);
             case "pc":
@@ -219,6 +243,17 @@ public partial class Character
                 return CombatTarget;
             case "combattargetchar":
                 return CombatTarget as ICharacter;
+			case "following":
+				return Following as ICharacter;
+			case "bodyguarding":
+				return this is INPC { BodyguardingCharacterID: { } targetId }
+					? Gameworld.Actors.Get(targetId)
+					: null;
+			case "bodyguardingid":
+				return new NumberVariable((this as INPC)?.BodyguardingCharacterID ?? 0);
+			case "isguarding":
+				return new BooleanVariable(EffectsOfType<IGuardExitEffect>().Any() || EffectsOfType<IGuardItemEffect>().Any() ||
+					EffectsOfType<IGuardCharacterEffect>().Any());
             case "preferredintentions":
                 return new CollectionVariable(
                     new List<TextVariable>(CombatSettings.PreferredIntentions.GetFlags().OfType<CombatMoveIntentions>()
@@ -289,12 +324,39 @@ public partial class Character
         return returnVar;
     }
 
+    private static NumberVariable NeedsNumber(double value)
+    {
+        if (double.IsNaN(value))
+        {
+            return new NumberVariable(0);
+        }
+
+        if (value >= (double)decimal.MaxValue)
+        {
+            return new NumberVariable(decimal.MaxValue);
+        }
+
+        if (value <= (double)decimal.MinValue)
+        {
+            return new NumberVariable(decimal.MinValue);
+        }
+
+        return new NumberVariable((decimal)value);
+    }
+
     public override ProgVariableTypes Type => ProgVariableTypes.Character;
 
     private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
     {
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
+            { "foodsatiatedhours", ProgVariableTypes.Number },
+            { "drinksatiatedhours", ProgVariableTypes.Number },
+            { "waterlitres", ProgVariableTypes.Number },
+            { "hungerstatus", ProgVariableTypes.Text },
+            { "thirststatus", ProgVariableTypes.Text },
+            { "maximumfoodsatiatedhours", ProgVariableTypes.Number },
+            { "maximumdrinksatiatedhours", ProgVariableTypes.Number },
             { "id", ProgVariableTypes.Number },
             { "identityid", ProgVariableTypes.Number },
             { "instanceid", ProgVariableTypes.Number },
@@ -319,6 +381,11 @@ public partial class Character
             { "currentname", ProgVariableTypes.PersonalName },
             { "gender", ProgVariableTypes.Gender },
             { "height", ProgVariableTypes.Number },
+			{ "currentspeed", ProgVariableTypes.Text },
+			{ "issneaking", ProgVariableTypes.Boolean },
+			{ "canmove", ProgVariableTypes.Boolean },
+			{ "isawake", ProgVariableTypes.Boolean },
+			{ "isdead", ProgVariableTypes.Boolean },
             { "weight", ProgVariableTypes.Number },
             { "location", ProgVariableTypes.Location },
             { "age", ProgVariableTypes.Number },
@@ -342,6 +409,7 @@ public partial class Character
             { "ingroup", ProgVariableTypes.Boolean },
             { "groupmembers", ProgVariableTypes.Collection | ProgVariableTypes.Character },
             { "npc", ProgVariableTypes.Boolean },
+            { "npctemplateid", ProgVariableTypes.Number },
             { "pc", ProgVariableTypes.Boolean },
 			{ "nativelanguage", ProgVariableTypes.Language },
             { "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
@@ -362,6 +430,10 @@ public partial class Character
             { "incombat", ProgVariableTypes.Boolean },
             { "combattarget", ProgVariableTypes.Perceiver },
             { "combattargetchar", ProgVariableTypes.Character },
+			{ "following", ProgVariableTypes.Character },
+			{ "bodyguarding", ProgVariableTypes.Character },
+			{ "bodyguardingid", ProgVariableTypes.Number },
+			{ "isguarding", ProgVariableTypes.Boolean },
             { "preferredintentions", ProgVariableTypes.Text | ProgVariableTypes.Collection },
             { "requiredintentions", ProgVariableTypes.Text | ProgVariableTypes.Collection },
             { "forbiddenintentions", ProgVariableTypes.Text | ProgVariableTypes.Collection },
@@ -389,6 +461,13 @@ public partial class Character
     {
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
+            { "foodsatiatedhours", "Current native food satiation reserve, in hours." },
+            { "drinksatiatedhours", "Current native drink satiation reserve, in hours." },
+            { "waterlitres", "Current native body water reserve, in litres." },
+            { "hungerstatus", "Current hunger category (Starving, Hungry, Peckish, Full, or Absolutely Stuffed)." },
+            { "thirststatus", "Current thirst category (Parched, Thirsty, Not Thirsty, or Sated)." },
+            { "maximumfoodsatiatedhours", "The character race's maximum food satiation capacity, in hours." },
+            { "maximumdrinksatiatedhours", "The character race's maximum drink satiation capacity, in hours." },
             { "id", "The legacy id of the character identity. Use identityid, instanceid, bodyid, or physicalinstancekey when the distinction matters." },
             { "identityid", "The durable character identity id, shared by all simultaneous bodies for the same character." },
             { "instanceid", "The active CharacterInstances row id for this physical actor, or 0 if no instance row is available." },
@@ -412,6 +491,11 @@ public partial class Character
             { "currentname", "Their current personal name or alias, including its name culture and individual elements" },
             { "gender", "Their real gender" },
             { "height", "Their height in base units (cm)" },
+			{ "currentspeed", "The selected native gait name, or empty if unavailable" },
+			{ "issneaking", "Whether a native sneak effect is active" },
+			{ "canmove", "Able state, no active movement and general native movement admission; does not start movement or check an exit" },
+			{ "isawake", "Conscious and not sleeping; a pure current-state query" },
+			{ "isdead", "Whether the native character state is dead; does not infer death from HP" },
             { "weight", "Their weight in base units (grams)" },
             { "location", "The room that they are in" },
             { "age", "Their age in years" },
@@ -434,6 +518,7 @@ public partial class Character
             { "ingroup", "True if they are currently in a group" },
             { "groupmembers", "A collection of all the member of their group" },
             { "npc", "True if they are an NPC" },
+            { "npctemplateid", "The NPC template ID, or zero for a player character." },
             { "pc", "True if they are a PC" },
 			{ "nativelanguage", "The native language" },
             { "accents", "A collection of all of the assets that they have familiarity with" },
@@ -453,6 +538,10 @@ public partial class Character
             { "incombat", "True if they are currently in combat" },
             { "combattarget", "Who or what they are currently targeting in combat (can be null)" },
             { "combattargetchar", "Who they are currently targeting in combat (can be null)" },
+			{ "following", "The character currently being followed, or null" },
+			{ "bodyguarding", "The loaded character this NPC is assigned to protect, or null" },
+			{ "bodyguardingid", "The assigned bodyguard target ID, including unloaded targets; zero if unassigned" },
+			{ "isguarding", "Whether they have a native exit, item or character guarding assignment" },
             { "preferredintentions", "A collection of text representing the intentions they prefer in selecting combat moves" },
             { "requiredintentions", "A collection of text representing the intentions they require in selecting combat moves" },
             { "forbiddenintentions", "A collection of text representing the intentions they forbid in selecting combat moves" },

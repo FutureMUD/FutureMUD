@@ -20,6 +20,16 @@ namespace MudSharp.Health.Strategies;
 
 public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
 {
+	protected static double ApplyMaximumHitPointsEffects(ICharacter character, double baseCapacity)
+	{
+		var modifiers = character.Body.EffectsOfType<IMaximumHitPointsBonusEffect>()
+			.Where(x => x.MaximumHitPointsBonus != 0.0 || x.MaximumHitPointsMultiplier != 1.0)
+			.ToArray();
+		if (modifiers.Length == 0) return baseCapacity;
+		return Math.Max(1.0, (baseCapacity + modifiers.Sum(x => x.MaximumHitPointsBonus)) *
+			modifiers.Aggregate(1.0, (current, x) => current * x.MaximumHitPointsMultiplier));
+	}
+
 	public virtual bool RequiresPeriodicHealthTick => true;
 	public virtual DirectHealthCostChannels SupportedDirectHealthCostChannels => DirectHealthCostChannels.None;
 

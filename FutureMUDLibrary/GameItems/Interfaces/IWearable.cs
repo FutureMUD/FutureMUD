@@ -1,3 +1,4 @@
+using System;
 ﻿using MudSharp.Body;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
@@ -7,6 +8,13 @@ namespace MudSharp.GameItems.Interfaces
 {
     public interface IWearable : IGameItemComponent
     {
+        WearableFit Fit => WearableFit.Unfitted;
+        bool UsesSizing => false;
+        bool Fits(IBody body) => true;
+        WearableFit FitFor(IBody body) => WearableFit.ForBody(body);
+        void SetFit(WearableFit fit) { }
+        WearableFit CaptureFitOnWear(IBody body) => Fit;
+        IDisposable BypassSizingFor(IBody body) => null;
         /// <summary>
         ///     On an instance of a wearable item, this is set to however the item is currently being worn
         /// </summary>

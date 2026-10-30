@@ -10,6 +10,10 @@ Native melee target damage retains both the attacker and exact weapon item as it
 
 Natural, worn and spell armour preserve the incoming tool origin on absorbed and passed-through packets. Armour calculations continue to apply their configured dissipation, absorption and type transformations; they do not replace the identity of the causing weapon with the armour item.
 
+Saved `CombatTempoStatus` effects multiply a character's native recovery delay after the recovery expression and global speed multiplier. FutureProg creates them with `addcombattempoeffect(character, multiplier)`, accepting finite multipliers from 0.1 through 10. An identical multiplier is not added twice; distinct applicable multipliers multiply. They do not alter movement, attributes or damage. Armageddon's starting Slow flag adds a multiplier of 2 alongside its separate movement-delay effect; Godspeed retains its movement-only adaptation.
+
+`CombatFrenzyEffect` is a saved, timed, body-scoped effect for reusable rage-like states. FutureProg creates, queries and removes it with `addcombatfrenzyeffect(character, seconds, offenceBonus, defenceBonus, meleeDamageBonus, hungerMultiplier)`, `hascombatfrenzyeffect(character)` and `removecombatfrenzyeffect(character)`. Its configurable check bonuses distinguish offensive and defensive checks; fixed damage bonuses apply to physical armed and natural melee, and its need modifier applies to hunger only. While active, it implements the native rage restrictions (no flee/truce), blocks sitting, lying down and sleeping, enables no-mercy behavior, and prevents stun unconsciousness without preventing pain pass-out or death. The effect expires when its duration ends or the owning character reaches zero stamina, and does not apply after switching away from its source body.
+
 ## Scope
 
 This document describes the current runtime behaviour of the built-in `ICombatStrategy` implementations. It is intended as a practical reference for maintainers and AI agents auditing combat behaviour, especially around cases where a strategy may otherwise choose no move.

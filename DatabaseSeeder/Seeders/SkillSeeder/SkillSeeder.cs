@@ -182,6 +182,10 @@ Again, the choices you make here can be fixed later so don't stress it too great
         {
             switch (check)
             {
+				case CheckType.PoisonResistanceCheck:
+					PoisonResistanceSeederHelper.Ensure(context);
+					context.SaveChanges();
+					continue;
 				// CombatSeeder binds this check after its combat skills exist.
 				case CheckType.BlindFightingCheck:
 					continue;

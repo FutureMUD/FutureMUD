@@ -68,7 +68,7 @@ public static class WeaponPoisonDeliveryHelper
 		}
 
 		var effect = item.EffectsOfType<IWeaponPoisonCoatingEffect>()
-		                 .FirstOrDefault(x => x.ContaminatingLiquid.CanMerge(mixture));
+		                 .FirstOrDefault(x => x.DeliveryProg is null && !x.SingleUseOnWound && x.ContaminatingLiquid.CanMerge(mixture));
 		if (effect is null)
 		{
 			effect = new WeaponPoisonCoating(item, LiquidMixture.CreateEmpty(item.Gameworld));
@@ -90,9 +90,13 @@ public static class WeaponPoisonDeliveryHelper
 
 		foreach (var coating in source.EffectsOfType<IWeaponPoisonCoatingEffect>().ToList())
 		{
-			var copied = new WeaponPoisonCoating(target, coating.ContaminatingLiquid.Clone());
+			var copied = new WeaponPoisonCoating(target, coating.ContaminatingLiquid.Clone(), null, coating.DeliveryProg, coating.SingleUseOnWound);
 			var duration = source.ScheduledDuration(coating);
-			target.AddEffect(copied, duration > TimeSpan.Zero ? duration : WeaponPoisonCoating.EffectDuration(copied.ContaminatingLiquid));
+			if (duration > TimeSpan.Zero) target.AddEffect(copied, duration);
+			else if (coating.DeliveryProg is not null) target.AddEffect(copied);
+			else target.AddEffect(copied, WeaponPoisonCoating.EffectDuration(copied.ContaminatingLiquid));
+			// Ammunition may create several projectiles. One scripted charge transfers only once.
+			if (coating.DeliveryProg is not null && coating.SingleUseOnWound) source.RemoveEffect(coating, true);
 		}
 	}
 
@@ -118,6 +122,19 @@ public static class WeaponPoisonDeliveryHelper
 
 		foreach (var coating in coatings)
 		{
+			if (coating.DeliveryProg is { } delivery)
+			{
+				if (!coatedItem.EffectsOfType<IWeaponPoisonCoatingEffect>().Contains(coating)) continue;
+				var wound = causedWounds.FirstOrDefault(x => x.CurrentDamage > 0.0 && BodyForWound(x) is not null &&
+					CalculateDeliveryChance(coatedItem.Gameworld, x, DrugVector.Injected) > 0.0);
+				if (wound is null) continue;
+				var body = BodyForWound(wound);
+				if (body.Actor is null || !ReferenceEquals(body.Actor.Body, body) || !body.Wounds.Contains(wound)) continue;
+				// Spend the coating before callbacks, including resisted exposures. Misses and fully absorbed hits keep it.
+				if (coating.SingleUseOnWound) coatedItem.RemoveEffect(coating, true);
+				delivery.Execute(attacker, body.Actor, coatedItem);
+				continue;
+			}
 			if (coating.ContaminatingLiquid is null || coating.ContaminatingLiquid.IsEmpty)
 			{
 				continue;
@@ -125,6 +142,16 @@ public static class WeaponPoisonDeliveryHelper
 
 			DeliverOneCoating(attacker, coatedItem, coating, causedWounds);
 		}
+	}
+
+	/// <summary>Attaches a persistent, non-evaporating single-use delivery policy using the normal combat coating paths.</summary>
+	public static bool AddScriptedPoisonCoating(IGameItem item, MudSharp.FutureProg.IFutureProg deliveryProg)
+	{
+		if (!IsValidPoisonableItem(item) || item.Quantity != 1 || item.EffectsOfType<IWeaponPoisonCoatingEffect>().Any() ||
+			deliveryProg is null || !deliveryProg.MatchesParameters([MudSharp.FutureProg.ProgVariableTypes.Character,
+				MudSharp.FutureProg.ProgVariableTypes.Character, MudSharp.FutureProg.ProgVariableTypes.Item])) return false;
+		item.AddEffect(new WeaponPoisonCoating(item, LiquidMixture.CreateEmpty(item.Gameworld), null, deliveryProg, true));
+		return true;
 	}
 
 	public static double CalculateDeliveryChance(IFuturemud gameworld, IWound wound, DrugVector vector)

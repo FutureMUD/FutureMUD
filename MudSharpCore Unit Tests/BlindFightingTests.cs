@@ -490,9 +490,14 @@ public class BlindFightingTests
 		f.Actor.Setup(x => x.GetCurrentBonusLevel()).Returns(10);
 		var effect = new Mock<ICheckBonusEffect>();
 		effect.SetupGet(x => x.CheckBonus).Returns(10);
+		effect.Setup(x => x.Applies(f.Actor.Object)).Returns(true);
 		effect.Setup(x => x.AppliesToCheck(It.IsAny<CheckType>()))
 			.Returns((CheckType type) => type == CheckType.BlindFightingCheck || shared && type == CheckType.MeleeWeaponCheck);
-		f.Actor.Setup(x => x.EffectsOfType<ICheckBonusEffect>(It.IsAny<Predicate<ICheckBonusEffect>>())).Returns([effect.Object]);
+		var inactive = new Mock<ICheckBonusEffect>();
+		inactive.Setup(x => x.Applies(f.Actor.Object)).Returns(false);
+		inactive.SetupGet(x => x.CheckBonus).Returns(100);
+		inactive.Setup(x => x.AppliesToCheck(CheckType.BlindFightingCheck)).Returns(true);
+		f.Actor.Setup(x => x.EffectsOfType<ICheckBonusEffect>(It.IsAny<Predicate<ICheckBonusEffect>>())).Returns([inactive.Object, effect.Object]);
 		var merit = new Mock<ICheckBonusMerit>();
 		merit.Setup(x => x.Applies(f.Actor.Object, f.Opponent.Object)).Returns(true);
 		merit.Setup(x => x.CheckBonus(f.Actor.Object, f.Opponent.Object, It.IsAny<CheckType>()))

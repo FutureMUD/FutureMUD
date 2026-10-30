@@ -32,7 +32,7 @@ public static class ConfiguredItemConsequence
 		plan = null;
 		stamina = 0;
 		if (!consequence.IsValid || target.Body is null || target.HealthStrategy is null || target.State.IsDead()) return false;
-		var remaining = target.HealthStrategy.MaxHP(target) - target.Wounds.Sum(x => x.CurrentDamage);
+		var remaining = target.HealthStrategy.CurrentHitPoints(target);
 		if (!double.IsFinite(remaining)) return false;
 		var health = consequence.HealthLoss(remaining, target.HealthStrategy.MaxHP(target));
 		var stun = consequence.Stun + consequence.StunFraction * target.HealthStrategy.MaxStun(target);

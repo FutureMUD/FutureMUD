@@ -296,6 +296,25 @@ public class MovementTests
             "Dragged characters should not be echoed as voluntary walkers.");
     }
 
+	[TestMethod]
+	public void MisdirectedMovement_OnlyInitiatorSeesIntendedDeparture()
+	{
+		var (movement, mover, exit, _, _) = CreateMovementWithMover();
+		var intended = new Mock<IRoomExit>();
+		intended.SetupGet(x => x.OutboundMovementSuffix).Returns("towards the east");
+		exit.SetupGet(x => x.OutboundMovementSuffix).Returns("towards the south");
+		var observer = new Mock<IPerceiver>();
+		mover.Setup(x => x.CanSee(mover.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		observer.Setup(x => x.CanSee(mover.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		movement.SetPerceivedExit(mover.Object, intended.Object);
+		Assert.AreSame(exit.Object, movement.Exit);
+		Assert.AreSame(intended.Object, movement.ExitFor(mover.Object));
+		Assert.AreSame(exit.Object, movement.ExitFor(observer.Object));
+		StringAssert.Contains(movement.DescribeBeginMove(mover.Object), "towards the east");
+		StringAssert.Contains(movement.DescribeBeginMove(observer.Object), "towards the south");
+		StringAssert.Contains(movement.Describe(mover.Object), "towards the east");
+	}
+
     [TestMethod]
     public void FinalStep_ZeroGravityMoverStartsDrift()
     {

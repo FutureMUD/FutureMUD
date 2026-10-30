@@ -11,7 +11,7 @@ namespace MudSharp.Health;
 
 
 
-public class Drug : SaveableItem, IDrug
+public partial class Drug : SaveableItem, IDrug
 {
     private void DoDatabaseInsert()
     {
@@ -22,6 +22,8 @@ public class Drug : SaveableItem, IDrug
                 Name = Name,
                 IntensityPerGram = IntensityPerGram,
                 RelativeMetabolisationRate = RelativeMetabolisationRate,
+                DoseBehaviour = (int)DoseBehaviour,
+                FixedDoseGrams = FixedDoseGrams,
                 DrugVectors = (int)DrugVectors
             };
             foreach (KeyValuePair<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> item in DrugTypeMulipliers)
@@ -47,6 +49,8 @@ public class Drug : SaveableItem, IDrug
         DrugVectors = rhs.DrugVectors;
         IntensityPerGram = rhs.IntensityPerGram;
         RelativeMetabolisationRate = rhs.RelativeMetabolisationRate;
+        DoseBehaviour = rhs.DoseBehaviour;
+        FixedDoseGrams = rhs.FixedDoseGrams;
         foreach (KeyValuePair<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> item in rhs.DrugTypeMulipliers)
         {
             DrugTypeMulipliers[item.Key] = (
@@ -79,6 +83,8 @@ public class Drug : SaveableItem, IDrug
         DrugVectors = (DrugVector)drug.DrugVectors;
         IntensityPerGram = drug.IntensityPerGram;
         RelativeMetabolisationRate = drug.RelativeMetabolisationRate;
+        DoseBehaviour = (DrugDoseBehaviour)drug.DoseBehaviour;
+        FixedDoseGrams = drug.FixedDoseGrams;
         foreach (Models.DrugIntensity item in drug.DrugsIntensities)
         {
             DrugTypeMulipliers[(DrugType)item.DrugType] = (item.RelativeIntensity, AdditionalInfoFor((DrugType)item.DrugType, item.AdditionalEffects));
@@ -106,6 +112,8 @@ public class Drug : SaveableItem, IDrug
         dbitem.DrugVectors = (int)DrugVectors;
         dbitem.IntensityPerGram = IntensityPerGram;
         dbitem.RelativeMetabolisationRate = RelativeMetabolisationRate;
+        dbitem.DoseBehaviour = (int)DoseBehaviour;
+        dbitem.FixedDoseGrams = FixedDoseGrams;
         FMDB.Context.DrugsIntensities.RemoveRange(dbitem.DrugsIntensities);
         foreach (KeyValuePair<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> item in DrugTypeMulipliers)
         {
@@ -129,6 +137,8 @@ public class Drug : SaveableItem, IDrug
     public DrugVector DrugVectors { get; set; }
     public double IntensityPerGram { get; set; }
     public double RelativeMetabolisationRate { get; set; }
+    public DrugDoseBehaviour DoseBehaviour { get; private set; }
+    public double FixedDoseGrams { get; private set; }
     public Dictionary<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> DrugTypeMulipliers { get; } = new();
 
     public T AdditionalInfoFor<T>(DrugType type) where T : DrugAdditionalInfo
@@ -232,9 +242,9 @@ public class Drug : SaveableItem, IDrug
                 }
             case DrugType.Dependence:
                 {
-                    var split = (extra ?? string.Empty).Split('|', 2);
+                    var split = (extra ?? string.Empty).Split('|');
                     var parts = SplitStoredParts(split.ElementAtOrDefault(0));
-                    return new DrugDependenceAdditionalInfo
+                    var result = new DrugDependenceAdditionalInfo
                     {
                         ExposureGainPerGram = ParseStoredDouble(parts, 0, 1.0),
                         ExposureDecayPerDay = ParseStoredDouble(parts, 1, 0.1),
@@ -253,6 +263,29 @@ public class Drug : SaveableItem, IDrug
                         AffectedDrugTypes = ParseStoredIntList(split.ElementAtOrDefault(1) ?? string.Empty)
                                             .Cast<DrugType>()
                                             .ToList()
+                    };
+                    var dependenceModifiers = SplitStoredParts(split.ElementAtOrDefault(2) ?? string.Empty);
+                    result.RelapseExposureMultiplier = ParseStoredDouble(dependenceModifiers, 0, 1.0);
+                    result.WithdrawalMaximumHitPointsMultiplier = ParseStoredDouble(dependenceModifiers, 1, 1.0);
+                    result.WithdrawalMagicResourceCapacityMultiplier = ParseStoredDouble(dependenceModifiers, 2, 1.0);
+                    result.ModifierSteps = ParseModifierSteps(split.ElementAtOrDefault(3));
+                    return result;
+                }
+            case DrugType.Modifier:
+                return new DrugModifierAdditionalInfo { Steps = ParseModifierSteps(extra) };
+            case DrugType.Infection:
+                return DrugInfectionAdditionalInfo.Parse(extra);
+            case DrugType.Symptoms:
+                return DrugSymptomsAdditionalInfo.Parse(extra);
+            case DrugType.Overdose:
+                {
+                    var split = (extra ?? string.Empty).Split('|');
+                    var parts = SplitStoredParts(split.ElementAtOrDefault(0));
+                    return new OverdoseAdditionalInfo
+                    {
+                        TraitId = ParseStoredLong(parts.ElementAtOrDefault(0)),
+                        GramsPerTraitPoint = ParseStoredDouble(parts, 1, 0.0),
+                        Group = split.ElementAtOrDefault(1) ?? string.Empty
                     };
                 }
             case DrugType.NeutraliseSpecificDrug:
@@ -327,13 +360,42 @@ public class Drug : SaveableItem, IDrug
         return results;
     }
 
+    private static long ParseStoredLong(string value) => long.TryParse(value, NumberStyles.Integer,
+        CultureInfo.InvariantCulture, out var result) ? result : 0L;
+
+    private static List<DrugModifierStep> ParseModifierSteps(string extra)
+    {
+        var results = new List<DrugModifierStep>();
+        foreach (var entry in (extra ?? string.Empty).Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = SplitStoredParts(entry);
+            if (parts.Length < 6 || !double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var threshold) ||
+                !double.IsFinite(threshold) || threshold < 0.0) continue;
+            var step = new DrugModifierStep(threshold, ParseStoredLong(parts[1]), ParseStoredDouble(parts, 2, 0.0),
+                ParseStoredDouble(parts, 3, 0.0), ParseStoredLong(parts[4]), ParseStoredDouble(parts, 5, 0.0),
+                ParseStoredDouble(parts, 6, 0.0), ParseStoredDouble(parts, 7, 0.0));
+            if (step.TraitId < 0 || step.MagicResourceId < 0 || !double.IsFinite(step.TraitBonus) ||
+                !double.IsFinite(step.MaximumHitPointsBonus) || !double.IsFinite(step.MagicResourceCapacityBonus) ||
+                !double.IsFinite(step.OffensiveCheckBonus) || !double.IsFinite(step.DefensiveCheckBonus)) continue;
+            results.Add(step);
+        }
+        return results;
+    }
+
     public const string HelpText = @"You can use the following options with this command:
 
 	#3name <name>#0 - renames this drug
 	#3intensity <%>#0 - sets the intensity of this drug per gram
 	#3metabolism <%>#0 - sets the relative metabolism of this drug relative to others of its type
+	#3fixeddose <grams>#0 - sets the configured mass for fixed-dose administration
+	#3dosebehaviour <flags>#0 - sets Normal, FixedDose, IgnoreAdditionalExposure or comma-separated flags
 	#3inhaled|ingested|injected|touch#0 - toggles the specific vector
 	#3type intensity <which> <%>#0 - adds a drug intensity of a particular effect
+	#3type modifier <threshold> <trait|none> <trait bonus> <max HP bonus> <resource|none> <capacity bonus> [offence bonus defence bonus]#0 - configures stepped temporary modifiers
+	#3type overdose <trait> <grams per trait point> [group]#0 - configures an optional lethal active-dose threshold; matching groups combine active grams
+	#3type infection <name|symptoms|recovery|duration|severity|symptomscale|difficulty|virulence|exposure|interval|spread|episode|symptomspread|cure> <value>#0 - configures an illness; symptom profiles must be separate non-infecting drugs
+	#3type symptoms outcomeadd <stage> <weight> <action>#0 - adds a weighted symptom action; use outcomeecho, outcomeemote, outcomeseconds, outcomeweight, outcomerelease, outcomeresidue or outcomeremove with <stage> <outcome> to edit it
+	#3type symptoms <trait|interval|perdose|onset|expiry|onsetclear|expiryclear|initial|addstage|chance|damage|pain|stun|stamina|transition|next|weight|awake|sleepfatal|damagetype|echo> ...#0 - configures staged symptoms and permanent trait consequences
 
 The following options require a matching intensity for the type before using them:
 
@@ -347,7 +409,7 @@ The following options require a matching intensity for the type before using the
 	#3type respiration <drive%> <hypoxia%> <airway%>#0 - sets respiratory support/depression
 	#3type needrate <hunger%> <thirst%> <drunkenness%> <passive|active|both>#0 - sets need rate multipliers
 	#3type arousal <mode|check|sleep|knockout|thresholds|stamina> ...#0 - configures sleep/wake effects
-	#3type dependence <exposure|tolerance|withdrawal|affected|symptoms> ...#0 - configures tolerance and withdrawal";
+	#3type dependence <exposure|tolerance|withdrawal|affected|symptoms|relapse|capacity|modifier> ...#0 - configures tolerance, withdrawal and reversible penalties";
 
     /// <inheritdoc />
     public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -360,6 +422,11 @@ The following options require a matching intensity for the type before using the
                 return BuildingCommandIntensity(actor, command);
             case "metabolism":
                 return BuildingCommandMetabolism(actor, command);
+            case "fixeddose":
+                return BuildingCommandFixedDose(actor, command);
+            case "dosebehaviour":
+            case "dosebehavior":
+                return BuildingCommandDoseBehaviour(actor, command);
             case "inhaled":
                 return BuildingCommandInhaled(actor);
             case "injected":
@@ -421,6 +488,15 @@ The following options require a matching intensity for the type before using the
             case "dependency":
             case "withdrawal":
                 return BuildingCommandDependence(actor, command);
+            case "modifier":
+            case "modifiers":
+                return BuildingCommandModifier(actor, command);
+            case "overdose":
+                return BuildingCommandOverdose(actor, command);
+            case "infection":
+                return BuildingCommandInfection(actor, command);
+            case "symptoms":
+                return BuildingCommandSymptoms(actor, command);
             default:
                 return false;
         }
@@ -756,7 +832,7 @@ The following options require a matching intensity for the type before using the
 
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Do you want to edit dependence exposure, tolerance, withdrawal, affected or symptoms?");
+            actor.OutputHandler.Send("Do you want to edit dependence exposure, tolerance, withdrawal, affected, symptoms, relapse, capacity or modifier?");
             return false;
         }
 
@@ -862,10 +938,124 @@ The following options require a matching intensity for the type before using the
                 Changed = true;
                 actor.OutputHandler.Send("This drug's withdrawal symptom profile has been updated.");
                 return true;
+            case "relapse":
+                if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var relapse) || !double.IsFinite(relapse) || relapse < 0.0)
+                {
+                    actor.OutputHandler.Send("Specify the relapse exposure multiplier as a percentage.");
+                    return false;
+                }
+                extra.RelapseExposureMultiplier = relapse;
+                Changed = true;
+                actor.OutputHandler.Send($"Relapse exposure gain is now {relapse.ToStringP2Colour(actor)} when current exposure is below its historical peak.");
+                return true;
+            case "capacity":
+                if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var hpMultiplier) ||
+                    !double.IsFinite(hpMultiplier) || hpMultiplier < 0.0 ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var resourceMultiplier) || !double.IsFinite(resourceMultiplier) || resourceMultiplier < 0.0)
+                {
+                    actor.OutputHandler.Send("Specify withdrawal maximum-health and magic-resource capacity multipliers as percentages.");
+                    return false;
+                }
+                extra.WithdrawalMaximumHitPointsMultiplier = hpMultiplier;
+                extra.WithdrawalMagicResourceCapacityMultiplier = resourceMultiplier;
+                Changed = true;
+                actor.OutputHandler.Send("Withdrawal health and magic-resource capacity multipliers updated.");
+                return true;
+            case "modifier":
+                return BuildingCommandModifierStep(actor, command, extra.ModifierSteps);
         }
 
-        actor.OutputHandler.Send("Do you want to edit dependence exposure, tolerance, withdrawal, affected or symptoms?");
+        actor.OutputHandler.Send("Do you want to edit dependence exposure, tolerance, withdrawal, affected, symptoms, relapse, capacity or modifier?");
         return false;
+    }
+
+    private bool BuildingCommandModifier(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.Modifier))
+        {
+            actor.OutputHandler.Send("Set a Modifier intensity before configuring its steps.");
+            return false;
+        }
+        return BuildingCommandModifierStep(actor, command, AdditionalInfoFor<DrugModifierAdditionalInfo>(DrugType.Modifier).Steps);
+    }
+
+    private bool BuildingCommandModifierStep(ICharacter actor, StringStack command, List<DrugModifierStep> steps)
+    {
+        if (CountRemainingArguments(command) < 6 ||
+            !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var threshold) ||
+            !double.IsFinite(threshold) || threshold < 0.0)
+        {
+            actor.OutputHandler.Send("Use <threshold> <trait|none> <trait bonus> <max HP bonus> <resource|none> <resource capacity bonus>.");
+            return false;
+        }
+        var traitName = command.PopSpeech();
+        var trait = traitName.EqualTo("none") ? null : actor.Gameworld.Traits.GetByIdOrName(traitName);
+        if (!traitName.EqualTo("none") && trait is null ||
+            !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var traitBonus) ||
+            !double.IsFinite(traitBonus) ||
+            !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var hpBonus) || !double.IsFinite(hpBonus))
+        {
+            actor.OutputHandler.Send("Specify a valid trait or none, then numeric trait and maximum HP bonuses.");
+            return false;
+        }
+        var resourceName = command.PopSpeech();
+        var resource = resourceName.EqualTo("none") ? null : actor.Gameworld.MagicResources.GetByIdOrName(resourceName);
+        if (!resourceName.EqualTo("none") && resource is null ||
+            !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var capacityBonus) || !double.IsFinite(capacityBonus))
+        {
+            actor.OutputHandler.Send("Specify a valid magic resource or none, then its numeric capacity bonus.");
+            return false;
+        }
+        var offensiveBonus = 0.0;
+        var defensiveBonus = 0.0;
+        if (!command.IsFinished && (!double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out offensiveBonus) ||
+            !double.IsFinite(offensiveBonus) || !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out defensiveBonus) ||
+            !double.IsFinite(defensiveBonus) || !command.IsFinished))
+        {
+            actor.OutputHandler.Send("Optional final values are offensive and defensive combat check bonuses.");
+            return false;
+        }
+        steps.RemoveAll(x => Math.Abs(x.Threshold - threshold) < 0.000001);
+        if (trait is not null || hpBonus != 0.0 || resource is not null && capacityBonus != 0.0 || offensiveBonus != 0.0 || defensiveBonus != 0.0)
+            steps.Add(new DrugModifierStep(threshold, trait?.Id ?? 0, traitBonus, hpBonus, resource?.Id ?? 0, capacityBonus, offensiveBonus, defensiveBonus));
+        Changed = true;
+        actor.OutputHandler.Send($"Modifier threshold {threshold.ToString("N2", actor).ColourValue()} was updated.");
+        return true;
+    }
+
+    private bool BuildingCommandOverdose(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.Overdose))
+        {
+            actor.OutputHandler.Send("Set an Overdose intensity before configuring its threshold.");
+            return false;
+        }
+        var traitName = command.PopSpeech();
+        if (traitName.EqualTo("clear"))
+        {
+            DrugTypeMulipliers[DrugType.Overdose] = (DrugTypeMulipliers[DrugType.Overdose].Multiplier, new OverdoseAdditionalInfo());
+            Changed = true;
+            actor.OutputHandler.Send("This drug no longer has an overdose threshold.");
+            return true;
+        }
+        var trait = actor.Gameworld.Traits.GetByIdOrName(traitName);
+        if (trait is null || !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var grams) ||
+            !double.IsFinite(grams) || grams <= 0.0)
+        {
+            actor.OutputHandler.Send("Use <trait> <grams per trait point> [group], or clear. Group names cannot contain '|'.");
+            return false;
+        }
+        var group = command.SafeRemainingArgument.Trim();
+        if (group.Contains('|'))
+        {
+            actor.OutputHandler.Send("Overdose group names cannot contain '|'.");
+            return false;
+        }
+        DrugTypeMulipliers[DrugType.Overdose] = (DrugTypeMulipliers[DrugType.Overdose].Multiplier,
+            new OverdoseAdditionalInfo { TraitId = trait.Id, GramsPerTraitPoint = grams, Group = group });
+        Changed = true;
+        actor.OutputHandler.Send($"Overdose threshold now uses {trait.Name.ColourName()} at {grams.ToString("N2", actor).ColourValue()} grams per trait point.");
+        return true;
     }
 
     private bool BuildingCommandDamage(ICharacter actor, StringStack command)
@@ -1218,6 +1408,18 @@ The following options require a matching intensity for the type before using the
                         SleepPreventionThreshold = 0.5
                     });
                     break;
+                case DrugType.Modifier:
+                    DrugTypeMulipliers[type] = (value, new DrugModifierAdditionalInfo());
+                    break;
+                case DrugType.Overdose:
+                    DrugTypeMulipliers[type] = (value, new OverdoseAdditionalInfo());
+                    break;
+                case DrugType.Infection:
+                    DrugTypeMulipliers[type] = (value, new DrugInfectionAdditionalInfo());
+                    break;
+                case DrugType.Symptoms:
+                    DrugTypeMulipliers[type] = (value, new DrugSymptomsAdditionalInfo());
+                    break;
                 default:
                     DrugTypeMulipliers[type] = (value, null);
                     break;
@@ -1357,6 +1559,7 @@ The following options require a matching intensity for the type before using the
         StringBuilder sb = new();
         sb.AppendLine($"Drug #{Id:N0} - {Name}");
         sb.AppendLine($"Intensity per Gram: {IntensityPerGram.ToStringP2Colour(voyeur)}");
+        sb.AppendLine($"Dose Behaviour: {DoseBehaviour.DescribeEnum().ColourName()}, fixed mass {FixedDoseGrams.ToString("N6", voyeur).ColourValue()} grams");
         sb.AppendLine($"Relative Metabolisation Rate: {RelativeMetabolisationRate.ToStringP2Colour(voyeur)}");
         sb.AppendLine($"Vectors: {DrugVectors.Describe().ColourValue()}");
         sb.AppendLine();
@@ -1410,6 +1613,14 @@ The following options require a matching intensity for the type before using the
                     var dependence = (DrugDependenceAdditionalInfo)effect.Value.ExtraInfo;
                     sb.AppendLine($" - Tolerance at {dependence.ToleranceThreshold.ToString("N2", voyeur).ColourValue()} to minimum {dependence.MinimumToleranceMultiplier.ToStringP2Colour(voyeur)}, withdrawal below {dependence.WithdrawalThreshold.ToString("N2", voyeur).ColourValue()}, affected {(dependence.AffectedDrugTypes.Any() ? dependence.AffectedDrugTypes.ListToColouredString() : "all own effects".ColourValue())}");
                     break;
+                case DrugType.Infection:
+                    sb.AppendLine();
+                    sb.AppendLine(DescribeInfection(voyeur));
+                    break;
+                case DrugType.Symptoms:
+                    sb.AppendLine();
+                    sb.AppendLine(DescribeSymptomStages(voyeur));
+                    break;
                 default:
                     sb.AppendLine();
                     break;
@@ -1423,6 +1634,10 @@ The following options require a matching intensity for the type before using the
     {
         switch (type)
         {
+            case DrugType.Infection:
+                return $"Establishes {AdditionalInfoFor<DrugInfectionAdditionalInfo>(type).Name} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Symptoms:
+                return $"Recurring symptoms ({AdditionalInfoFor<DrugSymptomsAdditionalInfo>(type).Stages.Count} stages) @ {IntensityForType(type).ToString("N4", voyeur)}";
             case DrugType.NeutraliseDrugEffect:
                 List<string> types = AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect)
                             .NeutralisedTypes
@@ -1474,6 +1689,15 @@ The following options require a matching intensity for the type before using the
                 DrugDependenceAdditionalInfo dependence = AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence);
                 return
                     $"Dependence tolerance {dependence.ToleranceThreshold.ToString("N2", voyeur)}, withdrawal {dependence.WithdrawalThreshold.ToString("N2", voyeur)} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Modifier:
+                return $"Temporary modifiers ({AdditionalInfoFor<DrugModifierAdditionalInfo>(DrugType.Modifier).Steps.Count} threshold steps) @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Overdose:
+                var overdose = AdditionalInfoFor<OverdoseAdditionalInfo>(DrugType.Overdose);
+                return overdose.TraitId <= 0 || overdose.GramsPerTraitPoint <= 0.0
+                    ? $"Overdose disabled @ {IntensityForType(type).ToString("N4", voyeur)}"
+                    : $"Lethal overdose at {overdose.GramsPerTraitPoint.ToString("N4", voyeur)} grams per trait point" +
+                      (string.IsNullOrWhiteSpace(overdose.Group) ? string.Empty : $" (shared group {overdose.Group})") +
+                      $" @ {IntensityForType(type).ToString("N4", voyeur)}";
         }
 
         return $"{type.DescribeEnum()} @ {IntensityForType(type).ToString("N4", voyeur)}";
@@ -1499,6 +1723,12 @@ The following options require a matching intensity for the type before using the
                 return new NumberVariable(Id);
             case "name":
                 return new TextVariable(Name);
+            case "dosebehaviour":
+                return new NumberVariable((int)DoseBehaviour);
+            case "fixeddosegrams":
+                return new NumberVariable(FixedDoseGrams);
+            case "fixedadministration":
+                return new BooleanVariable(DoseBehaviour.HasFlag(DrugDoseBehaviour.FixedDose));
             case "intensitypergram":
                 return new NumberVariable(IntensityPerGram);
             case "metabolisationrate":
@@ -1526,6 +1756,9 @@ The following options require a matching intensity for the type before using the
         {
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
+            { "dosebehaviour", ProgVariableTypes.Number },
+            { "fixeddosegrams", ProgVariableTypes.Number },
+            { "fixedadministration", ProgVariableTypes.Boolean },
             { "intensitypergram", ProgVariableTypes.Number },
             { "metabolisationrate", ProgVariableTypes.Number },
             { "metabolizationrate", ProgVariableTypes.Number },
@@ -1542,6 +1775,9 @@ The following options require a matching intensity for the type before using the
         {
             { "id", "The unique database id of the drug" },
             { "name", "The name of the drug" },
+            { "dosebehaviour", "The drug-wide administration behaviour flags." },
+            { "fixeddosegrams", "The configured fixed administration mass in grams." },
+            { "fixedadministration", "Whether each accepted dose is normalised to the configured fixed mass." },
             {
                 "intensitypergram",
                 "The hard-coded intensity of the drug per gram ingested. Has different effects per drug type"

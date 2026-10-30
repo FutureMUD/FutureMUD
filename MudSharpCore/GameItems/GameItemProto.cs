@@ -418,6 +418,10 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
     public IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString)
     {
+		// Resolve fitting before allocating items, including when there is no variable component.
+		var normalisedSizing = WearableSizing.NormaliseLoadArguments(loadString, loader, Gameworld, this);
+		if (WearableSizing.HasLoadArguments(normalisedSizing) && GetItemType<WearableGameItemComponentProto>() is null)
+			throw new ArgumentException("Sizing arguments require a wearable item.", nameof(loadString));
         List<IGameItem> items = new();
         StackableGameItemComponentProto stackableProto = GetItemType<StackableGameItemComponentProto>();
         if (stackableProto is null && quantity > 1)
@@ -429,7 +433,7 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
             for (int i = 0; i < quantity; i++)
             {
-                items.Add(CreateNew(loader, skin, 1, loadString).First());
+                items.Add(CreateNew(loader, skin, 1, normalisedSizing).First());
             }
 
             return items;
@@ -438,11 +442,12 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
         GameItem newItem = new(this, loader, BaseItemQuality);
         items.Add(newItem);
         newItem.Skin = skin;
+		WearableSizing.ApplyLoadArguments(newItem, normalisedSizing, loader);
         VariableGameItemComponentProto varProto = GetItemType<VariableGameItemComponentProto>();
         IVariable variable = newItem.GetItemType<IVariable>();
         if (varProto is not null)
         {
-            Dictionary<ICharacteristicDefinition, ICharacteristicValue> variables = varProto.GetValuesFromString(loadString);
+            Dictionary<ICharacteristicDefinition, ICharacteristicValue> variables = varProto.GetValuesFromString(WearableSizing.RemoveLoadArguments(loadString));
             foreach (ICharacteristicDefinition characteristic in variable.CharacteristicDefinitions)
             {
                 if (variables.TryGetValue(characteristic, out ICharacteristicValue value))

@@ -69,6 +69,8 @@ Needs are separated from wounds but still participate in health because they alt
 
 Race data controls both the rate and capacity of hunger and thirst. `HungerRate` and `ThirstRate` multiply the active heartbeat decay speed, while `MaximumFoodSatiatedHours` and `MaximumDrinkSatiatedHours` cap how many positive satiation hours a character of that race can store. The player-facing labels scale from these caps: food becomes peckish/full/absolutely stuffed at 25/50/75% of the food limit, and drink becomes not thirsty/sated at 50/75% of the drink limit. Builders edit these through the race-building `hunger`, `thirst`, `hungerlimit`, and `thirstlimit` options.
 
+Entering the `Hungry`, `Starving`, `Thirsty`, or `Parched` category fires a self event and a matching local witness event after the needs model commits the transition. Heartbeat updates that remain within the same category do not fire; witness handlers and the actor's location are snapshotted before self callbacks. FutureProg character properties expose `foodsatiatedhours`, `drinksatiatedhours`, `waterlitres`, `hungerstatus`, `thirststatus`, and race capacity hours. No-needs food/drink reserves are represented by the largest number FutureProg can store. `fulfilneeds` applies explicit finite additions through the native model; `satisfyneeds` raises selected hunger/thirst to their comfortable 50% race-capacity thresholds and drink water to half of native body water capacity.
+
 ### Needs model families
 | Needs model | Current behavior | Current stock usage |
 | --- | --- | --- |

@@ -105,7 +105,7 @@ public class PunishmentStrategyFine : PunishmentStrategyBase
     {
         return new PunishmentResult
         {
-            Fine = FineAmount + ((decimal)severity * MaximumFineAmount - FineAmount)
+            Fine = FineAmount + (decimal)severity * (MaximumFineAmount - FineAmount)
         };
     }
 

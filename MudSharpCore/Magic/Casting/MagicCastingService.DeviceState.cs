@@ -50,9 +50,13 @@ public sealed partial class MagicCastingService
 			!actor.Merits.SequenceEqual(use.Merits, ReferenceEqualityComparer.Instance) ||
 			!DeviceCapabilityEffects(actor).SequenceEqual(use.CapabilityEffects, ReferenceEqualityComparer.Instance))
 			return "The acting body's location or entitlement inputs changed.";
-		if (device.DataError is not null || device.Charges > device.Capacity || device.Parent.Deleted ||
+		var held = actor.Body?.HeldOrWieldedItems.Any(x => ReferenceEquals(x, device.Parent)) == true;
+		var worn = device.AllowsWornUse && actor.Body?.DirectWornItems.Any(x => ReferenceEquals(x, device.Parent)) == true;
+		if (device.DataError is not null || device.Mode == MagicDeviceMode.StoredCharges && device.Charges > device.Capacity ||
+			device.Mode == MagicDeviceMode.EnergyReservoir && (device.Energy < 0 || device.Energy > device.MaximumEnergy ||
+				device.ReservoirReservation is { } reservoirReservation && reservoirReservation != continuing) || device.Parent.Deleted ||
 			!ReferenceEquals(device.Parent.GetItemType<IChargedMagicDevice>(), device) ||
-			actor.Body is null || !actor.Body.HeldOrWieldedItems.Any(x => ReferenceEquals(x, device.Parent)) ||
+			actor.Body is null || !held && !worn ||
 			device.Reservation is { } reservation && reservation != continuing)
 			return "The captured device custody, bank or reservation changed.";
 		if (targets is not null && targets.Any(x => !ReferenceEquals(x.Target.Location, x.Location) || x.Target.RoomLayer != x.Layer ||

@@ -25,7 +25,7 @@ internal class RemoveItem : Statement
         ProgVariableTypes collectionType;
         if (match.Groups["collection"].Value[0] == '@')
         {
-            ICompileInfo collectionFunctionInfo = FunctionHelper.CompileFunction(match.Groups["collection"].Value[1..],
+            ICompileInfo collectionFunctionInfo = FunctionHelper.CompileFunction(match.Groups["collection"].Value,
                 variableSpace, lineNumber, gameworld);
             if (collectionFunctionInfo.IsError)
             {
@@ -74,7 +74,7 @@ internal class RemoveItem : Statement
 
         IFunction removeItemFunction = (IFunction)removeItemFunctionInfo.CompiledStatement;
         if (
-            (collectionType ^ ProgVariableTypes.Collection).CompatibleWith(removeItemFunction.ReturnType))
+            !(collectionType ^ ProgVariableTypes.Collection).CompatibleWith(removeItemFunction.ReturnType))
         {
             return CompileInfo.GetFactory()
                               .CreateError("The item is not of the same type as the collection.", lineNumber);
@@ -143,7 +143,19 @@ For example, if you had a collection called #3numbers#0, you could do either of 
         }
 
         IProgVariable collection = variables.GetVariable(CollectionVariable);
-        ((IList<IProgVariable>)collection.GetObject).Remove(ItemFunction.Result);
+        var items = (IList<IProgVariable>)collection.GetObject;
+        var target = ItemFunction.Result?.GetObject;
+        for (var i = 0; i < items.Count; i++)
+        {
+            var candidate = items[i]?.GetObject;
+            if (candidate is string text && target is string targetText
+                    ? string.Equals(text, targetText, StringComparison.InvariantCultureIgnoreCase)
+                    : Equals(candidate, target))
+            {
+                items.RemoveAt(i);
+                break;
+            }
+        }
         return StatementResult.Normal;
     }
 }

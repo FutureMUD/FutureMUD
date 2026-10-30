@@ -511,7 +511,7 @@ namespace MudSharp.Form.Material
         {
             foreach (LiquidInstance instance in _instances)
             {
-                instance.Liquid.DraughtProg?.Execute(actor, container, instance.Amount);
+                instance.Liquid.DraughtProg?.Execute(actor, container.Parent, instance.Amount);
             }
         }
 

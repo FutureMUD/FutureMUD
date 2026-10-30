@@ -44,9 +44,16 @@ internal static class ForagerAIHelpers
 		return profile.Foragables
 		              .Where(x => x.ItemProto?.IsItemType<FoodGameItemComponentProto>() == true)
 		              .Where(x => x.CanForage(character, RPG.Checks.Outcome.MajorPass))
-		              .SelectMany(x => x.ForagableTypes)
-		              .Where(x => !string.IsNullOrWhiteSpace(x))
-		              .Any(x => room.CanConsumeYield(x, 1.0));
+		              .Any(x => EligibleTypes(x, room).Any());
+	}
+
+	private static IEnumerable<string> EligibleTypes(IForagable foragable, IRoom room)
+	{
+		return foragable.ForagableTypes
+		                .Where(x => !string.IsNullOrWhiteSpace(x))
+		                .Where(x => foragable.YieldConsumptionPercentage == 0.0
+			                ? room.ForagableTypes.Contains(x, StringComparer.OrdinalIgnoreCase)
+			                : room.CanConsumeYield(x, foragable.YieldConsumptionPercentage / 100.0));
 	}
 
 	public static bool HasFoodOpportunity(ICharacter character, IRoom room)
@@ -119,9 +126,7 @@ internal static class ForagerAIHelpers
 		string? forageType = profile.Foragables
 		                            .Where(x => x.ItemProto?.IsItemType<FoodGameItemComponentProto>() == true)
 		                            .Where(x => x.CanForage(character, RPG.Checks.Outcome.MajorPass))
-		                            .SelectMany(x => x.ForagableTypes)
-		                            .Where(x => !string.IsNullOrWhiteSpace(x))
-		                            .Where(x => character.Location.CanConsumeYield(x, 1.0))
+		                            .SelectMany(x => EligibleTypes(x, character.Location))
 		                            .Distinct()
 		                            .GetRandomElement();
 		if (forageType is null)

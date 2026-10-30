@@ -340,6 +340,13 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.PreserveVariablesOnReorder).HasColumnType("bit(1)");
 
+                entity.Property(e => e.LoadArguments)
+                    .IsRequired()
+                    .HasDefaultValue("")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
                 entity.Property(e => e.ShopId).HasColumnType("bigint(20)");
 
                 entity.HasOne(d => d.PreferredDisplayContainer)

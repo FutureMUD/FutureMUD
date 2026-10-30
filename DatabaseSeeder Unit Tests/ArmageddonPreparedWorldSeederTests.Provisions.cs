@@ -132,7 +132,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			db.MagicSpells.Single(x => x.Id == meal).Name = "builder meal";
 			var cost = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonReviewedProvisionContent.SustainMealKey + ".cost").LogicalId!.Value;
 			db.TraitExpressions.Single(x => x.Id == cost).Expression = "9*grade";
-			var cap = db.MagicCapabilities.Single(x => x.Name == "Partial preserver"); var xml = XElement.Parse(cap.Definition);
+			var cap = db.MagicCapabilities.Single(x => x.Name == "Preserver"); var xml = XElement.Parse(cap.Definition);
 			xml.Element("Casting")!.SetAttributeValue("enabled", false); cap.Definition = xml.ToString(); db.SaveChanges();
 			var policy = CapabilityMeritPolicy(db); var provisions = ProvisionPolicy(db);
 			for (var i = 0; i < 2; i++)

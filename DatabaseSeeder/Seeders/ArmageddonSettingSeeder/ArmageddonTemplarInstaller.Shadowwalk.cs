@@ -76,7 +76,7 @@ public static partial class ArmageddonTemplarInstaller
 			MagicSchoolId = school.Id,
 			PowerModel = "spellbacked",
 			Blurb = "Invoke the Lirathan Walking Shadow spell through the Shadowwalk skill.",
-			ShowHelp = "Use LPSI SHADOWWALK SELF to project a bounded walking shadow.",
+			ShowHelp = "Use PSI SHADOWWALK SELF to project a bounded walking shadow.",
 			Definition = new XElement("Definition", new XElement("SeededIdentity", powerKey), new XElement("Verb", "shadowwalk"),
 				new XElement("Spell", spell.Id), new XElement("InvocationGrade", 7), new XElement("IsPsionic", true), new XElement("CanInvokePowerProg", canInvokeProgId),
 				new XElement("WhyCantInvokePowerProg", cannotInvokeProgId),

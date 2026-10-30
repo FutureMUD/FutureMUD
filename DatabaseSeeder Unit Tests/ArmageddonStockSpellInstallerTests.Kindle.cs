@@ -44,7 +44,10 @@ public partial class ArmageddonStockSpellInstallerTests
 		xml=XElement.Parse(db.MagicSpells.Single(x => x.Id==id).Definition);
 		Assert.AreEqual("itemchoice",(string?)xml.Element("Trigger")!.Attribute("type"));
 		var effect=xml.Element("Effects")!.Elements().Single();Assert.AreEqual("itemempower",(string?)effect.Attribute("type"));
-		Assert.AreEqual(15,effect.Elements("Option").Count());
+		Assert.AreEqual(8,effect.Elements("Option").Count());
+		var mana = effect.Elements("Option").Where(x => (string?)x.Attribute("kind") == nameof(EquippedItemBonusKind.MagicResource)).Single();
+		Assert.AreEqual("mana", (string?)mana.Attribute("name"));
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.ManaResourceKey).LogicalId, (long?)mana.Attribute("target"));
 		Assert.IsFalse(effect.Elements("Option").Any(x => (string?)x.Attribute("name")=="casting"));
 		var definition=xml.ToString();var records=db.SeederManagedRecords.OrderBy(x => x.Id).AsEnumerable().Select(x => (x.Id,x.SeedBaseline,x.AppliedAt)).ToArray();
 		Assert.AreEqual(ArmageddonInstallStatus.Completed,ArmageddonStockSpellInstaller.Install(factory).Status);db.ChangeTracker.Clear();

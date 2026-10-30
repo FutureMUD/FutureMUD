@@ -59,7 +59,7 @@ public static class CombatForcedMovementUtilities
 			carrier.RoomLayer == target.RoomLayer && carrier.PositionState?.SafeFromFalling == true &&
 			HasHaulingCapacity(carrier, target) &&
 			(carrier.PositionState != PositionFlying.Instance || carrier.CanContinueFlying().Truth) &&
-			(carrier.PositionState != PositionClimbing.Instance || carrier.Race.CanClimb));
+			(carrier.PositionState != PositionClimbing.Instance || carrier.HasClimbingAbility()));
 	}
 
 	public static ForcedMovementAttackChoice FindBestForcedMovementAttack(
@@ -556,7 +556,7 @@ public static class CombatForcedMovementUtilities
 			return false;
 		}
 
-		if (exit.IsClimbExit && !mover.Race.CanClimb)
+		if (exit.IsClimbExit && !mover.HasClimbingAbility())
 		{
 			why = $"{mover.HowSeen(actor, true)} cannot climb through that exit.";
 			return false;

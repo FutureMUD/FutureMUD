@@ -36,7 +36,7 @@ using ConcreteBody = MudSharp.Body.Implementations.Body;
 namespace MudSharp_Unit_Tests;
 
 [TestClass, DoNotParallelize]
-public class FiniteArmourTests
+public partial class FiniteArmourTests
 {
 	[TestMethod]
 	[DataRow(1, 0)] [DataRow(4, 1)] [DataRow(7, 4)]

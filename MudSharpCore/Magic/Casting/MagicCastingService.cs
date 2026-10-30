@@ -148,6 +148,10 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			intent.Mode == MagicCastingMode.Practice ? new SpellTargetResolution(null, []) :
 			SpellTargetCapture.Resolve(actor, spell, power, new StringStack(intent.Targets), PatronMagicService.Incantation(capability, spell) is not null);
 		if (target is null) throw new InvalidOperationException("No valid target was resolved.");
+		if (MudSharp.Construction.RoomPolicyRules.MagicDenial(actor,
+			(target.Target is null ? Enumerable.Empty<IPerceivable>() : new[] { target.Target })
+			.Concat(target.Parameters.Select(x => x.Item).OfType<IPerceivable>())) is { } environmentDenial)
+			throw new InvalidOperationException(environmentDenial);
 		preparedSelectionSource?.ConfirmPendingLifetimeAdmissions();
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
 		foreach (var individual in targets)

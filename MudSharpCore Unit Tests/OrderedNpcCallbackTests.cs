@@ -453,6 +453,8 @@ public partial class QueuedCommandAuthorityTests
 		f.Actor.SetupGet(x => x.Body).Returns(body);
 		var occupied = new Mock<IGrab>();
 		var free = new Mock<IGrab>();
+		occupied.SetupGet(x => x.Unary).Returns(true);
+		free.SetupGet(x => x.Unary).Returns(true);
 		occupied.Setup(x => x.CanGrab(f.Item.Object, body)).Returns(WearlocGrabResult.Success);
 		free.Setup(x => x.CanGrab(f.Item.Object, body)).Returns(WearlocGrabResult.Success);
 		Set(body, "_holdlocs", new List<IGrab> { occupied.Object, free.Object });
@@ -466,6 +468,41 @@ public partial class QueuedCommandAuthorityTests
 		Assert.IsNotNull(placement);
 		Assert.AreSame(free.Object, placement.GetType().GetProperty("Hand")!.GetValue(placement));
 		occupied.Verify(x => x.CanGrab(It.IsAny<IGameItem>(), It.IsAny<MudSharp.Body.IInventory>()), Times.Never);
+	}
+
+	[TestMethod]
+	[DataRow(false, false)]
+	[DataRow(true, false)]
+	[DataRow(true, true)]
+	public void NativeGetPreparation_PrefersReusableInventoryOverHandedPhysicalHands(bool inventoryOccupied, bool inventoryDamaged)
+	{
+		var f = new Fixture();
+		var body = TestObjectFactory.CreateUninitialized<Body>();
+		body.Actor = f.Actor.Object;
+		f.Actor.SetupGet(x => x.Body).Returns(body);
+		f.Actor.SetupGet(x => x.Handedness).Returns(Alignment.Right);
+		var hand = new Mock<IGrab>();
+		hand.SetupGet(x => x.Unary).Returns(true);
+		hand.SetupGet(x => x.Alignment).Returns(Alignment.Right);
+		hand.Setup(x => x.CanGrab(f.Item.Object, body)).Returns(WearlocGrabResult.Success);
+		var inventory = new Mock<IGrab>();
+		inventory.SetupGet(x => x.Unary).Returns(false);
+		inventory.SetupGet(x => x.Alignment).Returns(Alignment.Irrelevant);
+		inventory.Setup(x => x.CanGrab(f.Item.Object, body))
+			.Returns(inventoryDamaged ? WearlocGrabResult.FailDamaged : WearlocGrabResult.Success);
+		Set(body, "_holdlocs", new List<IGrab> { hand.Object, inventory.Object });
+		Set(body, "_heldItems", inventoryOccupied
+			? new List<Tuple<IGameItem, IGrab>> { Tuple.Create(Mock.Of<IGameItem>(), inventory.Object) }
+			: new List<Tuple<IGameItem, IGrab>>());
+		var wielded = typeof(Body).GetField("_wieldedItems", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		wielded.SetValue(body, Activator.CreateInstance(wielded.FieldType));
+		using var execution = CommandExecutionScope.EnterDispatch(
+			CommandExecutionAuthority.Prepare(f.Actor.Object, f.Commander.Object, "get gear", () => true), f.Actor.Object);
+		var placement = typeof(Body).GetMethod("PrepareGetPlacement", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(body, [f.Item.Object, false]);
+		Assert.IsNotNull(placement);
+		Assert.AreSame(inventoryDamaged ? hand.Object : inventory.Object,
+			placement.GetType().GetProperty("Hand")!.GetValue(placement));
 	}
 
 	[TestMethod]

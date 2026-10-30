@@ -63,6 +63,8 @@ public partial class WeatherSeeder
 		}
 
 		var dust = InstallDustGases(context, records, Record, conflicts);
+		var residue = context.Materials.Any(x => x.Name == "sand") ? Utilities.WeatherResidueSeeder.RequireDust(context) : null;
+		var kilogram = context.UnitsOfMeasure.FirstOrDefault(x => x.PrimaryAbbreviation == "kg")?.BaseMultiplier;
 		var variants = new Dictionary<(long Id, string Kind), WeatherEvent>();
 		foreach (var (sourceId, weather) in verified)
 		{
@@ -73,8 +75,10 @@ public partial class WeatherSeeder
 			if (dust is not null && (PrecipitationLevel)weather.Precipitation is PrecipitationLevel.Dry or PrecipitationLevel.Parched &&
 				(WindLevel)weather.Wind is WindLevel.StrongWind or WindLevel.GaleWind)
 			{
-				kinds.Add(("Dust", new() { ForecastDescription = "blowing dust", AtmosphereGasId = dust.Value.Ordinary.Id }));
-				kinds.Add(("ChokingDust", new() { ForecastDescription = "a choking dust storm", AtmosphereGasId = dust.Value.Severe.Id }));
+				kinds.Add(("Dust", new() { ForecastDescription = "blowing dust", AtmosphereGasId = dust.Value.Ordinary.Id,
+					ResidueMaterialId = residue?.Id ?? 0, ResiduePerMinute = 0.0001 * (kilogram ?? 0), ResidueMaximum = 0.005 * (kilogram ?? 0) }));
+				kinds.Add(("ChokingDust", new() { ForecastDescription = "a choking dust storm", AtmosphereGasId = dust.Value.Severe.Id,
+					ResidueMaterialId = residue?.Id ?? 0, ResiduePerMinute = 0.0001 * (kilogram ?? 0), ResidueMaximum = 0.005 * (kilogram ?? 0) }));
 			}
 			foreach (var (kind, settings) in kinds)
 			{

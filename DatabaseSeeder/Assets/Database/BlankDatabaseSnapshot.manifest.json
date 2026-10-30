@@ -1,5 +1,5 @@
 {
-  "ProductVersion": "3.8.1",
-  "LatestMigrationId": "20261021023928_ConfigurableRaceAgeDescriptions",
-  "GeneratedUtc": "2026-10-21T03:01:37.6442028Z"
+  "ProductVersion": "3.8.1.0",
+  "LatestMigrationId": "20261029011042_ConfiguredInfectionState",
+  "GeneratedUtc": "2026-10-29T01:18:52.744814Z"
 }

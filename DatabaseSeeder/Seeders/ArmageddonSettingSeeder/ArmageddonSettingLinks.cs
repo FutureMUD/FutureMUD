@@ -22,6 +22,11 @@ internal static class ArmageddonSettingLinks
 			db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == id)) return false;
 		return record.EntityType switch
 		{
+			"Race.ChargenPolicy.SettingLinks" => db.Races.Any(x => x.Id == id),
+			"Culture.ChargenPolicy.SettingLinks" => db.Cultures.Any(x => x.Id == id),
+			"Knowledge.ChargenPolicy.SettingLinks" => db.Knowledges.Any(x => x.Id == id),
+			"Merit.ChargenPolicy.SettingLinks" => db.Merits.Any(x => x.Id == id),
+			"ChargenScreenStoryboard.ChargenPolicy.SettingLinks" => db.ChargenScreenStoryboards.Any(x => x.Id == id),
 			"Culture.SettingLinks" => db.Cultures.Any(x => x.Id == id),
 			"Race.SettingLinks" => db.Races.Any(x => x.Id == id),
 			"Ethnicity.SettingLinks" => db.Ethnicities.Any(x => x.Id == id),

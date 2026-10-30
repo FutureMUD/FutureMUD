@@ -28,7 +28,12 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
 
     public HealingSimpleWound(IFuturemud gameworld, IHaveWounds owner, double damage, DamageType damageType,
         IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin, IBody ownerBody = null)
+		: this(gameworld, owner, damage, damageType, bodypart, lodged, toolOrigin, actorOrigin, ownerBody, 0.0) { }
+
+	public HealingSimpleWound(IFuturemud gameworld, IHaveWounds owner, double damage, DamageType damageType,
+		IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin, IBody ownerBody, double stun)
     {
+		_currentStun = double.IsFinite(stun) ? Math.Max(0.0, stun) : 0.0;
         if (owner == null)
         {
             throw new ArgumentNullException(nameof(owner));
@@ -91,6 +96,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.BodypartProtoId = Bodypart?.Id;
         dbitem.CurrentDamage = CurrentDamage;
+		dbitem.CurrentStun = CurrentStun;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.LodgedItem = FMDB.Context.GameItems.Find(Lodged?.Id);
         dbitem.ExtraInformation = SaveExtras();
@@ -189,6 +195,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
     private void RecoverOfflineStun(ICharacter ch, double amountModifier, double externalCheckBonus,
         TimeSpan timePassed)
     {
+		if (!NaturalRecoveryRules.CanRecoverStun(ch)) return;
         if (CurrentStun <= 0.0)
         {
             return;
@@ -206,6 +213,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
 
     private void RecoverActiveStun(ICharacter ch, double amountModifier, double externalCheckBonus)
     {
+		if (!NaturalRecoveryRules.CanRecoverStun(ch)) return;
         if (CurrentStun <= 0.0)
         {
             return;
@@ -264,6 +272,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
 
     private void HealDamageTick(ICharacter ch, double amountModifier, double externalCheckBonus)
     {
+		if (!NaturalRecoveryRules.CanRecoverDamage(ch)) return;
         double multiplier = GetNeedHealingMultiplier(ch.Body.NeedsModel.Status);
         Difficulty difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
         if (_currentDamage <= 0 || ch.Body.CurrentExertion > ExertionLevel.Rest)
@@ -303,6 +312,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
 
         double amountModifier = GetOfflineTendAmount() * externalRateMultiplier;
         RecoverOfflineStun(ch, amountModifier, externalCheckBonus, timePassed);
+		if (!NaturalRecoveryRules.CanRecoverDamage(ch)) return;
 
         Difficulty difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
         if (_currentDamage > 0)
@@ -357,6 +367,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = _currentDamage;
+		dbitem.CurrentStun = CurrentStun;
         dbitem.DamageType = (int)DamageType;
         dbitem.BodypartProtoId = Bodypart?.Id;
         dbitem.LodgedItemId = Lodged?.Id;
@@ -380,6 +391,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         IdInitialised = true;
         _name = string.Empty;
         _currentDamage = wound.CurrentDamage;
+		_currentStun = double.IsFinite(wound.CurrentStun) ? Math.Max(0.0, wound.CurrentStun) : 0.0;
         _originalDamage = wound.OriginalDamage;
         DamageType = (DamageType)wound.DamageType;
         _bodypart = Gameworld.BodypartPrototypes.Get(wound.BodypartProtoId ?? 0);
@@ -442,6 +454,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
     {
         OriginalDamage += damage.DamageAmount;
         CurrentDamage += damage.DamageAmount;
+		if (Parent.HealthStrategy is MudSharp.Health.Strategies.BrainHitpointsStrategy { UseStun: true }) CurrentStun += damage.StunAmount;
         _tended = Outcome.None;
         _unsuccessfulTreatmentAttempts = 0;
         Changed = true;
@@ -460,7 +473,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
 
     public bool ShouldWoundBeRemoved()
     {
-        return _currentDamage <= 0.0 && _lodged == null;
+        return _currentDamage <= 0.0 && CurrentStun <= 0.0 && _lodged == null;
     }
 
     public BleedStatus BleedStatus
@@ -511,10 +524,11 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         set { }
     }
 
+	private double _currentStun;
     public double CurrentStun
     {
-        get => 0;
-        set { }
+		get => _currentStun;
+		set { _currentStun = double.IsFinite(value) ? Math.Max(0.0, value) : 0.0; Changed = true; }
     }
 
     public double CurrentShock
@@ -542,6 +556,9 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         get => _currentDamage;
         set
         {
+			if (value < _currentDamage && Parent?.HealthStrategy is IHitPointHealingCeiling ceiling &&
+				(_ownerBody is null || ReferenceEquals((_parent as ICharacter)?.Body, _ownerBody)))
+				value = ceiling.ConstrainHealedDamage(this, Math.Max(0.0, value));
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
 			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();

@@ -3,6 +3,7 @@ using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Health;
@@ -209,6 +210,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         if (!CanContinueCommand()) return (null, null);
         var effectiveQuality = (int)weapon.Parent.Quality + (int)Math.Round(magicEnhancements.Sum(x => x.QualityBonus));
 
+        double frenzyDamageBonus = CombatFrenzyMeleeDamageBonus(Attack.MoveType, Attack.Profile.DamageType);
         double damageResult =
             EvaluateAttackFormula(Attack.Profile.DamageExpression, Assailant, TraitBonusContext.ArmedDamageCalculation,
                 (int)degree, effectiveQuality) +
@@ -231,7 +233,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                 ToolOrigin = weapon.Parent,
                 AngleOfIncidentRadians = attackAngle,
                 Bodypart = targetBodypart,
-                DamageAmount = damageResult * 2.0 * attackAngle / Math.PI,
+                DamageAmount = damageResult * 2.0 * attackAngle / Math.PI + frenzyDamageBonus,
                 DamageType = Attack.Profile.DamageType,
                 PainAmount = painResult * 2.0 * attackAngle / Math.PI,
                 PenetrationOutcome =
@@ -249,7 +251,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             ToolOrigin = weapon.Parent,
             AngleOfIncidentRadians = attackAngle,
             Bodypart = targetBodypart,
-            DamageAmount = damageResult * relativeHardness * 2.0 * attackAngle / Math.PI,
+            DamageAmount = damageResult * relativeHardness * 2.0 * attackAngle / Math.PI + frenzyDamageBonus,
             DamageType = Attack.Profile.DamageType,
             PainAmount = painResult * relativeHardness * 2.0 * attackAngle / Math.PI,
             PenetrationOutcome =
@@ -285,6 +287,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
         int quality = (int)Assailant.NaturalWeaponQuality(attack);
 
+        double frenzyDamageBonus = CombatFrenzyMeleeDamageBonus(Attack.MoveType, attack.Attack.Profile.DamageType);
         double damageResult =
             EvaluateAttackFormula(attack.Attack.Profile.DamageExpression, Assailant,
                 TraitBonusContext.UnarmedDamageCalculation, (int)degree, quality);
@@ -302,7 +305,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             ToolOrigin = null,
             AngleOfIncidentRadians = attackAngle,
             Bodypart = targetBodypart,
-            DamageAmount = damageResult * relativeHardness * 2 * attackAngle / Math.PI,
+            DamageAmount = damageResult * relativeHardness * 2 * attackAngle / Math.PI + frenzyDamageBonus,
             DamageType = attack.Attack.Profile.DamageType,
             PainAmount = painResult * relativeHardness * 2 * attackAngle / Math.PI,
             PenetrationOutcome =
@@ -332,6 +335,31 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
         return new Tuple<IDamage, IDamage>(finalDamage, selfDamage);
     }
+
+	internal double CombatFrenzyMeleeDamageBonus(BuiltInCombatMoveType moveType, DamageType damageType)
+	{
+		if (moveType is BuiltInCombatMoveType.RangedWeaponAttack or BuiltInCombatMoveType.AdvanceAndFire or
+			BuiltInCombatMoveType.StandAndFire or BuiltInCombatMoveType.SkirmishAndFire or
+			BuiltInCombatMoveType.RangedNaturalAttack or BuiltInCombatMoveType.BreathWeaponAttack or
+			BuiltInCombatMoveType.SpitNaturalAttack or BuiltInCombatMoveType.ExplosiveNaturalAttack or
+			BuiltInCombatMoveType.BuffetingNaturalAttack or BuiltInCombatMoveType.MagicPowerAttack or
+			BuiltInCombatMoveType.BeamAttack or BuiltInCombatMoveType.ScreechAttack)
+		{
+			return 0.0;
+		}
+
+		if (damageType is not (DamageType.Slashing or DamageType.Chopping or DamageType.Crushing or
+			DamageType.Piercing or DamageType.Ballistic or DamageType.Bite or DamageType.Claw or
+			DamageType.Shearing or DamageType.Wrenching or DamageType.Shrapnel or DamageType.ArmourPiercing or
+			DamageType.BallisticArmourPiercing))
+		{
+			return 0.0;
+		}
+
+		return Assailant.EffectsOfType<IFixedMeleeDamageBonusEffect>()
+			.Where(effect => effect.Applies(Assailant))
+			.Sum(x => x.MeleeDamageBonus);
+	}
 
     protected void SelectWardFreeAttack(ICharacter counterAttacker, ICharacter target, WardResult wardResult,
         ref IWeaponAttack weaponAttack, ref INaturalAttack naturalAttack)

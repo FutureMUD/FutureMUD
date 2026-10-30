@@ -23,6 +23,35 @@ namespace MudSharp_Unit_Tests;
 public class RoomScaleVehicleRuntimeTests
 {
 	[TestMethod]
+	public void DriverCanOccupyASeparateControlCompartmentAfterWalkingInside()
+	{
+		var interior = new Mock<IRoom>();
+		interior.SetupGet(x => x.Id).Returns(100);
+		var vehicle = CreateVehicleWithMissingInterior(100, loadedRoom: interior.Object);
+		var slot = new Mock<IVehicleOccupantSlotPrototype>();
+		slot.SetupGet(x => x.Id).Returns(50);
+		slot.SetupGet(x => x.Capacity).Returns(1);
+		slot.SetupGet(x => x.Compartment).Returns(vehicle.Prototype.Compartments.Single());
+		Mock.Get(vehicle.Prototype).SetupGet(x => x.OccupantSlots).Returns([slot.Object]);
+		var vehicles = new All<IVehicle>();
+		vehicles.Add(vehicle);
+		Mock.Get(vehicle.Gameworld).SetupGet(x => x.Vehicles).Returns(vehicles);
+		var readiness = new Mock<IVehicleOperationalReadinessService>();
+		readiness.Setup(x => x.CanPerformAction(vehicle, It.IsAny<ICharacter>(), VehicleOperationalAction.Board,
+			out It.Ref<VehicleAccessPermissionResult>.IsAny)).Returns((IVehicle _, ICharacter _, VehicleOperationalAction action,
+			out VehicleAccessPermissionResult result) => { result = new(true, action, 1, null, ""); return true; });
+		typeof(Vehicle).GetField("_operationalReadinessService", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(vehicle, readiness.Object);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(vehicle.Gameworld);
+		actor.SetupGet(x => x.Location).Returns(interior.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		Assert.IsTrue(vehicle.CanBoard(actor.Object, slot.Object, out var reason), reason);
+		Assert.IsTrue(vehicle.CanBoard(actor.Object, slot.Object, null!, out reason), reason);
+		actor.SetupGet(x => x.Location).Returns(new Mock<IRoom>().Object);
+		Assert.IsFalse(vehicle.CanBoard(actor.Object, slot.Object, out _), "An outside actor still requires a real docking entrance.");
+	}
+
+	[TestMethod]
 	public void TransientExitKeys_AreDeterministicAndNamespaced()
 	{
 		Assert.AreEqual("vehicle:101:compartment-link:202", VehicleCompartmentLink.TransientExitKey(101, 202));

@@ -1339,11 +1339,22 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
             }
         }
 
+        string loadArguments;
+        try
+        {
+            loadArguments = WearableSizing.NormaliseLoadArguments(input.RemainingArgument, actor, actor.Gameworld, proto);
+        }
+        catch (ArgumentException error)
+        {
+            actor.OutputHandler.Send($"The item load arguments are invalid: {error.Message}");
+            return;
+        }
+
         if (quantity > 1)
         {
             if (proto.IsItemType<StackableGameItemComponentProto>())
             {
-                IGameItem item = proto.CreateNew(actor, skin, quantity, input.SafeRemainingArgument).First();
+                IGameItem item = proto.CreateNew(actor, skin, quantity, loadArguments).First();
                 actor.Gameworld.Add(item);
 
                 if (actor.Body.CanGet(item, 0))
@@ -1369,7 +1380,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                     actor.OutputHandler.Send("The most non-stackable items you can load at one time is 10.");
                     return;
                 }
-                List<IGameItem> items = proto.CreateNew(actor, skin, quantity, input.SafeRemainingArgument).ToList();
+                List<IGameItem> items = proto.CreateNew(actor, skin, quantity, loadArguments).ToList();
                 foreach (IGameItem item in items)
                 {
                     actor.Gameworld.Add(item);
@@ -1394,7 +1405,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
         }
         else
         {
-            IGameItem item = proto.CreateNew(actor, skin, 1, input.SafeRemainingArgument).First();
+            IGameItem item = proto.CreateNew(actor, skin, 1, loadArguments).First();
             actor.Gameworld.Add(item);
 
             if (actor.Body.CanGet(item, 0))

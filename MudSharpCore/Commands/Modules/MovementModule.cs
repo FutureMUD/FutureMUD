@@ -65,7 +65,7 @@ Append #3!#0 to override safe movement. On worlds enabling hostile guard challen
             if (Constants.CardinalDirectionStringToDirection.ContainsKey(direction) && !actor.QueuedMoveCommands.Any())
             {
                 CardinalDirection targetDirection = Constants.CardinalDirectionStringToDirection[direction];
-                if (actor.Movement.Exit is { } currentExit &&
+                if ((actor.Movement.ExitFor(actor) ?? actor.Movement.Exit) is { } currentExit &&
 					targetDirection.IsOpposingDirection(currentExit.OutboundDirection) &&
                     actor.Movement.CanBeVoluntarilyCancelled && actor.Movement.IsMovementLeader(actor))
                 {

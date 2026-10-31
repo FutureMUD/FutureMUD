@@ -199,7 +199,8 @@ public sealed class TrapTriggerDefinition : ITrapTrigger
 			[TrapTriggerType.Proximity] = AllDomains,
 			[TrapTriggerType.RoomEntry] = AllDomains,
 			[TrapTriggerType.Signal] = MechanicalOnly,
-			[TrapTriggerType.Manual] = AllDomains
+			[TrapTriggerType.Manual] = AllDomains,
+			[TrapTriggerType.Junked] = AllDomains
 		};
 
 	public TrapTriggerDefinition(TrapTriggerType triggerType)

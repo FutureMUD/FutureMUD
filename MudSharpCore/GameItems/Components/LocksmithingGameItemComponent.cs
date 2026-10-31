@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems.Prototypes;
+using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
@@ -60,6 +60,7 @@ public class LocksmithingGameItemComponent : GameItemComponent, ILocksmithingToo
     public bool UsableForFabrication => _prototype.UsableForFabrication;
     public bool Breakable => _prototype.Breakable;
     public int DifficultyAdjustment => _prototype.DifficultyAdjustment;
+    public double CheckBonus => _prototype.CheckBonus;
 
     #endregion
 }

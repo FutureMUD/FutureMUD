@@ -55,6 +55,11 @@ public static class SubstanceSpellResolver
 	public static bool Supported(IMagicSpellEffectTemplate effect) => effect is not RejuvenateLandEffect && (Scalable(effect) || Binary.Contains(Type(effect)));
 	public static IEnumerable<string> Errors(IMagicSpell? spell, SubstanceEffectEntry entry)
 	{
+		if (entry.NativeSpellGrade != 0)
+		{
+			foreach (var error in SubstanceNativeSpell.Errors(spell, entry)) yield return error;
+			yield break;
+		}
 		if (spell is null) { yield return "Missing spell."; yield break; }
 		if (spell.Trigger is not SpellTriggers.SubstanceTrigger) yield return "Use a substancecharacter or substanceitem spell trigger.";
 		if (spell.CasterSpellEffects.Any()) yield return "Caster effects are not supported by substances.";

@@ -8,7 +8,7 @@ public partial class Body
 	private bool _hadEquippedSpellBonuses;
 	internal void ReconcileEquippedSpellBonuses()
 	{
-		var active = EquippedItemBonuses.Effects(Actor).Any();
+		var active = EquippedItemBonuses.Bonuses(Actor).Any();
 		if (_hadEquippedSpellBonuses || active) ReconcileEmotionalStaminaCapacity();
 		_hadEquippedSpellBonuses = active;
 	}

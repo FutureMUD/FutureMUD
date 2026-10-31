@@ -52,13 +52,22 @@ internal class CheckFunction : BuiltInFunction
         }
 
         Difficulty difficulty = (Difficulty)difficultyNum;
-        Result = new NumberVariable(Gameworld.GetCheck(CheckType.ProgSkillUseCheck).Check(character, difficulty, trait)
+        Result = new NumberVariable(Gameworld.GetCheck(CheckType.ProgSkillUseCheck).Check(character, difficulty, trait,
+			customParameters: ParameterFunctions.Count > 3
+				? [(CheckEvaluationContext.FlatBonusParameterName, (object)Convert.ToDouble(ParameterFunctions[3].Result.GetObject))]
+				: [])
                                              .CheckDegrees());
         return StatementResult.Normal;
     }
 
     public static void RegisterFunctionCompiler()
     {
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"check", [ProgVariableTypes.Character, ProgVariableTypes.Trait, ProgVariableTypes.Number, ProgVariableTypes.Number],
+			(pars, gameworld) => new CheckFunction(pars, gameworld),
+			["character", "trait", "difficulty", "bonus"],
+			["Character to check", "Trait to check", "0 Automatic to 10 Impossible", "Flat target-number bonus, before any native cap"],
+			"Checks a trait with a flat target bonus, preserving native check rules and retained outcomes.", "Character", ProgVariableTypes.Number));
         FutureProg.RegisterBuiltInFunctionCompiler(
             new FunctionCompilerInformation(
                 "check",

@@ -2980,10 +2980,35 @@ For information on the syntax to use in emotes (such as those included in bracke
                                      (CharacterState)x.Character.State, activeStableMountIds))
                                  .ToList();
 
+        var companionHandlerIds = loadableNpcs.Where(x => x.BodyguardCharacterId.HasValue)
+            .Select(x => x.BodyguardCharacterId!.Value).Distinct().ToArray();
+        var companionHandlers = FMDB.Context.Characters.AsNoTracking()
+            .Where(x => companionHandlerIds.Contains(x.Id))
+            .Select(x => new { x.Id, x.Location, x.RoomLayer, x.State, x.IsArchived }).ToDictionary(x => x.Id);
+        var companionPrimaryInstances = FMDB.Context.CharacterInstances.AsNoTracking()
+            .Where(x => x.IsPrimary && companionHandlerIds.Contains(x.CharacterId))
+            .Select(x => new { x.CharacterId, x.LocationId, x.RoomLayer, x.State }).ToDictionary(x => x.CharacterId);
         foreach (Npc npc in loadableNpcs)
         {
             ICharacter newNpc = TryGetCharacter(npc.CharacterId);
-            if (npc.BodyguardCharacterId != null)
+            var cacheCompanion = npc.BodyguardCharacterId != null;
+            if (cacheCompanion && MudSharp.NPC.NpcCompanionLifecycle.RequiresColocation(newNpc))
+            {
+                var handlerId = npc.BodyguardCharacterId!.Value;
+                companionHandlers.TryGetValue(handlerId, out var handler);
+                companionPrimaryInstances.TryGetValue(handlerId, out var primary);
+                if (handler is null || handler.IsArchived || ((CharacterState)(primary?.State ?? handler.State)).HasFlag(CharacterState.Dead))
+                {
+                    ((INPC)newNpc).BodyguardingCharacterID = null;
+                    cacheCompanion = false;
+                }
+                else
+                {
+                    cacheCompanion = MudSharp.NPC.NpcCompanionLifecycle.CanReunite(newNpc,
+                        primary is not null ? primary.LocationId : handler.Location, primary?.RoomLayer ?? handler.RoomLayer);
+                }
+            }
+            if (cacheCompanion)
             {
                 if (!CachedBodyguards.ContainsKey(npc.BodyguardCharacterId.Value))
                 {

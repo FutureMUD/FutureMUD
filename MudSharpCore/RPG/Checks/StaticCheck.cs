@@ -97,7 +97,7 @@ public class StaticCheck : FrameworkItem, ICheck
             : difficulty.StageUp((int)(-1 * bonus / StandardCheck.BonusesPerDifficultyLevel));
 
         // Roll versus target number w/difficulty mods, store outcome
-        return CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
+        return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
     }
 
     public CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
@@ -139,7 +139,7 @@ public class StaticCheck : FrameworkItem, ICheck
             : difficulty.StageUp((int)(-1 * bonus / StandardCheck.BonusesPerDifficultyLevel));
 
         // Roll versus target number w/difficulty mods, store outcome
-        double tnexp = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double tnexp = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] >= 100.0)
         {
             if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters).StageUp(1)] >= 100.0)
@@ -219,7 +219,7 @@ public class StaticCheck : FrameworkItem, ICheck
 
         double bonus = bonuses.Sum(x => x.Item2);
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         foreach (Difficulty evaluatedDifficulty in _allDifficulties)
         {
             Difficulty originalDifficulty = evaluatedDifficulty;

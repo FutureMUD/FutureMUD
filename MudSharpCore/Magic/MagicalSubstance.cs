@@ -54,9 +54,11 @@ public sealed class MagicalSubstance : SaveableItem, IMagicalSubstance
 		new XAttribute("key", x.Key), new XAttribute("spell", x.SpellId), new XAttribute("lifecycle", (int)x.Lifecycle),
 		new XAttribute("pulse", (int)x.PulseMode), new XAttribute("stack", (int)x.Stacking), new XAttribute("scale", (int)x.Scaling),
 		new XAttribute("minimum", x.MinimumDose), new XAttribute("maximum", x.MaximumDose), new XAttribute("duration", x.DurationSeconds),
-		new XAttribute("durationcap", x.MaximumDurationSeconds), new XAttribute("interval", x.IntervalSeconds));
+		new XAttribute("durationcap", x.MaximumDurationSeconds), new XAttribute("interval", x.IntervalSeconds),
+		new XAttribute("nativegrade", x.NativeSpellGrade));
 	public static SubstanceEffectEntry LoadEntry(XElement x) => new()
 	{
+		NativeSpellGrade = (int?)x.Attribute("nativegrade") ?? 0,
 		Key = Guid.Parse(x.Attribute("key")!.Value), SpellId = (long)x.Attribute("spell")!, Lifecycle = (SubstanceLifecycle)(int)x.Attribute("lifecycle")!,
 		PulseMode = (SubstancePulseMode)(int)x.Attribute("pulse")!, Stacking = (SubstanceStacking)(int)x.Attribute("stack")!, Scaling = (SubstanceScaling)(int)x.Attribute("scale")!,
 		MinimumDose = (double)x.Attribute("minimum")!, MaximumDose = (double)x.Attribute("maximum")!, DurationSeconds = (double)x.Attribute("duration")!,
@@ -111,6 +113,7 @@ The following options configure an existing payload entry:
 	#3entry <number> duration <seconds>#0 - sets the reference lifetime
 	#3entry <number> durationcap <seconds>#0 - caps the accumulated lifetime
 	#3entry <number> interval <seconds>#0 - sets the pulse interval (at least one second)
+	#3entry <number> nativegrade <0-7>#0 - activates an admitted native spell at a fixed grade; 0 uses ordinary substance effects
 
 Author the payload spell effects with #3magic spell#0.";
 
@@ -315,6 +318,16 @@ Author the payload spell effects with #3magic spell#0.";
 		if (entry is null) return false;
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "nativegrade":
+				if (!int.TryParse(command.PopSpeech(), out var grade) || grade is < 0 or > 7 || !command.IsFinished)
+				{
+					actor.OutputHandler.Send("Choose a native spell grade from 1 to 7, or 0 for ordinary substance effects.");
+					return false;
+				}
+				entry.NativeSpellGrade = grade;
+				Changed = true;
+				actor.OutputHandler.Send($"This entry's native spell grade is now {grade.ToString("N0", actor).ColourValue()}. Use check to validate its delivery settings.");
+				return true;
 			case "stack":
 				return BuildingCommandEntryStack(actor, command, entry);
 			case "scale":
@@ -486,6 +499,7 @@ Author the payload spell effects with #3magic spell#0.";
 			sb.AppendLine();
 			sb.AppendLine($"Spell: {Gameworld.MagicSpells.Get(entry.SpellId)?.Name.ColourName() ?? "Missing".ColourError()} (#{entry.SpellId.ToString("N0", actor).ColourValue()})");
 			sb.AppendLine($"Lifecycle: {entry.Lifecycle.DescribeEnum().ColourName()}");
+			sb.AppendLine($"Native Spell Grade: {entry.NativeSpellGrade.ToString("N0", actor).ColourValue()}");
 			sb.AppendLine($"Stacking: {entry.Stacking.DescribeEnum().ColourName()}");
 			sb.AppendLine($"Dose Scaling: {entry.Scaling.DescribeEnum().ColourName()}");
 			sb.AppendLine($"Pulse Mode: {entry.PulseMode.DescribeEnum().ColourName()}");

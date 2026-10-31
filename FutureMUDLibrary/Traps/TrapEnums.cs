@@ -39,7 +39,8 @@ public enum TrapTriggerType
 	Proximity,
 	RoomEntry,
 	Signal,
-	Manual
+	Manual,
+	Junked
 }
 
 /// <summary>

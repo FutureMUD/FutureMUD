@@ -228,6 +228,28 @@ public class SimpleLivingDirectHealthCostTests
 	}
 
 	[TestMethod]
+	public void HitPointAdjustment_UnsupportedStunDoesNotPartiallyDamage()
+	{
+		using NativeHealthFixture fixture = new(hitpoints: true, stun: false);
+		Assert.IsFalse(HitPointChanges.Apply(fixture.Actor.Object, -20, 30));
+		Assert.AreEqual(100, fixture.Strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.AreEqual(0, fixture.Wounds.Count);
+	}
+
+	[TestMethod]
+	public void HitPointAdjustment_AppliesDamageAndStunTogether_RejectsMixedHealing()
+	{
+		using NativeHealthFixture fixture = new(hitpoints: true, stun: true);
+		fixture.Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>()))
+			.Callback<IEnumerable<IWound>>(wounds => fixture.Wounds.AddRange(wounds));
+		Assert.IsTrue(HitPointChanges.Apply(fixture.Actor.Object, -20, 30));
+		Assert.AreEqual(80, fixture.Strategy.CurrentHitPoints(fixture.Actor.Object));
+		Assert.AreEqual(30, fixture.Wounds.Sum(x => x.CurrentStun));
+		Assert.IsFalse(HitPointChanges.Apply(fixture.Actor.Object, 5, 10));
+		Assert.AreEqual(80, fixture.Strategy.CurrentHitPoints(fixture.Actor.Object));
+	}
+
+	[TestMethod]
 	public void HitPointAdjustment_RepairsAndHarmsThroughNegativeRangeWithoutChangingStun()
 	{
 		using NativeHealthFixture fixture = new(capacity: 10, hitpoints: true);

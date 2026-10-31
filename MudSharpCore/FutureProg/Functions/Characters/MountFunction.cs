@@ -76,8 +76,7 @@ internal class MountFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        mount.Mount(character);
-        Result = new BooleanVariable(true);
+        Result = new BooleanVariable(mount.Mount(character));
         return StatementResult.Normal;
     }
 }

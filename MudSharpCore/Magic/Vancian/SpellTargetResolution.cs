@@ -56,7 +56,7 @@ internal sealed class SpellTargetCapture : IDisposable
 	public void Dispose() => Current.Value = _previous;
 }
 
-internal enum SpellInvocationSource { VancianDirect, ScrollActivation, ConfiguredCasting }
+internal enum SpellInvocationSource { VancianDirect, ScrollActivation, ConfiguredCasting, SubstanceActivation }
 
 /// <summary>Engine-issued commitment callback; there is no player-provided prepaid switch.</summary>
 internal sealed class SpellInvocationContext(SpellInvocationSource source, Outcome outcome, Func<Action, bool> commit)

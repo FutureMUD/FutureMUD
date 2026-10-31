@@ -24,6 +24,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 
 	private void InstallPoisonDelivery()
 	{
+		ItemNumberRegister(BrewOverrideRegister);
+		ItemNumberRegister(BrewCureRegister);
+		ItemNumberRegister(BrewPoisonRegister);
 		ItemNumberRegister(PoisonKindRegister);
 		ItemNumberRegister(PoisonTargetRegister);
 		ItemNumberRegister(PoisonFoodDoseRegister);
@@ -152,11 +155,14 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private void InstallAntidote(GameItemProto proto, ArmWorldItem source, int[] values)
 	{
 		if (values[1] is not (0 or 1)) { Adapt("antidote", source.Vnum, "Unimplemented source form is not given an invented injection action."); return; }
-		var body = new StringBuilder();
-		var cureKinds = values[0] is 3 or 9 or 10 ? new[] { 3, 9, 10 } : new[] { values[0] };
-		foreach (var kind in cureKinds)
-			if (_poisonDrugIds.TryGetValue(kind, out var drugId)) body.AppendLine($"purgedrugdosages(@actor, todrug({drugId}), \"\", {(values[1] == 0 ? "true" : "false")})");
-		if (values[2] is >= 1 and <= 10) body.AppendLine($"@{_poisonDoseProgs[values[2]].FunctionName}(@actor, random(1, 3), \"ingested\", false)");
+		var body = new StringBuilder($"var cure = {values[0]}\nvar poison = {values[2]}\nif (getregister(@item, \"{BrewOverrideRegister}\") == 1)\ncure = getregister(@item, \"{BrewCureRegister}\")\npoison = getregister(@item, \"{BrewPoisonRegister}\")\nend if\n");
+		foreach (var kind in _poisonDrugIds.Keys)
+		{
+			var condition = kind is 3 or 9 or 10 ? "@cure == 3 or @cure == 9 or @cure == 10" : $"@cure == {kind}";
+			body.AppendLine($"if ({condition})\npurgedrugdosages(@actor, todrug({_poisonDrugIds[kind]}), \"\", {(values[1] == 0 ? "true" : "false")})\nend if");
+		}
+		foreach (var kind in _poisonDrugIds.Keys)
+			body.AppendLine($"if (@poison == {kind})\n@{_poisonDoseProgs[kind].FunctionName}(@actor, random(1, 3), \"ingested\", false)\nend if");
 		if (values[1] == 0 && _items.TryGetValue(13248, out var empty))
 			body.AppendLine($"deleteitem(@item)\nvar empty = loaditem({empty.Id})\nif (not(put(@empty, @actor.location)))\ndeleteitem(@empty)\nelse\nsilentget(@actor, @empty)\nend if");
 		var cure = Prog("ArmageddonWorldfileAntidote" + proto.Id, body.ToString(), ProgVariableTypes.Void,

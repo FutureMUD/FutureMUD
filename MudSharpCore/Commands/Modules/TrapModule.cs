@@ -162,8 +162,8 @@ internal class TrapModule : Module<ICharacter>
 				template.Id.ToString("N0", actor),
 				template.Name,
 				template.SourceKind.DescribeEnum(),
-				template.SourceKind == TrapSourceKind.Mechanical ? template.SetupTime.Describe(actor) : "n/a",
-				template.SourceKind switch
+				template.SourceKind == TrapSourceKind.Mechanical && !template.Preassembled ? template.SetupTime.Describe(actor) : "n/a",
+				template.Preassembled ? "item / prog" : template.SourceKind switch
 				{
 					TrapSourceKind.Mechanical => "trap lay",
 					TrapSourceKind.Magical => "spell / prog",
@@ -338,6 +338,11 @@ internal class TrapModule : Module<ICharacter>
 			return;
 		}
 
+		if (!administrative && template.Preassembled)
+		{
+			actor.Send("Preassembled traps are deployed by their item or world progs.");
+			return;
+		}
 		if (!administrative && template.SourceKind == TrapSourceKind.Natural)
 		{
 			actor.Send("Natural trap templates are deployed by natural NPCs or FutureProgs, not hand-set by characters.");
@@ -357,6 +362,17 @@ internal class TrapModule : Module<ICharacter>
 			return;
 		}
 		var (anchor, exit, suppliedComponents) = target.Value;
+		if (template.ClosedItemAnchor && exit is not null)
+		{
+			if (exit.Exit.Door?.Parent is not { } doorItem)
+			{
+				actor.Send("There is no door there to trap.");
+				return;
+			}
+			anchor = doorItem;
+			exit = null; // The shared door item, rather than one exit side, owns the charge.
+		}
+		if (template.ClosedItemAnchor && !PrepareClosedTrapAnchor(actor, anchor)) return;
 		var componentCandidates = GetTrapComponentCandidates(actor, anchor, suppliedComponents);
 		var bindings = MatchComponents(actor, template, componentCandidates);
 		if (bindings is null)
@@ -367,7 +383,7 @@ internal class TrapModule : Module<ICharacter>
 			.SelectNotNull(x => x?.Item)
 			.Distinct()
 			.ToList();
-		var placementItems = GetTrapPlacementItems(actor, anchor, componentItems);
+		var placementItems = template.ClosedItemAnchor ? componentItems : GetTrapPlacementItems(actor, anchor, componentItems);
 		if (!CanPrepareTrapComponents(actor, placementItems, out var componentPreparationError))
 		{
 			actor.Send(componentPreparationError);
@@ -425,8 +441,11 @@ internal class TrapModule : Module<ICharacter>
 
 			if (!administrative)
 			{
-				var outcome = actor.Gameworld.GetCheck(CheckType.SetTrapCheck).Check(actor, Difficulty.Normal, actor);
-				if (!outcome.Outcome.IsPass())
+				if (template.ClosedItemAnchor && !PrepareClosedTrapAnchor(actor, anchor)) return;
+				var success = template.SetupProg is { } setupProg
+					? setupProg.ExecuteBool(actor, anchor, componentItems)
+					: actor.Gameworld.GetCheck(CheckType.SetTrapCheck).Check(actor, Difficulty.Normal, actor).Outcome.IsPass();
+				if (!success)
 				{
 					actor.Send("You fail to set the trap without making it usable.");
 					return;
@@ -480,6 +499,30 @@ internal class TrapModule : Module<ICharacter>
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins setting a trap.", actor)));
 		actor.AddEffect(new SimpleCharacterAction(actor, Complete, "setting a trap", ["general", "movement"],
 			"setting a trap"), template.SetupTime);
+	}
+
+	internal static bool PrepareClosedTrapAnchor(ICharacter actor, IPerceivable anchor)
+	{
+		if (anchor is not IGameItem item ||
+		    !(item.IsItemType<IContainer>() || item.IsItemType<IDoor>()) ||
+		    item.GetItemType<IOpenable>() is not { } openable || !actor.CanManipulateItem(item).Truth)
+		{
+			actor.Send("You can only set this trap on an accessible closeable container or door.");
+			return false;
+		}
+		if (!openable.IsOpen) return true;
+		if (item.IsItemType<IDoor>())
+		{
+			actor.Send("You must close the door first.");
+			return false;
+		}
+		if (!actor.Body.CanClose(openable))
+		{
+			actor.Send("You cannot close that container to set the trap.");
+			return false;
+		}
+		actor.Body.Close(openable, null, null);
+		return !openable.IsOpen;
 	}
 
 	private static void PointOutTrap(ICharacter actor, StringStack command)
@@ -950,6 +993,8 @@ internal class TrapModule : Module<ICharacter>
 		var exit = actor.Location.GetExitKeyword(anchorText, actor);
 		if (exit is not null)
 		{
+			var doorTrap = exit.Exit.Door?.Parent.EffectsOfType<TrapEffect>().FirstOrDefault();
+			if (doorTrap is not null) return (exit.Exit.Door!.Parent, null, doorTrap);
 			var exitTrap = actor.Location.EffectsOfType<TrapEffect>()
 				.FirstOrDefault(x => x.MatchesExit(exit));
 			if (exitTrap is not null)
@@ -991,7 +1036,7 @@ internal class TrapModule : Module<ICharacter>
 		? !trap.BoundExitId.HasValue
 		: trap.MatchesExit(exit);
 
-	private static bool AnchorStillAvailable(ICharacter actor, IPerceivable anchor, IRoomExit? exit)
+	internal static bool AnchorStillAvailable(ICharacter actor, IPerceivable anchor, IRoomExit? exit)
 	{
 		if (exit is not null)
 		{
@@ -1001,7 +1046,9 @@ internal class TrapModule : Module<ICharacter>
 		}
 
 		return ReferenceEquals(anchor, actor.Location) || ReferenceEquals(anchor.Location, actor.Location) ||
-		       anchor is IGameItem item && actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item));
+		       anchor is IGameItem item && (actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item)) ||
+		           item.GetItemType<IDoor>()?.InstalledExit is { } installed &&
+		           actor.Location.ExitsFor(actor, true).Any(x => ReferenceEquals(x.Exit, installed)));
 	}
 
 	private static string DescribeAnchor(ICharacter actor, IPerceivable anchor, IRoomExit? exit) => exit is null

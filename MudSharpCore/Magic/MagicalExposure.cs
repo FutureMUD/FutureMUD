@@ -126,6 +126,17 @@ public static class MagicalExposure
 		foreach (var entry in substance.Entries)
 		{
 			var spell = substance.Gameworld.MagicSpells.Get(entry.SpellId);
+			if (entry.NativeSpellGrade != 0)
+			{
+				if (recipient is not ICharacter actor || sourceBody is not null && !ReferenceEquals(actor.Body, sourceBody)) continue;
+				var available = parts.Where(x => !x.Charge.Inert && !x.Charge.Suppressed.Contains(entry.Key) && !x.Charge.Spent.Contains(entry.Key)).ToArray();
+				var amount = Math.Min(entry.MaximumDose, available.Sum(x => x.Quantity) / substance.ReferenceDose);
+				if (amount <= 0 || amount < entry.MinimumDose) continue;
+				// One admitted dose activates the entire fixed-grade payload once, even if its effects refuse.
+				foreach (var part in available) part.Charge.Spent.Add(entry.Key);
+				SubstanceNativeSpell.Apply(actor, spell, entry);
+				continue;
+			}
 			if (spell is not MagicSpell concrete || spell.Trigger.TargetTypes != (recipient is ICharacter ? "character" : "item")) continue;
 			var spendsCharge = entry.Lifecycle == SubstanceLifecycle.Activation || entry.Lifecycle == SubstanceLifecycle.Periodic && entry.PulseMode == SubstancePulseMode.Timed;
 			var eligible = parts.Where(x => !x.Charge.Inert && !x.Charge.Suppressed.Contains(entry.Key) && (!spendsCharge || !x.Charge.Spent.Contains(entry.Key))).ToList();

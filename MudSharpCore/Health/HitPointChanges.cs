@@ -7,12 +7,12 @@ namespace MudSharp.Health;
 /// <summary>Explicit nonmagical HP repair or harm using native wounds, without changing base attributes.</summary>
 public static class HitPointChanges
 {
-	public static bool Apply(ICharacter actor, double amount)
+	public static bool Apply(ICharacter actor, double amount, double stun = 0.0)
 	{
-		if (!double.IsFinite(amount) || actor.State.IsDead() || actor.Body is null ||
+		if (!double.IsFinite(stun) || stun < 0 || amount > 0 && stun > 0 || !double.IsFinite(amount) || actor.State.IsDead() || actor.Body is null ||
 			actor.HealthStrategy is not ICurrentHitPointsStrategy) return false;
 		var body = actor.Body;
-		if (amount >= 0)
+		if (amount >= 0 && stun == 0)
 		{
 			var remaining = amount;
 			foreach (var wound in actor.Wounds.OrderByDescending(x => x.CurrentDamage).ToArray())
@@ -29,7 +29,7 @@ public static class HitPointChanges
 			DirectHealthCostPlan? plan = null;
 			foreach (var part in body.Bodyparts)
 			{
-				if (!actor.HealthStrategy.TryPlanDirectHealthConsequence(actor, part, -amount, 0, 0, out var candidate, out _)) continue;
+				if (!actor.HealthStrategy.TryPlanDirectHealthConsequence(actor, part, -amount, 0, stun, out var candidate, out _)) continue;
 				plan = candidate;
 				break;
 			}

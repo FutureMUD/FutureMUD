@@ -190,3 +190,15 @@ TrapTemplates has a composite Id/RevisionNumber key, an EditableItem foreign key
 ### Magical gas payloads
 
 Gas clouds also deliver [magical substances](../Magic/Magical_Substances.md) bound to their gas. The optional positive `volume` setting specifies engine gas volume per recipient per five-second pulse (default 1). It is independent of the existing drug `dose` setting and does not require a drug on the gas. Authored magical potency is independent of trap-maker quality.
+
+## Consumable powder and preassembled item traps
+
+`closeditem` makes direction targets resolve to the shared installed door item. Item targets must be accessible closeable containers or doors. Doors must already be closed; containers use the normal close action. Held containers stay held while components follow the ordinary inventory installation plan. Both door sides share one charge.
+
+`setupprog <prog|none>` optionally replaces the mundane setup roll. Its contract is **boolean(character, perceivable anchor, item collection matched components)**, invoked after access/topology/component validation and before installation. True continues; false stops. A false-returning prog may consume materials and apply setting accidents. These templates may use zero setup time. The default remains SetTrapCheck. `check(character, trait, difficulty, flatBonus)` exposes the native flat target-number bonus without bypassing retained outcomes.
+
+`preassembled` permits intrinsic traps without separate component requirements. Players cannot lay them; item/world progs or staff deploy them. This flag defaults off, preserving the physical requirements for existing mechanical templates. Creation uses the ordinary `createtrap` validation and saving effect lifecycle.
+
+The `Junked` trigger receives `ItemAboutToBeJunked(character, item)` immediately before confirmed, permitted native junking destroys the item. Dropping does not fire it. Charges are consumed before payloads; normal junk permissions and confirmation remain intact.
+
+`adjusthitpoints(character, nonpositiveHPChange, nonnegativeStunDamage)` applies both channels through native direct health consequences. Unsupported channels fail without partial damage; healing cannot be combined with stun harm.

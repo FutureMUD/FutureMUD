@@ -11,6 +11,13 @@ This document explains how to add a new item capability through the component sy
 
 It is the primary implementation guide for creating new item "types" in FutureMUD.
 
+### Climbing aids and locksmithing bonuses
+
+`climbingaid` adds a native `Climbing Aid` component. Builder options are `bonus <number>`, `held` and `worn`; both equipment modes default on. Worn eligibility is independent of body location. Vertical and tree-to-tree climbing use the strongest eligible equipped aid, without stacking or granting climbing ability. Saved XML fields are `CheckBonus`, `WorksHeld` and `WorksWorn`. The component has no consumable instance state.
+
+Locksmithing tools retain their existing integer difficulty adjustment. The optional `checkbonus <number>` sets a separate flat target-number bonus for picking and relocking; missing `CheckBonus` XML means zero. It does not affect installation, fabrication, inspection or configuration permissions. Both tool families use `CheckEvaluationContext.FlatBonusParameterName` in check custom parameters, applied before any optional maximum-target cap. An absent value means zero, and the parameter does not bypass native timebound outcome retention. Ordinary weather/effect difficulty bonuses remain separate.
+
+
 ## Actor-driven physical operations
 
 Use `ItemManipulationGuard.CanManipulate` in actorful feasibility, diagnostic and execution methods before resource use or mutation. Include the component parent and any separately manipulated tool, connector or target. Delayed work must recheck before each step. Generic operation requires a usable manipulator, not an empty hand; component-specific plans and lawful-action checks still apply. Actorful `Empty` preflights every source item with `CanTake` before clearing anything.
@@ -649,3 +656,15 @@ Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed an
 ## Sand Knife weapon profiles
 
 Bounded Sand Knife stock selects six distinct temporary grade prototypes and eight distinct permanent staff prototypes. All require approved unscripted plain-item graphs, a usable one-hand native melee attack and physical Slashing/Chopping/Crushing/Piercing profiles. Historical statistics and charged staff payloads are unavailable; choose and document native profiles explicitly. The controlled acceptance authors piercing6 damage4 pain2 stun and exercises real native wield/combat; it does not establish historical profile parity. Configure lifetime, grade output pool, permanent-grade switch and eligibility on the spell, not duplicate component timers.
+
+
+### Intrinsic equipment bonuses
+
+The `equipmentbonuses` component contributes signed, additive trait and resource-capacity modifiers through the existing `EquippedItemBonuses` consumers. It does not create a spell parent or rewrite base traits. Builders toggle `worn`, `wielded` and `held`, exclude individual wear profiles with `exclude <profile ID>`, and configure `bonus <Trait|Health|Stun|Stamina|MagicResource> <target ID or 0> <signed amount>`. Trait and MagicResource require their native target IDs; capacity kinds use zero. A zero builder value removes that entry.
+
+Directly worn and wielded activation default on; physical holding defaults off. Holding requires a unary native grabbing location, so the abstract inventory slot does not activate effects. Belt attachments and sheath contents are storage, not directly worn equipment. Worn profile exclusions apply only to wearing, not wielding. The component's XML stores activation flags, excluded profile IDs and bonus rows; there is no mutable per-instance state. Evaluation describes the configured modifiers. Bonuses add across active items and coexist with spell-owned equipment bonuses. Existing health strategies determine capacity semantics; this component does not change wounds or heal characters.
+
+
+`CombatAttack`, `CombatDefence` and `SpellResistance` are additional zero-target equipment bonus kinds. They contribute flat target-number adjustments in the native standard, static, bonus-absent and OGL check evaluators (including their inherited timebound behaviour), before optional target caps. Combat classification uses the native offensive/defensive action helpers, including their penetration, coordination and manoeuvre checks. Spell resistance applies to `ResistMagicSpellCheck`, not casting success. These modifiers neither stage difficulty nor invalidate retained timebound outcomes.
+
+`PhysicalAbsorption` is a nonnegative zero-target amount. Active items add their amounts together. The body applies the total after armour to physical damage and stun, clamping each to zero, before existing multiplicative damage protection. This is separate from a garment armour component and does not consume or damage the bonus item. It affects cutting, crushing, piercing, ballistic, bite/claw, shearing, wrenching, shrapnel, shockwave and falling damage, including armour-piercing physical types. It does not affect thermal, chemical, electrical, sonic, cellular, hypoxic, necrotic or magical damage types. Pain/shock and damage provenance remain unchanged. Recursive bone/organ routing does not apply it again.

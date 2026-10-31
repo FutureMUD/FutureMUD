@@ -104,6 +104,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 
 	private void InstallMountSellers()
 	{
+		EnsureMountRegisters();
 		foreach (var source in _source.Npcs.Where(x => _npcs.ContainsKey(x.Vnum) && HasRetainedNpcReset(x.Vnum) &&
 			x.Programs.Contains("C buy mount_seller")))
 		{
@@ -148,6 +149,16 @@ internal sealed partial class ArmageddonWorldfileWriter
 							return true
 						end if
 						sendloc(@actor.location, "$0 pays $1 for $2.", @actor, @seller, @animal)
+						setregister @animal "{{MountOwnerRegister}}" @actor.identityid
+						setregister @animal "{{MountTrainedRegister}}" 1
+						var approved as number collection
+						approved = getregister(@animal, "{{MountApprovedRidersRegister}}")
+						if (not(contains(@approved, @actor.identityid)))
+							additem approved @actor.identityid
+							setregister @animal "{{MountApprovedRidersRegister}}" @approved
+						end if
+						setnpccompanion(@animal, @actor)
+						setfollowing(@animal, @actor)
 						if (canmount(@actor, @animal))
 							mount(@actor, @animal)
 						end if
@@ -160,7 +171,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				InstallNpcInputHook($"Mount Sales {source.Vnum} {command}", command, prog, [source.Vnum]);
 			}
 			Record("npc-service.mount-sales." + source.Vnum, "NativeNpcPurchase", _npcs[source.Vnum].Id, null,
-				new { Seller = source.Vnum, Catalogue = catalogue, Disposition = "Only explicitly assigned source stock entries; the uninitialised seventh slot at seller 50413 is omitted. Native cash settlement and one delivered animal, no new ownership/taming restrictions, no replenishing spawner. Native mounting is attempted only when permitted; otherwise the animal remains beside its buyer. Source eligibility restrictions concern other inactive vendor IDs and are not invented here." });
+				new { Seller = source.Vnum, Catalogue = catalogue, Disposition = "Only explicitly assigned source stock entries; the uninitialised seventh slot at seller 50413 is omitted. Native cash settlement and one delivered animal; purchase gives the buyer permanent owner identity and approved-rider status. No replenishing spawner. Native mounting is attempted only when permitted; otherwise the animal remains beside its buyer. Source eligibility restrictions concern other inactive vendor IDs and are not invented here." });
 		}
 		_counts["mount sale catalogues"] = MountSaleCatalogues.Keys.Count(x => _npcs.ContainsKey(x) && HasRetainedNpcReset(x));
 	}

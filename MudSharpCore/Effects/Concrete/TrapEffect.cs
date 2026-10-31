@@ -365,14 +365,16 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	/// </summary>
 	public static bool IsValidAnchor(ITrapTemplate template, IPerceivable anchor)
 	{
-		return anchor is not IRoom || template.Triggers.All(x => x.TriggerType != TrapTriggerType.Proximity);
+		return (!template.ClosedItemAnchor || anchor is IGameItem item &&
+		        (item.IsItemType<IDoor>() || item.IsItemType<IContainer>()) && item.GetItemType<IOpenable>() is { IsOpen: false }) &&
+		       (anchor is not IRoom || template.Triggers.All(x => x.TriggerType != TrapTriggerType.Proximity));
 	}
 
 	public static bool TryBindComponents(ITrapTemplate template, IEnumerable<IGameItem> suppliedItems,
 		out List<TrapComponentBinding> bindings)
 	{
 		bindings = [];
-		if (template.SourceKind != TrapSourceKind.Mechanical)
+		if (template.SourceKind != TrapSourceKind.Mechanical || template.Preassembled)
 		{
 			return true;
 		}
@@ -505,7 +507,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 		ICharacter? triggerer = type switch
 		{
-			EventType.ItemOpened => arguments.Length > 0 ? arguments[0] as ICharacter : null,
+			EventType.ItemOpened or EventType.ItemAboutToBeJunked => arguments.Length > 0 ? arguments[0] as ICharacter : null,
 			EventType.CharacterEnterRoomWitness => arguments.Length > 0 ? arguments[0] as ICharacter : null,
 			EventType.CharacterBeginMovementWitness => arguments.Length > 0 ? arguments[0] as ICharacter : null,
 			EventType.TrapSignalReceived => arguments.Length > 0 ? arguments[0] as ICharacter : null,
@@ -534,7 +536,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	public bool HandlesEvent(params EventType[] types)
 	{
-		return types.Any(x => x is EventType.ItemOpened or EventType.CharacterEnterRoomWitness or
+		return types.Any(x => x is EventType.ItemOpened or EventType.ItemAboutToBeJunked or EventType.CharacterEnterRoomWitness or
 			EventType.CharacterBeginMovementWitness or EventType.TrapSignalReceived or EventType.PerceivableProximityChanged);
 	}
 
@@ -640,6 +642,9 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 		switch (trigger.TriggerType)
 		{
+			case TrapTriggerType.Junked:
+				return eventType == EventType.ItemAboutToBeJunked && Owner is IGameItem;
+
 			case TrapTriggerType.Openable:
 				return eventType == EventType.ItemOpened && Owner is IGameItem;
 

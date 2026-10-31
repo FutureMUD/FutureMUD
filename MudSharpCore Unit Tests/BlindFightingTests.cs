@@ -526,6 +526,26 @@ public class BlindFightingTests
 	}
 
 	[TestMethod]
+	[DataRow(0.0)]
+	[DataRow(3.5)]
+	public void TimeboundCheck_FlatToolBonus_RetainsExistingOutcome(double bonus)
+	{
+		var f = new Fixture();
+		var cached = new Mock<ICheckResultEffect>();
+		cached.SetupGet(x => x.Outcome).Returns(Outcome.MajorPass);
+		cached.Setup(x => x.SameCheck(It.IsAny<CheckType>(), It.IsAny<Difficulty>(), It.IsAny<IFrameworkItem>(),
+			It.IsAny<ITraitDefinition>(), It.IsAny<IFrameworkItem>())).Returns(true);
+		f.Actor.Setup(x => x.EffectsOfType<ICheckResultEffect>(It.IsAny<Predicate<ICheckResultEffect>>())).Returns([cached.Object]);
+		var model = f.Model(f.Ordinary.TargetNumberExpression, CheckType.LocksmithingCheck);
+		model.CheckTemplate.Definition = "<Definition minimum_time='60' maximum_time='60'/>";
+		var timebound = new CountingTimeboundCheck(model, f.World.Object);
+		Assert.AreEqual(Outcome.MajorPass, timebound.Check(f.Actor.Object, Difficulty.Normal, f.Opponent.Object,
+			customParameters: [(CheckEvaluationContext.FlatBonusParameterName, bonus)]).Outcome);
+		Assert.AreEqual(0, timebound.RollCount);
+		f.Actor.Verify(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]
 	public void TimeboundCheck_BlindFightingContext_BypassesExistingCacheAndDoesNotPopulateCache(bool useTool)

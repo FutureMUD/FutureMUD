@@ -12,6 +12,9 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Form.Material;
 using MudSharp.Health;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.Magic;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp_Unit_Tests;
@@ -137,6 +140,24 @@ public partial class FiniteArmourTests
 		var first = f.Body.PassiveSufferDamage(Packet()).Single(); Assert.AreEqual(10.0, first.CurrentDamage, .000001);
 		var second = f.Body.PassiveSufferDamage(Packet()).Single(); Assert.AreSame(first, second);
 		Assert.AreEqual(20.0, second.CurrentDamage, .000001);
+	}
+
+	[TestMethod]
+	public void EquippedAbsorption_AppliesOnActualBodyDamageBeforeMultiplicativeProtection()
+	{
+		var f = ProtectionFixture();
+		var item = new Mock<IGameItem>(); var provider = new Mock<IEquippedItemBonusProvider>();
+		item.SetupGet(x => x.InInventoryOf).Returns(f.Body);
+		provider.Setup(x => x.BonusesFor(f.Victim.Object)).Returns([new(EquippedItemBonusKind.PhysicalAbsorption, 0, 2)]);
+		item.Setup(x => x.GetItemTypes<IEquippedItemBonusProvider>()).Returns([provider.Object]);
+		var external = (ICollection<IGameItem>)typeof(MudSharp.Body.Implementations.Body)
+			.GetField("_externalItems", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(f.Body)!;
+		external.Add(item.Object);
+		Assert.AreEqual(18.0, f.Body.PassiveSufferDamage(f.Packet(20)).Single().CurrentDamage, 0.000001);
+		f.Effects.Add(new DamageProtectionStatus(f.Victim.Object, 0.5, 0));
+		IDamage? damage = f.Packet(20); IDamage? inward = f.Packet(12);
+		Assert.IsTrue(f.Body.TryApplyDamageProtection(ref damage, ref inward));
+		Assert.AreEqual(9.0, damage!.DamageAmount); Assert.AreEqual(5.0, inward!.DamageAmount);
 	}
 
 	private static Fixture ProtectionFixture()

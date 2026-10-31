@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 
@@ -10,6 +10,7 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto, ILocks
 {
     public override string TypeDescription => "Locksmithing Tool";
     public int DifficultyAdjustment { get; set; }
+    public double CheckBonus { get; set; }
     public bool UsableForInstallation { get; set; }
     public bool UsableForFabrication { get; set; }
     public bool UsableForConfiguration { get; set; }
@@ -37,12 +38,13 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto, ILocks
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return
-            $"{"Locksmithing Tool Game Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}\n\nThis item is a locksmithing tool and {(UsableForInstallation ? "can".Colour(Telnet.Green) : "cannot".Colour(Telnet.Red))} be used for installation and configuration. It {(Breakable ? "can".Colour(Telnet.Green) : "cannot".Colour(Telnet.Red))} break upon major failure. It provides {(DifficultyAdjustment == 0 ? "no penalty or bonus".Colour(Telnet.Yellow) + " to locksmithing checks." : DifficultyAdjustment < 0 ? $"a penalty of {(DifficultyAdjustment * -1).ToString("N0").Colour(Telnet.Red)} degrees" : $"a bonus of {DifficultyAdjustment.ToString("N0").Colour(Telnet.Green)} degrees")}.";
+            $"{"Locksmithing Tool Game Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}\n\nFlat picking/relocking bonus: {CheckBonus.ToString("N2", actor).ColourValue()}.\nThis item is a locksmithing tool and {(UsableForInstallation ? "can".Colour(Telnet.Green) : "cannot".Colour(Telnet.Red))} be used for installation and configuration. It {(Breakable ? "can".Colour(Telnet.Green) : "cannot".Colour(Telnet.Red))} break upon major failure. It provides {(DifficultyAdjustment == 0 ? "no penalty or bonus".Colour(Telnet.Yellow) + " to locksmithing checks." : DifficultyAdjustment < 0 ? $"a penalty of {(DifficultyAdjustment * -1).ToString("N0").Colour(Telnet.Red)} degrees" : $"a bonus of {DifficultyAdjustment.ToString("N0").Colour(Telnet.Green)} degrees")}.";
     }
 
     protected override void LoadFromXml(XElement root)
     {
         DifficultyAdjustment = int.Parse(root.Element("DifficultyAdjustment")?.Value ?? "0");
+        CheckBonus = (double?)root.Element("CheckBonus") ?? 0.0;
         UsableForInstallation = bool.Parse(root.Element("UsableForInstallation")?.Value ?? "False");
         UsableForConfiguration = bool.Parse(root.Element("UsableForConfiguration")?.Value ?? "False");
         UsableForFabrication = bool.Parse(root.Element("UsableForFabrication")?.Value ?? "False");
@@ -53,6 +55,7 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto, ILocks
     {
         return new XElement("Definition",
             new XElement("DifficultyAdjustment", DifficultyAdjustment),
+            new XElement("CheckBonus", CheckBonus),
             new XElement("UsableForInstallation", UsableForInstallation),
             new XElement("UsableForConfiguration", UsableForConfiguration),
             new XElement("UsableForFabrication", UsableForFabrication),
@@ -96,7 +99,7 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto, ILocks
     #region Overrides of GameItemComponentProto
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tbonus <#> - a positive (bonus) or negative (penalty) number of difficulty steps this tool imposes\n\tbreakable - toggles whether it breaks on a major failure\n\tinstall - toggles whether it can be used to install locks\n\tconfig - toggles whether it can be used to configure locks\n\tfabrication - toggles whether it can be used to fabricate locks and keys";
+        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tbonus <#> - a positive (bonus) or negative (penalty) number of difficulty steps this tool imposes\n\tcheckbonus <number> - sets the flat native bonus for picking and relocking\n\tbreakable - toggles whether it breaks on a major failure\n\tinstall - toggles whether it can be used to install locks\n\tconfig - toggles whether it can be used to configure locks\n\tfabrication - toggles whether it can be used to fabricate locks and keys";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -104,6 +107,16 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto, ILocks
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "checkbonus":
+                if (!double.TryParse(command.SafeRemainingArgument, System.Globalization.NumberStyles.Float, actor, out var bonus) || !double.IsFinite(bonus))
+                {
+                    actor.Send("Enter a finite picking check bonus.");
+                    return false;
+                }
+                CheckBonus = bonus;
+                Changed = true;
+                actor.Send($"This tool now supplies a picking check bonus of {CheckBonus.ToString("N2", actor).ColourValue()}.");
+                return true;
             case "bonus":
             case "penalty":
             case "adjustment":

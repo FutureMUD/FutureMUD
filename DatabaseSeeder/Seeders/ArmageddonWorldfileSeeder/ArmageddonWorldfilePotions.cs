@@ -1,9 +1,9 @@
 #nullable enable
 
 using System;
-using CultureInfo = System.Globalization.CultureInfo;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Xml.Linq;
 using MudSharp.FutureProg;
 using MudSharp.Health;
@@ -14,50 +14,66 @@ namespace DatabaseSeeder.Seeders;
 
 internal sealed partial class ArmageddonWorldfileWriter
 {
-	private void InstallHealingPotions()
+	private void InstallPotions()
 	{
-		var candidates = _effectiveItems.Where(x => x.Value.Source.ItemType == 10).ToArray();
-		if (candidates.Length == 0) return;
-		var baseId = OwnedBehaviourId(ArmageddonReviewedUtilityContent.MendFleshKey, nameof(MagicSpell));
-		var original = baseId is null ? null : _db.MagicSpells.Local.FirstOrDefault(x => x.Id == baseId) ?? _db.MagicSpells.Single(x => x.Id == baseId);
-		foreach (var (id, effective) in candidates)
+		using var manifest = JsonDocument.Parse(ArmageddonStockManifest.Read());
+		var keys = manifest.RootElement.GetProperty("entries").EnumerateArray()
+			.Where(x => x.TryGetProperty("historical_source", out var source) && source.ValueKind == JsonValueKind.Object &&
+				source.TryGetProperty("skill_id", out var skill) && skill.ValueKind == JsonValueKind.Number &&
+				x.GetProperty("key").GetString()!.StartsWith("arm.spell.", StringComparison.Ordinal))
+			.ToDictionary(x => x.GetProperty("historical_source").GetProperty("skill_id").GetInt32(), x => x.GetProperty("key").GetString()!);
+		MagicSpell? rewind = null;
+		foreach (var (id, effective) in _effectiveItems.Where(x => x.Value.Source.ItemType == 10).ToArray())
 		{
-			var spells = effective.Values.Skip(1).Take(3).Where(x => x > 0).ToArray();
-			if (original is null || spells.Length != 1 || spells[0] != 12 || effective.Values[0] is < 1 or > 7)
+			var slots = effective.Values.Skip(1).Take(3).ToArray();
+			var payloads = slots.Where(x => x > 0 && x is not (28 or 33 or 36 or 42)).ToArray();
+			var sourceGrade = effective.Values[0];
+			var grade = Math.Min(sourceGrade, 7);
+			if (sourceGrade > 7)
+				Adapt("potion", effective.Source.Vnum, $"Saved grade {sourceGrade} maps to maximum native grade 7 by the approved import policy.");
+			if (payloads.Length > 0 && grade < 1)
 			{
-				Adapt("potion", effective.Source.Vnum, "Only one explicitly mapped source heal payload at levels 1-7 is installed; mixed, unknown or unavailable spell payloads remain deferred as whole items.");
+				Adapt("potion", effective.Source.Vnum, "Saved grade is below native grade 1; the complete item remains inactive.");
 				continue;
 			}
-			var definition = XElement.Parse(original.Definition);
-			var filterId = (long?)definition.Element("Trigger")?.Element("TargetFilterProg") ?? 0;
-			var filter = _db.FutureProgs.Local.FirstOrDefault(x => x.Id == filterId) ?? _db.FutureProgs.SingleOrDefault(x => x.Id == filterId);
-			var effects = definition.Element("Effects")!.Elements().ToArray();
-			if (filter is null || effects.Length != 1 || (string?)effects[0].Attribute("type") != "heal")
-				throw new InvalidOperationException("Healing fruit requires the installed Mend Flesh healing effect and target eligibility prog.");
-			var effect = new XElement(effects[0]);
-			effect.Element("HealingAmount")!.Value = Regex.Replace(effect.Element("HealingAmount")!.Value,
-				@"\bgrade\b", effective.Values[0].ToString(CultureInfo.InvariantCulture), RegexOptions.IgnoreCase);
-			var spell = new MagicSpell
+			// Resolve every slot before creating anything. Missing dependencies must never produce a partial potion.
+			var resolved = new List<(int Source, MagicSpell Spell)>();
+			foreach (var source in payloads)
 			{
-				Id = Next<MagicSpell>(), Name = "Vnum" + effective.Source.Vnum + " Healing", Blurb = "Prepared healing fruit",
-				Description = "Source-level healing delivered by consuming the prepared item. Uses the installed native Mend Flesh effect and eligibility policy without Mana costs.",
-				MagicSchoolId = original.MagicSchoolId, SpellKnownProgId = _settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg],
-				MinimumSuccessThreshold = 1, CastingEmote = "", FailCastingEmote = "", TargetEmote = original.TargetEmote,
-				TargetResistedEmote = "", TargetNullEmote = "", TargetEmoteFlags = original.TargetEmoteFlags,
-				Definition = new XElement("Spell", new XElement("Trigger", new XAttribute("type", "substancecharacter")),
-					new XElement("Costs"), new XElement("Effects", effect), new XElement("CasterEffects"), new XElement("Plan")).ToString()
-			};
-			_db.MagicSpells.Add(spell);
-			var substance = new MagicalSubstance { Id = Next<MagicalSubstance>(), Name = "Vnum" + effective.Source.Vnum + " Healing Dose",
-				Definition = new XElement("Substance", new XAttribute("vectors", (int)DrugVector.Ingested),
-					new XAttribute("power", (int)SpellPower.ExtremelyWeak + effective.Values[0] - 1), new XAttribute("reference", 1), new XAttribute("clearance", 1),
-					new XElement("Entry", new XAttribute("key", Guid.NewGuid()), new XAttribute("spell", spell.Id),
-						new XAttribute("lifecycle", (int)SubstanceLifecycle.Activation), new XAttribute("pulse", (int)SubstancePulseMode.Presence),
-						new XAttribute("stack", (int)SubstanceStacking.Aggregate), new XAttribute("scale", (int)SubstanceScaling.Magnitude),
-						new XAttribute("minimum", 1), new XAttribute("maximum", 1), new XAttribute("duration", 1), new XAttribute("durationcap", 1), new XAttribute("interval", 10))).ToString() };
-			_db.MagicalSubstances.Add(substance);
+				if (!keys.TryGetValue(source, out var key) || OwnedBehaviourId(key, nameof(MagicSpell)) is not { } spellId) break;
+				var spell = _db.MagicSpells.Local.FirstOrDefault(x => x.Id == spellId) ?? _db.MagicSpells.SingleOrDefault(x => x.Id == spellId);
+				if (spell is null) break;
+				var definition = XElement.Parse(spell.Definition);
+				if (definition.Element("ControlledPower")?.Elements("Grade").Any(x => (int?)x.Attribute("number") == grade) != true) break;
+				var filterId = (long?)definition.Element("Trigger")?.Element("TargetFilterProg") ?? 0;
+				if (filterId != 0 && !_db.FutureProgs.Local.Any(x => x.Id == filterId) && !_db.FutureProgs.Any(x => x.Id == filterId)) break;
+				resolved.Add((source, spell));
+			}
+			if (resolved.Count != payloads.Length)
+			{
+				Adapt("potion", effective.Source.Vnum, "At least one complete native payload, grade or eligibility dependency is unavailable; all potion payloads remain inactive.");
+				continue;
+			}
+			var entries = resolved.Select(x => new SubstanceEffectEntry
+			{
+				SpellId = x.Source == 65 ? (rewind ??= CreatePotionRewind(x.Spell)).Id : x.Spell.Id,
+				NativeSpellGrade = grade, Lifecycle = SubstanceLifecycle.Activation, Scaling = SubstanceScaling.Magnitude,
+				MinimumDose = 1, MaximumDose = 1
+			}).ToArray();
+			MagicalSubstance? substance = null;
+			if (entries.Length > 0)
+			{
+				substance = new MagicalSubstance
+				{
+					Id = Next<MagicalSubstance>(), Name = "Vnum" + effective.Source.Vnum + " Potion " + id,
+					Definition = new XElement("Substance", new XAttribute("vectors", (int)DrugVector.Ingested),
+						new XAttribute("power", (int)SpellPower.ExtremelyWeak + grade - 1), new XAttribute("reference", 1), new XAttribute("clearance", 1),
+						entries.Select(PotionEntry)).ToString()
+				};
+				_db.MagicalSubstances.Add(substance);
+			}
 			var consume = Prog("ArmageddonWorldfilePotionConsume" + id,
-				$"if (@{filter.FunctionName}(@actor, @actor))\napplymagicalsubstance(@actor, {substance.Id}, 1, \"ingested\")\nend if",
+				substance is null ? "return" : $"applymagicalsubstance(@actor, {substance.Id}, 1, \"ingested\")",
 				ProgVariableTypes.Void, ("actor", ProgVariableTypes.Character), ("item", ProgVariableTypes.Item));
 			var proto = _items.Values.Concat(_resetItemVariants.Values).First(x => x.Id == id);
 			var pill = Component("potion." + id, "Pill", new XElement("Definition", new XElement("Drug", 0), new XElement("GramsPerPill", 0),
@@ -68,9 +84,41 @@ internal sealed partial class ArmageddonWorldfileWriter
 				ProgVariableTypes.Boolean, ("actor", ProgVariableTypes.Character), ("item", ProgVariableTypes.Item),
 				("command", ProgVariableTypes.Text), ("args", ProgVariableTypes.Text | ProgVariableTypes.Collection));
 			AttachSpiceHook(proto, "PotionInputHook", SpiceHook("quaff", input));
-			Record("potion.healing." + id, nameof(MagicalSubstance), substance.Id, null,
-				new { SourceVnum = effective.Source.Vnum, SourceLevel = effective.Values[0], Spell = spell.Id, Eligibility = filter.Id,
-					Disposition = "One-shot native swallow and substance healing; consumes even if ineligible. Installed Mend Flesh mean wound budget, no terrain level shifts, no drinker Mana or casting skill. No direct carrier binding: on-swallow prog checks native target eligibility first." });
+			Record("potion." + id, nameof(GameItemProto), proto.Id, proto.RevisionNumber, new
+			{
+				SourceVnum = effective.Source.Vnum, SourceLevel = sourceGrade, NativeGrade = grade, Slots = slots,
+				Substance = substance?.Id, Spells = entries.Select(x => x.SpellId).ToArray(),
+				Disposition = "Complete ordered native spell payloads at saved grade capped at native grade 7, including duplicates; no Mana, skill roll or extra materials. Source slots 28/33/36/42 are mechanical no-ops. Empty potions are consumable. Rewind gives a delayed native route hint."
+			});
 		}
+	}
+
+	private static XElement PotionEntry(SubstanceEffectEntry entry) => new("Entry", new XAttribute("key", entry.Key),
+		new XAttribute("spell", entry.SpellId), new XAttribute("nativegrade", entry.NativeSpellGrade),
+		new XAttribute("lifecycle", (int)entry.Lifecycle), new XAttribute("pulse", (int)entry.PulseMode),
+		new XAttribute("stack", (int)entry.Stacking), new XAttribute("scale", (int)entry.Scaling),
+		new XAttribute("minimum", 1), new XAttribute("maximum", 1), new XAttribute("duration", 1),
+		new XAttribute("durationcap", 1), new XAttribute("interval", 10));
+
+	private MagicSpell CreatePotionRewind(MagicSpell original)
+	{
+		var definition = XElement.Parse(original.Definition);
+		definition.Element("StockIdentity")?.Remove();
+		definition.Element("Effects")!.ReplaceNodes(new XElement("Effect", new XAttribute("type", "delayedlocationhint"),
+			new XElement("BaseDelay", 1.875), new XElement("DelayPerGrade", 1.875),
+			new XElement("BaseRange", 10), new XElement("RangePerGrade", 10)));
+		var spell = new MagicSpell
+		{
+			Id = Next<MagicSpell>(), Name = "Potion Rewind", Blurb = "Remember a location through a delayed magical hint.",
+			Description = "A delayed native route hint to the drinker's position when this payload activates. It never moves the recipient.",
+			MagicSchoolId = original.MagicSchoolId, SpellKnownProgId = _settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg],
+			CastingTraitDefinitionId = original.CastingTraitDefinitionId, CastingDifficulty = original.CastingDifficulty,
+			EffectDurationExpressionId = original.EffectDurationExpressionId, MinimumSuccessThreshold = original.MinimumSuccessThreshold,
+			CastingEmote = "", FailCastingEmote = "", TargetEmote = "", TargetResistedEmote = "", TargetNullEmote = "",
+			AppliedEffectsAreExclusive = false, Definition = definition.ToString()
+		};
+		_db.MagicSpells.Add(spell);
+		Record("potion.rewind", nameof(MagicSpell), spell.Id, null, new { Disposition = "Source delayed direction hint; native bounded path permissions; no teleportation." });
+		return spell;
 	}
 }

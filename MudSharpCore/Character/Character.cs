@@ -2505,6 +2505,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                                               .Where(x => x.BodyguardingCharacterID == Id)
                                               .ToList())
             {
+                MudSharp.NPC.NpcCompanionLifecycle.PrepareForLogout(bodyguard);
                 bodyguard.Quit();
             }
 
@@ -2604,7 +2605,15 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                     Gameworld.Add(bodyguard, true);
                 }
 
-                Location.Login(bodyguard);
+                if (MudSharp.NPC.NpcCompanionLifecycle.CanReuniteWith(bodyguard, this))
+                {
+                    Location.Login(bodyguard);
+                    MudSharp.NPC.NpcCompanionLifecycle.Reunited(bodyguard, this);
+                }
+                else if (bodyguard.Location is { } previousLocation)
+                {
+                    previousLocation.Login(bodyguard);
+                }
             }
 
             Gameworld.CachedBodyguards[Id].Clear();

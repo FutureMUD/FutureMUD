@@ -48,7 +48,27 @@ For example, if one serving occupies 20 engine fluid units, `reference 1` and bi
 
 `maximum` caps the dose used for an entry. `minimum` specifies the minimum fractional dose in one delivery action. Separate subthreshold actions do not earn activation credit. Physical traversal of one action across multiple liquid portions is grouped before checking this threshold. Indivisible instantaneous effects and indivisible maintained/magnitude effects require a positive minimum. Set minimum to 1 for a full-dose-only transformation or cure.
 
-### Lifecycles
+### Fixed-grade native spell preparations
+
+An entry can opt into native spell execution with `magic substance set entry <number> nativegrade <1-7>`. Set `nativegrade 0` to restore the ordinary casterless substance mode. Existing definitions load with zero and retain their original behaviour.
+
+This mode uses the configured native spell grade rather than the consumer's casting skill. It supports character/self, room and random Waystep targets through an explicit effect compatibility list. The recipient supplies the responsible actor and current location. Character target filters, resistance, magical wards, no-magic rooms and native relocation safety still apply. An exposure to a body that is not the character's active body cannot redirect the preparation onto the active body.
+
+Entries must use activation with magnitude scaling and a positive finite minimum dose and cap. Reaching the threshold activates the fixed grade once; excess quantity does not increase that grade. Native spell formulas and lifetime policies supply effect strength, duration and replacement behaviour. The entry's ordinary substance duration and stacking settings do not override them. No casting skill roll, Mana payment or casting delay is required; preparation activation does not perform an inventory plan or emit the ordinary casting emote.
+
+The complete definition is validated before delivery. Native entries require a valid grade profile, compatible trigger and effects, no area or separate caster payload, and a duration expression for persistent effects. Potency expressions may use fixed invocation inputs (`grade`, `power`, `mastery`, `outcome`, `degrees`, `success`), but cannot depend on consumer traits or other variable inputs. Unsupported effects make the entire substance unavailable, rather than silently executing a partial preparation.
+
+Entries execute in stored order, including duplicates. Each admitted entry spends its activation charge even when eligibility, resistance or wards prevent its effects. A later entry resolves against the recipient's location after earlier entries, so relocation and subsequent room effects retain their order.
+
+### Delayed location hints
+
+The reusable `delayedlocationhint` spell effect records a character recipient's room when applied. Its builder settings are `delay <base seconds> <seconds per grade>` and `range <base exits> <exits per grade>`. The resolved delay is positive and at most one day; the resolved range is 1–140 exits. Both bounds must hold at every grade. Unranked ordinary casting derives a grade from spell power.
+
+At the deadline it reports the native permitted route from the recipient's current room to the remembered room, or an unavailable-route message. A recipient already in the remembered room receives its name. It never teleports, opens doors or crosses barriers. The native path query retains visibility and traversal permissions and a bounded search budget. Absolute deadlines, body identity, room and range persist as a normal dispellable spell child. Death, logout, deletion, body change or dispelling cancels the hint; saving/reloading does not restart its delay. Separate applications can remember separate locations.
+
+The Armageddon potion Rewind adapter uses `1.875 + 1.875*grade` real seconds and `10 + 10*grade` exits, translating the source event-clock units. The installed Return Tether spell retains its existing teleport behaviour; the importer creates a separate hidden preparation spell for the hint.
+
+### Ordinary substance lifecycles
 
 | Entry lifecycle | Behavior | Timing |
 | --- | --- | --- |

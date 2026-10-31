@@ -802,6 +802,9 @@ namespace MudSharp.Events
         [EventInfo("Fires on a character when they enter the parched state.", ["character", "location"], ["character", "location"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location])]
         CharacterParched = 163,
         [EventInfo("Fires on local perceivables when they witness a character enter the parched state.", ["character", "location", "perceivable"], ["character", "location", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable])]
-        CharacterInRoomParched = 164
+        CharacterInRoomParched = 164,
+
+		[EventInfo("Fires on an item immediately before a confirmed, permitted junk action destroys it. Ordinary dropping does not fire this event.", ["character", "item"], ["actor", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+		ItemAboutToBeJunked = 165
     }
 }

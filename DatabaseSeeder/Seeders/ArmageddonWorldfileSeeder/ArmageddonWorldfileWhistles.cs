@@ -13,6 +13,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 {
 	private void InstallHuntingWhistles()
 	{
+		InstallMountWhistle();
 		var sources = _source.Items.Where(x => x.Programs.Contains("C whistle halfling_whistle") && _items.ContainsKey(x.Vnum) &&
 			_source.Resets.Any(r => r.ReferenceIssues.Length == 0 && r.Opcode is "O" or "P" or "G" or "E" &&
 				r.Arguments.Length > 1 && r.Arguments[1] == x.Vnum)).Select(x => x.Vnum).ToArray();

@@ -187,7 +187,11 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallItemGames();
 		InstallLegacyPoisonEffects();
 		InstallBandaging();
+		InstallSpecialisedTools();
+		InstallItemAffects();
+		InstallExplosiveTraps();
 		InstallPoisonDelivery();
+		InstallHerbBrewing();
 		InstallPoisonCleansing();
 		InstallNoteComponents();
 		InstallWritingImplements();
@@ -195,7 +199,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallPlacedSpellComponents();
 		InstallPlacedTravelRunes();
 		InstallPlacedMagicDevices();
-		InstallHealingPotions();
+		InstallPotions();
 		InstallSpiceConsumption();
 		InstallMulRage();
 		InstallGuardSpecials();

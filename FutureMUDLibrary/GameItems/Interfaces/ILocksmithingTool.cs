@@ -1,4 +1,4 @@
-﻿namespace MudSharp.GameItems.Interfaces
+namespace MudSharp.GameItems.Interfaces
 {
     public interface ILocksmithingTool : IGameItemComponent
     {
@@ -7,5 +7,6 @@
         bool UsableForInstallation { get; }
         bool Breakable { get; }
         int DifficultyAdjustment { get; }
+        double CheckBonus { get; }
     }
 }

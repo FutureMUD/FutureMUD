@@ -161,6 +161,7 @@ public partial class Character
 
         _riders.Add(rider);
         rider.RidingMount = this;
+        NpcCompanionLifecycle.Mounted(this, rider);
         rider.SetPosition(PositionRiding.Instance, PositionModifier.None, this, null);
         rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.MountEmote(this, rider), this, this, rider)));
         HandleMountEvent(EventType.CharacterMounted, EventType.CharacterMountedWitness, rider);
@@ -175,6 +176,7 @@ public partial class Character
             ai?.DismountEmote(this, rider) ?? "$1 $1|dismount|dismounts $0.", this, this, rider)));
         HandleMountEvent(EventType.CharacterDismounted, EventType.CharacterDismountedWitness, rider);
         ClearRidingState(rider);
+        NpcCompanionLifecycle.Reunited(this, rider);
     }
 
     public void RemoveRider(ICharacter rider)

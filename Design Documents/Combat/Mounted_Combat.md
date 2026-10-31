@@ -96,3 +96,14 @@ A vehicle charge requires the character to be the vehicle's controller, an occup
 ## Verification Expectations
 
 Changes to mounted combat should build both the core and Database Seeder projects and run the core and seeder unit suites. At minimum, tests should cover domain classification, primary-controller authority, strategy factory/classification, canonical seeded strategies, animal/mythical loadout links, mount-sprawl dismount and crush outcomes, fallback-versus-specialist weapon attack separation, and the Driving skill. Live validation should boot a local MUD, confirm the combat strategy names are parser-visible, and exercise an actual mounted charge and mount knockdown when the selected database contains a suitable mount or vehicle fixture.
+
+
+## Optional companion reunion policy
+
+MountAI builders can toggle `nearbycompanion` (XML `CompanionRequiresColocation`, default false). This reuses the NPC bodyguard/player association and existing logout cache without adding combat duties. Assigned nearby NPCs already quit with their handler. When this option is enabled, startup and login reunion additionally require the same room and layer; a separated animal is loaded at its own location instead of recalled across the world. Primary character-instance location is authoritative at startup, and missing/dead/archived handlers release this optional association. Legacy bodyguard and MountAI definitions keep their prior reunion behaviour. Assignment, leading and taming are separate from this lifecycle policy.
+
+The separate `companion` toggle (XML `CompanionFollowsHandler`, default false) assigns a successful player rider through the same bodyguard association. Dismounting or reunion resumes native following when there is no existing leader; it preserves an existing hitch chain. Room-entry events can reunite a separated animal only with its assigned living player in the same location. Primary player death releases these optional companions. The association represents current handling, not property ownership. No protection/combat AI is attached.
+
+FutureProg exposes `setfollowing(character, character)` (null stops; colocated, cycle-safe), `setnpccompanion(npc, character)` (null releases; living colocated player; offline cached companions cannot be reassigned), and `setnpcai(npc, aiId, enabled)` (changes an instance's persisted AI list). All return success booleans. Ownership and rider permissions remain configurable through register variables and MountAI permit/control progs; merely changing a follow relationship does not grant permission.
+
+Before an assigned mount logs out with its player, optional companion handling silently clears its riding links and normalizes the rider's posture. Reunion restores following, not an automatic remount; this behaves consistently for same-process login and restart.

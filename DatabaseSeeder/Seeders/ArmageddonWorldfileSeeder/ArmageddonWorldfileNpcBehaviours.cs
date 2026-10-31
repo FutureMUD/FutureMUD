@@ -40,10 +40,11 @@ internal sealed partial class ArmageddonWorldfileWriter
 
 	private void InstallNpcBehaviours()
 	{
-		var permit = Prog("ArmageddonWorldfilePermitMount", "return true", ProgVariableTypes.Boolean,
+		EnsureMountRegisters();
+		var permit = Prog("ArmageddonWorldfilePermitMount", MountPermitProg, ProgVariableTypes.Boolean,
 			("rider", ProgVariableTypes.Character), ("mount", ProgVariableTypes.Character));
 		var mountAi = CreateAi("Worldfile Mount", "Mount", new XElement("Definition",
-			new XElement("PermitRiderProg", permit.Id), new XElement("PermitControlProg", permit.Id),
+			new XElement("CompanionRequiresColocation", true), new XElement("CompanionFollowsHandler", true), new XElement("PermitRiderProg", permit.Id), new XElement("PermitControlProg", permit.Id),
 			new XElement("WhyCannotPermitRiderProg", 0), new XElement("MaximumNumberOfRiders", 1),
 			new XElement("MountNonConsensualMountDifficulty", (int)Difficulty.Impossible),
 			new XElement("MountControlDifficulty", (int)Difficulty.Trivial), new XElement("MountResistBuckDifficulty", (int)Difficulty.Normal),
@@ -51,7 +52,8 @@ internal sealed partial class ArmageddonWorldfileWriter
 			new XElement("RawBuckEmote", "$0 try|tries to buck $1!"), new XElement("RawControlDeniedEmote", "$0 refuse|refuses to obey $1's order.")));
 		foreach (var source in _source.Npcs.Where(x => (unchecked((uint)x.Flags[0]) & (1u << 26)) != 0))
 			AttachFamilyAi(source.Vnum, mountAi);
-		Adapt("mounts", 0, "Source CFL_MOUNT creatures use native MountAI with one rider and explicit permit/control progs. Existing native size, riding and equipment rules apply; wild taming and source guild-specific training are not recreated.");
+		InstallArmageddonMountPolicies(mountAi, mountAi.Id);
+		Adapt("mounts", 0, "Native MountAI applies source-backed ownership and approved-rider access; character identity registers preserve owner and riders. Source-eligible wild races can be tamed by standing Rangers with Riding over 60 on a Normal native Riding check. Native size, riding and equipment safety remain authoritative. Nearby companions reuse the bodyguard logout lifecycle; recall whistle 64129 has no placement in this package.");
 
 		var mantisRaces = _races.Values.Where(x => x.Name.StartsWith("mantis", StringComparison.OrdinalIgnoreCase))
 			.SelectMany(x => new[] { x.Id, x.ParentRaceId ?? x.Id }).Distinct().ToArray();

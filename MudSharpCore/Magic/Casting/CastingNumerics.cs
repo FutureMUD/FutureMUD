@@ -100,6 +100,7 @@ internal static class CastingNumerics
 			if (effect is ExchangePlacesEffect { DefinitionError: { } exchangeError }) yield return $"{label}/exchangeplaces: {exchangeError}";
 			if (effect is GroundTremorEffect { DefinitionError: { } tremorError }) yield return $"{label}/groundtremor: {tremorError}";
 			if (effect is ReturnTetherEffect { DefinitionError: { } returnError }) yield return $"{label}/returntether: {returnError}";
+			if (effect is DelayedLocationHintEffect { DefinitionError: { } hintError }) yield return $"{label}/delayedlocationhint: {hintError}";
 			if (effect is TracePathEffect { DefinitionError: { } pathError }) yield return $"{label}/tracepath: {pathError}";
 			if (effect is RemoteTravellerEffect { DefinitionError: { } remoteError }) yield return $"{label}/remotetraveller: {remoteError}";
 			if (effect is WeightedTravelEffect { DefinitionError: { } weightedError }) yield return $"{label}/weightedtravel: {weightedError}";

@@ -110,6 +110,13 @@ public partial class Character
         }
 
         State = CharacterState.Dead;
+        foreach (var companion in Gameworld.NPCs.OfType<MudSharp.NPC.INPC>().Where(x =>
+                     IsPrimaryInstance && x.BodyguardingCharacterID == CharacterInstanceIdentityComparer.IdentityId(this) &&
+                     MudSharp.NPC.NpcCompanionLifecycle.FollowsHandler(x)).ToList())
+        {
+            companion.BodyguardingCharacterID = null;
+            companion.CeaseFollowing();
+        }
         _status = CharacterStatus.Deceased;
         StopNeedsHeartbeat();
         ClearForcedTransformationHeartbeatRegistration();

@@ -7,7 +7,7 @@ using Parlot.Fluent;
 
 namespace MudSharp.NPC.AI;
 #nullable enable
-public class MountAI : ArtificialIntelligenceBase, IMountableAI
+public class MountAI : ArtificialIntelligenceBase, IMountableAI, INpcCompanionLifecyclePolicy
 {
     public static void RegisterLoader()
     {
@@ -40,6 +40,8 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
 
     private void LoadFromXml(XElement root)
     {
+        CompanionRequiresColocation = (bool?)root.Element("CompanionRequiresColocation") ?? false;
+        CompanionFollowsHandler = (bool?)root.Element("CompanionFollowsHandler") ?? false;
         PermitRiderProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PermitRiderProg")!.Value));
         PermitControlProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PermitControlProg")!.Value));
         WhyCannotPermitRiderProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotPermitRiderProg")!.Value));
@@ -56,6 +58,8 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
     protected override string SaveToXml()
     {
         return new XElement("Definition",
+            new XElement("CompanionRequiresColocation", CompanionRequiresColocation),
+            new XElement("CompanionFollowsHandler", CompanionFollowsHandler),
             new XElement("PermitRiderProg", PermitRiderProg?.Id ?? 0),
             new XElement("PermitControlProg", PermitControlProg?.Id ?? 0),
             new XElement("WhyCannotPermitRiderProg", WhyCannotPermitRiderProg?.Id ?? 0),
@@ -72,23 +76,29 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
 
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
     {
+        if (!CompanionFollowsHandler) return false;
+        if (type == EventType.CharacterEnterRoomWitness && arguments.Length >= 4 &&
+            arguments[0] is ICharacter handler && arguments[3] is INPC witness)
+        {
+            NpcCompanionLifecycle.Reunited(witness, handler);
+        }
+        else if (type == EventType.CharacterEnterRoom && arguments.Length >= 1 && arguments[0] is INPC mount &&
+                 mount.BodyguardingCharacterID is { } handlerId)
+        {
+            var presentHandler = mount.Location?.Characters.FirstOrDefault(x =>
+                x.IsPlayerCharacter && CharacterInstanceIdentityComparer.IdentityId(x) == handlerId);
+            if (presentHandler is not null) NpcCompanionLifecycle.Reunited(mount, presentHandler);
+        }
         return false;
     }
 
     public override bool HandlesEvent(params EventType[] types)
     {
-        foreach (EventType type in types)
-        {
-            switch (type)
-            {
-                default:
-                    return false;
-            }
-        }
-
-        return false;
+        return CompanionFollowsHandler && types.Any(x => x is EventType.CharacterEnterRoom or EventType.CharacterEnterRoomWitness);
     }
 
+    public bool CompanionRequiresColocation { get; private set; }
+    public bool CompanionFollowsHandler { get; private set; }
     public IFutureProg? PermitRiderProg { get; private set; }
     public IFutureProg? PermitControlProg { get; private set; }
     public IFutureProg? WhyCannotPermitRiderProg { get; private set; }
@@ -108,6 +118,8 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
     public override string Show(ICharacter actor)
     {
         StringBuilder sb = new(base.Show(actor));
+        sb.AppendLine($"Nearby-only Companion Reunion: {CompanionRequiresColocation.ToColouredString()}");
+        sb.AppendLine($"Rider Companion and Following: {CompanionFollowsHandler.ToColouredString()}");
         sb.AppendLine($"Permit Rider Prog: {PermitRiderProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Permit Control Prog: {PermitControlProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Why Can't Ride Prog: {WhyCannotPermitRiderProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -133,6 +145,8 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
 	#3dismountemote <emote>#0 - sets the dismount emote ($0 = mount, $1 = rider)
 	#3buckemote <emote>#0 - sets the mount buck emote ($0 = mount, $1 = rider)
 	#3resistemote <emote>#0 - sets the control resistance emote ($0 = mount, $1 = rider)
+	#3nearbycompanion#0 - toggles requiring the same room/layer for assigned companion reunion
+	#3companion#0 - toggles assigning player riders as companions and following after dismount/reunion
 	#3riders <##>#0 - sets the number of riders that can ride at once";
 
     /// <inheritdoc />
@@ -140,6 +154,16 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
     {
         switch (command.PopForSwitch())
         {
+            case "companion":
+                CompanionFollowsHandler = !CompanionFollowsHandler;
+                Changed = true;
+                actor.OutputHandler.Send($"Rider companion assignment and following is now {CompanionFollowsHandler.ToColouredString()}.");
+                return true;
+            case "nearbycompanion":
+                CompanionRequiresColocation = !CompanionRequiresColocation;
+                Changed = true;
+                actor.OutputHandler.Send($"Nearby-only companion reunion is now {CompanionRequiresColocation.ToColouredString()}.");
+                return true;
             case "permit":
             case "permitrider":
             case "permitriderprog":

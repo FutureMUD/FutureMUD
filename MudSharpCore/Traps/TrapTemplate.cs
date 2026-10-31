@@ -85,6 +85,13 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		? Gameworld.FutureProgs.Get(_knowledgeProgId.Value)
 		: null;
 	private long? _knowledgeProgId;
+	private long? _setupProgId;
+	public IFutureProg? SetupProg => _setupProgId.HasValue ? Gameworld.FutureProgs.Get(_setupProgId.Value) : null;
+	public bool ClosedItemAnchor { get; private set; }
+	public bool Preassembled { get; private set; }
+	public static bool IsValidSetupProg(IFutureProg? prog) => prog is not null &&
+		prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) &&
+		prog.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Perceivable, ProgVariableTypes.Item | ProgVariableTypes.Collection]);
 	public IReadOnlyList<ITrapComponentRequirement> ComponentRequirements => _componentRequirements;
 
 	public override string EditHeader() => $"Trap Template {Name} ({Id:N0}r{RevisionNumber:N0})";
@@ -130,33 +137,35 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			return "Trap interaction times cannot be negative.";
 		}
 
-		if (SourceKind == TrapSourceKind.Mechanical && SetupTime <= TimeSpan.Zero)
+		if (SourceKind == TrapSourceKind.Mechanical && !Preassembled && SetupProg is null && SetupTime <= TimeSpan.Zero)
 		{
 			return "Mechanical traps require a positive setup time for player deployment.";
 		}
 
-		if (SourceKind == TrapSourceKind.Mechanical &&
+		if (SourceKind == TrapSourceKind.Mechanical && !Preassembled &&
 		    DisarmPolicy is TrapDisarmPolicy.Safe or TrapDisarmPolicy.Risky && DisarmTime <= TimeSpan.Zero)
 		{
 			return "Disarmable mechanical traps require a positive disarm time.";
 		}
 
-		if (SourceKind == TrapSourceKind.Mechanical && RecoveryTime <= TimeSpan.Zero)
+		if (SourceKind == TrapSourceKind.Mechanical && !Preassembled && RecoveryTime <= TimeSpan.Zero)
 		{
 			return "Mechanical traps require a positive recovery time.";
 		}
 
-		if (SourceKind == TrapSourceKind.Mechanical &&
+		if (SourceKind == TrapSourceKind.Mechanical && !Preassembled &&
 		    !_componentRequirements.Any(x => x.Role.HasFlag(TrapComponentRole.Trigger)))
 		{
 			return "Mechanical traps require at least one physical trigger component.";
 		}
 
-		if (SourceKind == TrapSourceKind.Mechanical &&
+		if (SourceKind == TrapSourceKind.Mechanical && !Preassembled &&
 		    !_componentRequirements.Any(x => x.Role.HasFlag(TrapComponentRole.Payload)))
 		{
 			return "Mechanical traps require at least one physical payload component.";
 		}
+
+		if (Preassembled && _componentRequirements.Any()) return "Preassembled traps must not require separate components.";
 
 		if (SourceKind != TrapSourceKind.Mechanical && _componentRequirements.Any())
 		{
@@ -176,6 +185,11 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		    !KnowledgeProg.MatchesParameters([ProgVariableTypes.Character])))
 		{
 			return "The knowledge prog must be a boolean FutureProg accepting one character.";
+		}
+
+		if (_setupProgId.HasValue && !IsValidSetupProg(SetupProg))
+		{
+			return "The setup prog must return boolean and accept character, perceivable, item collection.";
 		}
 
 		if (LifecyclePolicy != TrapLifecyclePolicy.Indefinite && (!Lifespan.HasValue || Lifespan <= TimeSpan.Zero))
@@ -356,6 +370,7 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		sb.AppendLine($"Charges: {Charges.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Cooldown: {Cooldown.Describe(actor).ColourValue()}");
 		sb.AppendLine($"Interaction Times: setup {SetupTime.Describe(actor).ColourValue()}, disarm {DisarmTime.Describe(actor).ColourValue()}, recover {RecoveryTime.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Preassembled: {Preassembled.ToColouredString()}  Closed Item Anchor: {ClosedItemAnchor.ToColouredString()}  Setup Prog: {SetupProg?.FunctionName ?? "native check"}");
 		sb.AppendLine($"Known When: {(KnowledgeProg is null ? "everyone" : $"{KnowledgeProg.FunctionName} (#{KnowledgeProg.Id.ToString("N0", actor)})").ColourValue()}");
 		sb.AppendLine($"Disarm: {DisarmPolicy.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Lifecycle: {LifecyclePolicy.DescribeEnum().ColourValue()}{(Lifespan.HasValue ? $" ({Lifespan.Value.Describe(actor)})" : string.Empty)}");
@@ -482,6 +497,34 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 			case "recoverytime":
 			case "recovertime":
 				return BuildingCommandTime(actor, command, "recovery", value => RecoveryTime = value);
+			case "preassembled":
+				Preassembled = !Preassembled;
+				Changed = true;
+				actor.Send($"Preassembled prog-only trap: {Preassembled.ToColouredString()}.");
+				return true;
+			case "closeditem":
+				ClosedItemAnchor = !ClosedItemAnchor;
+				Changed = true;
+				actor.Send($"Closed door/container anchoring: {ClosedItemAnchor.ToColouredString()}.");
+				return true;
+			case "setupprog":
+				if (command.SafeRemainingArgument.EqualTo("none"))
+				{
+					_setupProgId = null;
+				}
+				else
+				{
+					var setupProg = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+					if (!IsValidSetupProg(setupProg))
+					{
+						actor.Send("Specify a boolean prog accepting character, perceivable, item collection, or none.");
+						return false;
+					}
+					_setupProgId = setupProg!.Id;
+				}
+				Changed = true;
+				actor.Send("The trap setup prog has been updated.");
+				return true;
 			case "knowledgeprog":
 			case "knowprog":
 				return BuildingCommandKnowledgeProg(actor, command);
@@ -1109,6 +1152,9 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 		SetupTime = TimeSpan.TryParse(root.Attribute("setuptime")?.Value, out var setupTime) ? setupTime : TimeSpan.FromSeconds(10);
 		DisarmTime = TimeSpan.TryParse(root.Attribute("disarmtime")?.Value, out var disarmTime) ? disarmTime : TimeSpan.FromSeconds(10);
 		RecoveryTime = TimeSpan.TryParse(root.Attribute("recoverytime")?.Value, out var recoveryTime) ? recoveryTime : TimeSpan.FromSeconds(5);
+		Preassembled = bool.TryParse(root.Attribute("preassembled")?.Value, out var preassembled) && preassembled;
+		ClosedItemAnchor = bool.TryParse(root.Attribute("closeditem")?.Value, out var closedItem) && closedItem;
+		_setupProgId = long.TryParse(root.Attribute("setupprog")?.Value, out var setupProgId) ? setupProgId : null;
 		_knowledgeProgId = long.TryParse(root.Attribute("knowledgeprog")?.Value, out var knowledgeProgId) ? knowledgeProgId : null;
 		Lifespan = TimeSpan.TryParse(root.Attribute("lifespan")?.Value, out var lifespan) ? lifespan : null;
 		_triggers.AddRange(root.Element("Triggers")?.Elements("Trigger").Select(TrapTriggerDefinition.LoadFromXml) ?? Enumerable.Empty<TrapTriggerDefinition>());
@@ -1121,6 +1167,9 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	{
 		return new XElement("TrapTemplate",
 			new XAttribute("source", SourceKind),
+			new XAttribute("closeditem", ClosedItemAnchor),
+			new XAttribute("preassembled", Preassembled),
+			_setupProgId.HasValue ? new XAttribute("setupprog", _setupProgId.Value) : null,
 			new XAttribute("disarm", DisarmPolicy),
 			new XAttribute("lifecycle", LifecyclePolicy),
 			new XAttribute("charges", Charges),
@@ -1158,6 +1207,9 @@ public sealed class TrapTemplate : EditableItem, ITrapTemplate
 	#3setuptime <timespan>#0 - sets the mundane trap laying time
 	#3disarmtime <timespan>#0 - sets the mundane disarming time
 	#3recoverytime <timespan>#0 - sets the mundane recovery time
+	#3preassembled#0 - toggles intrinsic prog-only traps without separate components
+	#3closeditem#0 - toggles closed door/container anchoring
+	#3setupprog <prog|none>#0 - replaces setup check with a boolean character/anchor/item-collection prog
 	#3knowprog <prog|none>#0 - controls which characters know this template
 	#3disarm <policy>#0 - sets disarm behaviour
 	#3lifecycle <policy> [lifespan]#0 - sets expiry behaviour

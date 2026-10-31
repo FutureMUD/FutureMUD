@@ -376,7 +376,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
         double bonus = bonuses.Sum(x => x.Item2);
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         double[] rolls = new[]
         {
             Constants.Random.NextDouble() * 100.0,
@@ -518,7 +518,7 @@ public class StandardCheck : FrameworkItem, ICheck
             Constants.Random.NextDouble() * 100.0
         };
 
-        double basetarget = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double basetarget = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         difficulty1plusburden = CheckEvaluationContext.Constrain(difficulty1plusburden, customParameters);
         difficulty2plusburden = CheckEvaluationContext.Constrain(difficulty2plusburden, customParameters);
         double difficultyModifier1 = Modifiers[difficulty1plusburden];
@@ -603,7 +603,7 @@ public class StandardCheck : FrameworkItem, ICheck
             difficultyplusburden = difficultyplusburden.StageUp(checkeeAsCharacter.CombatBurdenDefense);
         }
 
-        return CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) +
+        return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) +
                Modifiers[CheckEvaluationContext.Constrain(difficultyplusburden, customParameters)];
     }
 
@@ -677,7 +677,7 @@ public class StandardCheck : FrameworkItem, ICheck
         }
 
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         difficultyplusburden = CheckEvaluationContext.Constrain(difficultyplusburden, customParameters);
         double difficultyModifier = Modifiers[difficultyplusburden];
         Outcome outcome = RollAgainst(targetNumber + difficultyModifier, out List<double> rolls);

@@ -1603,6 +1603,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
 		SpellInvocationContext? invocation, params SpellAdditionalParameter[] additionalParameters)
 	{
+		var substanceActivation = invocation?.Source == SpellInvocationSource.SubstanceActivation;
 		if (MudSharp.Construction.RoomPolicyRules.MagicDenial(magician,
 			(target is null ? Enumerable.Empty<IPerceivable>() : new[] { target })
 			.Concat(additionalParameters.Select(x => x.Item).OfType<IPerceivable>())) is { } environmentDenial)
@@ -1610,9 +1611,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			magician.OutputHandler.Send(environmentDenial);
 			return;
 		}
-		if (magician.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IMindImpairmentEffect>().Any(x => x.Applies())) { magician.Send("Your impaired mind cannot form a spell."); return; }
+		if (!substanceActivation && magician.CombinedEffectsOfType<MudSharp.Effects.Interfaces.IMindImpairmentEffect>().Any(x => x.Applies())) { magician.Send("Your impaired mind cannot form a spell."); return; }
 		var bindingTargets = target is PerceivableGroup group ? group.Members.ToArray() : target is null ? Array.Empty<IPerceivable>() : new[] { target };
-		if (magician.Body.DirectWornItems.SelectMany(x => x.Components).OfType<MudSharp.GameItems.Interfaces.IConditionalBindingItem>().Any(x => x.InterceptSpell(magician, this, bindingTargets)))
+		if (!substanceActivation && magician.Body.DirectWornItems.SelectMany(x => x.Components).OfType<MudSharp.GameItems.Interfaces.IConditionalBindingItem>().Any(x => x.InterceptSpell(magician, this, bindingTargets)))
 		{
 			magician.Send("Your binding prevents that spell.");
 			return;
@@ -1626,7 +1627,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		{
 			magician.OutputHandler.Send(quarantine.ColourError()); return;
 		}
-        if (magician.CombinedEffectsOfType<MagicSpellLockout>().Any(x => x.Applies(School)))
+        if (!substanceActivation && magician.CombinedEffectsOfType<MagicSpellLockout>().Any(x => x.Applies(School)))
         {
             magician.OutputHandler.Send(
                 $"You are currently locked out from casting {School.SchoolAdjective.Colour(School.PowerListColour)} spells.");
@@ -1634,7 +1635,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         }
 
         List<(IMagicResource Resource, double Cost)> realCosts = new();
-		foreach ((IMagicResource resource, ITraitExpression expression) in invocation?.Source is SpellInvocationSource.ScrollActivation or SpellInvocationSource.ConfiguredCasting ? [] : _castingCosts)
+		foreach ((IMagicResource resource, ITraitExpression expression) in invocation?.Source is SpellInvocationSource.ScrollActivation or SpellInvocationSource.ConfiguredCasting or SpellInvocationSource.SubstanceActivation ? [] : _castingCosts)
         {
             double cost = expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost,
                 ("power", (int)power), ("self", magician == target ? 1 : 0));
@@ -1653,7 +1654,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
             realCosts.Add((resource, cost));
         }
 
-        IInventoryPlan plan = (invocation?.Source == SpellInvocationSource.ScrollActivation
+        IInventoryPlan plan = (invocation?.Source is SpellInvocationSource.ScrollActivation or SpellInvocationSource.SubstanceActivation
 			? new InventoryPlanTemplate(Gameworld, [new InventoryPlanPhaseTemplate(1, [])]) : InventoryPlanTemplate).CreatePlan(magician);
         switch (plan.PlanIsFeasible())
         {
@@ -1743,18 +1744,21 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		}
 		var powerInvocation = SpellPowerInvocation.For(magician, this);
 		powerInvocation?.Complete(MagicInvocationStatus.Failed);
-		PsychometricRecorder.Record(magician, ImpressionKind.Magic, "the casting of a spell", target, School.Id, directItemOnly: powerInvocation is not null);
-		if (OpposedTrait is not null) magician.RemoveAllEffects<AttentionSuppressionEffect>(fireRemovalAction: true);
-        CrimeExtensions.CheckPossibleCrimeAllAuthorities(magician,
+		if (!substanceActivation)
+		{
+			PsychometricRecorder.Record(magician, ImpressionKind.Magic, "the casting of a spell", target, School.Id, directItemOnly: powerInvocation is not null);
+			if (OpposedTrait is not null) magician.RemoveAllEffects<AttentionSuppressionEffect>(fireRemovalAction: true);
+			CrimeExtensions.CheckPossibleCrimeAllAuthorities(magician,
 			powerInvocation?.Power.IsPsionic == true ? CrimeTypes.UnlawfulUseOfPsionics : CrimeTypes.UnlawfulUseOfMagic,
 			null, null, Name);
+		}
 
-        if (ExclusiveDelay > TimeSpan.Zero)
+        if (!substanceActivation && ExclusiveDelay > TimeSpan.Zero)
         {
             magician.AddEffect(new MagicSpellLockout(magician, Enumerable.Empty<IMagicSchool>()), ExclusiveDelay);
         }
 
-        if (NonExclusiveDelay > TimeSpan.Zero)
+        if (!substanceActivation && NonExclusiveDelay > TimeSpan.Zero)
         {
             magician.AddEffect(new MagicSpellLockout(magician, new List<IMagicSchool> { School }), NonExclusiveDelay);
         }
@@ -1780,8 +1784,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			return check.CheckAgainstAllDifficulties(magician, CastingDifficulty, CastingTrait, target);
 		}
 
-        magician.OutputHandler.Handle(new EmoteOutput(new Emote(CastingEmote, magician, magician, target),
-            flags: CastingEmoteFlags));
+		if (!substanceActivation)
+			magician.OutputHandler.Handle(new EmoteOutput(new Emote(CastingEmote, magician, magician, target),
+				flags: CastingEmoteFlags));
 		TimeSpan duration = TimeSpan.Zero;
 		if (EffectDurationExpression is not null)
 		{
@@ -1956,7 +1961,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			outcome = baseOutcome;
 			var trait = sourceSaveTrait ?? OpposedTrait;
 			var difficulty = sourceSaveDifficulty ?? OpposedDifficulty ?? Difficulty.Normal;
-			if (trait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected && sourceSaveTrait is null))
+			if (trait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected && sourceSaveTrait is null && !substanceActivation))
 			{
 				return false;
 			}

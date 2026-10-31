@@ -314,7 +314,7 @@ At runtime:
 ### Inputs
 | Builder alias | Runtime type | Purpose | Key builder options | Important notes |
 | --- | --- | --- | --- | --- |
-| `simple` | `SimpleItemInput` | Consume an exact item prototype | `item`, `quantity`, `quality` | Valid only after a target item is set |
+| `simple` | `SimpleItemInput` | Consume an exact item prototype | `item`, `quantity`, `quality`, `emptyliquid` | Valid only after a target item is set. Optional `emptyliquid` requires a liquid-container component with no remaining liquid during scouting and explicit input validation. Saved as `RequireEmptyLiquidContainer`; absent/false preserves legacy selection. |
 | `simplematerial` | `SimpleMaterialInput` | Consume items made of a specific solid or a material tag | `material`, `tag`, `quantity`, `quality` | Accepts either an exact material or a material tag |
 | `tag` | `TagInput` | Consume items with a specified tag | `tag`, `quantity`, `quality` | Basic tag-driven input |
 | `tagvariable` | `TagVariableInput` | Consume tagged items that also supply characteristic definitions | `tag`, `quantity`, `variable`, `quality` | Implements `IVariableInput`; item must expose each declared definition |

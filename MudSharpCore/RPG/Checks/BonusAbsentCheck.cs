@@ -16,7 +16,7 @@ public class BonusAbsentCheck : StandardCheck
 	{
 		if (CheckEvaluationContext.Find(customParameters) is null)
 			return base.TargetNumber(checkee, difficulty, trait, target, externalBonus, customParameters);
-		return CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) +
+		return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) +
 			Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
 	}
 
@@ -35,7 +35,7 @@ public class BonusAbsentCheck : StandardCheck
         params (string Parameter, object value)[] customParameters)
     {
         using var learning = CheckLearningScope.Enter(checkee);
-        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         double difficultyModifier = Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
         Outcome outcome = RollAgainst(targetNumber + difficultyModifier, out List<double> rolls);
 
@@ -63,7 +63,7 @@ public class BonusAbsentCheck : StandardCheck
     {
         using var learning = CheckLearningScope.Enter(checkee);
         Dictionary<Difficulty, CheckOutcome> results = new();
-        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         double[] rolls = new[]
         {
             Constants.Random.NextDouble() * 100.0,
@@ -117,7 +117,7 @@ public class BonusAbsentCheck : StandardCheck
             Constants.Random.NextDouble() * 100.0
         };
 
-        double basetarget = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double basetarget = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
         double difficultyModifier1 = Modifiers[CheckEvaluationContext.Constrain(difficulty1, customParameters)];
         double difficultyModifier2 = Modifiers[CheckEvaluationContext.Constrain(difficulty2, customParameters)];
 

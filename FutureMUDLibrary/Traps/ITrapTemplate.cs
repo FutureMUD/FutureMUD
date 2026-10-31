@@ -25,6 +25,12 @@ public interface ITrapTemplate : IEditableRevisableItem
 	TimeSpan DisarmTime { get; }
 	TimeSpan RecoveryTime { get; }
 	IFutureProg? KnowledgeProg { get; }
+	/// <summary>Optional replacement for the mundane setup check: character, anchor, matched items.</summary>
+	IFutureProg? SetupProg { get; }
+	/// <summary>Anchor to a closed door/container item, retaining held containers in inventory.</summary>
+	bool ClosedItemAnchor { get; }
+	/// <summary>Intrinsic traps are created by progs/spells and need no separately installed components.</summary>
+	bool Preassembled { get; }
 	IReadOnlyList<ITrapComponentRequirement> ComponentRequirements { get; }
 }
 

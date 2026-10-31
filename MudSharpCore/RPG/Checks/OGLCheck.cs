@@ -45,10 +45,10 @@ public class OGLCheck : StandardCheck
         int roll = Dice.Roll(1, 20);
 
         Outcome outcome1 = GetOutcome(roll,
-            Modifiers[CheckEvaluationContext.Constrain(difficulty1, customParameters)] - CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
+            Modifiers[CheckEvaluationContext.Constrain(difficulty1, customParameters)] - CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) -
             bonus);
         Outcome outcome2 = GetOutcome(roll,
-                        Modifiers[CheckEvaluationContext.Constrain(difficulty2, customParameters)] - CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
+                        Modifiers[CheckEvaluationContext.Constrain(difficulty2, customParameters)] - CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) -
                         bonus);
 
         return Tuple.Create(HandleStandardCheck(checkee, target, outcome1, difficulty1, trait, true, traitUseType),
@@ -82,7 +82,7 @@ public class OGLCheck : StandardCheck
                    .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
             externalBonus;
 
-        return Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] - CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
+        return Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] - CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) -
                bonus;
     }
 
@@ -111,7 +111,7 @@ public class OGLCheck : StandardCheck
 
         // TODO: allowing for arbitrary DCs i.e. attacking someone.
         Outcome outcome = RollAgainst(Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] -
-                                  CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
+                                  CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) -
                                   bonus);
 
         return HandleStandardCheck(checkee, target, outcome, difficulty, trait, true, traitUseType);

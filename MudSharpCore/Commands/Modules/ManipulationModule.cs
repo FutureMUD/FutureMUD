@@ -1,3 +1,4 @@
+using MudSharp.Events;
 ﻿using JetBrains.Annotations;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -5424,6 +5425,8 @@ The syntax is:
 			if (!CanJunkPocket()) return;
             character.OutputHandler.Handle(new EmoteOutput(new Emote("@ junk|junks $0.", character, item),
                 flags: OutputFlags.SuppressObscured));
+            item.HandleEvent(EventType.ItemAboutToBeJunked, character, item);
+            if (item.Deleted) return;
 			if (item.IsItemType<ISpellPocket>())
 			{
 				// The pocket adapter commits borrowed contents before removing its
@@ -8381,7 +8384,7 @@ The syntax is as follows:
 
             CheckOutcome outcome = actor.Gameworld.GetCheck(CheckType.LocksmithingCheck)
                                .Check(actor, targetLock.PickDifficulty.StageDown(lockTool?.DifficultyAdjustment ?? 0),
-                                   targetLock.Parent);
+                                   targetLock.Parent, customParameters: [(CheckEvaluationContext.FlatBonusParameterName, lockTool?.CheckBonus ?? 0.0)]);
             if (outcome.IsPass() || actor.IsAdministrator())
             {
                 actor.OutputHandler.Handle(
@@ -8519,7 +8522,7 @@ The syntax is as follows:
 
             CheckOutcome outcome = actor.Gameworld.GetCheck(CheckType.LocksmithingCheck)
                                .Check(actor, targetLock.PickDifficulty.StageDown(lockTool?.DifficultyAdjustment ?? 0),
-                                   targetLock.Parent);
+                                   targetLock.Parent, customParameters: [(CheckEvaluationContext.FlatBonusParameterName, lockTool?.CheckBonus ?? 0.0)]);
 
             if (outcome.IsPass() || actor.IsAdministrator())
             {

@@ -1,4 +1,4 @@
-using ExpressionEngine;
+﻿using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
@@ -1914,7 +1914,8 @@ public partial class Character
                 Dictionary<Difficulty, CheckOutcome> result = check.CheckAgainstAllDifficulties(this, Difficulty.VeryEasy, null,
                     externalBonus:
                     (weather?.Precipitation.PrecipitationClimbingBonus() ?? 0.0) +
-                    (weather?.Wind.WindClimbingBonus() ?? 0.0));
+                    (weather?.Wind.WindClimbingBonus() ?? 0.0),
+                    customParameters: [(CheckEvaluationContext.FlatBonusParameterName, ClimbingAidRules.Bonus(Body.HeldItems, Body.WornItems))]);
                 if (result[Difficulty.VeryEasy].Outcome.IsFail())
                 {
                     OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("FallFromTreesWhenMovingRoomToRoom"), this, this)));
@@ -3086,7 +3087,8 @@ public partial class Character
         IWeatherEvent weather = Location.CurrentWeather(this);
         Dictionary<Difficulty, CheckOutcome> allResults = check.CheckAgainstAllDifficulties(this, difficulty, null,
             externalBonus: (weather?.Precipitation.PrecipitationClimbingBonus() ?? 0.0) +
-                           (weather?.Wind.WindClimbingBonus() ?? 0.0));
+                           (weather?.Wind.WindClimbingBonus() ?? 0.0),
+                    customParameters: [(CheckEvaluationContext.FlatBonusParameterName, ClimbingAidRules.Bonus(Body.HeldItems, Body.WornItems))]);
         CheckOutcome result = allResults[difficulty];
 
         if (result.Outcome.IsPass())

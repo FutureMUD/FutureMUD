@@ -94,7 +94,7 @@ internal sealed class CreateTrapFunction : BuiltInFunction
 			.Distinct().ToList();
 		var anchorRoom = anchor as MudSharp.Construction.IRoom ?? anchor.Location;
 		var bindings = new List<TrapComponentBinding>();
-		if (template.SourceKind == TrapSourceKind.Mechanical &&
+		if (template.SourceKind == TrapSourceKind.Mechanical && !template.Preassembled &&
 		    (componentItems.Any(x => x.Id <= 0 || x.Deleted || x.InInventoryOf is not null ||
 		                              !ReferenceEquals(x.Location, anchorRoom) ||
 		                              x.EffectsOfType<TrapComponentReservationEffect>().Any()) ||

@@ -38,7 +38,9 @@ Unless a section explicitly calls out both paths, the numerical tables below des
 ## Core Runtime Order
 For ordinary external stock-human hits, the runtime order is:
 
-`attack damage -> worn armour -> magical armour -> racial natural armour -> bodypart natural armour -> flat damage protection -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
+`attack damage -> worn armour -> magical armour -> racial natural armour -> bodypart natural armour -> equipment physical absorption -> flat damage protection -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
+
+Intrinsic `Equipment Bonuses` components can supply additive `PhysicalAbsorption`. After armour, the summed amount reduces mechanical damage and stun independently, clamped at zero. The external/inward pair is adjusted once before the existing protection multipliers; recursive injury routing does not repeat it. Nonphysical packets, pain/shock, damage origins, mutation guards and exposure/transfer metadata retain their existing semantics. Unlike armour it does not suffer item damage or transform damage types. Direct HP/stun costs bypass this incoming-hit pipeline.
 
 `IDamageProtectionEffect` is a saved, spell-independent post-armour multiplier with a pure preview value and a separate live commitment. The body resolves it once against the external/inward damage pair; explicit recursive bone/organ damage bypasses that stage, while independent direct organ damage still uses it. Cellular/hypoxia creation and existing-wound increments use the same policy. Only a surviving positive `DamageAmount` packet spends a finite hit; full armour absorption, zero/pain-only packets and diagnostic previews do not. All damage channels scale together and packet guards, transfer and exposure metadata survive copying.
 

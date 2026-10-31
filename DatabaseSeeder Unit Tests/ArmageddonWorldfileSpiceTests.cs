@@ -100,18 +100,18 @@ public class ArmageddonWorldfileSpiceTests
 			db.GameItems.Add(new Db.GameItem { Id = proto.Id, GameItemProtoId = proto.Id, EffectData = "<Effects/>" });
 		}
 		db.SaveChanges();
-		typeof(ArmageddonWorldfileWriter).GetMethod("InstallHealingPotions", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(writer, null);
+		typeof(ArmageddonWorldfileWriter).GetMethod("InstallPotions", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(writer, null);
 		db.SaveChanges();
-		var payload = XElement.Parse(db.MagicSpells.Single(x => x.Id != spell.Id).Definition);
-		Assert.AreEqual("2*2*2", payload.Element("Effects")!.Element("Effect")!.Element("HealingAmount")!.Value);
-		Assert.IsFalse(payload.Element("Costs")!.Elements().Any());
-		Assert.AreEqual("substancecharacter", (string?)payload.Element("Trigger")!.Attribute("type"));
+		Assert.AreEqual(1, db.MagicSpells.Count(), "Use the complete installed spell rather than a partial cloned effect.");
 		var substance = XElement.Parse(db.MagicalSubstances.Single().Definition);
+		Assert.AreEqual(spell.Id, (long)substance.Element("Entry")!.Attribute("spell")!);
+		Assert.AreEqual(2, (int)substance.Element("Entry")!.Attribute("nativegrade")!);
 		Assert.IsFalse(substance.Elements("Binding").Any(), "Only the eligibility-checked on-swallow prog delivers this preparation.");
 		Assert.AreEqual(1, db.GameItemComponents.Count(x => x.GameItemId == 20070));
 		Assert.AreEqual(0, db.GameItemComponents.Count(x => x.GameItemId == 37404), "Mixed potions cannot silently lose an unmapped payload.");
 		var consume = db.FutureProgs.Single(x => x.FunctionName.StartsWith("ArmageddonWorldfilePotionConsume"));
-		StringAssert.Contains(consume.FunctionText, "@FruitEligibilityFixture(@actor, @actor)");
+		StringAssert.Contains(consume.FunctionText, "applymagicalsubstance");
+		Assert.AreEqual(filter.Id, (long)XElement.Parse(spell.Definition).Element("Trigger")!.Element("TargetFilterProg")!);
 		using var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray(), db.VariableDefinitions.ToArray());
 		foreach (var prog in db.FutureProgs.Where(x => x.FunctionName.StartsWith("ArmageddonWorldfilePotion"))) compiler.Compile(prog.Id);
 	}
@@ -228,6 +228,22 @@ public class ArmageddonWorldfileSpiceTests
 			.Invoke(writer, null);
 		typeof(ArmageddonWorldfileWriter).GetMethod("InstallPoisonDelivery", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.Invoke(writer, null);
+		db.TraitDefinitions.Add(new Db.TraitDefinition { Id = 990010, Name = "Brew", Type = 0 });
+		db.SeederManagedRecords.Add(new Db.SeederManagedRecord { Seeder = "Fixture", StableKey = "arm.skill.brew", EntityType = nameof(Db.TraitDefinition), LogicalId = 990010 });
+		db.SaveChanges();
+		typeof(ArmageddonWorldfileWriter).GetMethod("InstallHerbBrewing", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(writer, null);
+		Assert.AreEqual(4, db.Crafts.Count());
+		foreach (var craft in db.Crafts.Include(x => x.CraftPhases).Include(x => x.CraftInputs).Include(x => x.CraftProducts))
+		{
+			Assert.IsNull(craft.CheckTraitId, "Source brewing has no success roll.");
+			Assert.AreEqual(180.0, 5.0 + craft.CraftPhases.Single(x => x.PhaseNumber == 1).PhaseLengthInSeconds);
+			Assert.IsFalse(craft.CraftPhases.Single(x => x.PhaseNumber == 1).Echo.Contains("$p1"));
+			Assert.IsTrue(craft.CraftPhases.Single(x => x.PhaseNumber == 2).Echo.Contains("$p1"));
+			Assert.IsTrue(craft.CraftPhases.First().Echo.Contains("$i1"));
+			Assert.AreEqual("Prog", craft.CraftProducts.Single().ProductType);
+			if (craft.Name.EndsWith("vial"))
+				Assert.IsTrue((bool)XElement.Parse(craft.CraftInputs.Single(x => x.InputType == "SimpleItem").Definition).Element("RequireEmptyLiquidContainer")!);
+		}
 		const long cureId = 990_001;
 		var cureDrug = db.Drugs.Local.Single(x => x.Name == "Generic Poison");
 		db.MagicSpells.Add(new Db.MagicSpell { Id = cureId, Name = "Purge Toxin", Definition =
@@ -268,7 +284,9 @@ public class ArmageddonWorldfileSpiceTests
 		AssertCurativeLeafTreatment(leaf, cureDrug);
 		foreach (var program in db.FutureProgs.Where(x => x.FunctionName.StartsWith("ArmageddonWorldfilePoisonDose", StringComparison.Ordinal)))
 			compiler.Compile(program.Id);
-		foreach (var program in db.FutureProgs.Where(x => x.FunctionName.StartsWith("ArmageddonWorldfileProportionalPoison", StringComparison.Ordinal) ||
+		foreach (var program in db.FutureProgs.Where(x => x.FunctionName.StartsWith("ArmageddonWorldfileBrew", StringComparison.Ordinal) ||
+			x.FunctionName == "ArmageddonWorldfileCanBrew" ||
+			x.FunctionName.StartsWith("ArmageddonWorldfileProportionalPoison", StringComparison.Ordinal) ||
 			x.FunctionName.StartsWith("ArmageddonWorldfileCleansePoisonedItem", StringComparison.Ordinal) ||
 			x.FunctionName.StartsWith("ArmageddonWorldfileWeaponPoison", StringComparison.Ordinal) ||
 			x.FunctionName.StartsWith("ArmageddonWorldfileInitialWeaponPoison", StringComparison.Ordinal) ||

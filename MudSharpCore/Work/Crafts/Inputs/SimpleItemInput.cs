@@ -1,5 +1,6 @@
 ﻿using MudSharp.GameItems;
 using MudSharp.Models;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Lists;
 
 namespace MudSharp.Work.Crafts.Inputs;
@@ -13,6 +14,7 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
 
     public long TargetItemId { get; set; }
     public int Quantity { get; set; }
+    public bool RequireEmptyLiquidContainer { get; set; }
 
     /// <inheritdoc />
     public override bool RefersToItemProto(long id)
@@ -24,7 +26,8 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
     {
         return new XElement("Definition",
             new XElement("TargetItemId", TargetItemId),
-            new XElement("Quantity", Quantity)
+            new XElement("Quantity", Quantity),
+            new XElement("RequireEmptyLiquidContainer", RequireEmptyLiquidContainer)
         ).ToString();
     }
 
@@ -36,7 +39,7 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
         List<IGameItem> foundItems = new();
         List<IPerceivable> returnItems = new();
         foreach (IGameItem item in character.DeepContextualItems.Except(character.Body.WornItems)
-                                      .Where(x => x.Prototype.Id == TargetItemId))
+                                      .Where(IsInput))
         {
             foundItems.Add(item);
             if ((foundQuantity += item.Quantity) >= Quantity)
@@ -52,7 +55,9 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
 
     public override bool IsInput(IPerceivable item)
     {
-        return item is IGameItem gi && gi.Prototype.Id == TargetItemId;
+        return item is IGameItem gi && gi.Prototype.Id == TargetItemId &&
+               (!RequireEmptyLiquidContainer || gi.GetItemType<ILiquidContainer>() is { } liquid &&
+                   (liquid.LiquidMixture is null || liquid.LiquidMixture.TotalVolume <= 0.0));
     }
 
     public override void UseInput(IPerceivable item, ICraftInputData data)
@@ -80,12 +85,18 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
 
 	#3quality <weighting>#0 - sets the weighting of this input in determining overall quality
 	#3item <id>#0 - sets the item required
-	#3quantity <amount>#0 - sets the amount required";
+	#3quantity <amount>#0 - sets the amount required
+	#3emptyliquid#0 - toggles requiring an empty liquid container";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "emptyliquid":
+                RequireEmptyLiquidContainer = !RequireEmptyLiquidContainer;
+                InputChanged = true;
+                actor.OutputHandler.Send($"This input {(RequireEmptyLiquidContainer ? "now requires" : "no longer requires")} an empty liquid container.");
+                return true;
             case "item":
                 return BuildingCommandItem(actor, command);
             case "quantity":
@@ -151,6 +162,7 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
         XElement root = XElement.Parse(input.Definition);
         TargetItemId = long.Parse(root.Element("TargetItemId").Value);
         Quantity = int.Parse(root.Element("Quantity").Value);
+        RequireEmptyLiquidContainer = (bool?)root.Element("RequireEmptyLiquidContainer") ?? false;
     }
 
     protected SimpleItemInput(ICraft craft, IFuturemud gameworld) : base(craft, gameworld)
@@ -172,6 +184,6 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
     public override string HowSeen(IPerceiver voyeur)
     {
         return
-            $"{Quantity}x {Gameworld.ItemProtos.Get(TargetItemId)?.ShortDescription ?? "an unspecified item".Colour(Telnet.Red)} (#{TargetItemId.ToString("N0", voyeur)})";
+            $"{Quantity}x {Gameworld.ItemProtos.Get(TargetItemId)?.ShortDescription ?? "an unspecified item".Colour(Telnet.Red)} (#{TargetItemId.ToString("N0", voyeur)}){(RequireEmptyLiquidContainer ? " (empty liquid container)" : "")}";
     }
 }

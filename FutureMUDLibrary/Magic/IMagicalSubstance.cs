@@ -19,6 +19,8 @@ public sealed record SubstanceBinding(SubstanceCarrier Carrier, long Id, double 
 
 public sealed class SubstanceEffectEntry
 {
+	/// <summary>When nonzero, activate an admitted native spell at this fixed grade instead of a casterless payload.</summary>
+	public int NativeSpellGrade { get; set; }
 	public Guid Key { get; init; } = Guid.NewGuid();
 	public long SpellId { get; set; }
 	public SubstanceLifecycle Lifecycle { get; set; }

@@ -2,6 +2,7 @@
 
 using MudSharp.Effects.Interfaces;
 using MudSharp.Health;
+using MudSharp.Magic;
 using MudSharp.NPC.AI;
 
 namespace MudSharp.Body.Implementations;
@@ -11,6 +12,12 @@ public partial class Body
 	/// <summary>One post-armour protection decision for an incoming packet and its inward damage.</summary>
 	internal bool TryApplyDamageProtection(ref IDamage? damage, ref IDamage? inward)
 	{
+		if (damage is not null)
+		{
+			var absorption = EquippedItemBonuses.BonusFor(Actor, EquippedItemBonusKind.PhysicalAbsorption);
+			damage = EquipmentDamageAbsorption.Apply(damage, absorption);
+			if (inward is not null) inward = EquipmentDamageAbsorption.Apply(inward, absorption);
+		}
 		if (damage is null || (damage.DamageAmount <= 0 && (inward?.DamageAmount ?? 0) <= 0)) return true;
 		foreach (var protection in CombinedEffectsOfType<IDamageProtectionEffect>()
 			.Distinct<IDamageProtectionEffect>(ReferenceEqualityComparer.Instance).ToArray())

@@ -51,6 +51,36 @@ Important note:
 - type changes can discard or reinterpret screen-specific configuration
 - they should be treated as a rebuild operation, not a harmless cosmetic change
 
+## Skipping Optional Selection Screens
+
+Use `chargen changetype SelectAccents AccentSkipper`, `chargen changetype SelectMerits QuirkSkipper`, or `chargen changetype SelectDisfigurements DisfigurementSkipper` to replace a selection stage with an automatically completed screen. These stages display no prompt. Configure them through `chargen edit <screen>` and `chargen set ...` as usual.
+
+All skipper progs are optional and take one `chargen` parameter. Use a prog ID or name, or `none` to clear the setting:
+
+| Screen | Setting | Prog return type |
+| --- | --- | --- |
+| AccentSkipper | `accents <prog\|none>` | Accent collection |
+| QuirkSkipper | `quirks <prog\|none>` | Merit collection |
+| DisfigurementSkipper | `missingbodyparts <prog\|none>` | Void |
+| DisfigurementSkipper | `prostheses <prog\|none>` | Void |
+| DisfigurementSkipper | `scars <prog\|none>` | Void |
+| DisfigurementSkipper | `tattoos <prog\|none>` | Void |
+
+AccentSkipper clears old accents and discards a native-language choice if the character no longer knows that language. Like AccentPicker, it automatically grants the sole chargen-available accent for a known language. It then grants distinct accents returned by the prog for known languages, even if those accents are not available for manual selection. For any unassigned language, it uses the existing native/foreign/fallback accent rules among chargen-available accents. With no prog, those automatic selections still run. The character's explicit native-language choice, then ethnicity, culture, and skill levels determine the native-language fallback.
+
+For example, an accent collection prog can return the native accent appropriate to `@ch.ethnicity`; the mapping belongs in that prog. QuirkSkipper clears previous selected merits and flaws, then grants distinct character merits returned by its prog. With no prog it leaves an empty selection. Automatic accent and quirk grants do not use manual pick limits or availability gates and do not cost chargen resources.
+
+DisfigurementSkipper preserves existing selections and initializes missing selection lists, matching the disfigurement picker. It migrates legacy tattoo selections into the current tattoo list without duplicates. Its hooks run in this order: missing bodyparts, prostheses, scars, tattoos. Each hook modifies the chargen using these Boolean-returning FutureProg functions (false means an invalid or duplicate selection):
+
+- `AddChargenMissingBodypart(chargen, "bodypart name or ID")`: adds a severable, non-vital external bodypart as a missing root.
+- `AddChargenProsthesis(chargen, itemprototype)`: grants a prosthetic compatible with the body and a missing root; equivalent limb targets cannot receive two prostheses. Use `ItemPrototype(id)` to resolve an item prototype.
+- `AddChargenScar(chargen, "bodypart", "damage type", "wound severity")`: generates a scar using the normal wound-scar rules. An optional fifth text parameter names a surgical procedure type for a surgical scar. Matching part/cause/severity selections are not added twice.
+- `AddChargenTattoo(chargen, templateId, "bodypart")`: adds a fitting tattoo with default text-slot values. An optional fourth parameter is a text dictionary keyed by slot name; it supplies custom text using the slot's default writing settings. Required custom slots must be supplied and text must fit the slot length.
+
+Scars and tattoos require a present external bodypart; tattoos also obey template shape and size restrictions. These automatic grants bypass manual chargen availability and resource costs. The hooks may run again when the stage is revisited, so keep other scripted side effects safe to repeat. With all hooks unset, existing disfigurements remain and no new ones are added.
+
+Switching back to AccentPicker, QuirkPicker, MeritPicker, or DisfigurementPicker creates fresh picker settings. Configure blurbs, limits, allowed disfigurement sections and prosthetic choices before reopening chargen to players.
+
 ## Reordering and Dependencies
 The storyboard graph has both order and dependency rules.
 

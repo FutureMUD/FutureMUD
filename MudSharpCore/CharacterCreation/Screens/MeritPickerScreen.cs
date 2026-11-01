@@ -26,6 +26,9 @@ public class MeritPickerScreenStoryboard : ChargenScreenStoryboard
     protected MeritPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard) : base(gameworld,
         storyboard)
     {
+		Blurb = "Select your character's merits and flaws.";
+		MaximumMeritsAndFlaws = 3;
+		SkipScreenIfNoChoices = true;
         switch (storyboard)
         {
             case QuirkPickerScreenStoryboard qps:

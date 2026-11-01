@@ -3,19 +3,19 @@
 		<MigrationRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</MigrationRepositoryRoot>
 		<MigrationCompilerProject>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj</MigrationCompilerProject>
 		<MigrationCompilerDll>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/bin/$(Configuration)/net10.0/MigrationModelCompiler.dll</MigrationCompilerDll>
+		<!-- Inputs live outside the helper projects and Compile items are produced by a
+		     target. Always let MSBuild validate the projection cache on a real IDE build. -->
+		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="$(MigrationCompilerProject)" ReferenceOutputAssembly="false" Private="false" PrivateAssets="all"
 			GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained;PublishSelfContained;PublishSingleFile;IncludeNativeLibrariesForSelfExtract;PublishTrimmed;DebugType" />
 	</ItemGroup>
-	<!-- IDE design-time builds resolve reference paths without building their projects.
-	     The generator must still be executable on the first load after restore. -->
-	<Target Name="BuildMigrationCompilerForDesignTime" Condition="'$(DesignTimeBuild)' == 'true'">
-		<MSBuild Projects="$(MigrationCompilerProject)" Targets="Build" BuildInParallel="false"
-			Properties="Configuration=$(Configuration);DesignTimeBuild=false;BuildingInsideVisualStudio=false;BuildProjectReferences=true;SkipCompilerExecution=false;ProvideCommandLineArgs=false"
-			RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained;PublishSelfContained;PublishSingleFile;IncludeNativeLibrariesForSelfExtract;PublishTrimmed;DebugType" />
-	</Target>
-	<Target Name="GenerateMigrationModels" BeforeTargets="CoreCompile" DependsOnTargets="ResolveProjectReferences;BuildMigrationCompilerForDesignTime">
+	<!-- Historical target models are runtime metadata, not editor inputs. The operation
+		 partials provide migration types for IntelliSense. Do not run compilers, spawn
+		 generators or load hundreds of MiB of projections during solution load. -->
+	<Target Name="GenerateMigrationModels" BeforeTargets="CoreCompile" DependsOnTargets="ResolveProjectReferences"
+		Condition="'$(DesignTimeBuild)' != 'true'">
 		<PropertyGroup>
 			<MigrationGeneratedDirectory>$([System.IO.Path]::GetFullPath('$(IntermediateOutputPath)migration-models'))</MigrationGeneratedDirectory>
 		</PropertyGroup>

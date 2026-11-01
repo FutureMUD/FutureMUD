@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11520.95
@@ -262,16 +262,34 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseSeeder Catalogue", "DatabaseSeeder Catalogue", "{D5167301-E8D6-B5AC-A163-DFFB3852626F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Contracts", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Contracts\DatabaseSeeder.Catalogue.Contracts.csproj", "{98251F53-4CBD-476A-9AB4-71DB00458DDE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7C041FC7-32DF-471E-88A9-30AD304D2400} = {7C041FC7-32DF-471E-88A9-30AD304D2400}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Industrial01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Industrial01\DatabaseSeeder.Catalogue.Industrial01.csproj", "{4979C7A4-15B7-40CC-9C48-C56D28C4D44A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F35C785F-599D-47CC-8D90-B61F3D5D565F} = {F35C785F-599D-47CC-8D90-B61F3D5D565F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Industrial02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Industrial02\DatabaseSeeder.Catalogue.Industrial02.csproj", "{1B680A03-466E-49F1-B825-14DCC121B458}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4979C7A4-15B7-40CC-9C48-C56D28C4D44A} = {4979C7A4-15B7-40CC-9C48-C56D28C4D44A}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Industrial03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Industrial03\DatabaseSeeder.Catalogue.Industrial03.csproj", "{9B350A68-EEB8-4CC5-9343-E7F3B96B1D2C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1B680A03-466E-49F1-B825-14DCC121B458} = {1B680A03-466E-49F1-B825-14DCC121B458}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Industrial04", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Industrial04\DatabaseSeeder.Catalogue.Industrial04.csproj", "{6772FD89-7923-435D-BCEF-6EE1AE8C21EF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B350A68-EEB8-4CC5-9343-E7F3B96B1D2C} = {9B350A68-EEB8-4CC5-9343-E7F3B96B1D2C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Medical", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Medical\DatabaseSeeder.Catalogue.Medical.csproj", "{854FD70C-9273-46C0-A913-90B016A67AB2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{760DA472-383A-4F6F-902E-07CB1DD648C9} = {760DA472-383A-4F6F-902E-07CB1DD648C9}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseSeeder Sources", "DatabaseSeeder Sources", "{A940C381-CF7A-9E8C-3B18-17B6CCC4304B}"
 EndProject
@@ -286,104 +304,179 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authored01", "Authored01", "{DEDE4F73-C33B-B054-4937-D98DE7118DD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Authored01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Authored01\DatabaseSeeder.Catalogue.Authored01.csproj", "{E1618D37-78EF-4025-98CD-31C5C4F8932F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98251F53-4CBD-476A-9AB4-71DB00458DDE} = {98251F53-4CBD-476A-9AB4-71DB00458DDE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Contracts", "Contracts", "{E3567D9E-9537-E32F-BC88-EC235AD28FBF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authored02", "Authored02", "{36B36B72-9EDC-7403-863B-73D418D57C07}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Authored02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Authored02\DatabaseSeeder.Catalogue.Authored02.csproj", "{FD6859DB-60B7-4E9E-9C87-B36DE4ED71CC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E1618D37-78EF-4025-98CD-31C5C4F8932F} = {E1618D37-78EF-4025-98CD-31C5C4F8932F}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authored03", "Authored03", "{8F287798-8775-83D5-A3DB-413459189705}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Authored03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Authored03\DatabaseSeeder.Catalogue.Authored03.csproj", "{33EB1B15-4688-4327-9FD8-44B4384A8202}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FD6859DB-60B7-4E9E-9C87-B36DE4ED71CC} = {FD6859DB-60B7-4E9E-9C87-B36DE4ED71CC}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authored04", "Authored04", "{6188CDDF-FF6E-EE35-2034-EB839C3390D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Authored04", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Authored04\DatabaseSeeder.Catalogue.Authored04.csproj", "{5442EAC6-0344-4450-98DC-6844D25588AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{33EB1B15-4688-4327-9FD8-44B4384A8202} = {33EB1B15-4688-4327-9FD8-44B4384A8202}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authored05", "Authored05", "{67FFFDBF-4354-5A2F-348B-55BE986E7C27}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Authored05", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Authored05\DatabaseSeeder.Catalogue.Authored05.csproj", "{FDC36D44-A4C3-4472-8410-FDAFE2660E10}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5442EAC6-0344-4450-98DC-6844D25588AF} = {5442EAC6-0344-4450-98DC-6844D25588AF}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClothingSources01", "ClothingSources01", "{F6456FBE-F73A-7A14-B30D-4E4032822046}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.ClothingSources01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\ClothingSources01\DatabaseSeeder.Catalogue.ClothingSources01.csproj", "{1519B2CF-EB37-42B1-8749-E68092EADDD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FDC36D44-A4C3-4472-8410-FDAFE2660E10} = {FDC36D44-A4C3-4472-8410-FDAFE2660E10}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClothingSources02", "ClothingSources02", "{7C29E1AD-530D-159D-5675-BF141CA30447}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.ClothingSources02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\ClothingSources02\DatabaseSeeder.Catalogue.ClothingSources02.csproj", "{2223AD9E-3242-4492-9B55-DF65AF9EC9A4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1519B2CF-EB37-42B1-8749-E68092EADDD5} = {1519B2CF-EB37-42B1-8749-E68092EADDD5}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DomainContracts", "DomainContracts", "{4888521B-9A3A-D91F-9895-824FFA8F0CA1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.DomainContracts", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\DomainContracts\DatabaseSeeder.Catalogue.DomainContracts.csproj", "{AD204D20-E264-45DB-A5E7-8FE78C69C98D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2223AD9E-3242-4492-9B55-DF65AF9EC9A4} = {2223AD9E-3242-4492-9B55-DF65AF9EC9A4}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Food01", "Food01", "{F049B9D1-F9DF-CECB-3ADF-6A069930F56C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Food01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Food01\DatabaseSeeder.Catalogue.Food01.csproj", "{E0FAEBF3-9874-448E-8F92-93707FFC5AD0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AD204D20-E264-45DB-A5E7-8FE78C69C98D} = {AD204D20-E264-45DB-A5E7-8FE78C69C98D}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Food02", "Food02", "{39755168-5D57-A33A-9C1D-8DEA8F162D64}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Food02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Food02\DatabaseSeeder.Catalogue.Food02.csproj", "{83C33CB9-B650-4C32-9977-ABEE491DC0C9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E0FAEBF3-9874-448E-8F92-93707FFC5AD0} = {E0FAEBF3-9874-448E-8F92-93707FFC5AD0}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Food03", "Food03", "{F37BECE0-212A-AFAA-E895-C1DB46180CB7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Food03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Food03\DatabaseSeeder.Catalogue.Food03.csproj", "{9BEFBB43-B88D-43FE-9BA8-0B4D208AA635}"
+	ProjectSection(ProjectDependencies) = postProject
+		{83C33CB9-B650-4C32-9977-ABEE491DC0C9} = {83C33CB9-B650-4C32-9977-ABEE491DC0C9}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FoodLiquids", "FoodLiquids", "{456855B0-3AB8-E649-62FB-EE4542BC8936}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.FoodLiquids", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\FoodLiquids\DatabaseSeeder.Catalogue.FoodLiquids.csproj", "{F3E24BB0-1B8E-478E-B9E1-CC8443F1F269}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9BEFBB43-B88D-43FE-9BA8-0B4D208AA635} = {9BEFBB43-B88D-43FE-9BA8-0B4D208AA635}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical01", "Historical01", "{57E54D59-9C70-A535-4C06-68E42F0FFAD4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical01\DatabaseSeeder.Catalogue.Historical01.csproj", "{950BAA0D-CBAC-43AE-85E3-0BB05AC63EBB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F3E24BB0-1B8E-478E-B9E1-CC8443F1F269} = {F3E24BB0-1B8E-478E-B9E1-CC8443F1F269}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical02", "Historical02", "{7DCE364C-0593-0C24-D65E-CDF554B75634}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical02\DatabaseSeeder.Catalogue.Historical02.csproj", "{55AF16AB-5286-447E-98A4-C644259F0B0B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{950BAA0D-CBAC-43AE-85E3-0BB05AC63EBB} = {950BAA0D-CBAC-43AE-85E3-0BB05AC63EBB}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical03", "Historical03", "{AA491B96-1BA2-EE44-3C63-9F0DE22250B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical03\DatabaseSeeder.Catalogue.Historical03.csproj", "{3BED7932-1FE4-4640-AA6F-03A373B96639}"
+	ProjectSection(ProjectDependencies) = postProject
+		{55AF16AB-5286-447E-98A4-C644259F0B0B} = {55AF16AB-5286-447E-98A4-C644259F0B0B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical04", "Historical04", "{2EC1F80F-2B3A-6543-5CA3-EF66AFE72049}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical04", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical04\DatabaseSeeder.Catalogue.Historical04.csproj", "{6D4D453C-2955-4476-8E4B-AC10FF34484E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3BED7932-1FE4-4640-AA6F-03A373B96639} = {3BED7932-1FE4-4640-AA6F-03A373B96639}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical05", "Historical05", "{ECA11EEA-D0E1-F12A-7C61-A897744C10CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical05", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical05\DatabaseSeeder.Catalogue.Historical05.csproj", "{005FEA7F-4B31-4D54-A06F-7C8E8FC5D9E6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6D4D453C-2955-4476-8E4B-AC10FF34484E} = {6D4D453C-2955-4476-8E4B-AC10FF34484E}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical06", "Historical06", "{4466D2D3-303B-7443-E188-F0CEF77059A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical06", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical06\DatabaseSeeder.Catalogue.Historical06.csproj", "{CB87A712-07EB-4E32-B37B-B1134E10C986}"
+	ProjectSection(ProjectDependencies) = postProject
+		{005FEA7F-4B31-4D54-A06F-7C8E8FC5D9E6} = {005FEA7F-4B31-4D54-A06F-7C8E8FC5D9E6}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical07", "Historical07", "{E4720FDB-E6B2-06F1-EA5F-033EE3100C2F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical07", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical07\DatabaseSeeder.Catalogue.Historical07.csproj", "{B3BBF250-013C-479B-AD88-AA650B718FC2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CB87A712-07EB-4E32-B37B-B1134E10C986} = {CB87A712-07EB-4E32-B37B-B1134E10C986}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Historical08", "Historical08", "{ACC5558E-9A31-BF3B-1A65-BECB7F99AA4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Historical08", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Historical08\DatabaseSeeder.Catalogue.Historical08.csproj", "{A07EB320-FF98-49A1-A5A3-01F6C59101AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B3BBF250-013C-479B-AD88-AA650B718FC2} = {B3BBF250-013C-479B-AD88-AA650B718FC2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HistoricalSpecs01", "HistoricalSpecs01", "{CEDEFB42-13A4-0083-EE2C-94DFB98B0D85}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.HistoricalSpecs01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\HistoricalSpecs01\DatabaseSeeder.Catalogue.HistoricalSpecs01.csproj", "{BAB58AA6-D4B5-4C5C-9186-A89F04B8EE2B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A07EB320-FF98-49A1-A5A3-01F6C59101AF} = {A07EB320-FF98-49A1-A5A3-01F6C59101AF}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HistoricalSpecs02", "HistoricalSpecs02", "{E6F1FBFB-1890-B217-45EB-B2B55DAE4B91}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.HistoricalSpecs02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\HistoricalSpecs02\DatabaseSeeder.Catalogue.HistoricalSpecs02.csproj", "{750FBA08-7F7B-42E9-A60B-9F17E6B2EF9B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BAB58AA6-D4B5-4C5C-9186-A89F04B8EE2B} = {BAB58AA6-D4B5-4C5C-9186-A89F04B8EE2B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HistoricalSpecs03", "HistoricalSpecs03", "{B657C3AA-2D08-124F-6ACD-A379B43DB32B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.HistoricalSpecs03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\HistoricalSpecs03\DatabaseSeeder.Catalogue.HistoricalSpecs03.csproj", "{F609D441-74B9-4886-B198-072A9FB70D2C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{750FBA08-7F7B-42E9-A60B-9F17E6B2EF9B} = {750FBA08-7F7B-42E9-A60B-9F17E6B2EF9B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HistoricalSpecs04", "HistoricalSpecs04", "{D9D18EA6-D52E-E498-0114-3B7CD287AD5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.HistoricalSpecs04", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\HistoricalSpecs04\DatabaseSeeder.Catalogue.HistoricalSpecs04.csproj", "{0A85BE0F-1CA8-4097-9A2E-296B1CD76510}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F609D441-74B9-4886-B198-072A9FB70D2C} = {F609D441-74B9-4886-B198-072A9FB70D2C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HistoricalSpecs05", "HistoricalSpecs05", "{F623F6EC-7865-C29D-07B2-B3B171BF5381}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.HistoricalSpecs05", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\HistoricalSpecs05\DatabaseSeeder.Catalogue.HistoricalSpecs05.csproj", "{F35C785F-599D-47CC-8D90-B61F3D5D565F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0A85BE0F-1CA8-4097-9A2E-296B1CD76510} = {0A85BE0F-1CA8-4097-9A2E-296B1CD76510}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Industrial01", "Industrial01", "{CBAB6D39-7BEC-6A76-7B26-D2DB745FCFD9}"
 EndProject
@@ -396,200 +489,347 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IndustrialFoodResearch", "IndustrialFoodResearch", "{079B0A85-D6B8-F91B-A81A-858E037CE186}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.IndustrialFoodResearch", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\IndustrialFoodResearch\DatabaseSeeder.Catalogue.IndustrialFoodResearch.csproj", "{EB02E22F-9615-4E58-9819-BB57BB54463A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6772FD89-7923-435D-BCEF-6EE1AE8C21EF} = {6772FD89-7923-435D-BCEF-6EE1AE8C21EF}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IndustrialResearchRoot", "IndustrialResearchRoot", "{1FE9FF68-797F-DBED-EEFC-226411EEBE95}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.IndustrialResearchRoot", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\IndustrialResearchRoot\DatabaseSeeder.Catalogue.IndustrialResearchRoot.csproj", "{14A8A518-2910-4BC0-92FF-D2678BC29915}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EB02E22F-9615-4E58-9819-BB57BB54463A} = {EB02E22F-9615-4E58-9819-BB57BB54463A}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Medical", "Medical", "{855931DE-06F3-CDB9-1454-A6AF49C92B16}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Outfits01", "Outfits01", "{D5EBEDFE-1C37-5D7B-17E2-FD3DBA92CC84}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Outfits01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Outfits01\DatabaseSeeder.Catalogue.Outfits01.csproj", "{C47F2619-E704-4A32-A6A8-9E1D05009782}"
+	ProjectSection(ProjectDependencies) = postProject
+		{854FD70C-9273-46C0-A913-90B016A67AB2} = {854FD70C-9273-46C0-A913-90B016A67AB2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Outfits02", "Outfits02", "{8914A3C6-89B4-1782-E65B-8D8AE7FF5F6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Outfits02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Outfits02\DatabaseSeeder.Catalogue.Outfits02.csproj", "{A6152FDE-2157-4EC6-BE60-472655BC21FE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C47F2619-E704-4A32-A6A8-9E1D05009782} = {C47F2619-E704-4A32-A6A8-9E1D05009782}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes01", "Recipes01", "{8F283CEF-410A-9945-9A9B-CF75AC8E886C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes01\DatabaseSeeder.Catalogue.Recipes01.csproj", "{B37C8316-9BDE-4025-930C-025C59640770}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A45690CF-8DE9-4C1D-9996-D21E61A67A1B} = {A45690CF-8DE9-4C1D-9996-D21E61A67A1B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes02", "Recipes02", "{82089A00-D46F-AFAB-B72A-20CF57EFB40E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes02\DatabaseSeeder.Catalogue.Recipes02.csproj", "{90779C68-9C00-4A49-8CA0-BC9CC90A3FFA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B37C8316-9BDE-4025-930C-025C59640770} = {B37C8316-9BDE-4025-930C-025C59640770}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes03", "Recipes03", "{554BA9D3-FDD5-4622-4233-CBB63EE33944}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes03\DatabaseSeeder.Catalogue.Recipes03.csproj", "{1C468F1C-845A-49FD-962D-07DEDF93FFF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{90779C68-9C00-4A49-8CA0-BC9CC90A3FFA} = {90779C68-9C00-4A49-8CA0-BC9CC90A3FFA}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes04", "Recipes04", "{2965A63C-1E9E-960C-9D13-1CA6F04E88AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes04", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes04\DatabaseSeeder.Catalogue.Recipes04.csproj", "{783D0E71-839D-47B8-AB06-BBCA1954B19F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1C468F1C-845A-49FD-962D-07DEDF93FFF3} = {1C468F1C-845A-49FD-962D-07DEDF93FFF3}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes05", "Recipes05", "{92AF3B65-FB42-04B9-3C21-3597AB1CA0C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes05", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes05\DatabaseSeeder.Catalogue.Recipes05.csproj", "{A5B75A55-550A-482E-A1E7-1B348C616D9C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{783D0E71-839D-47B8-AB06-BBCA1954B19F} = {783D0E71-839D-47B8-AB06-BBCA1954B19F}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes06", "Recipes06", "{B6D71846-7A67-2517-9A92-2775C37175A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes06", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes06\DatabaseSeeder.Catalogue.Recipes06.csproj", "{C43296C4-9AA7-41ED-A041-1659DC3AEA5B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A5B75A55-550A-482E-A1E7-1B348C616D9C} = {A5B75A55-550A-482E-A1E7-1B348C616D9C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes07", "Recipes07", "{41CC78CA-29BA-2FB6-2F29-8B151F03A893}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes07", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes07\DatabaseSeeder.Catalogue.Recipes07.csproj", "{4FCFB72A-F59E-4F44-B479-BB6368E52E2C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C43296C4-9AA7-41ED-A041-1659DC3AEA5B} = {C43296C4-9AA7-41ED-A041-1659DC3AEA5B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes08", "Recipes08", "{541014C3-BDE2-9043-206F-EB147C72025F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes08", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes08\DatabaseSeeder.Catalogue.Recipes08.csproj", "{0FE3B767-2B16-4B0C-86F8-670F2C5DDF36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4FCFB72A-F59E-4F44-B479-BB6368E52E2C} = {4FCFB72A-F59E-4F44-B479-BB6368E52E2C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes09", "Recipes09", "{AE848E57-AD6C-FD97-474E-B7350379C903}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes09", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes09\DatabaseSeeder.Catalogue.Recipes09.csproj", "{1573613C-9966-4FF0-B1E4-9C8FBB7704E6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0FE3B767-2B16-4B0C-86F8-670F2C5DDF36} = {0FE3B767-2B16-4B0C-86F8-670F2C5DDF36}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes10", "Recipes10", "{0F2DD625-1B89-4063-8AD1-9825EDFD6457}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes10", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes10\DatabaseSeeder.Catalogue.Recipes10.csproj", "{040F2702-BEC4-41C0-B163-B21BBF5FB7D2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1573613C-9966-4FF0-B1E4-9C8FBB7704E6} = {1573613C-9966-4FF0-B1E4-9C8FBB7704E6}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes11", "Recipes11", "{69BB9700-054C-A350-B59F-744911FCE519}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes11", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes11\DatabaseSeeder.Catalogue.Recipes11.csproj", "{520BC128-AED4-4EED-8A7E-C6B1B5F6C5FF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{040F2702-BEC4-41C0-B163-B21BBF5FB7D2} = {040F2702-BEC4-41C0-B163-B21BBF5FB7D2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes12", "Recipes12", "{A76E0E22-DA62-7EA8-4FD5-1D102F2FF27B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes12", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes12\DatabaseSeeder.Catalogue.Recipes12.csproj", "{B5BCDB46-7A18-478F-B73E-F5B7B2B5F5F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{520BC128-AED4-4EED-8A7E-C6B1B5F6C5FF} = {520BC128-AED4-4EED-8A7E-C6B1B5F6C5FF}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes13", "Recipes13", "{8E0C86A4-7263-51F3-1349-DC2459AE0A60}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes13", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes13\DatabaseSeeder.Catalogue.Recipes13.csproj", "{0B7CB3A0-735C-47BB-9602-62C48BD5EC86}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B5BCDB46-7A18-478F-B73E-F5B7B2B5F5F2} = {B5BCDB46-7A18-478F-B73E-F5B7B2B5F5F2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes14", "Recipes14", "{3A52909D-7ABA-2A7F-4266-592807E73E3B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes14", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes14\DatabaseSeeder.Catalogue.Recipes14.csproj", "{F7BE8E13-C972-4901-852C-2279C2F39C6D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B7CB3A0-735C-47BB-9602-62C48BD5EC86} = {0B7CB3A0-735C-47BB-9602-62C48BD5EC86}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes15", "Recipes15", "{6198111E-26E5-3921-2BAF-A32AD948B2E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes15", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes15\DatabaseSeeder.Catalogue.Recipes15.csproj", "{C6677E58-A444-43E6-8D88-2903223BACCC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F7BE8E13-C972-4901-852C-2279C2F39C6D} = {F7BE8E13-C972-4901-852C-2279C2F39C6D}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes16", "Recipes16", "{FA6AD11F-CE42-668C-EC4E-FD96D98F2F16}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes16", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes16\DatabaseSeeder.Catalogue.Recipes16.csproj", "{F14C5BF9-E9D4-4938-BA33-350651DED631}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C6677E58-A444-43E6-8D88-2903223BACCC} = {C6677E58-A444-43E6-8D88-2903223BACCC}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes17", "Recipes17", "{FDD91E37-B58D-05B8-B1BB-80E6D6E846D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes17", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes17\DatabaseSeeder.Catalogue.Recipes17.csproj", "{A1B4CAB6-08AE-4B74-A0F6-FF8E87ECDBFE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F14C5BF9-E9D4-4938-BA33-350651DED631} = {F14C5BF9-E9D4-4938-BA33-350651DED631}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes18", "Recipes18", "{E537FAE7-1000-32A6-F115-A404A16D3726}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes18", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes18\DatabaseSeeder.Catalogue.Recipes18.csproj", "{EBE4FD25-CE61-4D36-B5DB-4FB64593BF79}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A1B4CAB6-08AE-4B74-A0F6-FF8E87ECDBFE} = {A1B4CAB6-08AE-4B74-A0F6-FF8E87ECDBFE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes19", "Recipes19", "{01A76B7D-C161-E0B5-7F5E-550CAC09805B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes19", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes19\DatabaseSeeder.Catalogue.Recipes19.csproj", "{204840CF-3A10-4AFA-8893-5408AAB7E389}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EBE4FD25-CE61-4D36-B5DB-4FB64593BF79} = {EBE4FD25-CE61-4D36-B5DB-4FB64593BF79}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes20", "Recipes20", "{F6E7CF76-68D1-F025-9F96-F7B0577553CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes20", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes20\DatabaseSeeder.Catalogue.Recipes20.csproj", "{AB4E8EEC-031C-4710-B9E6-548B182E6550}"
+	ProjectSection(ProjectDependencies) = postProject
+		{204840CF-3A10-4AFA-8893-5408AAB7E389} = {204840CF-3A10-4AFA-8893-5408AAB7E389}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes21", "Recipes21", "{C6C942D1-121B-98E3-9039-829A8C244AFB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes21", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes21\DatabaseSeeder.Catalogue.Recipes21.csproj", "{A73CC14A-72B0-4722-9311-C7852D95647B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AB4E8EEC-031C-4710-B9E6-548B182E6550} = {AB4E8EEC-031C-4710-B9E6-548B182E6550}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes22", "Recipes22", "{825CC0B8-7706-D104-5411-4C6050AFAA00}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes22", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes22\DatabaseSeeder.Catalogue.Recipes22.csproj", "{0C5A77B1-0627-4A6D-AE83-00F46651F6FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A73CC14A-72B0-4722-9311-C7852D95647B} = {A73CC14A-72B0-4722-9311-C7852D95647B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes23", "Recipes23", "{F7F76D80-8F10-DC5B-0F47-E9AB20BD450C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes23", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes23\DatabaseSeeder.Catalogue.Recipes23.csproj", "{70A42C42-014D-437C-A304-211E315F9FFB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0C5A77B1-0627-4A6D-AE83-00F46651F6FC} = {0C5A77B1-0627-4A6D-AE83-00F46651F6FC}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RecipeSupport", "RecipeSupport", "{1E4D0D57-16D5-04C3-B7DB-8A539BD95500}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.RecipeSupport", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\RecipeSupport\DatabaseSeeder.Catalogue.RecipeSupport.csproj", "{A45690CF-8DE9-4C1D-9996-D21E61A67A1B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{27305FA7-1195-4F16-B635-89BF621D0D3F} = {27305FA7-1195-4F16-B635-89BF621D0D3F}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vehicles", "Vehicles", "{683AD44E-980C-4D33-7B49-A4662F8B229D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Vehicles", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Vehicles\DatabaseSeeder.Catalogue.Vehicles.csproj", "{AA541CA3-33B6-487C-BF52-F23CFEC49259}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0619C1E-2854-4907-9C37-FB2ECC4708C2} = {D0619C1E-2854-4907-9C37-FB2ECC4708C2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory00", "Inventory00", "{F65D5955-B972-EC69-9F00-76C8974A19AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory00", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory00\DatabaseSeeder.Catalogue.Inventory00.csproj", "{2BE787C4-1303-40B5-9DF2-5DEB118EEA75}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AF8B6DED-36BF-42C7-AD62-0C0854431FB0} = {AF8B6DED-36BF-42C7-AD62-0C0854431FB0}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InventoryContracts", "InventoryContracts", "{D39579F6-8B4E-0559-8C1F-C78AB782F2D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.InventoryContracts", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\InventoryContracts\DatabaseSeeder.Catalogue.InventoryContracts.csproj", "{AF8B6DED-36BF-42C7-AD62-0C0854431FB0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{14A8A518-2910-4BC0-92FF-D2678BC29915} = {14A8A518-2910-4BC0-92FF-D2678BC29915}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory01", "Inventory01", "{22AB9DA1-401A-2EF9-AAF8-A483DFFF3967}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory01", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory01\DatabaseSeeder.Catalogue.Inventory01.csproj", "{891EC5F1-1AD0-4058-B3B3-4A94794FF04E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2BE787C4-1303-40B5-9DF2-5DEB118EEA75} = {2BE787C4-1303-40B5-9DF2-5DEB118EEA75}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory02", "Inventory02", "{2F42307E-7672-C921-BDB9-09C8686A6445}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory02", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory02\DatabaseSeeder.Catalogue.Inventory02.csproj", "{AB86C2F7-F513-49AA-A9B5-B3BCC0738CFE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{891EC5F1-1AD0-4058-B3B3-4A94794FF04E} = {891EC5F1-1AD0-4058-B3B3-4A94794FF04E}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory03", "Inventory03", "{8B0937A0-9892-562D-9EDA-882116AE90BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory03", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory03\DatabaseSeeder.Catalogue.Inventory03.csproj", "{F13EBC24-8A46-474F-9482-9E511E39AB60}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AB86C2F7-F513-49AA-A9B5-B3BCC0738CFE} = {AB86C2F7-F513-49AA-A9B5-B3BCC0738CFE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory04", "Inventory04", "{0F4DB989-B8CC-39BC-C006-DAA5CEAC0F22}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory04", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory04\DatabaseSeeder.Catalogue.Inventory04.csproj", "{6581ECAA-74D2-483A-9BC9-C723C25A4EF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F13EBC24-8A46-474F-9482-9E511E39AB60} = {F13EBC24-8A46-474F-9482-9E511E39AB60}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory05", "Inventory05", "{DF5D438D-49A5-04BB-D1AB-5A1EA08E32B6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory05", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory05\DatabaseSeeder.Catalogue.Inventory05.csproj", "{9046E4C7-C542-419B-8E67-114416CE8DA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6581ECAA-74D2-483A-9BC9-C723C25A4EF3} = {6581ECAA-74D2-483A-9BC9-C723C25A4EF3}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory06", "Inventory06", "{23F22888-68B4-95A2-6103-11E6F59FDA6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory06", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory06\DatabaseSeeder.Catalogue.Inventory06.csproj", "{48FEB82C-3027-4A49-8726-A36621FE6F5A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9046E4C7-C542-419B-8E67-114416CE8DA5} = {9046E4C7-C542-419B-8E67-114416CE8DA5}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory07", "Inventory07", "{58043490-649E-81EB-07C1-E7846B17A100}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory07", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory07\DatabaseSeeder.Catalogue.Inventory07.csproj", "{35F8881E-B4CE-4FBB-ABEF-1CBDF3320605}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48FEB82C-3027-4A49-8726-A36621FE6F5A} = {48FEB82C-3027-4A49-8726-A36621FE6F5A}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory08", "Inventory08", "{CCECAB1D-826F-E2B1-0604-65B445155AD6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory08", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory08\DatabaseSeeder.Catalogue.Inventory08.csproj", "{CAF333DE-2A7C-4E06-B326-95669FEDC081}"
+	ProjectSection(ProjectDependencies) = postProject
+		{35F8881E-B4CE-4FBB-ABEF-1CBDF3320605} = {35F8881E-B4CE-4FBB-ABEF-1CBDF3320605}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory09", "Inventory09", "{F8777E45-CAF3-BFAA-FF30-60E5426A4F81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory09", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory09\DatabaseSeeder.Catalogue.Inventory09.csproj", "{266FB38E-6082-4C33-9B8C-490172CED33B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CAF333DE-2A7C-4E06-B326-95669FEDC081} = {CAF333DE-2A7C-4E06-B326-95669FEDC081}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory10", "Inventory10", "{FC51D3D4-A132-E201-9752-E8B70C337972}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory10", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory10\DatabaseSeeder.Catalogue.Inventory10.csproj", "{0913113B-7C31-43F3-9CEB-536E05725D2E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{266FB38E-6082-4C33-9B8C-490172CED33B} = {266FB38E-6082-4C33-9B8C-490172CED33B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory11", "Inventory11", "{73A4E17F-80AB-6612-7C8B-9A976CA921FA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory11", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory11\DatabaseSeeder.Catalogue.Inventory11.csproj", "{C94474C4-EF68-45CB-9730-F0CFD6E3FAC2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0913113B-7C31-43F3-9CEB-536E05725D2E} = {0913113B-7C31-43F3-9CEB-536E05725D2E}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory12", "Inventory12", "{BE7B87DC-A657-4FB1-BECF-4113F4FA4D81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory12", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory12\DatabaseSeeder.Catalogue.Inventory12.csproj", "{EF681519-AB64-4543-A0E9-EB2F7367A254}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C94474C4-EF68-45CB-9730-F0CFD6E3FAC2} = {C94474C4-EF68-45CB-9730-F0CFD6E3FAC2}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory13", "Inventory13", "{6DE98FBD-7C1F-B3A8-E316-60C32DBA9527}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory13", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory13\DatabaseSeeder.Catalogue.Inventory13.csproj", "{924003B8-5DBF-4B39-9BAE-DE5B8ABBAE8B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EF681519-AB64-4543-A0E9-EB2F7367A254} = {EF681519-AB64-4543-A0E9-EB2F7367A254}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory14", "Inventory14", "{2DC725A6-C5DB-3627-B1E8-87C77CCDFC67}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory14", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory14\DatabaseSeeder.Catalogue.Inventory14.csproj", "{198E1D0C-9622-421B-A3A8-D00481DF8DBE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{924003B8-5DBF-4B39-9BAE-DE5B8ABBAE8B} = {924003B8-5DBF-4B39-9BAE-DE5B8ABBAE8B}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inventory15", "Inventory15", "{96E84313-603B-2A68-89CF-EA30B6F9257A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Inventory15", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Inventory15\DatabaseSeeder.Catalogue.Inventory15.csproj", "{760DA472-383A-4F6F-902E-07CB1DD648C9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{198E1D0C-9622-421B-A3A8-D00481DF8DBE} = {198E1D0C-9622-421B-A3A8-D00481DF8DBE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProductionPlans", "ProductionPlans", "{70CF15C8-77E6-DF1F-98E9-909A7DCEDA4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.ProductionPlans", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\ProductionPlans\DatabaseSeeder.Catalogue.ProductionPlans.csproj", "{27305FA7-1195-4F16-B635-89BF621D0D3F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A6152FDE-2157-4EC6-BE60-472655BC21FE} = {A6152FDE-2157-4EC6-BE60-472655BC21FE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes24", "Recipes24", "{940E52F4-99FC-7D27-9B8C-E58A47969C91}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes24", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes24\DatabaseSeeder.Catalogue.Recipes24.csproj", "{3395029C-2E8D-4F3A-80E6-1128910F9DDB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{70A42C42-014D-437C-A304-211E315F9FFB} = {70A42C42-014D-437C-A304-211E315F9FFB}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Recipes25", "Recipes25", "{BEBB0732-DBEC-4013-8265-9E459F952E2D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder.Catalogue.Recipes25", "DatabaseSeeder\Seeders\ItemSeeder\Catalogue\Assemblies\Recipes25\DatabaseSeeder.Catalogue.Recipes25.csproj", "{D0619C1E-2854-4907-9C37-FB2ECC4708C2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3395029C-2E8D-4F3A-80E6-1128910F9DDB} = {3395029C-2E8D-4F3A-80E6-1128910F9DDB}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MigrationModels", "MigrationModels", "{756F43E7-3C8A-4E6E-965F-70A0093568D4}"
 EndProject
@@ -598,42 +838,99 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationModelCompiler", "BuildTools\MigrationModelCompiler\MigrationModelCompiler.csproj", "{B8642F34-B4C3-4813-BC32-DBEC8990224D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0002", "MigrationModels\Batch0002\Batch0002.csproj", "{C5EC6903-00F1-404F-97DB-7FD156434017}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0E1B2494-BEF4-4A8F-93CE-EED0E96151C4} = {0E1B2494-BEF4-4A8F-93CE-EED0E96151C4}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0003", "MigrationModels\Batch0003\Batch0003.csproj", "{900FA623-B1A8-402D-A51B-12DB6AEAFCD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C5EC6903-00F1-404F-97DB-7FD156434017} = {C5EC6903-00F1-404F-97DB-7FD156434017}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0004", "MigrationModels\Batch0004\Batch0004.csproj", "{2119DDFA-56D7-4B5F-8D10-D9AFF3B24804}"
+	ProjectSection(ProjectDependencies) = postProject
+		{900FA623-B1A8-402D-A51B-12DB6AEAFCD5} = {900FA623-B1A8-402D-A51B-12DB6AEAFCD5}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0005", "MigrationModels\Batch0005\Batch0005.csproj", "{BD47BA99-8079-41AA-BBB2-6D2C084B95F6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2119DDFA-56D7-4B5F-8D10-D9AFF3B24804} = {2119DDFA-56D7-4B5F-8D10-D9AFF3B24804}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0006", "MigrationModels\Batch0006\Batch0006.csproj", "{F3A04969-F958-4DE3-876F-241AD6E47678}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BD47BA99-8079-41AA-BBB2-6D2C084B95F6} = {BD47BA99-8079-41AA-BBB2-6D2C084B95F6}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0007", "MigrationModels\Batch0007\Batch0007.csproj", "{24E7176F-1A6A-4A9E-BB63-921F5C5B3D0C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F3A04969-F958-4DE3-876F-241AD6E47678} = {F3A04969-F958-4DE3-876F-241AD6E47678}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0008", "MigrationModels\Batch0008\Batch0008.csproj", "{E979CC64-6DE0-4B9A-9A59-FF4B64E6B877}"
+	ProjectSection(ProjectDependencies) = postProject
+		{24E7176F-1A6A-4A9E-BB63-921F5C5B3D0C} = {24E7176F-1A6A-4A9E-BB63-921F5C5B3D0C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0009", "MigrationModels\Batch0009\Batch0009.csproj", "{9A1948F9-9ADE-41BB-99FD-35CB2476EFC8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E979CC64-6DE0-4B9A-9A59-FF4B64E6B877} = {E979CC64-6DE0-4B9A-9A59-FF4B64E6B877}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0010", "MigrationModels\Batch0010\Batch0010.csproj", "{92E627B4-13B8-4A6A-8A1A-26FFD8EC60F3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9A1948F9-9ADE-41BB-99FD-35CB2476EFC8} = {9A1948F9-9ADE-41BB-99FD-35CB2476EFC8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0011", "MigrationModels\Batch0011\Batch0011.csproj", "{0DD74D8B-8F53-4A2B-B6BB-9BB99E1478EC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92E627B4-13B8-4A6A-8A1A-26FFD8EC60F3} = {92E627B4-13B8-4A6A-8A1A-26FFD8EC60F3}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0012", "MigrationModels\Batch0012\Batch0012.csproj", "{C73FA6A1-7B18-4CD3-A2E9-2A7571709A1E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0DD74D8B-8F53-4A2B-B6BB-9BB99E1478EC} = {0DD74D8B-8F53-4A2B-B6BB-9BB99E1478EC}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0013", "MigrationModels\Batch0013\Batch0013.csproj", "{D0F01F92-EF89-419D-A7E1-0BE8B72DE085}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C73FA6A1-7B18-4CD3-A2E9-2A7571709A1E} = {C73FA6A1-7B18-4CD3-A2E9-2A7571709A1E}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0014", "MigrationModels\Batch0014\Batch0014.csproj", "{22BE6084-5DD6-4722-81E3-719BD8B279A8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0F01F92-EF89-419D-A7E1-0BE8B72DE085} = {D0F01F92-EF89-419D-A7E1-0BE8B72DE085}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0015", "MigrationModels\Batch0015\Batch0015.csproj", "{A77979FD-B3F3-4301-8A5C-79263B5D17A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{22BE6084-5DD6-4722-81E3-719BD8B279A8} = {22BE6084-5DD6-4722-81E3-719BD8B279A8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0016", "MigrationModels\Batch0016\Batch0016.csproj", "{1235E4A4-2181-43D6-9576-DB5022444EB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A77979FD-B3F3-4301-8A5C-79263B5D17A0} = {A77979FD-B3F3-4301-8A5C-79263B5D17A0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0017", "MigrationModels\Batch0017\Batch0017.csproj", "{DD95E743-BAC6-434D-B179-2FBCDEBDDBBC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1235E4A4-2181-43D6-9576-DB5022444EB5} = {1235E4A4-2181-43D6-9576-DB5022444EB5}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0018", "MigrationModels\Batch0018\Batch0018.csproj", "{54A79A62-8242-4F36-ABF7-B5AD525E44A2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DD95E743-BAC6-434D-B179-2FBCDEBDDBBC} = {DD95E743-BAC6-434D-B179-2FBCDEBDDBBC}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0019", "MigrationModels\Batch0019\Batch0019.csproj", "{4724B003-05CC-4413-9E41-05289C57A9FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54A79A62-8242-4F36-ABF7-B5AD525E44A2} = {54A79A62-8242-4F36-ABF7-B5AD525E44A2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch0020", "MigrationModels\Batch0020\Batch0020.csproj", "{7C041FC7-32DF-471E-88A9-30AD304D2400}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4724B003-05CC-4413-9E41-05289C57A9FC} = {4724B003-05CC-4413-9E41-05289C57A9FC}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildTools", "BuildTools", "{79546F67-FEAA-3117-1216-FBE46595B2FF}"
 EndProject

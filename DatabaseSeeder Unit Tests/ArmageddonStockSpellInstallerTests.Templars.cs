@@ -59,6 +59,24 @@ public partial class ArmageddonStockSpellInstallerTests
 		ArmageddonTemplarInstaller.Install(db, messages);
 		db.ChangeTracker.Clear();
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonTemplarInstaller.Module).ToDictionary(x => x.StableKey);
+		var itemNouns = new Dictionary<string, string>
+		{
+			["arm.templar.southern.gem"] = "gem",
+			["arm.templar.southern.shrine"] = "shrine",
+			["arm.templar.southern.regen_medallion"] = "medallion",
+			["arm.templar.southern.regalia"] = "robe"
+		};
+		foreach (var entry in itemNouns)
+		{
+			var item = db.GameItemProtos.Single(x => x.Id == claims[entry.Key].LogicalId);
+			Assert.AreEqual(entry.Value, item.Name);
+			Assert.AreEqual(entry.Key, item.UniqueName);
+			// Older Templar items already had stable unique names, but used the short description as their noun.
+			item.Name = item.ShortDescription;
+			var baseline = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(claims[entry.Key].SeedBaseline!)!;
+			baseline["Name"] = System.Text.Json.JsonSerializer.Serialize(item.ShortDescription);
+			claims[entry.Key].SeedBaseline = System.Text.Json.JsonSerializer.Serialize(baseline);
+		}
 		Assert.AreEqual(3, claims.Values.Count(x => x.EntityType == nameof(ChargenRole)));
 		Assert.AreEqual(32, claims.Values.Count(x => x.EntityType == nameof(MagicPower)));
 		Assert.AreEqual("psi", db.MagicSchools.Single(x => x.Id == claims["arm.school.lirathan_templar"].LogicalId).SchoolVerb);
@@ -175,6 +193,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var removedMeritId = removedMerit.MeritId;
 		db.ChargenRolesMerits.Remove(removedMerit);
 		var gem = db.GameItemProtos.Include(x => x.GameItemProtosGameItemComponentProtos).Single(x => x.Id == claims["arm.templar.southern.gem"].LogicalId);
+		gem.Name = "crystal";
 		var bindingId = claims["arm.templar.southern.gem.component"].LogicalId;
 		var pokeActionId = claims["arm.templar.jihaen.pressure_point.action"].LogicalId;
 		var pokeAction = db.CombatActions.Single(x => x.Id == pokeActionId);
@@ -202,6 +221,12 @@ public partial class ArmageddonStockSpellInstallerTests
 		db.ChangeTracker.Clear();
 		Assert.AreEqual("Builder Lirathan", db.ChargenRoles.Single(x => x.Id == role.Id).Name);
 		Assert.AreEqual("Builder Probe help", db.MagicPowers.Single(x => x.Id == customPower.Id).ShowHelp);
+		foreach (var entry in itemNouns)
+		{
+			var item = db.GameItemProtos.Single(x => x.Id == claims[entry.Key].LogicalId);
+			Assert.AreEqual(entry.Key.EndsWith(".gem") ? "crystal" : entry.Value, item.Name);
+			Assert.AreEqual(entry.Key, item.UniqueName);
+		}
 		Assert.IsFalse(db.ChargenRolesMerits.Any(x => x.ChargenRoleId == merchantId && x.MeritId == normalMerit));
 		foreach (var claim in claims.Values) Assert.AreEqual(claim.LogicalId, db.SeederManagedRecords.Single(x => x.StableKey == claim.StableKey).LogicalId);
 		Assert.AreEqual("123", db.TraitDefinitions.Include(x => x.Expression).Single(x => x.Id == pressure.Id).Expression.Expression);

@@ -92,7 +92,7 @@ public static partial class ArmageddonMagicInstaller
 				if (contribution.Type == typeof(MagicSpell) && (db.MagicSpells.Any(x => x.MagicSchoolId == plan.School && x.Name.ToLower() == contribution.Name.ToLower()) ||
 					db.MagicSpells.AsNoTracking().Select(x => x.Definition).AsEnumerable().Any(x => StockKey(x) == contribution.Key)))
 					messages.Add($"{contribution.Key}: unowned spell name or stock-identity collision; no automatic adoption.");
-				if (contribution.Type == typeof(GameItemProto) && db.GameItemProtos.Any(x => x.Name.ToLower() == contribution.Name.ToLower()) ||
+				if (contribution.Type == typeof(GameItemProto) && ArmageddonItemNaming.LabelCollision(db, 0, contribution.Name) ||
 					contribution.Type == typeof(GameItemComponentProto) && db.GameItemComponentProtos.Any(x => x.Name.ToLower() == contribution.Name.ToLower()))
 					messages.Add($"{contribution.Key}: unowned prototype name collision; no automatic adoption.");
 			}

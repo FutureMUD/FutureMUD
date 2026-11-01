@@ -234,7 +234,15 @@ public static partial class ArmageddonTemplarInstaller
 		long bodyId = 0, IReadOnlyList<long>? shapes = null, long? itemGroupId = null)
 	{
 		var item = new GameItemProto { Id = db.GameItemProtos.Select(x => (long?)x.Id).Max().GetValueOrDefault() + 1, RevisionNumber = 0,
-			Name = name, UniqueName = key, Keywords = keywords, ShortDescription = name, FullDescription = description,
+			Name = key switch
+			{
+				"arm.templar.southern.gem" => "gem",
+				"arm.templar.southern.shrine" => "shrine",
+				"arm.templar.southern.regen_medallion" => "medallion",
+				"arm.templar.southern.regalia" => "robe",
+				_ => throw new InvalidOperationException($"Undeclared Templar item primary noun: {key}.")
+			},
+			UniqueName = key, Keywords = keywords, ShortDescription = name, FullDescription = description,
 			LongDescription = description, MaterialId = material, ItemGroupId = itemGroupId, Size = (int)SizeCategory.VerySmall, Weight = 0.1,
 			BaseItemQuality = (int)ItemQuality.Standard, MorphEmote = "$0 changes.", EditableItem = Approval(account) };
 		foreach (var component in components) Attach(item, component);

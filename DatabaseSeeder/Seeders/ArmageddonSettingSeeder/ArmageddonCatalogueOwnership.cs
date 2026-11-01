@@ -30,7 +30,7 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		[typeof(WeaponAttack)] = ["Name", "WeaponTypeId", "Verb", "FutureProgId", "BaseAttackerDifficulty", "BaseBlockDifficulty", "BaseDodgeDifficulty", "BaseParryDifficulty", "BaseAngleOfIncidence", "RecoveryDifficultySuccess", "RecoveryDifficultyFailure", "MoveType", "Intentions", "ExertionLevel", "DamageType", "DamageExpressionId", "StunExpressionId", "PainExpressionId", "Weighting", "MaximumTargets", "BodypartShapeId", "StaminaCost", "BaseDelay", "Orientation", "Alignment", "AdditionalInfo", "HandednessOptions", "RequiredPositionStateIds", "OnUseProgId"],
 		[typeof(CombatMessage)] = ["Type", "Outcome", "Message", "ProgId", "AuxiliaryProgId", "Priority", "Verb", "Chance", "FailureMessage"],
 		[typeof(GameItemComponentProto)] = ["Name", "Description", "Type", "Definition"],
-		[typeof(GameItemProto)] = ["Name", "Keywords", "ShortDescription", "FullDescription", "MaterialId", "Size", "Weight", "BaseItemQuality", "MorphEmote", "LongDescription"],
+		[typeof(GameItemProto)] = ["Name", "UniqueName", "Keywords", "ShortDescription", "FullDescription", "MaterialId", "Size", "Weight", "BaseItemQuality", "MorphEmote", "LongDescription"],
 		[typeof(Craft)] = ["Name", "Blurb", "ActionDescription", "Category", "Interruptable", "ToolQualityWeighting", "InputQualityWeighting", "CheckQualityWeighting", "FreeSkillChecks", "FailThreshold", "CheckTraitId", "CheckDifficulty", "FailPhase", "QualityFormula", "AppearInCraftsListProgId", "CanUseProgId", "WhyCannotUseProgId", "ActiveCraftItemSdesc", "IsPracticalCheck"],
 		[typeof(FutureProg)] = ["FunctionName", "FunctionText", "ReturnType", "AcceptsAnyParameters", "Category", "Subcategory", "FunctionComment", "Public", "StaticType"],
 		[typeof(AutobuilderRoomTemplate)] = ["Name", "TemplateType", "Definition"],
@@ -184,7 +184,8 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		{
 			if (_db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key))
 				throw new InvalidOperationException($"{key}: an existing module owns this stable identity.");
-			var nameField = typeof(T) == typeof(FutureProg) ? "FunctionName" : "Name";
+			var nameField = typeof(T) == typeof(FutureProg) ? "FunctionName" :
+				desired is GameItemProto { UniqueName.Length: > 0 } ? "UniqueName" : "Name";
 			if (_db.Entry(desired).Metadata.FindProperty(nameField) is not null)
 			{
 				var name = (string)_db.Entry(desired).Property(nameField).CurrentValue!;
@@ -211,6 +212,15 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		}
 		var current = Fields(row);
 		var baseline = record!.SeedBaseline is null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline);
+		if (row is GameItemProto legacyItem && desired is GameItemProto { UniqueName.Length: > 0 } namedItem &&
+			baseline is not null && !baseline.ContainsKey("UniqueName") && string.IsNullOrEmpty(legacyItem.UniqueName) &&
+			baseline.TryGetValue("Name", out var oldName) && oldName == JsonSerializer.Serialize(namedItem.UniqueName))
+		{
+			// Older catalogue items stored their label in Name and never owned UniqueName.
+			// Recognise only that exact stock baseline; retain independent builder edits to either field.
+			baseline["UniqueName"] = current["UniqueName"];
+			record.SeedBaseline = JsonSerializer.Serialize(baseline);
+		}
 		if (row is Craft && baseline is not null)
 		{
 			// Native DATETIME is a wall-clock ordering key. Its provider Kind is not an edit.
@@ -223,6 +233,10 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		next["$dependencies"] = JsonSerializer.Serialize(dependencies);
 		if (baseline?.TryGetValue("$dependencies", out var oldDependencies) == true) current["$dependencies"] = oldDependencies;
 		var merged = SeederManagedRecordReconciler.Reconcile(record, current, next, created, _messages);
+		if (row is GameItemProto retainedItem && merged["UniqueName"] != current["UniqueName"] &&
+			JsonSerializer.Deserialize<string>(merged["UniqueName"]) is { Length: > 0 } uniqueName &&
+			ArmageddonItemNaming.LabelCollision(_db, retainedItem.Id, uniqueName))
+			throw new InvalidOperationException($"{key}: native unique-name collision; no repair.");
 		foreach (var property in _db.Entry(row).Properties.Where(x => OwnedFields[typeof(T)].Contains(x.Metadata.Name)))
 			property.CurrentValue = JsonSerializer.Deserialize(merged[property.Metadata.Name], property.Metadata.ClrType);
 		if (!created) ApplyChildren(row, current, merged);

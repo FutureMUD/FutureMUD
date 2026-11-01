@@ -107,7 +107,9 @@ public static class ArmageddonStockFocusDeviceInstaller
 				}, allowed.Append(UseGateKey).ToArray());
 				var item = new GameItemProto
 				{
-					Id = owned.Id<GameItemProto>(blueprint.Key), Name = "Armageddon stock " + blueprint.Name,
+					Id = owned.Id<GameItemProto>(blueprint.Key),
+					Name = focus ? "focus" : blueprint.Key.EndsWith("staff", StringComparison.Ordinal) ? "staff" : "wand",
+					UniqueName = "Armageddon stock " + blueprint.Name,
 					Keywords = "armageddon " + blueprint.Name.ToLowerInvariant(), ShortDescription = "a " + blueprint.Name.ToLowerInvariant(),
 					FullDescription = focus ? "This retained focus supports explicit personal casting. It supplies neither mastery nor a charged fallback." : "This plain wooden carrier is supplied empty. Every charge requires legitimate paid production.",
 					MaterialId = material, Size = (int)(blueprint.Key.EndsWith("staff", StringComparison.Ordinal) ? SizeCategory.Normal : SizeCategory.VerySmall),

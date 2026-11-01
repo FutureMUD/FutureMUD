@@ -69,7 +69,14 @@ public static class ArmageddonCatalogueSupplies
 				var material = blueprint.Configuration.TryGetProperty("native_material", out var materialKey) ? materials[materialKey.GetString()!] : clay;
 				var item = new GameItemProto
 				{
-					Id = owned.Id<GameItemProto>(blueprint.Key), Name = "Armageddon " + blueprint.Name, Keywords = "armageddon " + blueprint.Name.ToLowerInvariant(),
+					Id = owned.Id<GameItemProto>(blueprint.Key),
+					Name = blueprint.Kind == ArmageddonBlueprintKind.ComponentSupply ? "component" : blueprint.Key switch
+					{
+						"arm.item.focus_blank" or "arm.item.component_blank" => "blank",
+						"arm.item.binding_seal" => "seal",
+						_ => throw new InvalidOperationException($"Undeclared supply primary noun: {blueprint.Key}.")
+					},
+					UniqueName = "Armageddon " + blueprint.Name, Keywords = "armageddon " + blueprint.Name.ToLowerInvariant(),
 					ShortDescription = "a " + blueprint.Name.ToLowerInvariant(), FullDescription = "This " + blueprint.Name.ToLowerInvariant() + " is a prepared material for magical work.",
 					MaterialId = material, Size = (int)SizeCategory.VerySmall,
 					Weight = blueprint.Configuration.GetProperty("weight_kilograms").GetDouble() * kilograms,

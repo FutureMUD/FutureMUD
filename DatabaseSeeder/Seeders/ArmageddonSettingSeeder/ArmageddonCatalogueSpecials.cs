@@ -143,7 +143,16 @@ public static class ArmageddonCatalogueSpecials
 		IReadOnlyList<string> dependencies, double? weight = null)
 	{
 		var row = new GameItemProto { Id = owned.Id<GameItemProto>(blueprint.Key), RevisionNumber = 0, EditableItem = owned.Approval(),
-			Name = "Armageddon " + blueprint.Name, Keywords = blueprint.Name.ToLowerInvariant(), ShortDescription = "a " + blueprint.Name.ToLowerInvariant(),
+			Name = blueprint.Key switch
+			{
+				"arm.item.hovering_light" => "light",
+					"arm.item.ember_seed" => "seed",
+					"arm.item.sand_effigy_anchor" => "figurine",
+					"arm.item.folded_pocket" or "arm.item.haven_water" => "vessel",
+					"arm.item.restorative_mud" => "dose",
+					_ => throw new InvalidOperationException($"Undeclared specialised item primary noun: {blueprint.Key}.")
+			},
+			UniqueName = "Armageddon " + blueprint.Name, Keywords = blueprint.Name.ToLowerInvariant(), ShortDescription = "a " + blueprint.Name.ToLowerInvariant(),
 			FullDescription = $"An unmistakable magical {blueprint.Name.ToLowerInvariant()}.", LongDescription = "", MorphEmote = "",
 			MaterialId = settings.NativeBindings[ArmageddonNativeBinding.Stone], Size = (int)SizeCategory.Small,
 			Weight = kilograms * (weight ?? (blueprint.Configuration.TryGetProperty("weight_kilograms", out var value) ? value.GetDouble() : 0.2)),

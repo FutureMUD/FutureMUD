@@ -66,13 +66,63 @@ public partial class ArmageddonMagicInstallerTests
 			{ var xml = XElement.Parse(device.Definition); Assert.AreEqual(1, (int)xml.Element("Eligibility")!); Assert.AreEqual(2, (int)xml.Element("Role")!); }
 		}
 	}
+	[TestMethod]
+	public void DeviceNames_LegacyLabelsRepairAndBuilderNamesSurvive()
+	{
+		var (db, plan) = Fixture(); using (db)
+		{
+			var first = Run(db, plan); Installed(first);
+			foreach (var kind in new[] { "wand", "staff" })
+			{
+				var id = first.Identities["arm.item.charged_" + kind];
+				var item = db.GameItemProtos.Single(x => x.Id == id);
+				Assert.AreEqual(kind, item.Name);
+				Assert.AreEqual("Armageddon blank " + kind, item.UniqueName);
+				ArmageddonItemNamingTests.MakeLegacy(db, item, true);
+			}
+			var customId = first.Identities["arm.item.charged_staff"];
+			var custom = db.GameItemProtos.Single(x => x.Id == customId);
+			custom.Name = "cane"; custom.UniqueName = "Builder's staff";
+			db.SaveChanges();
+			for (var run = 0; run < 2; run++)
+			{
+				Installed(Run(db, plan));
+				var wand = db.GameItemProtos.Single(x => x.Id == first.Identities["arm.item.charged_wand"]);
+				Assert.AreEqual("wand", wand.Name);
+				Assert.AreEqual("Armageddon blank wand", wand.UniqueName);
+				Assert.AreEqual("cane", db.GameItemProtos.Single(x => x.Id == customId).Name);
+				Assert.AreEqual("Builder's staff", db.GameItemProtos.Single(x => x.Id == customId).UniqueName);
+			}
+		}
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void DeviceNames_RejectCaseInsensitiveUniqueNameCollisions(bool rerun)
+	{
+		var (db, plan) = Fixture(); using (db)
+		{
+			if (rerun)
+			{
+				var first = Run(db, plan); Installed(first);
+				ArmageddonItemNamingTests.MakeLegacy(db, db.GameItemProtos.Single(x => x.Id == first.Identities["arm.item.charged_wand"]), true);
+			}
+			db.GameItemProtos.Add(new GameItemProto { Id = 9000, Name = "wand", UniqueName = "armageddon blank wand" });
+			db.SaveChanges();
+			var result = Run(db, plan);
+			Assert.AreEqual(rerun ? ArmageddonInstallStatus.Failed : ArmageddonInstallStatus.Blocked, result.Status);
+			Assert.IsFalse(db.SeederManagedRecords.Any(x => x.EntityType == nameof(GameItemProto) && x.LogicalId == 9000));
+		}
+	}
+
 	[TestMethod] public void RenameDefinitionAndRemovedItemLinkSurviveRepeatedRuns()
 	{
 		var (db, plan) = Fixture(); using (db)
 		{
 			Installed(Run(db, plan)); var spell = db.MagicSpells.Single(x => x.Name == "Mend Flesh");
 			spell.Name = "Builder remedy"; spell.Definition = spell.Definition.Replace("2*grade*grade", "3*grade");
-			var item = db.GameItemProtos.Include(x => x.GameItemProtosGameItemComponentProtos).Single(x => x.Name == "Armageddon blank wand");
+			var item = db.GameItemProtos.Include(x => x.GameItemProtosGameItemComponentProtos).Single(x => x.UniqueName == "Armageddon blank wand");
 			db.Remove(item.GameItemProtosGameItemComponentProtos.Single(x => x.GameItemComponentProtoId == 1)); db.SaveChanges();
 			for (var i = 0; i < 2; i++) { var result = Run(db, plan); Installed(result); Assert.IsTrue(result.Messages.Any(x => x.Contains("preserved builder edit"))); }
 			Assert.AreEqual("Builder remedy", db.MagicSpells.Single(x => x.Id == spell.Id).Name);
@@ -163,7 +213,7 @@ public partial class ArmageddonMagicInstallerTests
 			Installed(Run(db, plan));
 			db.GameItemComponentProtos.Add(new() { Id = 99, Type = "Holdable", Name = "replacement holdable", Definition = "<Definition/>", EditableItem = new() { RevisionStatus = 4 } });
 			db.GameItemComponentProtos.Add(new() { Id = 98, Type = "Salvageable", Name = "builder extra component", Definition = "<Definition/>", EditableItem = new() { RevisionStatus = 4 } });
-			var item = db.GameItemProtos.Include(x => x.GameItemProtosGameItemComponentProtos).Single(x => x.Name == "Armageddon blank wand");
+			var item = db.GameItemProtos.Include(x => x.GameItemProtosGameItemComponentProtos).Single(x => x.UniqueName == "Armageddon blank wand");
 			item.GameItemProtosGameItemComponentProtos.Add(new() { GameItemComponentProtoId = 98 }); db.SaveChanges();
 			Installed(Run(db, plan with { HoldableComponent = 99 }));
 			var ids = db.GameItemProtosGameItemComponentProtos.Where(x => x.GameItemProtoId == item.Id).Select(x => x.GameItemComponentProtoId).ToArray();

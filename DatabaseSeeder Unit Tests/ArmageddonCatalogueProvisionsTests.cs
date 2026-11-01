@@ -37,6 +37,8 @@ public class ArmageddonCatalogueProvisionsTests
 		foreach (var key in new[] { "arm.item.food.bread", "arm.item.food.fruit", "arm.item.food.stew" })
 		{
 			var item = db.GameItemProtos.Single(x => x.Id == first.Identities[key]);
+			Assert.AreEqual(key.EndsWith("bread") ? "flatbread" : key.EndsWith("fruit") ? "fruit" : "stew", item.Name);
+			Assert.AreEqual("Armageddon " + new ArmageddonStockCatalogue().ByKey[key].Name, item.UniqueName);
 			Assert.AreEqual(250.0, item.Weight);
 			var id = db.SeederManagedRecords.Single(x => x.StableKey == key + ".component").LogicalId;
 			var definition = XElement.Parse(db.GameItemComponentProtos.Single(x => x.Id == id).Definition);
@@ -46,6 +48,7 @@ public class ArmageddonCatalogueProvisionsTests
 			Assert.IsFalse(definition.Attributes().Any(x => x.Name.LocalName.Contains("calor", StringComparison.OrdinalIgnoreCase)));
 		}
 		var bottleId = db.SeederManagedRecords.Single(x => x.StableKey == "arm.item.drink_container.component").LogicalId;
+		Assert.AreEqual("bottle", db.GameItemProtos.Single(x => x.Id == first.Identities["arm.item.drink_container"]).Name);
 		var bottle = XElement.Parse(db.GameItemComponentProtos.Single(x => x.Id == bottleId).Definition);
 		Assert.AreEqual(10.0, (double)bottle.Attribute("LiquidCapacity")!);
 		Assert.AreEqual(0L, (long)bottle.Attribute("DefaultLiquid")!);

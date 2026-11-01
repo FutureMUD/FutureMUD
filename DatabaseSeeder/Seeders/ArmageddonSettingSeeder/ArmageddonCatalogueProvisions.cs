@@ -126,7 +126,16 @@ public static class ArmageddonCatalogueProvisions
 	private static GameItemProto Item(ArmageddonCatalogueOwnership owned, ArmageddonStockBlueprint blueprint, long material, double kilograms,
 		GameItemComponentProto[] components, string[] dependencies)
 	{
-		var item = new GameItemProto { Id = owned.Id<GameItemProto>(blueprint.Key), Name = "Armageddon " + blueprint.Name,
+		var item = new GameItemProto { Id = owned.Id<GameItemProto>(blueprint.Key),
+			Name = blueprint.Key switch
+			{
+				"arm.item.food.bread" => "flatbread",
+				"arm.item.food.fruit" => "fruit",
+				"arm.item.food.stew" => "stew",
+				"arm.item.drink_container" => "bottle",
+				_ => throw new InvalidOperationException($"Undeclared provision primary noun: {blueprint.Key}.")
+			},
+			UniqueName = "Armageddon " + blueprint.Name,
 			Keywords = "armageddon " + blueprint.Name.ToLowerInvariant(), ShortDescription = "a serving of " + blueprint.Name.ToLowerInvariant(),
 			FullDescription = "This is " + blueprint.Name.ToLowerInvariant() + ".", MaterialId = material, Size = (int)SizeCategory.Small,
 			Weight = blueprint.Configuration.GetProperty("weight_kilograms").GetDouble() * kilograms,

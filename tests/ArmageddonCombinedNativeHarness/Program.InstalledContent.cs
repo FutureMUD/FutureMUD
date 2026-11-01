@@ -80,7 +80,7 @@ internal static partial class GNHProgram
 		var catalogue = new Mock<IUneditableRevisableAll<IGameItemComponentProto>>();
 		catalogue.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, revision) => components.GetValueOrDefault((id, revision)) ?? existing.Get(id, revision));
 		catalogue.Setup(x => x.GetEnumerator()).Returns(() => components.Values.Concat(existing).GetEnumerator()); host.Native.WorldMock.SetupGet(x => x.ItemComponentProtos).Returns(catalogue.Object);
-		foreach (var row in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosTags).Include(x => x.GameItemProtosGameItemComponentProtos).AsNoTracking().Where(x => x.Name.StartsWith("Armageddon blank")))
+		foreach (var row in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosTags).Include(x => x.GameItemProtosGameItemComponentProtos).AsNoTracking().Where(x => x.UniqueName != null && x.UniqueName.StartsWith("Armageddon blank")))
 			host.Prototypes[row.Id] = new GameItemProto(row, world);
 		var mend = control.Identities[ArmageddonReviewedUtilityContent.MendFleshKey]; var trait = control.Plan.SpellSkills[ArmageddonReviewedUtilityContent.MendFleshKey];
 		foreach (var command in new[] { $"casting entry add {mend}", $"casting entry trait {mend} {trait}", $"casting entry skill {mend} 30 60 relative", $"casting entry starting {mend} on" })
@@ -112,9 +112,9 @@ internal static partial class GNHProgram
 		Require(proto.BuildingCommand(actor, new StringStack($"spell add {food.Id}")), "Combined focus builder whitelist edit failed.");
 		// A real Cell locates itself and reports its visible room description. The
 		// shared loose room fixture leaves both contracts at their default values.
-		var room = actor.Location; var room = Mock.Get(room);
-		room.SetupGet(x => x.Location).Returns(room);
-		room.Setup(x => x.HiddenFromPerception(It.IsAny<IPerceiver>(), It.IsAny<PerceptionTypes>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		var room = actor.Location; var roomMock = Mock.Get(room);
+		roomMock.SetupGet(x => x.Location).Returns(room);
+		roomMock.Setup(x => x.HiddenFromPerception(It.IsAny<IPerceiver>(), It.IsAny<PerceptionTypes>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 		Require(actor.CanSee(room) && actor.CanInteractPlanar(room, PlanarInteractionKind.Magic), "Combined native focus room fixture is not visible/material-reachable.");
 		world.SaveManager.Flush();
 		VerifyProvisionFinalPayment(food, host, database, capability, terrain, wand);

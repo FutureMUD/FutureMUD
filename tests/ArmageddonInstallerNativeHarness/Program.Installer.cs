@@ -146,7 +146,7 @@ internal static partial class GNHProgram
 		Require(foreignOwnership == ForeignOwnershipSnapshot(database), "First install or restarted rerun changed foreign tombstones.");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			Require(!db.GameItemProtos.Any(x => x.Id <= foreignMaximum.Item && x.Name.StartsWith("Armageddon blank")) &&
+			Require(!db.GameItemProtos.Any(x => x.Id <= foreignMaximum.Item && x.UniqueName != null && x.UniqueName.StartsWith("Armageddon blank")) &&
 				!db.GameItemComponentProtos.Any(x => x.Id <= foreignMaximum.Component && x.Type == "ChargedMagicDevice"), "Foreign identity was recreated with different content.");
 		}
 		Console.WriteLine("ARMINSTALL-foreign-tombstones=passed first-install both-prototype-types missing retired revision-zero revision-seven distinct-logical-ids unchanged-foreign-records stable-restarted-rerun");
@@ -199,7 +199,7 @@ internal static partial class GNHProgram
 			var catalogue = new Mock<IUneditableRevisableAll<IGameItemComponentProto>>();
 			catalogue.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, revision) => components.GetValueOrDefault((id, revision)) ?? prototypes.Get(id, revision));
 			catalogue.Setup(x => x.GetEnumerator()).Returns(() => components.Values.Concat(prototypes).GetEnumerator()); native.WorldMock.SetupGet(x => x.ItemComponentProtos).Returns(catalogue.Object);
-			foreach (var item in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosTags).Include(x => x.GameItemProtosGameItemComponentProtos).AsNoTracking().Where(x => x.Name.StartsWith("Armageddon blank")))
+			foreach (var item in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosTags).Include(x => x.GameItemProtosGameItemComponentProtos).AsNoTracking().Where(x => x.UniqueName != null && x.UniqueName.StartsWith("Armageddon blank")))
 				host.Prototypes[item.Id] = new GameItemProto(item, world);
 		}
 		foreach (var content in ArmageddonMagicInstaller.Content(plan))

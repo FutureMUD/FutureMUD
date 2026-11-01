@@ -18,6 +18,10 @@ namespace DatabaseSeeder.Seeders;
 
 internal sealed partial class ArmageddonWorldfileWriter
 {
+	internal static string SourcePrimaryNoun(string keywords) =>
+		keywords.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)
+			.FirstOrDefault(x => !x.EqualToAny("a", "an", "the")) ?? "item";
+
 	private readonly Dictionary<int, WearProfile[]> _wearProfiles = new();
 	private readonly Dictionary<int, long> _wearProfileComponents = new();
 	private readonly Dictionary<(int Mask, int Size), long> _sizedWearProfileComponents = new();
@@ -143,7 +147,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			var doorName = string.IsNullOrWhiteSpace(side.Keyword) ? "a door" : side.Keyword;
 			var proto = new GameItemProto
 			{
-				Id = Next<GameItemProto>(), Name = doorName, UniqueName = $"armw-door-{sourceRoom.Vnum}-{side.Direction}",
+				Id = Next<GameItemProto>(), Name = "door", UniqueName = $"armw-door-{sourceRoom.Vnum}-{side.Direction}",
 				Keywords = doorName, ShortDescription = doorName, LongDescription = doorName + " is here.",
 				FullDescription = "A door fitted into the exit.", MaterialId = wood.Id, Size = (int)SizeCategory.Large,
 				Weight = 20.0 * _kilograms, BaseItemQuality = (int)ItemQuality.Standard, ReadOnly = true,
@@ -250,7 +254,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		var name = source.Name.Trim();
 		var proto = new GameItemProto
 		{
-			Id = Next<GameItemProto>(), Name = name, UniqueName = variantKey == "base" ? Key(source.Vnum) : Key(source.Vnum) + "-" + variantKey,
+			Id = Next<GameItemProto>(), Name = SourcePrimaryNoun(name), UniqueName = variantKey == "base" ? Key(source.Vnum) : Key(source.Vnum) + "-" + variantKey,
 			Keywords = name, ShortDescription = source.ShortDescription, LongDescription = source.LongDescription,
 			FullDescription = source.FullDescription, MaterialId = material.Id, Size = (int)SizeCategory.Normal,
 			Weight = kilograms, BaseItemQuality = (int)ItemQuality.Standard, ReadOnly = true,

@@ -38,6 +38,7 @@ public class ArmageddonCatalogueInstallerTests
 		Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(0, db.Characters.Count());
 		Assert.AreEqual(0, db.GameItems.Count());
+		Assert.IsTrue(db.GameItemProtos.AsEnumerable().All(x => !x.Name.Any(char.IsWhiteSpace) && !string.IsNullOrEmpty(x.UniqueName)));
 		var identities = db.SeederManagedRecords.ToDictionary(x => x.StableKey,
 			x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
 		var rerun = ArmageddonCatalogueInstaller.Install(factory);

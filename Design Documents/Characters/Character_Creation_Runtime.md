@@ -61,7 +61,9 @@ Important stages in the stock flow are:
 - menu
 
 Not every stage has only one possible screen type. The most important alternatives are:
-- `SelectMerits`: `MeritPicker` or `QuirkPicker`
+- `SelectMerits`: `MeritPicker`, `QuirkPicker`, or `QuirkSkipper`
+- `SelectAccents`: `AccentPicker` or `AccentSkipper`
+- `SelectDisfigurements`: `DisfigurementPicker` or `DisfigurementSkipper`
 - `SelectAttributes`: `AttributeOrderer` or `AttributePointBuy`
 - `SelectSkills`: `SkillPicker` or `SkillCostPicker`
 - `SelectCharacteristics`: `CharacteristicPicker`, `SimpleCharacteristicPicker`, or `RerollableCharacteristicPicker`
@@ -76,6 +78,14 @@ response. Existing regex syntax, including backreferences, remains supported. Ru
 characteristic lookups and description parsing use the same bounded matcher.
 
 For races without characteristic definitions, all three characteristic picker types complete with an empty selection. `DescriptionPicker` then uses custom description entry regardless of its pattern setting, and an otherwise complete application can be submitted without selected characteristics. Races with definitions retain the configured characteristic picker and normal submission requirement.
+
+### Automatic Accent, Quirk and Disfigurement Stages
+
+`AccentSkipper`, `QuirkSkipper` and `DisfigurementSkipper` create silent screens that complete in their constructors. Their optional prog IDs are stored in each storyboard's existing XML definition; no new stages or database columns are required. See [builder configuration and function signatures](Character_Creation_Builder_Workflows.md#skipping-optional-selection-screens).
+
+AccentSkipper resets accents and invalid native-language choices, applies the picker's automatic single-accent grants, then adds distinct known-language accents from `GiveAccentsProg`. Unassigned known languages use `LanguageAcquisition` fallback among chargen-available accents. QuirkSkipper clears selected merits before applying distinct character merits from `GiveQuirksProg`. DisfigurementSkipper initializes all disfigurement lists, preserves existing choices, and normalizes legacy tattoo tuples into selected tattoos before executing `MissingBodypartsProg`, `GiveProsthesesProg`, `GiveScarsProg`, and `GiveTattoosProg` in that order. Disfigurement hooks return void and modify the application through `AddChargenMissingBodypart`, `AddChargenProsthesis`, `AddChargenScar` and `AddChargenTattoo`. The helper functions reject invalid or duplicate grants; hook authors must keep other side effects repeatable.
+
+These storyboards charge no resources for their automatic grants, following the existing skipper convention. Picker-specific limits and manual availability gates are not used for prog grants. Stage dependencies, persistence of selections, subsequent stage progression and character materialization remain the normal chargen paths.
 
 ### Knowledge Selection
 `KnowledgePickerBySkill` iterates the selected skill traits and offers only knowledges that are marked `LearnableAtChargen`, are not already selected, and whose `CanPickChargenProg` returns true for the current chargen application plus the current skill trait.

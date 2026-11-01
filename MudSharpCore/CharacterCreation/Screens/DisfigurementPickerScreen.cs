@@ -18,6 +18,18 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
     {
     }
 
+	private DisfigurementPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard)
+		: base(gameworld, storyboard)
+	{
+		ScarBlurb = "Select your character's scars.";
+		TattooBlurb = "Select your character's tattoos.";
+		BodypartsBlurb = "Select any missing bodyparts.";
+		ProstheticsBlurb = "Select your character's prostheses.";
+		PickableProstheses = [];
+		SkipIfSimpleApplication = true;
+		SaveAfterTypeChange();
+	}
+
     public DisfigurementPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem) : base(
         dbitem, gameworld)
     {
@@ -614,7 +626,8 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
     {
         ChargenStoryboard.RegisterFactory(ChargenStage.SelectDisfigurements,
             new ChargenScreenStoryboardFactory("DisfigurementPicker",
-                (game, dbitem) => new DisfigurementPickerScreenStoryboard(game, dbitem)),
+                (game, dbitem) => new DisfigurementPickerScreenStoryboard(game, dbitem),
+				(game, other) => new DisfigurementPickerScreenStoryboard(game, other)),
             "DisfigurementPicker",
             "Pick tattoos, scars, missing bodyparts and prosthetics",
             ((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))

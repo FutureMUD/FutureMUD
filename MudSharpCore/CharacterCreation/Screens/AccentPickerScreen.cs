@@ -12,6 +12,14 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
     {
     }
 
+	private AccentPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard)
+		: base(gameworld, storyboard)
+	{
+		Blurb = "Select the accents your character speaks.";
+		NumberOfAccentsPerLanguage = 1;
+		SaveAfterTypeChange();
+	}
+
     public AccentPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
         : base(dbitem, gameworld)
     {
@@ -114,7 +122,8 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
     {
         ChargenStoryboard.RegisterFactory(ChargenStage.SelectAccents,
             new ChargenScreenStoryboardFactory("AccentPicker",
-                (game, dbitem) => new AccentPickerScreenStoryboard(game, dbitem)),
+                (game, dbitem) => new AccentPickerScreenStoryboard(game, dbitem),
+				(game, other) => new AccentPickerScreenStoryboard(game, other)),
             "AccentPicker",
             "Pick # of accents per language",
             ((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))

@@ -23,6 +23,9 @@ public class QuirkPickerScreenStoryboard : ChargenScreenStoryboard
     protected QuirkPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard) : base(gameworld,
         storyboard)
     {
+		Blurb = "Select your character's quirks.";
+		MaximumQuirks = 3;
+		SkipScreenIfNoChoices = true;
         switch (storyboard)
         {
             case MeritPickerScreenStoryboard mps:

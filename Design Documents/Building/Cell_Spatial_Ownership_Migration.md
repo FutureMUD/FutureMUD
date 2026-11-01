@@ -67,6 +67,8 @@ The inventory is bounded by historical writer/reader support. An arbitrary `IFra
 
 The custom-template boundary checks only `Id` and `TemplateType`: built-in rooms are `simple`, `room by terrain`, `room random description`; built-in areas are `cylinder`, `rectangle`, `rectangle diagonals`, `terrain rectangle`, `terrain feature rectangle`, `room by terrain random features`. Unknown/custom discriminators refuse for an explicit serializer audit, without guessing XML semantics. The effect factory allowlist similarly records the audited built-in `Effect` registrations (including Arena effects); unknown factories refuse even when their content resembles a known field. A source-inventory regression requires intentional updating when built-in registrations change.
 
+`SpellDelayedLocationHint` saves a playable room ID in `Room`, together with a body ID, range and absolute deadline. It has no historical parent-room discriminator. Both direct and nested spell-child payloads are audited and retained byte-for-byte, even when their numeric IDs collide with the old parent namespace.
+
 XML parsing prohibits DTDs/external entities. Changes replace only known scalar value spans in the original string, retaining unrelated whitespace, quotes, comments, CDATA, attributes and payload bytes. Large autobuilder definitions are never loaded by the correction. Diagnostics identify the table, row and supported XML path; they do not include definition contents or credentials.
 
 ### Verification and remaining qualification

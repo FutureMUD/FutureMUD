@@ -65,6 +65,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 
 	private static readonly HashSet<string> DependencyBound = new(StringComparer.OrdinalIgnoreCase)
 	{
+		"Climbing Aid", "Equipment Bonuses",
 		"BiometricScanner", "BreathingFilter", "FaxMachine", "Photocopier", "Salvageable", "SignalDetonator",
 		"Spellbook", "SpellScroll", "ChargedMagicDevice", "FoldedPocket", "ArmageddonEmberSeed", "VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
 	};
@@ -420,6 +421,8 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 	{
 		return NormaliseType(canonicalType) switch
 		{
+			"climbingaid" => "Requires a finished climbing tool's authored check bonus and equipment modes; ArmageddonWorldfileSeeder derives these from the effective source item.",
+			"equipmentbonuses" => "Requires the finished item's authored bonuses and world-specific trait or resource references; ArmageddonWorldfileSeeder translates effective source item affects.",
 			"biometricscanner" => "Requires a selected world anatomy shape; UsefulSeeder must not guess one when run independently.",
 			"salvageable" => "Requires concrete material or item outputs owned by the finished item; a generic empty profile would not be useful.",
 			"signaldetonator" => "Requires a concrete signal-source component and endpoint; seed it with the finished explosive or automation graph.",
@@ -433,6 +436,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 
 	private static string DefaultOwner(string canonicalType)
 	{
+		if (NormaliseType(canonicalType) is "climbingaid" or "equipmentbonuses") return "ArmageddonWorldfileSeeder";
 		if (canonicalType is "ConditionalBinding" or "SpellSelectionShrine" or "ResourceRestorer" or "ItemIssuer") return "ArmageddonSettingSeeder";
 		if (canonicalType.Equals("ArmageddonEmberSeed", StringComparison.OrdinalIgnoreCase))
 		{

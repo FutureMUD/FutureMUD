@@ -11,7 +11,7 @@ using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ClimbingAidGameItemComponentProto : GameItemComponentProto, IExclusiveGameItemComponentPrototype<IClimbingAid>
+public class ClimbingAidGameItemComponentProto : GameItemComponentProto, IClimbingAidPrototype
 {
 	public override string TypeDescription => "Climbing Aid";
 	public double CheckBonus { get; private set; }

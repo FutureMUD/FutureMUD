@@ -237,6 +237,7 @@ SpellOpenThreshold
 SpellPortal
 SpellPowerTagSuppression
 SpellReturnTether
+SpellDelayedLocationHint
 SpellStormLocus
 SpellPortalTopology
 SpellPossessedBody

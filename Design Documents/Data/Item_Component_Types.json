@@ -1005,6 +1005,7 @@
     ],
     "Prototype Class": "MudSharp.GameItems.Prototypes.BookGameItemComponentProto",
     "Component Capabilities": [
+      "IConsumablePaper",
       "IOpenable",
       "IReadable",
       "ITearable",
@@ -1012,6 +1013,7 @@
       "IWriteable"
     ],
     "Exclusive Types": [
+      "IConsumablePaper",
       "IOpenable",
       "IReadable",
       "ITearable",
@@ -1367,6 +1369,36 @@
     ],
     "Required Sibling Types": [],
     "Runtime Component Class": "MudSharp.GameItems.Components.ChargedMagicDeviceGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
+    "Component Type Name": "Climbing Aid",
+    "Component Type Description": "Assists climbing while held or worn; only the strongest eligible aid applies.",
+    "Technology": "General",
+    "Builder Primary Type": "climbingaid",
+    "Builder Aliases": [
+      "climbingaid"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.ClimbingAidGameItemComponentProto",
+    "Component Capabilities": [
+      "IClimbingAid"
+    ],
+    "Exclusive Types": [
+      "IClimbingAid"
+    ],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.ClimbingAidGameItemComponent",
     "Has Prototype XML Load": true,
     "Has Prototype XML Save": true,
     "Has Create Path": true,
@@ -2586,6 +2618,34 @@
     ],
     "Required Sibling Types": [],
     "Runtime Component Class": "MudSharp.GameItems.Components.ElectronicLockGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
+    "Component Type Name": "Equipment Bonuses",
+    "Component Type Description": "Intrinsic, additive equipment trait, capacity, combat, resistance and absorption modifiers.",
+    "Technology": "General",
+    "Builder Primary Type": "equipmentbonuses",
+    "Builder Aliases": [
+      "equipmentbonuses"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.EquipmentBonusesGameItemComponentProto",
+    "Component Capabilities": [
+      "IEquippedItemBonusProvider"
+    ],
+    "Exclusive Types": [],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.EquipmentBonusesGameItemComponent",
     "Has Prototype XML Load": true,
     "Has Prototype XML Save": true,
     "Has Create Path": true,
@@ -4659,12 +4719,14 @@
     "Component Capabilities": [
       "ILiquidContainer",
       "ILockable",
-      "IOpenable"
+      "IOpenable",
+      "IPreparedLiquidContainer"
     ],
     "Exclusive Types": [
       "ILiquidContainer",
       "ILockable",
-      "IOpenable"
+      "IOpenable",
+      "IPreparedLiquidContainer"
     ],
     "Required Sibling Types": [],
     "Runtime Component Class": "MudSharp.GameItems.Components.LiquidContainerGameItemComponent",
@@ -5712,10 +5774,12 @@
     ],
     "Prototype Class": "MudSharp.GameItems.Prototypes.PaperSheetGameItemComponentProto",
     "Component Capabilities": [
+      "IConsumablePaper",
       "IReadable",
       "IWriteable"
     ],
     "Exclusive Types": [
+      "IConsumablePaper",
       "IReadable",
       "IWriteable"
     ],

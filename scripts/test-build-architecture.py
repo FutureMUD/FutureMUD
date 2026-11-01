@@ -16,7 +16,8 @@ class MigrationBuildTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory(prefix="futuremud-build-")
         self.addCleanup(self.directory.cleanup)
-        self.root = Path(self.directory.name)
+        # MSBuild expands Windows 8.3 aliases when reporting generated source paths.
+        self.root = Path(self.directory.name).resolve()
         self.migrations = self.root / "MudsharpDatabaseLibrary/Migrations"
         self.migrations.mkdir(parents=True)
         self.models = self.root / "MigrationModels"

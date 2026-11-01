@@ -71,6 +71,12 @@ public class ArmageddonStockCatalogueTests
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
 		db.ChangeTracker.Clear();
 		Assert.AreEqual(64, db.GameItemProtos.Count());
+		var supplies = db.GameItemProtos.ToArray();
+		Assert.AreEqual(64, supplies.Select(x => x.UniqueName).Distinct().Count());
+		Assert.IsTrue(supplies.All(x => x.UniqueName.StartsWith("Armageddon ") && !x.Name.Any(char.IsWhiteSpace)));
+		Assert.AreEqual(61, supplies.Count(x => x.Name == "component"));
+		Assert.AreEqual(2, supplies.Count(x => x.Name == "blank"));
+		Assert.AreEqual(1, supplies.Count(x => x.Name == "seal"));
 		Assert.AreEqual(64, db.Crafts.Count());
 		Assert.AreEqual(61, db.Tags.Count());
 		Assert.AreEqual(4, db.AutobuilderRoomTemplates.Count());
@@ -244,6 +250,94 @@ public class ArmageddonStockCatalogueTests
 		db.GameItemProtos.Remove(item); db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Failed, ArmageddonCatalogueSupplies.Install(factory).Status);
 		Assert.AreEqual(63, db.GameItemProtos.Count());
+	}
+
+	[TestMethod]
+	[DataRow(false, false)]
+	[DataRow(true, false)]
+	[DataRow(false, true)]
+	[DataRow(true, true)]
+	public void SupplyBatch_LegacyNamesRepairInPlaceAndPreserveIndependentBuilderEdits(bool editNoun, bool editUniqueName)
+	{
+		using var db = Fixture(ArmageddonProgressionMode.Simple, false);
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var first = ArmageddonCatalogueSupplies.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status);
+		db.ChangeTracker.Clear();
+		foreach (var item in db.GameItemProtos)
+		{
+			var record = db.SeederManagedRecords.Single(x => x.EntityType == nameof(GameItemProto) && x.LogicalId == item.Id);
+			var baseline = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+			baseline["Name"] = System.Text.Json.JsonSerializer.Serialize(item.UniqueName);
+			baseline.Remove("UniqueName");
+			record.SeedBaseline = System.Text.Json.JsonSerializer.Serialize(baseline);
+			item.Name = item.UniqueName;
+			item.UniqueName = null!;
+		}
+		var id = first.Identities["arm.material.abjuration.rank0"];
+		var edited = db.GameItemProtos.Single(x => x.Id == id);
+		if (editNoun) edited.Name = "reagent";
+		if (editUniqueName) edited.UniqueName = "Builder's abjuration reagent";
+		db.SaveChanges();
+		db.ChangeTracker.Clear();
+		for (var run = 0; run < 2; run++)
+		{
+			var result = ArmageddonCatalogueSupplies.Install(factory);
+			Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
+			CollectionAssert.AreEquivalent(first.Identities.ToArray(), result.Identities.ToArray());
+			db.ChangeTracker.Clear();
+			var actual = db.GameItemProtos.Single(x => x.Id == id);
+			Assert.AreEqual(editNoun ? "reagent" : "component", actual.Name);
+			Assert.AreEqual(editUniqueName ? "Builder's abjuration reagent" : "Armageddon Abjuration component rank 0", actual.UniqueName);
+			Assert.AreEqual(64, db.GameItemProtos.Count());
+			Assert.AreEqual(0, db.GameItemProtos.Count(x => x.Name.StartsWith("Armageddon ")));
+			Assert.AreEqual(0, db.GameItemProtos.Count(x => x.UniqueName == null || x.UniqueName == ""));
+		}
+	}
+
+	[TestMethod]
+	[DataRow(false, false)]
+	[DataRow(true, false)]
+	[DataRow(false, true)]
+	[DataRow(true, true)]
+	public void SupplyBatch_UnownedUniqueOrLegacyLabelCollisionIsRejected(bool legacy, bool rerun)
+	{
+		using var db = Fixture(ArmageddonProgressionMode.Simple, false);
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var label = "Armageddon " + new ArmageddonStockCatalogue().ByKey["arm.item.focus_blank"].Name;
+		long? targetId = null;
+		if (rerun)
+		{
+			var first = ArmageddonCatalogueSupplies.Install(factory);
+			Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status);
+			db.ChangeTracker.Clear();
+			targetId = first.Identities["arm.item.focus_blank"];
+			var target = db.GameItemProtos.Single(x => x.Id == targetId);
+			target.Name = label;
+			target.UniqueName = null!;
+			var record = db.SeederManagedRecords.Single(x => x.StableKey == "arm.item.focus_blank");
+			var baseline = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+			baseline["Name"] = System.Text.Json.JsonSerializer.Serialize(label);
+			baseline.Remove("UniqueName");
+			record.SeedBaseline = System.Text.Json.JsonSerializer.Serialize(baseline);
+		}
+		var collisionLabel = label.ToLowerInvariant();
+		db.GameItemProtos.Add(new GameItemProto
+		{
+			Id = 9000, Name = legacy ? collisionLabel : "blank", UniqueName = legacy ? null! : collisionLabel,
+			EditableItem = new EditableItem { RevisionStatus = (int)RevisionStatus.Current }
+		});
+		db.SaveChanges();
+		var result = ArmageddonCatalogueSupplies.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Failed, result.Status);
+		Assert.IsTrue(result.Messages.Any(x => x.Contains("collision")), string.Join("\n", result.Messages));
+		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.EntityType == nameof(GameItemProto) && x.LogicalId == 9000));
+		if (rerun)
+		{
+			var target = db.GameItemProtos.Single(x => x.Id == targetId);
+			Assert.AreEqual(label, target.Name);
+			Assert.IsNull(target.UniqueName);
+		}
 	}
 
 	internal static MudSharp.Database.FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode, bool classes)

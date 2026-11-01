@@ -244,7 +244,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			{
 				var layout = layouts[index];
 				var key = $"Vnum20610Room{roomVnum}Table{index + 1}";
-				var table = NewFurnitureProto(key, layout.Description, sourceFurniture.MaterialId, sourceFurniture.Weight,
+				var table = NewFurnitureProto(key, "table", layout.Description, sourceFurniture.MaterialId, sourceFurniture.Weight,
 					sourceFurniture.CostInBaseCurrency);
 				Attach(table, Component($"armw.table-layout.{key}", "Table", new XElement("Definition",
 					new XAttribute("MaximumChairSlots", layout.Seats),
@@ -256,7 +256,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 					new XAttribute("Transparent", true), new XAttribute("OnceOnly", false))));
 
 				var benchDescription = $"seating for {layout.Seats} by {layout.Description}";
-				var bench = NewFurnitureProto($"Vnum20610Room{roomVnum}Seat{index + 1}", benchDescription,
+				var bench = NewFurnitureProto($"Vnum20610Room{roomVnum}Seat{index + 1}", "bench", benchDescription,
 					sourceFurniture.MaterialId, sourceFurniture.Weight, sourceFurniture.CostInBaseCurrency);
 				Attach(bench, Component($"armw.table-layout-bench.{key}", "Chair", new XElement("Definition",
 					new XAttribute("ChairSlotsUsed", layout.Seats), new XAttribute("ChairOccupantCapacity", layout.Seats))));
@@ -270,11 +270,11 @@ internal sealed partial class ArmageddonWorldfileWriter
 		_counts["native table layouts"] = _tableLayoutPrototypes.Count;
 	}
 
-	private GameItemProto NewFurnitureProto(string uniqueName, string description, long materialId, double weight, decimal cost)
+	private GameItemProto NewFurnitureProto(string uniqueName, string noun, string description, long materialId, double weight, decimal cost)
 	{
 		var proto = new GameItemProto
 		{
-			Id = Next<GameItemProto>(), Name = description, UniqueName = uniqueName, Keywords = description,
+			Id = Next<GameItemProto>(), Name = noun, UniqueName = uniqueName, Keywords = description,
 			ShortDescription = description, LongDescription = description + " is here.", FullDescription = description,
 			MaterialId = materialId, Size = (int)SizeCategory.Normal, Weight = weight,
 			BaseItemQuality = (int)ItemQuality.Standard, ReadOnly = true, CostInBaseCurrency = cost,

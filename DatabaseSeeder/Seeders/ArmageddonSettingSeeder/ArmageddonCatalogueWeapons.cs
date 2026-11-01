@@ -113,7 +113,7 @@ public static class ArmageddonCatalogueWeapons
 				}, [typeKey]);
 				var item = new GameItemProto
 				{
-					Id = owned.Id<GameItemProto>(blueprint.Key), Name = "Armageddon " + blueprint.Name,
+					Id = owned.Id<GameItemProto>(blueprint.Key), Name = shape, UniqueName = "Armageddon " + blueprint.Name,
 					Keywords = "armageddon " + blueprint.Name.ToLowerInvariant() + " " + shape,
 					ShortDescription = "a conjured " + shape,
 					FullDescription = "This conjured " + shape + " is fashioned for use as a magical weapon.",

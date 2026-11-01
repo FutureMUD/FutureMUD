@@ -18,6 +18,15 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonWorldfileSeederTests
 {
 	[TestMethod]
+	[DataRow("blade knife steel", "blade")]
+	[DataRow("  The\tkey brass ", "key")]
+	[DataRow("cloak", "cloak")]
+	[DataRow("a an the", "item")]
+	[DataRow("", "item")]
+	public void ImportedItemNamesUseOnePrimaryKeyword(string keywords, string expected) =>
+		Assert.AreEqual(expected, ArmageddonWorldfileWriter.SourcePrimaryNoun(keywords));
+
+	[TestMethod]
 	public void ResetFitting_RefitsOnlyWornClothingAndArmour_PreservingCarriedStock()
 	{
 		foreach (var type in new[] { 9, 11 })

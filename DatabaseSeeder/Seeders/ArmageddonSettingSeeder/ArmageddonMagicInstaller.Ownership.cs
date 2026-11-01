@@ -90,6 +90,10 @@ public static partial class ArmageddonMagicInstaller
 			foreach (var link in desiredItem.GameItemProtosGameItemComponentProtos) next[LinkKey(link)] = "true";
 		}
 		var merged = SeederManagedRecordReconciler.Reconcile(record, current, next, created, messages);
+		if (row is GameItemProto retainedItem && merged["UniqueName"] != current["UniqueName"] &&
+			JsonSerializer.Deserialize<string>(merged["UniqueName"]) is { Length: > 0 } uniqueName &&
+			ArmageddonItemNaming.LabelCollision(db, retainedItem.Id, uniqueName))
+			throw new InvalidOperationException($"{contribution.Key}: native unique-name collision; no repair.");
 		foreach (var property in db.Entry(row).Properties.Where(x => !x.Metadata.IsPrimaryKey() && x.Metadata.Name != "EditableItemId"))
 			if (merged.TryGetValue(property.Metadata.Name, out var value)) property.CurrentValue = JsonSerializer.Deserialize(value, property.Metadata.ClrType);
 		if (row is FutureProg actualProg && desired is FutureProg parameters)
@@ -129,9 +133,11 @@ public static partial class ArmageddonMagicInstaller
 		T row;
 		if (created)
 		{
-			var nameProperty = typeof(T).GetProperty(typeof(T) == typeof(FutureProg) ? "FunctionName" : "Name")!;
+			var nameProperty = typeof(T).GetProperty(typeof(T) == typeof(FutureProg) ? "FunctionName" :
+				desired is GameItemProto ? "UniqueName" : "Name")!;
 			var desiredName = (string)nameProperty.GetValue(desired)!;
-			if (db.Set<T>().Any(x => EF.Property<string>(x, nameProperty.Name) == desiredName))
+			if (desired is GameItemProto ? ArmageddonItemNaming.LabelCollision(db, 0, desiredName) :
+				db.Set<T>().Any(x => EF.Property<string>(x, nameProperty.Name) == desiredName))
 				throw new InvalidOperationException($"{contribution.Key}: unowned {nameProperty.Name} collision; no automatic adoption.");
 			row = desired; db.Add(row); db.SaveChanges();
 			EnsureUnclaimedIdentity(db, contribution, (long)typeof(T).GetProperty("Id")!.GetValue(row)!);

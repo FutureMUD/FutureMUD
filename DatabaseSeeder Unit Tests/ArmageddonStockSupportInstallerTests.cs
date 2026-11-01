@@ -31,6 +31,9 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages)); db.ChangeTracker.Clear();
 		Assert.AreEqual(68, first.Identities.Count); Assert.AreEqual(beforeItems + 19, db.GameItemProtos.Count());
 		Assert.AreEqual(beforeAttacks + 16, db.WeaponAttacks.Count()); Assert.AreEqual(1, db.Planes.Count(x => x.IsDefault));
+		var itemIds = first.Identities.Values.ToArray();
+		foreach (var item in db.GameItemProtos.Where(x => itemIds.Contains(x.Id)).AsEnumerable())
+			Assert.IsTrue(!item.Name.Any(char.IsWhiteSpace) && !string.IsNullOrEmpty(item.UniqueName), item.ShortDescription);
 		var passage = db.AutobuilderRoomTemplates.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.NilazPassageTemplateKey]);
 		Assert.AreEqual("room by terrain", passage.TemplateType);
 		var passageXml = XElement.Parse(passage.Definition);
@@ -84,12 +87,19 @@ public partial class ArmageddonStockSupportInstallerTests
 		var plane = db.Planes.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.ShadowPlaneKey]); plane.Name = "builder's shadow";
 		var prog = db.FutureProgs.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.FlameMultiplierKey]); prog.FunctionText = "return 0.25";
 		var item = db.GameItemProtos.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.ShadowStaffKey(1)]); item.ShortDescription = "a custom staff";
+		item.Name = "cane"; item.UniqueName = "Builder's shadow staff";
+		var legacy = db.GameItemProtos.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.SparkStaffKey(1)]);
+		ArmageddonItemNamingTests.MakeLegacy(db, legacy);
 		var attackId = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.ShadowStaffKey(1) + ".attack").LogicalId;
 		db.WeaponAttacks.Single(x => x.Id == attackId).StaminaCost = 9; db.SaveChanges();
 		var rerun = ArmageddonStockSupportInstaller.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		db.ChangeTracker.Clear(); Assert.AreEqual("builder's shadow", db.Planes.Single(x => x.Id == plane.Id).Name);
 		Assert.AreEqual("return 0.25", db.FutureProgs.Single(x => x.Id == prog.Id).FunctionText);
 		Assert.AreEqual("a custom staff", db.GameItemProtos.Single(x => x.Id == item.Id).ShortDescription); Assert.AreEqual(9.0, db.WeaponAttacks.Single(x => x.Id == attackId).StaminaCost);
+		Assert.AreEqual("cane", db.GameItemProtos.Single(x => x.Id == item.Id).Name);
+		Assert.AreEqual("Builder's shadow staff", db.GameItemProtos.Single(x => x.Id == item.Id).UniqueName);
+		Assert.AreEqual("staff", db.GameItemProtos.Single(x => x.Id == legacy.Id).Name);
+		Assert.AreEqual("Armageddon Spark Staff 1", db.GameItemProtos.Single(x => x.Id == legacy.Id).UniqueName);
 	}
 
 	[TestMethod]

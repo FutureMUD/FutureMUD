@@ -306,7 +306,7 @@ public static partial class ArmageddonStockSupportInstaller
 		var component = owned.Put(key + ".component", new GameItemComponentProto { Id = owned.Id<GameItemComponentProto>(key + ".component"),
 			Name = "Armageddon " + name + " melee", Type = "MeleeWeapon", Description = "Native supplemental staff component.", EditableItem = owned.Approval(),
 			Definition = new XElement("Definition", new XElement("WeaponType", weapon.Id), new XElement("CanWieldProg", 0), new XElement("WhyCannotWieldProg", 0)).ToString() }, [key + ".weapon"]);
-		var item = new GameItemProto { Id = owned.Id<GameItemProto>(key), Name = "Armageddon " + name, Keywords = "armageddon " + name.ToLowerInvariant(),
+		var item = new GameItemProto { Id = owned.Id<GameItemProto>(key), Name = "staff", UniqueName = "Armageddon " + name, Keywords = "armageddon " + name.ToLowerInvariant(),
 			ShortDescription = "a conjured " + name.Split(' ')[0].ToLowerInvariant() + " staff", FullDescription = "This magical staff is fashioned for native staff strikes and parries.",
 			MaterialId = settings.NativeBindings[ArmageddonNativeBinding.Wood], Size = (int)SizeCategory.Normal,
 			Weight = config.GetProperty("weight_kilograms").GetDouble() * db.UnitsOfMeasure.Single(x => x.Id == settings.NativeBindings[ArmageddonNativeBinding.Kilogram]).BaseMultiplier,

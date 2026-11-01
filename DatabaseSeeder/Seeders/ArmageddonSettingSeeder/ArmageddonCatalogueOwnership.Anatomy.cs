@@ -30,6 +30,8 @@ internal sealed partial class ArmageddonCatalogueOwnership
 			return _db.BodypartProtos.Any(x => x.Id != self && x.BodyId == part.BodyId && x.Name == name);
 		if (desired is Limb limb)
 			return _db.Limbs.Any(x => x.Id != self && x.RootBodyId == limb.RootBodyId && x.Name == name);
+		if (desired is GameItemProto && field == "UniqueName")
+			return ArmageddonItemNaming.LabelCollision(_db, self, name);
 		return _db.Set<T>().Any(x => EF.Property<long>(x, "Id") != self && EF.Property<string>(x, field) == name);
 	}
 

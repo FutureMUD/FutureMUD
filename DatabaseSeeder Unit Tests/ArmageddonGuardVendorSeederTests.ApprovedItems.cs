@@ -50,9 +50,12 @@ public partial class ArmageddonGuardVendorSeederTests
 		{
 			var proto = db.GameItemProtos.Single(x => x.Id == record.LogicalId);
 			StringAssert.StartsWith(proto.UniqueName, "Vnum20610Room");
+			Assert.AreEqual("table", proto.Name);
 			Assert.AreEqual(2, proto.GameItemProtosGameItemComponentProtos.Count);
 		}
 		Assert.AreEqual(0, db.Hooks.Count(), "Furniture uses native speech volumes without custom conversation hooks.");
+		Assert.IsTrue(db.GameItemProtos.AsEnumerable().Where(x => x.UniqueName?.StartsWith("Vnum20610Room") == true && x.UniqueName.Contains("Seat"))
+			.All(x => x.Name == "bench"));
 	}
 
 	[TestMethod]

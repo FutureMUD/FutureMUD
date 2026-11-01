@@ -87,7 +87,7 @@ public static partial class ArmageddonMagicInstaller
 			var item = new GameItemProto
 			{
 				Id = records.TryGetValue(itemKey, out existing) ? existing.LogicalId!.Value : NextPrototypeId(db, typeof(GameItemProto)),
-				RevisionNumber = existing?.RevisionNumber ?? 0, Name = Spec(itemKey).Name,
+				RevisionNumber = existing?.RevisionNumber ?? 0, Name = name, UniqueName = Spec(itemKey).Name,
 				Keywords = $"blank armageddon {name}", ShortDescription = $"a plain {name}",
 				FullDescription = $"This plain {name} can focus Mend Flesh or store one homogeneous bank of legitimately produced charges. It is supplied empty.",
 				MaterialId = plan.Material, Size = 1, Weight = name == "staff" ? 2 : 0.25,

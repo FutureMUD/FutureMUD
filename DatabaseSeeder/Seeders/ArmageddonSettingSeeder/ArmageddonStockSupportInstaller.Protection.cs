@@ -72,7 +72,7 @@ public static partial class ArmageddonStockSupportInstaller
 					throw new InvalidOperationException($"{key}: retain complete typed supplemental ownership.");
 				continue;
 			}
-			var collision = type == typeof(GameItemProto) ? db.GameItemProtos.Any(x => x.Name == name) :
+			var collision = type == typeof(GameItemProto) ? ArmageddonItemNaming.LabelCollision(db, 0, name) :
 				type == typeof(Tag) ? db.Tags.Any(x => x.Name == name) :
 				type == typeof(Craft) ? db.Crafts.Any(x => x.Name == name) :
 				type == typeof(FutureProg) ? db.FutureProgs.Any(x => x.FunctionName == name) : db.ArmourTypes.Any(x => x.Name == name);
@@ -86,7 +86,7 @@ public static partial class ArmageddonStockSupportInstaller
 		var tag = owned.Put(CreationRankSixTagKey, new Tag { Name = "Creation rank 6" }, []);
 		var item = new GameItemProto
 		{
-			Id = owned.Id<GameItemProto>(CreationRankSixKey), Name = "Armageddon High Creation component",
+			Id = owned.Id<GameItemProto>(CreationRankSixKey), Name = "component", UniqueName = "Armageddon High Creation component",
 			Keywords = "armageddon high creation component", ShortDescription = "a high creation component",
 			FullDescription = "This high creation component is an authored rank-six supply for permanent magical weapon creation.",
 			MaterialId = bindings.Clay, Size = (int)SizeCategory.VerySmall, Weight = 0.01 * bindings.Kilograms,

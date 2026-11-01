@@ -48,6 +48,8 @@ public class ArmageddonCatalogueWeaponTests
 		foreach (var blueprint in new ArmageddonStockCatalogue().Blueprints.Where(x => x.Kind == ArmageddonBlueprintKind.MeleeItem))
 		{
 			var item = db.GameItemProtos.Single(x => x.Id == result.Identities[blueprint.Key]);
+			Assert.AreEqual(blueprint.Configuration.GetProperty("shape").GetString(), item.Name);
+			Assert.AreEqual("Armageddon " + blueprint.Name, item.UniqueName);
 			Assert.AreEqual(blueprint.Configuration.GetProperty("weight_kilograms").GetDouble() * 1000, item.Weight);
 			var attackId = db.SeederManagedRecords.Single(x => x.StableKey == blueprint.Key + ".attack").LogicalId!.Value;
 			var attack = db.WeaponAttacks.Single(x => x.Id == attackId);

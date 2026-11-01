@@ -36,7 +36,7 @@ public static partial class ArmageddonStockSupportInstaller
 			var tag = owned.Put(key + ".tag", new Tag { Name = title + " rank 5", ParentId = parent.Id }, [parentKey]);
 			var item = new GameItemProto
 			{
-				Id = owned.Id<GameItemProto>(key), Name = "Armageddon High " + title + " component",
+				Id = owned.Id<GameItemProto>(key), Name = "component", UniqueName = "Armageddon High " + title + " component",
 				Keywords = "armageddon high " + sphere + " component", ShortDescription = "a high " + sphere + " component",
 				FullDescription = "This rank-five " + sphere + " component supports the highest source travel grade.",
 				MaterialId = bindings.Clay, Size = (int)SizeCategory.VerySmall, Weight = 0.01 * bindings.Kilograms,

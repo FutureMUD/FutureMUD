@@ -43,6 +43,8 @@ public partial class ArmageddonStockSpellInstallerTests
 			Assert.AreEqual("ChargedMagicDevice", component.Type);
 			var xml = XElement.Parse(component.Definition);
 			var focus = blueprint.Kind == ArmageddonBlueprintKind.Focus;
+			Assert.AreEqual(focus ? "focus" : blueprint.Key.EndsWith("staff") ? "staff" : "wand", item.Name);
+			Assert.AreEqual("Armageddon stock " + blueprint.Name, item.UniqueName);
 			Assert.AreEqual((int)(focus ? MagicDeviceRole.Focus : MagicDeviceRole.Dual), (int)xml.Element("Role")!);
 			Assert.AreEqual((int)MagicDeviceEligibility.Caster, (int)xml.Element("Eligibility")!);
 			Assert.AreEqual(use.Id, (long)xml.Element("UseProg")!);
@@ -64,12 +66,20 @@ public partial class ArmageddonStockSpellInstallerTests
 		}
 		Assert.AreEqual(0, db.GameItems.Count());
 		var retained = db.GameItemProtos.Single(x => x.Id == result.Identities["arm.focus.earth"]);
+		var waterFocus = db.GameItemProtos.Single(x => x.Id == result.Identities["arm.focus.water"]);
+		ArmageddonItemNamingTests.MakeLegacy(db, waterFocus);
+		retained.Name = "talisman";
+		retained.UniqueName = "Builder's focus";
 		retained.FullDescription = "Builder customised focus."; db.SaveChanges();
 		var before = db.SeederManagedRecords.Count();
 		var rerun = ArmageddonStockFocusDeviceInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		db.ChangeTracker.Clear(); Assert.AreEqual(before, db.SeederManagedRecords.Count());
 		Assert.AreEqual("Builder customised focus.", db.GameItemProtos.Single(x => x.Id == retained.Id).FullDescription);
+		Assert.AreEqual("talisman", db.GameItemProtos.Single(x => x.Id == retained.Id).Name);
+		Assert.AreEqual("Builder's focus", db.GameItemProtos.Single(x => x.Id == retained.Id).UniqueName);
+		Assert.AreEqual("focus", db.GameItemProtos.Single(x => x.Id == waterFocus.Id).Name);
+		Assert.AreEqual("Armageddon stock Water focus", db.GameItemProtos.Single(x => x.Id == waterFocus.Id).UniqueName);
 		CollectionAssert.AreEquivalent(result.Identities.Values.ToArray(), rerun.Identities.Values.ToArray());
 		foreach (var gateKey in new[] { ArmageddonStockFocusDeviceInstaller.UseGateKey, ArmageddonStockFocusDeviceInstaller.CraftGateKey })
 		{

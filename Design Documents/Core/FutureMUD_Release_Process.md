@@ -85,6 +85,8 @@ The skill follows the same checks, uses the exact merged version commit, creates
 
 The persistence library compiles historical migration models in bounded helper assemblies; see [Migration model compilation](Migration_Model_Compilation.md). Release bundles must include those runtime helpers and exclude the build-only compiler tool. Engine 2.15.0 and Seeder 3.8.0 were unpublished attempts; their immutable tags are retained, and the corrected releases use 2.15.1 and 3.8.1.
 
+Engine 2.16.0 also stopped before production promotion because its component and spell compatibility audits failed. Retain that immutable tag; Engine 2.16.1 contains the audit corrections and is its replacement release.
+
 1. Confirm the workflow's prepare, every runtime package, smoke publish, and production publish jobs succeeded.
 2. Confirm `https://futuremud.com/downloads` shows the expected product version and runtime set.
 3. Open each `.sha256` link and confirm its filename matches the archive.

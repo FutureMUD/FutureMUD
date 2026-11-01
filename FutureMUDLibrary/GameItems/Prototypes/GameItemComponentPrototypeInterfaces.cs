@@ -23,6 +23,14 @@ public interface IAggregateGameItemComponentPrototype<TComponent> : IGameItemCom
 {
 }
 
+public interface IClimbingAidPrototype : IExclusiveGameItemComponentPrototype<IClimbingAid>
+{
+}
+
+public interface IEquippedItemBonusProviderPrototype : IAggregateGameItemComponentPrototype<IEquippedItemBonusProvider>
+{
+}
+
 public interface IActiveCraftGameItemComponentPrototype : IExclusiveGameItemComponentPrototype<IActiveCraftGameItemComponent>
 {
 }

@@ -31,6 +31,7 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(ICanConnectToTelecommunicationsGrid),
 		typeof(IChangeTraitsInInventory),
 		typeof(IConnectable),
+		typeof(IEquippedItemBonusProvider),
 		typeof(IMediaEndpoint),
 		typeof(IMediaSource),
 		typeof(IMediaSink),

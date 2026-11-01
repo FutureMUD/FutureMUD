@@ -8,7 +8,7 @@ using MudSharp.Magic;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public sealed class EquipmentBonusesGameItemComponentProto : GameItemComponentProto
+public sealed class EquipmentBonusesGameItemComponentProto : GameItemComponentProto, IEquippedItemBonusProviderPrototype
 {
 	public override string TypeDescription => "Equipment Bonuses";
 	public bool WorksWorn { get; private set; } = true;

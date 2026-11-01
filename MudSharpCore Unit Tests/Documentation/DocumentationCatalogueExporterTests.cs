@@ -78,7 +78,15 @@ public sealed class DocumentationCatalogueExporterTests
 			Assert.AreEqual("HumanSeeder;AnimalSeeder", row[9]);
 			using var types = JsonDocument.Parse(File.ReadAllText(Path.Combine(data.FullName, "Item_Component_Types.json")));
 			var exported = types.RootElement.EnumerateArray().ToArray();
-			Assert.AreEqual(254, exported.Length);
+			Assert.AreEqual(256, exported.Length);
+			foreach (var type in new[] { "Climbing Aid", "Equipment Bonuses" })
+			{
+				var componentRow = File.ReadLines(Path.Combine(seeding.FullName, "Industrialised_Component_Prerequisite_Audit.tsv"))
+					.Single(x => x.StartsWith(type + "\t", StringComparison.Ordinal)).Split('\t');
+				Assert.AreEqual("ArmageddonWorldfileSeeder", componentRow[9]);
+				Assert.AreEqual("dependency-bound", componentRow[11]);
+				StringAssert.Contains(componentRow[12], "source item");
+			}
 			var keywordRow = File.ReadLines(Path.Combine(seeding.FullName, "Industrialised_Component_Prerequisite_Audit.tsv"))
 				.Single(x => x.StartsWith("Keyword Descriptions\t", StringComparison.Ordinal)).Split('\t');
 			Assert.AreEqual("system-or-context-owned", keywordRow[11]);

@@ -106,6 +106,7 @@ public class VancianSnapshotTests
 		foreach (var type in new[] { "damage","heal","selfdamage","boost","glow","invisibility","spellarmour","infravision","sleep","removesleep","teleport" })
 			Assert.IsFalse(inventory[type].Status == "Unsupported",type);
 		Assert.AreEqual("Unsupported",inventory["executeprog"].Status);
+		Assert.AreEqual("Unsupported",inventory["delayedlocationhint"].Status);
 	}
 	[TestMethod]
 	public void DirectVancianInvocationUsesSyntheticOutcomeAndExactFiniteDebit()

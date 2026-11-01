@@ -15,6 +15,8 @@ It is the primary implementation guide for creating new item "types" in FutureMU
 
 `climbingaid` adds a native `Climbing Aid` component. Builder options are `bonus <number>`, `held` and `worn`; both equipment modes default on. Worn eligibility is independent of body location. Vertical and tree-to-tree climbing use the strongest eligible equipped aid, without stacking or granting climbing ability. Saved XML fields are `CheckBonus`, `WorksHeld` and `WorksWorn`. The component has no consumable instance state.
 
+Climbing aids advertise the exclusive `IClimbingAidPrototype` capability. Equipment Bonuses advertises the aggregate `IEquippedItemBonusProviderPrototype` capability, matching the runtime's collection of all eligible bonus providers on an item.
+
 Locksmithing tools retain their existing integer difficulty adjustment. The optional `checkbonus <number>` sets a separate flat target-number bonus for picking and relocking; missing `CheckBonus` XML means zero. It does not affect installation, fabrication, inspection or configuration permissions. Both tool families use `CheckEvaluationContext.FlatBonusParameterName` in check custom parameters, applied before any optional maximum-target cap. An absent value means zero, and the parameter does not bypass native timebound outcome retention. Ordinary weather/effect difficulty bonuses remain separate.
 
 

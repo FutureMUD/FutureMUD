@@ -245,6 +245,17 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void DelayedLocationHint_PreservesPlayableRoomBodyRangeAndDeadline()
+	{
+		// The remembered room is already a playable ID, even when it collides with a legacy parent ID.
+		const string child = "<Effect><Type>SpellDelayedLocationHint</Type><Effect><Room>9000</Room><Body>8101</Body><Range>20</Range><Deadline>2026-11-01T03:00:00.0000000Z</Deadline></Effect></Effect>";
+		var direct = $"<Effects>\r\n<!-- retain formatting -->{child}\r\n</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Characters #1.EffectData"));
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "Characters #1.EffectData"));
+	}
+
+	[TestMethod]
 	[DataRow("LimbNumbness", "<Limb>9000</Limb>")]
 	[DataRow("MundaneNausea", "<Intensity>4</Intensity>")]
 	[DataRow("MundaneParalysis", "")]

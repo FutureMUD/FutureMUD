@@ -31,6 +31,7 @@ These are per-invocation expression wrappers. Neither scroll release nor an over
 | `boost` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `burning` | Unsupported | Periodic damage/tracking expressions require a dedicated retained-context adapter. |
 | `changecharacteristic` | Unsupported | Characteristic profile/value selection and its live referenced definitions require a dedicated compatibility adapter. |
+| `delayedlocationhint` | Unsupported | Recipient body identity, remembered room and independent deadline require a dedicated stored-delivery adapter. Ordinary casting and configured magical substances retain their existing support. |
 | `comprehendlanguage` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `corpseconsume` | Unsupported | Item/corpse mutation and nested item configuration require a dedicated compatibility adapter. |
 | `corpsemark` | Unsupported | Item/corpse mutation and nested item configuration require a dedicated compatibility adapter. |

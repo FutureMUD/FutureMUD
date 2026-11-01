@@ -52,6 +52,7 @@ public static class ScrollSpellCompatibility
 		Add("exchangeplaces", "Exact live mind contact, paired physical endpoints and separate retained/consumed components require direct configured casting.");
 		Add("groundtremor", "Independent room injury and nearby falls require direct configured casting.");
 		Add("returntether", "Durable delayed physical return requires direct configured casting and journal authority.");
+		Add("delayedlocationhint", "Recipient body identity, remembered room and independent deadline require a dedicated stored-delivery adapter; stored scroll delivery is unsupported.");
 		Add("tracepath", "Exact recognised identity and permitted native route information require direct configured casting.");
 		Add("jointraveller drawtraveller", "Exact recognised remote identity, route-specific ranges and guarded solo displacement require direct configured casting.");
 		Add("waystep banishtraveller", "Exact live owned runes, typed weighted pools and post-payment destination sampling require direct configured casting.");

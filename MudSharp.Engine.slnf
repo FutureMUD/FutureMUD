@@ -1,0 +1,33 @@
+{
+  "solution": {
+    "path": "MudSharp.sln",
+    "projects": [
+      "BuildTools\\MigrationModelCompiler\\MigrationModelCompiler.csproj",
+      "ExpressionEngine\\ExpressionEngine.csproj",
+      "FutureMUD Analyzers\\FutureMUD_Analyzers\\FutureMUD_Analyzers.csproj",
+      "FutureMUDLibrary\\FutureMUDLibrary.csproj",
+      "MigrationModels\\Batch0001\\Batch0001.csproj",
+      "MigrationModels\\Batch0002\\Batch0002.csproj",
+      "MigrationModels\\Batch0003\\Batch0003.csproj",
+      "MigrationModels\\Batch0004\\Batch0004.csproj",
+      "MigrationModels\\Batch0005\\Batch0005.csproj",
+      "MigrationModels\\Batch0006\\Batch0006.csproj",
+      "MigrationModels\\Batch0007\\Batch0007.csproj",
+      "MigrationModels\\Batch0008\\Batch0008.csproj",
+      "MigrationModels\\Batch0009\\Batch0009.csproj",
+      "MigrationModels\\Batch0010\\Batch0010.csproj",
+      "MigrationModels\\Batch0011\\Batch0011.csproj",
+      "MigrationModels\\Batch0012\\Batch0012.csproj",
+      "MigrationModels\\Batch0013\\Batch0013.csproj",
+      "MigrationModels\\Batch0014\\Batch0014.csproj",
+      "MigrationModels\\Batch0015\\Batch0015.csproj",
+      "MigrationModels\\Batch0016\\Batch0016.csproj",
+      "MigrationModels\\Batch0017\\Batch0017.csproj",
+      "MigrationModels\\Batch0018\\Batch0018.csproj",
+      "MigrationModels\\Batch0019\\Batch0019.csproj",
+      "MigrationModels\\Batch0020\\Batch0020.csproj",
+      "MudSharpCore\\MudSharpCore.csproj",
+      "MudsharpDatabaseLibrary\\MudsharpDatabaseLibrary.csproj"
+    ]
+  }
+}

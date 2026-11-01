@@ -10,7 +10,28 @@ The build projects their `BuildTargetModel` bodies into `MudSharp.MigrationModel
 
 `MudSharp.sln` must include every migration batch project and `BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj`. Visual Studio's NuGet restore uses loaded solution projects; a command-line restore can succeed with missing solution entries while the IDE reports `NU1105`. Keep these projects loaded and enabled in every solution build configuration, mapping the game-specific Debug configurations to ordinary Debug and all platforms to Any CPU. The same batching optimisation is used by Visual Studio and CI.
 
-After restore, design-time compilation explicitly builds the compiler tool before generating migration sources for IntelliSense. Visual Studio normally resolves project-reference paths without building their outputs during design-time compilation, so relying only on the reference would fail on the first load of a clean checkout. Normal builds retain their existing project-reference dependency order.
+Design-time compilation does not build the compiler tool or generate/include historical model projections. Migration operation partials still supply the migration types to IntelliSense; discovery attributes and `BuildTargetModel` implementations are supplied during real builds. This avoids loading hundreds of MiB of historical model source into the editor. Do not use design-time output as a runtime or migration artifact.
+
+The generation targets disable Visual Studio's [fast up-to-date shortcut](https://github.com/dotnet/project-system/blob/main/docs/up-to-date-check.md) for the database library and batch projects. Their external inputs and target-created `Compile` items were otherwise invisible to that shortcut, allowing new forwarders to reference stale helper assemblies. Real builds always reach the generator's content-validated cache; unchanged generated source retains its timestamp, so MSBuild can still skip compilation. Normal project-reference ordering builds helpers before their forwarders. No manually deleted `bin`/`obj` directories are required for normal migration additions.
+
+For everyday Visual Studio use, open `MudSharp.Engine.slnf` (26 loaded projects) or `MudSharp.Development.slnf` (107, including the Seeder and engine). These filters explicitly load the complete dependency tree for NuGet restore, including runtime helpers, while excluding tests, benchmarks, VSIX tooling and unrelated products. The 80 catalogue projects and 20 migration helpers are product dependencies, not CI-only projects. `MudSharp.sln` remains the complete solution and the existing unit-test filters remain available. Counts describe the current tree and will grow with new required partitions.
+
+`BuildInParallel` and `RestoreBuildInParallel` default to false for project-reference walks. Visual Studio schedules solution projects independently of those properties, so the solution also contains a topologically ordered, solution-only dependency chain for the 100 catalogue/migration helper projects. This bounds simultaneous heavy helper compilers without adding assembly references or changing publish dependencies. It trades clean-build parallelism for predictable memory use. Direct command-line and CI builds should continue using `-m:1`.
+
+Refresh/check the filters and helper build ordering after project dependency changes:
+
+```text
+python scripts/update-development-solutions.py
+python scripts/update-development-solutions.py --check
+```
+
+The script uses standard-library Python on Windows and POSIX. CI checks the generated layout on both operating systems. To build the same development selection from the command line:
+
+```text
+dotnet build MudSharp.Development.slnf -c Debug -m:1
+```
+
+`python scripts/test-build-architecture.py` exercises the actual generation targets with a disposable miniature migration tree after the Debug compiler tool has been built. It verifies clean/cached design-time exclusion, added/changed/deleted migration inputs, missing output repair and unchanged output timestamps. CI runs these probes after the default test gate. They complement the projection tests; they do not measure interactive Visual Studio responsiveness.
 
 Use the normal EF workflow to generate the migration, designer and snapshot. Then refresh the checked-in partition inventory before the next build:
 
@@ -19,7 +40,7 @@ dotnet run --project BuildTools/MigrationModelCompiler/MigrationModelCompiler.cs
 dotnet run --project BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj -- check .
 ```
 
-Run these commands from the repository root. Commit the manifest and any generated batch project files with the migration. Add new batches to the solution with `dotnet sln MudSharp.sln add --solution-folder MigrationModels MigrationModels/BatchNNNN/BatchNNNN.csproj`, and verify their configuration mappings. If removing a migration makes a batch obsolete, remove that obsolete batch project as reported by `check` and remove its solution entry with `dotnet sln MudSharp.sln remove MigrationModels/BatchNNNN/BatchNNNN.csproj`. Commit the solution changes too. Do not manually edit generated historical designers to fit a batch. A single designer exceeding the limit or a new EF designer shape requires an explicit build-tool update and verification.
+Run these commands from the repository root. Commit the manifest and any generated batch project files with the migration. Add new batches to the solution with `dotnet sln MudSharp.sln add --solution-folder MigrationModels MigrationModels/BatchNNNN/BatchNNNN.csproj`, and verify their configuration mappings. If removing a migration makes a batch obsolete, remove that obsolete batch project as reported by `check` and remove its solution entry with `dotnet sln MudSharp.sln remove MigrationModels/BatchNNNN/BatchNNNN.csproj`. Then run `python scripts/update-development-solutions.py` and commit the solution/filter changes too. Do not manually edit generated historical designers to fit a batch. A single designer exceeding the limit or a new EF designer shape requires an explicit build-tool update and verification.
 
 ## Verification and future growth
 

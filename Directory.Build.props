@@ -1,5 +1,9 @@
 <Project>
 	<PropertyGroup>
+		<!-- Bound dependency builds in both dotnet and the IDE. Visual Studio's solution
+		     scheduler is additionally constrained by solution-only helper dependencies. -->
+		<BuildInParallel Condition="'$(BuildInParallel)' == ''">false</BuildInParallel>
+		<RestoreBuildInParallel Condition="'$(RestoreBuildInParallel)' == ''">false</RestoreBuildInParallel>
 		<!-- Applies to dotnet test and Visual Studio as well as the repository wrappers. -->
 		<RunSettingsFilePath Condition="'$(RunSettingsFilePath)' == '' and '$(IncludeExtendedTests)' != 'true'">$(MSBuildThisFileDirectory)test-default.runsettings</RunSettingsFilePath>
 		<RunSettingsFilePath Condition="'$(RunSettingsFilePath)' == '' and '$(IncludeExtendedTests)' == 'true'">$(MSBuildThisFileDirectory)test-extended.runsettings</RunSettingsFilePath>

@@ -59,8 +59,11 @@ public class ArmageddonWorldfilePoisonTests
 			Assert.AreEqual((int)MudSharp.Health.DamageType.Piercing, db.WeaponAttacks.Local.Single(x => x.WeaponTypeId == meleeId).DamageType);
 			var ranged = db.RangedWeaponTypes.Local.Single(x => x.Id == (long)definition.Element("RangedWeaponType")!);
 			Assert.AreEqual(17L, ranged.FireTraitId);
-			Assert.AreEqual(2, ranged.DefaultRangeInRooms);
-			var damage = new Expression(ranged.DamageBonusExpression).EvaluateDouble();
+			Assert.AreEqual(0, ranged.DefaultRangeInRooms, "Source darts are room-only throws.");
+			var runtime = fixture.NativeRuntime();
+			runtime.Actor.Values[990001] = 20;
+			var damage = new MudSharp.Body.Traits.TraitExpression(ranged.DamageBonusExpression, runtime.World.Object)
+				.EvaluateWith(runtime.Actor.Mock.Object, values: [("range", 0), ("variable", 50)]);
 			Assert.IsTrue(double.IsFinite(damage) && damage >= 0);
 		}
 	}

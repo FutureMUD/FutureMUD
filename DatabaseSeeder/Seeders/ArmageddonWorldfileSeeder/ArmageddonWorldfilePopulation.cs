@@ -25,7 +25,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		public required GameItemProto Prototype { get; set; }
 		public required int SourceVnum { get; init; }
 		public required int[] Values { get; init; }
-		public required OutfitTemplateItemPlacement Placement { get; init; }
+		public required OutfitTemplateItemPlacement Placement { get; set; }
 		public string? ContainerKey { get; set; }
 		public long? WearProfileId { get; init; }
 		public List<ArmWorldExtra> ExtraDescriptions { get; } = [];
@@ -154,6 +154,17 @@ internal sealed partial class ArmageddonWorldfileWriter
 					Id = Next<OutfitTemplate>(), Name = ResetOutfitName(mobile),
 					Description = "Equipment and carried objects created by the source reset sequence.", Exclusivity = 0
 				};
+				if (outfitItems.Any(x => x.Placement == OutfitTemplateItemPlacement.Wielded &&
+					CombatSourceItem(x.SourceVnum).ItemType == 28))
+				{
+					foreach (var ammunition in outfitItems.Where(x => x.Placement == OutfitTemplateItemPlacement.Wielded &&
+						CombatSourceItem(x.SourceVnum) is { ItemType: 5 } item &&
+						(item.Flags[1] & ((1 << 9) | (1 << 21))) != 0))
+					{
+						ammunition.Placement = OutfitTemplateItemPlacement.Inventory;
+						Adapt("npc readied ammunition", ammunition.SourceVnum, "Source hand-readied ammunition starts in native inventory beside the unloaded launcher, freeing native wielding hands for automated loading.");
+					}
+				}
 				foreach (var item in outfitItems)
 				{
 					outfit.OutfitTemplateItems.Add(new OutfitTemplateItem
@@ -170,6 +181,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 				clone.UniqueName = Key(mobile.Arguments[1]) + "_Reset" + mobile.Zone.ToString(CultureInfo.InvariantCulture) + "_" + mobile.Source.Line.ToString(CultureInfo.InvariantCulture);
 				clone.EditableItemId = 0; clone.EditableItem = Approval();
 				var definition = XElement.Parse(baseTemplate.Definition);
+				var sourceNpc = _source.Npcs.Single(x => x.Vnum == mobile.Arguments[1]);
+				var race = _races.Values.Single(x => x.Id == (long)definition.Element("SelectedRace")!);
+				definition.SetElementValue("DefaultCombatSetting", OutfitNpcCombatSetting(clone.Id, sourceNpc, race, outfitItems));
 				var additions = definition.Element("TemplateLoadAdditions")!;
 				additions.Element("Outfits")!.Add(new XElement("Outfit", new XAttribute("template", outfit.Id), new XAttribute("name", outfit.Name)));
 				var sourceOnLoadProgId = long.Parse(definition.Element("OnLoadProg")!.Value, CultureInfo.InvariantCulture);
@@ -232,7 +246,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				if (values.Length != 6) { lastSucceeded = false; continue; }
 				var placement = reset.Opcode switch
 				{
-					"E" when reset.Arguments[3] is 16 or 17 or 19 && sourceItem.ItemType is 5 or 28 => OutfitTemplateItemPlacement.Wielded,
+					"E" when reset.Arguments[3] is 16 or 17 or 19 && sourceItem.ItemType is 5 or 24 or 28 => OutfitTemplateItemPlacement.Wielded,
 					"E" when reset.Arguments[3] is 11 or 18 && (sourceItem.Flags[2] & (1 << 16)) != 0 => OutfitTemplateItemPlacement.AttachedToBelt,
 					"E" when reset.Arguments[3] is 11 or 16 or 17 or 18 or 19 => OutfitTemplateItemPlacement.Inventory,
 					"E" => OutfitTemplateItemPlacement.Worn,

@@ -475,9 +475,10 @@ internal sealed partial class ArmageddonWorldfileWriter
 			: _db.RangedWeaponTypes.AsNoTracking().Where(x => x.RangedWeaponType == (int)family).OrderBy(x => x.Id).First();
 		var ranged = CloneRangedWeaponType(native, source, variantKey,
 			native.DamageBonusExpression, Math.Clamp(values[0], 1, 20));
+		ConfigureSourceLauncher(ranged, values);
 		ranged.SpecificAmmunitionGrade = "Armageddon Projectile";
 		var componentType = family.ToString();
-		Adapt("item ranged weapon", source.Vnum, $"Native {componentType} loading uses source arrow/bolt flags and projectile damage. Source loaded-ammunition slot {values[3]} is archived; imported weapons begin unloaded. Native range/timing/checks remain; source pull strength {values[1]} is not an added damage bonus.");
+		Adapt("item ranged weapon", source.Vnum, $"Native {componentType} loading uses source arrow/bolt flags and projectile damage. Source loaded-ammunition slot {values[3]} is archived; imported weapons begin unloaded. Archery supplies firing/operation; pull and skill contribute source-calibrated damage. Source random doubling uses its expected multiplier. Native range/timing/aiming/defences remain.");
 		var definition = new XElement("Definition",
 			new XElement("RangedWeaponType", ranged.Id), new XElement("StaminaPerTick", 1),
 			new XElement("MeleeWeaponType", _db.WeaponTypes.First(x => x.Name == "Club").Id), new XElement("CanWieldProg", 0), new XElement("WhyCannotWieldProg", 0));
@@ -522,8 +523,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 			(source.Flags[1] & (1 << 21)) != 0 ? $"{(int)RangedWeaponType.Crossbow} {(int)RangedWeaponType.Sling} {(int)RangedWeaponType.Blowgun}" : null
 		}.Where(x => x is not null));
 		var roll = values[1] > 0 && values[2] > 0 ? $"dice({values[1]},{values[2]})+({values[0]})" : values[0].ToString(CultureInfo.InvariantCulture);
-		ammo.DamageExpression = $"max(0,{roll})";
-		ammo.PainExpression = ammo.StunExpression = $"max(0,({roll})/2)";
+		ammo.DamageExpression = $"max(0,{roll})*{RangedCriticalMean($"armrange_archery:{RangedArcheryId}")}*{RangedLocationScale}";
+		ammo.PainExpression = "damage";
+		ammo.StunExpression = RangedStunFormula;
 		ammo.DamageType = (int)ResolveWeaponDamageType(source, values);
 		_db.AmmunitionTypes.Add(ammo);
 		return Component($"ammunition.{source.Vnum}.{variantKey}", "Ammunition", new XElement("Definition", new XElement("AmmoType", ammo.Id)));
@@ -538,6 +540,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			Classification = native.Classification, FireTraitId = native.FireTraitId, OperateTraitId = native.OperateTraitId,
 			FireableInMelee = native.FireableInMelee, DefaultRangeInRooms = range,
 			AccuracyBonusExpression = native.AccuracyBonusExpression, DamageBonusExpression = damageExpression,
+			PainBonusExpression = native.PainBonusExpression, StunBonusExpression = native.StunBonusExpression,
 			AmmunitionLoadType = native.AmmunitionLoadType, SpecificAmmunitionGrade = native.SpecificAmmunitionGrade,
 			AmmunitionCapacity = native.AmmunitionCapacity, RangedWeaponType = native.RangedWeaponType,
 			StaminaToFire = native.StaminaToFire, StaminaPerLoadStage = native.StaminaPerLoadStage,
@@ -690,10 +693,6 @@ internal sealed partial class ArmageddonWorldfileWriter
 		_db.WeaponTypes.Add(type);
 		var template = _db.WeaponAttacks.AsNoTracking().Where(x => x.WeaponTypeId == baseType.Id).OrderBy(x => x.Id).FirstOrDefault()
 			?? throw new InvalidOperationException($"Native Combat weapon type {skillType} has no attack template.");
-		var dice = Math.Max(0, values[1]);
-		var sides = Math.Max(0, values[2]);
-		var bonus = values[0];
-		var roll = dice > 0 && sides > 0 ? $"dice({dice},{sides})+({bonus})" : bonus.ToString(CultureInfo.InvariantCulture);
 		var meleeRoll = MeleeDamageRoll(values);
 		var factors = SourceDamageMultipliers(source.ItemType == 24 ? 2 : values[3]);
 		var damage = AddWeaponExpression(source.Vnum, variantKey, "damage", $"min(200,({meleeRoll})*{(factors.Physical * 1.5).ToString("R", CultureInfo.InvariantCulture)})");
@@ -704,17 +703,15 @@ internal sealed partial class ArmageddonWorldfileWriter
 			"Armageddon Vnum " + source.Vnum + " attack");
 		attack.BaseAngleOfIncidence = Math.PI / 2; // Formula values describe a neutral landed hit.
 		_db.WeaponAttacks.Add(attack);
-		if (source.ItemType == 24)
 		{
 			var nativeThrown = _db.RangedWeaponTypes.AsNoTracking().Where(x => x.RangedWeaponType == (int)RangedWeaponType.Thrown)
 				.OrderBy(x => x.Name == "Throwing Knife" ? 0 : 1).ThenBy(x => x.Id).First();
-			var ranged = CloneRangedWeaponType(nativeThrown, source, variantKey, $"max(0,{roll})", nativeThrown.DefaultRangeInRooms);
-			return (Component("dart." + combatKey, "ThrownWeapon", new XElement("Definition",
+			var ranged = CloneRangedWeaponType(nativeThrown, source, variantKey, ThrownDamageFormula(source, values), SourceThrowRange(source));
+			ranged.PainBonusExpression = "damage";
+			ranged.StunBonusExpression = RangedStunFormula;
+			return (Component("thrown." + combatKey, "ThrownWeapon", new XElement("Definition",
 				new XElement("MeleeWeaponType", type.Id), new XElement("RangedWeaponType", ranged.Id))), null);
 		}
-		var component = Component("melee." + combatKey, "MeleeWeapon",
-			new XElement("Definition", new XElement("WeaponType", type.Id), new XElement("CanWieldProg", 0), new XElement("WhyCannotWieldProg", 0)));
-		return (component, null);
 	}
 
 	private TraitExpression AddWeaponExpression(int vnum, string state, string kind, string expression)

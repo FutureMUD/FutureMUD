@@ -20050,6 +20050,15 @@ namespace MudSharp.Migrations
                     b.Property<long>("OperateTraitId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<string>("PainBonusExpression")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("0")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PainBonusExpression"), "utf8mb4");
+
                     b.Property<int>("RangedWeaponType")
                         .HasColumnType("int(11)");
 
@@ -20075,6 +20084,15 @@ namespace MudSharp.Migrations
 
                     b.Property<double>("StaminaToFire")
                         .HasColumnType("double");
+
+                    b.Property<string>("StunBonusExpression")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("0")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StunBonusExpression"), "utf8mb4");
 
                     b.HasKey("Id");
 

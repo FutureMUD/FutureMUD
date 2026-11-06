@@ -96,6 +96,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		}).ToHashSet();
 		clone.RacesAdditionalBodyparts = _db.RacesAdditionalBodyparts.Where(x => x.RaceId == baseline.Id).AsNoTracking()
 			.Select(x => new RacesAdditionalBodyparts { RaceId = clone.Id, BodypartId = x.BodypartId, Usage = x.Usage }).ToHashSet();
+		clone.DefaultCombatSettingId = NpcCombatSetting("natural", false, IsHumanoidCombatRace(clone)).Id;
 		AddNpcInventory(clone);
 		_db.Races.Add(clone);
 		CaptureNpcRaceDefaults(clone);
@@ -385,7 +386,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				sourceClanMemberships.Add(new XElement("Membership", new XAttribute("clan", clan.Id), new XAttribute("rank", rank.Id), new XAttribute("paygrade", 0)));
 			}
 			var definition = new XElement("Definition", new XElement("OnLoadProg", cashProg.Id), new XElement("HealthStrategy", strategies[hp].Id),
-				new XElement("DefaultCombatSetting", 0), new XElement("TemplateLoadAdditions", new XElement("ClanMemberships", sourceClanMemberships),
+				new XElement("DefaultCombatSetting", DefaultNpcCombatSetting(source, nativeRace)), new XElement("TemplateLoadAdditions", new XElement("ClanMemberships", sourceClanMemberships),
 				new XElement("Outfits"), new XElement("Hooks"), new XElement("BankAccounts"), new XElement("BodyLoadout")),
 				new XElement("SelectedEntityDescriptionPatterns"), new XElement("SelectedSdesc", source.ShortDescription),
 				new XElement("SelectedFullDesc", source.FullDescription), new XElement("SelectedRace", nativeRace.Id),

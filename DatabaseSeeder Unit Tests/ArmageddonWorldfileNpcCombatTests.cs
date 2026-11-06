@@ -216,6 +216,9 @@ public partial class ArmageddonWorldfileNpcCombatTests
 				check.CheckTemplateId = template.Id; check.MaximumDifficultyForImprovement = (int)Difficulty.Impossible;
 			}
 			Db.SaveChanges();
+			Db.RangedWeaponTypes.Add(new MudSharp.Models.RangedWeaponTypes { Id = 88040, Name = "Throwing Knife", RangedWeaponType = (int)MudSharp.Combat.RangedWeaponType.Thrown,
+				FireTraitId = 17, OperateTraitId = 17, AccuracyBonusExpression = "0", DamageBonusExpression = "0", DefaultRangeInRooms = 2 });
+			Db.SaveChanges();
 			var tables = new ArmWorldCombatCalibration(new int[101], Enumerable.Repeat(1000, 21).ToArray(), Enumerable.Repeat(1000, 21).ToArray());
 			var writer = new ArmageddonWorldfileWriter(Db, source ?? new ArmageddonWorldfilePackage { CombatCalibration = tables });
 			Writer = writer;

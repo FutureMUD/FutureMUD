@@ -2663,6 +2663,10 @@ namespace MudSharp.Database
                     .HasColumnType("text")
                     .HasCharSet("utf8mb4")
                     .UseCollation("utf8mb4_unicode_ci");
+				entity.Property(e => e.PainBonusExpression).IsRequired().HasColumnType("text")
+					.HasDefaultValue("0").HasCharSet("utf8mb4").UseCollation("utf8mb4_unicode_ci");
+				entity.Property(e => e.StunBonusExpression).IsRequired().HasColumnType("text")
+					.HasDefaultValue("0").HasCharSet("utf8mb4").UseCollation("utf8mb4_unicode_ci");
 
                 entity.Property(e => e.DefaultRangeInRooms).HasColumnType("int(11)");
 

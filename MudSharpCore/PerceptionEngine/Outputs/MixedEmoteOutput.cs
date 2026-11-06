@@ -25,24 +25,14 @@ public class MixedEmoteOutput : AppendableEmoteOutput
             flags = PerceiveIgnoreFlags.IgnoreLiquidsAndFlags;
         }
 
-        if (_assignedEmotes.IsValueCreated && _assignedEmotes.Value.ContainsKey(perceiver))
-        {
-            returnText = _assignedEmotes.Value[perceiver].ParseFor(perceiver, flags) +
-                         (EmoteToAppend != null && EmoteToAppend.RawText.Length > 0
-                             ? ", " + EmoteToAppend.ParseFor(perceiver, flags)
-                             : "");
-        }
-        else
-        {
-            returnText = DefaultEmote.ParseFor(perceiver, flags) +
-                         (EmoteToAppend != null && EmoteToAppend.RawText.Length > 0
-                             ? ", " + EmoteToAppend.ParseFor(perceiver, flags)
-                             : "");
-        }
+        returnText = GetEmoteFor(perceiver).ParseFor(perceiver, flags) +
+                     (EmoteToAppend != null && EmoteToAppend.RawText.Length > 0
+                         ? ", " + EmoteToAppend.ParseFor(perceiver, flags)
+                         : "");
 
         returnText = returnText.Fullstop().NormaliseOutputSentences().NormaliseSpacing();
         return Flags.HasFlag(OutputFlags.WideWrap)
-            ? returnText.Wrap(perceiver.LineFormatLength)
-            : returnText.Wrap(perceiver.InnerLineFormatLength);
+            ? returnText.Wrap(perceiver?.LineFormatLength ?? 120)
+            : returnText.Wrap(perceiver?.InnerLineFormatLength ?? 80);
     }
 }

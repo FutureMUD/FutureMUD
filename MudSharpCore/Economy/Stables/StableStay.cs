@@ -22,16 +22,20 @@ public class StableStay : SaveableItem, IStableStay
 	private decimal _amountOwing;
 	private MudDateTime _lastDailyFeeDateTime;
 
-	public StableStay(IStable stable, ICharacter mount, ICharacter originalOwner)
+	public StableStay(IStable stable, ICharacter mount, ICharacter? originalOwner, decimal initialAmountOwing = 0m)
 	{
+		if (initialAmountOwing < 0m)
+		{
+			throw new ArgumentOutOfRangeException(nameof(initialAmountOwing), "Initial stable debt cannot be negative.");
+		}
 		Gameworld = stable.Gameworld;
 		Stable = stable;
 		MountId = CharacterInstanceIdentityComparer.IdentityId(mount);
 		MountInstanceId = CharacterInstanceIdentityComparer.InstanceId(mount);
 		_mount = mount;
-		OriginalOwnerId = CharacterInstanceIdentityComparer.IdentityId(originalOwner);
+		OriginalOwnerId = originalOwner is null ? null : CharacterInstanceIdentityComparer.IdentityId(originalOwner);
 		_originalOwner = originalOwner;
-		OriginalOwnerName = originalOwner.CurrentName;
+		OriginalOwnerName = originalOwner?.CurrentName;
 		LodgedDateTime = new MudDateTime(stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
 		_lastDailyFeeDateTime = new MudDateTime(LodgedDateTime);
 		_status = StableStayStatus.Active;
@@ -44,17 +48,22 @@ public class StableStay : SaveableItem, IStableStay
 				StableId = stable.Id,
 				MountId = CharacterInstanceIdentityComparer.IdentityId(mount),
 				MountInstanceId = CharacterInstanceIdentityComparer.InstanceId(mount),
-				OriginalOwnerId = CharacterInstanceIdentityComparer.IdentityId(originalOwner),
-				OriginalOwnerName = originalOwner.CurrentName.SaveToXml().ToString(),
+				OriginalOwnerId = OriginalOwnerId,
+				OriginalOwnerName = originalOwner?.CurrentName.SaveToXml().ToString(),
 				LodgedDateTime = LodgedDateTime.GetDateTimeString(),
 				LastDailyFeeDateTime = LastDailyFeeDateTime.GetDateTimeString(),
 				Status = (int)StableStayStatus.Active,
 				TicketToken = _ticketToken,
-				AmountOwing = 0.0M
+				AmountOwing = initialAmountOwing
 			};
 			FMDB.Context.StableStays.Add(dbitem);
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
+		}
+		_amountOwing = initialAmountOwing;
+		if (initialAmountOwing > 0m)
+		{
+			AddLedgerEntry(StableLedgerEntryType.OpeningBalance, initialAmountOwing, null, "Opening stable debt");
 		}
 	}
 
@@ -116,8 +125,8 @@ public class StableStay : SaveableItem, IStableStay
 		fallbackToPrimary: MountInstanceId is null);
 	public long MountId { get; }
 	public long? MountInstanceId { get; }
-	public ICharacter? OriginalOwner => _originalOwner ??= Gameworld.TryGetCharacter(OriginalOwnerId, true);
-	public long OriginalOwnerId { get; }
+	public ICharacter? OriginalOwner => _originalOwner ??= OriginalOwnerId is { } id ? Gameworld.TryGetCharacter(id, true) : null;
+	public long? OriginalOwnerId { get; }
 	public IPersonalName? OriginalOwnerName { get; }
 	public MudDateTime LodgedDateTime { get; }
 

@@ -479,7 +479,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private string BuildZoneResetProgram(int zoneId, ArmWorldReset[] resets,
 		IReadOnlyDictionary<(int Zone, int Line), NpcTemplate> variants, bool boot)
 	{
-		var builder = new System.Text.StringBuilder("var lastcmd as boolean\nlastcmd = true\nvar lastobj as item\nvar mobilenew as boolean\nmobilenew = false\n");
+		var builder = new System.Text.StringBuilder("var lastcmd as boolean\nlastcmd = true\nvar lastobj as item\nvar mobilenew as boolean\nmobilenew = false\nvar ticketorigin as location\n");
+		var savedPopulation = boot && IsSourceSavedPopulationZone(zoneId);
+		if (savedPopulation) builder.Append(SavedPopulationPrelude(zoneId, resets));
 		var lastCommand = "lastcmd";
 		var roomObjectContext = false;
 		var extras = new Dictionary<int, List<ArmWorldExtra>>();
@@ -498,6 +500,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			var reset = resets[index];
 			if (objectLoopOpen && reset.Opcode is not ("P" or "X"))
 			{
+				if (savedPopulation) builder.AppendLine("end if");
 				builder.AppendLine("end foreach");
 				objectLoopOpen = false;
 			}
@@ -506,6 +509,8 @@ internal sealed partial class ArmageddonWorldfileWriter
 			if (reset.Opcode == "O" && reset.ReferenceIssues.Length == 0 && _rooms.TryGetValue(arguments[3], out var rootRoom))
 			{
 				builder.AppendLine($"foreach (destination{index} in instancerooms(tolocation({rootRoom.Id})))");
+				builder.AppendLine($"ticketorigin = @destination{index}");
+				if (savedPopulation) builder.AppendLine($"if ({SavedPopulationAdmission($"destination{index}")})");
 				objectLoopOpen = true;
 			}
 			builder.AppendLine($"{command} = false");
@@ -527,12 +532,15 @@ internal sealed partial class ArmageddonWorldfileWriter
 				var mode = _source.Zones.Single(x => x.Index == zoneId).Fields[2];
 				builder.AppendLine("mobilenew = false");
 				builder.AppendLine($"foreach (destination{index} in instancerooms(tolocation({destination.Id})))");
+				if (savedPopulation) builder.AppendLine($"if ({SavedPopulationAdmission($"destination{index}")})");
 				if (boot || mode != 2 || _interiorTemplates.Contains(arguments[3]))
 				{
 					var slot = boot ? $" and loadedcharacters().Count(x, @x.npctemplateid == {template.Id} and @x.location == @destination{index}) == 0" : "";
 					builder.AppendLine($"if ({familyCount} < {maximum}{slot})\nvar mobile{index} as character\nmobile{index} = loadnpc({template.Id}, @destination{index})\nmobilenew = not(isnull(@mobile{index}))\nend if");
 				}
-				builder.AppendLine($"{command} = @mobilenew\nend foreach");
+				builder.AppendLine($"{command} = @mobilenew");
+				if (savedPopulation) builder.AppendLine("end if");
+				builder.AppendLine("end foreach");
 				roomObjectContext = false;
 			}
 			else if (reset.Opcode == "O" && arguments[1] == 20610 &&
@@ -557,6 +565,10 @@ internal sealed partial class ArmageddonWorldfileWriter
 				builder.AppendLine($"if (@{command})\nlastobj = @item{index}\nelse\nif (not(isnull(@item{index})))\ndeleteitem(@item{index})\nend if\nend if\nend if");
 				roomObjectContext = true;
 			}
+			else if (reset.Opcode == "P" && roomObjectContext && arguments[1] == 1599)
+			{
+				builder.AppendLine(HistoricalStableTicketReset(reset, index, command));
+			}
 			else if (reset.Opcode == "P" && roomObjectContext)
 			{
 				var source = _source.Items.Single(x => x.Vnum == arguments[1]);
@@ -576,7 +588,12 @@ internal sealed partial class ArmageddonWorldfileWriter
 			builder.AppendLine("end if");
 			lastCommand = command;
 		}
-		if (objectLoopOpen) builder.AppendLine("end foreach");
+		if (objectLoopOpen)
+		{
+			if (savedPopulation) builder.AppendLine("end if");
+			builder.AppendLine("end foreach");
+		}
+		if (savedPopulation) builder.Append(SavedPopulationCompletion(zoneId));
 		builder.AppendLine("return true");
 		return builder.ToString();
 	}

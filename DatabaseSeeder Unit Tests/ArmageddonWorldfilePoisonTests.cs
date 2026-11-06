@@ -34,16 +34,19 @@ public class ArmageddonWorldfilePoisonTests
 	[TestMethod]
 	public void Darts_UseNativeThrowingWithSourceDamageAndPiercingInsteadOfInterpretingPoisonAsAttackType()
 	{
-		using var db = ArmageddonInstallationSettingsTests.Fixture();
-		ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db));
+		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
+		using var fixture = new ArmageddonWorldfileNpcCombatTests.Fixture(source);
+		var db = fixture.Db;
+		db.TraitDefinitions.Add(new Db.TraitDefinition { Id = 990001, Name = "Strength", Type = 1 });
+		db.SaveChanges();
+		var writer = fixture.Writer;
+		typeof(ArmageddonWorldfileWriter).GetMethod("InstallNpcDamageDefinitions", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(writer, null);
 		const long baseline = 200_000;
 		db.WeaponTypes.Add(new Db.WeaponType { Id = baseline, Name = "Knife" });
 		db.WeaponAttacks.Add(new Db.WeaponAttack { Id = baseline, WeaponTypeId = baseline, Name = "Native stab" });
 		db.RangedWeaponTypes.Add(new Db.RangedWeaponTypes { Id = baseline, Name = "Throwing Knife",
 			RangedWeaponType = (int)MudSharp.Combat.RangedWeaponType.Thrown, DefaultRangeInRooms = 2, FireTraitId = 17 });
 		db.SaveChanges();
-		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
-		var writer = new ArmageddonWorldfileWriter(db, source);
 		var darts = source.Items.Where(x => x.ItemType == 24).ToArray();
 		Assert.IsTrue(darts.Length > 0);
 		foreach (var dart in darts)

@@ -79,7 +79,9 @@ internal sealed class CombatCheck(ICheck inner, IFuturemud gameworld) : ICheck
 				.Where(x => stageSharedBonus || x.CheckBonus(character, target, Type) == 0.0)
 				.Sum(x => x.CheckBonus(character, target, CheckType.BlindFightingCheck));
 		// No weapon/tool trait is supplied: the ordinary trait expression owns all BF bindings.
-		var maximum = expression.EvaluateWith(actor, values: parameters);
+		var maximum = expression.Parameters.Values.Any(x => x.IsTarget)
+            ? expression.EvaluateWithTarget(actor, opponent as IHaveTraits, values: parameters)
+            : expression.EvaluateWith(actor, values: parameters);
 		return (new CheckEvaluationContext(maximum, difficulty.ApplyBonus(bonus), true), blind, difficulty);
 	}
 
@@ -96,7 +98,7 @@ internal sealed class CombatCheck(ICheck inner, IFuturemud gameworld) : ICheck
 			!CheckLearningScope.CanContinue(actor)) return;
 		if (actor is ICharacter character && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(character)) return;
 		// A constant expression has nothing to learn or branch and needs no auxiliary roll.
-		if (!blind.TargetNumberExpression.Parameters.Any(x =>
+		if (!blind.TargetNumberExpression.Parameters.Any(x => !x.Value.IsTarget &&
 			blind.TargetNumberExpression.Formula.ParameterNames.Any(name => name.EqualTo(x.Key)) &&
 			(blind.ImproveTraits && x.Value.CanImprove || blind.CanTraitBranchIfMissing && x.Value.CanBranch))) return;
 		blind.Check(actor, prepared.Difficulty, opponent, traitUseType: use, customParameters: parameters);

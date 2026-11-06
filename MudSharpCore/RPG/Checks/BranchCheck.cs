@@ -30,6 +30,9 @@ public class BranchCheck : FrameworkItem, ICheck
         params (string Parameter, object value)[] customParameters)
     {
         using var learning = CheckLearningScope.EnterIfNeeded(checkee);
+        double BaseExpression() => TargetNumberExpression.Parameters.Values.Any(x => x.IsTarget)
+            ? TargetNumberExpression.EvaluateWithTarget(checkee, target as IHaveTraits, trait)
+            : TargetNumberExpression.Evaluate(checkee, trait);
         // TODO: effects
         double merits = checkee.Merits
                             .OfType<ITraitLearningMerit>()
@@ -39,7 +42,7 @@ public class BranchCheck : FrameworkItem, ICheck
 
         if (!(trait is ISkillDefinition sd))
         {
-            return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
+            return BaseExpression() * merits * trait.BranchMultiplier;
         }
 
         IncreasedBranchChance effect = checkee.EffectsOfType<IncreasedBranchChance>().FirstOrDefault();
@@ -47,20 +50,20 @@ public class BranchCheck : FrameworkItem, ICheck
         {
             effect = new IncreasedBranchChance(checkee);
             if (!CheckLearningScope.CanContinue(checkee))
-                return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
+                return BaseExpression() * merits * trait.BranchMultiplier;
             checkee.AddEffect(effect);
         }
 
         if (!CheckLearningScope.CanContinue(checkee))
-            return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
+            return BaseExpression() * merits * trait.BranchMultiplier;
         TraitExpression expr = IncreasedBranchChance.IncreasedCapExpression;
         if (!CheckLearningScope.CanContinue(checkee))
-            return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
+            return BaseExpression() * merits * trait.BranchMultiplier;
         effect.UseSkill(sd);
         return expr.EvaluateWith(checkee, values:
         [
             ("attempts", effect.GetAttemptsForSkill(sd)),
-            ("base", TargetNumberExpression.Evaluate(checkee, trait) * merits),
+            ("base", BaseExpression() * merits),
             ..customParameters
         ]);
     }

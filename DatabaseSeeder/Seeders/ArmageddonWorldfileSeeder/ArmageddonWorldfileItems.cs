@@ -694,12 +694,15 @@ internal sealed partial class ArmageddonWorldfileWriter
 		var sides = Math.Max(0, values[2]);
 		var bonus = values[0];
 		var roll = dice > 0 && sides > 0 ? $"dice({dice},{sides})+({bonus})" : bonus.ToString(CultureInfo.InvariantCulture);
-		var damage = AddWeaponExpression(source.Vnum, variantKey, "damage", $"max(0,{roll})");
-		var pain = AddWeaponExpression(source.Vnum, variantKey, "pain", $"max(0,({roll})/2)");
-		var stun = AddWeaponExpression(source.Vnum, variantKey, "stun", $"max(0,({roll})/2)");
+		var meleeRoll = MeleeDamageRoll(values);
+		var factors = SourceDamageMultipliers(source.ItemType == 24 ? 2 : values[3]);
+		var damage = AddWeaponExpression(source.Vnum, variantKey, "damage", $"min(200,({meleeRoll})*{(factors.Physical * 1.5).ToString("R", CultureInfo.InvariantCulture)})");
+		var pain = AddWeaponExpression(source.Vnum, variantKey, "pain", $"min(200,({meleeRoll})*{(factors.Physical * 1.5).ToString("R", CultureInfo.InvariantCulture)})");
+		var stun = AddWeaponExpression(source.Vnum, variantKey, "stun", $"min(200,({meleeRoll})*{(factors.Stun * 1.13).ToString("R", CultureInfo.InvariantCulture)})");
 		var damageType = source.ItemType == 24 ? DamageType.Piercing : ResolveWeaponDamageType(source, values);
 		var attack = CopyWeaponAttack(template, type.Id, damage, pain, stun, damageType,
 			"Armageddon Vnum " + source.Vnum + " attack");
+		attack.BaseAngleOfIncidence = Math.PI / 2; // Formula values describe a neutral landed hit.
 		_db.WeaponAttacks.Add(attack);
 		if (source.ItemType == 24)
 		{

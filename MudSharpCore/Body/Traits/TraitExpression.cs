@@ -26,7 +26,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
     }
 
     public static Regex TraitFormulaRegex =
-        new(@"(?<name>\w+):(?<reference>[0-9]+)(?:{(?<flags>[a-z,]+)})*",
+        new(@"(?<name>\w+):(?<target>!)?(?<reference>[0-9]+)(?:{(?<flags>[a-z,]+)})*",
             RegexOptions.IgnoreCase);
 
     public static Regex ExtendedOptionsRegex =
@@ -46,13 +46,18 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
         foreach (Match match in TraitFormulaRegex.Matches(expression.Expression))
         {
             _parameterIndexes[match.Groups["name"].Value] = long.Parse(match.Groups["reference"].Value);
-            bool canImprove = true, canBranch = true;
+            var isTarget = match.Groups["target"].Success;
+            _parameterTargets[match.Groups["name"].Value] = isTarget;
+            bool canImprove = !isTarget, canBranch = !isTarget, useRawValue = false;
             if (match.Groups["flags"].Length > 0)
             {
                 foreach (string flag in match.Groups["flags"].Value.Split(','))
                 {
-                    switch (flag)
+                    switch (flag.ToLowerInvariant())
                     {
+                        case "raw":
+                            useRawValue = true;
+                            break;
                         case "noimprove":
                             canImprove = false;
                             break;
@@ -64,6 +69,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             }
 
             _parameterProperties[match.Groups["name"].Value] = (canImprove, canBranch);
+            _parameterRawValues[match.Groups["name"].Value] = useRawValue;
         }
 
         string expressionText = TraitFormulaRegex.Replace(expression.Expression, m => m.Groups["name"].Value);
@@ -165,13 +171,18 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
         foreach (Match match in TraitFormulaRegex.Matches(expression))
         {
             _parameterIndexes[match.Groups["name"].Value] = long.Parse(match.Groups["reference"].Value);
-            bool canImprove = true, canBranch = true;
+            var isTarget = match.Groups["target"].Success;
+            _parameterTargets[match.Groups["name"].Value] = isTarget;
+            bool canImprove = !isTarget, canBranch = !isTarget, useRawValue = false;
             if (match.Groups["flags"].Length > 0)
             {
                 foreach (string flag in match.Groups["flags"].Value.Split(','))
                 {
-                    switch (flag)
+                    switch (flag.ToLowerInvariant())
                     {
+                        case "raw":
+                            useRawValue = true;
+                            break;
                         case "noimprove":
                             canImprove = false;
                             break;
@@ -183,6 +194,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             }
 
             _parameterProperties[match.Groups["name"].Value] = (canImprove, canBranch);
+            _parameterRawValues[match.Groups["name"].Value] = useRawValue;
         }
 
         expression = TraitFormulaRegex.Replace(expression, m => m.Groups["name"].Value);
@@ -264,6 +276,8 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
     }
 
     private readonly Dictionary<string, long> _parameterIndexes = new();
+    private readonly Dictionary<string, bool> _parameterTargets = new();
+    private readonly Dictionary<string, bool> _parameterRawValues = new();
     private readonly Dictionary<string, (bool CanImprove, bool CanBranch)> _parameterProperties = new();
 
     private readonly Dictionary<string, TraitExpressionExtendedOption> _options = new();
@@ -305,7 +319,9 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             {
                 TraitExpressionParameter newParam = new()
                 {
-                    Trait = Gameworld.Traits.Get(param.Value)
+                    Trait = Gameworld.Traits.Get(param.Value),
+                    IsTarget = _parameterTargets.GetValueOrDefault(param.Key),
+                    UseRawValue = _parameterRawValues.GetValueOrDefault(param.Key)
                 };
                 (newParam.CanImprove, newParam.CanBranch) = _parameterProperties[param.Key];
                 _parameters[param.Key] = newParam;
@@ -313,27 +329,34 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 
             _parameterIndexes.Clear();
             _parameterProperties.Clear();
+            _parameterTargets.Clear();
+            _parameterRawValues.Clear();
         }
     }
 
     public virtual double Evaluate(IHaveTraits owner, ITraitDefinition variable = null,
         TraitBonusContext context = TraitBonusContext.None)
     {
-        return EvaluateInternal(owner, variable, context, false, Array.Empty<(string Name, object Value)>());
+        return EvaluateInternal(owner, null, variable, context, false, Array.Empty<(string Name, object Value)>());
     }
 
     public virtual double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,
         TraitBonusContext context = TraitBonusContext.None, params (string Name, object Value)[] values)
     {
-        return EvaluateInternal(owner, variable, context, false, values);
+        return EvaluateInternal(owner, null, variable, context, false, values);
     }
 
     public double EvaluateMax(IHaveTraits owner)
     {
-        return EvaluateInternal(owner, null, TraitBonusContext.None, true, Array.Empty<(string Name, object Value)>());
+        return EvaluateInternal(owner, null, null, TraitBonusContext.None, true, Array.Empty<(string Name, object Value)>());
     }
 
-    private double EvaluateInternal(IHaveTraits owner, ITraitDefinition variable, TraitBonusContext context,
+    /// <summary>Target traits are read-only inputs; no target means zero, including numerical capture.</summary>
+    public virtual double EvaluateWithTarget(IHaveTraits owner, IHaveTraits target, ITraitDefinition variable = null,
+        TraitBonusContext context = TraitBonusContext.None, params (string Name, object Value)[] values) =>
+        EvaluateInternal(owner, target, variable, context, false, values);
+
+    private double EvaluateInternal(IHaveTraits owner, IHaveTraits target, ITraitDefinition variable, TraitBonusContext context,
         bool maximum, IEnumerable<(string Name, object Value)> values)
     {
         ProcessLazyLoading();
@@ -345,9 +368,10 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 
         foreach (KeyValuePair<string, TraitExpressionParameter> param in Parameters)
         {
-            evaluationValues[param.Key] = maximum
-                ? owner.TraitMaxValue(param.Value.Trait)
-                : owner.TraitValue(param.Value.Trait, context);
+            var subject = param.Value.IsTarget ? target : owner;
+            evaluationValues[param.Key] = subject is null ? 0.0 : maximum
+                ? subject.TraitMaxValue(param.Value.Trait)
+                : param.Value.UseRawValue ? subject.TraitRawValue(param.Value.Trait) : subject.TraitValue(param.Value.Trait, context);
         }
 
         evaluationValues["variable"] = variable is null || maximum
@@ -383,7 +407,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 	{
 		ProcessLazyLoading();
 		if (Parameters.Values.Any(x => x.Trait is null)) throw new InvalidOperationException("A numerical expression references a missing trait.");
-		var bindings = Parameters.ToDictionary(x => x.Key, x => owner.TraitValue(x.Value.Trait, context), StringComparer.OrdinalIgnoreCase);
+		var bindings = Parameters.ToDictionary(x => x.Key, x => x.Value.IsTarget ? 0.0 : x.Value.UseRawValue ? owner.TraitRawValue(x.Value.Trait) : owner.TraitValue(x.Value.Trait, context), StringComparer.OrdinalIgnoreCase);
 		bindings["variable"] = variable is null ? 0.0 : owner.TraitValue(variable, context);
 		foreach (var (name, option) in _options) bindings[name] = option.Evaluate(owner);
 		if (bindings.Values.Any(x => !double.IsFinite(x))) throw new InvalidOperationException("A creator numerical binding is not finite.");
@@ -457,8 +481,8 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             @"Valid options are as follows:
 
 	#3name <name>#0 - the name of this trait expression
-	#3formula <formula>#0 - the formula for the expression
-	#3parameter <which> <trait>#0 - adds a new parameter named referring to the specified trait
+	#3formula <formula>#0 - the formula; name:id reads self, name:!id reads the target
+	#3parameter <which> <trait|!trait>#0 - binds a self or read-only target trait (target defaults to zero)
 	#3branch <which>#0 - toggles branching of an existing parameter
 	#3improve <which>#0 - toggles improvement of a particular parameter
 	#3trait <which> <trait>#0 - sets the trait for a particular parameter
@@ -481,6 +505,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             return false;
         }
 
+        RemoveInlineParameter(which.ToLowerInvariant());
         Parameters.Remove(which.ToLowerInvariant());
         Changed = true;
         actor.OutputHandler.Send($"You remove the {which.ToLowerInvariant().Colour(Telnet.Cyan)} parameter.");
@@ -535,6 +560,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                 return false;
             }
 
+            RemoveInlineParameter(which);
             Parameters.Remove(which);
             Changed = true;
             actor.OutputHandler.Send($"You delete the parameter {which}.");
@@ -556,34 +582,74 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             return false;
         }
 
-        ITraitDefinition trait = long.TryParse(command.PopSpeech(), out long value)
+        var traitText = command.PopSpeech();
+        var isTarget = traitText.StartsWith('!');
+        if (isTarget) traitText = traitText[1..];
+        ITraitDefinition trait = long.TryParse(traitText, out long value)
             ? Gameworld.Traits.Get(value)
-            : Gameworld.Traits.GetByName(command.Last);
+            : Gameworld.Traits.GetByName(traitText);
         if (trait == null)
         {
             actor.OutputHandler.Send("There is no such trait.");
             return false;
         }
 
-        bool canimprove = true, canbranch = true;
+        if (isTarget && !Formula.ParameterNames.Any(x => x.EqualTo(text)))
+        {
+            actor.OutputHandler.Send("Add this parameter to the formula before binding a target trait, or use name:!id directly in the formula.");
+            return false;
+        }
+
+        bool canimprove = true, canbranch = true, useRawValue = false;
         if (Parameters.ContainsKey(text))
         {
             TraitExpressionParameter old = Parameters[text];
             canimprove = old.CanImprove;
             canbranch = old.CanBranch;
+            useRawValue = old.UseRawValue;
         }
 
         Parameters[text] = new TraitExpressionParameter
         {
             Trait = trait,
-            CanImprove = canimprove,
-            CanBranch = canbranch
+            IsTarget = isTarget,
+            UseRawValue = useRawValue,
+            CanImprove = !isTarget && canimprove,
+            CanBranch = !isTarget && canbranch
         };
+        SynchronizeInlineParameter(text);
         Changed = true;
         actor.OutputHandler.Send(
-            $"The parameter {text} now refers to trait {trait.Name.Colour(Telnet.Cyan)}, {(canbranch ? "can" : "cannot")} branch and {(canimprove ? "can" : "cannot")} improve.");
+            $"The parameter {text} now refers to {(isTarget ? "the target's " : "")}trait {trait.Name.Colour(Telnet.Cyan)}, {(Parameters[text].CanBranch ? "can" : "cannot")} branch and {(Parameters[text].CanImprove ? "can" : "cannot")} improve.");
         return true;
     }
+
+    // Target scope is encoded in the existing formula text, including parameters added via the editor.
+    private void SynchronizeInlineParameter(string name)
+    {
+        var parameter = Parameters[name];
+        var flags = new List<string>();
+        if (parameter.UseRawValue) flags.Add("raw");
+        if (!parameter.CanImprove) flags.Add("noimprove");
+        if (!parameter.CanBranch) flags.Add("nobranch");
+        var binding = $"{name}:{(parameter.IsTarget ? "!" : "")}{parameter.Trait.Id}" +
+                      (flags.Count > 0 ? $"{{{string.Join(",", flags)}}}" : "");
+        var found = false;
+        OriginalFormulaText = TraitFormulaRegex.Replace(OriginalFormulaText, match =>
+        {
+            if (!match.Groups["name"].Value.Equals(name, StringComparison.OrdinalIgnoreCase)) return match.Value;
+            found = true;
+            return binding;
+        });
+        if ((parameter.IsTarget || parameter.UseRawValue) && !found)
+            OriginalFormulaText = Regex.Replace(OriginalFormulaText, $@"\b{Regex.Escape(name)}\b", _ => binding,
+                RegexOptions.IgnoreCase);
+    }
+
+    private void RemoveInlineParameter(string name) =>
+        OriginalFormulaText = TraitFormulaRegex.Replace(OriginalFormulaText, match =>
+            match.Groups["name"].Value.Equals(name, StringComparison.OrdinalIgnoreCase)
+                ? match.Groups["name"].Value : match.Value);
 
     private bool BuildingCommandFormula(ICharacter actor, StringStack command)
     {
@@ -593,90 +659,30 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             return false;
         }
 
-        string expression = command.SafeRemainingArgument;
-        foreach (Match match in TraitFormulaRegex.Matches(expression))
+        var candidate = new TraitExpression(command.SafeRemainingArgument, Gameworld);
+        if (candidate.HasErrors())
         {
-            _parameterIndexes[match.Groups["name"].Value] = long.Parse(match.Groups["reference"].Value);
-            bool canImprove = true, canBranch = true;
-            if (match.Groups["flags"].Length > 0)
-            {
-                foreach (string flag in match.Groups["flags"].Value.Split(','))
-                {
-                    switch (flag)
-                    {
-                        case "noimprove":
-                            canImprove = false;
-                            break;
-                        case "nobranch":
-                            canBranch = false;
-                            break;
-                    }
-                }
-            }
-
-            _parameterProperties[match.Groups["name"].Value] = (canImprove, canBranch);
-        }
-
-        expression = TraitFormulaRegex.Replace(expression, m => m.Groups["name"].Value);
-
-        foreach (Match match in ExtendedOptionsRegex.Matches(expression))
-        {
-            switch (match.Groups["option"].Value.ToLowerInvariant())
-            {
-                case "race":
-                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRaceOption(match.Groups["value"].Value, Gameworld)
-                        { Name = match.Groups["name"].Value.ToLowerInvariant() };
-                    break;
-                case "culture":
-                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionCultureOption(match.Groups["value"].Value, Gameworld)
-                        { Name = match.Groups["name"].Value.ToLowerInvariant() };
-                    break;
-                case "role":
-                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
-                        {
-                            Name = match.Groups["name"].Value.ToLowerInvariant(),
-                            _roleTypes =
-                                new List<ChargenRoleType>(Enum.GetValues(typeof(ChargenRoleType))
-                                                              .OfType<ChargenRoleType>())
-                        };
-                    break;
-                case "class":
-                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
-                        {
-                            Name = match.Groups["name"].Value.ToLowerInvariant(),
-                            _roleTypes = new List<ChargenRoleType>
-                            {
-                                ChargenRoleType.Class
-                            }
-                        };
-                    break;
-                case "merit":
-                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionMeritOption(match.Groups["value"].Value, Gameworld)
-                        { Name = match.Groups["name"].Value.ToLowerInvariant() };
-                    break;
-                default:
-                    _options[match.Groups["name"].Value.ToLowerInvariant()] = new TraitExpressionAlwaysZeroOption
-                    { Name = match.Groups["name"].Value.ToLowerInvariant() };
-                    break;
-            }
-        }
-
-        expression = ExtendedOptionsRegex.Replace(expression, m => m.Groups["name"].Value.ToLowerInvariant());
-
-        Expression newFormula = new(expression);
-        if (newFormula.HasErrors())
-        {
-            actor.OutputHandler.Send($"Your formula has errors: {newFormula.Error.ColourCommand()}");
+            actor.OutputHandler.Send($"Your formula has errors: {candidate.Error.ColourCommand()}");
             return false;
         }
 
+        foreach (var (name, id) in candidate._parameterIndexes)
+        {
+            _parameterIndexes[name] = id;
+            _parameterProperties[name] = candidate._parameterProperties[name];
+            _parameterTargets[name] = candidate._parameterTargets[name];
+            _parameterRawValues[name] = candidate._parameterRawValues[name];
+        }
+        foreach (var (name, option) in candidate._options) _options[name] = option;
+        var newFormula = candidate.Formula;
         Formula = newFormula;
         OriginalFormulaText = command.SafeRemainingArgument;
+        ProcessLazyLoading();
+        foreach (var name in Parameters.Where(x => x.Value.IsTarget || x.Value.UseRawValue).Select(x => x.Key).ToArray())
+        {
+            if (!Formula.ParameterNames.Any(x => x.EqualTo(name))) Parameters.Remove(name);
+            else SynchronizeInlineParameter(name);
+        }
         Changed = true;
         actor.OutputHandler.Send($"You set the formula for this trait expression to: {OriginalFormulaText.ColourCommand()}");
         return true;
@@ -697,7 +703,14 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             return false;
         }
 
+        if (Parameters[which].IsTarget)
+        {
+            actor.OutputHandler.Send("Target trait parameters are read-only and cannot improve or branch.");
+            return false;
+        }
+
         Parameters[which].CanBranch = !Parameters[which].CanBranch;
+        SynchronizeInlineParameter(which);
         actor.OutputHandler.Send(
             $"The parameter {which.Colour(Telnet.Cyan)} will {(Parameters[which].CanBranch ? "now" : "no longer")} permit branching of the {Parameters[which].Trait.Name.Colour(Telnet.Green)} trait.");
         Changed = true;
@@ -719,7 +732,14 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             return false;
         }
 
+        if (Parameters[which].IsTarget)
+        {
+            actor.OutputHandler.Send("Target trait parameters are read-only and cannot improve or branch.");
+            return false;
+        }
+
         Parameters[which].CanImprove = !Parameters[which].CanImprove;
+        SynchronizeInlineParameter(which);
         actor.OutputHandler.Send(
             $"The parameter {which.Colour(Telnet.Cyan)} will {(Parameters[which].CanImprove ? "now" : "no longer")} permit improvement of the {Parameters[which].Trait.Name.Colour(Telnet.Green)} trait.");
         Changed = true;
@@ -747,16 +767,31 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             return false;
         }
 
-        ITraitDefinition trait = long.TryParse(command.PopSpeech(), out long value)
+        var traitText = command.PopSpeech();
+        var isTarget = traitText.StartsWith('!');
+        if (isTarget) traitText = traitText[1..];
+        ITraitDefinition trait = long.TryParse(traitText, out long value)
             ? Gameworld.Traits.Get(value)
-            : Gameworld.Traits.GetByName(command.Last);
+            : Gameworld.Traits.GetByName(traitText);
         if (trait == null)
         {
             actor.OutputHandler.Send("There is no such trait.");
             return false;
         }
 
+        if ((isTarget || Parameters[which].IsTarget || Parameters[which].UseRawValue) && !Formula.ParameterNames.Any(x => x.EqualTo(which)))
+        {
+            actor.OutputHandler.Send("Add this parameter to the formula before binding a target trait, or use name:!id directly in the formula.");
+            return false;
+        }
+
         Parameters[which].Trait = trait;
+        if (isTarget)
+        {
+            Parameters[which].IsTarget = true;
+            Parameters[which].CanImprove = Parameters[which].CanBranch = false;
+        }
+        SynchronizeInlineParameter(which);
         Changed = true;
         actor.OutputHandler.Send(
             $"The parameter {which.Colour(Telnet.Cyan)} now refers to the {trait.Name.Colour(Telnet.Green)} trait.");
@@ -776,7 +811,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             foreach (KeyValuePair<string, TraitExpressionParameter> item in Parameters)
             {
                 sb.AppendLine(
-                    $"\t{item.Key}: {item.Value.Trait.Name.Colour(Telnet.Green)}{(item.Value.CanBranch ? "" : " [no_branch]".Colour(Telnet.Red))}{(item.Value.CanImprove ? "" : " [no_improve]".Colour(Telnet.Red))}");
+                    $"\t{item.Key}: {item.Value.Trait.Name.Colour(Telnet.Green)}{(item.Value.IsTarget ? " [target]".ColourName() : "")}{(item.Value.UseRawValue ? " [raw]".ColourName() : "")}{(item.Value.CanBranch ? "" : " [no_branch]".Colour(Telnet.Red))}{(item.Value.CanImprove ? "" : " [no_improve]".Colour(Telnet.Red))}");
             }
         }
 

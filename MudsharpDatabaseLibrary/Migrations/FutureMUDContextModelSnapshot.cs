@@ -22808,11 +22808,10 @@ namespace MudSharp.Migrations
                     b.Property<long?>("MountInstanceId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("OriginalOwnerId")
+                    b.Property<long?>("OriginalOwnerId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("OriginalOwnerName")
-                        .IsRequired()
                         .HasColumnType("mediumtext")
                         .UseCollation("utf8_general_ci");
 
@@ -36525,8 +36524,7 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.Character", "OriginalOwner")
                         .WithMany()
                         .HasForeignKey("OriginalOwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_StableStays_Characters_Owner");
 
                     b.HasOne("MudSharp.Models.Stable", "Stable")

@@ -16401,6 +16401,8 @@ DROP PROCEDURE MigrationsScript;
 
 COMMIT;
 
+
+
 START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
@@ -16470,6 +16472,80 @@ BEGIN
 
     INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
     VALUES ('20261029011042_ConfiguredInfectionState', '9.0.21');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;
+
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261105032015_OptionalStableStayDepositor') THEN
+
+    ALTER TABLE `stablestays` DROP FOREIGN KEY `FK_StableStays_Characters_Owner`;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261105032015_OptionalStableStayDepositor') THEN
+
+    ALTER TABLE `stablestays` MODIFY COLUMN `OriginalOwnerName` mediumtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261105032015_OptionalStableStayDepositor') THEN
+
+    ALTER TABLE `stablestays` MODIFY COLUMN `OriginalOwnerId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261105032015_OptionalStableStayDepositor') THEN
+
+    ALTER TABLE `stablestays` ADD CONSTRAINT `FK_StableStays_Characters_Owner` FOREIGN KEY (`OriginalOwnerId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261105032015_OptionalStableStayDepositor') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261105032015_OptionalStableStayDepositor', '9.0.21');
 
     END IF;
 END //

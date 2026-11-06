@@ -57,6 +57,8 @@ internal sealed partial class ArmageddonWorldfileWriter
 	{
 		source = source.ForInstallation();
 		var errors = new List<string>();
+		if (NpcCombatCalibrationError(source) is { } combatError) errors.Add(combatError);
+		if (NpcDamageCalibrationError(source) is { } damageError) errors.Add(damageError);
 		ArmageddonInstallationSettings? settings = null;
 		try
 		{
@@ -148,11 +150,14 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallClansAndCurrency();
 		InstallLegacyUntal();
 		InstallWillpowerSkill();
+		InstallNpcCombatRatings();
+		InstallNpcDamageDefinitions();
 		Console.WriteLine("Armageddon Worldfile: creating equipment...");
 		InstallItems();
 		InstallTables();
 		Console.WriteLine("Armageddon Worldfile: creating NPC definitions...");
 		InstallNpcTemplates();
+		CalibrateNpcNaturalAttacks();
 		ConfigureTunnelCosts();
 		InstallForagingAndCrafts();
 		Console.WriteLine("Armageddon Worldfile: configuring population...");

@@ -567,7 +567,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     Value = (Gender)short.Parse(valueRoot.Value);
                     break;
                 case ProgVariableTypeCode.Number:
-                    Value = decimal.Parse(valueRoot.Value);
+                    Value = decimal.Parse(valueRoot.Value, CultureInfo.InvariantCulture);
                     break;
                 case ProgVariableTypeCode.Text:
                     Value = valueRoot.Value;

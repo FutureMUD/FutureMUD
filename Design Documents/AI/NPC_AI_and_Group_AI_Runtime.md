@@ -326,6 +326,9 @@ Movement-centric AI commonly relies on:
 The pathing bases centralize door handling, path following, fallback logic, and waypoint/prog-driven destination logic. New movement-heavy AI should usually extend one of these instead of re-implementing path and heartbeat plumbing from scratch.
 
 ### Combat
+
+`AggressorAI` optionally persists an `AcquisitionRange` in rooms. Builders set `range <number>` (zero means local only), or `range weapon` to restore the legacy readied/readiable-weapon-derived radius. Omitting the XML element preserves legacy content. An explicit radius lets melee NPCs acquire nearby targets without inventing a ranged weapon. Acquisition still uses the target prog, native visibility, peaceful effects and engagement checks. Once engaged, ordinary combat settings determine whether and how the NPC approaches; a radius does not grant movement through blocked exits or override stationary tactics.
+
 Combat-facing AI currently covers several distinct roles:
 
 - pure aggression and target acquisition

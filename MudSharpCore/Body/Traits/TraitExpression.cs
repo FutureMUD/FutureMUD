@@ -110,6 +110,11 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                             }
                         };
                     break;
+                case "prog":
+                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
+                        new TraitExpressionProgOption(match.Groups["value"].Value, Gameworld)
+                        { Name = match.Groups["name"].Value.ToLowerInvariant() };
+                    break;
                 case "merit":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
                         new TraitExpressionMeritOption(match.Groups["value"].Value, Gameworld)
@@ -233,6 +238,11 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                                 ChargenRoleType.Class
                             }
                         };
+                    break;
+                case "prog":
+                    _options[match.Groups["name"].Value.ToLowerInvariant()] =
+                        new TraitExpressionProgOption(match.Groups["value"].Value, Gameworld)
+                        { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "merit":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
@@ -406,7 +416,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 #endif
     }
 
-	/// <summary>Captures only owner bindings, never evaluates the formula, randomness or gameplay effects.</summary>
+	/// <summary>Captures owner bindings without evaluating the formula. Numeric prog options execute to supply their values.</summary>
 	public IEnumerable<string> NumericalBindingNames => Parameters.Keys.Concat(_options.Keys).Append("variable").Distinct(StringComparer.OrdinalIgnoreCase);
 
 	public IReadOnlyDictionary<string, double> CaptureNumericalBindings(IHaveTraits owner, ITraitDefinition variable,

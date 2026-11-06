@@ -160,6 +160,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallTables();
 		Console.WriteLine("Armageddon Worldfile: creating NPC definitions...");
 		InstallNpcTemplates();
+		InstallPlayerHealthPools();
 		CalibrateNpcNaturalAttacks();
 		ConfigureTunnelCosts();
 		InstallForagingAndCrafts();
@@ -216,6 +217,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallNpcInitialStates();
 		InstallJustice();
 		InstallJailNeeds();
+		InstallGenericNpcAi();
 		FinalizeInteriorTemplates();
 		FinalizeAuxiliaryRooms();
 		if (ArmageddonChargenPolicy.ConfigureWorldfileStart(_db))

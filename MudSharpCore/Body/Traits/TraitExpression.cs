@@ -4,6 +4,7 @@ using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 using System.Text.RegularExpressions;
+using CultureInfo = System.Globalization.CultureInfo;
 
 namespace MudSharp.Body.Traits;
 
@@ -291,11 +292,17 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		get
 		{
 			var names = Formula.ParameterNames.ToHashSet(StringComparer.Ordinal);
-			var references = _parameters.Where(x => names.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value.Trait.Id);
+			var references = _parameters.Where(x => names.Contains(x.Key) && x.Value.Trait is not null)
+				.ToDictionary(x => x.Key, x => x.Value.Trait.Id);
 			// A builder formula edit may replace an already loaded parameter. The pending
 			// native parse takes precedence, just as it does in ProcessLazyLoading.
 			foreach (var reference in _parameterIndexes)
 				if (names.Contains(reference.Key)) references[reference.Key] = reference.Value;
+			foreach (Match match in TraitFormulaRegex.Matches(OriginalFormulaText))
+			{
+				var name = match.Groups["name"].Value;
+				if (names.Contains(name)) references[name] = long.Parse(match.Groups["reference"].Value, CultureInfo.InvariantCulture);
+			}
 			return references;
 		}
 	}
@@ -678,7 +685,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
         Formula = newFormula;
         OriginalFormulaText = command.SafeRemainingArgument;
         ProcessLazyLoading();
-        foreach (var name in Parameters.Where(x => x.Value.IsTarget || x.Value.UseRawValue).Select(x => x.Key).ToArray())
+        foreach (var name in Parameters.Where(x => x.Value.Trait is not null && (x.Value.IsTarget || x.Value.UseRawValue)).Select(x => x.Key).ToArray())
         {
             if (!Formula.ParameterNames.Any(x => x.EqualTo(name))) Parameters.Remove(name);
             else SynchronizeInlineParameter(name);

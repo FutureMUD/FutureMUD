@@ -20,6 +20,18 @@ namespace MudSharp_Unit_Tests;
 [DoNotParallelize]
 public class TargetTraitExpressionTests
 {
+	[TestMethod]
+	[DataRow("unknown")]
+	[DataRow("Unknown")]
+	public void TraitReferences_UnresolvedTargetReplacementRemainsMetadataOnly(string name)
+	{
+		var fixture = new Fixture();
+		var expression = fixture.Expression("known:51");
+		_ = expression.Parameters;
+		Assert.IsTrue(expression.BuildingCommand(fixture.Actor.Object, new StringStack($"formula {name}:!999{{raw}}")));
+		Assert.AreEqual(999L, expression.TraitReferenceIds[name]);
+		Assert.IsFalse(expression.TraitReferenceIds.ContainsKey("known"));
+	}
 	private int _oldBonusScale;
 	[TestInitialize]
 	public void Initialise()

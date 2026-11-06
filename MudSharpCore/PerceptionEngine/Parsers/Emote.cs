@@ -12,7 +12,7 @@ public partial class Emote : IEmote
 
         foreach (XElement token in definition.Elements("Token"))
         {
-            _tokens.Add(EmoteToken.LoadToken(token, gameworld));
+            _tokens.Add(EmoteToken.LoadToken(token, gameworld, source));
         }
 
         Valid = _tokens.All(x => x.Valid);
@@ -95,7 +95,7 @@ public partial class Emote : IEmote
 
     public IPerceiver Source { get; protected init; }
 
-    public IEnumerable<IPerceivable> Targets => _tokens.Select(x => x.Target);
+    public IEnumerable<IPerceivable> Targets => _tokens.SelectMany(x => x.Targets).Distinct();
 
     public bool ForcedSourceInclusion { get; protected init; }
 
@@ -138,14 +138,16 @@ public partial class Emote : IEmote
             return ErrorMessage;
         }
 
-        object[] parsedTokens =
-            _tokens.Select(
-                x =>
-                    x.NullSafe || x.Target != null
-                        ? x.Target?.IsSelf(perceiver) == true && !x.IgnoreSelfForDisplay
-                            ? x.DisplayFirstPerson()
-                            : x.DisplayThirdPerson(perceiver, flags)
-                        : string.Empty).ToArray<object>();
+        var parsedTokens = new object[_tokens.Count];
+        for (var i = 0; i < _tokens.Count; i++)
+        {
+            var token = _tokens[i];
+            parsedTokens[i] = token.NullSafe || token.Target != null
+                ? token.Target?.IsSelf(perceiver) == true && !token.IgnoreSelfForDisplay
+                    ? token.DisplayFirstPerson()
+                    : token.DisplayThirdPerson(perceiver, flags)
+                : string.Empty;
+        }
 
 		try
 		{

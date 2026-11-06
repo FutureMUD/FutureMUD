@@ -607,9 +607,20 @@ public partial class Emote
 
         public IPerceivable Target => _target;
 
+        public virtual IEnumerable<IPerceivable> Targets
+        {
+            get
+            {
+                if (_target != null)
+                {
+                    yield return _target;
+                }
+            }
+        }
+
         public virtual bool IgnoreSelfForDisplay => false;
 
-        internal static EmoteToken LoadToken(XElement root, IFuturemud gameworld)
+        internal static EmoteToken LoadToken(XElement root, IFuturemud gameworld, IPerceiver source)
         {
             switch (root.Attribute("Type").Value)
             {
@@ -629,6 +640,8 @@ public partial class Emote
                     return new PronounNumberToken(root, gameworld);
                 case "NonSelf":
                     return new NonSelfToken(root, gameworld);
+                case "NullPerceivable":
+                    return new NullPerceivableToken(root, gameworld, source);
                 case "OptionalItself":
                     return new OptionalItselfToken(root, gameworld);
                 default:
@@ -1168,17 +1181,43 @@ public partial class Emote
     private class NullPerceivableToken : EmoteToken
     {
         public override bool NullSafe => true;
-        private readonly string _emoteText;
-        private readonly IPerceivable[] _perceivables;
-        private readonly IPerceiver _sourcePerceiver;
+        // Parse the chosen branch once, retaining recipient-specific rendering.
+        private readonly Lazy<IEmote> _emote;
+        public override bool IgnoreSelfForDisplay => true;
 
         public NullPerceivableToken(IPerceiver source, IList<IPerceivable> perceivables, IPerceivable target,
             string textIfNull, string textIfNotNull,
             bool proper = false) : base(target, proper)
         {
-            _emoteText = target == null ? textIfNull : textIfNotNull;
-            _sourcePerceiver = source;
-            _perceivables = perceivables.ToArray();
+            var text = target == null ? textIfNull : textIfNotNull;
+            var targets = perceivables.ToArray();
+            _emote = new Lazy<IEmote>(() => new Emote(text, source, targets));
+        }
+
+        public NullPerceivableToken(XElement root, IFuturemud gameworld, IPerceiver source)
+            : base((IPerceivable)null)
+        {
+            var nested = LoadEmote(root.Element("Emote"), gameworld, source);
+            _emote = new Lazy<IEmote>(() => nested);
+            var targetType = root.Attribute("TargetType");
+            if (targetType != null)
+            {
+                _target = gameworld.GetPerceivable(targetType.Value, long.Parse(root.Attribute("TargetId").Value));
+            }
+            Valid = nested.Valid && (targetType == null || _target != null);
+        }
+
+        public override IEnumerable<IPerceivable> Targets => base.Targets.Concat(_emote.Value.Targets);
+
+        internal override XElement SaveToXml()
+        {
+            var root = new XElement("Token", new XAttribute("Type", "NullPerceivable"), _emote.Value.SaveToXml());
+            if (_target != null)
+            {
+                root.Add(new XAttribute("TargetType", _target.GetPersistedReferenceType()),
+                    new XAttribute("TargetId", _target.Id));
+            }
+            return root;
         }
 
         protected override bool Process(string lookup, IPerceiver source)
@@ -1188,12 +1227,12 @@ public partial class Emote
 
         public override string DisplayFirstPerson()
         {
-            return DisplayThirdPerson(_sourcePerceiver, PerceiveIgnoreFlags.None);
+            return _emote.Value.ParseFor(_emote.Value.Source);
         }
 
         public override string DisplayThirdPerson(IPerceiver perceiver, PerceiveIgnoreFlags flags)
         {
-            return new Emote(_emoteText, _sourcePerceiver, _perceivables).ParseFor(perceiver, flags);
+            return _emote.Value.ParseFor(perceiver, flags);
         }
     }
 

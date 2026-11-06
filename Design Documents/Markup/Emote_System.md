@@ -41,12 +41,18 @@ Backtick text is parsed into a perceiver-specific `EmoteSignedLanguageInfo` toke
 
 The parser resolves tokens into a single shared raw format string, then renders that string separately for each perceiver. That is why the same emote can show `you`, `your`, `him`, `herself`, or a full sdesc depending on who is viewing it.
 
-If an internal or persisted emote reaches rendering with malformed composite-format braces or an out-of-range format reference, `ParseFor` returns an invalid-emote error instead of allowing `FormatException` to escape into the player-input loop. This guard also covers `NoFormatEmote` and nested emotes. It does not replace escaping at the point where literal player text enters an internal emote; valid-looking references such as `{0}` must remain literal message text. The persisted emote format is unchanged.
+If an internal or persisted emote reaches rendering with malformed composite-format braces or an out-of-range format reference, `ParseFor` returns an invalid-emote error instead of allowing `FormatException` to escape into the player-input loop. This guard also covers `NoFormatEmote` and nested emotes. It does not replace escaping at the point where literal player text enters an internal emote; valid-looking references such as `{0}` must remain literal message text.
 
 The practical split is:
 
 - engine-authored/internal tokens for code that already knows the exact targets
 - player lookup tokens for pmotes, omotes, socials, and other free-form player text
+
+Optional-target branches (`$?N|present|absent|$`) select their branch from the constructor's targets. The chosen branch is parsed once on first use and rendered separately for each recipient, with the recipient's perception flags. Its selected nested emote can be saved and loaded, including when the optional target was null; this adds a `NullPerceivable` token type without changing existing token records. Target enumeration includes the nonnull tested target and dependencies in the selected branch, so position emotes retain their invalidation subscriptions. Loading rejects missing persisted targets in either part.
+
+`EmoteOutput` copies preserve recipient-specific assigned emotes in an independent assignment dictionary. Rendering with a null viewer uses the default emote even when assignments exist. `PriorEmoteOutput` can render without an appended emote, just as `MixedEmoteOutput` can.
+
+`EmoteOutput.RawString` exposes the default emote's raw format text, or its error message when one exists. Raw format text may contain rewritten placeholders such as `{0}`; use `ParseFor` for recipient-specific output.
 
 ## Engine-Authored Tokens
 

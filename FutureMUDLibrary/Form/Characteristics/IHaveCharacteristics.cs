@@ -83,32 +83,15 @@ namespace MudSharp.Form.Characteristics
         private static Tuple<ICharacteristicDefinition, CharacteristicDescriptionType> GetDefinition(string definition,
             IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics)
         {
-            CharacteristicDescriptionType type = CharacteristicDescriptionType.Normal;
-            ICharacteristicDefinition selection =
-                characteristics.Select(x => x.Item1)
-                    .FirstOrDefault(x => x.MatchesPattern(definition) && !BasicFancyCharacteristicRegex.IsMatch(definition));
-            if (selection != null)
-            {
-                return Tuple.Create(selection, type);
-            }
-            if (BasicFancyCharacteristicRegex.IsMatch(definition))
-            {
-                selection =
-                    characteristics.Select(x => x.Item1)
-                        .FirstOrDefault(
-                            x =>
-                                x.MatchesPattern(
-                                    BasicFancyCharacteristicRegex.Match(definition).Groups[1].Value.ToLowerInvariant()));
-                type = BasicFancyCharacteristicRegex.Match(definition).Groups[2].Value.Equals("basic",
-                    StringComparison.InvariantCultureIgnoreCase)
+            var match = BasicFancyCharacteristicRegex.Match(definition);
+            var type = match.Success
+                ? match.Groups[2].Value.Equals("basic", StringComparison.OrdinalIgnoreCase)
                     ? CharacteristicDescriptionType.Basic
-                    : CharacteristicDescriptionType.Fancy;
-            }
-            else
-            {
-                return Tuple.Create((ICharacteristicDefinition)null, CharacteristicDescriptionType.Normal);
-            }
-
+                    : CharacteristicDescriptionType.Fancy
+                : CharacteristicDescriptionType.Normal;
+            var pattern = match.Success ? match.Groups[1].Value.ToLowerInvariant() : definition;
+            var selection = characteristics.Select(x => x.Item1)
+                .FirstOrDefault(x => x.MatchesPattern(pattern));
             return Tuple.Create(selection, type);
         }
 
@@ -129,7 +112,7 @@ namespace MudSharp.Form.Characteristics
         }
 
         private static bool ContainsPlural<T>(this T owner, string description, IPerceiver voyeur,
-            bool ignoreObscurers = false) where T : IHaveCharacteristics
+            string parsedDescription) where T : IHaveCharacteristics
         {
             // First of all, check to see if there are any replacable characteristic values that are plurals
             MatchCollection matches = CharacteristicRegex.Matches(description);
@@ -140,14 +123,13 @@ namespace MudSharp.Form.Characteristics
                        .SelectNotNull(type => type.Item1)
                        .Select(type => owner.GetCharacteristic(type, voyeur))
                        .Where(characteristic => characteristic != null)
-                       .Any(characteristic => characteristic.Pluralisation == PluralisationType.Plural) || ParseCharacteristics(owner, description, voyeur, ignoreObscurers).ContainsPlural();
+                       .Any(characteristic => characteristic.Pluralisation == PluralisationType.Plural) || parsedDescription.ContainsPlural();
 
             // Otherwise just parse the text and check it out
         }
 
         private static bool ContainsPlural(string description,
-            IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics, Gendering gender,
-            IFuturemud gameworld, IRace race = null, ICulture culture = null, IEthnicity ethnicity = null, int age = 0, double height = 0.0)
+            IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics, string parsedDescription)
         {
             // First of all, check to see if there are any replacable characteristic values that are plurals
             MatchCollection matches = CharacteristicRegex.Matches(description);
@@ -166,8 +148,7 @@ namespace MudSharp.Form.Characteristics
 
             // Otherwise just parse the text and check it out
             return
-                ParseCharacteristicsAbsolute(description, characteristics, gender, gameworld, race, culture, ethnicity, age, height)
-                    .ContainsPlural();
+                parsedDescription.ContainsPlural();
         }
 
         /// <summary>
@@ -186,13 +167,16 @@ namespace MudSharp.Form.Characteristics
                 Console.WriteLine("Null description passed to IHaveCharacteristics.ParseDescriptionAbsolute");
                 return "";
             }
-            description = AAnPluralRegex.Replace(description,
-                m => ContainsPlural(m.Groups["inner"].Value, characteristics, gender, gameworld, race, culture, ethnicity, age,
-                    height)
-                    ? ParseCharacteristicsAbsolute(m.Groups["inner"].Value, characteristics, gender, gameworld, race, culture, ethnicity, age,
-                        height)
-                    : ParseCharacteristicsAbsolute(m.Groups["inner"].Value, characteristics, gender, gameworld, race, culture, ethnicity, age,
-                        height).A_An());
+            // Reuse a stable snapshot throughout nested substitutions and repeated lookups.
+            characteristics = characteristics as IReadOnlyList<(ICharacteristicDefinition, ICharacteristicValue)>
+                ?? characteristics.ToArray();
+            description = AAnPluralRegex.Replace(description, m =>
+            {
+                var inner = m.Groups["inner"].Value;
+                var parsed = ParseCharacteristicsAbsolute(inner, characteristics, gender, gameworld, race, culture,
+                    ethnicity, age, height);
+                return ContainsPlural(inner, characteristics, parsed) ? parsed : parsed.A_An();
+            });
 
             description = PronounNumberRegex.Replace(description, m =>
             {
@@ -214,11 +198,11 @@ namespace MudSharp.Form.Characteristics
                 if (m.Groups[1].Value.FirstOrDefault() == '!')
                 {
                     return "$" + m.Groups[1].Value[1..] + m.Groups[2].Value +
-                           (!string.IsNullOrEmpty(m.Groups[3].Value)
+                           (m.Groups[3].Success
                                ? "[" +
                                  ParseCharacteristicsAbsolute(m.Groups[3].Value, characteristics, gender, gameworld,
                                                               race, culture, ethnicity, age, height) + "]" +
-                                 (!string.IsNullOrEmpty(m.Groups[4].Value)
+                                 (m.Groups[4].Success
                                      ? "[" +
                                        ParseCharacteristicsAbsolute(m.Groups[4].Value, characteristics, gender,
                                                                     gameworld, race, culture, ethnicity, age, height) + "]"
@@ -228,7 +212,7 @@ namespace MudSharp.Form.Characteristics
 
                 Tuple<ICharacteristicDefinition, CharacteristicDescriptionType> type;
                 ICharacteristicValue characteristic;
-                if (m.Groups[2].Value.Equals("height"))
+                if (m.Groups[2].Value.Equals("height", StringComparison.OrdinalIgnoreCase))
                 {
                     type =
                         new Tuple<ICharacteristicDefinition, CharacteristicDescriptionType>(
@@ -265,7 +249,7 @@ namespace MudSharp.Form.Characteristics
                     return m.Groups[0].Value;
                 }
 
-                if (!string.IsNullOrEmpty(m.Groups[3].Value))
+                if (m.Groups[3].Success)
                 {
                     return
                         ParseCharacteristicsAbsolute(
@@ -277,7 +261,7 @@ namespace MudSharp.Form.Characteristics
                                                               : characteristic.GetFancyValue)), characteristics, gender, gameworld, race,
                             culture, ethnicity, age, height);
                 }
-                return string.IsNullOrEmpty(m.Groups[4].Value)
+                return !m.Groups[4].Success
 ? DescribeCharacteristic(characteristic, type.Item2)
 : "";
             }
@@ -290,7 +274,7 @@ namespace MudSharp.Form.Characteristics
                     return "&" + m.Groups[2].Value;
                 }
 
-                switch (m.Groups[2].Value)
+                switch (m.Groups[2].Value.ToLowerInvariant())
                 {
                     case "he":
                         return gender.Subjective();
@@ -342,6 +326,18 @@ namespace MudSharp.Form.Characteristics
             return description;
         }
 
+        private static bool MatchesBodypartCount(Match match, string branch, int count)
+        {
+            if (!int.TryParse(match.Groups[branch + "low"].Value, out var low))
+            {
+                return false;
+            }
+
+            return match.Groups[branch + "high"].Success
+                ? int.TryParse(match.Groups[branch + "high"].Value, out var high) && low <= count && count <= high
+                : count == low;
+        }
+
         public static string ParseCharacteristics<T>(this T owner, string description, IPerceiver voyeur,
             bool ignoreObscurers = false) where T : IHaveCharacteristics
         {
@@ -351,10 +347,12 @@ namespace MudSharp.Form.Characteristics
                 return "";
             }
 
-            description = AAnPluralRegex.Replace(description,
-                m => ContainsPlural(owner, m.Groups["inner"].Value, voyeur, ignoreObscurers)
-                    ? ParseCharacteristics(owner, m.Groups["inner"].Value, voyeur, ignoreObscurers)
-                    : ParseCharacteristics(owner, m.Groups["inner"].Value, voyeur, ignoreObscurers).A_An());
+            description = AAnPluralRegex.Replace(description, m =>
+            {
+                var inner = m.Groups["inner"].Value;
+                var parsed = ParseCharacteristics(owner, inner, voyeur, ignoreObscurers);
+                return ContainsPlural(owner, inner, voyeur, parsed) ? parsed : parsed.A_An();
+            });
 
             IPerceivable ownerPerc = owner as IPerceivable;
             ICharacterTemplate ownerChargen = owner as ICharacterTemplate;
@@ -398,15 +396,15 @@ namespace MudSharp.Form.Characteristics
                 }
                 else
                 {
-                    if (m.Groups["alt1low"].Length > 0 && int.Parse(m.Groups["alt1low"].Value) <= ownercount && (m.Groups["alt1high"].Length == 0 || int.Parse(m.Groups["alt1high"].Value) >= ownercount))
+                    if (MatchesBodypartCount(m, "alt1", ownercount))
                     {
                         text = m.Groups["alt1"].Value;
                     }
-                    else if (m.Groups["alt2low"].Length > 0 && int.Parse(m.Groups["alt2low"].Value) <= ownercount && (m.Groups["alt2high"].Length == 0 || int.Parse(m.Groups["alt2high"].Value) >= ownercount))
+                    else if (MatchesBodypartCount(m, "alt2", ownercount))
                     {
                         text = m.Groups["alt2"].Value;
                     }
-                    else if (m.Groups["alt3low"].Length > 0 && int.Parse(m.Groups["alt3low"].Value) <= ownercount && (m.Groups["alt3high"].Length == 0 || int.Parse(m.Groups["alt3high"].Value) >= ownercount))
+                    else if (MatchesBodypartCount(m, "alt3", ownercount))
                     {
                         text = m.Groups["alt3"].Value;
                     }
@@ -429,9 +427,9 @@ namespace MudSharp.Form.Characteristics
                 if (m.Groups[1].Value.FirstOrDefault() == '!')
                 {
                     return "$" + m.Groups[1].Value[1..] + m.Groups[2].Value +
-                           (!string.IsNullOrEmpty(m.Groups[3].Value)
+                           (m.Groups[3].Success
                                ? "[" + owner.ParseCharacteristics(m.Groups[3].Value, voyeur, ignoreObscurers) + "]" +
-                                 (!string.IsNullOrEmpty(m.Groups[4].Value)
+                                 (m.Groups[4].Success
                                      ? "[" + owner.ParseCharacteristics(m.Groups[4].Value, voyeur, ignoreObscurers) +
                                        "]"
                                      : "")
@@ -445,10 +443,10 @@ namespace MudSharp.Form.Characteristics
                     if ((type.Item1 == null) ||
                         type.Item1.IsDefaultValue(owner.GetCharacteristic(type.Item1, voyeur)))
                     {
-                        return owner.ParseCharacteristics(m.Groups[4].Value, voyeur);
+                        return owner.ParseCharacteristics(m.Groups[4].Value, voyeur, ignoreObscurers);
                     }
 
-                    return owner.ParseCharacteristics(m.Groups[3].Value, voyeur);
+                    return owner.ParseCharacteristics(m.Groups[3].Value, voyeur, ignoreObscurers);
                 }
 
                 // Else we just have a "not obscured" regular variable
@@ -457,16 +455,16 @@ namespace MudSharp.Form.Characteristics
                     return m.Groups[0].Value;
                 }
 
-                IObscureCharacteristics obscurer = owner.GetObscurer(type.Item1, voyeur);
+                IObscureCharacteristics obscurer = ignoreObscurers ? null : owner.GetObscurer(type.Item1, voyeur);
 
                 if ((obscurer == null) || ignoreObscurers)
                 {
-                    return !string.IsNullOrEmpty(m.Groups[3].Value)
+                    return m.Groups[3].Success
                         ? owner.ParseCharacteristics(
                             m.Groups[3].Value.Replace("@",
                                                       owner.DescribeCharacteristic(type.Item1, voyeur, type.Item2)), voyeur,
                             ignoreObscurers)
-                        : (string.IsNullOrEmpty(m.Groups[4].Value)
+                        : (!m.Groups[4].Success
                             ? owner.DescribeCharacteristic(type.Item1, voyeur, type.Item2)
                             : "");
                 }
@@ -486,7 +484,7 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                     return "&" + m.Groups[2].Value;
                 }
 
-                switch (m.Groups[2].Value)
+                switch (m.Groups[2].Value.ToLowerInvariant())
                 {
                     case "he":
                         return gender.Subjective();
@@ -536,14 +534,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return tattoos.First(x => x.TattooTemplate.HasSpecialTattooCharacteristicOverride).TattooTemplate.SpecialTattooCharacteristicOverride(false).SpaceIfNotEmpty();
                             }
 
-                            if (tattoos.Count > 3 || tattoos.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
-                            {
-                                return character.Gameworld.GetStaticString("TattooSDescInked").SpaceIfNotEmpty();
-                            }
-
                             if (tattoos.Count > 10 || tattoos.Count(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)) > 2)
                             {
                                 return character.Gameworld.GetStaticString("TattooSDescHeavilyInked").SpaceIfNotEmpty();
+                            }
+
+                            if (tattoos.Count > 3 || tattoos.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
+                            {
+                                return character.Gameworld.GetStaticString("TattooSDescInked").SpaceIfNotEmpty();
                             }
                         }
 
@@ -562,14 +560,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return tattoos.First(x => x.Tattoo.HasSpecialTattooCharacteristicOverride).Tattoo.SpecialTattooCharacteristicOverride(false).SpaceIfNotEmpty();
                             }
 
-                            if (tattoos.Count > 3 || tattoos.Any(x => x.Tattoo.Size >= (chargen.SelectedRace?.ModifiedSize(x.Bodypart) ?? x.Bodypart.Size)))
-                            {
-                                return chargen.Gameworld.GetStaticString("TattooSDescInked").SpaceIfNotEmpty();
-                            }
-
                             if (tattoos.Count > 10 || tattoos.Count(x => x.Tattoo.Size >= (chargen.SelectedRace?.ModifiedSize(x.Bodypart) ?? x.Bodypart.Size)) > 2)
                             {
                                 return chargen.Gameworld.GetStaticString("TattooSDescHeavilyInked").SpaceIfNotEmpty();
+                            }
+
+                            if (tattoos.Count > 3 || tattoos.Any(x => x.Tattoo.Size >= (chargen.SelectedRace?.ModifiedSize(x.Bodypart) ?? x.Bodypart.Size)))
+                            {
+                                return chargen.Gameworld.GetStaticString("TattooSDescInked").SpaceIfNotEmpty();
                             }
                         }
                         return string.Empty;
@@ -588,14 +586,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return tattoos.First(x => x.TattooTemplate.HasSpecialTattooCharacteristicOverride).TattooTemplate.SpecialTattooCharacteristicOverride(true).SpaceIfNotEmpty();
                             }
 
-                            if (tattoos.Count > 3 || tattoos.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
-                            {
-                                return character.Gameworld.GetStaticString("TattooSDescInkedWith").SpaceIfNotEmpty();
-                            }
-
                             if (tattoos.Count > 10 || tattoos.Count(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)) > 2)
                             {
                                 return character.Gameworld.GetStaticString("TattooSDescHeavilyInkedWith").SpaceIfNotEmpty();
+                            }
+
+                            if (tattoos.Count > 3 || tattoos.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
+                            {
+                                return character.Gameworld.GetStaticString("TattooSDescInkedWith").SpaceIfNotEmpty();
                             }
                         }
                         chargen = owner as ICharacterTemplate;
@@ -613,14 +611,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return tattoos.First(x => x.Tattoo.HasSpecialTattooCharacteristicOverride).Tattoo.SpecialTattooCharacteristicOverride(true).SpaceIfNotEmpty();
                             }
 
-                            if (tattoos.Count > 3 || tattoos.Any(x => x.Tattoo.Size >= (chargen.SelectedRace?.ModifiedSize(x.Bodypart) ?? x.Bodypart.Size)))
-                            {
-                                return chargen.Gameworld.GetStaticString("TattooSDescInkedWith").SpaceIfNotEmpty();
-                            }
-
                             if (tattoos.Count > 10 || tattoos.Count(x => x.Tattoo.Size >= (chargen.SelectedRace?.ModifiedSize(x.Bodypart) ?? x.Bodypart.Size)) > 2)
                             {
                                 return chargen.Gameworld.GetStaticString("TattooSDescHeavilyInkedWith").SpaceIfNotEmpty();
+                            }
+
+                            if (tattoos.Count > 3 || tattoos.Any(x => x.Tattoo.Size >= (chargen.SelectedRace?.ModifiedSize(x.Bodypart) ?? x.Bodypart.Size)))
+                            {
+                                return chargen.Gameworld.GetStaticString("TattooSDescInkedWith").SpaceIfNotEmpty();
                             }
                         }
                         return string.Empty;
@@ -639,14 +637,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(false).SpaceIfNotEmpty();
                             }
 
-                            if (scars.Count > 3 || scars.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
-                            {
-                                return character.Gameworld.GetStaticString("ScarSDescAdditionScarred").SpaceIfNotEmpty();
-                            }
-
                             if (scars.Count > 10 || scars.Count(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)) > 2)
                             {
                                 return character.Gameworld.GetStaticString("ScarSDescAdditionHeavilyScarred").SpaceIfNotEmpty();
+                            }
+
+                            if (scars.Count > 3 || scars.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
+                            {
+                                return character.Gameworld.GetStaticString("ScarSDescAdditionScarred").SpaceIfNotEmpty();
                             }
                         }
 
@@ -663,14 +661,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(false).SpaceIfNotEmpty();
                             }
 
-                            if (scars.Count > 3)
-                            {
-                                return chargen.Gameworld.GetStaticString("ScarSDescAdditionScarred").SpaceIfNotEmpty();
-                            }
-
                             if (scars.Count > 10)
                             {
                                 return chargen.Gameworld.GetStaticString("ScarSDescAdditionHeavilyScarred").SpaceIfNotEmpty();
+                            }
+
+                            if (scars.Count > 3)
+                            {
+                                return chargen.Gameworld.GetStaticString("ScarSDescAdditionScarred").SpaceIfNotEmpty();
                             }
                         }
                         return string.Empty;
@@ -689,14 +687,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(true).SpaceIfNotEmpty();
                             }
 
-                            if (scars.Count > 3 || scars.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
-                            {
-                                return character.Gameworld.GetStaticString("ScarSDescAdditionScarredWith").SpaceIfNotEmpty();
-                            }
-
                             if (scars.Count > 10 || scars.Count(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)) > 2)
                             {
                                 return character.Gameworld.GetStaticString("ScarSDescAdditionHeavilyScarredWith").SpaceIfNotEmpty();
+                            }
+
+                            if (scars.Count > 3 || scars.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
+                            {
+                                return character.Gameworld.GetStaticString("ScarSDescAdditionScarredWith").SpaceIfNotEmpty();
                             }
                         }
 
@@ -713,14 +711,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                                 return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(true).SpaceIfNotEmpty();
                             }
 
-                            if (scars.Count > 3)
-                            {
-                                return chargen.Gameworld.GetStaticString("ScarSDescAdditionScarredWith").SpaceIfNotEmpty();
-                            }
-
                             if (scars.Count > 10)
                             {
                                 return chargen.Gameworld.GetStaticString("ScarSDescAdditionHeavilyScarredWith").SpaceIfNotEmpty();
+                            }
+
+                            if (scars.Count > 3)
+                            {
+                                return chargen.Gameworld.GetStaticString("ScarSDescAdditionScarredWith").SpaceIfNotEmpty();
                             }
                         }
                         return string.Empty;

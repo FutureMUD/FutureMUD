@@ -61,6 +61,12 @@ public class EmoteOutput : Output, IEmoteOutput
         Style = rhs.Style;
         Visibility = rhs.Visibility;
         AllValid = rhs.AllValid;
+        if (rhs._assignedEmotes.IsValueCreated)
+        {
+            _assignedEmotes = new Lazy<Dictionary<IPerceiver, IEmote>>(
+                () => new Dictionary<IPerceiver, IEmote>(rhs._assignedEmotes.Value));
+            _ = _assignedEmotes.Value;
+        }
     }
 
     public IEmote DefaultEmote { get; protected set; }
@@ -69,7 +75,9 @@ public class EmoteOutput : Output, IEmoteOutput
 
     public bool AllValid { get; protected set; }
 
-    public override string RawString => DefaultEmote.ErrorMessage;
+    public override string RawString => string.IsNullOrEmpty(DefaultEmote.ErrorMessage)
+        ? DefaultEmote.RawText
+        : DefaultEmote.ErrorMessage;
 
     public void AssignEmote(string emote, bool forceSourceInclusion = false, params IPerceiver[] perceivers)
     {
@@ -109,16 +117,9 @@ public class EmoteOutput : Output, IEmoteOutput
             flags = PerceiveIgnoreFlags.TrueDescription | PerceiveIgnoreFlags.IgnoreLiquidsAndFlags;
         }
 
-        if (_assignedEmotes.IsValueCreated && _assignedEmotes.Value.ContainsKey(perceiver))
-        {
-            returnText = _assignedEmotes.Value[perceiver].ParseFor(perceiver, flags);
-            fixedFormat = _assignedEmotes.Value[perceiver].FixedFormat;
-        }
-        else
-        {
-            returnText = DefaultEmote.ParseFor(perceiver, flags);
-            fixedFormat = DefaultEmote.FixedFormat;
-        }
+        var emote = GetEmoteFor(perceiver);
+        returnText = emote.ParseFor(perceiver, flags);
+        fixedFormat = emote.FixedFormat;
 
         if (Style.HasFlag(OutputStyle.Explosion))
         {
@@ -138,6 +139,14 @@ public class EmoteOutput : Output, IEmoteOutput
         return Flags.HasFlag(OutputFlags.WideWrap)
             ? returnText.Wrap(perceiver?.LineFormatLength ?? 120)
             : returnText.Wrap(perceiver?.InnerLineFormatLength ?? 80);
+    }
+
+    protected IEmote GetEmoteFor(IPerceiver perceiver)
+    {
+        return perceiver != null && _assignedEmotes.IsValueCreated &&
+               _assignedEmotes.Value.TryGetValue(perceiver, out var emote)
+            ? emote
+            : DefaultEmote;
     }
 
     public Difficulty NoticeCheckDifficulty { get; set; } = Difficulty.Normal;

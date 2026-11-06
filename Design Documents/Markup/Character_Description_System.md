@@ -205,6 +205,8 @@ $eyecolour[@ eyes][eyes hidden behind $]
 $hairstyle[@ hair][hair hidden beneath *]
 ```
 
+An explicitly empty branch stays empty: `$eyecolour[][hidden]` emits nothing when visible. This differs from `$eyecolour`, which emits the value directly. Deferred `$!var` forms preserve empty brackets for the later parsing pass. Nested branches retain the caller's `ignoreObscurers` setting.
+
 ### Default-or-Missing Checks
 
 Form:
@@ -235,6 +237,8 @@ Behaviour:
 - if the owner has the characteristic definition's ordinary bodypart count, the `normal` branch is used
 - otherwise up to three alternate branches can be matched by exact count or inclusive range
 - if no alternate matches, the normal branch is reused
+
+An exact alternate such as `[1:one eye]` matches only one bodypart. It does not match larger counts. Numeric bounds outside the supported integer range are ignored rather than throwing during rendering.
 
 Branch placeholders inside `%var[...]`:
 
@@ -316,6 +320,8 @@ Important distinction:
 
 They are not interchangeable.
 
+Helper variable names are case-insensitive, including in chargen previews (`&HE` and `&he` both expand to the subjective pronoun).
+
 ### Tattoo and Scar Helpers
 
 The tattoo and scar helpers are generated dynamically from visible marks.
@@ -325,6 +331,8 @@ Current runtime:
 - checks visible and exposed tattoos or scars
 - honours special overrides where a tattoo/scar template provides one
 - otherwise falls back to stock summary strings such as "scarred", "heavily scarred", "inked", and their `with...` variants
+
+Special overrides take precedence over stock summaries. Heavy summaries take precedence over lighter summaries: more than ten marks, or more than two marks at least as large as their bodyparts, select the heavy runtime summary. Chargen tattoos use the same size/count criteria; chargen scars use the count thresholds.
 
 Tattoo text copying requires a visible readable item exposing the source writing; closed or sealed items are excluded, and missing or inaccessible writing IDs produce the same refusal. Copying visible writing without understanding it remains supported with the existing skill penalty. Tattoo proposal and completion output resolves text separately for each recipient, preserving language, script and skill checks and showing the alternate text to viewers who cannot read it.
 

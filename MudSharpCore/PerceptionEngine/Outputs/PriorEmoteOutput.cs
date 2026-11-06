@@ -19,19 +19,12 @@ public class PriorEmoteOutput : AppendableEmoteOutput
     public override string ParseFor(IPerceiver perceiver)
     {
         StringBuilder sb = new();
-        if (!string.IsNullOrWhiteSpace(EmoteToAppend.RawText))
+        if (!string.IsNullOrWhiteSpace(EmoteToAppend?.RawText))
         {
             sb.Append(EmoteToAppend.ParseFor(perceiver) + ", ");
         }
 
-        if (_assignedEmotes.IsValueCreated && _assignedEmotes.Value.ContainsKey(perceiver))
-        {
-            sb.Append(_assignedEmotes.Value[perceiver].ParseFor(perceiver));
-        }
-        else
-        {
-            sb.Append(DefaultEmote.ParseFor(perceiver));
-        }
+        sb.Append(GetEmoteFor(perceiver).ParseFor(perceiver));
 
         return sb.ToString().NormaliseOutputSentences().Fullstop();
     }

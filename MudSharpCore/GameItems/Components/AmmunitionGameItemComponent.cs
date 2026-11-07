@@ -580,23 +580,27 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         };
 
         damageMultiplier *= _currentFireContext?.DamageMultiplier ?? 1.0;
-        double finalDamage = (AmmoType.DamageProfile.DamageExpression.EvaluateWith(actor, values: profileValues) +
-                          weaponType.DamageBonusExpression.EvaluateWith(actor, weaponType.FireTrait,
-                              values: weaponBonusValues) +
+		var ammoDamage = AmmoType.DamageProfile.DamageExpression.EvaluateWith(actor, values: profileValues);
+		var weaponDamage = weaponType.DamageBonusExpression.EvaluateWith(actor, weaponType.FireTrait, values: weaponBonusValues);
+		var secondaryProfileValues = profileValues.Append(("damage", (object)ammoDamage)).ToArray();
+		var secondaryWeaponValues = weaponBonusValues.Append(("damage", (object)weaponDamage)).ToArray();
+        double finalDamage = (ammoDamage + weaponDamage +
                           payloadEffects.Sum(x => x.ProjectileDamageBonus)) * damageMultiplier;
-        double finalPain = (AmmoType.DamageProfile.PainExpression.EvaluateWith(actor, values: profileValues) +
+        double finalPain = (AmmoType.DamageProfile.PainExpression.EvaluateWith(actor, values: secondaryProfileValues) +
+						   (weaponType.PainBonusExpression?.EvaluateWith(actor, weaponType.FireTrait, values: secondaryWeaponValues) ?? 0.0) +
                            payloadEffects.Sum(x => x.ProjectilePainBonus)) * damageMultiplier;
-        double finalStun = (AmmoType.DamageProfile.StunExpression.EvaluateWith(actor, values: profileValues) +
+        double finalStun = (AmmoType.DamageProfile.StunExpression.EvaluateWith(actor, values: secondaryProfileValues) +
+						   (weaponType.StunBonusExpression?.EvaluateWith(actor, weaponType.FireTrait, values: secondaryWeaponValues) ?? 0.0) +
                            payloadEffects.Sum(x => x.ProjectileStunBonus)) * damageMultiplier;
         return new Damage
         {
             ActorOrigin = actor,
             ToolOrigin = Parent,
             Bodypart = bodypart,
-            DamageAmount = finalDamage,
+            DamageAmount = Math.Max(0.0, finalDamage),
             DamageType = AmmoType.DamageProfile.DamageType,
-            PainAmount = finalPain,
-            StunAmount = finalStun,
+            PainAmount = Math.Max(0.0, finalPain),
+            StunAmount = Math.Max(0.0, finalStun),
             LodgableItem = ammo
         };
     }

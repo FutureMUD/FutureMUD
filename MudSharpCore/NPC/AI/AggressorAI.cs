@@ -28,8 +28,10 @@ public class AggressorAI : ArtificialIntelligenceBase
     }
 
     public IFutureProg WillAttackProg { get; set; }
+    public uint? AcquisitionRange { get; private set; }
     public string EngageDelayDiceExpression { get; set; }
     public string EngageEmote { get; set; }
+	public IFutureProg? OpeningProg { get; private set; }
     public override bool CountsAsAggressive => true;
 
     public static void RegisterLoader()
@@ -41,14 +43,18 @@ public class AggressorAI : ArtificialIntelligenceBase
     private void LoadFromXml(XElement root)
     {
         WillAttackProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WillAttackProg").Value));
+        AcquisitionRange = uint.TryParse(root.Element("AcquisitionRange")?.Value, out var range) ? range : null;
         EngageDelayDiceExpression = root.Element("EngageDelayDiceExpression").Value;
-        EngageEmote = root.Element("EngageEmote")?.Value;
+        EngageEmote = root.Element("EngageEmote")?.Value ?? string.Empty;
+		OpeningProg = Gameworld.FutureProgs.Get((long?)root.Element("OpeningProg") ?? 0);
     }
 
     protected override string SaveToXml()
     {
         return new XElement("Definition",
             new XElement("WillAttackProg", WillAttackProg.Id),
+			new XElement("OpeningProg", OpeningProg?.Id ?? 0),
+            AcquisitionRange.HasValue ? new XElement("AcquisitionRange", AcquisitionRange.Value) : null,
             new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
             new XElement("EngageEmote", new XCData(EngageEmote))
         ).ToString();
@@ -85,7 +91,7 @@ public class AggressorAI : ArtificialIntelligenceBase
             }
         }
 
-        uint range = (uint)ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+        uint range = AcquisitionRange ?? (uint)ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
                             .Where(x => x.IsReadied || x.CanReady(ch))
                             .Select(x => (int)x.WeaponType.DefaultRangeInRooms)
                             .DefaultIfEmpty(0).Max();
@@ -149,7 +155,7 @@ public class AggressorAI : ArtificialIntelligenceBase
     {
 		if (PsychicDispositionQuery.ForDecision(aggressor, target) > 0 && target.CombatTarget != aggressor) return false;
         return PredatorAIHelpers.CheckForAttack(aggressor, target, WillAttackProg, EngageDelayDiceExpression,
-            EngageEmote, false);
+            EngageEmote, false, OpeningProg);
     }
 
     /// <inheritdoc />
@@ -160,12 +166,16 @@ public class AggressorAI : ArtificialIntelligenceBase
         sb.AppendLine($"Type: {AIType.ColourValue()}");
         sb.AppendLine();
         sb.AppendLine($"Will Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Opening Prog: {OpeningProg?.MXPClickableFunctionName() ?? "None".ColourCommand()}");
         sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
+        sb.AppendLine($"Acquisition Range: {(AcquisitionRange is { } range ? range.ToString("N0", actor).ColourValue() + " rooms" : "Readied weapon range")}");
         sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");
         return sb.ToString();
     }
 
     protected override string TypeHelpText => @"	#3attackprog <prog>#0 - sets the prog that controls target selection
+	#3openingprog <boolean(character,character) prog|none>#0 - attempts an authored opener; true consumes normal engagement
+	#3range <rooms|weapon>#0 - sets acquisition radius (0 = local; weapon = legacy weapon range)
 	#3emote <emote>#0 - sets the engage emote ($0 = npc, $1 = target)
 	#3emote clear#0 - clears the emote (won't do an emote when engaging)
 	#3delay <dice expression>#0 - sets the delay (in ms) before attacking when spotting a target";
@@ -174,6 +184,36 @@ public class AggressorAI : ArtificialIntelligenceBase
     {
         switch (command.PopForSwitch())
         {
+			case "openingprog":
+				if (command.SafeRemainingArgument.EqualTo("none")) OpeningProg = null;
+				else
+				{
+					var opening = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+						ProgVariableTypes.Boolean, [ProgVariableTypes.Character, ProgVariableTypes.Character]).LookupProg();
+					if (opening is null) return false;
+					OpeningProg = opening;
+				}
+				Changed = true;
+				actor.OutputHandler.Send("Opening prog updated.");
+				return true;
+            case "range":
+            case "acquisitionrange":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("Specify an acquisition range in rooms, or weapon for the weapon-derived range.");
+                    return false;
+                }
+                var text = command.PopSpeech();
+                if (text.EqualTo("weapon")) AcquisitionRange = null;
+                else if (uint.TryParse(text, out var range)) AcquisitionRange = range;
+                else
+                {
+                    actor.OutputHandler.Send("The acquisition range must be a nonnegative whole number of rooms, or weapon.");
+                    return false;
+                }
+                Changed = true;
+                actor.OutputHandler.Send("The acquisition range is now " + (AcquisitionRange is { } value ? value.ToString("N0", actor).ColourValue() + " rooms." : "derived from readied weapons."));
+                return true;
             case "attackprog":
                 return BuildingCommandAttackProg(actor, command);
             case "emote":

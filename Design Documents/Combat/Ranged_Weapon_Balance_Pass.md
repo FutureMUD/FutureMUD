@@ -36,6 +36,10 @@ Actorful loading, readying, unloading, firing and unjamming validate manual capa
 
 ### Damage and protection
 
+Ranged weapon types optionally supply additive pain and stun expressions, alongside their existing HP bonus expression. Builders use `pain <formula>` and `stun <formula>` in the ranged-type editor. Both default to zero, including upgraded records. Load, clone and save preserve them. Ammunition, thrown weapons and power-pack projectiles all consume these optional channels; power packs retain their existing pain/stun multipliers as well.
+
+The secondary expressions receive the normal shot variables and `damage`, the weapon's already-evaluated HP contribution before magical payloads and final multipliers. Ammunition's own pain/stun expressions similarly receive `damage` as its own already-evaluated projectile HP contribution, excluding the launcher. This permits correlated channels without rerolling the damage expression. Thrown weapons continue to use their ranged damage expression alone, not an additional melee attack roll. The standard `degree` name is supported on thrown/beam paths while the historical `degrees` alias remains valid. Final physical channels are floored at zero so signed bonuses cannot create negative wounds.
+
 Projectile damage remains ammunition-led, allowing the same firearm to produce materially different results with ball, armour-piercing, expanding, buckshot, slug, or explosive ammunition. Impact-fused ammunition now resolves its detonator after the normal projectile impact, including when the projectile lodges in a target. High-explosive artillery projectiles are therefore not destroyed before their bomb component resolves.
 
 The live target matrix covered unarmoured humans, medieval armour, soft modern armour, hard modern armour, deer, elephant, dragon, and additional mythical fixtures. Handgun fire was strongly lethal to humans but ineffective against the dragon in the recorded 20-shot trial. The 105 mm howitzer broke the dragon's left patella, detonated, knocked it down, and rendered it unconscious while the server remained stable through the resulting high-volume wound processing.

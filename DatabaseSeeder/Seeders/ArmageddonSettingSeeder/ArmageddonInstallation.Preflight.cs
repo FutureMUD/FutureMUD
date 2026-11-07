@@ -165,6 +165,11 @@ public static partial class ArmageddonInstallation
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{
+			if (record.Module == ArmageddonPlayerHealth.RegisterModule)
+			{
+				if (!ArmageddonPlayerHealth.ValidRegisterRecord(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid player-health register ownership.");
+				continue;
+			}
 			if (record.Module == ArmageddonSettingLinks.Module)
 			{
 				if (!ArmageddonSettingLinks.Valid(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid typed setting reference ownership.");
@@ -195,6 +200,7 @@ public static partial class ArmageddonInstallation
 				nameof(ForagableProfile) => record.RevisionNumber is not null && db.ForagableProfiles.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
 				nameof(ChargenRole) => db.ChargenRoles.Any(x => x.Id == record.LogicalId),
 				nameof(TraitExpression) => db.TraitExpressions.Any(x => x.Id == record.LogicalId),
+				nameof(HealthStrategy) => db.HealthStrategies.Any(x => x.Id == record.LogicalId),
 				nameof(TraitDefinition) => db.TraitDefinitions.Any(x => x.Id == record.LogicalId),
 				nameof(Improver) => db.Improvers.Any(x => x.Id == record.LogicalId),
 				nameof(FutureProg) => db.FutureProgs.Any(x => x.Id == record.LogicalId),

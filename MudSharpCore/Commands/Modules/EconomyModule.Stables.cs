@@ -448,7 +448,8 @@ Administrators can also use:
 			{
 				stay.Id.ToString("N0", actor),
 				stay.Mount?.HowSeen(actor, colour: false) ?? $"#{stay.MountId:N0}",
-				stay.OriginalOwnerName?.GetName(NameStyle.FullName) ?? $"#{stay.OriginalOwnerId:N0}",
+				stay.OriginalOwnerName?.GetName(NameStyle.FullName) ??
+					(stay.OriginalOwnerId is { } ownerId ? $"#{ownerId:N0}" : "Unknown"),
 				stay.Status.DescribeEnum(),
 				stable.Currency.Describe(stay.AmountOwing, CurrencyDescriptionPatternType.ShortDecimal)
 			},

@@ -13,6 +13,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 {
     public RangedWeaponTypeDefinition(Models.RangedWeaponTypes type, IFuturemud gameworld)
     {
+		Gameworld = gameworld;
         _id = type.Id;
         _name = type.Name;
         Classification = (WeaponClassification)type.Classification;
@@ -29,6 +30,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         AmmunitionLoadType = (AmmunitionLoadType)type.AmmunitionLoadType;
         AccuracyBonusExpression = new TraitExpression(type.AccuracyBonusExpression, gameworld);
         DamageBonusExpression = new TraitExpression(type.DamageBonusExpression, gameworld);
+		PainBonusExpression = new TraitExpression(string.IsNullOrWhiteSpace(type.PainBonusExpression) ? "0" : type.PainBonusExpression, gameworld);
+		StunBonusExpression = new TraitExpression(string.IsNullOrWhiteSpace(type.StunBonusExpression) ? "0" : type.StunBonusExpression, gameworld);
         LoadCombatDelay = type.LoadDelay;
         ReadyCombatDelay = type.ReadyDelay;
         FireCombatDelay = type.FireDelay;
@@ -52,6 +55,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         Classification = rhs.Classification;
         CoverBonus = rhs.CoverBonus;
         DamageBonusExpression = new TraitExpression(rhs.DamageBonusExpression.OriginalFormulaText, Gameworld);
+		PainBonusExpression = new TraitExpression(rhs.PainBonusExpression.OriginalFormulaText, Gameworld);
+		StunBonusExpression = new TraitExpression(rhs.StunBonusExpression.OriginalFormulaText, Gameworld);
         DefaultRangeInRooms = rhs.DefaultRangeInRooms;
         FireableInMelee = rhs.FireableInMelee;
         FireTrait = rhs.FireTrait;
@@ -88,6 +93,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         RequiresFreeHandToReady = true;
         AlwaysRequiresTwoHandsToWield = false;
         MinimumFiringPosition = type.MinimumFiringPosition();
+		PainBonusExpression = new TraitExpression("0", Gameworld);
+		StunBonusExpression = new TraitExpression("0", Gameworld);
         switch (type)
         {
             case RangedWeaponType.Thrown:
@@ -216,6 +223,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         dbitem.Classification = (int)Classification;
         dbitem.CoverBonus = CoverBonus;
         dbitem.DamageBonusExpression = DamageBonusExpression.OriginalFormulaText;
+		dbitem.PainBonusExpression = PainBonusExpression.OriginalFormulaText;
+		dbitem.StunBonusExpression = StunBonusExpression.OriginalFormulaText;
         dbitem.DefaultRangeInRooms = (int)DefaultRangeInRooms;
         dbitem.FireableInMelee = FireableInMelee;
         dbitem.FireTraitId = FireTrait.Id;
@@ -253,6 +262,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
     public double CoverBonus { get; set; }
 
     public ITraitExpression DamageBonusExpression { get; set; }
+	public ITraitExpression PainBonusExpression { get; set; }
+	public ITraitExpression StunBonusExpression { get; set; }
 
     public uint DefaultRangeInRooms { get; set; }
 
@@ -357,6 +368,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
         sb.AppendLine();
         sb.AppendLine($"Accuracy Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
         sb.AppendLine($"Damage Bonus: {DamageBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
+		sb.AppendLine($"Pain Bonus: {PainBonusExpression.OriginalFormulaText.ColourCommand()}");
+		sb.AppendLine($"Stun Bonus: {StunBonusExpression.OriginalFormulaText.ColourCommand()}");
 
         return sb.ToString();
     }
@@ -385,6 +398,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 	#3firedelay <seconds>#0 - sets the delay after firing
 	#3accuracy <formula>#0 - sets the formula for accuracy bonus with the weapon
 	#3damage <formula>#0 - sets the formula for damage bonus with the weapon
+	#3pain <formula>#0 - sets the additive pain formula (default 0)
+	#3stun <formula>#0 - sets the additive stun formula (default 0)
 
 For the accuracy formula you can use the following parameters:
 
@@ -401,7 +416,8 @@ For the damage formula you can use the following parameters:
 	#6inmelee#0 - 1 if being fired in melee, or 0 otherwise
 	#6pointblank#0 - 1 if fired point blank, or 0 otherwise
 	#6degree#0 - the opposed outcome degree between 0 (marginal) and 5 (total)
-	#6variable#0 - the character's current value of the fire skill";
+	#6variable#0 - the character's current value of the fire skill
+	#6damage#0 - evaluated weapon HP contribution, available to pain/stun formulas";
     public bool BuildingCommand(ICharacter actor, StringStack ss)
     {
         switch (ss.PopForSwitch())
@@ -460,11 +476,39 @@ For the damage formula you can use the following parameters:
             case "damage":
             case "damagebonus":
                 return BuildingCommandDamageBonus(actor, ss);
+			case "pain":
+			case "painbonus":
+				return BuildingCommandSecondaryDamage(actor, ss, false);
+			case "stun":
+			case "stunbonus":
+				return BuildingCommandSecondaryDamage(actor, ss, true);
             default:
                 actor.OutputHandler.Send(BuildingCommandHelpText.SubstituteANSIColour());
                 return false;
         }
     }
+
+	private bool BuildingCommandSecondaryDamage(ICharacter actor, StringStack ss, bool stun)
+	{
+		var channel = stun ? "stun" : "pain";
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"What formula should determine this weapon's {channel} bonus?");
+			return false;
+		}
+		var formula = ss.SafeRemainingArgument;
+		var expression = new TraitExpression(formula, Gameworld);
+		if (expression.HasErrors())
+		{
+			actor.OutputHandler.Send(expression.Error);
+			return false;
+		}
+		if (stun) StunBonusExpression = expression;
+		else PainBonusExpression = expression;
+		Changed = true;
+		actor.OutputHandler.Send($"The {channel} bonus formula is now {formula.ColourCommand()}.");
+		return true;
+	}
 
     private bool BuildingCommandDamageBonus(ICharacter actor, StringStack ss)
     {

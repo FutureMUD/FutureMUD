@@ -56,6 +56,35 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
         return new XElement("Definition", new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0)).ToString();
     }
 
+	private Damage BuildThrownDamage(ICharacter actor, IPerceiver target, IBodypart bodypart,
+		OpposedOutcome defenseOutcome, IReadOnlyList<IMagicProjectilePayloadEffect> payloadEffects)
+	{
+		var shotValues = new (string Name, object Value)[]
+		{
+			("quality", (int)Parent.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
+			("degree", (int)defenseOutcome.Degree), ("degrees", (int)defenseOutcome.Degree),
+			("range", actor.DistanceBetween(target, 10)), ("inmelee", actor.MeleeRange ? 1 : 0),
+			("pointblank", ReferenceEquals(actor, target) ? 1 : 0)
+		};
+		var weaponDamage = _prototype.RangedWeaponType.DamageBonusExpression.EvaluateWith(actor,
+			_prototype.RangedWeaponType.FireTrait, values: shotValues);
+		var secondaryValues = shotValues.Append(("damage", (object)weaponDamage)).ToArray();
+		return new Damage
+        {
+            ActorOrigin = actor,
+            ToolOrigin = Parent,
+            Bodypart = bodypart,
+            DamageAmount = Math.Max(0.0, weaponDamage + payloadEffects.Sum(x => x.ProjectileDamageBonus)),
+            DamageType = _prototype.MeleeWeaponType.Attacks.FirstMax(x => x.Weighting).Profile.DamageType,
+            PainAmount = Math.Max(0.0, (_prototype.RangedWeaponType.PainBonusExpression?.EvaluateWith(actor,
+				_prototype.RangedWeaponType.FireTrait, values: secondaryValues) ?? 0.0) + payloadEffects.Sum(x => x.ProjectilePainBonus)),
+            StunAmount = Math.Max(0.0, (_prototype.RangedWeaponType.StunBonusExpression?.EvaluateWith(actor,
+				_prototype.RangedWeaponType.FireTrait, values: secondaryValues) ?? 0.0) + payloadEffects.Sum(x => x.ProjectileStunBonus)),
+            LodgableItem = Parent
+        };
+
+	}
+
     #region Implementation of IRangedWeapon
 
     public bool CanBeAimedAtSelf => false;
@@ -311,23 +340,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
                 if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
                 if (applies && Parent.EffectsOfType<IMagicProjectilePayloadEffect>().Contains(payload)) payloadEffects.Add(payload);
             }
-            Damage damage = new()
-            {
-                ActorOrigin = actor,
-                ToolOrigin = Parent,
-                Bodypart = bodypart,
-                DamageAmount =
-                    _prototype.RangedWeaponType.DamageBonusExpression.EvaluateWith(actor,
-                        _prototype.RangedWeaponType.FireTrait,
-                        values: [("quality", (int)Parent.Quality +
-                                             (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
-                            ("degrees", (int)defenseOutcome.Degree), ("range", actor.DistanceBetween(target, 10))]) +
-                    payloadEffects.Sum(x => x.ProjectileDamageBonus),
-                DamageType = _prototype.MeleeWeaponType.Attacks.FirstMax(x => x.Weighting).Profile.DamageType,
-                PainAmount = payloadEffects.Sum(x => x.ProjectilePainBonus),
-                StunAmount = payloadEffects.Sum(x => x.ProjectileStunBonus),
-                LodgableItem = Parent
-            };
+			var damage = BuildThrownDamage(actor, target, bodypart, defenseOutcome, payloadEffects);
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
             UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
                 (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));

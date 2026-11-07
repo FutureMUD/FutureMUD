@@ -6,6 +6,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Magic;
+using MudSharp.Framework;
 
 #nullable enable
 namespace MudSharp.RPG.Checks;
@@ -33,16 +34,23 @@ public sealed class CheckEvaluationContext(double maximumBaseTargetNumber, Diffi
 		CheckType checkType, params (string Parameter, object value)[] parameters) =>
 		EvaluateCore(expression, owner, trait, checkType, parameters);
 
+	/// <summary>Supplies the check target to read-only target-trait bindings.</summary>
+	public static double EvaluateForCheck(ITraitExpression expression, IHaveTraits owner, ITraitDefinition? trait,
+		CheckType checkType, IPerceivable? target, params (string Parameter, object value)[] parameters) =>
+		EvaluateCore(expression, owner, trait, checkType, parameters, target as IHaveTraits);
+
 	public static double Evaluate(ITraitExpression expression, IHaveTraits owner, ITraitDefinition? trait,
 		params (string Parameter, object value)[] parameters) => EvaluateCore(expression, owner, trait, null, parameters);
 
 	private static double EvaluateCore(ITraitExpression expression, IHaveTraits owner, ITraitDefinition? trait,
-		CheckType? checkType, (string Parameter, object value)[] parameters)
+		CheckType? checkType, (string Parameter, object value)[] parameters, IHaveTraits? target = null)
 	{
-		var value = expression.EvaluateWith(owner, trait, values: parameters);
+		var value = expression.Parameters?.Values.Any(x => x.IsTarget) == true
+			? expression.EvaluateWithTarget(owner, target!, trait, values: parameters)
+			: expression.EvaluateWith(owner, trait, values: parameters);
 		var character = owner as ICharacter ?? (owner as IBody)?.Actor;
 		if (character is not null && (trait?.TraitType is TraitType.Skill or TraitType.TheoreticalSkill or TraitType.DerivedSkill ||
-			expression.Parameters?.Values.Any(x => x?.Trait?.TraitType is TraitType.Skill or TraitType.TheoreticalSkill or TraitType.DerivedSkill) == true))
+			expression.Parameters?.Values.Any(x => x is { IsTarget: false } && x.Trait?.TraitType is TraitType.Skill or TraitType.TheoreticalSkill or TraitType.DerivedSkill) == true))
 			value += character.CombinedEffectsOfType<IMindImpairmentEffect>().Where(x => x.Applies()).Sum(x => x.SkillUseModifier);
 		if (parameters.FirstOrDefault(x => x.Parameter == FlatBonusParameterName).value is double bonus && double.IsFinite(bonus))
 			value += bonus;

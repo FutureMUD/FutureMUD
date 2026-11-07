@@ -38,7 +38,9 @@ Unless a section explicitly calls out both paths, the numerical tables below des
 ## Core Runtime Order
 For ordinary external stock-human hits, the runtime order is:
 
-`attack damage -> worn armour -> magical armour -> racial natural armour -> bodypart natural armour -> equipment physical absorption -> flat damage protection -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
+`attack damage -> worn armour -> magical armour -> racial natural armour -> bodypart natural armour -> equipment physical absorption -> permanent effect physical absorption -> flat damage protection -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
+
+Equipment physical absorption and `IPhysicalDamageAbsorptionEffect` use the same native post-armour physical packet filter. Each reduces both damage and stun by a flat amount, clamped at zero; pain, shock and nonphysical damage types are unchanged. The permanent effect is saved on the character and is intended for reusable script-controlled NPC profiles. `addphysicalabsorptioneffect(character, amount)` sets its value idempotently; zero removes it. It applies in addition to worn equipment absorption and before `IDamageProtectionEffect` multipliers.
 
 Intrinsic `Equipment Bonuses` components can supply additive `PhysicalAbsorption`. After armour, the summed amount reduces mechanical damage and stun independently, clamped at zero. The external/inward pair is adjusted once before the existing protection multipliers; recursive injury routing does not repeat it. Nonphysical packets, pain/shock, damage origins, mutation guards and exposure/transfer metadata retain their existing semantics. Unlike armour it does not suffer item damage or transform damage types. Direct HP/stun costs bypass this incoming-hit pipeline.
 

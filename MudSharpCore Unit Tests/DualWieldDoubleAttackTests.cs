@@ -19,12 +19,90 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
 using MudSharp.Health;
+using MudSharp.Effects;
+using MudSharp.Effects.Interfaces;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass, DoNotParallelize]
 public class DualWieldDoubleAttackTests
 {
+	private sealed class AdditionalMulti(IReadOnlyList<ICombatMove> moves, IReadOnlyList<ICharacter> targets) : MultiTargetCombatMove(moves, targets);
+
+	[TestMethod]
+	public void AdditionalAction_MultiTargetWrapperDoesNotRequestOrChargeAnUnusedDefence()
+	{
+		using var f = new Fixture(); f.Actor.SetupGet(x => x.Effects).Returns([]);
+		var response = new Mock<ICombatMove>(); response.SetupGet(x => x.Assailant).Returns(f.Target.Object);
+		response.SetupGet(x => x.StaminaCost).Returns(2); response.Setup(x => x.UsesStaminaWithResult(It.IsAny<CombatMoveResult>())).Returns(true);
+		var children = Enumerable.Range(0, 2).Select(_ => new Mock<ICombatMove>()).ToArray();
+		foreach (var child in children)
+		{
+			child.SetupGet(x => x.Assailant).Returns(f.Actor.Object); child.SetupGet(x => x.BaseDelay).Returns(1);
+			child.Setup(x => x.ResolveMove(response.Object)).Returns(new CombatMoveResult { MoveWasSuccessful = true });
+			f.Target.Setup(x => x.ResponseToMove(child.Object, f.Actor.Object)).Returns(response.Object);
+		}
+		var wrapper = new AdditionalMulti(children.Select(x => x.Object).ToArray(), [f.Target.Object, f.Target.Object]);
+		f.Target.Setup(x => x.ResponseToMove(wrapper, f.Actor.Object)).Throws(new InvalidOperationException("The wrapper does not use a separate response."));
+		Assert.IsTrue(f.Combat.TryResolveAdditionalAction(f.Actor.Object, wrapper));
+		Assert.AreEqual(46, f.DefenceStamina, "One defence payment for each actual child action.");
+	}
+
+	[TestMethod]
+	public void AdditionalAction_EndsEffectsWithTheOrdinaryMoveLifecycle()
+	{
+		using var f = new Fixture();
+		var effect = new Mock<IEffect>(); var ending = effect.As<IEndOnCombatMove>();
+		ending.Setup(x => x.CausesToEnd(It.IsAny<ICombatMove>())).Returns(true);
+		var removed = false; f.Actor.SetupGet(x => x.Effects).Returns([effect.Object]);
+		f.Actor.Setup(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), true)).Callback<Predicate<IEffect>, bool>((predicate, _) => removed = predicate(effect.Object));
+		var move = new Mock<ICombatMove>(); move.SetupGet(x => x.Assailant).Returns(f.Actor.Object);
+		move.SetupGet(x => x.CharacterTargets).Returns(Array.Empty<ICharacter>());
+		move.Setup(x => x.ResolveMove(It.IsAny<ICombatMove>())).Returns(new CombatMoveResult());
+		Assert.IsTrue(f.Combat.TryResolveAdditionalAction(f.Actor.Object, move.Object));
+		Assert.IsTrue(removed);
+	}
+
+	[TestMethod]
+	public void AdditionalAction_UsesNativeResponseAndStaminaWithoutSchedulingAnotherTurn()
+	{
+		using var f = new Fixture();
+		f.Actor.SetupGet(x => x.Effects).Returns([]);
+		var move = new Mock<ICombatMove>();
+		move.SetupGet(x => x.Assailant).Returns(f.Actor.Object);
+		move.SetupGet(x => x.CharacterTargets).Returns([f.Target.Object]);
+		move.SetupGet(x => x.StaminaCost).Returns(3);
+		move.SetupGet(x => x.BaseDelay).Returns(1);
+		move.Setup(x => x.UsesStaminaWithResult(It.IsAny<CombatMoveResult>())).Returns(true);
+		var response = new Mock<ICombatMove>();
+		response.SetupGet(x => x.Assailant).Returns(f.Target.Object);
+		response.SetupGet(x => x.StaminaCost).Returns(2);
+		response.Setup(x => x.UsesStaminaWithResult(It.IsAny<CombatMoveResult>())).Returns(true);
+		f.Target.Setup(x => x.ResponseToMove(move.Object, f.Actor.Object)).Returns(response.Object);
+		move.Setup(x => x.ResolveMove(response.Object)).Returns(new CombatMoveResult { MoveWasSuccessful = true, RecoveryDifficulty = Difficulty.Easy });
+		f.Combat.OnUse = () => Assert.IsFalse(f.Combat.TryResolveAdditionalAction(f.Actor.Object, move.Object), "Recursive extra actions must not resolve.");
+		var schedules = f.Scheduler.Invocations.Count;
+		Assert.IsTrue(f.Combat.TryResolveAdditionalAction(f.Actor.Object, () =>
+		{
+			Assert.IsFalse(f.Combat.TryResolveAdditionalAction(f.Actor.Object, () => throw new InvalidOperationException("Recursive validation must never run.")));
+			return move.Object;
+		}));
+		Assert.AreEqual(47, f.Stamina); Assert.AreEqual(48, f.DefenceStamina);
+		Assert.AreEqual(1, f.Combat.Uses); Assert.AreEqual(1, f.Combat.Scores);
+		Assert.AreEqual(schedules, f.Scheduler.Invocations.Count, "The ordinary attack clock is untouched.");
+		Assert.AreEqual(1, f.Combat.Recoveries, "Only the separate additional-action recovery is calculated.");
+	}
+
+	[TestMethod]
+	public void AdditionalAction_ParalysedActorCannotBypassNativeCombatStoppers()
+	{
+		using var f = new Fixture();
+		f.Actor.SetupGet(x => x.State).Returns(CharacterState.Paralysed);
+		var move = new Mock<ICombatMove>(); move.SetupGet(x => x.Assailant).Returns(f.Actor.Object);
+		Assert.IsFalse(f.Combat.TryResolveAdditionalAction(f.Actor.Object, move.Object));
+		move.Verify(x => x.ResolveMove(It.IsAny<ICombatMove>()), Times.Never);
+	}
+
 	private sealed class LearningProbe(MudSharp.Models.Check model, IFuturemud world) : StandardCheck(model, world)
 	{
 		public CheckOutcome Finish(ICharacter actor) => HandleStandardCheck(actor, null!, Outcome.MajorPass, Difficulty.Normal, null!);

@@ -97,7 +97,7 @@ public class StaticCheck : FrameworkItem, ICheck
             : difficulty.StageUp((int)(-1 * bonus / StandardCheck.BonusesPerDifficultyLevel));
 
         // Roll versus target number w/difficulty mods, store outcome
-        return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
+        return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters) + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
     }
 
     public CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
@@ -105,11 +105,11 @@ public class StaticCheck : FrameworkItem, ICheck
         TraitUseType traitUseType = TraitUseType.Theoretical,
         params (string Parameter, object value)[] customParameters)
     {
-        if (TargetNumberExpression.Parameters.Any() &&
+        if (TargetNumberExpression.Parameters.Values.Any(x => !x.IsTarget) &&
             ((FailIfTraitMissing == FailIfTraitMissingType.FailIfAnyMissing &&
-              TargetNumberExpression.Parameters.Values.Any(x => !checkee.HasTrait(x.Trait))) ||
+              TargetNumberExpression.Parameters.Values.Any(x => !x.IsTarget && !checkee.HasTrait(x.Trait))) ||
              (FailIfTraitMissing == FailIfTraitMissingType.FailIfAllMissing &&
-              TargetNumberExpression.Parameters.Values.All(x => !checkee.HasTrait(x.Trait)))))
+              TargetNumberExpression.Parameters.Values.Where(x => !x.IsTarget).All(x => !checkee.HasTrait(x.Trait)))))
         {
             return new CheckOutcome { Outcome = Outcome.MajorFail };
         }
@@ -139,7 +139,7 @@ public class StaticCheck : FrameworkItem, ICheck
             : difficulty.StageUp((int)(-1 * bonus / StandardCheck.BonusesPerDifficultyLevel));
 
         // Roll versus target number w/difficulty mods, store outcome
-        double tnexp = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
+        double tnexp = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters);
         if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] >= 100.0)
         {
             if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters).StageUp(1)] >= 100.0)
@@ -219,7 +219,7 @@ public class StaticCheck : FrameworkItem, ICheck
 
         double bonus = bonuses.Sum(x => x.Item2);
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters);
         foreach (Difficulty evaluatedDifficulty in _allDifficulties)
         {
             Difficulty originalDifficulty = evaluatedDifficulty;

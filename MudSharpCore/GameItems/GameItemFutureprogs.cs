@@ -19,6 +19,7 @@ public partial class GameItem
             { "name", ProgVariableTypes.Text },
             { "type", ProgVariableTypes.Text },
             { "proto", ProgVariableTypes.Number },
+            { "basecost", ProgVariableTypes.Number },
             { "quantity", ProgVariableTypes.Number },
             { "holder", ProgVariableTypes.Character },
             { "wearer", ProgVariableTypes.Character },
@@ -109,6 +110,7 @@ public partial class GameItem
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "proto", "The ID number of the proto this item was loaded from" },
+            { "basecost", "The prototype's base currency cost, before shop markups, condition or quantity adjustments" },
             { "quantity", "The quantity of this item in the stack. 1 if not stacked" },
             { "holder", "The character who is holding this item, if any" },
             { "wearer", "The character who is wearing this item, if any" },
@@ -224,6 +226,8 @@ public partial class GameItem
         {
             case "proto":
                 return new NumberVariable(Prototype.Id);
+            case "basecost":
+                return new NumberVariable(Prototype.CostInBaseCurrency);
 
             case "quantity":
                 return new NumberVariable(Quantity);

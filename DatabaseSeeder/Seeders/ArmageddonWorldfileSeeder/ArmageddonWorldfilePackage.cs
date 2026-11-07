@@ -44,6 +44,7 @@ internal sealed class ArmageddonWorldfilePackage
 	public JsonElement[] Crafts { get; init; } = [];
 	public string[] Skills { get; init; } = [];
 	public ArmWorldPhysical[] PhysicalGenerators { get; init; } = [];
+	public ArmWorldCombatCalibration? CombatCalibration { get; init; }
 	public JsonElement[] SupportFiles { get; init; } = [];
 	public string Fingerprint { get; private set; } = "";
 	public JsonElement Manifest { get; private set; }
@@ -75,7 +76,7 @@ internal sealed class ArmageddonWorldfilePackage
 		Resets = Resets.Where(x => !ExcludedPlaygroundZones.Contains(x.Zone)).ToArray(),
 		Races = Races, Guilds = Guilds, Subguilds = Subguilds, Clans = Clans, Shops = Shops,
 		Forage = Forage, Crafts = Crafts, Skills = Skills, PhysicalGenerators = PhysicalGenerators,
-		SupportFiles = SupportFiles
+		SupportFiles = SupportFiles, CombatCalibration = CombatCalibration
 	};
 
 	private static ArmageddonWorldfilePackage? TryRead()
@@ -109,6 +110,8 @@ internal sealed class ArmageddonWorldfilePackage
 }
 
 internal sealed record ArmWorldSource(string Path, int Line);
+internal sealed record ArmWorldCombatCalibration(int[] AgilityReaction, int[] StrengthAgePermille, int[] AgilityAgePermille,
+	int[]? StrengthDamage = null, int[]? EnduranceAgePermille = null, int[]? EnduranceSaves = null);
 internal sealed record ArmWorldExtra(string Keyword, string Description);
 internal sealed record ArmWorldExit(int Direction, int Destination, string Keyword, int Flags, int Key, string Description);
 internal sealed record ArmWorldZone(ArmWorldSource Source, int Index, int Header, string Name, int[] Fields, string[] Privileges);
@@ -137,4 +140,5 @@ internal sealed record ArmWorldShop(ArmWorldSource Source, int Index, int[] Prod
 	int Keeper, int OpenHour, int CloseHour, JsonElement[] Repairs);
 internal sealed record ArmWorldForage(ArmWorldSource Source, string Category, string Sector, int Vnum, int Shares, int Rarity);
 internal sealed record ArmWorldDistribution(string Expression, int Minimum, int Maximum, double Mean);
-internal sealed record ArmWorldPhysical(int Race, ArmWorldDistribution Height, ArmWorldDistribution Weight);
+internal sealed record ArmWorldPhysical(int Race, ArmWorldDistribution Height, ArmWorldDistribution Weight,
+	Dictionary<int, double>? SizeBonuses = null);

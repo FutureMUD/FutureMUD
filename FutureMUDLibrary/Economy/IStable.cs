@@ -32,7 +32,8 @@ public enum StableLedgerEntryType
 	AccountCharge = 4,
 	AccountPayment = 5,
 	ManagerRelease = 6,
-	Redeemed = 7
+	Redeemed = 7,
+	OpeningBalance = 8
 }
 
 public enum StableAccountAuthorisationFailureReason
@@ -69,7 +70,7 @@ public interface IStableStay : IFrameworkItem, ISaveable
 	long MountId { get; }
 	long? MountInstanceId { get; }
 	ICharacter? OriginalOwner { get; }
-	long OriginalOwnerId { get; }
+	long? OriginalOwnerId { get; }
 	IPersonalName? OriginalOwnerName { get; }
 	MudDateTime LodgedDateTime { get; }
 	MudDateTime LastDailyFeeDateTime { get; set; }
@@ -145,12 +146,13 @@ public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem, IEmploymen
 	void SetProprietor(ICharacter actor, bool isProprietor);
 	void ToggleIsTrading();
 	decimal QuoteLodgeFee(ICharacter mount, ICharacter owner);
-	decimal QuoteDailyFee(ICharacter mount, ICharacter owner);
+	decimal QuoteDailyFee(ICharacter mount, ICharacter? owner);
 	void AssessFees(IStableStay stay);
 	void AssessAllActiveStays();
 	(bool Truth, string Reason) CanUseStable(ICharacter actor, ICharacter? mount);
 	(bool Truth, string Reason) CanLodge(ICharacter actor, ICharacter mount);
 	IStableStay Lodge(ICharacter actor, ICharacter mount);
+	IStableStay RegisterStay(ICharacter mount, ICharacter? originalOwner, decimal initialAmountOwing = 0m);
 	(bool Truth, string Reason) CanRedeem(ICharacter actor, IStableTicket ticket);
 	void Redeem(ICharacter actor, IStableStay stay);
 	void Release(ICharacter actor, IStableStay stay, bool waiveFees);

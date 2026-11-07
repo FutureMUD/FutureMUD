@@ -182,7 +182,7 @@ public sealed class PlannerMap
 
 	public static PlannerMap FromProject(PlannerProject project)
 	{
-		if (project.SchemaVersion != PlannerProject.CurrentSchemaVersion)
+		if (project.SchemaVersion is not (1 or PlannerProject.CurrentSchemaVersion))
 		{
 			throw new InvalidDataException($"Planner project schema {project.SchemaVersion} is not supported.");
 		}

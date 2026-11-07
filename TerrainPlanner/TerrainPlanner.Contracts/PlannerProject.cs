@@ -4,7 +4,7 @@ namespace TerrainPlanner.Contracts;
 
 public sealed class PlannerProject
 {
-	public const int CurrentSchemaVersion = 1;
+	public const int CurrentSchemaVersion = 2;
 
 	public int SchemaVersion { get; init; } = CurrentSchemaVersion;
 	public string Name { get; set; } = "Untitled terrain plan";
@@ -13,10 +13,19 @@ public sealed class PlannerProject
 	public string? CatalogueRevision { get; set; }
 	[JsonPropertyName("cells")]
 	public List<PlannerProjectRoom> Rooms { get; set; } = [];
+	public List<PlannerProjectLevel>? Levels { get; set; }
+	public List<StackTransport.TerrainStackLink> VerticalLinks { get; set; } = [];
 	public Dictionary<long, string> TagColours { get; set; } = [];
 
 	[JsonIgnore]
 	public int RoomCount => checked(Width * Height);
+}
+
+public sealed class PlannerProjectLevel
+{
+	public int Z { get; set; }
+	[JsonPropertyName("cells")]
+	public List<PlannerProjectRoom> Rooms { get; set; } = [];
 }
 
 public sealed class PlannerProjectRoom

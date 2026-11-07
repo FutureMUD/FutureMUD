@@ -54,13 +54,16 @@ public class RoomExit : IRoomExit
         List<RoomLayer> layers = new();
         IEnumerable<RoomLayer> originLayers = Origin.Terrain(null).TerrainLayers;
 
-        if (OutboundDirection == CardinalDirection.Up)
+        // Climb/fall shafts join the terrain boundaries. Ordinary stairs and ramps
+        // connect matching layers just like other walkable cardinal exits.
+        var joinsTerrainBoundaries = IsClimbExit || IsFlyExit || IsFallExit;
+        if (OutboundDirection == CardinalDirection.Up && joinsTerrainBoundaries)
         {
             layers.Add(originLayers.HighestLayer());
             return layers;
         }
 
-        if (OutboundDirection == CardinalDirection.Down)
+        if (OutboundDirection == CardinalDirection.Down && joinsTerrainBoundaries)
         {
             layers.Add(originLayers.LowestLayer());
             return layers;

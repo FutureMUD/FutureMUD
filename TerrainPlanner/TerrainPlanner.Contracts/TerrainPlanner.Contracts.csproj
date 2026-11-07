@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);TERRAIN_PLANNER</DefineConstants>
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="BrotliSharpLib" Version="0.3.3" />
+		<Compile Include="../../FutureMUDLibrary/Construction/Autobuilder/TerrainStackPayload.cs" Link="TerrainStackPayload.cs" />
+	</ItemGroup>
 </Project>

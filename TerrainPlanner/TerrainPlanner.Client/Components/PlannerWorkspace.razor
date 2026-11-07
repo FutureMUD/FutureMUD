@@ -1,3 +1,4 @@
+@using TerrainPlanner.Contracts.StackTransport
 @implements IAsyncDisposable
 @inject PlannerApiClient Api
 @inject BrowserStorage Storage
@@ -109,7 +110,7 @@
 				<div class="canvas-frame">
 					<canvas @ref="_canvas" class="terrain-canvas" tabindex="0" aria-label="Terrain and feature tag grid"></canvas>
 					<div class="canvas-overlay">
-						<span>@_map.Width × @_map.Height</span>
+						<span>@_map.Width × @_map.Height · Z=@_z</span>
 						@if (_selectedCell is not null)
 						{
 							<span>Cell (@_selectedCell.X, @_selectedCell.Y)</span>
@@ -120,7 +121,21 @@
 
 			<aside class="inspector-panel @(_inspectorOpen ? "open" : "")">
 				<section>
-					<p class="eyebrow">Grid</p>
+					<p class="eyebrow">Z levels</p>
+					<label>Editing level<select value="@_z" @onchange="SelectZAsync">
+						@foreach (var level in _stack.Levels)
+						{
+							<option value="@level.Key">Z=@level.Key · @level.Value.Rooms.Count(room => room.TerrainId != 0) rooms</option>
+						}
+					</select></label>
+					<label>New / target Z<input type="number" @bind="_targetZ" /></label>
+					<div class="button-grid">
+						<button class="quiet-button" @onclick="() => AddLevelAsync(false)">Add empty level</button>
+						<button class="quiet-button" @onclick="() => AddLevelAsync(true)">Duplicate level</button>
+						<button class="quiet-button" @onclick="RenumberLevelAsync">Renumber level</button>
+						<button class="danger-button" disabled="@(_stack.Levels.Count == 1)" @onclick="DeleteLevelAsync">Delete level</button>
+					</div>
+					<p class="eyebrow">Grid · resize all levels</p>
 					<div class="dimension-row">
 						<label>Width<input type="number" min="1" max="200" @bind="_requestedWidth" /></label>
 						<label>Height<input type="number" min="1" max="200" @bind="_requestedHeight" /></label>
@@ -130,7 +145,7 @@
 						<button class="quiet-button" @onclick="() => ClearLayerAsync(PlannerLayer.Terrain)">Clear terrain</button>
 						<button class="quiet-button" @onclick="() => ClearLayerAsync(PlannerLayer.Tags)">Clear tags</button>
 						<button class="quiet-button" disabled="@(_selectedCell is null)" @onclick="ClearSelectionAsync">Clear selection</button>
-						<button class="danger-button" @onclick="ClearMapAsync">Clear map</button>
+						<button class="danger-button" @onclick="ClearMapAsync">Clear this level</button>
 					</div>
 				</section>
 
@@ -142,7 +157,7 @@
 					}
 					else
 					{
-						<h3>(@_selectedCell.X, @_selectedCell.Y)</h3>
+						<h3>(@_selectedCell.X, @_selectedCell.Y, @_z)</h3>
 						<p>@TerrainName(_selectedCell.TerrainId)</p>
 						<div class="cell-tags">
 							@foreach (var tagId in _selectedCell.TagIds)
@@ -154,6 +169,26 @@
 								<span class="unresolved">Unknown tag ID @feature</span>
 							}
 						</div>
+						@foreach (var offset in new[] { -1, 0 })
+						{
+							if (offset == -1 && _z == int.MinValue) continue;
+							var lowerZ = _z + offset;
+							if (!_stack.HasConnection(_selectedCell.X, _selectedCell.Y, lowerZ)) continue;
+							var link = _stack.GetLink(_selectedCell.X, _selectedCell.Y, lowerZ);
+							<fieldset>
+								<legend>@(offset == 0 ? "Up" : "Down") · Z=@lowerZ ↔ Z=@((long)lowerZ + 1)</legend>
+								<label><input type="checkbox" checked="@link.Suppressed" @onchange="e => EditLinkAsync(link with { Suppressed = (bool)e.Value! })" /> Suppress connection</label>
+								<label><input type="checkbox" checked="@link.Climb" @onchange="e => EditLinkAsync(link with { Climb = (bool)e.Value! })" /> Climb</label>
+								<label>Difficulty<select value="@link.Difficulty" @onchange="e => EditLinkAsync(link with { Difficulty = int.Parse(e.Value!.ToString()!) })">
+									@for (var difficulty = 0; difficulty <= 10; difficulty++)
+									{
+										<option value="@difficulty">@DifficultyNames[difficulty]</option>
+									}
+								</select></label>
+								<label><input type="checkbox" checked="@link.Fall" @onchange="e => EditLinkAsync(link with { Fall = (bool)e.Value! })" /> Fall toward lower room</label>
+							</fieldset>
+						}
+						<p class="muted">Fall links without climbing require flight to travel upward.</p>
 					}
 				</section>
 
@@ -174,7 +209,16 @@
 				</section>
 
 				<section class="import-export-section">
-					<p class="eyebrow">Import and export</p>
+					<p class="eyebrow">Complete stack export</p>
+					<p>Use <code>room new &lt;area&gt; &lt;room-template&gt; editor</code>, paste the wrapped data, then submit with <code>@@</code>. Cancel with <code>*cancel</code>.</p>
+					<div class="export-actions">
+						<button class="primary-button" disabled="@(_stackExportError is not null || _stackToken.Length >= TerrainStackCodec.SingleTokenLimit)" @onclick="() => CopyStackAsync(false)">Copy token</button>
+						<button class="secondary-button" disabled="@(_stackExportError is not null)" @onclick="() => CopyStackAsync(true)">Copy editor paste</button>
+					</div>
+					@if (_stackExportError is not null) { <p class="form-error">@_stackExportError</p> }
+					else { <p>@_stackToken.Length characters · @_stack.OccupiedCount rooms</p> }
+					<details><summary>Selectable stack export</summary><textarea readonly>@_stackText</textarea></details>
+					<p class="eyebrow">Legacy masks · selected Z=@_z only</p>
 					<div class="export-actions">
 						<button class="primary-button" @onclick="CopyTerrainMaskAsync">Copy terrain mask</button>
 						<button class="secondary-button" @onclick="CopyFeatureMaskAsync">Copy tag-ID mask</button>
@@ -209,9 +253,16 @@
 	[Parameter, EditorRequired] public AuthSession Session { get; set; } = null!;
 	[Parameter, EditorRequired] public EventCallback OnLogout { get; set; }
 
-	private readonly MapHistory _history = new(100);
+	private readonly PlannerStackHistory _history = new();
 	private readonly CancellationTokenSource _lifetime = new();
-	private PlannerMap _map = new(5, 5);
+	private PlannerStack _stack = new(5, 5);
+	private int _z;
+	private int _targetZ = 1;
+	private PlannerMap _map => _stack.Levels[_z];
+	private byte[]? _beforeEdit;
+	private string _stackText = string.Empty;
+	private string? _stackExportError;
+	private string _stackToken = string.Empty;
 	private IReadOnlyList<TerrainCatalogueItem> _terrains = [];
 	private IReadOnlyList<TagCatalogueItem> _tags = [];
 	private IReadOnlyDictionary<long, TerrainCatalogueItem> _terrainById = new Dictionary<long, TerrainCatalogueItem>();
@@ -319,10 +370,11 @@
 		{
 			try
 			{
-				_map = PlannerMap.FromProject(saved);
+				_stack = PlannerStack.FromProject(saved);
+				_z = _stack.Levels.Keys.First();
 				_projectName = saved.Name;
 				_tagColours = saved.TagColours;
-				_projectTagNames = saved.Rooms
+				_projectTagNames = (saved.Levels?.SelectMany(level => level.Rooms) ?? saved.Rooms)
 					.SelectMany(cell => cell.Tags)
 					.GroupBy(tag => tag.Id)
 					.ToDictionary(group => group.Key, group => group.First().Name);
@@ -351,6 +403,7 @@
 			return;
 		}
 
+		_beforeEdit ??= PlannerStackHistory.Capture(_stack);
 		MapChangeSet change;
 		switch (_tool)
 		{
@@ -376,6 +429,7 @@
 				}
 				await UpdateInteractionAsync();
 				StateHasChanged();
+				if (!_strokeActive) _beforeEdit = null;
 				return;
 			default:
 				change = _layer == PlannerLayer.Terrain
@@ -399,6 +453,7 @@
 			return Task.CompletedTask;
 		}
 
+		_beforeEdit ??= PlannerStackHistory.Capture(_stack);
 		_strokeActive = true;
 		_activeStrokeChanges.Clear();
 		return Task.CompletedTask;
@@ -409,7 +464,8 @@
 	{
 		if (_strokeActive && mapVersion == _canvasMapVersion)
 		{
-			_history.Record(MapChangeSet.Merge(_activeStrokeChanges));
+			if (_beforeEdit is not null && _activeStrokeChanges.Any(change => change.HasChanges)) _history.Record(_beforeEdit);
+			_beforeEdit = null;
 			_strokeActive = false;
 			_activeStrokeChanges.Clear();
 			StateHasChanged();
@@ -418,12 +474,13 @@
 	}
 
 	[JSInvokable]
-	public Task HandleCanvasRectangle(long mapVersion, GridCoordinate first, GridCoordinate second) =>
-		mapVersion == _canvasMapVersion
-			? ApplyChangeAsync(_map.PaintRectangle(first, second, _layer,
-				_layer == PlannerLayer.Terrain ? _terrainBrushId : _tagBrushId,
-				_tool != PlannerTool.Erase))
-			: Task.CompletedTask;
+	public Task HandleCanvasRectangle(long mapVersion, GridCoordinate first, GridCoordinate second)
+	{
+		if (mapVersion != _canvasMapVersion) return Task.CompletedTask;
+		_beforeEdit ??= PlannerStackHistory.Capture(_stack);
+		return ApplyChangeAsync(_map.PaintRectangle(first, second, _layer,
+			_layer == PlannerLayer.Terrain ? _terrainBrushId : _tagBrushId, _tool != PlannerTool.Erase));
+	}
 
 	[JSInvokable]
 	public Task SelectCell(long mapVersion, GridCoordinate coordinate)
@@ -449,12 +506,21 @@
 	{
 		if (!change.HasChanges)
 		{
+			if (!_strokeActive) _beforeEdit = null;
 			return;
 		}
-
-		if (recordHistory)
+		if (_stack.OccupiedCount > TerrainStackCodec.MaximumRooms)
 		{
-			_history.Record(change);
+			change.Undo(_map);
+			_operationError = "A stack can contain at most 40,000 occupied rooms.";
+			if (!_strokeActive) _beforeEdit = null;
+			return;
+		}
+		_stack.PruneLinks();
+		if (recordHistory && _beforeEdit is not null)
+		{
+			_history.Record(_beforeEdit);
+			_beforeEdit = null;
 		}
 		await UpdateCanvasCellsAsync(change.Changes.Select(item => _map.RoomAt(item.X, item.Y)));
 		Changed();
@@ -462,20 +528,78 @@
 
 	private async Task UndoAsync()
 	{
-		if (_history.Undo(_map))
-		{
-			await RenderFullMapAsync();
-			Changed();
-		}
+		FinishStroke();
+		if (!_history.CanUndo) return;
+		_stack = _history.Undo(_stack);
+		await RestoredStackAsync();
 	}
 
 	private async Task RedoAsync()
 	{
-		if (_history.Redo(_map))
+		FinishStroke();
+		if (!_history.CanRedo) return;
+		_stack = _history.Redo(_stack);
+		await RestoredStackAsync();
+	}
+
+	private void FinishStroke()
+	{
+		if (_strokeActive && _beforeEdit is not null && _activeStrokeChanges.Any(change => change.HasChanges)) _history.Record(_beforeEdit);
+		_beforeEdit = null;
+		_strokeActive = false;
+		_activeStrokeChanges.Clear();
+	}
+
+	private async Task RestoredStackAsync()
+	{
+		if (!_stack.Levels.ContainsKey(_z)) _z = _stack.Levels.Keys.First();
+		_selectedCell = null;
+		_requestedWidth = _stack.Width;
+		_requestedHeight = _stack.Height;
+		await RenderFullMapAsync();
+		Changed();
+	}
+
+	private async Task MutateStackAsync(Action action)
+	{
+		FinishStroke();
+		var before = PlannerStackHistory.Capture(_stack);
+		try
 		{
-			await RenderFullMapAsync();
-			Changed();
+			action();
+			_history.Record(before);
+			_operationError = null;
+			await RestoredStackAsync();
 		}
+		catch (Exception exception) { _operationError = exception.Message; }
+	}
+
+	private async Task SelectZAsync(ChangeEventArgs args)
+	{
+		FinishStroke();
+		_z = int.Parse(args.Value!.ToString()!, System.Globalization.CultureInfo.InvariantCulture);
+		_selectedCell = null;
+		await RenderFullMapAsync();
+		RefreshExports();
+	}
+
+	private Task AddLevelAsync(bool duplicate) => MutateStackAsync(() =>
+	{
+		_stack.AddLevel(_targetZ, duplicate ? _z : null);
+		_z = _targetZ;
+	});
+	private Task RenumberLevelAsync() => MutateStackAsync(() => { _stack.RenumberLevel(_z, _targetZ); _z = _targetZ; });
+	private async Task DeleteLevelAsync()
+	{
+		if (await JS.InvokeAsync<bool>("confirm", $"Delete all terrain, tags and vertical settings involving Z={_z}?"))
+			await MutateStackAsync(() => _stack.DeleteLevel(_z));
+	}
+	private async Task EditLinkAsync(TerrainStackLink link)
+	{
+		var selected = _selectedCell;
+		await MutateStackAsync(() => _stack.SetLink(link));
+		if (selected is not null) _selectedCell = _map.RoomAt(selected.X, selected.Y);
+		StateHasChanged();
 	}
 
 	private async Task ResizeAsync()
@@ -489,11 +613,7 @@
 				return;
 			}
 
-			_map = _map.Resize(_requestedWidth, _requestedHeight);
-			_history.Clear();
-			_selectedCell = null;
-			await RenderFullMapAsync();
-			Changed();
+			await MutateStackAsync(() => _stack.Resize(_requestedWidth, _requestedHeight));
 		}
 		catch (Exception exception)
 		{
@@ -505,14 +625,16 @@
 	{
 		if (await JS.InvokeAsync<bool>("confirm", $"Clear all {layer.ToString().ToLowerInvariant()} data from this map?"))
 		{
+			_beforeEdit = PlannerStackHistory.Capture(_stack);
 			await ApplyChangeAsync(_map.Clear(layer));
 		}
 	}
 
 	private async Task ClearMapAsync()
 	{
-		if (await JS.InvokeAsync<bool>("confirm", "Clear every terrain and tag from this map?"))
+		if (await JS.InvokeAsync<bool>("confirm", "Clear every terrain and tag from this Z level?"))
 		{
+			_beforeEdit = PlannerStackHistory.Capture(_stack);
 			await ApplyChangeAsync(_map.Clear());
 		}
 	}
@@ -592,10 +714,19 @@
 		_operationError = null;
 		try
 		{
-			action();
-			_history.Clear();
-			await RenderFullMapAsync();
-			Changed();
+			FinishStroke();
+			var candidate = PlannerStack.FromProject(CurrentProject());
+			var original = _stack;
+			_stack = candidate;
+			try
+			{
+				action();
+				if (_stack.OccupiedCount > TerrainStackCodec.MaximumRooms) throw new InvalidDataException("A stack can contain at most 40,000 occupied rooms.");
+				_stack.PruneLinks();
+			}
+			catch { _stack = original; throw; }
+			_history.Record(PlannerStackHistory.Capture(original));
+			await RestoredStackAsync();
 		}
 		catch (Exception exception)
 		{
@@ -646,14 +777,16 @@
 
 	private async Task ImportProjectJsonAsync()
 	{
+		FinishStroke();
 		_operationError = null;
 		try
 		{
 			var project = BrowserStorage.Deserialize<PlannerProject>(_projectJson);
-			_map = PlannerMap.FromProject(project);
+			_stack = PlannerStack.FromProject(project);
+			_z = _stack.Levels.Keys.First();
 			_projectName = project.Name;
 			_tagColours = project.TagColours;
-			_projectTagNames = project.Rooms
+			_projectTagNames = (project.Levels?.SelectMany(level => level.Rooms) ?? project.Rooms)
 				.SelectMany(cell => cell.Tags)
 				.GroupBy(tag => tag.Id)
 				.ToDictionary(group => group.Key, group => group.First().Name);
@@ -717,7 +850,22 @@
 		{
 			_featureMaskText = string.Empty;
 		}
+		try
+		{
+			_stackToken = PlannerStackExport.Encode(_stack.Export(_terrainById.Keys.ToHashSet(), _tagById.Keys.ToHashSet()));
+			_stackText = TerrainStackCodec.WrapForEditor(_stackToken);
+			_stackExportError = null;
+		}
+		catch (Exception exception) { _stackToken = _stackText = string.Empty; _stackExportError = exception.Message; }
 		RefreshProjectJson();
+	}
+
+	private Task CopyStackAsync(bool editor)
+	{
+		RefreshExports();
+		if (_stackExportError is not null) return Task.CompletedTask;
+		if (!editor && _stackToken.Length >= TerrainStackCodec.SingleTokenLimit) return Task.CompletedTask;
+		return CopyAsync(editor ? _stackText : _stackToken, "Terrain stack copied.");
 	}
 
 	private void ScheduleAutosave()
@@ -741,7 +889,7 @@
 		}
 	}
 
-	private PlannerProject CurrentProject() => _map.ToProject(
+	private PlannerProject CurrentProject() => _stack.ToProject(
 		_projectName,
 		$"{_terrainRevision}:{_tagRevision}",
 		ProjectTags(),
@@ -823,6 +971,7 @@
 
 	private async Task RenderFullMapAsync()
 	{
+		FinishStroke();
 		if (_canvasModule is null)
 		{
 			return;
@@ -862,8 +1011,10 @@
 		StateHasChanged();
 	}
 
-	private static CanvasCell ToCanvasCell(PlannerRoom cell) =>
-		new(cell.X, cell.Y, cell.TerrainId, cell.TagIds.ToArray());
+	private CanvasCell ToCanvasCell(PlannerRoom cell) =>
+		new(cell.X, cell.Y, cell.TerrainId, cell.TagIds.ToArray(),
+			_z != int.MaxValue && _stack.HasConnection(cell.X, cell.Y, _z) ? (_stack.GetLink(cell.X, cell.Y, _z).Suppressed ? "×↑" : "↑") : "",
+			_z != int.MinValue && _stack.HasConnection(cell.X, cell.Y, _z - 1) ? (_stack.GetLink(cell.X, cell.Y, _z - 1).Suppressed ? "×↓" : "↓") : "");
 
 	private string TerrainName(long id) => id == 0 ? "Blank — no room" :
 		_terrainById.GetValueOrDefault(id)?.Name ?? $"Missing terrain #{id}";
@@ -885,7 +1036,7 @@
 	private IReadOnlyDictionary<long, TagCatalogueItem> ProjectTags()
 	{
 		var result = new Dictionary<long, TagCatalogueItem>();
-		foreach (var id in _map.Rooms.SelectMany(cell => cell.TagIds).Distinct())
+		foreach (var id in _stack.Rooms.SelectMany(cell => cell.TagIds).Distinct())
 		{
 			var live = _tagById.GetValueOrDefault(id);
 			var name = _projectTagNames.GetValueOrDefault(id, live?.ShortName ?? $"Missing tag #{id}");
@@ -914,6 +1065,7 @@
 		_ => tool.ToString()
 	};
 
+	private static readonly string[] DifficultyNames = ["Automatic", "Trivial", "Extremely Easy", "Very Easy", "Easy", "Normal", "Hard", "Very Hard", "Extremely Hard", "Insane", "Impossible"];
 	private string ProjectStorageKey => $"futuremud:terrainplanner:{Session.AccountId}:project";
 	private string CatalogueStorageKey => $"futuremud:terrainplanner:{Session.AccountId}:catalogue";
 	private void DismissStatus() => _statusMessage = null;
@@ -948,7 +1100,7 @@
 		string? TerrainRevision,
 		string? TagRevision);
 	private sealed record CanvasMapView(long Version, int Width, int Height, CanvasCell[] Cells, CanvasTerrain[] Terrains, CanvasTag[] Tags);
-	private sealed record CanvasCell(int X, int Y, long TerrainId, long[] TagIds);
+	private sealed record CanvasCell(int X, int Y, long TerrainId, long[] TagIds, string Up, string Down);
 	private sealed record CanvasTerrain(long Id, string Colour, string Text);
 	private sealed record CanvasTag(long Id, string Colour);
 }

@@ -1,6 +1,6 @@
 # Terrain Planner and Engine API
 
-Planner project schema 1 retains the browser JSON field `cells` for its location records. The CLR collection is `Rooms`; loading and saving historical projects preserves tile terrain, tags, unresolved features and colours without a schema-version change.
+Planner project schema 2 stores signed Z levels, each with its own `cells` collection, and vertical connection overrides. Schema 1 projects load as Z=0 and save as schema 2, preserving terrain, tag IDs/names, unresolved features and colours. The CLR cell collection remains `Rooms`.
 
 ## Product boundary
 
@@ -35,6 +35,24 @@ Resize preserves the bottom-left overlap. Cropping removes north/east rooms and 
 Catalogues refresh conditionally every five minutes after first load. A cached catalogue keeps local editing available during API/database outages. Open projects preserve their tag IDs and report live renames/deletions; catalogue refresh never silently changes an existing mask.
 
 ## Mask contract
+
+### Stacked plans
+
+All Z levels share XY dimensions. Add empty levels, duplicate terrain/tags into another level, delete levels or renumber them using the Z controls. Negative levels are supported. Painting, filling, inspection and clears affect the selected level; resizing changes all levels and preserves their southwest overlap. Undo/redo covers painting, levels, resizing and vertical settings, with a 100-operation / 32 MiB snapshot budget. Structural changes discard overrides involving endpoints that no longer form adjacent occupied pairs.
+
+Matching occupied XY cells on Z and Z+1 have ordinary up/down exits by default. The selected-cell inspector edits the shared connection from either endpoint: suppress it, require climbing with a difficulty, and/or enable falling toward the lower room. A fall connection without climbing requires flight to travel upward. Holes and missing Z levels are never bridged. Canvas indicators show up/down connections and mark suppressed links with a cross. Level changes invalidate queued canvas events.
+
+Ordinary up/down exits use the terrain layers shared by their endpoints, respecting blocked layers, so ground-level stairs remain available on terrains that also support rooftops or flight. Climb/fall/fly exits retain the highest-layer up / lowest-layer down boundary rules.
+
+Complete-stack export targets only the new `terrain stack` area type. It includes terrain/tag IDs and vertical settings, with no names or UI metadata. Missing catalogue IDs or unresolved historical features block game export but remain preserved in project JSON. Legacy masks below still export/import only the selected Z level.
+
+The shared codec source is owned by `FutureMUDLibrary` and source-linked into planner contracts under a planner namespace, avoiding runtime/database dependencies in WebAssembly and duplicate public CLR type identities in the server. The wire document uses camel-case JSON records with version, width, height, levels, occupied rooms (X/Y/Z, terrain, tags) and vertical overrides (X/Y/lower Z, suppressed, climb, difficulty, fall). `FMS1:` prefixes unpadded Base64url containing a 32-byte SHA-256 digest of the JSON followed by its Brotli-compressed bytes. The digest detects paste damage; it is not authentication. Decoding strips whitespace only and bounds decompression before deserialization. The planner uses the managed BrotliSharpLib encoder at quality 4 because native .NET Brotli compression is unavailable in WebAssembly; the dependency-free shared codec accepts this encoder as a callback, while the engine uses native .NET Brotli decoding. This keeps export available offline without adding an API endpoint.
+
+Use **Copy token** for exports below 8,000 characters, or **Copy editor paste** for wrapped 1,000-character lines. Start `room new <area> [prog=<prog>] <room-template> editor`, paste the wrapped text, and submit `@` on its own line; `*cancel` abandons the import. Do not paste a large token as one line: the connection limit remains 40,960 bytes. Clipboard denial leaves selectable export text available.
+
+Both sides enforce dimensions 1–200, at most 32 levels, 200,000 grid positions, 40,000 occupied rooms, 40,000 connection overrides, 16 MiB decompressed JSON and 4 MiB encoded input (including editor whitespace). The engine validates the entire payload and current terrain/tag IDs before creating rooms. Invalid input and editor cancellation create no rooms. These are separate game rooms connected by exits, not the engine's within-room `RoomLayer` elevations. Planner Z does not assign persistent world XYZ coordinates.
+
+### Existing rectangle masks
 
 Both masks contain exactly `width * height` comma-separated rooms. Entry zero is the south-west `(0,0)` room, entries proceed east across the southern row, and later rows proceed north.
 

@@ -70,6 +70,34 @@ Important rules:
 
 ## Building An Area
 
+### Stacked terrain plans
+
+Create an area template once:
+
+```text
+autoarea edit new "Stacked Terrain" "terrain stack"
+```
+
+In Terrain Planner, add signed Z levels and paint their terrain/tags. All levels share the same width and height. Occupied neighbouring rooms connect north/south/east/west; matching XY positions on adjacent Z levels connect up/down. Select a room to suppress its up/down connection or configure climbing, difficulty and falling toward the lower room. A fall link without climbing requires flight for upward travel. Empty cells and gaps between Z levels are never bridged. Terrain Planner levels create separate game rooms, rather than elevations within one room.
+
+Open an under-design overlay package as usual, then import using a room template from `show autorooms`:
+
+```text
+room new "Stacked Terrain" "My Room Template" FMS1:...
+```
+
+For larger exports, choose **Copy editor paste** and start:
+
+```text
+room new "Stacked Terrain" "My Room Template" editor
+```
+
+Paste the wrapped data, then enter `@` on its own line. Enter `*cancel` to abandon it. Unknown terrain/tag IDs, damaged exports or a changed overlay/template are rejected before rooms are created. Use `prog=<prog>` before the room-template argument for the existing post-processing behaviour. The importer transfers you to the first occupied room ordered by Z, then Y, then X.
+
+Use **Copy token** only below 8,000 characters. Editor exports wrap at 1,000 characters to stay below connection-line limits; compression alone does not guarantee a safe single line. Existing rectangle imports still use the old masks, which apply only to the selected planner Z level. Save project JSON to preserve the full stack for later editing. New projects save as schema 2; old projects load as Z=0.
+
+Stack limits are 200×200 per level, 32 levels, 200,000 total positions and 40,000 occupied rooms. Unresolved catalogue entries can remain in project files but must be resolved before game export. Imported coordinates describe connectivity and do not assign persistent world XYZ.
+
 The main command is:
 
 ```text

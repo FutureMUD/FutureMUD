@@ -90,6 +90,7 @@ This means any new autobuilder type needs four things:
 - `terrain feature rectangle`
 - `room by terrain random features`
 - `cylinder`
+- `terrain stack`
 
 The important distinction is that only the area side knows about masks and exit linking. Only the room side knows about description composition.
 
@@ -106,6 +107,10 @@ The normal execution path is:
 7. Optional `prog=<prog>` arguments can run post-processing against the generated result set.
 
 This is why area templates should stay focused on structure and room templates on presentation.
+
+`terrain stack` takes a room template and one `FMS1:` compressed payload, instead of dimensions and separate masks. All terrain/tag IDs, sizes, coordinates and vertical overrides are preflighted before materialisation. Rooms are created in Z/Y/X order before any exits; east/north/up connections are each created once and registered with both endpoints in the builder's overlay package. Vertical overrides map to the existing exit climb flag/difficulty and `FallRoom` (the lower endpoint). Overrides are saved before adding the exit to either overlay, because overlay registration immediately initialises exit-manager objects from the database. Ordinary links have no climb or fall requirement. Missing levels, holes and suppressed vertical links are skipped. Horizontal diagonals are not supported.
+
+The `room new` / `cell new` command retains its post-processing prog and built-room tracking path. For this type only, `editor` replaces the payload argument to collect wrapped text. Submission rechecks the adopted under-design overlay package, zone and area/room template identities, then decodes and resolves references before executing the same completion path. Validation and progress messages use the editor callback's output handler, since the character's ordinary handler is quiet while editing. Invalid or cancelled input creates nothing. Unexpected failures during room creation retain the normal autobuilder failure semantics; preflight is not a database transaction or a rollback mechanism. Existing area types and their masks are unchanged. The first occupied Z/Y/X room is the transfer destination; persisted world XYZ retains the usual fresh-room defaults.
 
 Rectangle-family area templates initialise the complete cell grid before creating exits. A shared topology pass then
 adds each cardinal connection once and, for diagonal templates, both diagonal families. Terrain-mask holes are skipped

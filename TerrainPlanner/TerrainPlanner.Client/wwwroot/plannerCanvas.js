@@ -136,6 +136,13 @@ function render(state) {
 				context.textBaseline = 'middle';
 				context.fillText(terrain.text, screenX + size / 2, screenY + size / 2, size * .75);
 			}
+			if (size >= 20 * state.ratio && (cell.up || cell.down)) {
+				context.fillStyle = '#ffffff';
+				context.font = `700 ${10 * state.ratio}px ui-sans-serif, system-ui`;
+				context.textAlign = 'left';
+				context.textBaseline = 'top';
+				context.fillText(`${cell.up || ''}${cell.down || ''}`, screenX + 2 * state.ratio, screenY + 2 * state.ratio, size - 4 * state.ratio);
+			}
 			const visibleTags = cell.tagIds.slice(0, 4);
 			const marker = Math.max(3 * state.ratio, Math.min(size * .18, 8 * state.ratio));
 			visibleTags.forEach((id, index) => {

@@ -188,6 +188,7 @@ To see a list of all autobuilder templates, you simply use the #3SHOW AUTOAREAS#
 In order to use an autobuilder template, you must first be editing a room overlay package, and then use the following command:
 
 	#3room new <template id|name> ...#0
+	#3room new <terrain-stack-area> [prog=<prog>] <room-template> <FMS1:token|editor>#0
 
 Each template has its own required arguments, which you will see if you simply type the command above with no further text.
 
@@ -903,6 +904,12 @@ Enter your text below:");
             }
         }
 
+        if (template is MudSharp.Construction.Autobuilder.Areas.AutobuilderAreaTerrainStack stack)
+        {
+            RoomNewTerrainStack(actor, input, stack, afterExecutionProgs);
+            return;
+        }
+
         (bool success, string error, IEnumerable<object> args) = template.TryArguments(actor, input);
         if (!success)
         {
@@ -910,13 +917,20 @@ Enter your text below:");
             return;
         }
 
-        actor.OutputHandler.PrioritySend(
+        ExecuteRoomAreaTemplate(actor, template, args, afterExecutionProgs);
+    }
+
+    private static void ExecuteRoomAreaTemplate(ICharacter actor, IAutobuilderArea template,
+        IEnumerable<object> args, IReadOnlyList<IFutureProg> afterExecutionProgs, IOutputHandler outputHandler = null)
+    {
+        var output = outputHandler ?? actor.OutputHandler;
+        output.PrioritySend(
             $"Launching the {template.Name.Colour(Telnet.Cyan)} autobuilder area template...");
         List<IRoom> results = template.ExecuteTemplate(actor, args).ToList();
-        actor.OutputHandler.PrioritySend($"Generated {results.Count} rooms.");
+        output.PrioritySend($"Generated {results.Count} rooms.");
         foreach (IFutureProg prog in afterExecutionProgs)
         {
-            actor.OutputHandler.PrioritySend(
+            output.PrioritySend(
                 $"Executing the prog {prog.MXPClickableFunctionNameWithId()} on the results.");
             if (prog.MatchesParameters(new[] { ProgVariableTypes.Location }))
             {
@@ -931,7 +945,7 @@ Enter your text below:");
             }
         }
 
-        actor.OutputHandler.PrioritySend("All done. Transferring you to the base room.");
+        output.PrioritySend("All done. Transferring you to the base room.");
         actor.TransferTo(results.FirstOrDefault(x => x != null), RoomLayer.GroundLevel);
         BuiltRooms.AddRange(results.AsEnumerable());
     }

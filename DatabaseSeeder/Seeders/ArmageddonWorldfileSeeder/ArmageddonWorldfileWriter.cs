@@ -91,6 +91,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			if (db.ArmourTypes.Count(x => x.Name == name) != 1) errors.Add($"Combat must supply one armour type named {name}.");
 		foreach (var name in new[] { "Shortbow", "Longbow" })
 			if (db.RangedWeaponTypes.Count(x => x.Name == name) != 1) errors.Add($"Combat must supply one ranged weapon type named {name}.");
+		errors.AddRange(ShieldBindingErrors(db, source));
 		foreach (var name in new[] { "Melee (Auto)", "Brawler (Auto)", "Beast Brawler", "Musketeer (Auto)", "Shielder (Auto)" })
 			if (db.CharacterCombatSettings.Count(x => x.Name == name && x.GlobalTemplate) != 1)
 				errors.Add($"Core combat must supply one selectable combat setting named {name}.");
@@ -296,6 +297,6 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private static void Attach(GameItemProto item, GameItemComponentProto component) =>
 		item.GameItemProtosGameItemComponentProtos.Add(new()
 		{
-			GameItemComponentProtoId = component.Id, GameItemComponentRevision = component.RevisionNumber
+			GameItemComponentProtoId = component.Id, GameItemComponentRevision = component.RevisionNumber, GameItemComponent = component
 		});
 }

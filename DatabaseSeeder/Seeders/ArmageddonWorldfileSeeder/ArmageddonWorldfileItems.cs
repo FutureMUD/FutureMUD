@@ -315,10 +315,22 @@ internal sealed partial class ArmageddonWorldfileWriter
 		}
 		else if (itemType == 9)
 		{
-			var armourId = ResolveArmourType(source, values);
-			var armour = Component($"armour.{source.Vnum}.{variantKey}", "Armour",
-				new XElement("Definition", new XElement("ArmourType", armourId), new XElement("ApplyArmourPenalties", true)));
-			Attach(proto, armour);
+			if (SourceShieldType(source) is { } shieldType)
+			{
+				Attach(proto, GetShieldComponent(shieldType));
+				if (variantKey == "base")
+				{
+					_counts["shield definitions"] = _counts.GetValueOrDefault("shield definitions") + 1;
+					Adapt("shield", source.Vnum, $"Authored shield/buckler uses the installed {shieldType} Shield component, native blocking/condition rules and ordinary hand readiness. Armour points are not a block bonus; no Shield Use training is invented.");
+				}
+			}
+			else
+			{
+				var armourId = ResolveArmourType(source, values);
+				var armour = Component($"armour.{source.Vnum}.{variantKey}", "Armour",
+					new XElement("Definition", new XElement("ArmourType", armourId), new XElement("ApplyArmourPenalties", true)));
+				Attach(proto, armour);
+			}
 		}
 		else if (itemType == 15) Attach(proto, CreateContainerComponent(proto, source, values, variantKey));
 		else if (itemType == 17) Attach(proto, CreateLiquidContainerComponent(proto, source, values, variantKey));

@@ -260,6 +260,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 						forcedWearMask: placement == OutfitTemplateItemPlacement.Worn ? ResetForcedWearMask(sourceItem, reset.Arguments[3]) : 0),
 					WearProfileId = placement == OutfitTemplateItemPlacement.Worn ? SourceEquipmentProfile(sourceItem, reset.Arguments[3], resetOverride: true) : null
 				};
+				item.Placement = ResetShieldPlacement(reset, item.Prototype, item.Placement);
 				if (placement == OutfitTemplateItemPlacement.Container)
 				{
 					var depth = Math.Max(0, reset.Arguments[0]);

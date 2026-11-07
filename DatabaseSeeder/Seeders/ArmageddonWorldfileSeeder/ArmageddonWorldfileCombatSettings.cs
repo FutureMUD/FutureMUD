@@ -93,7 +93,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		var longThrow = wielded.Any(x => SourceThrowRange(CombatSourceItem(x.SourceVnum)) > 0);
 		var hasAmmunition = equipment.Any(x => CombatSourceItem(x.SourceVnum) is { ItemType: 5 } ammo &&
 			(ammo.Flags[1] & ((1 << 9) | (1 << 21))) != 0);
-		var armed = wielded.Any(x => x.Prototype.GameItemProtosGameItemComponentProtos.Any(y => y.GameItemComponent.Type is "MeleeWeapon" or "ThrownWeapon"));
+		var armed = wielded.Any(x => x.Prototype.GameItemProtosGameItemComponentProtos.Any(y => y.GameItemComponent.Type is "MeleeWeapon" or "ThrownWeapon" or "Shield"));
 		var role = launcher && hasAmmunition ? "ranged" : longThrow ? "throw" : armed ? "melee" : "natural";
 		var setting = NpcCombatSetting(role, (source.Flags[0] & 2) != 0, IsHumanoidCombatRace(race));
 		Record("combat.assignment." + templateId, "NpcCombatSettingAssignment", setting.Id, null,

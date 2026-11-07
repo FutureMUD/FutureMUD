@@ -534,6 +534,11 @@ When you add or change an event that AI or hooks may consume:
 Introduce a new event only when an existing event family cannot express the behavior cleanly. The engine already has many narrowly named events; adding more should be deliberate.
 
 ## Practical Advice for AI Authors
+
+`CharacterCombatAttackResolved` (166) fires on an attacker after an ordinary melee/natural attack action has resolved while combat continues and the current opponent survives. Parameters are `attacker`, `target`, and boolean `successful`; a miss still fires with false. A multi-hit action produces one notification, rather than one per strike. Authored additional actions do not fire it. A hook can explicitly call `performcombataction(actor, target, command)` to attempt an NPC-usable manual action, or pass a numeric auxiliary-action ID instead of command text. Numeric selection reuses native race/action admission without creating a player command. Native validation, response, stamina and move-ending effects apply. Recovery is separate from the scheduled ordinary turn; recursive additional actions and combat-blocked actors are refused. This is an explicit extra-action mechanism, not the default NPC combat policy.
+
+Pure queries `hasblindnesseffect(character)`, `hassilenceeffect(character)`, `hasparalysiseffect(character)` and `haspausedaieffect(character)` expose the corresponding native status contracts without requiring a spell-parent effect. Imported controller hooks explicitly check possession and AI pause; ordinary hooks retain their existing ability to fire while AI is paused.
+
 - Start from `show event <event>` before implementing a new `HandleEvent(...)` branch.
 - Keep `HandlesEvent(...)` narrow so NPC heartbeat subscriptions stay intentional.
 - Prefer hook/prog solutions for tiny local reactions and dedicated AI classes for ongoing behavior.

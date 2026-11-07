@@ -27,7 +27,8 @@ public sealed record MagicCastingSupportGrant(Guid Key, long TraitId, double Ope
 
 public sealed record MagicCastingAdmission(Guid Key, long SpellId, long? TraitId, bool Starting,
 	int MinimumGrade, int MaximumGrade, IReadOnlyList<MagicCastingPrerequisite> Prerequisites,
-	double? OpeningSkill = null, double? RawSkillCap = null, bool CapRelativeProficiency = false)
+	double? OpeningSkill = null, double? RawSkillCap = null, bool CapRelativeProficiency = false,
+	int? InitialControlledGrade = null)
 {
 	public double RequiredProficiency(ControlledSpellGrade grade) => CapRelativeProficiency
 		? grade.MinimumProficiency * RawSkillCap!.Value / 100.0

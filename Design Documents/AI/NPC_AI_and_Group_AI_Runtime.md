@@ -15,6 +15,9 @@ This is the primary AI reference. The companion document [Event_System_for_AI_an
 
 ## Scope
 
+AggressorAI optionally accepts `openingprog <boolean(character,character) prog|none>`. It runs at delayed engagement time after native engagement admission. True consumes the normal engagement step; false falls back to native engagement if the actor has not already joined combat, changed body/location/layer, or lost engagement permission. XML `OpeningProg` defaults to zero; save/load and clone preserve it. Use this for authored native opening commands without adding a polling AI or altering the target-selection prog.
+
+
 `ClanSentryAI` is an auxiliary departure observer. Configure its clan, cardinal directions, two-argument alert format and optional hide attempt through `ai ... set clan|direction|format|hide`. It reports only visible outsiders leaving the sentry's room while the sentry is conscious and out of combat. Reports go directly and privately to loaded conscious members of the configured clan; they are not public room output. The definition stores configuration only, with no shared mutable per-NPC state.
 
 Prog-targeted pathing AIs treat an unset or missing pathing-enabled prog as disabled. This applies to fresh builder defaults and legacy saved zero or stale prog IDs, including SemiAggressive and TrackingAggressor AIs. A configured prog retains its existing boolean decision.

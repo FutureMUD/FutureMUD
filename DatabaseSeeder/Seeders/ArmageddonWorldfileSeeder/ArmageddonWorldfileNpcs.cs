@@ -322,8 +322,10 @@ internal sealed partial class ArmageddonWorldfileWriter
 				}
 				skills[link.AttributeId] = Math.Clamp(statValue, 1, 100);
 			}
+			var plannedSpells = NpcSavedCombatSpells(source, _source.Skills).Select(x => x.SourceIndex).ToHashSet();
 			foreach (var entry in ApplyNpcSavedSkills(skills, source.Skills, _source.Skills, skillsByName, _willpowerSkill?.Id))
-				Adapt("npc skill", source.Vnum, $"Source skill index {entry.Index} ({entry.Name ?? "unknown"}) has no installed trait mapping; original value {entry.Value} retained in provenance.");
+				if (!plannedSpells.Contains(entry.Index))
+					Adapt("npc skill", source.Vnum, $"Source skill index {entry.Index} ({entry.Name ?? "unknown"}) has no installed trait mapping; original value {entry.Value} retained in provenance.");
 			ApplyNpcRacialSkills(skills, source.Identity[6], skillsByName);
 			ApplyNpcCombatRatings(source, skills);
 			ApplyNpcDamageProfile(source, sourceRace, skills);

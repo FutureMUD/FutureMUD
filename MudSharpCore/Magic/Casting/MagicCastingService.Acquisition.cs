@@ -61,10 +61,10 @@ public sealed partial class MagicCastingService
 		// Persist authorisation before opening the skill. A retry repairs a missing skill after a failed native save;
 		// native skill presence can never serve as an implicit grant after a failed acquisition write.
 		RecordSkillCap(target, c, admission, existing is null
-			? new(owner.Id, spellId, 1, spell.GradeProfile!.Version, _clock(), provenance, DateTime.UnixEpoch, 0) : null);
+			? new(owner.Id, spellId, admission.InitialControlledGrade ?? 1, spell.GradeProfile!.Version, _clock(), provenance, DateTime.UnixEpoch, 0) : null);
 		if (!owner.HasTrait(trait)) { owner.AddTrait(trait, admission.OpeningSkill ?? spell.GradeProfile!.OpeningSkill); Flush(target); }
 		if (existing is not null) return new(false, true, "Already acquired; proficiency is retained.");
-		return new(true, true, "Spell acquired at controlled grade 1.");
+		return new(true, true, $"Spell acquired at controlled grade {admission.InitialControlledGrade ?? 1}.");
 	}
 
 	public MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason)

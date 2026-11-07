@@ -24,6 +24,20 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AggressorAcquisitionRangeTests
 {
+	[TestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void OpeningProg_ConsumesOrFallsBackToNativeEngagement(bool handled)
+	{
+		var actor = new Mock<ICharacter>(); var target = new Mock<ICharacter>(); var body = new Mock<IBody>();
+		actor.SetupGet(x => x.Body).Returns(body.Object); actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		target.SetupGet(x => x.State).Returns(CharacterState.Awake); body.SetupGet(x => x.WieldedItems).Returns(new List<IGameItem>());
+		actor.Setup(x => x.CanEngage(target.Object)).Returns(true);
+		var prog = new Mock<IFutureProg>(); prog.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(handled);
+		PredatorAIHelpers.EngageTarget(actor.Object, target.Object, "", prog.Object);
+		actor.Verify(x => x.Engage(target.Object, false, false), handled ? Times.Never : Times.Once);
+	}
+
 	private sealed class RecordingAggressor(MudSharp.Models.ArtificialIntelligence definition, IFuturemud world) : AggressorAI(definition, world)
 	{
 		public List<ICharacter> Considered { get; } = [];

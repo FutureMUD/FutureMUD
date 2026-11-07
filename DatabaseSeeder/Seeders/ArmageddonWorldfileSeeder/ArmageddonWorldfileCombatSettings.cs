@@ -118,7 +118,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			BaseTemplates = _npcs.Count, OutfitVariants = _npcLoadoutPlans.Count,
 			RaceDefaults = _races.Values.Select(x => new { x.Name, x.DefaultCombatSettingId, x.CanUseWeapons, x.CanAttack, x.CanDefend }).ToArray(),
 			SourceClasses = _source.Npcs.GroupBy(x => x.Identity[3]).Select(x => new { SourceGuild = x.Key, Definitions = x.Count(),
-				PowerPolicy = "Skills and equipment do not invent native spells or powers; no automatic magic profile without usable powers." }).ToArray()
+				PowerPolicy = "Physical roles use native combat settings. The later combat-ability pass admits only saved source-used spells through private native routes and post-attack hooks; it invents no attack powers or guild curriculum." }).ToArray()
 		});
 	}
 }

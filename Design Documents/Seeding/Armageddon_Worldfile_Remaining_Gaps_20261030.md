@@ -12,6 +12,16 @@ The pending item callbacks with actual typed reset references are HOK 1952 and T
 
 ## Current continuation
 
+### NPC combat abilities and spellcasting
+
+The combat-ability tranche implements source-priority Disarm/Kick/Bash attempts, source-aggressive Backstab/Sap openers with native fallback, restricted saved-spell NPC routes, and native rescue/healing/engagement for source allies. The approved post-attack extra attempt preserves the ordinary attack clock; native action recovery, costs, materials, checks and relocation safety remain authoritative. Possession and AI pause suppress these controller hooks. Source spell power maps to native grades through saved proficiency and available Mana; optional initial controlled grade supplies new NPC knowledge without replaying training or granting a player class. Unnamed tribes use a native register rather than invented clans.
+
+Luke approved traveller-targeted unresisted Waystep for the NPC Teleport branch, one-step random-exit Driving Gust for Repel, and continuing past ineligible spells rather than reproducing the source's priority stalls. The different source caster-target lists are retained: Shadow is omitted from these guards; Water's Silence also recognises Lightning/Void while Fire's Aura Drain, Stone's Feeblemind and Templar Silence use the older narrower list. Native poison dosage queries include latent exposure so a Water caster does not repeatedly poison the same target while waiting for native absorption.
+
+This does not implement the separate transient hate/fear/like memory producer/consumer gap. Native anatomy and action admission can still refuse a source manoeuvre. Live installation and combat qualification are separate from generated-program and focused runtime checks. See [the seeder design](Armageddon_Worldfile_Seeder_Design.md#6c-npc-combat-abilities-and-spellcasting).
+
+Validation: runtime, seeder and both owning test projects build. The focused runtime selections pass 232 checks, including acquisition/re-enrolment, traveller targeting, opening fallback, additional-action recursion/lifecycle/defence costs, existing physical impacts and auxiliary reach/backstab admission. Twelve focused seeder checks pass with the external package, covering saved repertoire/tier rules, private-route isolation, native disarm/race availability, reset-family propagation, mapped alliance clauses, generated onload/combat/assistance compilation and existing skill bindings. An initial full-corpus EF fixture was stopped and narrowed to representative guilds; intermediate syntax/fixture failures remain in local receipts. This is not a fresh database installation or live NPC combat qualification. The walkthrough was not changed.
+
 ### NPC skills and innate armour
 
 The reusable trait-expression extension now supports `name:!id` for the check target, alongside unchanged owner `name:id` bindings. Missing/ineligible targets supply zero; target inputs do not learn, branch or impose checkee trait requirements. This enables offence/defence conversion through configured native check expressions, superseding the earlier proposal for a separate combat-rating hook. The seeder now assigns fixed, signed native Offence/Defence traits and an explicit profile marker to imported NPCs, with paired configurable native attack/active-defence formulas. No separate combat-rating runtime is added.

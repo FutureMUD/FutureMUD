@@ -132,7 +132,7 @@ internal static class PredatorAIHelpers
 		return true;
 	}
 
-	public static void EngageTarget(ICharacter ch, IPerceiver tp, string engageEmote)
+	public static void EngageTarget(ICharacter ch, IPerceiver tp, string engageEmote, IFutureProg? openingProg = null)
 	{
 		if (ch.State.HasFlag(CharacterState.Dead) || ch.Corpse != null)
 		{
@@ -154,6 +154,12 @@ internal static class PredatorAIHelpers
 			ch.OutputHandler.Handle(new EmoteOutput(new Emote(engageEmote, ch, ch, tp)));
 		}
 
+		if (openingProg is not null && tp is ICharacter target)
+		{
+			var body = ch.Body; var room = ch.Location; var layer = ch.RoomLayer;
+			if (openingProg.ExecuteBool(ch, target) == true || ch.Combat is not null || !ReferenceEquals(ch.Body, body) ||
+				!ReferenceEquals(ch.Location, room) || ch.RoomLayer != layer || !ch.CanEngage(target)) return;
+		}
 		ch.Engage(tp, ch.Body!.WieldedItems.SelectNotNull(x => x!.GetItemType<IRangedWeapon>())
 					 .Where(x => x.IsReadied || x.CanReady(ch))
 					 .Select(x => (int)x.WeaponType.DefaultRangeInRooms)
@@ -162,7 +168,7 @@ internal static class PredatorAIHelpers
 	}
 
 	public static bool CheckForAttack(ICharacter aggressor, ICharacter target, IFutureProg willAttackProg,
-		string engageDelayDiceExpression, string engageEmote, bool requireHungryPredator)
+		string engageDelayDiceExpression, string engageEmote, bool requireHungryPredator, IFutureProg? openingProg = null)
 	{
 		if (!WillAttack(aggressor, target, willAttackProg, requireHungryPredator))
 		{
@@ -171,7 +177,7 @@ internal static class PredatorAIHelpers
 
 		aggressor.AddEffect(
 			new BlockingDelayedAction(aggressor,
-				_ => EngageTarget(aggressor, target, engageEmote),
+				_ => EngageTarget(aggressor, target, engageEmote, openingProg),
 				"preparing to engage in combat",
 				new[] { "general", "combat-engage", "movement" },
 				null),

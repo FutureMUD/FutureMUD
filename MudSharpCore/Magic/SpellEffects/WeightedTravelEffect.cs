@@ -27,12 +27,13 @@ public abstract class WeightedTravelEffect : IMagicSpellEffectTemplate, IMagicSp
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 	public bool RuneUsesPoolRestrictions => (bool?)_definition.Element("RuneUsesPoolRestrictions") ?? true;
+	public bool TargetTraveller => !Banishes && ((bool?)_definition.Element("TargetTraveller") ?? false);
 	public XElement SaveToXml() => new(_definition);
 	public abstract IMagicSpellEffectTemplate Clone();
 	protected static XElement BuilderDefinition(string type) => new("Effect", new XAttribute("type", type), new XAttribute("version", 1),
 		new[] { "RestrictedRoomTag", "LethalRoomTag", "UrbanPoolTag", "WildPoolTag", "ElementalPoolTag" }.Select(x => new XElement(x, 0)),
 		new XElement("UrbanWeight", 10), new XElement("WildWeight", 90), new XElement("ElementalPlanes"));
-	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => Banishes ? trigger is CastingTriggerBanishTraveller : trigger is CastingTriggerWaystepDestination;
+	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => Banishes || TargetTraveller ? trigger is CastingTriggerBanishTraveller : trigger is CastingTriggerWaystepDestination;
 	private sealed record Configuration(ITag Restricted, ITag Lethal, ITag Urban, ITag Wild, ITag Elemental,
 		int UrbanWeight, int WildWeight, long[] ElementalPlanes, bool RuneUsesPoolRestrictions);
 	private Configuration ReadConfiguration()
@@ -51,7 +52,7 @@ public abstract class WeightedTravelEffect : IMagicSpellEffectTemplate, IMagicSp
 	{
 		error = "The exact weighted-pool or rune destination input is missing.";
 		if (parameters.Count != 1 || parameters[0].ParameterName != SpellTravelDestinationRequest.ParameterName ||
-			parameters[0].Item is not SpellTravelDestinationRequest request || Banishes && request.Rune is not null) return false;
+			parameters[0].Item is not SpellTravelDestinationRequest request || (Banishes || TargetTraveller) && request.Rune is not null) return false;
 		_requests[recipient] = request; error = null; return true;
 	}
 	private sealed record Candidate(IRoom Room, int Group);
@@ -78,7 +79,7 @@ public abstract class WeightedTravelEffect : IMagicSpellEffectTemplate, IMagicSp
 		!Tagged(destination, config.Lethal) && destination.OutdoorsType(mover) == RoomOutdoorsType.Outdoors;
 	private string? EndpointError(ICharacter caster, ICharacter mover, IRoom destination, RoomLayer layer, Configuration config, bool rune)
 	{
-		if (Banishes && !ReferenceEquals(caster, mover) && (mover.IsAdministrator() || !ReferenceEquals(mover.Location, caster.Location) || mover.RoomLayer != caster.RoomLayer || !caster.CanSee(mover)))
+		if ((Banishes || TargetTraveller) && !ReferenceEquals(caster, mover) && (mover.IsAdministrator() || !ReferenceEquals(mover.Location, caster.Location) || mover.RoomLayer != caster.RoomLayer || !caster.CanSee(mover)))
 			return "Banishment requires one exact visible local non-staff physical traveller.";
 		if (ReferenceEquals(mover.Location, destination) || !PoolAllows(mover, mover.Location, destination, config, rune) ||
 			!mover.Location.SharesPlaneWith(destination)) return "The destination is outside this source route's permitted outdoor pool.";
@@ -103,7 +104,7 @@ public abstract class WeightedTravelEffect : IMagicSpellEffectTemplate, IMagicSp
 	{
 		if (_selections.TryGetValue(recipient, out var existing))
 		{ if (!TryConfirmPreparedSelection(caster, recipient, out var stale)) throw new InvalidOperationException(stale); return existing; }
-		if (recipient is not ICharacter mover || !Banishes && !ReferenceEquals(caster, mover) || !_requests.TryGetValue(recipient, out var request) ||
+		if (recipient is not ICharacter mover || !Banishes && !TargetTraveller && !ReferenceEquals(caster, mover) || !_requests.TryGetValue(recipient, out var request) ||
 			Spell is not MagicSpell { InvocationGrade: >= 1 and <= 7 }) throw new InvalidOperationException("Weighted travel requires its exact typed selector and a selected grade.");
 		var config = ReadConfiguration(); var origin = mover.Location; var layer = mover.RoomLayer;
 		var endpoints = new SpellTravelSnapshot(Gameworld, [caster, mover], [caster.Location, origin]);
@@ -185,10 +186,17 @@ public abstract class WeightedTravelEffect : IMagicSpellEffectTemplate, IMagicSp
 		return new(MagicEffectOperationStatus.NoChange, null);
 	}
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] parameters) => Apply(caster, target, outcome, power, parent, parameters).Effect;
-	public string Show(ICharacter actor) => $"Separate same-plane weighted pools and an exact admitted live Anchor Rune route. Runes use pool restrictions: {RuneUsesPoolRestrictions.ToColouredString()}.";
+	public string Show(ICharacter actor) => $"Separate same-plane weighted pools and an exact admitted live Anchor Rune route. Runes use pool restrictions: {RuneUsesPoolRestrictions.ToColouredString()}. Traveller targeting: {TargetTraveller.ToColouredString()}.";
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		var option = command.PopForSwitch();
+		if (!Banishes && option.EqualTo("traveller") && command.IsFinished)
+		{
+			_definition.SetElementValue("TargetTraveller", !TargetTraveller);
+			Spell.Changed = true;
+			actor.OutputHandler.Send($"Waystep now targets a selected local traveller: {TargetTraveller.ToColouredString()}. Select the matching traveller/Waystep trigger as well.");
+			return true;
+		}
 		if (!Banishes && option.EqualTo("runepoolrules") && command.IsFinished)
 		{
 			_definition.SetElementValue("RuneUsesPoolRestrictions", !RuneUsesPoolRestrictions);
@@ -227,7 +235,7 @@ public sealed class WaystepEffect(XElement xml, IMagicSpell spell) : WeightedTra
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("waystep", (xml, spell) => new WaystepEffect(xml, spell));
 		SpellEffectFactory.RegisterBuilderFactory("waystep", (_, spell) => (new WaystepEffect(BuilderDefinition("waystep"), spell), ""),
-			"Moves the caster through a weighted pool or exact admitted live rune", "restricted|lethal|urban|wild|elemental <tag>; urbanweight|wildweight <weight>; planes <ids>; runepoolrules", true, true, ["waystepdestination"]);
+			"Moves the caster or an optionally selected traveller through native weighted pools", "restricted|lethal|urban|wild|elemental <tag>; urbanweight|wildweight <weight>; planes <ids>; runepoolrules; traveller", true, true, ["waystepdestination", "banishtraveller"]);
 	}
 }
 

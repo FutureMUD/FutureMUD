@@ -219,6 +219,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallJustice();
 		InstallJailNeeds();
 		InstallGenericNpcAi();
+		InstallNpcCombatAbilities();
 		FinalizeInteriorTemplates();
 		FinalizeAuxiliaryRooms();
 		if (ArmageddonChargenPolicy.ConfigureWorldfileStart(_db))

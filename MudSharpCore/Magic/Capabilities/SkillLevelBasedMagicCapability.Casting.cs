@@ -24,7 +24,8 @@ public partial class SkillLevelBasedMagicCapability
 					Guid.Parse((string)x.Attribute("key")!), (long)x.Attribute("spell")!, (long?)x.Attribute("trait"),
 					(bool)x.Attribute("starting")!, (int)x.Attribute("min")!, (int)x.Attribute("max")!,
 					LoadPrerequisites(x), (double?)x.Attribute("opening"),
-					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("capRelative") ?? false)).ToArray()),
+					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("capRelative") ?? false,
+					(int?)x.Attribute("initialGrade"))).ToArray()),
 				Array.AsReadOnly(root.Elements("SupportGrant").Select(x => new MagicCastingSupportGrant(
 					Guid.Parse((string)x.Attribute("key")!), (long)x.Attribute("trait")!, (double)x.Attribute("opening")!,
 					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("starting") ?? false, LoadPrerequisites(x))).ToArray()),
@@ -51,6 +52,7 @@ public partial class SkillLevelBasedMagicCapability
 			p.Admissions.Select(x => new XElement("Admission", new XAttribute("key", x.Key), new XAttribute("spell", x.SpellId),
 				x.TraitId.HasValue ? new XAttribute("trait", x.TraitId.Value) : null, new XAttribute("starting", x.Starting),
 				new XAttribute("min", x.MinimumGrade), new XAttribute("max", x.MaximumGrade),
+				x.InitialControlledGrade.HasValue ? new XAttribute("initialGrade", x.InitialControlledGrade.Value) : null,
 				x.OpeningSkill.HasValue ? new XAttribute("opening", x.OpeningSkill.Value) : null,
 				x.RawSkillCap.HasValue ? new XAttribute("rawCap", x.RawSkillCap.Value) : null,
 				x.CapRelativeProficiency ? new XAttribute("capRelative", true) : null,
@@ -106,6 +108,8 @@ public partial class SkillLevelBasedMagicCapability
 		if (p.Admissions.Select(x => x.SpellId).Distinct().Count() != p.Admissions.Count) errors.Add("Duplicate spell admissions.");
 		foreach (var a in p.Admissions)
 		{
+			if (a.InitialControlledGrade is { } initial && (initial < a.MinimumGrade || initial > a.MaximumGrade))
+				errors.Add($"Admission {a.Key}: initial controlled grade must be inside its admitted grade range.");
 			CheckTrait(a.TraitId ?? p.DefaultTraitId, $"Admission {a.Key}");
 			if (a.RawSkillCap.HasValue && Gameworld.Traits.Get(a.TraitId ?? p.DefaultTraitId) is MudSharp.Body.Traits.Subtypes.ITheoreticalSkillDefinition)
 				errors.Add($"Admission {a.Key}: capped theoretical skills are unsupported; select a native single-value skill or an uncapped binding.");
@@ -182,6 +186,7 @@ public partial class SkillLevelBasedMagicCapability
 				sb.AppendLine($"\tTrait: {trait?.NameAndId(actor) ?? "None".ColourError()}");
 				sb.AppendLine($"\tGrades: {a.MinimumGrade}-{a.MaximumGrade}");
 				sb.AppendLine($"\tStarting Spell: {a.Starting.ToColouredString()}");
+				sb.AppendLine($"\tInitial Controlled Grade: {(a.InitialControlledGrade ?? 1).ToString(actor).ColourValue()} (new acquisitions only)");
 				sb.AppendLine($"\tOpens At: {a.OpeningSkill?.ToStringN2Colour(actor, Telnet.Green) ?? "Profile Default".ColourCommand()}");
 				sb.AppendLine($"\tCaps At: {a.RawSkillCap?.ToStringN2Colour(actor, Telnet.Green) ?? "Native Skill Value".ColourCommand()}");
 				sb.AppendLine($"\tProficiency Gates: {(a.CapRelativeProficiency ? "Percent of Route Cap" : "Absolute Raw Skill").ColourValue()}");

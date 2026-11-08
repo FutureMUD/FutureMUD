@@ -21,6 +21,42 @@ namespace MudSharp_Unit_Tests;
 public class MagicCastingAcquisitionTests
 {
 	[TestMethod]
+	public void Enrol_InitialGrade_GrantsConfiguredMasteryOnceAndRoundTrips()
+	{
+		var f = new MagicCastingFixture();
+		var node = Node(1);
+		node.SetAttributeValue("initialGrade", 4);
+		var cap = Configure(f, [node]);
+		Assert.IsTrue(f.Service.Enrol(f.Staff.Object, f.Actor.Object, cap.Id, "authored experienced caster").Allowed);
+		Assert.AreEqual(4, f.Service.Acquisition(f.Actor.Object, 1)!.ControlledGrade);
+		Assert.AreEqual(4, cap.CastingPolicy!.Admissions.Single().InitialControlledGrade);
+		var savedPolicy = XElement.Parse(cap.SaveToXml()).Element("Casting")!;
+		Assert.AreEqual(4, (int?)savedPolicy.Element("Admission")!.Attribute("initialGrade"));
+		var reloaded = f.NewCapability(91, 1, 11, true, savedPolicy);
+		Assert.AreEqual(4, reloaded.CastingPolicy!.Admissions.Single().InitialControlledGrade);
+		f.Capabilities.Remove(reloaded);
+		Assert.IsTrue(cap.BuildingCommand(f.Actor.Object, new StringStack("casting entry initialgrade 1 6")));
+		Assert.IsTrue(f.Service.Enrol(f.Staff.Object, f.Actor.Object, cap.Id, "repeat").Allowed);
+		Assert.AreEqual(4, f.Service.Acquisition(f.Actor.Object, 1)!.ControlledGrade, "Changing configuration never upgrades existing knowledge.");
+		Assert.IsTrue(cap.BuildingCommand(f.Actor.Object, new StringStack("casting entry initialgrade 1 default")));
+		Assert.IsNull(cap.CastingPolicy!.Admissions.Single().InitialControlledGrade);
+	}
+
+	[TestMethod]
+	[DataRow(0)]
+	[DataRow(8)]
+	public void Enrol_InvalidInitialGrade_RefusesBeforeGrant(int grade)
+	{
+		var f = new MagicCastingFixture();
+		var node = Node(1);
+		node.SetAttributeValue("initialGrade", grade);
+		var cap = Configure(f, [node], valid: false);
+		Assert.IsTrue(cap.CastingConfigurationErrors().Any(x => x.Contains("initial controlled grade")));
+		Assert.IsFalse(f.Service.Enrol(f.Staff.Object, f.Actor.Object, cap.Id, "invalid grade").Allowed);
+		Assert.IsNull(f.Service.Acquisition(f.Actor.Object, 1));
+	}
+
+	[TestMethod]
 	public void Reconcile_ReverseOrderedChain_AcquiresEntireCascadeInOneCall()
 	{
 		var f = new MagicCastingFixture();

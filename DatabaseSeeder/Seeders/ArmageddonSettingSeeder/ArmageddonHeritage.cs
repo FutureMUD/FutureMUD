@@ -128,7 +128,7 @@ public static partial class ArmageddonHeritage
 	}
 
 	private sealed record ProgParameter(long Type, string Name);
-	private static FutureProg Prog(FuturemudDatabaseContext db, string key, string name, string body, ProgVariableTypes result,
+	internal static FutureProg Prog(FuturemudDatabaseContext db, string key, string name, string body, ProgVariableTypes result,
 		ICollection<string> messages, params (ProgVariableTypes Type, string Name)[] parameters)
 	{
 		var prog = Apply(db, key, new FutureProg { FunctionName = name, FunctionText = body, ReturnTypeDefinition = result.ToStorageString(),
@@ -253,6 +253,7 @@ public static partial class ArmageddonHeritage
 		}
 		db.SaveChanges();
 		var physiologyMerits = InstallPhysiologyMerits(db, messages);
+		var playerHealth = ArmageddonPlayerHealth.InstallDefinitions(db, messages);
 		skills = ArmageddonLanguages.InstallSkills(db, skills, messages);
 		var languages = new Dictionary<string, Language>();
 		foreach (var entry in ArmageddonLanguages.Profiles)
@@ -287,7 +288,9 @@ public static partial class ArmageddonHeritage
 				race.MaximumDrinkSatiatedHours = 24;
 			}
 			AttributeDefaults(race, attributes.Length);
+			if (playerHealth.TryGetValue(profile.Key, out var health)) race.DefaultHealthStrategyId = health;
 			races[profile.Key] = Apply(db, key, race, messages);
+			if (playerHealth.ContainsKey(profile.Key)) ArmageddonPlayerHealth.InstallRaceCalibration(db, races[profile.Key], profile.Key, messages);
 			AttributeLinks(db, key, profile.Key, races[profile.Key], human, attributes, messages, IntrinsicMeritsFor(profile.Key, physiologyMerits));
 		}
 		var naming = Apply(db, "arm.naming.personal", new NameCulture { Name = "Personal Name", Definition = new XElement("NameCulture",
@@ -332,7 +335,7 @@ public static partial class ArmageddonHeritage
 		WireFreeSkills(db, storyboard, oldFree, actualCultures, races, skills, messages);
 		ArmageddonChargenPolicy.Install(db, messages);
 		db.SaveChanges();
-		using (var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray()))
+		using (var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray(), db.VariableDefinitions.ToArray()))
 			foreach (var record in db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module && x.EntityType == nameof(FutureProg)).ToArray()) compiler.Compile(record.LogicalId!.Value);
 		transaction?.Commit();
 		messages.Add("Heritage installed: Human, City Elf, Desert Elf, Dwarf, Half-Giant and Mul are available with their ethnicities and compatible upbringings. Half-Elf and the shared Elf parent remain unavailable. Naming uses a given name with an optional family name and nickname. Builder overrides are retained and reported; Admin Human retains its original identity and physiology. No existing characters or city spawns changed.");

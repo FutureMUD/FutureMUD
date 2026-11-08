@@ -11,6 +11,11 @@ This document covers the core runtime model for health in FutureMUD:
 - health-related merits and flaw-like configurations
 
 ## Primary Contracts
+
+Trait expressions used by health strategies can bind a live numeric character prog with `{capacity prog=123}` (or a function name). The prog must return Number and accept one Character parameter. Character owners are passed directly; Body owners use their actor. Missing/incompatible progs, non-character owners, non-finite results and recursive calls to the same prog for the same character contribute zero. Existing trait references, including `perception:52` and target references such as `defence:!52`, retain their syntax and behaviour. Bindings are evaluated afresh; numerical-binding capture also invokes these progs. Builders should use value-query progs here rather than actions that modify game state.
+
+This permits editable race registers to supply health calibration without adding setting policy to the HP strategy. Numeric register XML uses invariant decimal parsing, matching its XML serialization, so fractional calibration survives hosts whose display locale uses a comma decimal separator.
+
 | Contract | Role in the runtime |
 | --- | --- |
 | `IBody` | Central integration point for a character's anatomy, wounds, blood, drugs, breathing, infections, organs, and needs |

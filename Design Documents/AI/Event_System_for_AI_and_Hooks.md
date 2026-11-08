@@ -15,6 +15,8 @@ This is intentionally narrower than a full engine-wide event encyclopedia. The c
 
 ## Primary Contracts
 
+`CharacterEscapedCombat` (event ID 167) fires on the escaping character after an actual exit traversal initiated by native combat flight. Parameters are actor, original room, and a character collection: characters visible at departure that still occupy the original room when entry completes. Bystanders can be included. The transient observer listens for the location change, because ordinary movers emit `OnMoved` before destination entry. Failed or cancelled moves, merely breaking melee, and retreat within the same route room do not fire it. Death/logout/deletion and movement cancellation release the observer; hooks cannot replay it on later movement. This notification does not determine combat pursuit or whether a character may cross an exit.
+
 `CharacterBeginsLandMagicGatheringWitness` (appended event ID 156) is an accepted-start notification, not an input interceptor. The payload order is actor, perceivable witness, captured location, magic capability, method-key text, requested amount, operation-ID text. It fires only for accepted Land magic gathering, and witness return values do not consume the command. Previews, refusals, other magic-gathering methods and foraging are excluded; see [magic gathering](../Magic/Magic_Gathering.md).
 
 `HookOnInput` keeps unconditional consumption as its default. Opt in with `hook conditional <hook> on` to let boolean payload progs decide handling: false continues to the next payload/normal command dispatch, while the first true consumes input. A declining hook preserves the original token stack, including quoted argument boundaries. All payloads must return boolean to enable this mode or add further progs while it is enabled. XML field `UseProgResultForHandling` persists the choice; missing fields retain legacy behaviour. In conditional mode only, command `*` matches all input and passes the complete original command (including raw argument quotes) in the command-text parameter. Ordinary exact hooks still pass the verb. Use `commandname(character, input)` to resolve native names/abbreviations without executing them. `hook list` reports the mode.
@@ -534,6 +536,11 @@ When you add or change an event that AI or hooks may consume:
 Introduce a new event only when an existing event family cannot express the behavior cleanly. The engine already has many narrowly named events; adding more should be deliberate.
 
 ## Practical Advice for AI Authors
+
+`CharacterCombatAttackResolved` (166) fires on an attacker after an ordinary melee/natural attack action has resolved while combat continues and the current opponent survives. Parameters are `attacker`, `target`, and boolean `successful`; a miss still fires with false. A multi-hit action produces one notification, rather than one per strike. Authored additional actions do not fire it. A hook can explicitly call `performcombataction(actor, target, command)` to attempt an NPC-usable manual action, or pass a numeric auxiliary-action ID instead of command text. Numeric selection reuses native race/action admission without creating a player command. Native validation, response, stamina and move-ending effects apply. Recovery is separate from the scheduled ordinary turn; recursive additional actions and combat-blocked actors are refused. This is an explicit extra-action mechanism, not the default NPC combat policy.
+
+Pure queries `hasblindnesseffect(character)`, `hassilenceeffect(character)`, `hasparalysiseffect(character)` and `haspausedaieffect(character)` expose the corresponding native status contracts without requiring a spell-parent effect. Imported controller hooks explicitly check possession and AI pause; ordinary hooks retain their existing ability to fire while AI is paused.
+
 - Start from `show event <event>` before implementing a new `HandleEvent(...)` branch.
 - Keep `HandlesEvent(...)` narrow so NPC heartbeat subscriptions stay intentional.
 - Prefer hook/prog solutions for tiny local reactions and dedicated AI classes for ongoing behavior.

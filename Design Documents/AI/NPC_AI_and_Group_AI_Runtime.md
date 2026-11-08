@@ -15,6 +15,23 @@ This is the primary AI reference. The companion document [Event_System_for_AI_an
 
 ## Scope
 
+### Session disposition memory
+
+`NpcDispositionMemory` stores one independent Hate, Fear or Like reaction toward a live character instance. It is an ordinary non-saving effect, not mutable state on a shared AI definition. `remember(actor, subject, reaction)`, `remembers(actor, subject, reaction)` and `forget(actor, subject, reaction)` expose creation, membership and removal to progs. Repeated creation does not stack. Invalid participants or reaction names return false. Neither a matching database ID nor a newly spawned replacement transfers the memory to a different live instance.
+
+`rememberedcharacters(actor, reaction)` returns the distinct live subjects of that reaction, or an empty collection for invalid arguments. It grants no visibility or movement permission. AggressorAI's `aggressive` toggle controls classification for ambient danger/self-care independently of its targeting prog; XML `AggressiveClassification` defaults to true. A reactive-only template can therefore respond to learned hostility without making every instance count as an ambient aggressor.
+
+There is no automatic timed expiry. Logout, death or deletion of either participant removes the effect and releases its event subscriptions. Restart discards every memory. Liking is independent of hate and fear; the caller's policy determines precedence. These functions store reactions only: they do not themselves engage combat, flee, grant riding permission or override legal duties. AI and content consumers must explicitly opt in.
+
+Session-memory and pending-escape effects implement `IEffectRemovalNotification`. `EffectHandler` invokes `OnRemovedFromOwner()` after a successful detachment even when gameplay removal actions are suppressed. This is idempotent resource cleanup, independent of `RemovalEffect`; it releases event subscriptions during silent/bulk removal too. Existing effects without the optional interface keep their existing removal behaviour.
+
+AggressorAI's `memory` toggle opts into reaction consumers (XML `RespectDispositionMemory`, default false for existing definitions). Liked and feared subjects are excluded at acquisition and checked again when delayed engagement executes. A visible feared subject in the same room/layer takes precedence over acquisition: combatants use native Flee strategy, while an idle actor attempts one ordinary move through an admissible exit. Hidden actors do not perform this fear reaction. Movement, doors and action blockers remain native. The attack prog still decides who qualifies for hostility, including whether a hate memory should admit a target; memory alone never overrides that prog or starts pursuit.
+
+TrackingAggressorAI's `pursuitonly` toggle (XML `PursuitOnly`, default false) retains ordinary bounded target acquisition and pathing but disables its attack initiation and aggressive classification. Use it alongside a separate engagement controller when that controller owns combat admission, delays and opening actions. The ordinary attack prog also selects path targets; the pathing-enabled prog can stop the episode when memories expire, the actor is controlled, or other policy changes. Native pathing owns movement, door policy and path cleanup.
+
+AggressorAI optionally accepts `openingprog <boolean(character,character) prog|none>`. It runs at delayed engagement time after native engagement admission. True consumes the normal engagement step; false falls back to native engagement if the actor has not already joined combat, changed body/location/layer, or lost engagement permission. XML `OpeningProg` defaults to zero; save/load and clone preserve it. Use this for authored native opening commands without adding a polling AI or altering the target-selection prog.
+
+
 `ClanSentryAI` is an auxiliary departure observer. Configure its clan, cardinal directions, two-argument alert format and optional hide attempt through `ai ... set clan|direction|format|hide`. It reports only visible outsiders leaving the sentry's room while the sentry is conscious and out of combat. Reports go directly and privately to loaded conscious members of the configured clan; they are not public room output. The definition stores configuration only, with no shared mutable per-NPC state.
 
 Prog-targeted pathing AIs treat an unset or missing pathing-enabled prog as disabled. This applies to fresh builder defaults and legacy saved zero or stale prog IDs, including SemiAggressive and TrackingAggressor AIs. A configured prog retains its existing boolean decision.
@@ -326,6 +343,9 @@ Movement-centric AI commonly relies on:
 The pathing bases centralize door handling, path following, fallback logic, and waypoint/prog-driven destination logic. New movement-heavy AI should usually extend one of these instead of re-implementing path and heartbeat plumbing from scratch.
 
 ### Combat
+
+`AggressorAI` optionally persists an `AcquisitionRange` in rooms. Builders set `range <number>` (zero means local only), or `range weapon` to restore the legacy readied/readiable-weapon-derived radius. Omitting the XML element preserves legacy content. An explicit radius lets melee NPCs acquire nearby targets without inventing a ranged weapon. Acquisition still uses the target prog, native visibility, peaceful effects and engagement checks. Once engaged, ordinary combat settings determine whether and how the NPC approaches; a radius does not grant movement through blocked exits or override stationary tactics.
+
 Combat-facing AI currently covers several distinct roles:
 
 - pure aggression and target acquisition

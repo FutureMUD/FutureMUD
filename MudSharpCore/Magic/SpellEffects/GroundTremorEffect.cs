@@ -15,6 +15,7 @@ using MudSharp.Magic.Casting;
 using MudSharp.NPC.AI;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
+using MudSharp.FutureProg;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -32,16 +33,20 @@ public sealed partial class GroundTremorEffect : IMagicSpellEffectTemplate, IMag
 	public IMagicSpellEffectTemplate Clone() => new GroundTremorEffect(SaveToXml(), Spell);
 	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => trigger.TargetTypes == "room";
 	private long Binding(string name) => (long?)_definition.Element(name) ?? 0;
+	private IFutureProg? RecipientProg => Gameworld.FutureProgs.Get(Binding("RecipientProg"));
 	public string? DefinitionError => (string?)_definition.Attribute("version") != "1" ||
 		Gameworld.MagicSpells.Get(Binding("StoneSkinSpell")) is null || Gameworld.Traits.Get(Binding("AgilityTrait")) is not IAttributeDefinition ||
 		new[] { "ShadowPlane", "WindPlane", "WaterPlane", "VoidPlane" }.Any(x => Gameworld.Planes.Get(Binding(x)) is null) ||
-		Gameworld.Tags.Get(Binding("SiltTag")) is null ? "Ground Tremor requires valid typed spell, agility, plane and Silt bindings." : null;
+		Gameworld.Tags.Get(Binding("SiltTag")) is null ? "Ground Tremor requires valid typed spell, agility, plane and Silt bindings." :
+		Binding("RecipientProg") != 0 && (RecipientProg is not { } callback || callback.ReturnType != ProgVariableTypes.Boolean ||
+			!callback.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Character]))
+			? "RecipientProg must be a boolean prog accepting caster and affected character." : null;
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("groundtremor", (xml, spell) => new GroundTremorEffect(xml, spell));
 		SpellEffectFactory.RegisterBuilderFactory("groundtremor", (_, spell) =>
 			(new GroundTremorEffect(new XElement("Effect", new XAttribute("type", "groundtremor"), new XAttribute("version", 1)), spell), ""),
-			"Local earthquake injury and separate nearby falls", "Set one of the displayed native bindings by ID.", true, true, ["room"]);
+			"Local earthquake injury and separate nearby falls", "Set a displayed native binding by ID; recipientprog <boolean(character,character) prog|none> sets an optional callback after each eligible local harm attempt.", true, true, ["room"]);
 	}
 	private bool Protected(ICharacter caster, ICharacter actor, bool local) => actor.IsAdministrator() || actor.RoomLayer != RoomLayer.GroundLevel ||
 		actor.PositionState is PositionFlying or PositionFloatingInZeroGravity or PositionFloatingInWater or PositionSwimming or PositionClimbing or PositionHanging ||
@@ -167,6 +172,7 @@ public sealed partial class GroundTremorEffect : IMagicSpellEffectTemplate, IMag
 			if (!person.Current || Protected(caster, person.Actor, true) || !person.Current || !CommandExecutionScope.TryContinue())
 				throw new InvalidOperationException("A local earthquake recipient changed before harm.");
 			applied |= selection.Damage[person.Actor].Apply(caster, person.Actor, outcome, power, parent, parameters).Status == MagicEffectOperationStatus.Applied;
+			RecipientProg?.Execute(caster, person.Actor);
 		}
 		foreach (var place in selection.Places.Where(x => !ReferenceEquals(x.Room, selection.Origin)))
 		{
@@ -190,6 +196,21 @@ public sealed partial class GroundTremorEffect : IMagicSpellEffectTemplate, IMag
 	public string Show(ICharacter actor) => "Local Crushing damage: 3*grade, caster grade; independent nearby Agility falls through grade-1 edges. " + SaveToXml();
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.PeekSpeech().EqualTo("recipientprog"))
+		{
+			command.PopSpeech();
+			if (command.SafeRemainingArgument.EqualTo("none")) _definition.SetElementValue("RecipientProg", 0);
+			else
+			{
+				var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+					ProgVariableTypes.Boolean, [ProgVariableTypes.Character, ProgVariableTypes.Character]).LookupProg();
+				if (prog is null) return false;
+				_definition.SetElementValue("RecipientProg", prog.Id);
+			}
+			Spell.Changed = true;
+			actor.OutputHandler.Send("The affected-character callback has been updated.");
+			return true;
+		}
 		var field = _definition.Elements().FirstOrDefault(x => x.Name.LocalName.EqualTo(command.PeekSpeech()));
 		if (field is null) return false;
 		command.PopSpeech(); if (!long.TryParse(command.PopSpeech(), out var value) || value <= 0 || !command.IsFinished) return false;

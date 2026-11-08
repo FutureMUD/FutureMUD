@@ -65,7 +65,7 @@ public partial class SimpleMagicResource : IMagicResourceCapacity
 		}
 		var attribute = Gameworld.Traits.Get(c.AttributeId)!;
 		var expression = (TraitExpression)Gameworld.TraitExpressions.Get(c.ExpressionId)!;
-		if (!holder.HasTrait(attribute) || expression.Parameters.Values.Any(x => !holder.HasTrait(x.Trait)))
+		if (!holder.HasTrait(attribute) || expression.Parameters.Values.Any(x => !x.IsTarget && !holder.HasTrait(x.Trait)))
 		{
 			error = "A required native capacity attribute is missing from the resource holder.";
 			return false;
@@ -73,7 +73,7 @@ public partial class SimpleMagicResource : IMagicResourceCapacity
 		try
 		{
 			var bindings = c.UseRawAttribute
-				? expression.Parameters.ToDictionary(x => x.Key, x => holder.TraitRawValue(x.Value.Trait), StringComparer.OrdinalIgnoreCase)
+				? expression.Parameters.ToDictionary(x => x.Key, x => x.Value.IsTarget ? 0.0 : holder.TraitRawValue(x.Value.Trait), StringComparer.OrdinalIgnoreCase)
 				: new Dictionary<string, double>(expression.CaptureNumericalBindings(holder, attribute, TraitBonusContext.None), StringComparer.OrdinalIgnoreCase);
 			if (c.UseRawAttribute) bindings["variable"] = holder.TraitRawValue(attribute);
 			if (bindings.Values.Any(x => !double.IsFinite(x))) { error = "A capacity attribute is not finite."; return false; }

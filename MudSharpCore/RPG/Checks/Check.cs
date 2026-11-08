@@ -98,10 +98,10 @@ public class StandardCheck : FrameworkItem, ICheck
 	// Formula edits may retain historical parameter rows. For BF, only traits still
 	// referenced by the formula may fail a check, improve or branch. A constant must
 	// never retain a phantom skill requirement or learning opportunity.
-	private IEnumerable<TraitExpressionParameter> CheckedParameters => Type == CheckType.BlindFightingCheck
+	private IEnumerable<TraitExpressionParameter> CheckedParameters => (Type == CheckType.BlindFightingCheck
 		? TargetNumberExpression.Parameters.Where(x => TargetNumberExpression.Formula.ParameterNames
 			.Any(name => name.EqualTo(x.Key))).Select(x => x.Value)
-		: TargetNumberExpression.Parameters.Values;
+		: TargetNumberExpression.Parameters.Values).Where(x => !x.IsTarget);
 
     #endregion
 
@@ -376,7 +376,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
         double bonus = bonuses.Sum(x => x.Item2);
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters);
         double[] rolls = new[]
         {
             Constants.Random.NextDouble() * 100.0,
@@ -518,7 +518,7 @@ public class StandardCheck : FrameworkItem, ICheck
             Constants.Random.NextDouble() * 100.0
         };
 
-        double basetarget = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
+        double basetarget = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters);
         difficulty1plusburden = CheckEvaluationContext.Constrain(difficulty1plusburden, customParameters);
         difficulty2plusburden = CheckEvaluationContext.Constrain(difficulty2plusburden, customParameters);
         double difficultyModifier1 = Modifiers[difficulty1plusburden];
@@ -603,7 +603,7 @@ public class StandardCheck : FrameworkItem, ICheck
             difficultyplusburden = difficultyplusburden.StageUp(checkeeAsCharacter.CombatBurdenDefense);
         }
 
-        return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters) +
+        return CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters) +
                Modifiers[CheckEvaluationContext.Constrain(difficultyplusburden, customParameters)];
     }
 
@@ -677,7 +677,7 @@ public class StandardCheck : FrameworkItem, ICheck
         }
 
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, customParameters);
+        double targetNumber = CheckEvaluationContext.EvaluateForCheck(TargetNumberExpression, checkee, trait, Type, target, customParameters);
         difficultyplusburden = CheckEvaluationContext.Constrain(difficultyplusburden, customParameters);
         double difficultyModifier = Modifiers[difficultyplusburden];
         Outcome outcome = RollAgainst(targetNumber + difficultyModifier, out List<double> rolls);

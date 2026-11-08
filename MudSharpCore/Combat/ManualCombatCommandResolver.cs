@@ -141,6 +141,15 @@ public static class ManualCombatCommandResolver
 		{
 			return ManualCombatMoveResolution.Failed("That manual combat command does not have an auxiliary action configured.");
 		}
+		return TryResolveAuxiliaryAction(actor, target, action, returnTooExhaustedMove, context);
+	}
+
+	/// <summary>Native action admission for authored AI/prog use without registering a player command.</summary>
+	public static ManualCombatMoveResolution TryResolveAuxiliaryAction(ICharacter actor, ICharacter target,
+		IAuxiliaryCombatAction action, bool returnTooExhaustedMove = false, ManualCombatActionContext? context = null)
+	{
+		if (ReferenceEquals(actor, target) || actor.Combat is null || !actor.Combat.Combatants.Contains(target))
+			return ManualCombatMoveResolution.Failed("That target is not an opponent in your current combat.");
 
 		if (!actor.CanSee(target) || !AuxiliaryMove.CanReachTarget(actor, target))
 		{

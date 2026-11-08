@@ -34,16 +34,19 @@ public class ArmageddonWorldfilePoisonTests
 	[TestMethod]
 	public void Darts_UseNativeThrowingWithSourceDamageAndPiercingInsteadOfInterpretingPoisonAsAttackType()
 	{
-		using var db = ArmageddonInstallationSettingsTests.Fixture();
-		ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db));
+		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
+		using var fixture = new ArmageddonWorldfileNpcCombatTests.Fixture(source);
+		var db = fixture.Db;
+		db.TraitDefinitions.Add(new Db.TraitDefinition { Id = 990001, Name = "Strength", Type = 1 });
+		db.SaveChanges();
+		var writer = fixture.Writer;
+		typeof(ArmageddonWorldfileWriter).GetMethod("InstallNpcDamageDefinitions", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(writer, null);
 		const long baseline = 200_000;
 		db.WeaponTypes.Add(new Db.WeaponType { Id = baseline, Name = "Knife" });
 		db.WeaponAttacks.Add(new Db.WeaponAttack { Id = baseline, WeaponTypeId = baseline, Name = "Native stab" });
 		db.RangedWeaponTypes.Add(new Db.RangedWeaponTypes { Id = baseline, Name = "Throwing Knife",
 			RangedWeaponType = (int)MudSharp.Combat.RangedWeaponType.Thrown, DefaultRangeInRooms = 2, FireTraitId = 17 });
 		db.SaveChanges();
-		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
-		var writer = new ArmageddonWorldfileWriter(db, source);
 		var darts = source.Items.Where(x => x.ItemType == 24).ToArray();
 		Assert.IsTrue(darts.Length > 0);
 		foreach (var dart in darts)
@@ -56,8 +59,11 @@ public class ArmageddonWorldfilePoisonTests
 			Assert.AreEqual((int)MudSharp.Health.DamageType.Piercing, db.WeaponAttacks.Local.Single(x => x.WeaponTypeId == meleeId).DamageType);
 			var ranged = db.RangedWeaponTypes.Local.Single(x => x.Id == (long)definition.Element("RangedWeaponType")!);
 			Assert.AreEqual(17L, ranged.FireTraitId);
-			Assert.AreEqual(2, ranged.DefaultRangeInRooms);
-			var damage = new Expression(ranged.DamageBonusExpression).EvaluateDouble();
+			Assert.AreEqual(0, ranged.DefaultRangeInRooms, "Source darts are room-only throws.");
+			var runtime = fixture.NativeRuntime();
+			runtime.Actor.Values[990001] = 20;
+			var damage = new MudSharp.Body.Traits.TraitExpression(ranged.DamageBonusExpression, runtime.World.Object)
+				.EvaluateWith(runtime.Actor.Mock.Object, values: [("range", 0), ("variable", 50)]);
 			Assert.IsTrue(double.IsFinite(damage) && damage >= 0);
 		}
 	}

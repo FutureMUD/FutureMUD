@@ -108,21 +108,27 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
     {
         var payloadEffects = Parent.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
             x.AppliesToProjectileAttack(actor, target, Parent)).ToList();
-        double finalDamage = weaponType.DamageBonusExpression.EvaluateWith(actor,
-                                 values: [("range", target.DistanceBetween(actor, 10)),
-                                     ("quality", (int)Parent.Quality +
-                                                 (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
-                                     ("degrees", (int)defenseOutcome.Degree)]) +
-                             payloadEffects.Sum(x => x.ProjectileDamageBonus);
+		var shotValues = new (string Name, object Value)[]
+		{
+			("range", target.DistanceBetween(actor, 10)),
+			("quality", (int)Parent.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
+			("degree", (int)defenseOutcome.Degree), ("degrees", (int)defenseOutcome.Degree),
+			("inmelee", actor.MeleeRange ? 1 : 0), ("pointblank", ReferenceEquals(actor, target) ? 1 : 0)
+		};
+		var weaponDamage = weaponType.DamageBonusExpression.EvaluateWith(actor, values: shotValues);
+		var secondaryValues = shotValues.Append(("damage", (object)weaponDamage)).ToArray();
+		var finalDamage = weaponDamage + payloadEffects.Sum(x => x.ProjectileDamageBonus);
         return new Damage
         {
             ActorOrigin = actor,
             ToolOrigin = Parent,
             Bodypart = bodypart,
-            DamageAmount = finalDamage,
+            DamageAmount = Math.Max(0.0, finalDamage),
             DamageType = DamageType.Burning,
-            PainAmount = finalDamage * painMultiplier + payloadEffects.Sum(x => x.ProjectilePainBonus),
-            StunAmount = finalDamage * stunMultiplier + payloadEffects.Sum(x => x.ProjectileStunBonus)
+            PainAmount = Math.Max(0.0, finalDamage * painMultiplier +
+				(weaponType.PainBonusExpression?.EvaluateWith(actor, weaponType.FireTrait, values: secondaryValues) ?? 0.0) + payloadEffects.Sum(x => x.ProjectilePainBonus)),
+            StunAmount = Math.Max(0.0, finalDamage * stunMultiplier +
+				(weaponType.StunBonusExpression?.EvaluateWith(actor, weaponType.FireTrait, values: secondaryValues) ?? 0.0) + payloadEffects.Sum(x => x.ProjectileStunBonus))
         };
     }
 

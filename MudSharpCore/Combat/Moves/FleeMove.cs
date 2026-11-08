@@ -302,6 +302,8 @@ public class FleeMove : CombatMoveBase
             ? preferredDirections.GetRandomElement()
             : directions.GetRandomElement();
         Assailant.RemoveAllEffects(x => x.IsEffectType<ISneakEffect>());
+		var escape = new PendingCombatEscape(Assailant, exit);
+		Assailant.AddEffect(escape);
         if (Assailant.Move(exit, new Emote($"fleeing from combat", Assailant)))
         {
             foreach (ICharacter pursuer in pursuers)
@@ -321,6 +323,7 @@ public class FleeMove : CombatMoveBase
                 pursuer.Move(exit, new Emote($"in pursuit of $0", pursuer, Assailant));
             }
         }
+		else Assailant.RemoveEffect(escape, true);
     }
 
     private void DoFailFlee(IEnumerable<ICharacter> pursuers, ICharacter successful)

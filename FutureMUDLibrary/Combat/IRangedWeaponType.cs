@@ -44,6 +44,12 @@ namespace MudSharp.Combat
         /// </summary>
         ITraitExpression DamageBonusExpression { get; }
 
+		/// <summary>Optional additive pain formula; damage is this weapon's evaluated HP contribution. Defaults to zero.</summary>
+		ITraitExpression PainBonusExpression => null;
+
+		/// <summary>Optional additive stun formula; damage is this weapon's evaluated HP contribution. Defaults to zero.</summary>
+		ITraitExpression StunBonusExpression => null;
+
         AmmunitionLoadType AmmunitionLoadType { get; }
 
         string SpecificAmmunitionGrade { get; }

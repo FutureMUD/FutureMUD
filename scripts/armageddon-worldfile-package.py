@@ -433,8 +433,61 @@ def physical_generators(utility, headers, race_ids):
             if re.search(r"\bdefault\s*:", group): default = entry
         if default is None: raise ValueError(f"Missing explicit default in {function}")
         maps.append((cases, default))
-    return [{"Race": race, "Height": maps[0][0].get(race, maps[0][1]),
-             "Weight": maps[1][0].get(race, maps[1][1])} for race in sorted(set(race_ids))]
+    result, cached_bonuses = [], {}
+    for race in sorted(set(race_ids)):
+        height, weight = maps[0][0].get(race, maps[0][1]), maps[1][0].get(race, maps[1][1])
+        key = height["Expression"], weight["Expression"]
+        if key not in cached_bonuses:
+            heights, weights = integer_distribution(key[0]), integer_distribution(key[1])
+            bonuses = Counter()
+            for h, hp in heights.items():
+                for w, wp in weights.items():
+                    size = int((h + w) / 7.4)
+                    bonuses[0 if size <= 20 else size * (2 if size < 50 else 3)] += hp * wp
+            total = sum(bonuses.values())
+            cached_bonuses[key] = {str(value): probability / total for value, probability in bonuses.items()}
+        result.append({"Race": race, "Height": height, "Weight": weight, "SizeBonuses": cached_bonuses[key]})
+    return result
+
+
+def combat_calibration_tables(constants):
+    """Extract private numerical inputs; never embed the historical tables in public code."""
+    text = re.sub(r"/\*.*?\*/|//[^\n]*", "", constants, flags=re.S)
+
+    def rows(declaration, width, count):
+        matches = list(re.finditer(declaration + r"\s*=\s*\{", text))
+        if len(matches) != 1:
+            raise ValueError("Missing or ambiguous combat calibration table")
+        start = matches[0].end() - 1
+        depth = 0
+        for end in range(start, len(text)):
+            depth += (text[end] == "{") - (text[end] == "}")
+            if depth == 0:
+                break
+        else:
+            raise ValueError("Unterminated combat calibration table")
+        body = text[start + 1:end]
+        groups = re.findall(r"\{([^{}]*)\}", body)
+        if len(groups) != count or re.sub(r"\{[^{}]*\}|[\s,]", "", body):
+            raise ValueError("Unexpected combat calibration table dimensions")
+        result = []
+        for group in groups:
+            if not re.fullmatch(r"\s*[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*,?\s*", group):
+                raise ValueError("Combat calibration table must contain only integer literals")
+            values = [int(value) for value in re.findall(r"[+-]?\d+", group)]
+            if len(values) != width:
+                raise ValueError("Unexpected combat calibration row width")
+            result.append(values)
+        return result
+
+    agility = rows(r"\bstruct\s+agl_app_type\s+agl_app\s*\[\s*101\s*\]", 5, 101)
+    strength = rows(r"\bstruct\s+str_app_type\s+str_app\s*\[\s*101\s*\]", 3, 101)
+    endurance = rows(r"\bstruct\s+end_app_type\s+end_app\s*\[\s*101\s*\]", 3, 101)
+    ages = rows(r"\bstruct\s+age_stat_data\s+age_stat_table", 21, 4)
+    return {"AgilityReaction": [row[0] for row in agility],
+            "StrengthAgePermille": ages[0], "AgilityAgePermille": ages[2],
+            "StrengthDamage": [row[0] for row in strength],
+            "EnduranceAgePermille": ages[1], "EnduranceSaves": [row[0] for row in endurance]}
 
 
 def first_loaded(records, entity, diagnostics):
@@ -457,7 +510,11 @@ def build(source, output):
                      "barter.c": "77061ff3fd77b122d4fe4d737b471045fc688b929deeb88a9a88e7b54b5682d5",
                      "constants.c": "54b95a366a4b5b9735be2e5a12b7f6e3fe21065efd2db706f7cea99da68bb7e6",
                      "utility.c": "43124504cd27f587ea4397a6d3be53e8c5a074e062e4bb9dae7e20f663fb5609",
-                     "guilds.h": "86815424d9beace84bd2379d35935f424407f4eef2435a632e5858b526b46fbe"}
+                     "guilds.h": "86815424d9beace84bd2379d35935f424407f4eef2435a632e5858b526b46fbe",
+                     "immortal.c": "bb198a87115ba6e2fb271abad80f86c316f0e6e4ca75fd84ef5e3d0551ecb3f1",
+                     "combat.c": "29d0eaf50c7e2ab94f714a705b296eb60e959363c32d2b81c72c728d7c02581f",
+                     "limits.c": "5cbd09cb38630f00fd6b5d4a7828b2da397026be095de61da3de28ccde2374fa",
+                     "utils.h": "28e4dadb88c994b896ad54c7a049b86e0406b88fd002a8044919fb9dc91c5412"}
     for path, expected in expected_code.items():
         actual = hashlib.sha256((source / path).read_bytes()).hexdigest()
         if actual != expected:
@@ -488,6 +545,7 @@ def build(source, output):
     package["Guilds"] = guilds(Reader(root / "data_files" / "guilds", root), 1)
     package["Subguilds"] = guilds(Reader(root / "data_files" / "subguilds", root), 0)
     constants = (source / "constants.c").read_text(encoding="latin-1")
+    package["CombatCalibration"] = combat_calibration_tables(constants)
     table = re.search(r"\bskill_name\s*\[[^]]*\]\s*=\s*\{(.*?)\};", constants, re.S)
     if table is None:
         raise ValueError("Cannot locate this version's skill_name array")

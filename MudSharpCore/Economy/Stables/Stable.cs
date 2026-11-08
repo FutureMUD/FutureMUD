@@ -327,9 +327,11 @@ public partial class Stable : SavableKeywordedItem, IStable
 		return Math.Max(0.0M, LodgeFeeProg?.ExecuteDecimal(0.0M, mount, owner) ?? LodgeFee);
 	}
 
-	public decimal QuoteDailyFee(ICharacter mount, ICharacter owner)
+	public decimal QuoteDailyFee(ICharacter mount, ICharacter? owner)
 	{
-		return Math.Max(0.0M, DailyFeeProg?.ExecuteDecimal(0.0M, mount, owner) ?? DailyFee);
+		return Math.Max(0.0M, owner is null
+			? DailyFee
+			: DailyFeeProg?.ExecuteDecimal(0.0M, mount, owner) ?? DailyFee);
 	}
 
 	public void AssessFees(IStableStay stay)
@@ -341,7 +343,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 		var mount = stay.Mount;
 		var owner = stay.OriginalOwner;
-		if (mount is null || owner is null)
+		if (mount is null)
 		{
 			return;
 		}
@@ -460,6 +462,38 @@ public partial class Stable : SavableKeywordedItem, IStable
 		return stay;
 	}
 
+	public IStableStay RegisterStay(ICharacter mount, ICharacter? originalOwner, decimal initialAmountOwing = 0m)
+	{
+		if (mount is not INPC)
+		{
+			throw new ArgumentException("Only NPC mounts can be registered at a stable.", nameof(mount));
+		}
+		if (mount.State.HasFlag(CharacterState.Dead) || mount.State.HasFlag(CharacterState.Stasis))
+		{
+			throw new InvalidOperationException("A dead or suspended mount cannot be registered at a stable.");
+		}
+		if (!mount.IsPrimaryInstance && mount.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent)
+		{
+			throw new InvalidOperationException("A temporary secondary instance cannot be registered at a stable.");
+		}
+		if (initialAmountOwing < 0m)
+		{
+			throw new ArgumentOutOfRangeException(nameof(initialAmountOwing), "Initial stable debt cannot be negative.");
+		}
+		var mountId = CharacterInstanceIdentityComparer.IdentityId(mount);
+		var mountInstanceId = CharacterInstanceIdentityComparer.InstanceId(mount);
+		if (Gameworld.Stables.Any(stable => stable.ActiveStays.Any(x =>
+			    x.MountId == mountId && (x.MountInstanceId is null || x.MountInstanceId == mountInstanceId))))
+		{
+			throw new InvalidOperationException("This mount already has an active stay at a stable.");
+		}
+
+		var stay = new StableStay(this, mount, originalOwner, initialAmountOwing);
+		_stays.Add(stay);
+		mount.Quit(true);
+		return stay;
+	}
+
 	public (bool Truth, string Reason) CanRedeem(ICharacter actor, IStableTicket ticket)
 	{
 		if (!IsReadyToDoBusiness)
@@ -570,7 +604,8 @@ public partial class Stable : SavableKeywordedItem, IStable
 		}
 
 		var accounts = StableAccounts.Where(x => x.IsAuthorisedToUse(actor, 0.0M) != StableAccountAuthorisationFailureReason.NotAuthorisedAccountUser).ToList();
-		var stays = ActiveStays.Where(x => x.OriginalOwnerId == CharacterInstanceIdentityComparer.IdentityId(actor)).ToList();
+		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var stays = ActiveStays.Where(x => x.OriginalOwnerId == actorId).ToList();
 
 		sb.AppendLine();
 		sb.AppendLine($"Active Stays:");
@@ -635,7 +670,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 		sb.AppendLine($"Status: {stay.Status.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Mount: {(stay.Mount is null ? $"#{stay.MountId.ToString("N0", actor)}".ColourValue() : stay.Mount.HowSeen(actor).ColourName())}");
 		sb.AppendLine($"Mount Instance: {(stay.MountInstanceId?.ToString("N0", actor).ColourValue() ?? "Legacy/Primary".ColourCommand())}");
-		sb.AppendLine($"Original Lodger: {(stay.OriginalOwnerName?.GetName(NameStyle.FullName) ?? $"#{stay.OriginalOwnerId.ToString("N0", actor)}").ColourName()}");
+		sb.AppendLine($"Original Lodger: {(stay.OriginalOwnerName?.GetName(NameStyle.FullName) ?? (stay.OriginalOwnerId is { } ownerId ? $"#{ownerId.ToString("N0", actor)}" : "Unknown")).ColourName()}");
 		sb.AppendLine($"Lodged: {stay.LodgedDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
 		sb.AppendLine($"Last Fee Assessment: {stay.LastDailyFeeDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
 		sb.AppendLine($"Closed: {(stay.ClosedDateTime is null ? "Still Active".ColourValue() : stay.ClosedDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue())}");

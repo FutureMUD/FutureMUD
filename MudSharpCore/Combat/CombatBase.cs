@@ -463,6 +463,7 @@ public abstract partial class CombatBase : ICombat
                 GetCombatDelay(perceiver, recovery, move.BaseDelay),
                 $"Combat delay for {perceiver.HowSeen(perceiver, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee)}"),
             perceiver);
+        NotifyAttackResolved(perceiver, move, result);
     }
 
     public virtual void CombatAction(IPerceiver perceiver)

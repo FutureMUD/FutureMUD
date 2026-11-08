@@ -115,6 +115,7 @@ public class EffectHandler : IEffectHandler
         }
 
 		var removed = _effects.Remove(effect);
+		if (removed && effect is IEffectRemovalNotification notification) notification.OnRemovedFromOwner();
 		NotifyCastingInputChange(effect);
 		NotifyNauseaInputChange(effect);
         Gameworld.EffectScheduler.Unschedule(effect);

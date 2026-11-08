@@ -164,7 +164,7 @@ Why it is seed-friendly now:
 ### Bank templates and account-type templates
 These are practical seeding candidates because the runtime model is already explicit about what a bank needs and what an account type controls.
 
-The one-shot Armageddon Worldfile package now configures fixed branches, zero-balance clan accounts, unfilled Banker management appointments and deposit-only rank permissions, plus native stables with configured lodging fees. It does not import historical account/member balances. See the [worldfile behaviour dispositions](../Seeding/Armageddon_Worldfile_Behaviour_Dispositions.md) for the fidelity boundary and proposed wagon custody, animal-sale, tailoring, refill and postal services.
+The one-shot Armageddon Worldfile package now configures fixed branches, zero-balance clan accounts, unfilled Banker management appointments and deposit-only rank permissions, plus native stables with configured lodging fees. Historical mount receipts with valid animal and stable data become native animals, stays and bearer tickets once their source containers load; invalid claims are omitted, and saved per-source-slot guards prevent reissue. These stays have unknown depositors and opening debt, using migration `20261105032015_OptionalStableStayDepositor` and the aligned blank snapshot. It does not import historical bank-account/member balances. See the [worldfile behaviour dispositions](../Seeding/Armageddon_Worldfile_Behaviour_Dispositions.md) for the fidelity boundary and service mappings.
 
 Feasible stock examples:
 

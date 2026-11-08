@@ -23,11 +23,37 @@ using MudSharp.Magic;
 using MudSharp.Magic.Casting;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
+using MudSharp.FutureProg;
+using MudSharp.Effects.Concrete;
+using MudSharp.NPC.AI;
 
 namespace MudSharp_Unit_Tests;
 
 public partial class MagicEngineV4Tests
 {
+	[TestMethod]
+	[DataRow(false, 2)]
+	[DataRow(true, 1)]
+	public void GroundTremor_RecipientCallbackRunsForEligibleLocalRecipientsAndCanLearnMemory(bool protectedCaster, int callbacks)
+	{
+		var callback = new Mock<IFutureProg>();
+		callback.SetupGet(x => x.Id).Returns(912);
+		callback.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		callback.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+		var f = new TremorFixture(localTarget: true, protectedCaster: protectedCaster, callback: callback.Object);
+		var effects = new List<IEffect>();
+		f.Pair.Target.SetupGet(x => x.Effects).Returns(effects);
+		callback.Setup(x => x.Execute(It.IsAny<object[]>())).Callback<object[]>(args =>
+		{
+			if (ReferenceEquals(args[1], f.Pair.Target.Object))
+				effects.Add(new NpcDispositionMemory(f.Pair.Target.Object, f.Pair.F.Actor.Object, NpcDisposition.Hate));
+		}).Returns(true);
+		var result = f.Cast(2);
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		callback.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Exactly(callbacks));
+		Assert.IsTrue(NpcDispositionMemory.Has(f.Pair.Target.Object, f.Pair.F.Actor.Object, NpcDisposition.Hate));
+		foreach (var effect in effects) effect.RemovalEffect();
+	}
 	[TestMethod]
 	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
 	public void GroundTremor_AllGradesApplyFullLocalDamageAndCasterThirdExactlyOnce(int grade)
@@ -161,7 +187,7 @@ public partial class MagicEngineV4Tests
 		public Action? BeforeAgilityResult { get; set; }
 		public ITag Silt { get; } = Mock.Of<ITag>(x => x.Id == 900);
 		public IPlane Shadow { get; }
-		public TremorFixture(bool localTarget = false, bool protectedCaster = false)
+		public TremorFixture(bool localTarget = false, bool protectedCaster = false, IFutureProg? callback = null)
 		{
 			var f = Pair.F;
 			var planes = Enumerable.Range(1, 5).Select(id => Mock.Of<IPlane>(x => x.Id == id)).ToArray(); Shadow = planes[1];
@@ -196,7 +222,15 @@ public partial class MagicEngineV4Tests
 			}
 			Body(f.Body, CasterDamage); Body(Pair.TargetBody, TargetDamage);
 			var stock = ArmageddonGroundTremorSpellContent.Create(99, 123, 2, 3, 4, 5, 900).Content;
-			var row = stock.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2; row.Definition = stock.BuildDefinition(10, 1, 0).ToString();
+			var row = stock.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2;
+			var definition = stock.BuildDefinition(10, 1, 0);
+			if (callback is not null)
+			{
+				var existing = f.World.Object.FutureProgs.ToArray();
+				f.World.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => existing.Append(callback)));
+				definition.Descendants("Effect").Single(x => (string?)x.Attribute("type") == "groundtremor").SetElementValue("RecipientProg", callback.Id);
+			}
+			row.Definition = definition.ToString();
 			f.Spells.Clear(); f.Spells.Add(Mock.Of<IMagicSpell>(x => x.Id == 99));
 			var spell = new MagicSpell(row, f.World.Object) { EffectDurationExpression = new TraitExpression("0", f.World.Object) }; f.Spells.Add(spell);
 		}

@@ -282,6 +282,8 @@
     "20261025165820_LargerFutureProgSources.Designer.cs": "Batch0020",
     "20261028035400_MerchandiseLoadArguments.Designer.cs": "Batch0020",
     "20261028225244_DrugDoseBehaviour.Designer.cs": "Batch0020",
-    "20261029011042_ConfiguredInfectionState.Designer.cs": "Batch0020"
+    "20261029011042_ConfiguredInfectionState.Designer.cs": "Batch0020",
+    "20261105032015_OptionalStableStayDepositor.Designer.cs": "Batch0020",
+    "20261106083212_RangedWeaponSecondaryDamage.Designer.cs": "Batch0020"
   }
 }

@@ -17,6 +17,21 @@ public partial class Body
 			var absorption = EquippedItemBonuses.BonusFor(Actor, EquippedItemBonusKind.PhysicalAbsorption);
 			damage = EquipmentDamageAbsorption.Apply(damage, absorption);
 			if (inward is not null) inward = EquipmentDamageAbsorption.Apply(inward, absorption);
+			foreach (var effect in CombinedEffectsOfType<IPhysicalDamageAbsorptionEffect>()
+				.Distinct<IPhysicalDamageAbsorptionEffect>(ReferenceEqualityComparer.Instance).ToArray())
+			{
+				if (!CommandExecutionScope.TryContinue() || !ReferenceEquals(Actor.Body, this)) return false;
+				var applies = effect.Applies();
+				if (!CommandExecutionScope.TryContinue() || !ReferenceEquals(Actor.Body, this)) return false;
+				if (!applies || damage is null || !CombinedEffectsOfType<IPhysicalDamageAbsorptionEffect>().Any(x => ReferenceEquals(x, effect))) continue;
+				damage.MutationGuard?.Validate(this, damage);
+				inward?.MutationGuard?.Validate(this, inward);
+				if (!CommandExecutionScope.TryContinue() || !ReferenceEquals(Actor.Body, this)) return false;
+				if (!CombinedEffectsOfType<IPhysicalDamageAbsorptionEffect>().Any(x => ReferenceEquals(x, effect))) continue;
+				CommandExecutionScope.MarkCommitted();
+				damage = EquipmentDamageAbsorption.Apply(damage, effect.PhysicalAbsorption);
+				if (inward is not null) inward = EquipmentDamageAbsorption.Apply(inward, effect.PhysicalAbsorption);
+			}
 		}
 		if (damage is null || (damage.DamageAmount <= 0 && (inward?.DamageAmount ?? 0) <= 0)) return true;
 		foreach (var protection in CombinedEffectsOfType<IDamageProtectionEffect>()

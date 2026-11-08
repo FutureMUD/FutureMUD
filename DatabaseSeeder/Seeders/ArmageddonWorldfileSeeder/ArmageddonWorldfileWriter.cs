@@ -220,6 +220,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallJailNeeds();
 		InstallGenericNpcAi();
 		InstallNpcCombatAbilities();
+		InstallNpcMemories();
 		FinalizeInteriorTemplates();
 		FinalizeAuxiliaryRooms();
 		if (ArmageddonChargenPolicy.ConfigureWorldfileStart(_db))

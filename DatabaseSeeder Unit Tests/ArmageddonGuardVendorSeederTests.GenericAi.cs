@@ -54,12 +54,15 @@ public partial class ArmageddonGuardVendorSeederTests
 		{
 			registers.Setup(x => x.GetType(ProgVariableTypes.Character, ArmageddonWorldfileWriter.MountTrainedRegister)).Returns(ProgVariableTypes.Number);
 			registers.Setup(x => x.GetValue(It.IsAny<IProgVariable>(), ArmageddonWorldfileWriter.MountTrainedRegister)).Returns(new NumberVariable(0));
+			registers.Setup(x => x.GetType(ProgVariableTypes.Character, "arm_npc_legacy_tribe")).Returns(ProgVariableTypes.Number);
+			registers.Setup(x => x.GetValue(It.IsAny<IProgVariable>(), "arm_npc_legacy_tribe")).Returns(new NumberVariable(0));
 		});
 		foreach (var template in db.NpcTemplates)
 		{
 			var id = (int)(template.Id % 1000);
 			var ais = template.NpctemplatesArtificalIntelligences.Select(x => db.ArtificialIntelligences.Single(y => y.Id == x.AiId)).ToArray();
-			Assert.AreEqual(id is 1 or 2 ? 1 : 0, ais.Count(x => x.Type == "Aggressor"));
+			Assert.AreEqual(1, ais.Count(x => x.Type == "Aggressor"), "Non-aggressive NPCs also react to learned hate/fear.");
+			Assert.AreEqual(id is 1 or 2, (bool?)XElement.Parse(ais.Single(x => x.Type == "Aggressor").Definition).Element("AggressiveClassification") ?? true);
 			Assert.AreEqual(id is 2 or 4 ? 1 : 0, ais.Count(x => x.Type == "Wanderer"));
 			if (id is 1 or 2) Assert.AreEqual(id == 1 ? "0" : "1", XElement.Parse(ais.Single(x => x.Type == "Aggressor").Definition).Element("AcquisitionRange")!.Value);
 		}
@@ -156,7 +159,7 @@ public partial class ArmageddonGuardVendorSeederTests
 		foreach (var npc in source.Npcs)
 		{
 			var template = db.NpcTemplates.Local.Single(x => x.Id == npc.Vnum + 1000000);
-			Assert.AreEqual((npc.Flags[0] & 32) != 0 ? 1 : 0, template.NpctemplatesArtificalIntelligences.Count(x => db.ArtificialIntelligences.Local.Single(y => y.Id == x.AiId).Type == "Aggressor"), "Aggression " + npc.Vnum);
+			Assert.AreEqual((npc.Flags[0] & 32) != 0 || (npc.Flags[0] & (1 << 29)) == 0 ? 1 : 0, template.NpctemplatesArtificalIntelligences.Count(x => db.ArtificialIntelligences.Local.Single(y => y.Id == x.AiId).Type == "Aggressor"), "Aggression " + npc.Vnum);
 			Assert.AreEqual((npc.Flags[0] & 2) == 0 ? 1 : 0, template.NpctemplatesArtificalIntelligences.Count(x => db.ArtificialIntelligences.Local.Single(y => y.Id == x.AiId).Type == "Wanderer"), "Wandering " + npc.Vnum);
 		}
 	}

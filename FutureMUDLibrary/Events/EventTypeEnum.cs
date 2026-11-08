@@ -810,6 +810,11 @@ namespace MudSharp.Events
 		[EventInfo("Fires on the attacker once after an ordinary melee/natural attack action resolves and its target survives, including misses. Authored additional actions do not fire it. Notification does not replace the scheduled turn.",
 			["character", "character", "boolean"], ["attacker", "target", "successful"],
 			[ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Boolean])]
-		CharacterCombatAttackResolved = 166
+		CharacterCombatAttackResolved = 166,
+
+		[EventInfo("Fires on a character after an actual room exit traversal begun by a combat flee. Includes characters visible at departure that remain in the original room. Cancelled movement, breaking melee and movement within a route room do not fire it.",
+			["character", "location", "character collection"], ["actor", "origin", "leftbehind"],
+			[ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Character | ProgVariableTypeCode.Collection])]
+		CharacterEscapedCombat = 167
     }
 }

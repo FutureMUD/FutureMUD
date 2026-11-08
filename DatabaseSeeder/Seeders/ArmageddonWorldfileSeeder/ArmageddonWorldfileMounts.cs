@@ -23,7 +23,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private const int AggressiveFlag = 1 << 5;
 
 	private const string MountPermitProg = """
-		if (getregister(@mount, "arm_mount_trained") != 1)
+		if (getregister(@mount, "arm_mount_trained") != 1 and not(remembers(@mount, @rider, "Like")))
 			return false
 		end if
 		var owner = getregister(@mount, "arm_mount_owner_identity")

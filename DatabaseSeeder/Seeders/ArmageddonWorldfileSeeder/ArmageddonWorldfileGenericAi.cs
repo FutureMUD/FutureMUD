@@ -42,6 +42,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 
 	private void InstallGenericNpcAi()
 	{
+		EnsureNpcMemoryPolicy();
 		EnsureMountRegisters();
 		var merchants = _source.Shops.Select(x => x.Keeper).ToHashSet();
 		var merchantProg = Prog("ArmageddonWorldfileIsMerchant", "return " + SourceNpcPredicate("subject", x => merchants.Contains(x.Vnum)),
@@ -51,8 +52,10 @@ internal sealed partial class ArmageddonWorldfileWriter
 			ProgVariableTypes.Boolean, ("subject", ProgVariableTypes.Character));
 		var standing = EngineCompiler::MudSharp.Body.Position.PositionStates.PositionStanding.Instance.Id;
 		var peek = _source.Skills.Select((name, index) => (name, index)).FirstOrDefault(x => x.name.Equals("peek", StringComparison.OrdinalIgnoreCase)).index;
-		foreach (var source in _source.Npcs.Where(x => (x.Flags[0] & (1 << 5)) != 0))
+		foreach (var source in _source.Npcs.Where(x => (x.Flags[0] & (1 << 5)) != 0 || (x.Flags[0] & (1 << 29)) == 0))
 		{
+			var usesMemory = (source.Flags[0] & (1 << 29)) == 0;
+			var hate = usesMemory ? "remembers(@actor, @target, \"Hate\")" : "false";
 			var body = new StringBuilder($$"""
 			if (@actor == @target or isadmin(@target) or not(@actor.isawake) or @actor.incombat or positionid(@actor) != {{standing}})
 				return false
@@ -62,34 +65,38 @@ internal sealed partial class ArmageddonWorldfileWriter
 			end if
 			""");
 			body.AppendLine();
+			if ((source.Flags[0] & (1 << 5)) == 0) body.AppendLine($"if (not({hate}))\nreturn false\nend if");
 			var localOnly = (source.Flags[0] & 2) != 0 || merchants.Contains(source.Vnum) || source.Identity[6] is 14 or 30;
 			if (localOnly) body.AppendLine("if (@actor.location != @target.location)\nreturn false\nend if");
 			if (source.Identity[6] == 25)
 			{
 				var guild = _source.Guilds.SingleOrDefault(x => x.Index == source.Identity[3]);
-				body.AppendLine($"if (({SourceNpcPredicate("target", x => x.Identity[3] == source.Identity[3])})" +
-					(guild is null ? "" : $" or @target.class == \"{guild.Name.Replace("\"", "") }\"") + ")\nreturn false\nend if");
+				var sameGuild = $"({SourceNpcPredicate("target", x => x.Identity[3] == source.Identity[3])})" +
+					(guild is null ? "" : $" or @target.class == \"{guild.Name.Replace("\"", "")}\"");
+				body.AppendLine($"if (({sameGuild}) and not({hate}))\nreturn false\nend if");
 			}
 			if (source.Identity[6] == 20) body.AppendLine($"if ({SourceRacePredicate("target", 20)})\nreturn false\nend if");
 			// Jakhal's explicit mount preference precedes the ordinary same-clan/race filters.
-			if (source.Identity[6] == 30) body.AppendLine($"if (@{mountProg.FunctionName}(@target))\nreturn true\nend if");
+			if (source.Identity[6] == 30) body.AppendLine($"if (@{mountProg.FunctionName}(@target))\n" + (usesMemory ? "remember(@actor, @target, \"Hate\")\n" : "") + "return true\nend if");
 			if (source.Identity[6] == 12) body.AppendLine($"if ({SourceRacePredicate("target", 12)})\nreturn false\nend if");
 			if (source.Identity[6] == 37) body.AppendLine("if (not(@target.isawake) or not(@target.canmove))\nreturn false\nend if");
-			body.AppendLine("if (@actor.clans.Any(clan, isclanmember(@target, @clan)))\nreturn false\nend if");
-			body.AppendLine("if (not(isnull(@target.following)))\nif (@actor.clans.Any(clan, isclanmember(@target.following, @clan)))\nreturn false\nend if\nend if");
+			body.AppendLine("if (@ArmageddonWorldfileMemorySameClan(@actor, @target))\nreturn false\nend if");
+			body.AppendLine("if (not(isnull(@target.following)))\nif (@ArmageddonWorldfileMemorySameClan(@actor, @target.following))\nreturn false\nend if\nend if");
 			if (_db.LegalAuthorities.Local.FirstOrDefault(x => x.Name == "Allanak Militia") is { } allanak)
 				body.AppendLine($"if ({ClanPredicate("actor", 12)} and not(isnull(enforceablecrime(@target, tolegalauthority({allanak.Id})))) and @target.location.characters.Any(captor, issubduedby(@target, @captor)))\nreturn false\nend if");
-			body.AppendLine($"if ({ClanPredicate("actor", 7)} and {ClanPredicate("target", 24999)})\nreturn false\nend if");
+			body.AppendLine($"if ({ClanPredicate("actor", 7)} and {ClanPredicate("target", 24999)} and not({hate}))\nreturn false\nend if");
 			body.AppendLine($"if ({ClanPredicate("actor", 34)})\nreturn {ClanPredicate("target", 12)}\nend if");
 			if ((source.Flags[0] & 4) != 0 && source.Skills.Any(x => x[0] == peek && x[1] > 0) && source.Identity[6] is 1 or 2 or 3 or 23 or 32 or 33 or 98)
-				body.AppendLine("return @target.isawake and (@target.wornitems.Any(garment, @garment.basecost > 60 and cansee(@actor, @garment)) or @target.helditems.Any(held, @held.basecost > 60 and cansee(@actor, @held)) or @target.wieldeditems.Any(weapon, @weapon.basecost > 60 and cansee(@actor, @weapon)))");
-			else body.AppendLine($"return not(@{mountProg.FunctionName}(@target))");
+				body.AppendLine($"return @target.isawake and ({hate} or @target.wornitems.Any(garment, @garment.basecost > 60 and cansee(@actor, @garment)) or @target.helditems.Any(held, @held.basecost > 60 and cansee(@actor, @held)) or @target.wieldeditems.Any(weapon, @weapon.basecost > 60 and cansee(@actor, @weapon)))");
+			else body.AppendLine($"return {hate} or not(@{mountProg.FunctionName}(@target))");
 			var targetProg = Prog("ArmageddonWorldfileAggressive" + source.Vnum, body.ToString(), ProgVariableTypes.Boolean,
 				("actor", ProgVariableTypes.Character), ("target", ProgVariableTypes.Character));
 			var ai = CreateAi("Selective Aggression Vnum" + source.Vnum, "Aggressor", new XElement("Definition",
 				new XElement("WillAttackProg", targetProg.Id), new XElement("AcquisitionRange", localOnly ? 0 : 1),
+				new XElement("RespectDispositionMemory", usesMemory), new XElement("AggressiveClassification", (source.Flags[0] & (1 << 5)) != 0),
 				new XElement("EngageDelayDiceExpression", "3000+1d18000"), new XElement("EngageEmote", "")));
 			AttachGenericAggressor(source.Vnum, ai, targetProg);
+			if (usesMemory && !localOnly) InstallNpcMemoryPursuit(source, targetProg);
 		}
 
 		var disabledZones = _source.Zones.Where(x => x.Fields[2] == 3).Where(x => _zones.ContainsKey(x.Index)).Select(x => _zones[x.Index].Id).ToArray();
@@ -115,7 +122,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				new XElement("TargetBody", 0), new XElement("TargetSpeed", 0), new XElement("OpenDoors", false), new XElement("EmoteText", "")));
 			foreach (var npc in _source.Npcs.Where(x => (x.Flags[0] & 2) == 0 && ((x.Flags[0] & 64) != 0) == stayZone)) AttachFamilyAi(npc.Vnum, ai);
 		}
-		Adapt("generic NPC AI", 0, "Native Aggressor/Wanderer AI consumes source aggressive/sentinel/stay-zone flags. Target filters preserve clan, racial, mount and shopkeeper exclusions. Native detection, pacifism, combat settings and movement remain authoritative. Source transient pointer-based hate/fear/like lists are not invented. Wander delays use 60–180 seconds; native valid-exit selection and ten-second aggression evaluation replace source scheduler details.");
+		Adapt("generic NPC AI", 0, "Native Aggressor/Wanderer AI consumes source aggressive/sentinel/stay-zone flags. Target filters preserve clan, racial, mount and shopkeeper exclusions. Session-only native memories record future source-backed interactions; no historic entries are invented. Non-aggressive memory consumers retain non-aggressive classification. Hunt-trained non-sentinels use bounded native pursuit. Native detection, pacifism, combat settings and movement remain authoritative. Wander delays use 60–180 seconds; native valid-exit selection and ten-second aggression evaluation replace source scheduler details.");
 		Flush();
 	}
 
@@ -144,6 +151,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 					("actor", ProgVariableTypes.Character), ("target", ProgVariableTypes.Character));
 				xml.SetElementValue("WillAttackProg", combined.Id);
 				xml.SetElementValue("AcquisitionRange", XElement.Parse(ai.Definition).Element("AcquisitionRange")!.Value);
+				xml.SetElementValue("RespectDispositionMemory", XElement.Parse(ai.Definition).Element("RespectDispositionMemory")!.Value);
 				var merged = CreateAi("Combined Selective Aggression " + id, "Aggressor", xml);
 				template.NpctemplatesArtificalIntelligences.Remove(old);
 				template.NpctemplatesArtificalIntelligences.Add(new() { AiId = merged.Id, NpcTemplateId = id, NpcTemplateRevisionNumber = template.RevisionNumber });

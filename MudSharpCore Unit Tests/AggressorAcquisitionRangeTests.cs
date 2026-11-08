@@ -77,6 +77,14 @@ public class AggressorAcquisitionRangeTests
 		ai.HandleEvent(EventType.TenSecondTick, actor.Object); CollectionAssert.AreEqual(targets, ai.Considered);
 		var xml = (string)typeof(AggressorAI).GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(ai, null)!;
 		row.Definition = xml; Assert.AreEqual(2u, new AggressorAI(row, world.Object).AcquisitionRange);
+		Assert.IsFalse(ai.RespectDispositionMemory);
+		Assert.IsTrue(ai.CountsAsAggressive);
+		ai.BuildingCommand(actor.Object, new StringStack("memory"));
+		ai.BuildingCommand(actor.Object, new StringStack("aggressive"));
+		row.Definition = (string)typeof(AggressorAI).GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(ai, null)!;
+		var reloaded = new AggressorAI(row, world.Object);
+		Assert.IsTrue(reloaded.RespectDispositionMemory);
+		Assert.IsFalse(reloaded.CountsAsAggressive);
 		ai.Considered.Clear(); ai.BuildingCommand(actor.Object, new StringStack("range 0")); ai.HandleEvent(EventType.TenSecondTick, actor.Object);
 		Assert.AreEqual(0, ai.Considered.Count);
 		Assert.IsFalse(ai.BuildingCommand(actor.Object, new StringStack("range -1")));

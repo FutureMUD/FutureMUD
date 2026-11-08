@@ -132,8 +132,10 @@ internal static class PredatorAIHelpers
 		return true;
 	}
 
-	public static void EngageTarget(ICharacter ch, IPerceiver tp, string engageEmote, IFutureProg? openingProg = null)
+	public static void EngageTarget(ICharacter ch, IPerceiver tp, string engageEmote, IFutureProg? openingProg = null,
+		bool respectDispositionMemory = false)
 	{
+		if (respectDispositionMemory && tp is ICharacter remembered && NpcMemoryReactions.SuppressAttack(ch, remembered)) return;
 		if (ch.State.HasFlag(CharacterState.Dead) || ch.Corpse != null)
 		{
 			return;
@@ -168,7 +170,8 @@ internal static class PredatorAIHelpers
 	}
 
 	public static bool CheckForAttack(ICharacter aggressor, ICharacter target, IFutureProg willAttackProg,
-		string engageDelayDiceExpression, string engageEmote, bool requireHungryPredator, IFutureProg? openingProg = null)
+		string engageDelayDiceExpression, string engageEmote, bool requireHungryPredator, IFutureProg? openingProg = null,
+		bool respectDispositionMemory = false)
 	{
 		if (!WillAttack(aggressor, target, willAttackProg, requireHungryPredator))
 		{
@@ -177,7 +180,7 @@ internal static class PredatorAIHelpers
 
 		aggressor.AddEffect(
 			new BlockingDelayedAction(aggressor,
-				_ => EngageTarget(aggressor, target, engageEmote, openingProg),
+				_ => EngageTarget(aggressor, target, engageEmote, openingProg, respectDispositionMemory),
 				"preparing to engage in combat",
 				new[] { "general", "combat-engage", "movement" },
 				null),

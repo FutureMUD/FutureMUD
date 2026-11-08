@@ -17,6 +17,14 @@ including grade seven; hidden exits and closed doors do not qualify. Dubs now pe
 nullable concealment provenance: legacy unknown provenance does not establish verified
 personal recognition. Explicit native dubbing and introduction establish provenance.
 
+Ground Tremor also accepts optional `recipientprog <boolean(character,character) prog|none>`.
+It invokes the prog with caster and affected character after each eligible local harm
+attempt, including the caster's reduced self harm. Protected local recipients and
+remote fall/message recipients do not invoke it. The return value is ignored; the
+callback is saved and cloned with the effect. An absent or zero binding retains the
+existing behaviour. Setting authors can reuse this for per-recipient reactions without
+making a room-target callback guess who was actually affected.
+
 Return Tether retains the approved native physical-return adaptation for `30*grade`
 seconds. The archived source event reports a direction; it does not itself authorize
 arbitrary teleporting. The native return binds the exact original identity, instance,

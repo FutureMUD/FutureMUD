@@ -19,7 +19,7 @@ using System;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class WeatherSeeder : IDatabaseSeeder
+public partial class WeatherSeeder : IFoundationSeeder
 {
     private static readonly string[] StockWeatherEventNames = ["HumidStill", "RainBreeze", "SnowWind"];
     private static readonly string[] StockSeasonNames = ["temperate_mid_winter", "temperate_mid_summer", "temperate_mid_autumn"];

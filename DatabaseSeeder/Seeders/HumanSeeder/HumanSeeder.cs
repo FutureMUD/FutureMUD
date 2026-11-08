@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class HumanSeeder : IDatabaseSeeder
+public partial class HumanSeeder : IFoundationSeeder
 {
 	private static readonly (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) HumanBaselineSatiationLimits =
 		SatiationLimitSeederHelper.MaximumLimitsForCadence(12.0, 6.0);

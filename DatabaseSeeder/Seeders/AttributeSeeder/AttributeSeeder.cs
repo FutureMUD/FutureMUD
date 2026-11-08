@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public class AttributeSeeder : IDatabaseSeeder
+public class AttributeSeeder : IFoundationSeeder
 {
     public IEnumerable<(string Id, string Question,
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,

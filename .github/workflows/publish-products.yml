@@ -5,6 +5,7 @@ on:
     tags:
       - 'engine-v*'
       - 'seeder-v*'
+      - 'itemseeder-v*'
       - 'discordbot-v*'
       - 'terrainplanner-v*'
       - 'mudclient-v*'
@@ -93,6 +94,20 @@ jobs:
               SingleFile = $true
               IncludeNativeLibrariesForSelfExtract = $true
             }
+            itemseeder = [pscustomobject]@{
+              TagPrefix = 'itemseeder-v'
+              ProjectPath = 'ItemSeeder/ItemSeeder.csproj'
+              TestProjects = [string[]]@('ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj')
+              Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64')
+              ArchiveName = 'itemseeder-{version}-{runtime}.zip'
+              DocumentationCatalogue = $false
+              PackageKind = 'single-file'
+              WebProjectPath = ''
+              PackageScriptPath = ''
+              FrameworkDependent = $true
+              SingleFile = $true
+              IncludeNativeLibrariesForSelfExtract = $true
+            }
             discordbot = [pscustomobject]@{
               TagPrefix = 'discordbot-v'
               ProjectPath = 'DiscordBotCore/DiscordBotCore.csproj'
@@ -151,11 +166,11 @@ jobs:
               IncludeNativeLibrariesForSelfExtract = $true
             }
           }
-          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
+          $allowedIds = [string[]]@('engine', 'seeder', 'itemseeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
 
           $tagMatch = [regex]::Match(
             $env:RELEASE_TAG,
-            '\A(?<product>engine|seeder|discordbot|terrainplanner|mudclient)-v(?<version>[0-9]+\.[0-9]+\.[0-9]+)\z',
+            '\A(?<product>engine|seeder|itemseeder|discordbot|terrainplanner|mudclient)-v(?<version>[0-9]+\.[0-9]+\.[0-9]+)\z',
             [Text.RegularExpressions.RegexOptions]::CultureInvariant)
           if (-not $tagMatch.Success) {
             throw "Release tag '$($env:RELEASE_TAG)' does not match the strict release-tag allowlist."
@@ -189,6 +204,14 @@ jobs:
 
           $manifest = Get-Content 'FutureMUD.Web/Configuration/release-products.json' -Raw | ConvertFrom-Json
           $definitions = @($manifest.products)
+          $legacyAllowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
+          if (-not (Test-Path -LiteralPath 'ItemSeeder/ItemSeeder.csproj' -PathType Leaf) -and
+              $definitions.Count -eq $legacyAllowedIds.Count) {
+            # Older annotated release tags contain the exact pre-split product manifest.
+            # The remaining strict allowlist checks validate every legacy product entry.
+            $allowedIds = $legacyAllowedIds
+            [void]$allowedDefinitions.Remove('itemseeder')
+          }
           if ($definitions.Count -ne $allowedIds.Count) { throw 'The product manifest contains an unexpected number of products.' }
           $seenIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
           foreach ($candidate in $definitions) {
@@ -461,7 +484,7 @@ jobs:
           SOURCE_REVISION: ${{ needs.prepare.outputs.source_revision }}
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          if ($env:PRODUCT -cnotmatch '^(engine|seeder|discordbot|terrainplanner|mudclient)$' -or
+          if ($env:PRODUCT -cnotmatch '^(engine|seeder|itemseeder|discordbot|terrainplanner|mudclient)$' -or
               $env:VERSION -cnotmatch '^\d+\.\d+\.\d+$' -or
               $env:SOURCE_REVISION -cnotmatch '^[0-9a-f]{40}$') {
             throw 'Prepared publishing metadata failed production validation.'

@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$project = Join-Path $repoRoot 'DatabaseSeeder/DatabaseSeeder.csproj'
+$project = Join-Path $repoRoot 'ItemSeeder/ItemSeeder.csproj'
 $command = if ($Check) { '--check-industrialised-catalogue' } else { '--export-industrialised-catalogue' }
 
 # Sources are the compiled stock, specialised graphs and approved planning records.

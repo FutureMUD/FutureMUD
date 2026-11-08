@@ -2,12 +2,12 @@
 
 ## Start here to add content
 
-Edit [PrimaryProductionSeeder.cs](../../../DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs): **Projects / ProspectingProject / ProductionProject and their resource/output dependencies**. Keep source identity and dependent references together. The worked entry below is the smallest existing path to follow before adding a new definition.
+Edit [PrimaryProductionSeeder.cs](../../../ItemSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs): **Projects / ProspectingProject / ProductionProject and their resource/output dependencies**. Keep source identity and dependent references together. The worked entry below is the smallest existing path to follow before adding a new definition.
 
 ## Purpose, operator choices and prerequisites
 
 Stock prospecting, extraction, quarrying, kiln, smelting, salt, tar, peat, and pigment project templates..
-Baseline availability: **Disabled**. [PrimaryProductionSeeder.cs](../../../DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs) owns `SeederQuestions`, `SeedData` and `ShouldSeedData`. Reflection discovery needs no manual registration.
+Baseline availability: **Disabled**. [PrimaryProductionSeeder.cs](../../../ItemSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs) owns `SeederQuestions`, `SeedData` and `ShouldSeedData`. Reflection discovery needs no manual registration.
 
 Operator question IDs: none in the concrete question sequence. Read the linked `SeederQuestions` filters and validators for accepted values, defaults and conditional visibility; required database bindings cannot be replaced with guessed numeric IDs.
 
@@ -47,7 +47,7 @@ The example was checked against source at the pinned baseline. No build, databas
 
 Related source tests and design references:
 
-- [PrimaryProductionSeederTests.cs](../../../DatabaseSeeder%20Unit%20Tests/PrimaryProductionSeederTests.cs)
+- [PrimaryProductionSeederTests.cs](../../../ItemSeeder%20Unit%20Tests/PrimaryProductionSeederTests.cs)
 - [Primary_Production_Seeder_Design_Reference.md](../../../Design%20Documents/Seeding/Primary_Production_Seeder_Design_Reference.md)
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).

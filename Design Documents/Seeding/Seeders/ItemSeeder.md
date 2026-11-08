@@ -1,15 +1,17 @@
 # ItemSeeder
 
-ItemSeeder uses one era-independent, typed C# catalogue for items, recipes and specialised graphs. Fixed variants are authored records. Era, module, readiness, evidence and dependency metadata determine admission; they do not select different authoring formats. No Python generator, TSV parser, external ownership manifest or SQL sidecar is required to build or run the installer. See the [implementation results](../ItemSeeder_Unified_Catalogue_Completion_Results.md) for qualification evidence and remaining platform limits. Earlier [stages 1–2](../ItemSeeder_Unified_Catalogue_Stage12_Results.md) and [first stage 3 batch](../ItemSeeder_Unified_Catalogue_Stage3_Results.md) are historical checkpoints.
+Open the dedicated [ItemSeeder.sln](../../../ItemSeeder.sln) for the optional installer, catalogue, developer tools, and item tests. Operators first prepare a world with Database Seeder and then connect FutureMUD Item Seeder to that world. Primary Production ships with Item Seeder and is disabled. Agriculture ships with Database Seeder.
+
+ItemSeeder uses one era-independent, typed C# catalogue for items, recipes and specialised graphs. Fixed variants are authored records. Era, module, readiness, evidence and dependency metadata determine admission; they do not select different authoring formats. No Python generator, TSV parser, external ownership manifest or SQL sidecar is required to build or run the installer. See the [implementation results](../ItemSeeder_Unified_Catalogue_Completion_Results.md) for qualification evidence and remaining platform limits. Earlier [stages 1â€“2](../ItemSeeder_Unified_Catalogue_Stage12_Results.md) and [first stage 3 batch](../ItemSeeder_Unified_Catalogue_Stage3_Results.md) are historical checkpoints.
 
 ## Start here to add content
 
-The authority is [Catalogue](../../../DatabaseSeeder/Seeders/ItemSeeder/Catalogue). Content assemblies depend on the catalogue contracts and shared domain types, not on the installer. Each factory returns literal data; bounded selection methods enumerate those factories in the required order. The ordinary build compiles checked-in C# directly. Compatibility projections serve existing validators and persistence writers; they are not a second content source.
+The authority is [Catalogue](../../../ItemSeeder/Seeders/ItemSeeder/Catalogue). Content assemblies depend on the catalogue contracts and shared domain types, not on the installer. Each factory returns literal data; bounded selection methods enumerate those factories in the required order. The ordinary build compiles checked-in C# directly. Compatibility projections serve existing validators and persistence writers; they are not a second content source.
 
 | Content | Authoritative definition | Selection/application |
 | --- | --- | --- |
 | Ordinary historical items and aliases | `Assemblies/Historical*/Content` and `HistoricalSpecs*/Content`, `CatalogueItemDefinition` and explicit spec/alias records | Owning `Compiled*Catalogue` selection; common item writer |
-| Industrial ordinary items and price evidence | `Assemblies/Industrial01`–`Industrial04/Content`, `CatalogueItemDefinition` and `CataloguePriceEvidenceDefinition` | Existing technology-profile binding, dependency and ownership validation |
+| Industrial ordinary items and price evidence | `Assemblies/Industrial01`â€“`Industrial04/Content`, `CatalogueItemDefinition` and `CataloguePriceEvidenceDefinition` | Existing technology-profile binding, dependency and ownership validation |
 | Medical and repair | `Assemblies/Medical/Content`, explicit item records | `CompiledStockCatalogue` projection and medical prerequisite validation |
 | Recipes | `Assemblies/Recipes*/Content`, `CatalogueRecipeDefinition` | Explicit `CompiledRecipeSelection*` batches; typed recipe XML writer and common craft persistence |
 | Recipe access gates and selector programs | `Assemblies/Contracts/CatalogueRecipeGates.cs`, `NativeCatalogueRecipeGates.cs`, `Assemblies/RecipeSupport/Content` | Shared gate/program/knowledge ownership writers |
@@ -73,8 +75,22 @@ The original native installer suppresses a second tall leather arrow-quiver defi
 
 After changing catalogue definitions, run `--export-compiled-item-inventory`, rebuild, run `--capture-item-manifest-in-memory`, and run `--check-item-manifest`. The first command writes checked-in bounded inventory C# from the selected definitions; the second captures the inspection JSON with the current source fingerprint. These are explicit developer refresh operations, not build or installation prerequisites. Review both diffs and source/identity parity. Relational capture uses the protected `FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING` environment variable; positional credentials are rejected.
 
-The normal runtime reads the compiled inventory with no repository search, file hashing or JSON parse. Blank-database SQL and its SHA/migration metadata are embedded resources. Bootstrap retains the native import fast path, materializing an owned temporary SQL file and cleaning it on success or failure; EF migration fallback remains available. Single-file publication embeds managed/native dependencies, strips development sidecars and selectively precompiles bounded catalogue assemblies. Framework-dependent publications still require the declared .NET runtime. The installer can create configuration, launcher and backup outputs during normal setup; these are outputs, not shipped dependencies.
+The installed executable loads the compiled inventory directly. Item Seeder checks the database migration history before displaying its packages. Database Seeder owns database creation, migrations, blank snapshots and launcher generation. Both products use framework-dependent single-file publication. Item Seeder selectively precompiles its catalogue assemblies.
 
-Run the full seeder suite and relevant persistence tests. Use real MySQL first install, unchanged rerun, legacy upgrade, staged era additions, customisation/rename preservation, missing-link repair, permanent IDs and rollback checks. For construction-path changes, exercise actual runtime craft products, food ageing/XML reload, wearable profile resolution and vehicle graph references. Source hashes and insertion counts alone do not prove these behaviours. The [completion results](../ItemSeeder_Unified_Catalogue_Completion_Results.md) distinguish completed checks, failed/superseded attempts, performance evidence and unavailable native platforms.
+Run the Item Seeder unit suite and relevant persistence tests. Use real MySQL first install, unchanged rerun, legacy upgrade, staged era additions, customisation/rename preservation, missing-link repair, permanent IDs and rollback checks. For construction-path changes, exercise actual runtime craft products, food ageing/XML reload, wearable profile resolution and vehicle graph references. Source hashes and insertion counts alone do not prove these behaviours. The [completion results](../ItemSeeder_Unified_Catalogue_Completion_Results.md) distinguish completed checks, failed/superseded attempts, performance evidence and unavailable native platforms.
 
 See the [shared execution contract](README.md#shared-execution-contract), [dependency map](Dependency_Map.md), and [coverage matrix](Coverage_and_Evidence.md).
+
+## Standalone product measurements
+
+The comparison on 8 November 2026 used the bundled revision `7c92ff07d` and the split Database Seeder on the same Windows x64 workstation. Both clean Release builds used `dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Release -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false`. Timings are individual observations under development load.
+
+| Database Seeder measurement | Bundled | Split |
+| --- | ---: | ---: |
+| Projects in the development solution filter | 107 | 28 |
+| Item catalogue projects in that filter | 80 | 0 |
+| Clean Release build, including restore | 23 min 48 s | 6 min 15 s |
+| Debug startup through first package menu and immediate quit, same Medieval world | 24.91 s | 20.54 s |
+| Framework-dependent single-file win-x64 ZIP, bytes | 108,918,851 | 74,257,987 |
+
+The normal Engine filter, Database Seeder unit-test dependency graph, and Database Seeder publication contained zero item catalogue assemblies or projects. The separate item manifest reproduced all 43,825 bundled entries in order, including their per-entry fingerprints. On MySQL the standalone and bundled item reruns of the same old-world fixture produced identical ownership records for all 14,321 managed item-package aggregates.

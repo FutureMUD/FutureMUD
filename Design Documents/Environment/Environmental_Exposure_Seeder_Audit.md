@@ -7,8 +7,8 @@ This audit distinguishes qualitative material compatibility, authored game rates
 The Debug-only capture runs the actual seeders against a newly named, owned disposable MySQL database. It imports the checked-in blank snapshot and enables the same EF lazy-loading proxies as the installer. It does not select or mutate an existing game database.
 
 ```powershell
-dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug -m:1 --no-restore
-dotnet run --project DatabaseSeeder/DatabaseSeeder.csproj -c Debug --no-build --no-restore -- --capture-environmental-exposure --native
+dotnet build SeederCatalogueTools/SeederCatalogueTools.csproj -c Debug -m:1
+dotnet run --project SeederCatalogueTools/SeederCatalogueTools.csproj -c Debug --no-build --no-restore -- --capture-environmental-exposure --native
 ```
 
 The capture uses the industrial-neutral replay's engine, anatomy, animal, robot, supernatural and workflow prerequisites, Antiquity cultural heritage, every available pre-industrial item era, modern UsefulSeeder equipment, and both optional exposure packs. The Industrial ItemSeeder currently refuses installation because its existing production-readiness gate rejects 464 food concepts. The capture does not bypass that guard. That package creates no unique persisted material, liquid or gas definitions; modern supplied-gas components are selected independently through UsefulSeeder. This exclusion therefore limits item installation evidence, rather than silently omitting an additional live fluid catalogue.

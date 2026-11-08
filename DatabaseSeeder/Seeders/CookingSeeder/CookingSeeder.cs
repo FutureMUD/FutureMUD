@@ -15,7 +15,7 @@ using CraftPhase = MudSharp.Models.CraftPhase;
 
 namespace DatabaseSeeder.Seeders;
 
-public class CookingSeeder : IDatabaseSeeder
+public class CookingSeeder : IFoundationSeeder
 {
 	private const string StockPrefix = "CookingSeeder";
 

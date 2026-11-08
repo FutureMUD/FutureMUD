@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public class LawSeeder : IDatabaseSeeder
+public class LawSeeder : IFoundationSeeder
 {
     private static readonly string[] StockAuthorityMarkers =
     [

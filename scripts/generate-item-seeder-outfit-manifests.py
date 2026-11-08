@@ -23,9 +23,9 @@ RENAISSANCE_DOCS = (
 	RENAISSANCE_ASIA_DOC,
 	RENAISSANCE_AFRICA_AMERICAS_DOC,
 )
-MEDIEVAL_SOURCE = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalClothing.cs"
-HISTORICAL_CLOTHING_SOURCE = ROOT / "DatabaseSeeder/Seeders/ItemSeeder.HistoricalClothingSources.Data.cs"
-OUTPUT = ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.ClothingOutfitManifestData.Generated.cs"
+MEDIEVAL_SOURCE = ROOT / "ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalClothing.cs"
+HISTORICAL_CLOTHING_SOURCE = ROOT / "ItemSeeder/Seeders/ItemSeeder.HistoricalClothingSources.Data.cs"
+OUTPUT = ROOT / "ItemSeeder/Seeders/ItemSeeder/ItemSeeder.ClothingOutfitManifestData.Generated.cs"
 
 # Conventional colours of these existing example ensembles, not restrictions on their garments.
 # The complete shared base descriptions remain authored C# source; no prose is assembled here.
@@ -1225,7 +1225,7 @@ def generate() -> str:
 				f"Renaissance outfit {outfit.key} repeats default wearable components: {unexpected_duplicates}"
 			)
 
-	antiquity_live_items = extract_create_item_calls(ROOT / "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Antiquity.cs")
+	antiquity_live_items = extract_create_item_calls(ROOT / "ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Antiquity.cs")
 	skin_by_stable_reference = {skin.stable_reference: skin for skin in skins}
 	known_skin_base_items = {
 		*antiquity_live_items,

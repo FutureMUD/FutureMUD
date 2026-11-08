@@ -20,8 +20,8 @@ $env:GIT_CONFIG_VALUE_0 = 'false'
 The fixture import and catalogue capture use:
 
 ```powershell
-dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug -m:1 --no-restore
-dotnet run --project DatabaseSeeder/DatabaseSeeder.csproj -c Debug --no-build --no-restore -- --capture-environmental-exposure --native
+dotnet build SeederCatalogueTools/SeederCatalogueTools.csproj -c Debug -m:1
+dotnet run --project SeederCatalogueTools/SeederCatalogueTools.csproj -c Debug --no-build --no-restore -- --capture-environmental-exposure --native
 ```
 
 Live Telnet scenarios use the repository `futuremud-mud-tester` helper with explicit checkout/account and an owned disposable database. Credentials come from local test configuration and are not part of this document or transcript. Only the helper-owned server is stopped. A successful login or dry-run diagnostic is not recorded as a damage assertion.

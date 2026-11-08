@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public sealed class AnimalButcherySeeder : IDatabaseSeeder
+public sealed class AnimalButcherySeeder : IFoundationSeeder
 {
 	private const string StockPrefix = "Stock Butchery";
 	private const string RottenMeatShortDescription = "some rotten meat";

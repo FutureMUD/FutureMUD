@@ -1,4 +1,4 @@
-﻿using MudSharp.Community;
+using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class ClanSeeder : IDatabaseSeeder
+public partial class ClanSeeder : IFoundationSeeder
 {
     public bool SafeToRunMoreThanOnce => true;
     private const string TemplateCloneElectorateAllMembersCanNominateProgName =

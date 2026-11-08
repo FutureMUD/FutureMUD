@@ -33,6 +33,19 @@ public sealed class DownloadAndDocumentationEndpointTests
 	}
 
 	[TestMethod]
+	public async Task DownloadsPageListsStandaloneItemSeederProduct()
+	{
+		await using var factory = CreateFactory();
+		var client = factory.CreateClient();
+
+		var response = await client.GetAsync("/downloads");
+		var content = await response.Content.ReadAsStringAsync();
+
+		Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+		StringAssert.Contains(content, "FutureMUD Item Seeder");
+	}
+
+	[TestMethod]
 	public async Task VersionedDownloadSupportsRangesEtagsChecksumsAndNoCacheLatestRedirect()
 	{
 		var bytes = Enumerable.Range(0, 32).Select(value => (byte)value).ToArray();
@@ -55,6 +68,25 @@ public sealed class DownloadAndDocumentationEndpointTests
 			SourceCommit = new string('a', 40),
 			PublishedAtUtc = DateTimeOffset.UtcNow,
 			Artifacts = [artifact]
+		}, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+		var itemLive = Path.Combine(_root, "releases", "live", "itemseeder");
+		Directory.CreateDirectory(itemLive);
+		var itemArtifact = new ReleaseArtifactRequest
+		{
+			ArtifactId = "win-x64",
+			Runtime = "win-x64",
+			FileName = "itemseeder-1.0.0-win-x64.zip",
+			Size = bytes.Length,
+			Sha256 = sha
+		};
+		await File.WriteAllBytesAsync(Path.Combine(itemLive, itemArtifact.FileName), bytes);
+		await File.WriteAllTextAsync(Path.Combine(itemLive, "release.json"), JsonSerializer.Serialize(new PublicRelease
+		{
+			Product = "itemseeder",
+			Version = "1.0.0",
+			SourceCommit = new string('b', 40),
+			PublishedAtUtc = DateTimeOffset.UtcNow,
+			Artifacts = [itemArtifact]
 		}, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
 		await using var factory = CreateFactory();
@@ -81,6 +113,15 @@ public sealed class DownloadAndDocumentationEndpointTests
 		StringAssert.Contains(downloads, "Version <strong>1.2.3</strong>");
 		StringAssert.Contains(downloads, $"href=\"/downloads/terrainplanner/1.2.3/{artifact.FileName}\"");
 		StringAssert.Contains(downloads, $"href=\"/downloads/terrainplanner/1.2.3/{artifact.FileName}.sha256\"");
+
+		var itemDownload = await client.GetAsync("/downloads/itemseeder/latest/win-x64");
+		Assert.AreEqual(HttpStatusCode.Redirect, itemDownload.StatusCode);
+		Assert.AreEqual($"/downloads/itemseeder/1.0.0/{itemArtifact.FileName}", itemDownload.Headers.Location?.OriginalString);
+		var itemChecksum = await client.GetStringAsync($"/downloads/itemseeder/1.0.0/{itemArtifact.FileName}.sha256");
+		StringAssert.Contains(itemChecksum, sha);
+		StringAssert.Contains(downloads, "FutureMUD Item Seeder");
+		StringAssert.Contains(downloads, $"href=\"/downloads/itemseeder/1.0.0/{itemArtifact.FileName}\"");
+		StringAssert.Contains(downloads, $"href=\"/downloads/itemseeder/1.0.0/{itemArtifact.FileName}.sha256\"");
 	}
 
 	[TestMethod]

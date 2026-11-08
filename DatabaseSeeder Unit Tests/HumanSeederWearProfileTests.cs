@@ -100,7 +100,7 @@ public class HumanSeederWearProfileTests
 			"Breechcloth"
 		];
 
-		CollectionAssert.AreEquivalent(expectedNames.Concat(HumanSeederIndustrialisedWearProfileTests.ExpectedProfiles).ToArray(), names);
+		CollectionAssert.AreEquivalent(expectedNames.Concat(HumanWearProfileFixture.ExpectedProfiles).ToArray(), names);
 
 		string[] requiredComponents =
 		[

@@ -33,10 +33,10 @@ The current medieval rebuild is direct-call item seeding with active craft launc
 
 | Area | Current implementation or target file |
 |---|---|
-| Craft entry points | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs` |
-| Shared craft helpers | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs` |
-| Shared historic foundation items | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.HistoricFoundation.cs` |
-| Clothing item source | `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalClothing.cs` |
+| Craft entry points | `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs` |
+| Shared craft helpers | `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs` |
+| Shared historic foundation items | `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.HistoricFoundation.cs` |
+| Clothing item source | `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalClothing.cs` |
 | Household/container/furniture item sources | `ItemSeeder.MedievalContainers.cs`, `ItemSeeder.MedievalDoorsLocksStrongboxes.cs`, `ItemSeeder.MedievalFood.cs`, `ItemSeeder.MedievalFurniture.cs`, `ItemSeeder.MedievalJewellery.cs` |
 | Military item sources | `ItemSeeder.MedievalWeapons.cs`, `ItemSeeder.MedievalArmour.cs` |
 | Writing/document item source | `ItemSeeder.MedievalWriting.cs` |
@@ -46,11 +46,11 @@ The current medieval rebuild is direct-call item seeding with active craft launc
 Recommended implementation files for this workstream:
 
 ```text
-DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalIndustryTools.cs
-DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalIndustryStock.cs
-DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalProduction.cs
-DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalFinishedGoods.cs
-DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs
+ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalIndustryTools.cs
+ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalIndustryStock.cs
+ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalProduction.cs
+ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.MedievalFinishedGoods.cs
+ItemSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs
 ```
 
 The exact split can change, but the craft code should keep terminal source crafts, intermediate stock crafts, tool crafts, and finished-good crafts easy to audit separately.

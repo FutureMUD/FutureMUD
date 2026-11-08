@@ -1181,7 +1181,7 @@ public partial class HumanSeeder
 		                                                .AsEnumerable()
 		                                                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 		return AdditionalHumanWearComponents.Any(x => !existingComponentNames.Contains(x.Name)) ||
-		       IndustrialisedClothingDependencyPlan.WearLayerStock.Any(x => !existingComponentNames.Contains(x.Name));
+		       WearLayerStock.Any(x => !existingComponentNames.Contains(x.Name));
 	}
 
 	private bool RepairExistingHumanWearProfileAccuracy(BodyProto baseHumanoid)

@@ -19,103 +19,13 @@ using TraitOwnerScope = MudSharp.Body.Traits.TraitOwnerScope;
 using TraitType = MudSharp.Body.Traits.TraitType;
 using SizeCategory = MudSharp.GameItems.SizeCategory;
 
+using static MudSharp_Unit_Tests.UsefulItemTestFixture;
+
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class UsefulSeederItemPackageTests
 {
-	private static FuturemudDatabaseContext BuildContext()
-	{
-		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString())
-			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-			.Options;
-		return new FuturemudDatabaseContext(options);
-	}
-
-	private static void SeedAccount(FuturemudDatabaseContext context)
-	{
-		context.Accounts.Add(new Account
-		{
-			Id = 1,
-			Name = "SeederTest",
-			Password = "password",
-			Salt = 1,
-			AccessStatus = 0,
-			Email = "seeder@example.com",
-			LastLoginIp = "127.0.0.1",
-			FormatLength = 80,
-			InnerFormatLength = 78,
-			UseMxp = false,
-			UseMsp = false,
-			UseMccp = false,
-			ActiveCharactersAllowed = 1,
-			UseUnicode = true,
-			TimeZoneId = "UTC",
-			CultureName = "en-AU",
-			RegistrationCode = string.Empty,
-			IsRegistered = true,
-			RecoveryCode = string.Empty,
-			UnitPreference = "metric",
-			CreationDate = DateTime.UtcNow,
-			PageLength = 22,
-			PromptType = 0,
-			TabRoomDescriptions = false,
-			CodedRoomDescriptionAdditionsOnNewLine = false,
-			CharacterNameOverlaySetting = 0,
-			AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
-			ActLawfully = false,
-			HasBeenActiveInWeek = true,
-			HintsEnabled = true,
-			AutoReacquireTargets = false
-		});
-	}
-
-	private static void SeedGeneralPrerequisites(FuturemudDatabaseContext context)
-	{
-		SeedAccount(context);
-
-		context.Liquids.Add(new Liquid
-		{
-			Id = 1,
-			Name = "water",
-			Description = "water",
-			LongDescription = "water",
-			TasteText = "water",
-			VagueTasteText = "water",
-			SmellText = "water",
-			VagueSmellText = "water",
-			DisplayColour = "blue",
-			DampDescription = "water-damp",
-			WetDescription = "water-wet",
-			DrenchedDescription = "water-drenched",
-			DampShortDescription = "water-damp",
-			WetShortDescription = "water-wet",
-			DrenchedShortDescription = "water-drenched",
-			SurfaceReactionInfo = "water"
-		});
-
-		context.Clocks.Add(new Clock
-		{
-			Id = 1,
-			Definition = "<Clock />",
-			Seconds = 0,
-			Minutes = 0,
-			Hours = 12,
-			PrimaryTimezoneId = 1
-		});
-		context.Timezones.Add(new Timezone
-		{
-			Id = 1,
-			Name = "UTC",
-			Description = "Test timezone",
-			OffsetHours = 0,
-			OffsetMinutes = 0,
-			ClockId = 1
-		});
-
-		context.SaveChanges();
-	}
 
 	private static void SeedVariablePrerequisites(FuturemudDatabaseContext context)
 	{
@@ -274,29 +184,7 @@ public class UsefulSeederItemPackageTests
 
 		context.SaveChanges();
 	}
-	private static GameItemComponentProto CreateComponentMarker(long id, string name, string type = "Test")
-	{
-		return new GameItemComponentProto
-		{
-			Id = id,
-			Name = name,
-			Type = type,
-			Description = $"{name} marker",
-			Definition = "<Definition />",
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = 1,
-				BuilderDate = DateTime.UtcNow,
-				BuilderComment = "test",
-				ReviewerAccountId = 1,
-				ReviewerComment = "test",
-				ReviewerDate = DateTime.UtcNow
-			}
-		};
-	}
+
 
 	private static TraitDefinition CreateSkill(long id, string name)
 	{
@@ -336,74 +224,6 @@ public class UsefulSeederItemPackageTests
 		};
 	}
 
-	private static MarketCategory CreateMarketCategory(long id, string name)
-	{
-		return new MarketCategory
-		{
-			Id = id,
-			Name = name,
-			Description = $"{name} test category",
-			ElasticityFactorAbove = 0.5,
-			ElasticityFactorBelow = 0.5,
-			MarketCategoryType = 0,
-			Tags = "<Tags />",
-			CombinationCategories = "<Components />"
-		};
-	}
-
-	private static void SeedMarketCategories(FuturemudDatabaseContext context)
-	{
-		string[] names =
-		[
-			"Staple Food",
-			"Standard Food",
-			"Beer",
-			"Wine",
-			"Luxury Wares",
-			"Luxury Clothing",
-			"Luxury Furniture",
-			"Luxury Decorations",
-			"Military Goods",
-			"Weapons",
-			"Armour",
-			"Ammunition",
-			"Shields"
-		];
-
-		context.MarketCategories.AddRange(names.Select((name, index) => CreateMarketCategory(index + 1, name)));
-		context.SaveChanges();
-	}
-
-	private static void EnsureComponentMarkers(FuturemudDatabaseContext context, params string[] names)
-	{
-		var nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
-		foreach (var name in names)
-		{
-			if (context.GameItemComponentProtos.Any(x => x.Name == name))
-			{
-				continue;
-			}
-
-			context.GameItemComponentProtos.Add(CreateComponentMarker(nextId++, name));
-		}
-
-		context.SaveChanges();
-	}
-
-	private static GameItemProto LoadItem(FuturemudDatabaseContext context, string uniqueName)
-	{
-		return context.GameItemProtos
-		              .Include(x => x.GameItemProtosGameItemComponentProtos)
-		              .ThenInclude(x => x.GameItemComponent)
-		              .Single(x => x.UniqueName == uniqueName);
-	}
-
-	private static string[] ComponentNames(GameItemProto item)
-	{
-		return item.GameItemProtosGameItemComponentProtos
-		           .Select(x => x.GameItemComponent.Name)
-		           .ToArray();
-	}
 
 	private static void SeedRepairKitPrerequisites(FuturemudDatabaseContext context)
 	{
@@ -1354,162 +1174,6 @@ public class UsefulSeederItemPackageTests
 	}
 
 	[TestMethod]
-	public void ItemSeeder_AntiquityComponentGapItems_RerunDoesNotDuplicateAndUsesReportComponents()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedGeneralPrerequisites(context);
-		context.Tags.AddRange(
-			new Tag { Id = 1, Name = "Functions" },
-			new Tag { Id = 2, Name = "Tools", ParentId = 1 },
-			new Tag { Id = 3, Name = "Scientific Tools", ParentId = 2 },
-			new Tag { Id = 4, Name = "Measurement Tools", ParentId = 3 },
-			new Tag { Id = 5, Name = "Military Equipment", ParentId = 1 },
-			new Tag { Id = 6, Name = "Military Ammunition", ParentId = 5 },
-			new Tag { Id = 7, Name = "Paper Cartridges", ParentId = 6 },
-			new Tag { Id = 8, Name = "Wooden Powder Charges", ParentId = 6 });
-		context.SaveChanges();
-		SeedMarketCategories(context);
-		UsefulSeeder usefulSeeder = new();
-		new CoreDataSeeder().SeedTagsForTesting(context);
-		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
-		usefulSeeder.SeedEraDependencyComponentsForTesting(context);
-		usefulSeeder.SeedGeneralCoverageForTesting(context);
-		var earthenware = context.Materials.SingleOrDefault(x => x.Name == "earthenware");
-		if (earthenware is null)
-		{
-			earthenware = new Material
-			{
-				Id = context.Materials.Any() ? context.Materials.Max(x => x.Id) + 1 : 1,
-				Name = "earthenware",
-				MaterialDescription = "earthenware",
-				BehaviourType = (int)MaterialBehaviourType.Ceramic,
-				ResidueColour = "white"
-			};
-			context.Materials.Add(earthenware);
-		}
-		else
-		{
-			earthenware.ResidueColour = "white";
-		}
-		context.SaveChanges();
-		EnsureComponentMarkers(context,
-			"Destroyable_Misc",
-			"Destroyable_Furniture",
-			"Destroyable_WoodenHeavy",
-			"Destroyable_HeavyMetal",
-			"Destroyable_Clothing",
-			"Destroyable_Armour",
-			"Destroyable_Shield",
-			"Container_Tray",
-			"Container_Pouch",
-			"Container_Small_Drum",
-			"LContainer_DrinkingGlass",
-			"LContainer_WineGlass",
-			"LContainer_Amphora_Urna",
-			"Wear_Ring",
-			"Wear_Waist",
-			"Wear_Saddle",
-			"Wear_Bridle",
-			"Armour_LeatherScale",
-			"Container_PreIndustrial_LiddedHamper",
-			"Keyring_Large",
-			"LockingContainer_Lockbox",
-			"Lantern",
-			"Dice_d6");
-		ItemSeeder itemSeeder = new();
-
-		itemSeeder.SeedAntiquityComponentGapItemsForTesting(context);
-		itemSeeder.SeedAntiquityComponentGapItemsForTesting(context);
-
-		var expectedStableReferences = ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting;
-		foreach (var stableReference in expectedStableReferences)
-		{
-			Assert.AreEqual(1, context.GameItemProtos.Count(x => x.UniqueName == stableReference),
-				$"Expected one item prototype named {stableReference}.");
-		}
-
-		GameItemProto bronzeSignet = LoadItem(context, "antiquity_bronze_signet_ring");
-		CollectionAssert.Contains(ComponentNames(bronzeSignet), "SealStamp_Antiquity_BronzeSignet");
-		CollectionAssert.Contains(ComponentNames(bronzeSignet), "Wear_Ring");
-
-		GameItemProto sealBox = LoadItem(context, "antiquity_tax_office_seal_box");
-		CollectionAssert.Contains(ComponentNames(sealBox), "LockingContainer_Lockbox");
-		CollectionAssert.Contains(ComponentNames(sealBox), "Sealable_Container_Wax");
-
-		GameItemProto oilCup = LoadItem(context, "antiquity_oil_measure_cup");
-		CollectionAssert.Contains(ComponentNames(oilCup), "LContainer_DrinkingGlass");
-		CollectionAssert.Contains(ComponentNames(oilCup), "MeasuringInstrument_Antiquity_OilCup");
-		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Measurement Tools"),
-			"Full tag paths are distinct stable identities, even when their leaf names match.");
-		var measurementTag = context.Tags.Single(x => x.Name == "Measurement Tools" && x.ParentId == 2);
-		CollectionAssert.Contains(
-			context.GameItemProtosTags
-			       .Where(x => x.GameItemProtoId == oilCup.Id)
-			       .Select(x => x.TagId)
-			       .ToArray(),
-			measurementTag.Id);
-
-		GameItemProto publicWell = LoadItem(context, "antiquity_stone_public_well");
-		CollectionAssert.Contains(ComponentNames(publicWell), "WaterSource_Antiquity_PublicWell");
-
-		GameItemProto measuringRod = LoadItem(context, "antiquity_wooden_measuring_rod");
-		CollectionAssert.DoesNotContain(ComponentNames(measuringRod), "MeasuringInstrument_Antiquity_BalanceScale",
-			"The rod is intentionally a static prop and should not receive an unrelated measuring component.");
-
-		GameItemProto censer = LoadItem(context, "antiquity_bronze_incense_censer");
-		CollectionAssert.Contains(ComponentNames(censer), "IncenseBurner_Antiquity_BronzeCenser");
-
-		GameItemProto incense = LoadItem(context, "antiquity_resin_incense_pellets");
-		CollectionAssert.Contains(ComponentNames(incense), "Holdable");
-		Assert.IsTrue(incense.GameItemProtosTags
-		                     .Select(x => context.Tags.Single(tag => tag.Id == x.TagId).Name)
-		                     .Contains("Incense Fuel"));
-
-		GameItemProto altar = LoadItem(context, "antiquity_household_altar");
-		CollectionAssert.Contains(ComponentNames(altar), "OfferingReceiver_Antiquity_HouseholdAltar");
-
-		GameItemProto votiveBasin = LoadItem(context, "antiquity_votive_offering_basin");
-		CollectionAssert.Contains(ComponentNames(votiveBasin), "OfferingReceiver_Antiquity_VotiveBasin");
-
-		GameItemProto funeralTray = LoadItem(context, "antiquity_funeral_offering_tray");
-		CollectionAssert.Contains(ComponentNames(funeralTray), "OfferingReceiver_Antiquity_FuneralTray");
-
-		GameItemProto libationTable = LoadItem(context, "antiquity_temple_libation_table");
-		CollectionAssert.Contains(ComponentNames(libationTable), "OfferingReceiver_Antiquity_TempleLibationTable");
-		GameItemProto lampShrine = LoadItem(context, "antiquity_oil_lamp_shrine");
-		CollectionAssert.IsSubsetOf(
-			new[] { "OfferingReceiver_Antiquity_OilLampShrine", "Lantern" },
-			ComponentNames(lampShrine));
-		GameItemProto oracularTripod = LoadItem(context, "antiquity_oracular_tripod");
-		CollectionAssert.Contains(ComponentNames(oracularTripod), "OfferingReceiver_Antiquity_OracularTripod");
-		GameItemProto bloodBowl = LoadItem(context, "antiquity_blood_offering_bowl");
-		CollectionAssert.Contains(ComponentNames(bloodBowl), "OfferingReceiver_Antiquity_BloodOfferingBowl");
-
-		var libationTag = context.Tags.Single(x => x.Name == "Libation");
-		Assert.AreEqual(1, context.LiquidsTags.Count(x => x.LiquidId == 1 && x.TagId == libationTag.Id),
-			"Rerunning the item seeder should preserve one stable water-to-libation association.");
-
-		GameItemProto bridle = LoadItem(context, "antiquity_leather_bridle");
-		CollectionAssert.IsSubsetOf(new[] { "Wear_Bridle", "RidingGear_Bridle" }, ComponentNames(bridle));
-		GameItemProto panniers = LoadItem(context, "antiquity_mule_pannier_set");
-		CollectionAssert.IsSubsetOf(
-			new[] { "Wear_Saddle", "RidingGear_PackSaddle", "Container_PreIndustrial_LiddedHamper" },
-			ComponentNames(panniers));
-		GameItemProto yoke = LoadItem(context, "antiquity_ox_yoke");
-		CollectionAssert.Contains(ComponentNames(yoke), "HitchGear_Yoke");
-		GameItemProto harness = LoadItem(context, "antiquity_chariot_harness");
-		CollectionAssert.Contains(ComponentNames(harness), "HitchGear_Harness");
-		GameItemProto barding = LoadItem(context, "antiquity_warhorse_barding_harness");
-		CollectionAssert.IsSubsetOf(
-			new[] { "RidingGear_RidingHarness", "Armour_LeatherScale", "Wear_Saddle" },
-			ComponentNames(barding));
-		GameItemProto halter = LoadItem(context, "antiquity_rope_lead_halter");
-		CollectionAssert.IsSubsetOf(
-			new[] { "RidingGear_BitlessBridle", "HitchGear_LeadRope", "Wear_Bridle" },
-			ComponentNames(halter));
-	}
-
-	[TestMethod]
 	public void SeedRepairKitsForTesting_RerunDoesNotDuplicateAndAddsGeneralMaterialFamilies()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -1705,7 +1369,6 @@ public class UsefulSeederItemPackageTests
 		                           .ToArray();
 		CollectionAssert.AreEqual(expectedMaterials.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray(), materialNames);
 	}
-
 
     private static void AssertRepairKitTagDefinition(FuturemudDatabaseContext context, string componentName, string traitName,
         WoundSeverity maximumSeverity, double repairPoints, double checkBonus, string expectedTag)

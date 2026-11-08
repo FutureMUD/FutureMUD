@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Database;
@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class ChargenSeeder : IDatabaseSeeder
+public partial class ChargenSeeder : IFoundationSeeder
 {
     private static readonly ChargenStage[] RequiredChargenStages =
     [

@@ -11,7 +11,7 @@ using System;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class TimeSeeder : IDatabaseSeeder
+public partial class TimeSeeder : IFoundationSeeder
 {
     private static readonly string[] StockCalendarAliases =
     [

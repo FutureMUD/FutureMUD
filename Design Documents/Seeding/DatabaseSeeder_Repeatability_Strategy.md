@@ -177,6 +177,8 @@ HumanSeeder installs the 43 Industrialised/historical-correction wearable config
 
 ### Item aggregates
 
+FutureMUD Item Seeder is an optional download. Run Database Seeder to prepare the schema and foundation packages, then connect Item Seeder to the same database. Database Seeder owns schema upgrades, Core, Useful, Humans, Animals and Agriculture. Item Seeder owns Items and the disabled Primary Production package. Its menu reports the missing provider records; custom worlds may supply equivalent records directly. Existing worlds retain their item choices and ownership history. The manifest and catalogue developer commands now run from the Item Seeder project.
+
 - Stable references identify logical item prototypes; several revisions of one logical ID are valid, while the same active reference on multiple logical IDs blocks the run.
 - Provenance is stored per logical aggregate. Item, craft, outfit, and vehicle fingerprints include their owned child graphs.
 - Item reconciliation retains the revision already attached for a logical component ID; a newer current stock revision must not be added alongside it as a second component. Clothing preflight resolves the actual attached revision, not a same-name current replacement. Approved historical clothing dependencies retain their original aggregate owner, but their presence alone does not infer selection of that entire earlier-era package, including after their later-era admission is removed. Explicit answers, remembered era selection and other managed era content still determine genuine earlier-era installs.
@@ -201,29 +203,30 @@ The fixed local connection template uses `SslMode=Disabled`, the supported spell
 
 Debug builds expose a `REPLAY` option at the package menu for unattended developer setup. It is deliberately not part of a Release build or a consumer-facing installer path. Debug startup asks for a nonblank database name, inserts it into the fixed local development connection template with a MySQL connection-string builder, and then shows the ordinary interactive menu or the replay-profile menu. Manifest and blank-snapshot command modes remain noninteractive and retain their existing argument/environment-variable behavior.
 
-The maintained profiles are:
+Run Database Seeder replay first. To add the optional era catalogue, open Item Seeder separately, select the same prepared local database, and choose its replay. Each product checks its own enabled packages and question inventory. The matching profile IDs are:
 
 - `medieval-standard` for a Medieval baseline.
 - `renaissance-standard` for cumulative Medieval and Renaissance content.
 - `early-modern-standard` for cumulative Medieval, Renaissance, and Early Modern content using the Europe/1703 DemoMUD-style baseline.
 - `industrial-neutral` for cumulative content through Industrial using the neutral compatibility profile.
 - `industrial-custom` for the same era set using explicit custom power, paper, telecommunications, network/media and vehicle-service bindings.
+- `armageddon-native` for the Armageddon foundation and worldfile setup. The item profile skips the generic catalogue only after confirming the Armageddon skill preset in the target.
 
 Each profile is a typed inventory of concrete seeder types and question IDs; it is not a recording of menu positions, display names, or console keystrokes. The inventory includes every enabled seeder in the current dependency plan except the intentionally alternative `SkillSeeder`; it uses `SkillPackageSeeder` instead. It includes the Mythical, Supernatural, Robot, and AI Storyteller packages. Answers are stored for every declared question, including questions that may be inactive for one particular profile run. The runner re-evaluates filters and validators against the live database, ignores supplied answers for inactive questions, and rejects an active missing or invalid answer before the relevant seeder starts.
 
 For ItemSeeder this inventory includes `technologyprofile`, `technologypower`, `technologypaper`, `technologytelecom`, `technologynetworkmedia`, and `technologyvehicle`. The first four profiles select `neutral`; `industrial-custom` activates its explicit custom answers. Inactive answers remain inventoried so question-contract drift stays visible.
 
-For CelestialSeeder, all five profiles include `packages=EarthSun EarthMoon Jupiter Rails Scripts MorningStar MorningGlow`, all four calendar answers and all four epoch answers. The former install yes/no and name questions are removed. Interactive installation defaults to `EarthSun EarthMoon`; only selected incomplete packages ask follow-up questions, with the sole installed calendar selected automatically and stock Sun/Moon names applied. Its six geography-independent examples remain unattached; `SeederPreset` identifies existing members so reruns preserve IDs and builder edits while adding missing examples. Physical celestial packages retain their established detection and source formats.
+For CelestialSeeder, the five non-Armageddon profiles include `packages=EarthSun EarthMoon Jupiter Rails Scripts MorningStar MorningGlow`, all four calendar answers and all four epoch answers. The former install yes/no and name questions are removed. Interactive installation defaults to `EarthSun EarthMoon`; only selected incomplete packages ask follow-up questions, with the sole installed calendar selected automatically and stock Sun/Moon names applied. Its six geography-independent examples remain unattached; `SeederPreset` identifies existing members so reruns preserve IDs and builder edits while adding missing examples. Physical celestial packages retain their established detection and source formats.
 
-Replay runs require a freshly migrated, unseeded database. The runner refuses a target with bootstrap accounts or remembered seeder choices and never resets, overwrites, or cross-seeder-rolls back a database. Each completed seeder commits through the same executor used by the interactive path. A blocked prerequisite or exception stops the run immediately; completed work is preserved, later steps are not run, and the result reports completed, failed, and unstarted steps.
+Database Seeder replay requires a freshly migrated, unseeded database. The runner refuses a target with bootstrap accounts or remembered seeder choices and never resets, overwrites, or cross-seeder-rolls back a database. Each completed seeder commits through the same executor used by the interactive path. A blocked prerequisite or exception stops the run immediately; completed work is preserved, later steps are not run, and the result reports completed, failed, and unstarted steps.
 
 The profiles use the Debug-only bootstrap credential `DebugReplayOnly!2026`. The UI warns that this credential and workflow must never be used for a reachable or production database.
 
-All three profiles explicitly answer `install-psionics=yes` to exercise the optional Psionics package; interactive installation retains its yes/no choice.
+Database Seeder profiles explicitly answer `install-psionics=yes` to exercise the optional Psionics package; interactive installation retains its yes/no choice.
 
 ### Replay-profile maintenance
 
-Treat a replay-profile failure as deliberate configuration drift, not a reason to silently fall back to defaults. Review and update all five profiles whenever any enabled seeder, dependency/order metadata, question ID, filter, validator, default, or recommended answer changes. In particular, a new enabled seeder must be placed in dependency order, a removed or disabled one must be removed from the inventory, and a changed conditional question must still have a complete inventoried answer even if it is inactive in a profile today.
+Treat a replay-profile failure as deliberate configuration drift, not a reason to silently fall back to defaults. Review and update the owning product’s profiles whenever any enabled seeder, dependency/order metadata, question ID, filter, validator, default, or recommended answer changes. In particular, a new enabled seeder must be placed in dependency order, a removed or disabled one must be removed from the inventory, and a changed conditional question must still have a complete inventoried answer even if it is inactive in a profile today.
 
 `SeederReplayTests` is the required fast gate for this contract. It verifies the full profile inventories, exact order, question coverage, the deliberate Skill Examples exclusion, connection construction, conditional answers, blocked prerequisites, persistence, and stop-on-failure behavior. These tests use in-memory fixtures and test seeders for execution control; they do not execute the complete stock profiles against MySQL. Run the full `DatabaseSeeder Unit Tests` suite after any DatabaseSeeder workflow or profile change, and use a disposable freshly migrated MySQL database for end-to-end profile verification.
 

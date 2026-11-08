@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		var root = CatalogueRepository;
 		var directories = steps.Select(x => Path.Combine(root, "DatabaseSeeder", "Seeders", x.SeederType.Split('.').Last()))
 			.Where(Directory.Exists)
-			.Concat(new[] { "DatabaseSeeder/Seeders/Utilities", "DatabaseSeeder/Seeders/IndustrialisedCatalogue", "DatabaseSeeder/Assets/Database",
+			.Concat(new[] { "DatabaseSeeder/Seeders/Utilities", "DatabaseSeeder/Assets/Database", "SeederFramework",
 				"MudsharpDatabaseLibrary", "FutureMUDLibrary", "ExpressionEngine", "Design Documents/Data", "Design Documents/Seeding/CultureSeederRedesignHandoff" }
 				.Select(x => Path.Combine(root, x)));
 		var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories))
@@ -78,7 +78,6 @@ internal static partial class GNHProgram
             .Append(Path.Combine(root, "DatabaseSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSettingOwnership.cs"))
             .Concat(Directory.EnumerateFiles(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Armageddon"), "*"))
 			.Concat(BaseCompilerPins.Select(x => Path.Combine(root, x.Path)))
-			.Append(Path.Combine(root, "Design Documents", "Seeding", "Seeded_Item_Manifest.json"))
 			.Where(x => !Regex.IsMatch(Path.GetRelativePath(root, x).Replace('\\', '/'), @"(^|/)(bin|obj)/|^FutureMUDLibrary/Magic/Stock/"))
 			.Where(x => !IsS4OnlyBaseSource(Path.GetRelativePath(root, x).Replace('\\', '/')))
 			.Where(x => new[] { ".cs", ".json", ".tsv", ".sql", ".props", ".targets", ".csproj" }.Contains(Path.GetExtension(x)))
@@ -457,7 +456,7 @@ internal static partial class GNHProgram
 			var valid = question.Validator(answer!, db); Require(valid.Success, "Invalid targeted answer: " + question.Id + ": " + valid.error); answers[question.Id] = answer!;
 		}
 		Require(expectedActive is null || answers.Count == expectedActive, "Targeted active question count differs from expected preset flow.");
-		var execution = typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.SeederExecutionService", true)!
+		var execution = typeof(IDatabaseSeeder).Assembly.GetType("DatabaseSeeder.SeederExecutionService", true)!
 			.GetMethod("Execute", ReplayFlags)!.Invoke(null, [db, seeder, questions, answers, new Version(1, 0)])!;
 		Require((bool)execution.GetType().GetProperty("Success")!.GetValue(execution)!, "Targeted step failed: " + execution);
 		Console.WriteLine("ARMBASE-targeted-step=" + seeder.GetType().FullName);

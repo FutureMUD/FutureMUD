@@ -24,7 +24,7 @@ using System;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class AnimalSeeder : IDatabaseSeeder
+public partial class AnimalSeeder : IFoundationSeeder
 {
     private readonly Dictionary<string, WeaponAttack> _attacks =
         new(StringComparer.OrdinalIgnoreCase);

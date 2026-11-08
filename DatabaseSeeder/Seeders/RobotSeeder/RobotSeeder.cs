@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class RobotSeeder : IDatabaseSeeder
+public partial class RobotSeeder : IFoundationSeeder
 {
     private static readonly string[] RequiredToolTags =
     [

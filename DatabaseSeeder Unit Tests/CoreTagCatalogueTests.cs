@@ -137,7 +137,6 @@ public class CoreTagCatalogueTests
 	{
 		foreach (var seeder in new IDatabaseSeeder[] { new CombatSeeder(), new ArmageddonSettingSeeder(), new EconomySeeder(), new AgricultureSeeder(), new HealthSeeder(), new CookingSeeder(), new RobotSeeder(), new WildlifeCatalogueSeeder() })
 			Assert.IsFalse(seeder.Metadata.RequiredSeederTypes.Contains(typeof(UsefulSeeder)), seeder.Name);
-		Assert.IsTrue(((IDatabaseSeeder)new ItemSeeder()).Metadata.RequiredSeederTypes.Contains(typeof(UsefulSeeder)));
 		Assert.IsTrue(((IDatabaseSeeder)new AnimalButcherySeeder()).Metadata.RequiredSeederTypes.Contains(typeof(UsefulSeeder)));
 		using var db = Context();
 		var question = new CombatSeeder().SeederQuestions.Single(x => x.Id == "installmuskets");

@@ -45,7 +45,7 @@ Both final captures compare equal, including source-only graphs. The generated o
 | `medieval_outfit_0001` | Seven explicitly ordered clothing entries and placement/load metadata |
 | `vehicle_antiquity_two_wheeled_handcart` | Expanded exterior/component graph, compartment, cargo, towing and damage children |
 
-Definitions live under `DatabaseSeeder/Seeders/ItemSeeder/Catalogue/Content`. They contain literal data and constructors; a recursive syntax check rejects runtime expansion, calls, spreads and generated-property references. Fixed variants must be authored explicitly. The vehicle graph was expanded once during conversion and is now checked-in C# data.
+Definitions live under `ItemSeeder/Seeders/ItemSeeder/Catalogue/Content`. They contain literal data and constructors; a recursive syntax check rejects runtime expansion, calls, spreads and generated-property references. Fixed variants must be authored explicitly. The vehicle graph was expanded once during conversion and is now checked-in C# data.
 
 The typed craft pilot supports commodity inputs, tag tools and simple products. Other existing input/tool/product kinds are captured completely and retain their legacy writers until their conversion stage. The pilot retains the old craft target-resolution rule and fingerprint projection. It does not silently switch category/name-derived crafts to explicit-key target lookup.
 

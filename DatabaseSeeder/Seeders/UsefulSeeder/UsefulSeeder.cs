@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -24,7 +24,7 @@ using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class UsefulSeeder : IDatabaseSeeder
+public partial class UsefulSeeder : IFoundationSeeder
 {
     private static readonly string[] StockAiExampleNames =
     [

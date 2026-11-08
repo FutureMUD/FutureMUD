@@ -1,6 +1,6 @@
 # Seeder dependency map
 
-Updated for Core tag foundations from base `45b4a7780c3545e1d4f9d8f9b22e50d8162f91e9`. The following is transcribed from [SeederMetadataRegistry.GetMetadata](../../../DatabaseSeeder/SeederMetadataRegistry.cs), including disabled/development types. It is not an executed database install order.
+Updated for Core tag foundations from base `45b4a7780c3545e1d4f9d8f9b22e50d8162f91e9`. The following is transcribed from [Database Seeder metadata](../../../DatabaseSeeder/SeederMetadataRegistry.cs) and [Item Seeder metadata](../../../ItemSeeder/ItemPackageMetadata.cs), including disabled/development types. It is not an executed database install order.
 
 `DependencySeederTypes` participates in topological ordering and reports unavailable declared types if omitted from the supplied catalogue. `OrderAfterSeederTypes` contributes an edge only when that type is present. The planner orders ready peers by `SortOrder`, then name. Database prerequisite predicates and `ShouldSeedData` independently determine readiness; they can require stock rows from other packages not represented by a type edge. In particular, Human needs skills but its declared type edges do not select either skill alternative.
 
@@ -15,8 +15,8 @@ flowchart TD
     Human --> Useful[UsefulSeeder]
     Chargen --> Culture[CultureSeeder]
     Culture --> Animal[AnimalSeeder]
-    Useful --> Items[ItemSeeder]
-    Animal --> Items
+    Useful -. persisted components .-> Items[Standalone ItemSeeder]
+    Animal -. persisted components .-> Items
     Core --> Combat[CombatSeeder]
     Human --> Combat
     Combat --> Mythical[MythicalAnimalSeeder]
@@ -35,7 +35,7 @@ The compact diagram highlights common routes. The table is the complete declared
 | [AnimalButcherySeeder](AnimalButcherySeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [UsefulSeeder](UsefulSeeder.md), [AnimalSeeder](AnimalSeeder.md) | None |
 | [AnimalSeeder](AnimalSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [HumanSeeder](HumanSeeder.md), [CultureSeeder](CultureSeeder.md) | None |
 | [ArenaSeeder](ArenaSeeder.md) | [EconomySeeder](EconomySeeder.md) | None |
-| [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [AttributeSeeder](AttributeSeeder.md), [SkillPackageSeeder](SkillPackageSeeder.md), [TimeSeeder](TimeSeeder.md), [HumanSeeder](HumanSeeder.md), [CombatSeeder](CombatSeeder.md), [ChargenSeeder](ChargenSeeder.md) | [HealthSeeder](HealthSeeder.md), [ItemSeeder](ItemSeeder.md) |
+| [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [AttributeSeeder](AttributeSeeder.md), [SkillPackageSeeder](SkillPackageSeeder.md), [TimeSeeder](TimeSeeder.md), [HumanSeeder](HumanSeeder.md), [CombatSeeder](CombatSeeder.md), [ChargenSeeder](ChargenSeeder.md) | [HealthSeeder](HealthSeeder.md) |
 | [AttributeSeeder](AttributeSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | None |
 | [CelestialSeeder](CelestialSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | None |
 | [ChargenSeeder](ChargenSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [HumanSeeder](HumanSeeder.md) | None |
@@ -46,13 +46,13 @@ The compact diagram highlights common routes. The table is the complete declared
 | [CultureSeeder](CultureSeeder.md) | [HumanSeeder](HumanSeeder.md), [ChargenSeeder](ChargenSeeder.md) | None |
 | [CurrencySeeder](CurrencySeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | None |
 | [EconomySeeder](EconomySeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [CurrencySeeder](CurrencySeeder.md), [TimeSeeder](TimeSeeder.md) | None |
-| [EnvironmentalExposureSeeder](EnvironmentalExposureSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | [HumanSeeder](HumanSeeder.md), [AnimalSeeder](AnimalSeeder.md), [AnimalButcherySeeder](AnimalButcherySeeder.md), [CultureSeeder](CultureSeeder.md), [ItemSeeder](ItemSeeder.md), [RobotSeeder](RobotSeeder.md), [SupernaturalSeeder](SupernaturalSeeder.md), [HealthSeeder](HealthSeeder.md), [PsionicsSeeder](PsionicsSeeder.md), [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) |
+| [EnvironmentalExposureSeeder](EnvironmentalExposureSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | [HumanSeeder](HumanSeeder.md), [AnimalSeeder](AnimalSeeder.md), [AnimalButcherySeeder](AnimalButcherySeeder.md), [CultureSeeder](CultureSeeder.md), [RobotSeeder](RobotSeeder.md), [SupernaturalSeeder](SupernaturalSeeder.md), [HealthSeeder](HealthSeeder.md), [PsionicsSeeder](PsionicsSeeder.md), [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) |
 | [HealthSeeder](HealthSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [HumanSeeder](HumanSeeder.md) | None |
 | [HumanSeeder](HumanSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [TimeSeeder](TimeSeeder.md) | None |
-| [ItemSeeder](ItemSeeder.md) | [UsefulSeeder](UsefulSeeder.md), [AnimalSeeder](AnimalSeeder.md) | None |
+| [ItemSeeder](ItemSeeder.md) | None within Item Seeder. Requires Useful, Core and Animal records from the prepared world. | None |
 | [LawSeeder](LawSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [CurrencySeeder](CurrencySeeder.md) | None |
 | [MythicalAnimalSeeder](MythicalAnimalSeeder.md) | [HumanSeeder](HumanSeeder.md), [AnimalSeeder](AnimalSeeder.md), [CombatSeeder](CombatSeeder.md) | None |
-| [PrimaryProductionSeeder](PrimaryProductionSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [ItemSeeder](ItemSeeder.md) | None |
+| [PrimaryProductionSeeder](PrimaryProductionSeeder.md) | [ItemSeeder](ItemSeeder.md) plus Core records in the prepared database | None |
 | [PsionicsSeeder](PsionicsSeeder.md) | [HumanSeeder](HumanSeeder.md), [SkillPackageSeeder](SkillPackageSeeder.md), [SupernaturalSeeder](SupernaturalSeeder.md) | None |
 | [RobotSeeder](RobotSeeder.md) | [HumanSeeder](HumanSeeder.md), [AnimalSeeder](AnimalSeeder.md), [CombatSeeder](CombatSeeder.md) | None |
 | [SkillPackageSeeder](SkillPackageSeeder.md) | [AttributeSeeder](AttributeSeeder.md) | None |

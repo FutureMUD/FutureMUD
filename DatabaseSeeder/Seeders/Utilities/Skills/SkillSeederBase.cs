@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public abstract class SkillSeederBase : IDatabaseSeeder
+public abstract class SkillSeederBase : IFoundationSeeder
 {
 	public virtual bool SafeToRunMoreThanOnce => true;
 

@@ -10,7 +10,7 @@ using MudSharp.Database;
 namespace DatabaseSeeder.Seeders;
 
 /// <summary>A fixed, one-shot historical world installation. Source preparation is a developer operation.</summary>
-public sealed class ArmageddonWorldfileSeeder : IDatabaseSeeder
+public sealed class ArmageddonWorldfileSeeder : IFoundationSeeder
 {
 	internal const string PackageName = "ArmageddonWorldfile";
 	internal const string CompletionKey = "installation";

@@ -22,7 +22,7 @@ using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class SupernaturalSeeder : IDatabaseSeeder
+public partial class SupernaturalSeeder : IFoundationSeeder
 {
 	private FuturemudDatabaseContext _context = null!;
 	private Race _humanRace = null!;

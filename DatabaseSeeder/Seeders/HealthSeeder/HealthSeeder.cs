@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders
 {
-    internal class HealthSeeder : IDatabaseSeeder
+    internal class HealthSeeder : IFoundationSeeder
     {
         private static readonly string[] RequiredToolTags =
         [

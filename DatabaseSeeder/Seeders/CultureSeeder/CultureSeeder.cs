@@ -10,7 +10,7 @@ using DatabaseSeeder.Seeders.CultureToolkit;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class CultureSeeder : IDatabaseSeeder
+public partial class CultureSeeder : IFoundationSeeder
 {
     public IEnumerable<(string Id, string Question,
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,

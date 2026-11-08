@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
 	[Parameter(Mandatory)]
-	[ValidateSet('engine', 'seeder', 'discordbot', 'terrainplanner', 'mudclient')]
+	[ValidateSet('engine', 'seeder', 'itemseeder', 'discordbot', 'terrainplanner', 'mudclient')]
 	[string]$Product,
 
 	[Parameter(Mandatory)]
@@ -24,6 +24,10 @@ $productMetadata = @{
 	seeder = @{
 		Name = 'FutureMUD Database Seeder'
 		PatchNotesSlug = 'database-seeder'
+	}
+	itemseeder = @{
+		Name = 'FutureMUD Item Seeder'
+		PatchNotesSlug = 'item-seeder'
 	}
 	discordbot = @{
 		Name = 'FutureMUD Discord Bot'

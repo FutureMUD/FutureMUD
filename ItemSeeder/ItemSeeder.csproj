@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<FileVersion>1.0.0</FileVersion>
+		<RollForward>Major</RollForward>
+		<PublishReadyToRun Condition="'$(PublishSingleFile)' == 'true' and '$(RuntimeIdentifier)' != ''">true</PublishReadyToRun>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Seeders/ItemSeeder/Catalogue/Assemblies/**/*.cs" />
+		<ProjectReference Include="../SeederFramework/SeederFramework.csproj" />
+		<ProjectReference Include="Seeders/ItemSeeder/Catalogue/Assemblies/*/*.csproj" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.21" />
+	</ItemGroup>
+	<ItemGroup>
+	<EmbeddedResource Include="..\Design Documents\Data\Item_Component_Types.json" Link="Seeders\IndustrialisedCatalogue\Item_Component_Types.json">
+		<LogicalName>DatabaseSeeder.IndustrialisedCatalogue.Item_Component_Types.json</LogicalName>
+	</EmbeddedResource>
+	<EmbeddedResource Include="..\Design Documents\Data\Seeded_Item_Components.json" Link="Seeders\IndustrialisedCatalogue\Seeded_Item_Components.json">
+		<LogicalName>DatabaseSeeder.IndustrialisedCatalogue.Seeded_Item_Components.json</LogicalName>
+	</EmbeddedResource>
+	</ItemGroup>
+	<Import Project="Seeders/ItemSeeder/Catalogue/Assemblies/CataloguePublishing.targets" />
+	<Import Project="../SeederFramework/SeederPublishing.targets" />
+</Project>

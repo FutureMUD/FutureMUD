@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document governs the Stage 2 historical-price corpus at [historical-price-evidence.tsv](../../DatabaseSeeder/Seeders/IndustrialisedCatalogue/Pricing/historical-price-evidence.tsv). It is developer evidence for the one global `CostIndex`; it neither creates an installer choice nor changes ItemSeeder orchestration, in-world currency or economy prices.
+This document governs the Stage 2 historical-price corpus at [historical-price-evidence.tsv](../../ItemSeeder/Seeders/IndustrialisedCatalogue/Pricing/historical-price-evidence.tsv). It is developer evidence for the one global `CostIndex`; it neither creates an installer choice nor changes ItemSeeder orchestration, in-world currency or economy prices.
 
 The existing draft corpus includes seven named anchors—`industrial_food`, `industrial_tools`, `industrial_clothing`, `industrial_household`, `industrial_medical`, `industrial_weapons` and `industrial_vehicle`—and British, North American and Continental evidence gateways. Its late-industrial US catalogue anchors and British wage/survey references are research starting points, not complete coverage of every item or all four later-era bands. Technology-profile selection does not select a pricing locale or clothing culture. Each item needs its own admissible observation or a justified comparable-family analogue.
 

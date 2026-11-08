@@ -18,6 +18,8 @@ internal static class SeederSourceTestHelper
 	private static readonly ConcurrentDictionary<string, string> PartialFamilyText =
 		new(StringComparer.OrdinalIgnoreCase);
 
+	internal static string RepositoryRoot => Directory.GetParent(SeedersRoot.Value)!.Parent!.FullName;
+
 	internal static string GetSeederSourcePath(string fileName)
 	{
 		return SourcePaths.GetOrAdd(fileName, static name =>

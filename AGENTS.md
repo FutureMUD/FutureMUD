@@ -15,6 +15,8 @@ Use the SDK, target frameworks, language version, and package versions declared 
 | `MudsharpDatabaseLibrary/` | EF Core context, models, mappings, and migrations for MySQL/Pomelo. |
 | `ExpressionEngine/` | `IExpression` / NCalc-based formula evaluation and custom functions. |
 | `DatabaseSeeder/` | Interactive installer, initial stock content, supported additional installs and reruns. |
+| `ItemSeeder/` | Optional item catalogue installer, authoring commands and Primary Production. Open `ItemSeeder.sln` for this product. |
+| `SeederFramework/` | Shared package assessment, question and execution infrastructure for both installers. |
 | `DiscordBotCore/` | Standalone Discord integration and the engine bridge. |
 | `RPI Engine Worldfile Converter/` | Legacy-content importer into an already-seeded world; not a replacement seeder. |
 | `FutureMUD.Web/` | Website, release/download manifests, and documentation publishing. |

@@ -26,8 +26,7 @@ internal static partial class GNHProgram
 		var validation = runner.GetMethod("Validate", flags)!.Invoke(null, [stock, catalogue])!;
 		Require((bool)validation.GetType().GetProperty("IsValid", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(validation)!,
 			"Maintained full Medieval profile drifted; do not project an incomplete inventory.");
-		Require(catalogue.Count(x => x.GetType() == typeof(ItemSeeder)) == 1, "Expected exactly one authorized Item omission.");
-		var selected = catalogue.Where(x => x.GetType() != typeof(ItemSeeder)).ToArray();
+		var selected = catalogue;
 		var profile = FullSettingReplayProfile(stock, selected);
 		var supplied = Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_FIXTURE");
 		if (!string.IsNullOrWhiteSpace(supplied)) return RestoreFullSettingReplay(supplied, profile);
@@ -131,7 +130,7 @@ internal static partial class GNHProgram
 			}));
 		}
 		RunCoreFoundationBoot(database);
-		Console.WriteLine("SETTING-full-completion=PASS all-enabled-except-Item-and-alternative-SkillSeeder first-and-cold-native-boot six-playable-profiles");
+		Console.WriteLine("SETTING-full-completion=PASS all-enabled-except-alternative-SkillSeeder first-and-cold-native-boot six-playable-profiles");
 		return 0;
 	}
 
@@ -151,7 +150,6 @@ internal static partial class GNHProgram
 		foreach (var step in steps)
 		{
 			var seederType = (Type)stepType.GetProperty("SeederType")!.GetValue(step)!;
-			if (seederType == typeof(ItemSeeder)) continue;
 			if (!overrides.TryGetValue(seederType.Name, out var replacements)) { result.Add(step); continue; }
 			var answers = ((IEnumerable)stepType.GetProperty("Answers")!.GetValue(step)!).Cast<object>().ToArray();
 			var answerType = answers[0].GetType();

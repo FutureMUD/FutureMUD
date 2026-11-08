@@ -10,7 +10,7 @@ Installer-wide SQL and snapshot metadata live in `DatabaseSeeder/Assets/Database
 
 ## Shared Records
 
-`DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.EraDefinitions.cs` owns the reusable records:
+`ItemSeeder/Seeders/ItemSeeder/ItemSeeder.EraDefinitions.cs` owns the reusable records:
 
 - `EraItemSpec` for seeded item prototypes.
 - `EraClothingPieceSpec` for clothing entries that also know outfit usage and craft data.

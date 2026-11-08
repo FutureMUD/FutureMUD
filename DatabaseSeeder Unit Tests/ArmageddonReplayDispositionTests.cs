@@ -131,21 +131,6 @@ public class ArmageddonReplayDispositionTests
 		Assert.IsTrue(culturePack.Validator("earthmedievaleurope", context).Success);
 	}
 
-	[TestMethod]
-	public void GenericItemCatalogueIsSkippedOnlyForTheConfirmedArmageddonSkillPackage()
-	{
-		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString("N")).Options);
-		var step = DebugSeederReplayProfiles.All.Single(x => x.Id == "armageddon-native").Steps.Single(x => x.SeederType == typeof(ItemSeeder));
-		Assert.AreEqual(SeederReplayDisposition.NotApplicable, step.Disposition);
-		Assert.IsFalse(step.NotApplicableWhen!(context));
-		context.SeederChoices.Add(new() { Seeder = "Skill Package", Choice = "skillpreset", Answer = "Armageddon", Version = "test" });
-		context.SaveChanges();
-		Assert.IsTrue(step.NotApplicableWhen(context));
-		foreach (var earth in DebugSeederReplayProfiles.All.Where(x => x.Id != "armageddon-native"))
-			Assert.AreEqual(SeederReplayDisposition.Execute, earth.Steps.Single(x => x.SeederType == typeof(ItemSeeder)).Disposition);
-	}
-
 	private static void AssertAnswer(SeederReplayProfile profile, Type seederType, string questionId, string expected)
 	{
 		SeederReplayStep step = profile.Steps.Single(x => x.SeederType == seederType);

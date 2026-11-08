@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class AIStorytellerSeeder : IDatabaseSeeder
+public partial class AIStorytellerSeeder : IFoundationSeeder
 {
     private const string StorytellerName = "Example Narrative Steward";
     private const string FiveMinuteStatusProgName = "AIStorytellerStatusFiveMinute";

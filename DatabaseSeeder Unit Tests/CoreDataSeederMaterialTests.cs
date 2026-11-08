@@ -766,7 +766,6 @@ public class CoreDataSeederMaterialTests
 		using var json = JsonDocument.Parse(ReadSource("Design Documents", "Data", "Seeded_Materials.json"));
 		var exported = json.RootElement.EnumerateArray().Single(x => x.GetProperty("Material Name").GetString() == "pith");
 		CollectionAssert.AreEqual(paths, exported.GetProperty("Tags").EnumerateArray().Select(x => x.GetString()!).ToArray());
-		Assert.AreEqual("pith", IndustrialisedClothingDependencyPlan.Rows.Single(x => x.PlanningKey == "pith_helmet").Material);
 
 		static string TagPath(MudSharp.Models.Tag tag) => tag.Parent is null ? tag.Name : $"{TagPath(tag.Parent)} / {tag.Name}";
 	}
@@ -790,24 +789,6 @@ public class CoreDataSeederMaterialTests
 		Assert.AreEqual(53.0, pith.Density);
 		Assert.AreEqual("Builder's pith stock", pith.MaterialDescription);
 		Assert.AreEqual(3, context.MaterialAliases.Count(x => x.MaterialId == id));
-	}
-
-	[TestMethod]
-	public void IndustrialisedClothing_AllPlannedMaterialsResolveToUniqueStockSolids()
-	{
-		using var context = BuildContext();
-		SeedMaterials(context);
-		var stock = context.Materials.AsEnumerable().ToLookup(x => x.Name, StringComparer.OrdinalIgnoreCase);
-		var plan = IndustrialisedClothingDependencyPlan.Rows;
-		Assert.AreEqual(364, plan.Count);
-		foreach (var row in plan)
-		{
-			var matches = stock[row.Material].ToArray();
-			Assert.AreEqual(1, matches.Length, $"{row.ItemReference}: material {row.Material} must have one stock identity.");
-			Assert.AreEqual(row.Material, matches[0].Name, row.ItemReference);
-			Assert.AreEqual((int)MaterialType.Solid, matches[0].Type, row.ItemReference);
-			Assert.IsTrue(double.IsFinite(matches[0].Density) && matches[0].Density > 0, row.ItemReference);
-		}
 	}
 
     [TestMethod]

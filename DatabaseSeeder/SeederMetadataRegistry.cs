@@ -18,22 +18,15 @@ public static class SeederMetadataRegistry
 
     public static SeederMetadata GetMetadata(IDatabaseSeeder seeder)
     {
-        return seeder.GetType().Name switch
+        var metadata = seeder.GetType().Name switch
         {
-			nameof(ArmageddonSettingSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
-				Array.Empty<SeederPrerequisite>(),
-				RerunSummary: "Safe to rerun with the same settings. An interrupted installation resumes without discarding completed work.",
-				UpdateSummary: "Adds missing stock content and updates unchanged defaults while preserving builder customisations and existing characters.",
-				OwnershipSummary: "Changes only content managed by this package. Conflicts are reported for builders to resolve.",
-				DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(SkillPackageSeeder), typeof(TimeSeeder), typeof(HumanSeeder), typeof(CombatSeeder), typeof(ChargenSeeder)],
-                OrderAfterSeederTypes: [typeof(HealthSeeder)]),
 			nameof(EnvironmentalExposureSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("Core materials and fluids must be installed.", context => context.Materials.Any() && context.Liquids.Any())],
 				RerunSummary: "Reconciles exposure-owned fields, reactions, preparations and demonstrations; preserves builder changes and reports conflicts.",
 				OwnershipSummary: "Optional natural and fantasy exposure content; never enables an existing world or creates live hazardous rooms.",
 				DependencySeederTypes: [typeof(CoreDataSeeder)],
 				OrderAfterSeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(AnimalButcherySeeder), typeof(CultureSeeder),
-					typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder), typeof(ArmageddonSettingSeeder)]),
+					typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder)]),
 			nameof(PsionicsSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("A skill scaffold must already exist.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
 				 Requirement("The organic Human race must already exist.", context => context.Races.Any(x => x.Name == "Human"))],
@@ -479,6 +472,7 @@ public static class SeederMetadataRegistry
             ),
             _ => SeederMetadata.Default
         };
+		return SettingSeederIntegration.Profile?.AdjustMetadata(seeder, metadata) ?? metadata;
     }
 
     public static SeederDependencyPlan GetDependencyPlan(IEnumerable<IDatabaseSeeder> seeders) =>

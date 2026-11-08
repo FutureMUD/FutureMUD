@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 #nullable enable annotations
 
 using MudSharp.Body;
@@ -103,7 +103,7 @@ public class LanternGameItemComponent : GameItemComponent, ILiquidContainer, ILo
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }
@@ -187,7 +187,7 @@ public class LanternGameItemComponent : GameItemComponent, ILiquidContainer, ILo
     public override void Quit()
     {
         base.Quit();
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }

@@ -26,7 +26,7 @@ Old copied 0.8 would give 19.2/33.6/43.2 L/hour on every profile. Withdrawn Gian
 
 ## Exact owner application
 
-The accompanying [Armageddon_Sweat_Rates.patch](Armageddon_Sweat_Rates.patch) changes only `DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonHeritage.cs`: one typed rate lookup, one assignment before applying the common Elf parent, and one assignment before applying each owned profile. It leaves `Scaffold`'s saved baselines intact and passes the new desired value through `ArmageddonSettingOwnership.Apply`.
+The accompanying [Armageddon_Sweat_Rates.patch](Armageddon_Sweat_Rates.patch) changes only `ArmageddonSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonHeritage.cs`: one typed rate lookup, one assignment before applying the common Elf parent, and one assignment before applying each owned profile. It leaves `Scaffold`'s saved baselines intact and passes the new desired value through `ArmageddonSettingOwnership.Apply`.
 
 Common prerequisite commit: `b8da57998240cf4c306ff009ff636aeaffb67e03`. Integrate that common-seeder commit and this separate handoff-documentation commit into a suitably isolated owner branch, then check/apply the patch there:
 

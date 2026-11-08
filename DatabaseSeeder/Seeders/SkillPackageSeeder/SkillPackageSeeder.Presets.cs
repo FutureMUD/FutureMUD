@@ -11,7 +11,7 @@ internal partial class SkillPackageSeeder
 {
 	internal sealed record SkillPreset(string Label, string Complexity, bool Gerund, bool Modern);
 
-	internal static IReadOnlyList<SkillPreset> Presets { get; } = Array.AsReadOnly(
+	private static readonly IReadOnlyList<SkillPreset> AllPresets = Array.AsReadOnly(
 		new[] { "Simple", "Complex", "RPI" }
 			.SelectMany(package => new[] { true, false }
 				.SelectMany(gerund => new[] { false, true }.Select(modern => new SkillPreset(
@@ -19,6 +19,9 @@ internal partial class SkillPackageSeeder
 					package.ToLowerInvariant(), gerund, modern))))
 			.Append(new SkillPreset("Armageddon", "armageddon", false, false))
 			.ToArray());
+
+	internal static IReadOnlyList<SkillPreset> Presets => SettingSeederIntegration.Profile is null
+		? AllPresets.Where(x => x.Complexity != "armageddon").ToArray() : AllPresets;
 
 	private static readonly string[] LegacyKeys =
 		["complexity", "gerund", "modern", "skillcapmodel", "skillgainmodel", "branching"];
@@ -93,6 +96,9 @@ internal partial class SkillPackageSeeder
 
 	private static (bool Success, string error) ValidatePresetSelection(string answer, FuturemudDatabaseContext context)
 	{
+		if (answer.Trim().Equals("Armageddon", StringComparison.OrdinalIgnoreCase) && SettingSeederIntegration.Profile is null)
+			return (false, "Use the standalone Armageddon Seeder for this setting's skill and class foundations.");
+
 		var selected = Preset(answer);
 		if (selected is null) return (false, "Choose one of the listed skill preset names.");
 		var recorded = RecordedPreset(context);

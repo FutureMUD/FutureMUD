@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 #nullable enable annotations
 
 using MudSharp.Body;
@@ -295,7 +295,7 @@ public class WaterSourceGameItemComponent : GameItemComponent, ILiquidContainer,
 
     public override void Quit()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }

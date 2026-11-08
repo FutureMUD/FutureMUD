@@ -83,7 +83,7 @@ public partial class CombatSeeder
     {
         if (questionAnswers.TryGetValue("skilloption", out var skillOption) &&
             skillOption.Equals("armageddon", StringComparison.OrdinalIgnoreCase))
-            return ArmageddonSkillPackage.EngineBindings(context);
+            return SettingSeederIntegration.Require(context).EngineBindings(context);
         Dictionary<string, TraitDefinition> skills = new(StringComparer.OrdinalIgnoreCase);
         foreach (TraitDefinition? skill in context.TraitDefinitions.Where(x => x.Type == 0))
         {
@@ -185,10 +185,10 @@ public partial class CombatSeeder
             Difficulty maximumImprovementDifficulty)
         {
 			if (questionAnswers.TryGetValue("skilloption", out var option) && option.Equals("armageddon", StringComparison.OrdinalIgnoreCase) &&
-				ArmageddonMundaneBindings.Formula(type, skills) is { } sourceFormula)
+				SettingSeederIntegration.Require(context).Formula(type, skills) is { } sourceFormula)
 			{
 				var messages = new List<string>();
-				ArmageddonMundaneBindings.EnsureCheck(context, type, sourceFormula, templateId, maximumImprovementDifficulty, messages);
+				SettingSeederIntegration.Require(context).EnsureCheck(context, type, sourceFormula, templateId, maximumImprovementDifficulty, messages);
 				foreach (var message in messages) Console.WriteLine(message);
 				return;
 			}

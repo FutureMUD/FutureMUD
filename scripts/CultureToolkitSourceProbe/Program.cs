@@ -11,6 +11,10 @@ if (args is ["--build-contracts", var debugAssembly, var releaseAssembly, var bu
 {
 	bool HasReplay(string path)
 	{
+		// Profiles now belong to the shared foundation library; retain old host-path invocation support.
+		if (Path.GetFileName(path).Equals("DatabaseSeeder.dll", StringComparison.OrdinalIgnoreCase) &&
+			File.Exists(Path.Combine(Path.GetDirectoryName(path)!, "SeederFoundations.dll")))
+			path = Path.Combine(Path.GetDirectoryName(path)!, "SeederFoundations.dll");
 		using var stream = File.OpenRead(path);
 		using var pe = new PEReader(stream);
 		var reader = pe.GetMetadataReader();

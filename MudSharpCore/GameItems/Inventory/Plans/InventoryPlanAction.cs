@@ -106,6 +106,9 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
             case "consume":
             case "consumed":
                 return new InventoryPlanActionConsume(root, gameworld);
+            case "retain":
+            case "retained":
+                return new InventoryPlanActionRetain(root, gameworld);
             case "consumecommodity":
             case "consumedcommodity":
                 return new InventoryPlanActionConsumeCommodity(root, gameworld);

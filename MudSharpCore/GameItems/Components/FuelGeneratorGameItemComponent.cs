@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 #nullable enable annotations
 
 using MudSharp.Body;
@@ -178,7 +178,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
     public override void Quit()
     {
         base.Quit();
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }
@@ -624,7 +624,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }

@@ -13,7 +13,7 @@ namespace MudSharp.Magic.SpellEffects;
 public sealed partial class ExchangePlacesEffect
 {
 	/// <summary>Pure reads of the typed inputs used by the live admission callbacks. No ward, visibility or applicability callbacks run here.</summary>
-	private Func<bool> CapturePolicyInputs(ICharacter caster, ICharacter target, IGameItem retained,
+	private Func<bool> CapturePolicyInputs(ICharacter caster, ICharacter target, IGameItem? retained,
 		ITag restricted, ITag populated, ITag consumed, IEnumerable<ITag> ranks)
 	{
 		var checks = new List<Func<bool>>();
@@ -83,6 +83,8 @@ public sealed partial class ExchangePlacesEffect
 		}
 		Reference(() => Gameworld.DefaultPlane);
 		Character(caster); Character(target); Room(caster.Location); Room(target.Location);
+		if (retained is not null)
+		{
 		Reference(() => retained.Prototype); Tags(retained); Tags(retained.Prototype); Value(() => retained.Quantity);
 		Reference(() => retained.ContainedIn); Reference(() => retained.InInventoryOf);
 		Reference(() => Gameworld.Items.Get(retained.Id)); Sequence(() => retained.Components);
@@ -94,6 +96,7 @@ public sealed partial class ExchangePlacesEffect
 			Reference(() => parent.GetItemType<IContainer>()); Reference(() => parent.GetItemType<IOpenable>());
 			if (parent.GetItemType<IContainer>() is { } container) Sequence(() => container.Contents);
 			if (parent.GetItemType<IOpenable>() is { } openable) Value(() => openable.IsOpen);
+		}
 		}
 		foreach (var tag in ranks.Append(restricted).Append(populated).Append(consumed)) Tag(tag);
 		return () => checks.All(check => check());

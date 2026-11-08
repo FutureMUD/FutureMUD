@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<Version>3.8.1</Version>
+	<AssemblyVersion>3.8.1</AssemblyVersion>
+	<FileVersion>3.8.1</FileVersion>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<RollForward>Major</RollForward>
+	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+
+    <ItemGroup>
+	<EmbeddedResource Include="../DatabaseSeeder/Seeders/CultureSeeder\CultureToolkit/ReviewedSourceProse.json" LogicalName="CultureReviewedProse" />
+	<PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.21" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+	<PackageReference Include="TimeZoneConverter" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="../SeederFramework/SeederFramework.csproj" />
+	<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+	<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
+	<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" Aliases="EngineCompiler" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+
+	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\data\*.json" Link="Seeders\CultureSeeder\CultureToolkit\data\%(Filename)%(Extension)">
+		<LogicalName>CultureToolkit.data.%(Filename)%(Extension)</LogicalName>
+	</EmbeddedResource>
+	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\research\*.json" Link="Seeders\CultureSeeder\CultureToolkit\research\%(Filename)%(Extension)">
+		<LogicalName>CultureToolkit.research.%(Filename)%(Extension)</LogicalName>
+	</EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+
+
+
+    <EmbeddedResource Include="../DatabaseSeeder/Assets/Manifests/CoreTags.tsv" LogicalName="DatabaseSeeder.CoreTags.tsv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../DatabaseSeeder/Seeders/**/*.cs" Exclude="../DatabaseSeeder/Seeders/**/obj/**;../DatabaseSeeder/Seeders/**/bin/**" />
+    <Compile Include="../DatabaseSeeder/IFoundationSeeder.cs" />
+    <Compile Include="../DatabaseSeeder/SeederMetadataRegistry.cs" />
+    <Compile Include="../DatabaseSeeder/SeederQuestionRegistry.cs" />
+  </ItemGroup>
+</Project>

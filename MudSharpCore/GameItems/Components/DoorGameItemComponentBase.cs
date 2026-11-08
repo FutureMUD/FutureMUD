@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body;
 using MudSharp.Body.Traits;
@@ -477,7 +477,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 
 	public override void FinaliseLoad()
 	{
-		foreach (var item in Locks)
+		foreach (var item in Locks.ToArray())
 		{
 			item.Parent.FinaliseLoadTimeTasks();
 		}

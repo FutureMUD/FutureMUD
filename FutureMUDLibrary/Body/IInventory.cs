@@ -284,9 +284,12 @@ namespace MudSharp.Body
 
 		/// <summary>Checks sheath fit/access for externally equipped or system-provisioned inventory.</summary>
 		bool CanSheatheExternally(IGameItem item, IGameItem sheath);
+		/// <summary>Authored provisioning may bypass the item's sheathing permission while retaining fit/access checks.</summary>
+		bool CanSheatheExternally(IGameItem item, IGameItem sheath, bool ignoreItemRestrictions);
 
 		/// <summary>Equips a sheath without requiring the receiving body's manipulators to work.</summary>
 		bool SheatheExternally(IGameItem item, IGameItem sheath);
+		bool SheatheExternally(IGameItem item, IGameItem sheath, bool ignoreItemRestrictions);
 
 
         string WhyCannotSheathe(IGameItem item, IGameItem sheath);

@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
 
@@ -75,7 +75,7 @@ public class KeyringGameItemComponent : GameItemComponent, IKeyring, IContainer
 
     public override void FinaliseLoad()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
@@ -105,7 +105,7 @@ public class KeyringGameItemComponent : GameItemComponent, IKeyring, IContainer
 
     public override void Quit()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }

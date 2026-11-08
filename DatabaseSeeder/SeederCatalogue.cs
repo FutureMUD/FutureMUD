@@ -11,7 +11,7 @@ internal static class SeederCatalogue
 {
 	internal static IReadOnlyList<IDatabaseSeeder> GetEnabledSeeders()
 	{
-		return SeederPackageDiscovery.GetEnabledSeeders(typeof(Program).Assembly);
+		return SeederPackageDiscovery.GetEnabledSeeders(typeof(Seeders.CoreDataSeeder).Assembly);
 	}
 
 	internal static SeederDependencyPlan GetDependencyPlan(IEnumerable<IDatabaseSeeder> seeders)

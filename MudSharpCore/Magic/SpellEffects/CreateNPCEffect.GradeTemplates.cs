@@ -16,8 +16,8 @@ public sealed partial class CreateNPCEffect
 	private XElement[]? _unreadableGradeTemplates;
 	public IReadOnlyDictionary<int, long> GradeTemplates => new Dictionary<int, long>(_gradeTemplates);
 	private bool HasGradeTemplatePolicy => _gradeTemplates.Count > 0 || _gradeTemplateLoadError is not null;
-	private long? SelectedTemplateId => _gradeTemplates.Count == 0 ? _npcPrototypeId :
-		Spell is MagicSpell { InvocationGrade: { } grade } && _gradeTemplates.TryGetValue(grade, out var id) ? id : null;
+	private long? SelectedTemplateId => _boundChoice?.Template ?? (_gradeTemplates.Count == 0 ? _npcPrototypeId :
+		Spell is MagicSpell { InvocationGrade: { } grade } && _gradeTemplates.TryGetValue(grade, out var id) ? id : null);
 
 	private void LoadGradeTemplates(XElement root)
 	{

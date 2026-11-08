@@ -19,7 +19,7 @@ internal static partial class GNHProgram
 		SettingPhysiologyReceipt? Physiology = null);
 
 	private static IDatabaseSeeder FollowupSkillSeeder() => (IDatabaseSeeder)Activator.CreateInstance(
-		typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.Seeders.SkillPackageSeeder", true)!)!;
+		typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.Seeders.SkillPackageSeeder", true)!)!;
 
 	private static void QualifySettingFollowups(TestDatabase database, IReadOnlyList<BaseStep> steps)
 	{

@@ -810,7 +810,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public override void FinaliseLoad()
     {
-        foreach (var attachment in InstalledAttachments.Values)
+        foreach (var attachment in InstalledAttachments.Values.ToArray())
         {
             attachment.Parent.FinaliseLoadTimeTasks();
         }
@@ -852,7 +852,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     public override void Quit()
     {
         base.Quit();
-        foreach (var attachment in InstalledAttachments.Values)
+        foreach (var attachment in InstalledAttachments.Values.ToArray())
         {
             attachment.Parent.Quit();
         }

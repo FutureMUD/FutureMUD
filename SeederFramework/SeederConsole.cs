@@ -15,6 +15,7 @@ internal sealed class SeederConsole(Assembly productAssembly, string connectionS
 #if DEBUG
 	, IReadOnlyList<SeederReplayProfile> replayProfiles, ProductReplayRunner replayRunner, string replayWarning
 #endif
+	, Assembly? foundationAssembly = null
 )
 {
     internal static FuturemudDatabaseContext CreateContext(string connectionString, bool useLazyLoading = false)
@@ -73,7 +74,8 @@ internal sealed class SeederConsole(Assembly productAssembly, string connectionS
         {
             SafeClear();
             Console.WriteLine("Loading seeders...");
-            List<IDatabaseSeeder> seeders = SeederPackageDiscovery.GetEnabledSeeders(productAssembly).ToList();
+            List<IDatabaseSeeder> seeders = SeederPackageDiscovery.GetEnabledSeeders(productAssembly)
+				.Concat(foundationAssembly is null ? [] : SeederPackageDiscovery.GetEnabledSeeders(foundationAssembly)).ToList();
             SeederDependencyPlan dependencyPlan = SeederPackagePlan.GetDependencyPlan(seeders);
             if (dependencyPlan.Errors.Any())
             {

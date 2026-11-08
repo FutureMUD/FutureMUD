@@ -18,6 +18,11 @@ public sealed class ReturnTetherEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 	private double SecondsPerGrade => (double?)_definition.Element("SecondsPerGrade") ?? double.NaN;
+	private string? BoostReference => (string?)_definition.Element("OptionalDurationComponent");
+	private double EffectiveSecondsPerGrade => SecondsPerGrade * (BoostReference is { Length: > 0 } reference &&
+		Spell is MagicSpell { InvocationGrade: { } grade } native &&
+		native.InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).Any(x => Equals(x.OriginalReference, reference))
+		? Math.Max(2, grade) : 1);
 	public string? DefinitionError => (string?)_definition.Attribute("version") != "1" || !double.IsFinite(SecondsPerGrade) ||
 		SecondsPerGrade is <= 0 or > 86400 ? "Return Tether needs a finite positive delay of at most one day per grade." : null;
 	public XElement SaveToXml() => new(_definition);
@@ -28,7 +33,7 @@ public sealed class ReturnTetherEffect : IMagicSpellEffectTemplate, IMagicSpellE
 		SpellEffectFactory.RegisterLoadTimeFactory("returntether", (xml, spell) => new ReturnTetherEffect(xml, spell));
 		SpellEffectFactory.RegisterBuilderFactory("returntether", (_, spell) =>
 			(new ReturnTetherEffect(new XElement("Effect", new XAttribute("type", "returntether"), new XAttribute("version", 1), new XElement("SecondsPerGrade", 30)), spell), ""),
-			"Durable delayed return to the caster's recorded position", "delay <seconds per grade>", false, true, ["self"]);
+			"Durable delayed return to the caster's recorded position", "delay <seconds per grade>; boost <optional material action reference>|none", false, true, ["self"]);
 	}
 	private sealed record Selection(ICharacter Caster, int Grade, SpellReturnAnchor Anchor, SpellTravelSnapshot Snapshot,
 		ISpellReturnService Service, string Definition, Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
@@ -83,7 +88,7 @@ public sealed class ReturnTetherEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	{
 		if (target is null || !TryConfirmPreparedSelection(caster, target, out var error)) throw new InvalidOperationException("Return Tether admission changed.");
 		var token = _selections[target]; token.Attempted = true;
-		var binding = token.Service.CreatePrepared(caster, Spell, token.Grade, SecondsPerGrade, token.Anchor,
+		var binding = token.Service.CreatePrepared(caster, Spell, token.Grade, EffectiveSecondsPerGrade, token.Anchor,
 			() => token.Snapshot.AtCapturedPositions && token.Check());
 		return new(MagicEffectOperationStatus.Applied, new SpellReturnTetherEffect(caster, parent, binding));
 	}
@@ -92,6 +97,14 @@ public sealed class ReturnTetherEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	public string Show(ICharacter actor) => $"Record the caster's exact position and attempt one journalled return after {SecondsPerGrade.ToString("N2", actor)} seconds per grade.";
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.PeekSpeech().EqualTo("boost"))
+		{
+			command.PopSpeech(); var reference = command.PopSpeech();
+			if (!command.IsFinished || string.IsNullOrWhiteSpace(reference) || reference.Length > 128) return false;
+			if (reference.EqualTo("none")) _definition.Element("OptionalDurationComponent")?.Remove();
+			else _definition.SetElementValue("OptionalDurationComponent", reference);
+			Spell.Changed = true; actor.Send("Optional component duration boost updated."); return true;
+		}
 		if (!command.PopSpeech().EqualTo("delay") || !double.TryParse(command.PopSpeech(), NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds) ||
 			!double.IsFinite(seconds) || seconds is <= 0 or > 86400 || !command.IsFinished) return false;
 		_definition.SetElementValue("SecondsPerGrade", seconds); Spell.Changed = true;

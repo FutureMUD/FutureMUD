@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
@@ -278,7 +278,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
     public override void Quit()
     {
         EndHeartbeat();
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }

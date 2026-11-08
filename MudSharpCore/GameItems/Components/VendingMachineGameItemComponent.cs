@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
@@ -36,7 +36,7 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public override void Quit()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }
@@ -718,7 +718,7 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 
     public override void FinaliseLoad()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }

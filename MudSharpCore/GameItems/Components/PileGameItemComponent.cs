@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
@@ -30,7 +30,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
     public override void Quit()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }
@@ -204,7 +204,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
     public override void FinaliseLoad()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }

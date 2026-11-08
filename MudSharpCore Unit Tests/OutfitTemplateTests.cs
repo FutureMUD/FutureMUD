@@ -106,7 +106,7 @@ public class OutfitTemplateTests
 		var existingOutfit = new Mock<IOutfit>();
 		existingOutfit.Setup(x => x.Name).Returns("Travel Kit");
 		var target = Target(new[] { existingOutfit.Object }, out var location, out var body, out var added);
-		body.Setup(x => x.CanGet(created.Object, 0, It.IsAny<ItemCanGetIgnore>())).Returns(true);
+		body.Setup(x => x.CanGet(created.Object, 0, ItemCanGetIgnore.IgnorePickupRestrictions)).Returns(true);
 
 		var outfit = template.Materialise(target.Object);
 
@@ -114,7 +114,7 @@ public class OutfitTemplateTests
 		Assert.AreEqual(OutfitExclusivity.ExcludeAllItems, outfit.Exclusivity);
 		Assert.AreSame(outfit, added.Single());
 		location.Verify(x => x.Insert(created.Object, false), Times.Once);
-		body.Verify(x => x.Get(created.Object, 0, null, true, It.IsAny<ItemCanGetIgnore>()), Times.Once);
+		body.Verify(x => x.Get(created.Object, 0, null, true, ItemCanGetIgnore.IgnorePickupRestrictions), Times.Once);
 	}
 
 	[TestMethod]
@@ -462,12 +462,12 @@ public class OutfitTemplateTests
 			new[] { TemplateItem("sword", proto, OutfitTemplateItemPlacement.Sheathed) });
 		var target = Target(System.Array.Empty<IOutfit>(), out _, out var body, out _);
 		body.Setup(x => x.ExternalItems).Returns(new[] { sheath.Object });
-		body.Setup(x => x.CanSheatheExternally(item.Object, sheath.Object)).Returns(true);
+		body.Setup(x => x.CanSheatheExternally(item.Object, sheath.Object, true)).Returns(true);
 
 		template.Materialise(target.Object);
 
 		item.Verify(x => x.Get(null), Times.Once);
-		body.Verify(x => x.SheatheExternally(item.Object, sheath.Object), Times.Once);
+		body.Verify(x => x.SheatheExternally(item.Object, sheath.Object, true), Times.Once);
 	}
 
 	[TestMethod]

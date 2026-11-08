@@ -308,6 +308,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	#3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
 	#3material delete <#>#0 - deletes a material requirement
 	#3plan carried <#> on|off#0 - restricts a consumed material to direct inventory
+	#3plan add retained <tag> <quantity>#0 - requires an item without consuming or moving it
+	#3plan required <#> <boolean(character) prog>|none#0 - true requires payment; none always requires it
+	#3plan optional <#> on|off#0 - omits unavailable optional casting materials
 	#3plan grade <#> <grade 1-7>|all#0 - consumes this material only at the selected grade, or every grade
 	#3plan ranks <#> <offset -6..0> <rank 0 tag> ... <highest rank tag>#0 - requires a component rank based on selected grade; tags must form an ascending hierarchy and cover all seven grades
 	#3plan ranks <#> none#0 - removes selected-grade rank requirements
@@ -857,6 +860,26 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "optional":
+                if (!int.TryParse(command.PopSpeech(), out var optionalNumber) || optionalNumber < 1 ||
+                    InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(optionalNumber - 1) is not GameItems.Inventory.Plans.InventoryPlanActionConsume optionalMaterial)
+                { actor.OutputHandler.Send("Select a material requirement number."); return false; }
+                var optionalValue = command.PopSpeech();
+                if (!command.IsFinished || optionalValue.ToLowerInvariant() is not ("on" or "off"))
+                { actor.OutputHandler.Send("Use plan optional <number> on|off."); return false; }
+                optionalMaterial.OptionalForCasting = optionalValue.EqualTo("on"); Changed = true;
+                actor.OutputHandler.Send("Optional casting material policy updated."); return true;
+            case "required":
+                if (!int.TryParse(command.PopSpeech(), out var actionNumber) || actionNumber < 1 ||
+                    InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(actionNumber - 1) is not GameItems.Inventory.Plans.InventoryPlanActionConsume conditional)
+                { actor.OutputHandler.Send("Select a consumed material requirement number."); return false; }
+                var progText = command.PopSpeech();
+                var requirementProg = progText.EqualTo("none") ? null : Gameworld.FutureProgs.GetByIdOrName(progText);
+                if (!command.IsFinished || !progText.EqualTo("none") && (requirementProg is null ||
+                    requirementProg.ReturnType != ProgVariableTypes.Boolean || !requirementProg.MatchesParameters([ProgVariableTypes.Character])))
+                { actor.OutputHandler.Send("Use plan required <number> <boolean(character) prog>|none. True requires the material."); return false; }
+                conditional.CastRequiredProgId = requirementProg?.Id ?? 0; Changed = true;
+                actor.OutputHandler.Send("Material casting policy updated."); return true;
             case "grade":
                 if (!int.TryParse(command.PopSpeech(), out var number) || number < 1 ||
                     InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(number - 1) is not GameItems.Inventory.Plans.InventoryPlanActionConsume material)
@@ -887,7 +910,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
                 return BuildingCommandPlanDelete(actor, command);
         }
 
-        actor.OutputHandler.Send("Use plan add, remove, carried <number> on|off, or ranks <number> <offset> <rank tags>|none.");
+        actor.OutputHandler.Send("Use plan add, remove, required <number> <prog>|none, optional <number> on|off, carried <number> on|off, or ranks <number> <offset> <rank tags>|none.");
         return false;
     }
 
@@ -1654,6 +1677,8 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
             realCosts.Add((resource, cost));
         }
 
+        try { BindInvocationInputs(magician, target, additionalParameters); }
+        catch (InvalidOperationException error) { magician.OutputHandler.Send(error.Message.ColourError()); return; }
         IInventoryPlan plan = (invocation?.Source is SpellInvocationSource.ScrollActivation or SpellInvocationSource.SubstanceActivation
 			? new InventoryPlanTemplate(Gameworld, [new InventoryPlanPhaseTemplate(1, [])]) : InventoryPlanTemplate).CreatePlan(magician);
         switch (plan.PlanIsFeasible())
@@ -1694,7 +1719,6 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		var lifetimeAdmissions = new Dictionary<IPerceivable, LifetimeAdmission>(ReferenceEqualityComparer.Instance);
 		try
 		{
-			BindInvocationInputs(magician, target, additionalParameters);
 			if (LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
 			var recipients = target is PerceivableGroup lifetimeGroup ? lifetimeGroup.Members : target is null ? [] : new[] { target };
 			foreach (var recipient in recipients)

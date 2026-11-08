@@ -10,6 +10,7 @@ Paths and commands below are relative to the repository root. Read the section n
 | `ExpressionEngine Unit Tests` | Parser, custom functions and formula semantics. |
 | `DatabaseSeeder Unit Tests` | Fast content/template/workflow/source checks by default; opt in to full installer/rerun matrices and exhaustive catalogue checks. |
 | `ItemSeeder Unit Tests` | Item catalogue compilation, manifest capture/reconciliation and Item Seeder replay. Run from `ItemSeeder.sln` or its dedicated product workflow. |
+| `ArmageddonSeeder Unit Tests` | Optional setting/worldfile installation, ownership, replay and native-content checks; use `ArmageddonSeeder.sln`. |
 | `MudSharpCore Unit Tests` | Runtime/gameplay, FutureProg, AI, arenas and engine services. |
 | `MudsharpDatabaseLibrary Unit Tests` | EF models/mappings, upgrade coordination and persistence helpers. |
 | `DiscordBotCore Unit Tests` | Bot commands, protocol and message formatting. |
@@ -45,7 +46,7 @@ dotnet test "MudSharpCore Climate Tests/MudSharpCore Climate Tests.csproj" -c De
 
 Select the command for the affected product; these examples do not require building both products for every edit.
 
-`MudSharp.Development.slnf` deliberately excludes the standalone Item Seeder. Open `ItemSeeder.sln` for catalogue development.
+`MudSharp.Development.slnf` deliberately excludes standalone Item and Armageddon seeders. Open `ItemSeeder.sln` or `ArmageddonSeeder.sln` for their respective development.
 
 | Windows script | Purpose | POSIX equivalent |
 | --- | --- | --- |
@@ -95,3 +96,8 @@ Under `Design Documents/Economy/`:
 | `Economy_System_Seeder_State_and_Gaps.md` | Stock seeding, ownership, migrations/update implications and product gaps. |
 
 This includes economy namespaces, editable-item helpers, related components/effects, persistence and seeder content. Apply the more specific project instructions as well.
+
+
+## Optional Armageddon installer
+
+Open `ArmageddonSeeder.sln` and run `ArmageddonSeeder Unit Tests/ArmageddonSeeder Unit Tests.csproj` explicitly. It is excluded from normal engine/database solutions and the default test-project inventory. Dedicated Windows/Linux CI covers product, shared foundation/framework, runtime and embedded manifest changes; manual extended tests include the optional suite. Corpus-dependent tests require an external `FUTUREMUD_ARMAGEDDON_DATA_DIRECTORY` and report skips without it. Packaging uses `scripts/Publish-ArmageddonSeeder.ps1`; this product has no website/download/public release registration.

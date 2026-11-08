@@ -102,7 +102,7 @@ public abstract class SkillSeederBase : IFoundationSeeder
         (Difficulty.Impossible, 0)
     ];
 
-    protected static IReadOnlyDictionary<string, CheckTemplate> SeedCheckTemplates(
+    internal static IReadOnlyDictionary<string, CheckTemplate> SeedCheckTemplates(
         FuturemudDatabaseContext context,
         bool branching)
     {
@@ -188,7 +188,7 @@ public abstract class SkillSeederBase : IFoundationSeeder
         return checkTemplates;
     }
 
-    protected static (
+    internal static (
         TraitDecorator general,
         TraitDecorator crafting,
         TraitDecorator languageDecorator,

@@ -24,9 +24,15 @@ internal static class SeederSourceTestHelper
 	{
 		return SourcePaths.GetOrAdd(fileName, static name =>
 		{
-			var matches = Directory
-				.EnumerateFiles(SeedersRoot.Value, name, SearchOption.AllDirectories)
-				.ToList();
+			var aliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+			{
+				["SkillPackageSeeder.Armageddon.cs"] = "ArmageddonSkillSeeder.cs",
+				["CombatSeeder.Armageddon.cs"] = "ArmageddonCombatFoundation.cs",
+				["AgricultureSeeder.Armageddon.cs"] = "ArmageddonAgricultureFoundation.cs"
+			};
+			name = aliases.GetValueOrDefault(name, name);
+			var roots = new[] { SeedersRoot.Value, Path.Combine(RepositoryRoot, "ArmageddonSeeder", "Seeders"), Path.Combine(RepositoryRoot, "ArmageddonSeeder", "Foundations") };
+			var matches = roots.Where(Directory.Exists).SelectMany(root => Directory.EnumerateFiles(root, name, SearchOption.AllDirectories)).ToList();
 
 			return matches.Count switch
 			{

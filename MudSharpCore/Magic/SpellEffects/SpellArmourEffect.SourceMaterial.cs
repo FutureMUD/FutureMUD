@@ -118,8 +118,8 @@ public partial class SpellArmourEffect
 			consume.PrimaryItemFitnessScorer is not null || !Equals(consume.OriginalReference, scope.ComponentReference))
 			throw new InvalidOperationException("Source armour needs one native, directly carried, quantity-one consumed component action without runtime selectors.");
 		var rank = consume.SaveToXml().Element("GradeRank");
-		if (rank is null || (int?)rank.Attribute("offset") != -3 || rank.Elements("Rank").Count() != 5)
-			throw new InvalidOperationException("Source Clerical material needs five rank tags 0-4 with grade offset -3.");
+		if (rank is null || (int?)rank.Attribute("offset") != (rank.Elements("Rank").Count() == 7 ? -1 : -3) || rank.Elements("Rank").Count() is not (5 or 7))
+			throw new InvalidOperationException("Source Clerical material needs five ranks with offset -3 or seven ranks with offset -1.");
 		var rankTags = rank.Elements("Rank").OrderBy(x => (int)x.Attribute("minimum")!)
 			.Select(x => Gameworld.Tags.Get((long)x.Attribute("tag")!) ?? throw new InvalidOperationException("Source rank tag is missing.")).ToArray();
 		var rankStates = rankTags.SelectMany(Ancestors).DistinctBy(tag => tag.Id)
@@ -128,7 +128,7 @@ public partial class SpellArmourEffect
 		var token = new SourceArmourSelection(source, authored, authored.SaveToXml().ToString(SaveOptions.DisableFormatting),
 			source.SnapshotModel().Definition, SaveToXml().ToString(SaveOptions.DisableFormatting), scope,
 			caster, recipient, caster.Body, grade, Gameworld.Planes.Get(scope.WaterPlane)!, presence,
-			presence.Contains(scope.WaterPlane), rankTags, rankStates, null);
+			(presence.Contains(scope.WaterPlane) || !consume.RequiredForCasting(caster)), rankTags, rankStates, null);
 		ConfirmSourceArmour(token, caster, recipient);
 		var plan = BuildSourceArmourPlan(token, null);
 		var native = (InventoryPlan)plan.CreatePlan(caster);
@@ -140,7 +140,7 @@ public partial class SpellArmourEffect
 		{
 			if (results.Length != 1 || !Equals(results[0].OriginalReference, scope.ComponentReference) ||
 				results[0].PrimaryTarget is not { } item || !ReferenceEquals(item.InInventoryOf, caster.Body) || item.ContainedIn is not null ||
-				!item.IsA(rankTags[0]) || !item.IsA(rankTags[Math.Max(grade - 3, 0)]))
+				!item.IsA(rankTags[0]) || !item.IsA(rankTags[Math.Max(grade - (rankTags.Length == 7 ? 1 : 3), 0)]))
 				throw new InvalidOperationException("Source Clerical component has ambiguous identity, custody or rank.");
 			var tags = item.Tags.ToArray(); var protoTags = item.Prototype.Tags.ToArray();
 			var hierarchy = tags.Concat(protoTags).SelectMany(tag => Ancestors(tag)).DistinctBy(tag => tag.Id)
@@ -192,7 +192,7 @@ public partial class SpellArmourEffect
 		if (_sourceArmourError is not null || _sourceArmourScope != token.Scope || Spell is not MagicSpell invocation ||
 			invocation.InvocationGrade != token.Grade || !ReferenceEquals(caster, token.Caster) || !ReferenceEquals(recipient, token.Recipient) ||
 			!ReferenceEquals(caster.Body, token.Body) || !ReferenceEquals(Gameworld.Planes.Get(token.Scope.WaterPlane), token.Plane) ||
-			!presence.SequenceEqual(token.PresencePlanes) || token.Exempt != presence.Contains(token.Scope.WaterPlane) ||
+			!presence.SequenceEqual(token.PresencePlanes) || token.Exempt != (presence.Contains(token.Scope.WaterPlane) || !((InventoryPlanActionConsume)token.AuthoredPlan.Phases.Single().Actions.Single()).RequiredForCasting(caster)) ||
 			!ReferenceEquals(Gameworld.MagicSpells.Get(token.Source.Id), token.Source) ||
 			!ReferenceEquals(token.Source.InventoryPlanTemplate, token.AuthoredPlan) ||
 			token.AuthoredPlan.SaveToXml().ToString(SaveOptions.DisableFormatting) != token.AuthoredXml ||
@@ -215,7 +215,7 @@ public partial class SpellArmourEffect
 			action.PrimaryItemSelector = item =>
 			{
 				if (pinned is not null && !ReferenceEquals(item, pinned.Item)) return false;
-				var allowed = item.IsA(token.RankTags[0]) && item.IsA(token.RankTags[Math.Max(token.Grade - 3, 0)]);
+				var allowed = item.IsA(token.RankTags[0]) && item.IsA(token.RankTags[Math.Max(token.Grade - (token.RankTags.Length == 7 ? 1 : 3), 0)]);
 				ConfirmSourceArmour(token, token.Caster, token.Recipient, false);
 				return allowed && ReferenceEquals(item.InInventoryOf, token.Body) && item.ContainedIn is null &&
 					(pinned is null || pinned.Current(Gameworld));

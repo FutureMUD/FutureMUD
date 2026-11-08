@@ -547,8 +547,8 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
         questionAnswers = NormalizeAnswers(questionAnswers);
         var presetValidation = ValidatePresetSelection(questionAnswers["skillpreset"], context);
         if (!presetValidation.Success) throw new InvalidOperationException(presetValidation.error);
-        if (questionAnswers["complexity"].EqualTo("armageddon")) return SeedArmageddon(context, questionAnswers);
-        if (ArmageddonSkillPackage.IsInstalled(context)) throw new InvalidOperationException("This world uses the Armageddon skill package; changing package requires a separate migration.");
+        if (questionAnswers["complexity"].EqualTo("armageddon")) return SettingSeederIntegration.Require(context).SeedSkills(this, context, questionAnswers);
+        if (SettingSeederIntegration.IsInstalled(context)) throw new InvalidOperationException("This world uses the Armageddon skill package; changing package requires a separate migration.");
         IReadOnlyDictionary<string, CheckTemplate> templates = SeedCheckTemplates(context, questionAnswers["branching"].EqualToAny("yes", "y"));
         (TraitDecorator? general, TraitDecorator? crafting, TraitDecorator? languageDecorator, TraitDecorator? veterancy, TraitDecorator? professional, Improver? languageImprover, Improver? generalImprover) =
             SeedSkillImprovers(context, questionAnswers["skillgainmodel"].ToLowerInvariant());
@@ -570,7 +570,7 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
 			: string.Empty;
     }
 
-    private void SeedChecks(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
+    internal void SeedChecks(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
         IReadOnlyDictionary<string, CheckTemplate> templates, IReadOnlyDictionary<string, TraitDefinition> skills)
     {
         Dictionary<string, TraitDefinition> attributes = context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3)
@@ -613,10 +613,10 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
             Difficulty maximumImprovementDifficulty)
         {
 			if (questionAnswers.TryGetValue("complexity", out var complexity) && complexity.Equals("armageddon", StringComparison.OrdinalIgnoreCase) &&
-				ArmageddonMundaneBindings.Formula(type, skills) is { } sourceFormula)
+				SettingSeederIntegration.Require(context).Formula(type, skills) is { } sourceFormula)
 			{
 				var messages = new List<string>();
-				ArmageddonMundaneBindings.EnsureCheck(context, type, sourceFormula, templateId, maximumImprovementDifficulty, messages);
+				SettingSeederIntegration.Require(context).EnsureCheck(context, type, sourceFormula, templateId, maximumImprovementDifficulty, messages);
 				foreach (var message in messages) Console.WriteLine(message);
 				return;
 			}
@@ -1391,7 +1391,7 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
         context.SaveChanges();
     }
 
-    private void SeedAdminLanguage(FuturemudDatabaseContext context,
+    internal void SeedAdminLanguage(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers, IReadOnlyDictionary<string, TraitDecorator> decorators,
         Improver languageImprover)
     {

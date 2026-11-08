@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -1207,6 +1207,12 @@ On worlds enabling hostile guard challenges, #3get sword !!#0 or #3get gem chest
                     return;
                 }
 
+                if (item.GetItemTypes<ITransientItemPolicy>().Any(x => x.Triggers.HasFlag(ItemRetirementTrigger.BulkDrop)))
+				{
+					actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ drop|drops $0.", actor, item)));
+					ItemRetirement.Retire(item, ItemRetirementTrigger.BulkDrop);
+					continue;
+				}
                 actor.Body.Drop(item);
             }
 

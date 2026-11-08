@@ -18,7 +18,6 @@
   </PropertyGroup>
 
     <ItemGroup>
-	<EmbeddedResource Include="Seeders\CultureSeeder\CultureToolkit\ReviewedSourceProse.json" LogicalName="CultureReviewedProse" />
 	<PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.21" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
@@ -33,25 +32,17 @@
   </ItemGroup>
 
   <ItemGroup>
-	<EmbeddedResource Include="Assets\Manifests\Armageddon_Reviewed_Content.json" LogicalName="ArmageddonReviewedContentManifest" />
-	<EmbeddedResource Include="..\Design Documents\Magic\Armageddon_Sorcerer_Source_Tree.json" Link="Assets\Manifests\Armageddon_Sorcerer_Source_Tree.json" LogicalName="ArmageddonSorcererSourceTree" />
-		<EmbeddedResource Include="..\Design Documents\Magic\Armageddon_Seeder_Completeness_Design_20261011.json" Link="Assets\Manifests\Armageddon_Stock_Design.json" LogicalName="ArmageddonStockDesign" />
+
+
 	<EmbeddedResource Include="Assets/Database/BlankDatabaseSnapshot.sql" LogicalName="DatabaseSeeder.BlankDatabaseSnapshot.sql" />
 	<EmbeddedResource Include="Assets/Database/BlankDatabaseSnapshot.manifest.json" LogicalName="DatabaseSeeder.BlankDatabaseSnapshot.manifest.json" />
-	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\data\*.json" Link="Seeders\CultureSeeder\CultureToolkit\data\%(Filename)%(Extension)">
-		<LogicalName>CultureToolkit.data.%(Filename)%(Extension)</LogicalName>
-	</EmbeddedResource>
-	<EmbeddedResource Include="..\Design Documents\Seeding\CultureSeederRedesignHandoff\research\*.json" Link="Seeders\CultureSeeder\CultureToolkit\research\%(Filename)%(Extension)">
-		<LogicalName>CultureToolkit.research.%(Filename)%(Extension)</LogicalName>
-	</EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assets/Manifests/Armageddon/skills.json" LogicalName="DatabaseSeeder.Armageddon.skills.json" />
-    <EmbeddedResource Include="Assets/Manifests/Armageddon/naming.json" LogicalName="DatabaseSeeder.Armageddon.naming.json" />
-    <EmbeddedResource Include="Assets/Manifests/Armageddon/templar_classes.json" LogicalName="DatabaseSeeder.Armageddon.templar_classes.json" />
-    <EmbeddedResource Include="Assets/Manifests/Armageddon/*.tsv" LogicalName="DatabaseSeeder.Armageddon.%(Filename)%(Extension)" />
-    <EmbeddedResource Include="Assets/Manifests/CoreTags.tsv" LogicalName="DatabaseSeeder.CoreTags.tsv" />
   </ItemGroup>
 	<Import Project="../SeederFramework/SeederPublishing.targets" />
+  <ItemGroup>
+    <Compile Remove="Seeders/**/*.cs;IFoundationSeeder.cs;SeederMetadataRegistry.cs;SeederQuestionRegistry.cs" />
+    <ProjectReference Include="../SeederFoundations/SeederFoundations.csproj" />
+  </ItemGroup>
 </Project>

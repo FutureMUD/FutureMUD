@@ -1316,6 +1316,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     /// </summary>
     public void FinaliseLoadTimeTasks()
     {
+        if (Deleted) return;
+		if (GetItemTypes<ITransientItemPolicy>().Any(x => x.RetireOnLoad))
+		{
+			Delete();
+			return;
+		}
 		if (_loadTimeTasksFinalised)
 		{
 			return;
@@ -1328,7 +1334,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             component.FinaliseLoad();
         }
 
-        foreach (IGameItem item in _wounds.SelectNotNull(x => x.Lodged))
+        foreach (IGameItem item in _wounds.SelectNotNull(x => x.Lodged).ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
@@ -2095,6 +2101,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Login()
     {
+		if (Deleted) return;
         foreach (IGameItemComponent component in Components)
         {
             component.Login();
@@ -2122,6 +2129,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Quit()
     {
+        if (Deleted) return;
+		if (GetItemTypes<ITransientItemPolicy>().Any(x => x.RetireOnLogout))
+		{
+			Delete();
+			return;
+		}
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		EndHealthTick();
         EffectsChanged = true;
@@ -2139,7 +2152,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         Drop(null);
 
         CacheScheduledEffects();
-        foreach (IGameItemComponent component in Components)
+        foreach (IGameItemComponent component in Components.ToArray())
         {
             component.Quit();
         }

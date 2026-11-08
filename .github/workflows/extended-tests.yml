@@ -40,6 +40,8 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: dotnet test "ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj" -c Debug -m:1 -p:RestoreBuildInParallel=false -p:IncludeExtendedTests=true
+      - name: Run extended Armageddon Seeder tests
+        run: dotnet test "ArmageddonSeeder Unit Tests/ArmageddonSeeder Unit Tests.csproj" -c Debug -m:1 -p:RestoreBuildInParallel=false -p:IncludeExtendedTests=true
       - name: Summarize test timings
         if: always()
         shell: pwsh

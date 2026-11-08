@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -2663,8 +2663,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     {
         if (type == DescriptionType.Long)
         {
-            return Body.HowSeen(voyeur, proper, DescriptionType.Long, colour, flags) +
-                   (Controller != null ? Controller.LDescAdditionalTags : _noControllerTags);
+            var description = Body.HowSeen(voyeur, proper, DescriptionType.Long, colour, flags) +
+                              (Controller != null ? Controller.LDescAdditionalTags : _noControllerTags);
+			var hum = MudSharp.Effects.Concrete.ItemPresentation.DescribeCarriedHum(this, voyeur);
+			return string.IsNullOrEmpty(hum) ? description : description + "\n" + hum;
         }
 
         return Body.HowSeen(voyeur, proper, type, colour, flags);

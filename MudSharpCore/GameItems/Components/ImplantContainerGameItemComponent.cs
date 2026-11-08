@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
@@ -531,12 +531,12 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
 
     public override void Quit()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }
 
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }
@@ -667,12 +667,12 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }
 
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }

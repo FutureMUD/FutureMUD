@@ -85,7 +85,7 @@ try:
     identity()
     connection = f'server=127.0.0.1;port={port};database=authored_celestial_smoke;uid=root;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=600;'
     env = os.environ.copy()
-    password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'DatabaseSeeder/DebugSeederReplay.cs').read_text(encoding='utf-8-sig')).group(1)
+    password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'SeederFoundations/DebugFoundationReplayProfiles.cs').read_text(encoding='utf-8-sig')).group(1)
     env['AUTHORED_SMOKE_CONNECTION'] = connection; env['AUTHORED_SMOKE_PASSWORD'] = password
     if not args.resume_smoke:
         env['FUTUREMUD_SNAPSHOT_CONNECTION_STRING'] = connection.replace('database=authored_celestial_smoke', 'database=weather_snapshot')

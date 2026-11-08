@@ -30,7 +30,7 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 	public IMagicSpellEffectTemplate Clone() => new ExchangePlacesEffect(SaveToXml(), Spell);
 	public string? DefinitionError { get { try { Configuration(); return null; } catch (Exception ex) { return ex.Message; } } }
 	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => trigger is CastingTriggerMindContactCharacter;
-	public const string HelpText = "Use restricted <tag>, populated <tag>, consumedroot <tag>, or retainedrank <0-5> <tag>.";
+	public const string HelpText = "Use restricted <tag>, populated <tag>, consumedroot <tag>, or retainedrank <configured rank 0-6> <tag>.";
 
 	public static void RegisterFactory()
 	{
@@ -43,16 +43,26 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 			"Exchanges two exact mind-linked travellers", HelpText, true, true, ["mindcontactcharacter"]);
 	}
 
+	private bool ComponentRequired(ICharacter caster)
+	{
+		var id = (long?)_definition.Element("ComponentRequiredProg") ?? 0;
+		if (id == 0) return true;
+		var policy = new MudSharp.GameItems.Inventory.Plans.InventoryPlanActionConsume(
+			new XElement("Action", new XAttribute("tag", 0), new XAttribute("quantity", 1), new XAttribute("castrequiredprog", id)), Gameworld);
+		return policy.RequiredForCasting(caster);
+	}
+	private int RetainedOffset => (int?)_definition.Element("RetainedRankOffset") ?? -2;
+	private bool DirectlyCarriedOnly => (bool?)_definition.Element("DirectlyCarriedOnly") ?? false;
 	private (ITag Restricted, ITag Populated, ITag ConsumedRoot, ITag[] Retained) Configuration()
 	{
 		if ((string?)_definition.Attribute("version") != "1") throw new FormatException("Unsupported exchange configuration.");
 		ITag Tag(long id) => id > 0 && Gameworld.Tags.Get(id) is { } tag ? tag :
 			throw new FormatException("Exchange Places requires all of its explicit native tag bindings.");
 		var ranks = _definition.Element("RetainedRanks")?.Elements("Rank").ToArray() ?? [];
-		if (ranks.Length != 6 || !ranks.Select(x => (int?)x.Attribute("number")).SequenceEqual(Enumerable.Range(0, 6).Select(x => (int?)x)))
+		if (ranks.Length is not (6 or 7) || RetainedOffset is < -6 or > 0 || 7 + RetainedOffset >= ranks.Length || !ranks.Select(x => (int?)x.Attribute("number")).SequenceEqual(Enumerable.Range(0, ranks.Length).Select(x => (int?)x)))
 			throw new FormatException("Exchange Places requires consecutive retained ranks zero through five.");
 		var tags = ranks.Select(x => Tag((long?)x.Attribute("tag") ?? 0)).ToArray();
-		if (tags.Distinct().Count() != 6 || tags.Skip(1).Where((tag, index) => !tag.IsA(tags[index])).Any())
+		if (tags.Distinct().Count() != ranks.Length || tags.Skip(1).Where((tag, index) => !tag.IsA(tags[index])).Any())
 			throw new FormatException("Retained component rank tags must preserve their ascending ancestry.");
 		return (Tag((long?)_definition.Element("RestrictedRoomTag") ?? 0),
 			Tag((long?)_definition.Element("PopulatedRoomTag") ?? 0),
@@ -79,7 +89,8 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 		var error = SpellTravelEndpointPolicy.RelocationError(caster, caster, source, destination, Spell, caster.RoomLayer, target.RoomLayer) ??
 			SpellTravelEndpointPolicy.RelocationError(caster, target, destination, source, Spell, target.RoomLayer, caster.RoomLayer);
 		if (error is not null) return error;
-		var rank = config.Retained[Math.Max(grade - 2, 0)];
+		if (!ComponentRequired(caster)) return null;
+		var rank = config.Retained[Math.Max(grade + RetainedOffset, 0)];
 		retained = RetainedCandidates(caster).Where(item => CurrentComponent(caster, item) && item.IsA(rank) && !item.IsA(config.ConsumedRoot))
 			.Where(item => item.ContainedIn?.IsA(config.ConsumedRoot) != true)
 			.OrderBy(item => item.Id).FirstOrDefault();
@@ -88,7 +99,7 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 			ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands) ? "The retained Teleportation component is not accessible." : null;
 	}
 
-	private IEnumerable<IGameItem> RetainedCandidates(ICharacter caster) => caster.Body.DirectItems.Concat(caster.Body.DirectItems
+	private IEnumerable<IGameItem> RetainedCandidates(ICharacter caster) => DirectlyCarriedOnly ? caster.Body.DirectItems : caster.Body.DirectItems.Concat(caster.Body.DirectItems
 		.Where(parent => parent.GetItemType<IOpenable>()?.IsOpen != false)
 		.SelectMany(parent => parent.GetItemType<IContainer>()?.Contents ?? []));
 	private bool LiveItem(IGameItem item) => item.Id > 0 && !item.Deleted && !item.Destroyed &&
@@ -127,7 +138,7 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 	}
 
 	private sealed record Selection(ICharacter Caster, ICharacter Target, Frame Source, Frame Destination,
-		IGameItem Retained, int Grade, string Definition, Func<bool> PolicyCurrent, Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
+		IGameItem? Retained, int Grade, string Definition, Func<bool> PolicyCurrent, Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
 	{
 		public bool IsCurrent => !Attempted && Check();
 		public bool Attempted { get; set; }
@@ -146,10 +157,10 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 		var config = Configuration();
 		if (caster.Body is null || target.Body is null || caster.Location is null || target.Location is null)
 			throw new InvalidOperationException("The exchange needs two exact physical bodies and endpoints.");
-		var retained = RetainedCandidates(caster).Where(item => CurrentComponent(caster, item) &&
-			item.IsA(config.Retained[Math.Max(grade - 2, 0)]) && !item.IsA(config.ConsumedRoot) &&
+		var retained = !ComponentRequired(caster) ? null : RetainedCandidates(caster).Where(item => CurrentComponent(caster, item) &&
+			item.IsA(config.Retained[Math.Max(grade + RetainedOffset, 0)]) && !item.IsA(config.ConsumedRoot) &&
 			item.ContainedIn?.IsA(config.ConsumedRoot) != true).OrderBy(item => item.Id).FirstOrDefault();
-		if (retained is null) throw new InvalidOperationException("Carry the required separate Teleportation component.");
+		if (retained is null && ComponentRequired(caster)) throw new InvalidOperationException("Carry the required separate Teleportation component.");
 		var source = Frame.Capture(caster); var destination = Frame.Capture(target);
 		var policyCurrent = CapturePolicyInputs(caster, target, retained, config.Restricted, config.Populated, config.ConsumedRoot, config.Retained);
 		var contacts = caster.EffectsOfType<ConnectMindEffect>().Where(x => ReferenceEquals(x.TargetCharacter, target)).ToArray();
@@ -158,7 +169,7 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 		if (!ReferenceEquals(retained, admitted)) throw new InvalidOperationException("The retained component changed during admission.");
 		var definition = SaveToXml().ToString(SaveOptions.DisableFormatting);
 		var token = new Selection(caster, target, source, destination, retained!, grade, definition, policyCurrent, () =>
-			source.AtOrigin && destination.AtOrigin && policyCurrent() && CurrentComponent(caster, retained!) &&
+			source.AtOrigin && destination.AtOrigin && policyCurrent() && (retained is null || CurrentComponent(caster, retained)) &&
 			contactPowers.All(x => ReferenceEquals(x.Contact.MindPower, x.Power) && x.Power.PowerDistance == x.Range) &&
 			contacts.Any(x => caster.Effects.Any(y => ReferenceEquals(x, y)) && target.Effects.Any(y => ReferenceEquals(x.ChildEffect, y))) &&
 			SaveToXml().ToString(SaveOptions.DisableFormatting) == definition);
@@ -249,7 +260,8 @@ public sealed partial class ExchangePlacesEffect : IMagicSpellEffectTemplate, IM
 		var option = command.PopForSwitch();
 		var element = option switch { "restricted" => "RestrictedRoomTag", "populated" => "PopulatedRoomTag", "consumedroot" => "ConsumedRootTag", _ => null };
 		var rank = -1;
-		if (option == "retainedrank" && (!int.TryParse(command.PopSpeech(), out rank) || rank is < 0 or > 5)) return false;
+		if (option == "retainedrank" && (!int.TryParse(command.PopSpeech(), out rank) || rank is < 0 or > 6 ||
+			_definition.Element("RetainedRanks")!.Elements("Rank").All(x => (int)x.Attribute("number")! != rank))) return false;
 		var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
 		if (tag is null || element is null && rank < 0) { actor.OutputHandler.Send(HelpText); return false; }
 		if (element is not null) _definition.SetElementValue(element, tag.Id);

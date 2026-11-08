@@ -2,6 +2,8 @@
 
 Status: implemented and locally qualified, 26 October 2026. The question-free one-shot seeder is enabled; broader test-suite limitations are recorded below. Confirmed requirements include no seeder questions, native spawners/progs/hooks, Vnum unique names, HP health, native combat-formula conversion, single-phase crafts, 0% forage yield consumption, permanent native shops, one-shot installation and no source zone-activation gate. The implementation details and remaining limitations below distinguish active mappings from archived source behaviour.
 
+The [8 November spell-material tranche](Armageddon_Worldfile_Spell_Components.md) extends component binding to all valid definitions and twelve families, installs active source costs/exemptions, and adds named Gate rituals and optional Return Tether duration through native plans and companion lifecycles. Private roster data remains external; this is implemented with focused automated qualification, not a new live walkthrough qualification.
+
 ## Purpose and installation contract
 
 Add an optional **Armageddon Worldfile** package to DatabaseSeeder that installs a configured historical world into an already prepared FutureMUD database: rooms, item prototypes, crafts, NPC templates, NPC and item loaders, foraging, live clans, economy and shops. Preserve authored identities, descriptions, relationships and distributions wherever FutureMUD can represent them. Use native FutureMUD gameplay for bodies, injuries, combat, crafting, inventory, money and commerce, with explicit adaptations where the engines differ.
@@ -53,7 +55,7 @@ A development-time Armageddon parser and translator generates a validated typed 
 
 | Proposed location | Responsibility |
 | --- | --- |
-| `DatabaseSeeder/Seeders/ArmageddonWorldfileSeeder/` | Public seeder, assessment, orchestration, bindings and domain installers. |
+| `ArmageddonSeeder/Seeders/ArmageddonWorldfileSeeder/` | Public seeder, assessment, orchestration, bindings and domain installers. |
 | `DatabaseSeeder/Assets/Manifests/ArmageddonWorldfiles.manifest.json` | Corpus identity, source hashes, record inventory and source-defect dispositions. |
 | Private `FUTUREMUD_ARMAGEDDON_DATA_DIRECTORY` | External, hash-validated typed package and special-text inputs; never embedded, committed or shipped. |
 | `scripts/armageddon-worldfile-package.py` | Sequential legacy parsing/provenance and deterministic package generation; no dependency on the SOI converter CLI. |
@@ -643,7 +645,7 @@ ArmSolo paths below are relative to the candidate source root; line numbers need
 FutureMUD references:
 
 - [Seeder interface](../../DatabaseSeeder/IDatabaseSeeder.cs), [metadata/dependencies](../../DatabaseSeeder/SeederMetadataRegistry.cs), [executor](../../DatabaseSeeder/SeederExecutionService.cs), [replay profiles](../../DatabaseSeeder/DebugSeederReplay.cs), [reconciler](../../DatabaseSeeder/SeederManagedRecordReconciler.cs), [repeatability](DatabaseSeeder_Repeatability_Strategy.md).
-- [Setting implementation](../Armageddon/Armageddon_Setting_Implementation_20261019.md), [setting seeder](../../DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonSettingSeeder.cs), [regional land](../../DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonRegionalLandInstaller.cs).
+- [Setting implementation](../Armageddon/Armageddon_Setting_Implementation_20261019.md), [setting seeder](../../ArmageddonSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonSettingSeeder.cs), [regional land](../../ArmageddonSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonRegionalLandInstaller.cs).
 - [Room](../../MudsharpDatabaseLibrary/Models/Room.cs), [spatial ownership](../../MudsharpDatabaseLibrary/Models/Room.SpatialOwnership.cs), [overlay](../../MudsharpDatabaseLibrary/Models/RoomOverlay.cs), [exit](../../MudsharpDatabaseLibrary/Models/Exit.cs), [room guide](../Building/Room_Building_Builder_Guide.md), [room importer](../../RPI%20Engine%20Worldfile%20Converter/FutureMudRoomImporter.cs).
 - [Item contracts](../../ItemSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/Contracts/CatalogueStockDefinitions.cs), [private item/craft helpers](../../ItemSeeder/Seeders/ItemSeeder/Catalogue/CatalogueInstaller.cs), [craft importer](../../RPI%20Engine%20Worldfile%20Converter/FutureMudCraftImporter.cs), [craft mapping](../../RPI%20Engine%20Worldfile%20Converter/RpiCraftConversionMapping.md).
 - [Simple NPC](../../MudSharpCore/NPC/Templates/SimpleNPCTemplate.cs), [template additions](../../MudSharpCore/NPC/Templates/NPCTemplateBase.LoadAdditions.cs), [spawner](../../MudSharpCore/NPC/NPCSpawner.cs), [outfit templates](../../MudSharpCore/GameItems/Inventory/TemplateOutfit.cs).

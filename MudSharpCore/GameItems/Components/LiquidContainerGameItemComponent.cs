@@ -1,4 +1,4 @@
-﻿#nullable enable annotations
+#nullable enable annotations
 
 using MudSharp.Body;
 using MudSharp.Construction;
@@ -145,7 +145,7 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, IPreparedLi
 
     public override void Quit()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }
@@ -502,7 +502,7 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, IPreparedLi
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }

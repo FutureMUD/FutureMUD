@@ -38,8 +38,8 @@ internal static partial class GNHProgram
 	private static object BaseProfile()
 	{
 		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
-		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
-			.GetProperty("All", ReplayFlags)!.GetValue(null)!;
+		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.ArmageddonSeederReplayProfiles", true)!
+			.GetProperty("PreparedWorldProfiles", ReplayFlags)!.GetValue(null)!;
 		var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == BaseProfileId);
 		profile = S6ClassProfile(profile);
 		var seeders = assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", ReplayFlags)!.Invoke(null, null)!;
@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		var root = CatalogueRepository;
 		var directories = steps.Select(x => Path.Combine(root, "DatabaseSeeder", "Seeders", x.SeederType.Split('.').Last()))
 			.Where(Directory.Exists)
-			.Concat(new[] { "DatabaseSeeder/Seeders/Utilities", "DatabaseSeeder/Assets/Database", "SeederFramework",
+			.Concat(new[] { "DatabaseSeeder/Seeders/Utilities", "SeederFoundations", "ArmageddonSeeder", "DatabaseSeeder/Assets/Database", "SeederFramework",
 				"MudsharpDatabaseLibrary", "FutureMUDLibrary", "ExpressionEngine", "Design Documents/Data", "Design Documents/Seeding/CultureSeederRedesignHandoff" }
 				.Select(x => Path.Combine(root, x)));
 		var files = directories.SelectMany(x => Directory.EnumerateFiles(x, "*", SearchOption.AllDirectories))
@@ -74,20 +74,16 @@ internal static partial class GNHProgram
 			.Append(Path.Combine(root, "DatabaseSeeder", "DatabaseSeeder.csproj"))
 			.Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Monster_AI_Recommendations.json"))
             .Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv"))
-            .Append(Path.Combine(root, "DatabaseSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSkillPackage.cs"))
-            .Append(Path.Combine(root, "DatabaseSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSettingOwnership.cs"))
-            .Concat(Directory.EnumerateFiles(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Armageddon"), "*"))
+            .Append(Path.Combine(root, "ArmageddonSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSkillPackage.cs"))
+            .Append(Path.Combine(root, "ArmageddonSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSettingOwnership.cs"))
+            .Concat(Directory.EnumerateFiles(Path.Combine(root, "ArmageddonSeeder", "Assets", "Manifests", "Armageddon"), "*"))
 			.Concat(BaseCompilerPins.Select(x => Path.Combine(root, x.Path)))
 			.Where(x => !Regex.IsMatch(Path.GetRelativePath(root, x).Replace('\\', '/'), @"(^|/)(bin|obj)/|^FutureMUDLibrary/Magic/Stock/"))
 			.Where(x => !IsS4OnlyBaseSource(Path.GetRelativePath(root, x).Replace('\\', '/')))
 			.Where(x => new[] { ".cs", ".json", ".tsv", ".sql", ".props", ".targets", ".csproj" }.Contains(Path.GetExtension(x)))
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.OrderBy(x => Path.GetRelativePath(root, x).Replace('\\', '/'), StringComparer.Ordinal);
-		var runner = File.ReadAllText(Path.Combine(root, "DatabaseSeeder", "DebugSeederReplay.cs"));
-		var profileStart = runner.IndexOf("internal static class DebugSeederReplayProfiles", StringComparison.Ordinal);
-		Require(profileStart > 0, "Replay source boundary changed.");
 		return files.Select(x => new BaseSource(Path.GetRelativePath(root, x).Replace('\\', '/'), BaseHash(x)))
-			.Append(new BaseSource("DatabaseSeeder/DebugSeederReplay.cs#runner", Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(runner[..profileStart])))))
 			.OrderBy(x => x.Path, StringComparer.Ordinal).ToList();
 	}
 	private static bool IsS4OnlyBaseSource(string path) => path.StartsWith("FutureMUDLibrary/Magic/Stock/", StringComparison.Ordinal) ||

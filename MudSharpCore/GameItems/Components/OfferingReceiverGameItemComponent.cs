@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Events;
@@ -66,7 +66,7 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 	public override void FinaliseLoad()
 	{
 		base.FinaliseLoad();
-		foreach (var item in _contents)
+		foreach (var item in _contents.ToArray())
 		{
 			item.FinaliseLoadTimeTasks();
 		}
@@ -83,7 +83,7 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 
 	public override void Quit()
 	{
-		foreach (var item in _contents)
+		foreach (var item in _contents.ToArray())
 		{
 			item.Quit();
 		}

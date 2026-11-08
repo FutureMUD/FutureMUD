@@ -28,7 +28,7 @@ assert pathlib.Path(instance['data']).resolve().is_relative_to(root)
 replay = json.loads((root / 'native-replay.json').read_text())
 assert replay['firstRun'] == 'PASS' and replay['secondRun'] == 'REFUSED_WITHOUT_MUTATION'
 connection = f"server=127.0.0.1;port={instance['port']};database=authored_celestial_smoke;uid=root;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=600;"
-password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'DatabaseSeeder/DebugSeederReplay.cs').read_text(encoding='utf-8-sig')).group(1)
+password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'SeederFoundations/DebugFoundationReplayProfiles.cs').read_text(encoding='utf-8-sig')).group(1)
 spec = importlib.util.spec_from_file_location('mud_session', repo / '.agents/skills/futuremud-mud-tester/scripts/mud_session.py')
 helper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helper)
@@ -53,7 +53,8 @@ report['inputs'] = {str(path.relative_to(repo)): hashlib.sha256(path.read_bytes(
     pathlib.Path(__file__), repo / 'scripts/FuryCalmSmokeWorld/Program.cs',
     repo / 'scripts/AuthoredCelestialSmokeWorld/native.py',
     repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/FuryCalmSmokeWorld.dll',
-    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/DatabaseSeeder.dll',
+    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/ArmageddonSeeder.dll',
+    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/SeederFoundations.dll',
     repo / 'MudSharpCore/bin/Debug/net10.0/MudSharp.dll',
     repo / 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql',
     repo / 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json']}

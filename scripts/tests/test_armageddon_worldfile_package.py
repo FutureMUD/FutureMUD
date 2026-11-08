@@ -10,6 +10,16 @@ SPEC.loader.exec_module(PACKAGE)
 
 
 class PackageTests(unittest.TestCase):
+    def test_gate_roster_extracts_template_backed_choices_and_positive_tokens_only(self):
+        rows = ",".join('{"spirit' + str(index) + '",' + str(index + 1) + ',0,-1}' for index in range(10))
+        rows += ',{"existing-person",123,-1,-1}'
+        cases = "\n".join("case " + str(index) + ": victim = read_mobile(" + str(500 + index) + ", VIRTUAL); break;" for index in range(10))
+        text = "cast_gate() { struct demon_type demon_name[] = {" + rows + "}; switch(i) {" + cases + "case 10: victim = get_char_world(ch, name); } } /* end Cast_Gate */"
+        roster = PACKAGE.gate_summons(text)
+        self.assertEqual(10, len(roster))
+        self.assertEqual({"Name": "spirit0", "NpcVnum": 500, "TokenVnums": [1]}, roster[0])
+        self.assertFalse(any(row["Name"] == "existing-person" for row in roster))
+
     def test_size_bonus_integrates_discrete_threshold_before_averaging(self):
         source = """char_init_height(int race)
 {

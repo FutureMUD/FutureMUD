@@ -898,7 +898,9 @@ public partial class Body
         return this.CanPerformManualAction(out _) && CanSheatheExternally(item, sheath);
     }
 
-    public bool CanSheatheExternally(IGameItem item, IGameItem sheath)
+    public bool CanSheatheExternally(IGameItem item, IGameItem sheath) => CanSheatheExternally(item, sheath, false);
+
+    public bool CanSheatheExternally(IGameItem item, IGameItem sheath, bool ignoreItemRestrictions)
     {
         IWieldable targetItemWieldable = null;
         if (item == null)
@@ -926,6 +928,8 @@ public partial class Body
         {
             return false;
         }
+
+        if (!ignoreItemRestrictions && !item.Permits(ItemInteractionRestriction.Sheathe)) return false;
 
         bool SheathIsSuitable(ISheath isheath)
         {
@@ -1038,6 +1042,8 @@ public partial class Body
         {
             return "That is not something that can be sheathed.";
         }
+
+        if (!item.Permits(ItemInteractionRestriction.Sheathe)) return "You cannot sheathe " + item.HowSeen(Actor) + ".";
 
         (bool Success, string ReasonText, WhyCannotSheatheReason Reason) SheathIsSuitable(ISheath isheath)
         {
@@ -1154,11 +1160,13 @@ public partial class Body
 			SheatheInternal(item, sheath, playerEmote, additionalFlags, silent);
     }
 
-    public bool SheatheExternally(IGameItem item, IGameItem sheath)
+    public bool SheatheExternally(IGameItem item, IGameItem sheath) => SheatheExternally(item, sheath, false);
+
+    public bool SheatheExternally(IGameItem item, IGameItem sheath, bool ignoreItemRestrictions)
     {
 		var executor = Actor;
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
-        return CommandExecutionScope.TryContinue(executor) && CanSheatheExternally(item, sheath) &&
+        return CommandExecutionScope.TryContinue(executor) && CanSheatheExternally(item, sheath, ignoreItemRestrictions) &&
 			ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor) &&
                SheatheInternal(item, sheath, null, OutputFlags.Normal, true);
     }
@@ -1363,6 +1371,10 @@ public partial class Body
             return false;
         }
 
+        if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnorePickupRestrictions) &&
+            !item.Permits(ItemInteractionRestriction.Pickup) &&
+            !(item.ContainedIn is null && item.InInventoryOf is not null)) return false;
+
         if (item.EffectsOfType<IItemTakeInterdictionEffect>().Any(x => !x.AllowsTake(Actor)))
         {
             return false;
@@ -1506,6 +1518,10 @@ public partial class Body
         {
             return Location.WhyCannotGet(item, Actor);
         }
+
+        if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnorePickupRestrictions) &&
+            !item.Permits(ItemInteractionRestriction.Pickup) &&
+            !(item.ContainedIn is null && item.InInventoryOf is not null)) return "You cannot pick up " + item.HowSeen(Actor) + ".";
 
         if (item.EffectsOfType<IItemTakeInterdictionEffect>().Any(x => !x.AllowsTake(Actor)))
         {
@@ -1947,6 +1963,14 @@ public partial class Body
 		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return null;
 		ForeignCustodyTransferContext.EnsureBody(this, item);
+		if (!silent && item.ContainedIn is null && item.InInventoryOf is null && Actor.CanSee(item) && Actor.CanReachItem(item, requireInventoryPermission: false).Truth)
+		{
+			var originalSource = PrepareItemReachSnapshot(item);
+			var originalQuantity = item.Quantity;
+			var originalWeight = item.Weight;
+			if (originalSource is null || !ItemPickupAttempt.TryRun(item, executor,
+				() => CanContinue() && originalSource() && item.Quantity == originalQuantity && item.Weight == originalWeight)) return null;
+		}
 		var canGet = CanGet(item, quantity, ignoreFlags);
 		if (!CanContinue()) return null;
 		if (!canGet)
@@ -2072,6 +2096,10 @@ public partial class Body
 			item.Quantity == sourceQuantity && ReferenceEquals(item.GetItemType<IHoldable>(), sourceHolder) &&
 			!containerItem.Deleted && !containerItem.Destroyed && ReferenceEquals(containerItem.GetItemType<IContainer>(), containerComp) &&
 			containerComp?.Contents.Any(x => ReferenceEquals(x, item)) == true && ComponentUnloadCompletion.OwnedBy(item, containerItem);
+        if (!silent && Actor.CanSee(item) && OriginalSource() && containerComp.CanTake(Actor, item, quantity))
+        {
+            if (!ItemPickupAttempt.TryRun(item, executor, () => CanContinue() && OriginalSource())) return null;
+        }
         if (!CanGet(item, containerItem, quantity, ignoreFlags))
         {
             if (!silent)
@@ -2164,7 +2192,7 @@ public partial class Body
             tcontainer != null &&
             (tcontainer.CanPut(item.PeekSplit(quantity)) ||
              (allowLesserAmounts && tcontainer.WhyCannotPut(item.PeekSplit(quantity)) ==
-                 WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity)) && CanDrop(item, quantity) &&
+                 WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity)) && item.Permits(ItemInteractionRestriction.Put) &&
             container.GetItemType<IWearable>()?.CurrentProfile?.RequireContainerIsEmpty != true &&
             !item.PreventsMovement();
     }
@@ -2192,6 +2220,8 @@ public partial class Body
         {
             return new QuickEmote("@ cannot put items into containers while riding $0.", Actor, Actor.RidingMount);
         }
+
+        if (!item.Permits(ItemInteractionRestriction.Put)) return "You cannot put " + item.HowSeen(Actor) + " into a container.";
 
         IContainer tcontainer = container.GetItemType<IContainer>();
         if (tcontainer == null)
@@ -2380,10 +2410,10 @@ public partial class Body
                 return false;
             }
 
-            return CanDrop(item, 1) && containerAsCorpse.Body.CanWear(item, wprof);
+            return item.Permits(ItemInteractionRestriction.Put) && containerAsCorpse.Body.CanWear(item, wprof);
         }
 
-        return CanDrop(item, 1) && containerAsCorpse.Body.CanWear(item);
+        return item.Permits(ItemInteractionRestriction.Put) && containerAsCorpse.Body.CanWear(item);
     }
 
     public string WhyCannotPut(IGameItem item, IGameItem container, string profile)
@@ -2418,7 +2448,7 @@ public partial class Body
 
         IBody corpseBody = containerAsCorpse.Body;
 
-        if (!CanDrop(item, 1))
+        if (!item.Permits(ItemInteractionRestriction.Put))
         {
             switch (corpseBody.HoldLocs.WhyCannotDrop(item))
             {
@@ -2505,10 +2535,7 @@ public partial class Body
 
     #endregion
 
-    public bool CanDrop(IGameItem item, int quantity)
-    {
-        return true;
-    }
+    public bool CanDrop(IGameItem item, int quantity) => item.Permits(ItemInteractionRestriction.Drop);
 
     public string WhyCannotDrop(IGameItem item, int quantity)
     {
@@ -2621,7 +2648,7 @@ public partial class Body
             return false;
         }
 
-        return CanDrop(item, quantity) && target.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
+        return item.Permits(ItemInteractionRestriction.Give) && target.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
     }
 
     public string WhyCannotGive(IGameItem item, IBody target, int quantity = 0)
@@ -2637,7 +2664,7 @@ public partial class Body
         }
 
         IGameItem dummy = item.PeekSplit(quantity);
-        if (!CanDrop(item, quantity))
+        if (!item.Permits(ItemInteractionRestriction.Give))
         {
             return "You cannot give that away.";
         }
@@ -2768,7 +2795,7 @@ public partial class Body
             return false;
         }
 
-        return CanDrop(item, quantity) &&
+        return item.Permits(ItemInteractionRestriction.Give) &&
                target.Body.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
     }
 
@@ -2791,7 +2818,7 @@ public partial class Body
         }
 
         IGameItem dummy = item.PeekSplit(quantity);
-        if (!CanDrop(item, quantity))
+        if (!item.Permits(ItemInteractionRestriction.Give))
         {
             return "You cannot give that away.";
         }
@@ -4819,7 +4846,7 @@ public partial class Body
 		var whole = item.DropsWholeByWeight(weight);
 		if (!CanContinue()) return;
 		if (whole) { Get(item, 0, playerEmote, silent, ignoreFlags); return; }
-		GetPreparedWeightSplit(item, weight, playerEmote, silent, executor);
+		GetPreparedWeightSplit(item, weight, playerEmote, silent, executor, null, ignoreFlags);
     }
 
     public void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote? playerEmote = null,
@@ -4844,12 +4871,25 @@ public partial class Body
             return;
         }
 
-		GetPreparedWeightSplit(item, weight, playerEmote, silent, executor, container);
+		GetPreparedWeightSplit(item, weight, playerEmote, silent, executor, container, ignoreFlags);
     }
 
 	private void GetPreparedWeightSplit(IGameItem item, double weight, IEmote? playerEmote, bool silent,
-		ICharacter executor, IGameItem? container = null)
+		ICharacter executor, IGameItem? container, ItemCanGetIgnore ignoreFlags)
 	{
+		if (!silent)
+		{
+			var sourceCurrent = PrepareItemReachSnapshot(container ?? item);
+			var originalParent = item.ContainedIn;
+			var originalBody = item.InInventoryOf;
+			var originalQuantity = item.Quantity;
+			var originalWeight = item.Weight;
+			if (sourceCurrent is null || !ItemPickupAttempt.TryRun(item, executor, () =>
+				ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor) && sourceCurrent() &&
+				!item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, originalParent) &&
+				ReferenceEquals(item.InInventoryOf, originalBody) && item.Quantity == originalQuantity && item.Weight == originalWeight)) return;
+			if (container is null ? !CanGetByWeight(item, weight, ignoreFlags) : !CanGetByWeight(item, container, weight, ignoreFlags)) return;
+		}
 		var placement = PrepareGetPlacement(item.PeekSplitByWeight(weight), true);
 		if (placement is null || !ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return;
 		CommandExecutionScope.MarkCommitted(executor);

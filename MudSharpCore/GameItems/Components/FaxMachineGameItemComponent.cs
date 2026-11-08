@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 #nullable enable
 using MudSharp.Body;
 using MudSharp.Communication;
@@ -173,12 +173,12 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }
 
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
@@ -190,12 +190,12 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
     public override void Quit()
     {
         base.Quit();
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }
 
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }

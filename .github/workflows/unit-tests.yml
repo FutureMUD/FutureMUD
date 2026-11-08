@@ -2,6 +2,11 @@ name: Unit Tests
 
 on:
   pull_request:
+    paths-ignore:
+      - 'ItemSeeder/**'
+      - 'ItemSeeder Unit Tests/**'
+      - 'ArmageddonSeeder/**'
+      - 'ArmageddonSeeder Unit Tests/**'
   push:
     branches: [master]
   merge_group:

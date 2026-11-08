@@ -27,7 +27,7 @@ public sealed partial class AgricultureSeeder : IFoundationSeeder
 	private const string RawTextileFibreTagName = "Raw Textile Fibre";
 	private const string EggProductTagName = "Egg Product";
 	private const string ManureCommodityTagName = "Manure Commodity";
-	private const string FarmingTraitName = "Farming";
+	internal const string FarmingTraitName = "Farming";
 
 	private sealed record CropSeed(string Name, string Description, string Category, int Growth, int Window,
 		int MinMoisture, int MaxMoisture, int MinTemp, int MaxTemp, AgricultureCommodityYield[] Outputs,

@@ -554,7 +554,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
             var visualRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
                 RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
             List<IGameItem> localItems = PerceivablesWithinRouteRange<IGameItem>(actor, visualRange)
-                .Where(x => actor.CanSee(x)).ToList();
+                .Where(x => actor.CanSee(x) && x.Permits(ItemInteractionRestriction.RoomListing)).ToList();
             List<IGameItemGroup> groups = localItems
                               .SelectNotNull(x => x.ItemGroup)
                               .Distinct()
@@ -926,7 +926,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
     private static void DisplayForScan(ICharacter actor, IEnumerable<IGameItem> items, StringBuilder sb,
         bool useLayerTags)
     {
-        IEnumerable<IGrouping<RoomLayer, IGameItem>> layerItems = items.GroupBy(x => x.RoomLayer);
+        IEnumerable<IGrouping<RoomLayer, IGameItem>> layerItems = items.Where(x => x.Permits(ItemInteractionRestriction.RoomListing)).GroupBy(x => x.RoomLayer);
         foreach (IGrouping<RoomLayer, IGameItem> layerItem in layerItems)
         {
             if (layerItem.GroupBy(x => x.ItemGroup).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&

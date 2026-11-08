@@ -22,7 +22,7 @@ internal static partial class GNHProgram
 			"Release stock smoke requires its separate Simple/classes-on lane.");
 		var path = Path.Combine(CatalogueRepository, "tests", "ArmageddonPreparedSeederNativeHarness", "bin", "Release", "net10.0", "GatheringNativePersistenceHarness.dll");
 		Require(File.Exists(path), "Build the Release harness before the native acceptance lane.");
-		var credential = typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
+		var credential = typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetField("DebugPassword", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!.GetRawConstantValue() as string;
 		Require(!string.IsNullOrWhiteSpace(credential), "Missing disposable fixture credential.");
 		var start = new ProcessStartInfo("dotnet") { UseShellExecute = false, CreateNoWindow = true,

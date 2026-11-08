@@ -128,10 +128,12 @@ There are many different ways that you could set up combat skills. A few options
 #BArmageddon#f: Use the early Armageddon package, canonical weapon traits and independent Parry (new worlds only).
 #BSOI#f: This option sets up skills like old SOI had, with 9 combinations of light, medium, heavy and edged, bludgeon and piercing (e.g. medium-edge etc)
 
-Which option do you want to choose for weapon skills? ",
+Which option do you want to choose for weapon skills? ".Replace("#BArmageddon#f: Use the early Armageddon package, canonical weapon traits and independent Parry (new worlds only).", SettingSeederIntegration.Profile is null ? "" : "#BArmageddon#f: Use the early Armageddon package, canonical weapon traits and independent Parry (new worlds only)."),
                 (context, answers) => !HasCombatFoundation(context),
                 (answer, context) =>
                 {
+                    if (answer.EqualTo("armageddon") && SettingSeederIntegration.Profile is null)
+						return (false, "Use the standalone Armageddon Seeder for its combat foundations.");
                     return (answer.EqualToAny("weapons", "broad", "soi", "armageddon"),
                         "You must answer weapons, broad, soi or armageddon.");
                 }),
@@ -181,11 +183,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		effectiveAnswers = MergeRecordedCombatAnswers(context, effectiveAnswers);
 
         var armageddon = effectiveAnswers["skilloption"].Equals("armageddon", StringComparison.OrdinalIgnoreCase);
-        if (armageddon) ValidateArmageddonCombat(context, effectiveAnswers);
-        else if (ArmageddonSkillPackage.IsInstalled(context)) throw new InvalidOperationException("Armageddon skills require the Armageddon combat package.");
+        if (armageddon) SettingSeederIntegration.Require(context).ValidateCombat(context, effectiveAnswers);
+        else if (SettingSeederIntegration.IsInstalled(context)) throw new InvalidOperationException("Armageddon skills require the Armageddon combat package.");
         if (armageddon && HasCombatFoundation(context))
         {
-            ValidateArmageddonCombatIdentities(context);
+            SettingSeederIntegration.Require(context).ValidateCombatIdentities(context);
 			var added = EnsureSpecialAttackDefaults(context, CombatSeederMessageStyleHelper.Parse(effectiveAnswers["messagestyle"]));
             return $"Armageddon combat identities and builder customisations retained. Added {added} missing default combat messages; no existing combat data or player values changed.";
         }
@@ -223,7 +225,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		var coordinationSkill = skills.GetValueOrDefault("Dual-Wielding") ?? skills["Dual-Wield"];
 		var coordination = DualWieldCoordinationSeederHelper.InstallFresh(context, coordinationSkill);
 
-        if (armageddon) CompleteArmageddonCombat(context);
+        if (armageddon) SettingSeederIntegration.Require(context).CompleteCombat(context);
         context.Database.CommitTransaction();
 
         return $"The operation completed successfully. {coordination.Message}";
@@ -366,7 +368,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			auxiliary.Actions + auxiliary.Messages + auxiliary.RaceLinks + auxiliary.Strategies + manual);
 	}
 
-	private static bool HasCombatFoundation(FuturemudDatabaseContext context) => context.WeaponAttacks.Any();
+	internal static bool HasCombatFoundation(FuturemudDatabaseContext context) => context.WeaponAttacks.Any();
 
 	private static bool HasEarlyFirearms(FuturemudDatabaseContext context) =>
 		context.RangedWeaponTypes.Any(x => x.Name == "Flintlock Musket");
@@ -490,7 +492,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         }
 
         ArmourType shieldArmour = context.ArmourTypes.First(x => x.Name == "Shield Armour");
-        TraitDefinition blockSkill = ArmageddonSkillPackage.IsInstalled(context) ? ArmageddonSkillPackage.Resolve(context)["arm.skill.shield_use"] : context.TraitDefinitions.First(x => x.Name == "Blocking" || x.Name == "Block");
+        TraitDefinition blockSkill = SettingSeederIntegration.IsInstalled(context) ? SettingSeederIntegration.Require(context).Resolve(context)["arm.skill.shield_use"] : context.TraitDefinitions.First(x => x.Name == "Blocking" || x.Name == "Block");
         foreach ((string name, double blockBonus, double staminaPerBlock) in new (string, double, double)[]
                  {
                      ("Hide", -1.0, 6.0),

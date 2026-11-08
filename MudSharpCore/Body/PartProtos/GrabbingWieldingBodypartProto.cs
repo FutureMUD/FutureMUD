@@ -1,3 +1,4 @@
+using MudSharp.GameItems.Interfaces;
 ﻿using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
@@ -132,7 +133,7 @@ public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield
 
     public int Hands(IGameItem item)
     {
-        return item.GetItemType<IWieldable>()?.AlwaysRequiresTwoHandsToWield == true || item.Size > MaxSingleSize
+        return !item.Permits(ItemInteractionRestriction.OneHandedWield) || item.GetItemType<IWieldable>()?.AlwaysRequiresTwoHandsToWield == true || item.Size > MaxSingleSize
             ? 2
             : 1;
     }

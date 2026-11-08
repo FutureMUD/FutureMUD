@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -63,12 +63,12 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
     {
 		CancelWashing(false, false);
         Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }
 
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }
@@ -457,12 +457,12 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }
 
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }

@@ -10,6 +10,9 @@ public class InventoryPlanActionConsume : InventoryPlanAction
     {
         Quantity = int.Parse(root.Attribute("quantity").Value);
 		CarriedOnly = bool.Parse(root.Attribute("carriedonly")?.Value ?? "false");
+		CastRequiredProgId = (long?)root.Attribute("castrequiredprog") ?? 0;
+		OptionalForCasting = (bool?)root.Attribute("castoptional") ?? false;
+		if (CastRequiredProgId < 0) throw new FormatException("A casting requirement prog ID cannot be negative.");
 		if (root.Attribute("grade") is { } grade)
 		{
 			RequiredGrade = int.Parse(grade.Value);
@@ -38,6 +41,8 @@ public class InventoryPlanActionConsume : InventoryPlanAction
             new XAttribute("inplacemultiplier", ItemsAlreadyInPlaceMultiplier),
             new XAttribute("originalreference", OriginalReference?.ToString() ?? ""),
 			CarriedOnly ? new XAttribute("carriedonly", true) : null,
+			CastRequiredProgId > 0 ? new XAttribute("castrequiredprog", CastRequiredProgId) : null,
+			OptionalForCasting ? new XAttribute("castoptional", true) : null,
 			RequiredGrade is { } grade ? new XAttribute("grade", grade) : null,
 			_gradeRankDefinition is null ? null : new XElement(_gradeRankDefinition)
         );
@@ -49,6 +54,8 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         return
             $"Consume {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"} x{Quantity.ToString("N0", voyeur)}" +
 			(CarriedOnly ? " (directly carried only)" : "") +
+			(CastRequiredProgId > 0 ? $" (casting policy prog #{CastRequiredProgId})" : "") +
+			(OptionalForCasting ? " (optional during casting)" : "") +
 			(RequiredGrade is { } grade ? $" (grade {grade} only)" : "") +
 			(_gradeRankDefinition is null ? "" : $" (minimum rank: selected grade {_gradeRankOffset:+0;-0;0}, floor zero; {_rankTags.Count} rank tags)");
     }
@@ -63,6 +70,19 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
     public int Quantity { get; set; }
 	public bool CarriedOnly { get; set; }
+	/// <summary>A boolean(character) prog deciding whether this material is required for a spell invocation. Zero always requires it.</summary>
+	public long CastRequiredProgId { get; set; }
+	/// <summary>During spell invocation, omit this material if no eligible item can be scouted.</summary>
+	public bool OptionalForCasting { get; set; }
+	internal bool RequiredForCasting(ICharacter actor)
+	{
+		if (CastRequiredProgId == 0) return true;
+		var prog = Gameworld.FutureProgs.Get(CastRequiredProgId);
+		if (prog is null || prog.ReturnType != MudSharp.FutureProg.ProgVariableTypes.Boolean ||
+			!prog.MatchesParameters([MudSharp.FutureProg.ProgVariableTypes.Character]))
+			throw new InvalidOperationException("Material casting policy requires an existing boolean(character) prog.");
+		return MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => prog.ExecuteBool(true, actor), true);
+	}
 	public int? RequiredGrade { get; private set; }
 	private int? _boundGrade;
 	public void ConfigureRequiredGrade(int? grade)
@@ -148,7 +168,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
 	internal void RevalidateConsumption(ICharacter executor, IGameItem item)
 	{
-		if (HasPersistedSelection && (item.Deleted || !MeetsPersistedSelection(executor, item) || !item.IsA(DesiredTag) ||
+		if ((HasPersistedSelection || DesiredState == DesiredItemState.Retained) && (item.Deleted || item.Destroyed || !MeetsPersistedSelection(executor, item) || !item.IsA(DesiredTag) ||
 			!(MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(item) ?? true, false)) || (item.GetItemType<IStackable>()?.Quantity ?? 1) < Quantity))
 			throw new InvalidOperationException("The selected component no longer meets its carried scope, rank or quantity requirements.");
 	}

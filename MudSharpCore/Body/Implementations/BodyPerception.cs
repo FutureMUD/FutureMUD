@@ -672,6 +672,7 @@ public partial class Body
                                                     .Select(x => x.ExteriorItem)
                                                     .ToHashSet();
         List<IGameItem> items = localItems
+                                        .Where(x => x.Permits(ItemInteractionRestriction.RoomListing))
                                         .Where(x => x.RoomLayer == RoomLayer)
                                         .Where(x => CanSee(x))
                                         .Where(x => !movementTargets.Contains(x))
@@ -1144,6 +1145,8 @@ public partial class Body
             }
 
             sb.AppendLine(actor.Body.GetInventoryString(Actor));
+			var hum = MudSharp.Effects.Concrete.ItemPresentation.DescribeCarriedHum(actor, Actor);
+			if (!string.IsNullOrEmpty(hum)) sb.AppendLine(hum);
         }
 
         return sb.ToString();

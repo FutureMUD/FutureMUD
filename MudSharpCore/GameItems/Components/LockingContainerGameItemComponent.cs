@@ -641,12 +641,12 @@ namespace MudSharp.GameItems.Components
 
         public override void Quit()
         {
-            foreach (IGameItem item in Contents)
+            foreach (IGameItem item in Contents.ToArray())
             {
                 item.Quit();
             }
 
-            foreach (ILock item in Locks)
+            foreach (ILock item in Locks.ToArray())
             {
                 item.Quit();
             }

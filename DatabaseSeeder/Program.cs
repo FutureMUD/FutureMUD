@@ -200,7 +200,15 @@ The exception details were as follows:
 
     private static void ShowMainMenu()
     {
-        new SeederConsole(typeof(Program).Assembly, ConnectionString!
+		using (var context = SeederConsole.CreateContext(ConnectionString!))
+		{
+			if (SettingSeederIntegration.CompatibilityIssue(context) is { } issue)
+			{
+				Console.Error.WriteLine(issue);
+				return;
+			}
+		}
+        new SeederConsole(typeof(Seeders.CoreDataSeeder).Assembly, ConnectionString!
 #if DEBUG
 			, DebugSeederReplayProfiles.All, SeederReplayRunner.Runner,
 			"Debug replay profiles run a complete known seeder sequence against a freshly migrated, unseeded local database. They use the fixed Debug implementor password DebugReplayOnly!2026. Never use this workflow or credential for a reachable or production database."

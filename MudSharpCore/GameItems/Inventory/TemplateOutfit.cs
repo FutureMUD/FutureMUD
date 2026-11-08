@@ -1105,15 +1105,15 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 						item.Get(null);
 						target.Body.WearExternally(item, profile);
 					}
-					else if (target.Body.CanGet(item, 0))
+					else if (target.Body.CanGet(item, 0, ItemCanGetIgnore.IgnorePickupRestrictions))
 					{
-						target.Body.Get(item, silent: true);
+						target.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnorePickupRestrictions);
 					}
 					break;
 				case OutfitTemplateItemPlacement.Inventory:
-					if (target.Body.CanGet(item, 0))
+					if (target.Body.CanGet(item, 0, ItemCanGetIgnore.IgnorePickupRestrictions))
 					{
-						target.Body.Get(item, silent: true);
+						target.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnorePickupRestrictions);
 					}
 					break;
 				case OutfitTemplateItemPlacement.Wielded:
@@ -1122,9 +1122,9 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 						item.Get(target.Body);
 						target.Body.Wield(item, silent: true);
 					}
-					else if (target.Body.CanGet(item, 0))
+					else if (target.Body.CanGet(item, 0, ItemCanGetIgnore.IgnorePickupRestrictions))
 					{
-						target.Body.Get(item, silent: true);
+						target.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnorePickupRestrictions);
 					}
 					break;
 				case OutfitTemplateItemPlacement.Room:
@@ -1149,9 +1149,9 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 				continue;
 			}
 
-			if (target.Body.CanGet(item, 0))
+			if (target.Body.CanGet(item, 0, ItemCanGetIgnore.IgnorePickupRestrictions))
 			{
-				target.Body.Get(item, silent: true);
+				target.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnorePickupRestrictions);
 			}
 		}
 
@@ -1163,16 +1163,16 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 			}
 
 			var sheath = ResolveSheath(templateItem, createdItems, target, item);
-			if (target.Body.CanSheatheExternally(item, sheath))
+			if (target.Body.CanSheatheExternally(item, sheath, true))
 			{
 				item.Get(null);
-				target.Body.SheatheExternally(item, sheath);
+				target.Body.SheatheExternally(item, sheath, true);
 				continue;
 			}
 
-			if (target.Body.CanGet(item, 0))
+			if (target.Body.CanGet(item, 0, ItemCanGetIgnore.IgnorePickupRestrictions))
 			{
-				target.Body.Get(item, silent: true);
+				target.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnorePickupRestrictions);
 			}
 		}
 
@@ -1243,7 +1243,7 @@ public sealed class TemplateOutfit : SaveableItem, IOutfitTemplate
 
 		return target.Body.ExternalItems
 		             .Where(x => x.IsItemType<ISheath>())
-		             .FirstOrDefault(x => target.Body.CanSheatheExternally(item, x));
+		             .FirstOrDefault(x => target.Body.CanSheatheExternally(item, x, true));
 	}
 
 	private static string UniqueOutfitName(ICharacter target, string baseName)

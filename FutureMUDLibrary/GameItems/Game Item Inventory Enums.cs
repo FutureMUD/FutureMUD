@@ -44,6 +44,7 @@ namespace MudSharp.GameItems
         IgnoreLiftUseDrag = 8,
         IgnoreWeight = 16,
         IgnoreInContainer = 32,
+		IgnorePickupRestrictions = 64,
     }
 
     [Flags]

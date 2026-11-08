@@ -207,7 +207,7 @@ public partial class CombatSeeder
         switch (skilloption)
         {
             case "armageddon":
-                var owned = ArmageddonSkillPackage.Resolve(context);
+                var owned = SettingSeederIntegration.Require(context).Resolve(context);
                 var assignments = new Dictionary<string, string>
                 {
                     ["Mace"] = "bludgeoning_weapons", ["Club"] = "bludgeoning_weapons", ["Improvised"] = "bludgeoning_weapons",

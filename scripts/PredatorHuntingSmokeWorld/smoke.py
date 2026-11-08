@@ -35,7 +35,7 @@ def sql(query):
     return result.stdout.strip()
 
 connection = f"server=127.0.0.1;port={instance['port']};database=authored_celestial_smoke;uid=root;SslMode=Disabled;AllowPublicKeyRetrieval=True;Default Command Timeout=600;"
-password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'DatabaseSeeder/DebugSeederReplay.cs').read_text(encoding='utf-8-sig')).group(1)
+password = re.search(r'const string DebugPassword\s*=\s*"([^"]+)"', (repo / 'SeederFoundations/DebugFoundationReplayProfiles.cs').read_text(encoding='utf-8-sig')).group(1)
 spec = importlib.util.spec_from_file_location('mud_session', repo / '.agents/skills/futuremud-mud-tester/scripts/mud_session.py')
 helper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helper)

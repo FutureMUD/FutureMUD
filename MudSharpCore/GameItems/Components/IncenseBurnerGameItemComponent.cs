@@ -78,7 +78,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 	public override void FinaliseLoad()
 	{
 		base.FinaliseLoad();
-		foreach (var item in _contents)
+		foreach (var item in _contents.ToArray())
 		{
 			item.FinaliseLoadTimeTasks();
 		}
@@ -104,7 +104,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 	public override void Quit()
 	{
 		Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManagerOnSecondHeartbeat;
-		foreach (var item in _contents)
+		foreach (var item in _contents.ToArray())
 		{
 			item.Quit();
 		}

@@ -7,3 +7,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ItemSeeder Unit Tests")]
 [assembly: InternalsVisibleTo("MudSharpCore Unit Tests")]
 [assembly: InternalsVisibleTo("MudSharpCore.ClimateTests")]
+
+[assembly: InternalsVisibleTo("SeederFoundations")]
+[assembly: InternalsVisibleTo("ArmageddonSeeder")]
+[assembly: InternalsVisibleTo("ArmageddonSeeder Unit Tests")]

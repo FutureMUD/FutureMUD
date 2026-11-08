@@ -26,9 +26,10 @@ internal static class Program
 			var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 			var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!.GetProperty("All", flags)!.GetValue(null)!;
 			var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == "medieval-standard");
-			var seeders = assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", flags)!.Invoke(null, null)!;
+			var hostAssembly = Assembly.Load("DatabaseSeeder");
+			var seeders = hostAssembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", flags)!.Invoke(null, null)!;
 			Func<FuturemudDatabaseContext> factory = () => { admission.VerifyTarget(); return new FuturemudDatabaseContext(options); };
-			var result = assembly.GetType("DatabaseSeeder.SeederReplayRunner", true)!.GetMethod("Run", flags)!
+			var result = hostAssembly.GetType("DatabaseSeeder.SeederReplayRunner", true)!.GetMethod("Run", flags)!
 				.Invoke(null, [profile, seeders, factory, new Version(1, 0), (Action<string>)(s => Console.WriteLine(s))])!;
 			var resultFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 			if (!(bool)result.GetType().GetProperty("Success", resultFlags)!.GetValue(result)!)

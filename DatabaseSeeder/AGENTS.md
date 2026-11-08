@@ -29,3 +29,8 @@ Inherits [repository instructions](../AGENTS.md). This project is the interactiv
 - For emitted markup, use [character descriptions](../Design%20Documents/Markup/Character_Description_System.md) or [human seeder patterns](../Design%20Documents/Markup/Human_Seeder_Description_Patterns.md), as applicable.
 
 Database Seeder regressions belong in `DatabaseSeeder Unit Tests`. The separate Item Seeder solution owns the item catalogue, Primary Production, and their dedicated tests; long-running seeded-climate regressions belong in `MudSharpCore Climate Tests`. Preserve the additional workflow/replay verification gates when those contracts change.
+
+
+## Product assembly boundary
+
+Generic seeder source under `Seeders` plus metadata/questions is compiled by `SeederFoundations`; this executable owns bootstrap/migrations/blank snapshots and discovers that explicit foundation assembly. Armageddon setting/worldfile content, policies, manifests and tests are owned by the separate Armageddon product. Keep dependencies directed through shared integration contracts; do not reference an optional executable from this product. Preserve source paths used by catalogue audits unless deliberately updating their owners.

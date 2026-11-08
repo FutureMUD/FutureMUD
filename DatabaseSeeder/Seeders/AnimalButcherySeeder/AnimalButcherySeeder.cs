@@ -1553,8 +1553,8 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 	{
 		// The approved Armageddon consumer map binds both butchery and skinning to this
 		// owned identity. Resolve ownership rather than guessing from a mutable name.
-		if (ArmageddonSkillPackage.IsInstalled(context))
-			return ArmageddonSkillPackage.Resolve(context)["arm.skill.skinning"];
+		if (SettingSeederIntegration.IsInstalled(context))
+			return SettingSeederIntegration.Require(context).Resolve(context)["arm.skill.skinning"];
 
 		return context.TraitDefinitions
 		              .AsEnumerable()

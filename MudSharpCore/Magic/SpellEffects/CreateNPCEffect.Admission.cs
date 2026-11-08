@@ -96,7 +96,7 @@ public sealed partial class CreateNPCEffect
 		knownSeconds = null;
 		error = DefinitionError;
 		if (error is not null) return false;
-		if (!ValidateMissionInvocation(caster, recipient, out error)) return false;
+		if (!ValidateChoice(caster, out error) || !ValidateMissionInvocation(caster, recipient, out error)) return false;
 		if (!CharacterState.Able.HasFlag(caster.State) || caster.State.HasFlag(CharacterState.Stasis) ||
 			!Gameworld.Actors.Any(x => ReferenceEquals(x, caster)))
 		{

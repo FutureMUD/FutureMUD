@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
 using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
@@ -314,7 +314,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
 
     public override void FinaliseLoad()
     {
-        foreach (IGameItem item in _contents)
+        foreach (IGameItem item in _contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
@@ -406,7 +406,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
 
     public override void Quit()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }

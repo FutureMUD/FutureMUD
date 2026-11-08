@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -409,6 +409,7 @@ public class Exit : PerceivedItem, IExit
                     Door = door;
                     door.InstalledExit = this;
                     gitem.FinaliseLoadTimeTasks();
+					if (gitem.Deleted) { Door = null; return; }
                     gitem.Login();
                 }
             }

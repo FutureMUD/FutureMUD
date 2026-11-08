@@ -70,7 +70,7 @@ public sealed partial class CreateNPCEffect
 		IReadOnlyList<SpellAdditionalParameter> parameters, out string? error)
 	{
 		error = MissionPolicyDefinitionError();
-		if (error is not null) return false;
+		if (error is not null || !BindChoice(caster, parameters, out error)) return false;
 		if (MissionKind == SpellNpcMissionKind.None) return true;
 		if (Spell is not MagicSpell { InvocationGrade: >= 1 and <= 7 } || parameters.Count != 1 ||
 			parameters[0].ParameterName != SpellNpcMissionInputs.ParameterName || parameters[0].Item is not SpellNpcMissionInputs inputs ||

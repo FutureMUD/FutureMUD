@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
@@ -441,7 +441,7 @@ public partial class Body : PerceiverItem, IBody
             Gameworld.SaveManager.Flush();
         }
 
-        foreach (IGameItem item in AllItems)
+        foreach (IGameItem item in AllItems.ToArray())
         {
             item.Quit();
         }
@@ -768,7 +768,7 @@ public partial class Body : PerceiverItem, IBody
             }
         }
 
-        foreach (IGameItem item in Wounds.SelectNotNull(x => x.Lodged))
+        foreach (IGameItem item in Wounds.SelectNotNull(x => x.Lodged).ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
@@ -785,6 +785,7 @@ public partial class Body : PerceiverItem, IBody
             if (prosthetic != null)
             {
                 gitem.FinaliseLoadTimeTasks();
+				if (gitem.Deleted) continue;
                 _prosthetics.Add(prosthetic);
                 var prostheticWasChanged = prosthetic.Changed;
                 prosthetic.InstallProsthetic(this);

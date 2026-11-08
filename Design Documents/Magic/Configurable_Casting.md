@@ -1,5 +1,19 @@
 # Configurable casting (ARM-02)
 
+## Conditional materials and named summons — 8 November 2026
+
+Inventory plans accept `state="retained"` with the same quantity, carried scope and grade/rank selection as consumed materials. It requires presence without moving, splitting or deleting the item. Retained items participate in casting input receipts and quarantine checks. Use `plan add retained <tag> <quantity>`; existing carried/grade/rank commands also apply.
+
+A material's `castrequiredprog` is a boolean(character) prog: true requires payment, false waives it. Missing/incompatible progs refuse. `plan required <number> <prog>|none` configures it; `none` restores unconditional payment. `castoptional="true"`, configured with `plan optional <number> on|off`, omits unavailable materials. Combining the policies requires an optional focus's presence for its benefit while retaining it for exempt casters. These attributes affect spell invocation copies; other inventory-plan consumers retain their existing semantics. Defaults preserve older definitions and shared plans are never caster-bound.
+
+Return Tether's `boost <action reference>|none` binds `OptionalDurationComponent` to a selected material's original reference. Its presence multiplies seconds per grade by `max(2, grade)`. Return safety and cancellation remain native.
+
+The `roomchoice` trigger accepts an optional quoted choice and targets the caster's room. Create NPC's `NamedChoices version="1"` binds each Choice's name, template, uniqueness template, retained-token tag, minimum casting grade and material grade. Optional `materialReference` identifies the action whose requirement grade is overridden; casting power is unchanged. Binding precedes plan creation on configured and direct paths. The unnamed route keeps existing single/grade-template selection. Invalid choices, insufficient grade, absent tokens and existing unique creatures refuse before payment.
+
+Builder commands: `choice <name> <template> <token tag> <minimum grade> <material grade>`, `choice <name> none`, `choice clear`, and `choicematerial <action reference>|none`. `choicecontrol <base threshold> <threshold per follower>|none` configures creation-time loss with a 1–100 roll below threshold. `choicelifetime <seconds per grade> <minimum extra grades> <maximum extra grades>|none` sets a named lifetime range. Control reuses native companion persistence/following/hostile engagement. Named companions require a temporary lifecycle even if the default template has no controller. The authoring display lists the choices.
+
+The [Worldfile mapping](../Seeding/Armageddon_Worldfile_Spell_Components.md) records installed policies; standalone stock retains its defaults.
+
 ## Remaining S4 definitions, 15 October 2026
 
 The fixed installer declares all 152 required definitions. Definition installation,

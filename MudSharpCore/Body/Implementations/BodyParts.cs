@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Disfigurements;
+using MudSharp.Body.Disfigurements;
 using MudSharp.Database;
 using MudSharp.Construction;
 using MudSharp.Combat.Simulation;
@@ -1021,7 +1021,7 @@ public partial class Body
             }
         }
 
-        foreach (IImplant item in Implants)
+        foreach (IImplant item in Implants.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }

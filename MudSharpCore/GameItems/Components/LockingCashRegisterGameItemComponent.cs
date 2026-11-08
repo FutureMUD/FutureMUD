@@ -261,7 +261,7 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 	public override void Quit()
 	{
 		base.Quit();
-		foreach (var item in Locks)
+		foreach (var item in Locks.ToArray())
 		{
 			item.Quit();
 		}
@@ -270,7 +270,7 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 	public override void FinaliseLoad()
 	{
 		base.FinaliseLoad();
-		foreach (var item in Locks)
+		foreach (var item in Locks.ToArray())
 		{
 			item.Parent.FinaliseLoadTimeTasks();
 		}

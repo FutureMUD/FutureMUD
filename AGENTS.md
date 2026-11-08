@@ -14,7 +14,9 @@ Use the SDK, target frameworks, language version, and package versions declared 
 | `MudSharpCore/` | Console game server, networking, concrete runtime/gameplay implementations, command modules. |
 | `MudsharpDatabaseLibrary/` | EF Core context, models, mappings, and migrations for MySQL/Pomelo. |
 | `ExpressionEngine/` | `IExpression` / NCalc-based formula evaluation and custom functions. |
-| `DatabaseSeeder/` | Interactive installer, initial stock content, supported additional installs and reruns. |
+| `DatabaseSeeder/` | Schema/bootstrap executable and foundational source consumed by SeederFoundations. |
+| `SeederFoundations/` | Shared reusable setup packages and optional setting integration contracts. |
+| `ArmageddonSeeder/` | Standalone optional Armageddon Setting and one-shot Worldfile installer; local packaging only. |
 | `ItemSeeder/` | Optional item catalogue installer, authoring commands and Primary Production. Open `ItemSeeder.sln` for this product. |
 | `SeederFramework/` | Shared package assessment, question and execution infrastructure for both installers. |
 | `DiscordBotCore/` | Standalone Discord integration and the engine bridge. |

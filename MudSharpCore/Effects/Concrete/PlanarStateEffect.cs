@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Implementations;
 using MudSharp.GameItems;
 using MudSharp.Planes;
@@ -62,13 +62,13 @@ public class PlanarStateEffect : Effect, IPlanarOverlayEffect
 		switch (Owner)
 		{
 			case ICharacter character when character.Body is ConcreteBody body:
-				body.EjectInventoryForPlanarTransition();
+				body.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 				break;
 			case ConcreteBody body:
-				body.EjectInventoryForPlanarTransition();
+				body.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 				break;
 			case IBody body when body is ConcreteBody concrete:
-				concrete.EjectInventoryForPlanarTransition();
+				concrete.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 				break;
 		}
 	}

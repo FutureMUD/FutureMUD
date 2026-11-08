@@ -17,8 +17,8 @@ internal static partial class GNHProgram
 	{
 		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
 		const BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
-			.GetProperty("All", flags)!.GetValue(null)!;
+		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.ArmageddonSeederReplayProfiles", true)!
+			.GetProperty("PreparedWorldProfiles", flags)!.GetValue(null)!;
 		var stock = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == "medieval-standard");
 		var catalogue = ((IEnumerable<IDatabaseSeeder>)assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!
 			.GetMethod("GetEnabledSeeders", flags)!.Invoke(null, null)!).ToArray();

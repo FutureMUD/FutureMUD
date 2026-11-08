@@ -19,10 +19,31 @@ public partial class MagicSpell
 		model.CastingDifficulty = (int)difficulty;
 		var definition = XElement.Parse(model.Definition);
 		var originalActions = InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).ToArray();
-		var gradeAware = originalActions.OfType<InventoryPlanActionConsume>().Any(x => x.HasGradeSelection);
+		var gradeAware = originalActions.OfType<InventoryPlanActionConsume>().Any(x => x.HasGradeSelection || x.CastRequiredProgId > 0 || x.OptionalForCasting);
+		var activeActions = new List<IInventoryPlanAction>();
 		if (gradeAware)
-			foreach (var action in definition.Element("Plan")!.Descendants("Action").ToArray())
-				if (action.Attribute("grade") is { } required && int.Parse(required.Value) != grade) action.Remove();
+		{
+			var xmlActions = definition.Element("Plan")!.Descendants("Action").ToArray();
+			if (xmlActions.Length != originalActions.Length) throw new InvalidOperationException("Material plan snapshot changed during casting.");
+			for (var i = 0; i < xmlActions.Length; i++)
+			{
+				if (originalActions[i] is InventoryPlanActionConsume material)
+				{
+					if (material.RequiredGrade is { } required && required != grade) { xmlActions[i].Remove(); continue; }
+					var needed = material.RequiredForCasting(actor);
+					if (!needed && !material.OptionalForCasting) { xmlActions[i].Remove(); continue; }
+					if (material.OptionalForCasting)
+					{
+						var probe = new InventoryPlanActionConsume(material.SaveToXml(), Gameworld) { PrimaryItemSelector = material.PrimaryItemSelector };
+						probe.BindSelectedGrade(grade);
+						if (probe.ScoutTarget(actor) is null) { xmlActions[i].Remove(); continue; }
+						// An exemption waives payment, but an optional benefit still needs the carried focus.
+						if (!needed) xmlActions[i].SetAttributeValue("state", "retained");
+					}
+				}
+				activeActions.Add(originalActions[i]);
+			}
+		}
 		foreach (var b in GradeProfile!.ScalarBindings)
 		{
 			var value = CastingNumerics.Bind(new TraitExpression(b.Expression, Gameworld), trait, grade, power,
@@ -41,7 +62,6 @@ public partial class MagicSpell
 		else
 		{
 			var copiedActions = copy.InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).Cast<InventoryPlanAction>().ToArray();
-			var activeActions = originalActions.Where(x => x is not InventoryPlanActionConsume { RequiredGrade: { } required } || required == grade).ToArray();
 			for (var i = 0; i < copiedActions.Length; i++)
 			{
 				var original = (InventoryPlanAction)activeActions[i];

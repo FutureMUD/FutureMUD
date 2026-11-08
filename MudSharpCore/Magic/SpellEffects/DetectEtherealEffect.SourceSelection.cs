@@ -124,7 +124,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 			_sourceScope.Version == 1 ? TerrainState.Capture(Gameworld.Terrains.Get(_sourceScope.Silt)!) : null,
 			_sourceScope.Version == 1 ? TerrainState.Capture(Gameworld.Terrains.Get(_sourceScope.Shadow)!) : null,
 			TerrainState.Capture(terrain), siltTag, shadowPlane, terrainTags.Values.ToArray(), presence,
-			_sourceScope.Version == 1 ? terrain.Id == _sourceScope.Shadow : presence.Contains(_sourceScope.Shadow),
+			(_sourceScope.Version == 1 ? terrain.Id == _sourceScope.Shadow : presence.Contains(_sourceScope.Shadow)) || !consume.RequiredForCasting(caster),
 			allTags.Select(x => new TagState(x, x.Id, x.Name, x.Parent)).ToArray(), consume.DesiredTag, rankTags[Math.Max(grade - 3, 0)], null);
 		ConfirmSource(token, caster, recipient);
 		// Native rank binding can invoke tag predicates too. Freeze first and reject
@@ -191,7 +191,8 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 		var currentPresence = token.Scope.Version == 2 ? caster.GetPlanarPresence().PresencePlaneIds.OrderBy(x => x).ToArray() : [];
 		var siltPresent = token.Scope.Version == 1 ? token.Terrain.Id == token.Scope.Silt :
 			token.Terrain.Terrain.IsA(token.SiltTag!);
-		var exempt = token.Scope.Version == 1 ? token.Terrain.Id == token.Scope.Shadow : currentPresence.Contains(token.Scope.Shadow);
+		var exempt = (token.Scope.Version == 1 ? token.Terrain.Id == token.Scope.Shadow : currentPresence.Contains(token.Scope.Shadow)) ||
+			!((InventoryPlanActionConsume)token.Actions.Single(x => Equals(x.Action.OriginalReference, token.Scope.ComponentReference)).Action).RequiredForCasting(caster);
 		if (_sourceScopeError is not null || _sourceScope != token.Scope || Spell is not MagicSpell invocation ||
 			invocation.InvocationGrade != token.Grade || !ReferenceEquals(caster, recipient) || !ReferenceEquals(caster, token.Caster) ||
 			!ReferenceEquals(caster.Body, token.Body) || !ReferenceEquals(caster.Location, token.Room) || caster.RoomLayer != token.Layer ||

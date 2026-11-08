@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
@@ -47,7 +47,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
     public override void FinaliseLoad()
     {
         base.FinaliseLoad();
-        foreach (IGameItem item in _contents)
+        foreach (IGameItem item in _contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
@@ -72,7 +72,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
     public override void Quit()
     {
         Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManagerOnSecondHeartbeat;
-        foreach (IGameItem item in _contents)
+        foreach (IGameItem item in _contents.ToArray())
         {
             item.Quit();
         }

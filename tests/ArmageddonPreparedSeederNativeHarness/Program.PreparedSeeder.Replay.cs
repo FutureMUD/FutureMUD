@@ -25,7 +25,7 @@ internal static partial class GNHProgram
 		// dedicated harness out of the production API and avoids editing shared friend/dispatch files.
 		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
 		var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!.GetProperty("All", flags)!.GetValue(null)!;
+		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.ArmageddonSeederReplayProfiles", true)!.GetProperty("PreparedWorldProfiles", flags)!.GetValue(null)!;
 		var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == "medieval-standard");
 		var seeders = assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", flags)!.Invoke(null, null)!;
 		var run = assembly.GetType("DatabaseSeeder.SeederReplayRunner", true)!.GetMethod("Run", flags)!;
@@ -112,7 +112,7 @@ internal static partial class GNHProgram
 			"Boot output must have its own lane-local evidence namespace.");
 		var password = ReleaseStockSmoke
 			? Environment.GetEnvironmentVariable("FUTUREMUD_RELEASE_FIXTURE_PASSWORD") ?? throw new InvalidOperationException("Missing private fixture credential.")
-			: assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
+			: typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetField("DebugPassword", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!.GetRawConstantValue() as string
 			?? throw new InvalidOperationException("Missing disposable replay account password.");
 		using (var connection = database.OpenOwnedConnection()) { }

@@ -716,7 +716,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
     public override void FinaliseLoad()
     {
         LoadedAmmo?.Parent.FinaliseLoadTimeTasks();
-		foreach (var ammunition in _magazine)
+		foreach (var ammunition in _magazine.ToArray())
 		{
 			ammunition.Parent.FinaliseLoadTimeTasks();
 		}
@@ -744,7 +744,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
     {
         base.Quit();
         LoadedAmmo?.Parent.Quit();
-		foreach (var ammunition in _magazine)
+		foreach (var ammunition in _magazine.ToArray())
 		{
 			ammunition.Parent.Quit();
 		}

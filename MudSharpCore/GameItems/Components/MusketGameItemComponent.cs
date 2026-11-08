@@ -189,7 +189,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
     public override void Quit()
     {
         base.Quit();
-        foreach (IGameItem item in MagazineContents)
+        foreach (IGameItem item in MagazineContents.ToArray())
         {
             item.Quit();
         }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Combat;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.RPG.Checks;
@@ -29,7 +29,7 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
     public override void Quit()
     {
         base.Quit();
-        foreach (var content in _contents)
+        foreach (var content in _contents.ToArray())
         {
             content.Parent.Quit();
         }
@@ -348,7 +348,7 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
 
     public override void FinaliseLoad()
     {
-        foreach (var content in _contents)
+        foreach (var content in _contents.ToArray())
         {
             content.Parent.FinaliseLoadTimeTasks();
         }

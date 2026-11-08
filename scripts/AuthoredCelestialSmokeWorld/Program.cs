@@ -61,8 +61,9 @@ foreach (var step in (IEnumerable)Property(profile, "Steps")!)
 		if ((string)Property(answer, "Id")! == "password") answer.GetType().GetProperty("Answer", flags)!.SetValue(answer, password);
 	}
 }
-var catalogue = assembly.GetType("DatabaseSeeder.SeederCatalogue")!.GetMethod("GetEnabledSeeders", flags)!.Invoke(null, null);
-var run = assembly.GetType("DatabaseSeeder.SeederReplayRunner")!.GetMethod("Run", flags)!;
+var hostAssembly = Assembly.Load("DatabaseSeeder");
+var catalogue = hostAssembly.GetType("DatabaseSeeder.SeederCatalogue")!.GetMethod("GetEnabledSeeders", flags)!.Invoke(null, null);
+var run = hostAssembly.GetType("DatabaseSeeder.SeederReplayRunner")!.GetMethod("Run", flags)!;
 object Execute() => run.Invoke(null, [profile, catalogue, factory, assembly.GetName().Version!, (Action<string>)Console.WriteLine])!;
 var first = Execute();
 bool Success(object result) => (bool)Property(result, "Success")!;

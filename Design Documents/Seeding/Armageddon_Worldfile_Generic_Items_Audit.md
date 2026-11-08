@@ -24,7 +24,7 @@ Zero references in these columns are not proof that a definition can never be su
 
 | Type | Raw definitions; retained reset references / distinct vnums | Source behaviour and current boundary |
 | --- | --- | --- |
-| 2 Component | 50; 468 / 31 | `sp_parser.c:1261+` matches sphere (`value[0] == sphere-1`) and sufficient power (`value[1] >= power-1`); the consuming helper destroys a matching carried component. Reset-placed components in the four existing ranked native families (Alteration, Divination, Clerical, Teleportation) now receive their installed rank tags. Other spheres and unplaced definitions remain unmapped; spell requirements are not changed. |
+| 2 Component | 50; 468 / 31 | `sp_parser.c:1261+` matches sphere (`value[0] == sphere-1`) and sufficient power (`value[1] >= power-1`); the consuming helper destroys a matching carried component. All 49 valid base definitions and effective variants now bind exact ranks across all twelve native families. Active source requirements, player exemptions, retained Gate tokens and optional Return Tether duration are implemented; [mapping and boundaries](Armageddon_Worldfile_Spell_Components.md). Invalid Vnum19113 remains unbound. No new supply is placed. |
 | 3 Wand / 4 Staff | 25 / 17 definitions | Native charged devices exist. Source spell IDs, charging, resource costs and multi-payload policy remain deferred. |
 | 7 Tool | 60 definitions | Bandages, climbing aids and lockpicks now have native consumers. Climbing aids work held or worn in any location; lockpicks use native picking/relocking and breakage with source-quality flat bonuses. Explosive traps have a source/native design audit awaiting their separate implementation; disarming and snares lack functioning source consumers. |
 | 10 Potion | 62 definitions | Complete ordered payload combinations at native grades 1–7, including duplicates, now use native magical substances and installed spells. Empty payloads are consumable. Source no-op slots remain harmless. The four unplaced grade-15/20 definitions now use native grade 7; missing dependencies refuse the whole combination. |
@@ -95,3 +95,10 @@ Maximum-grade follow-up: Vnum66, Vnum67, Vnum19112 and Vnum65305 now import at n
 ### Explosive tool completion
 
 Subtype-2 powder supplies the native Powder Trap template and source-quality setup prog, including reset variants. Traps persist on shared door/container items, fire once on opening or confirmed junking, and apply direct HP/stun consequences rather than an area bomb. Four pretrapped container definitions and the trapped portal are seeded armed. Only explosive-tagged contents amplify damage. Subtype-3 disarming tools, subtype-4 snares and unavailable fuses remain outside this implementation. See the remaining-gaps document and native Trap System guide for commands and adaptations.
+
+
+### Item flags and interaction restrictions continuation
+
+Effective prototypes and opening shop stock now receive separate native pickup/drop/give/put/sheathing/listing/two-handed restrictions, detection-based visibility, descriptive glow, local audible hum, intrinsic magic classification, one-shot glyph callbacks and optional transient retirement. Authored initial NPC outfits retain explicit loading bypasses. See [item flags mapping](Armageddon_Worldfile_Item_Flags.md) for activation, persistence and source boundaries.
+
+Remaining narrow consumers are documented there: NO_ES belt-sheathing/one-handed-tool quirks, source curse removal, ETHEREAL/ETHEREAL_OK spell conversion, and dynamically created corpse-possession/host-replacement disposal paths. The ten starting undead-and-summoned NPC definitions and their variants have the precise death hook. Explicit disposal prog triggers exist; ordinary deaths and general body changes intentionally do not invoke them. This status describes implementation, not a live walkthrough qualification.

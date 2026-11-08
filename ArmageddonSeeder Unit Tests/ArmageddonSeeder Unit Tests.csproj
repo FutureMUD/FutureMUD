@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>MudSharp_Unit_Tests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.21" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+		<PackageReference Include="Moq" Version="4.21.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="4.5.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="4.5.1" />
+		<PackageReference Include="System.Diagnostics.EventLog" Version="10.0.13" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ArmageddonSeeder\ArmageddonSeeder.csproj" />
+		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+		<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />
+		<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Fixtures/item-catalogue-*.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+  <ItemGroup>
+    <Compile Include="../DatabaseSeeder Unit Tests/SeederSourceTestHelper.cs" Link="Fixtures/SeederSourceTestHelper.cs" />
+    <Compile Include="../DatabaseSeeder Unit Tests/HumanWearProfileFixture.cs" Link="Fixtures/HumanWearProfileFixture.cs" />
+    <Compile Include="../DatabaseSeeder Unit Tests/UsefulItemTestFixture.cs" Link="Fixtures/UsefulItemTestFixture.cs" />
+    <Compile Include="../DatabaseSeeder Unit Tests/OwnedInMemorySeederContext.cs" Link="Fixtures/OwnedInMemorySeederContext.cs" />
+    <Compile Include="../DatabaseSeeder Unit Tests/InMemorySeederSnapshot.cs" Link="Fixtures/InMemorySeederSnapshot.cs" />
+    <Compile Include="../MudSharpCore Unit Tests/MagicCastingFixture.cs" Link="Fixtures/MagicCastingFixture.cs" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Construction;
@@ -82,12 +82,12 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public override void FinaliseLoad()
     {
-        foreach (IGameItem item in _contents)
+        foreach (IGameItem item in _contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }
 
-        foreach (IGameItem item in _implants)
+        foreach (IGameItem item in _implants.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }

@@ -14,7 +14,7 @@ namespace MudSharp.Body.Implementations;
 public partial class Body
 {
 	internal IGrab? PrepareStoredItemReceipt(GameItem item) =>
-		CanGet(item, 0, ItemCanGetIgnore.None, false) ? PrepareGetPlacement(item, false)?.Hand : null;
+		CanGet(item, 0, ItemCanGetIgnore.IgnorePickupRestrictions, false) ? PrepareGetPlacement(item, false)?.Hand : null;
 
 	internal bool StoredItemReceiptCurrent(IGrab hand) => HoldLocs.Any(x => ReferenceEquals(x, hand)) &&
 		(!hand.Unary || !_heldItems.Any(x => ReferenceEquals(x.Item2, hand)) &&

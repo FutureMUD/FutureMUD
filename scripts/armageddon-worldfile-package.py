@@ -501,6 +501,24 @@ def first_loaded(records, entity, diagnostics):
     return list(winners.values())
 
 
+def gate_summons(text):
+    """Translate only the template-backed ritual roster, excluding the existing-person joke."""
+    body = text[text.index("cast_gate("):]
+    body = body[:body.index("/* end Cast_Gate */")]
+    table = re.search(r"demon_name\[\]\s*=\s*\{(.*?)\};", body, re.S)
+    if table is None:
+        raise ValueError("Cannot locate named Gate rituals")
+    rows = re.findall(r'\{\s*"([^"\\]+)"\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*\}', table.group(1))
+    templates = dict((int(case), int(vnum)) for case, vnum in
+                     re.findall(r"case\s+(\d+)\s*:\s*victim\s*=\s*read_mobile\(\s*(\d+)\s*,", body))
+    result = [{"Name": row[0], "NpcVnum": templates[index],
+               "TokenVnums": [int(value) for value in row[1:] if int(value) > 0]}
+              for index, row in enumerate(rows) if index in templates]
+    if len(result) != 10 or any(not row["TokenVnums"] for row in result):
+        raise ValueError("Unqualified named Gate roster")
+    return result
+
+
 def build(source, output):
     root = source / "armExe" / "lib"
     package = {"Version": 1, "Encoding": "latin-1", "Rooms": [], "Items": [], "Npcs": [], "Resets": [], "SupportFiles": []}
@@ -546,6 +564,8 @@ def build(source, output):
     package["Subguilds"] = guilds(Reader(root / "data_files" / "subguilds", root), 0)
     constants = (source / "constants.c").read_text(encoding="latin-1")
     package["CombatCalibration"] = combat_calibration_tables(constants)
+    package["GateSummons"] = gate_summons((source / "spells.c").read_text(encoding="latin-1"))
+    manifest["SourceCodeSha256"]["spells.c"] = hashlib.sha256((source / "spells.c").read_bytes()).hexdigest()
     table = re.search(r"\bskill_name\s*\[[^]]*\]\s*=\s*\{(.*?)\};", constants, re.S)
     if table is None:
         raise ValueError("Cannot locate this version's skill_name array")

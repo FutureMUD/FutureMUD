@@ -6,6 +6,7 @@ on:
       - 'ItemSeeder/**'
       - 'ItemSeeder Unit Tests/**'
       - 'SeederFramework/**'
+      - 'SeederFoundations/**'
       - 'SeederCatalogueTools/**'
       - 'DatabaseSeeder/**'
       - 'DatabaseSeeder Unit Tests/**'

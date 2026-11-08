@@ -84,6 +84,10 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             case "container":
                 state = DesiredItemState.InContainer;
                 break;
+            case "retain":
+            case "retained":
+                state = DesiredItemState.Retained;
+                break;
             case "consume":
             case "consumed":
             case "use":
@@ -157,6 +161,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 }
 
                 break;
+            case DesiredItemState.Retained:
             case DesiredItemState.Consumed:
                 if (command.IsFinished)
                 {
@@ -194,6 +199,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
                 action = new InventoryPlanActionConsume(actor.Gameworld, value, tag.Id, 0, null, null)
                 { ItemsAlreadyInPlaceOverrideFitnessScore = true };
+                if (state == DesiredItemState.Retained) action = new InventoryPlanActionRetain(action.SaveToXml(), actor.Gameworld);
                 break;
             case DesiredItemState.InContainer:
             case DesiredItemState.Sheathed:
@@ -681,6 +687,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
         // consumed items last of all
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x =>
+                         x.Action.DesiredState == DesiredItemState.Retained ||
                          x.Action.DesiredState == DesiredItemState.Consumed ||
                          x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
         {
@@ -916,6 +923,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
         // consumed items last of all
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x =>
+                         x.Action.DesiredState == DesiredItemState.Retained ||
                          x.Action.DesiredState == DesiredItemState.Consumed ||
                          x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
         {
@@ -1284,6 +1292,9 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 return AttachItem(actor, item, target, silent, action?.OriginalReference);
             case DesiredItemState.ConsumeCommodity:
                 return ConsumeCommodity(actor, item, ((InventoryPlanActionConsumeCommodity)action).Weight, action?.OriginalReference);
+            case DesiredItemState.Retained:
+                ((InventoryPlanActionConsume)action).RevalidateConsumption(actor, item);
+                return new InventoryPlanActionResult { PrimaryTarget = item, ActionState = state, OriginalReference = action.OriginalReference };
             case DesiredItemState.Consumed:
 				((InventoryPlanActionConsume)action).RevalidateConsumption(actor, item);
                 return ConsumeItem(actor, item, ((InventoryPlanActionConsume)action).Quantity,

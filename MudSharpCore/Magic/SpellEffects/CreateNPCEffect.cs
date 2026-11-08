@@ -45,6 +45,7 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
         Spell = spell;
         _npcPrototypeId = long.Parse(root.Element("NPCPrototypeId").Value);
 		LoadGradeTemplates(root);
+		_choiceDefinition = root.Element("NamedChoices") is { } choices ? new XElement(choices) : null;
 		LoadMissionPolicy(root);
         _onLoadProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnLoadProg").Value));
 		if (root.Element("Lifecycle") is { } lifetime)
@@ -85,7 +86,7 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 	public SpellLifecycleMode? LifecycleMode { get; private set; }
 	public string LifecycleFamily { get; private set; } = string.Empty;
 	public ITraitExpression? LifetimeExpression { get; internal set; }
-	public string? DefinitionError => _loadError ?? MissionPolicyDefinitionError() ?? (HasGradeTemplatePolicy || LifecycleMode is not null ? NativeTemplateDefinitionError() : null) ?? (LifecycleMode is null ? null :
+	public string? DefinitionError => _loadError ?? ChoiceDefinitionError() ?? MissionPolicyDefinitionError() ?? (HasGradeTemplatePolicy || LifecycleMode is not null ? NativeTemplateDefinitionError() : null) ?? (LifecycleMode is null ? null :
 		!TryCount(_count, 1, out _) ? "NPC count must be grade or an integer from 1 to 128." :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a lifecycle family of at most 128 characters." :
 		LifecycleMode == SpellLifecycleMode.Permanent && DefinitionTemplates.Any(x => x?.ArtificialIntelligences.OfType<SpellCompanionAI>().Any() == true) ?
@@ -100,6 +101,7 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
             new XElement("NPCPrototypeId", _npcPrototypeId),
             new XElement("OnLoadProg", _onLoadProg?.Id ?? 0),
 			SaveGradeTemplates(),
+			_choiceDefinition is null ? null : new XElement(_choiceDefinition),
 			SaveMissionPolicy(),
 			_unreadableLifecycle is not null ? new XElement(_unreadableLifecycle) : LifecycleMode is { } mode ? new XElement("Lifecycle", new XAttribute("version", 1), new XAttribute("mode", mode),
 				new XElement("Family", LifecycleFamily), _lifetimeFormula is not null ? new XElement("Seconds", _lifetimeFormula) : null,
@@ -205,6 +207,8 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 			{
 				seconds = LifetimeExpression!.EvaluateWith(caster, native.CastingTrait, TraitBonusContext.SpellDuration,
 					("power", (int)power), ("outcome", (int)outcome));
+				if (_boundChoice is not null && _choiceDefinition?.Element("Lifetime") is { } namedLifetime)
+					seconds = (double)namedLifetime.Attribute("secondsPerGrade")! * (grade + Random.Shared.Next((int)namedLifetime.Attribute("minimumExtraGrades")!, (int)namedLifetime.Attribute("maximumExtraGrades")! + 1));
 				if (!ValidLifetime(seconds.Value, out error)) return false;
 			}
 			if (!TryCount(_count, grade, out var count)) { error = "Invalid selected-grade NPC count."; return false; }
@@ -267,6 +271,7 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 				if (Selection is { IsCurrent: false })
 					throw new InvalidOperationException("The prepared native NPC inputs changed during load callbacks; do not replay.");
 				Effect.ApplyBoundMission(character, Caster, Mission, () => Selection?.IsCurrent == true);
+				Effect.ApplySummonControl(character, Caster);
 			}
 			catch (Exception ex)
 			{
@@ -300,6 +305,11 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 	#3npc <proto>#0 - sets the single NPC template to be loaded
 	#3npcgrade <1-7> <proto>|none#0 - binds an approved template to a requested grade
 	#3npcgrade clear#0 - restores single-template selection
+	#3choice <name> <NPC template> <token tag> <minimum grade> <material grade>#0 - adds a named summon
+	#3choice <name> none#0 or #3choice clear#0 - removes named choices
+	#3choicematerial <action reference>|none#0 - chooses the material requirement whose grade is overridden
+	#3choicecontrol <base threshold> <threshold per follower>|none#0 - optional break-free risk on creation
+	#3choicelifetime <seconds per grade> <minimum extra grades> <maximum extra grades>|none#0 - optional named lifetime range
 	#3mission none|seek|courier|haunt#0 - binds explicit mission inputs to the native controller
 	#3prog <which>#0 - sets the NPC on-load program
 	#3prog none#0 - clears the on-load program
@@ -317,12 +327,16 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 				_gradeTemplates.OrderBy(x => x.Key).Select(x => $"{x.Key.ToString("N0", actor)}: {Gameworld.NpcTemplates.Get(x.Value)?.EditHeader() ?? x.Value.ToString("N0", actor).ColourError()}").ListToCommaSeparatedValues())),
             ("Mission", _missionLoadError?.ColourError() ?? MissionKind.DescribeEnum().ColourName()),
             ("On Load", _onLoadProg?.MXPClickableFunctionName() ?? "none".ColourError()),
+			("Named Choices", _choiceDefinition is null ? "none" : string.Join(", ", NamedChoices.Select(x => $"{x.Name}: template #{x.Template}, token tag #{x.TokenTag}, minimum grade {x.MinimumGrade}"))),
 			("Lifecycle", LifecycleMode?.ToString() ?? "legacy"), ("Family", LifecycleFamily), ("Lifetime Seconds", _lifetimeFormula ?? "none"),
 			("Count", _count), ("Guard Caster", GuardCaster.ToColouredString()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+        if (command.PeekSpeech().EqualTo("choice")) { command.PopSpeech(); return BuildingCommandChoice(actor, command); }
+        if (command.PeekSpeech().ToLowerInvariant() is "choicecontrol" or "choicelifetime" or "choicematerial")
+            return BuildingCommandChoicePolicy(actor, command.PopSpeech().ToLowerInvariant(), command);
         switch (command.PopSpeech().ToLowerInvariant())
         {
 			case "mission":

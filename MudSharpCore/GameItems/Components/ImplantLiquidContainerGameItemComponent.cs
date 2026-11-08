@@ -1,4 +1,4 @@
-﻿#nullable enable annotations
+#nullable enable annotations
 
 using MudSharp.Body;
 using MudSharp.Construction;
@@ -392,7 +392,7 @@ public class ImplantLiquidContainerGameItemComponent : ImplantBaseGameItemCompon
 
     public override void Quit()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Quit();
         }
@@ -529,7 +529,7 @@ public class ImplantLiquidContainerGameItemComponent : ImplantBaseGameItemCompon
 
     public override void FinaliseLoad()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }

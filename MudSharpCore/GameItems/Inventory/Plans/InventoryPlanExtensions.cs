@@ -32,6 +32,8 @@ public static class InventoryPlanExtensions
                 return "Worn";
             case DesiredItemState.Consumed:
                 return "Consumed";
+            case DesiredItemState.Retained:
+                return "Retained";
             case DesiredItemState.InContainer:
                 return "InContainer";
             case DesiredItemState.Sheathed:

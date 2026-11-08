@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems;
 using MudSharp.Planes;
 
@@ -22,7 +22,7 @@ public class DrugInducedPlanarStateEffect : Effect, IPlanarOverlayEffect
 		PlanarPresenceDefinition = definition;
 		if (!definition.PropagatesInventory && BodyOwner is MudSharp.Body.Implementations.Body concrete)
 		{
-			concrete.EjectInventoryForPlanarTransition();
+			concrete.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 		}
 	}
 
@@ -35,7 +35,7 @@ public class DrugInducedPlanarStateEffect : Effect, IPlanarOverlayEffect
 	{
 		if (!PlanarPresenceDefinition.PropagatesInventory && BodyOwner is MudSharp.Body.Implementations.Body concrete)
 		{
-			concrete.EjectInventoryForPlanarTransition();
+			concrete.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 		}
 	}
 

@@ -27,7 +27,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 
     public override void Quit()
     {
-        foreach (IBeltable item in ConnectedItems)
+        foreach (IBeltable item in ConnectedItems.ToArray())
         {
             item.Parent.Quit();
         }
@@ -203,7 +203,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 
     public override void FinaliseLoad()
     {
-        foreach (IBeltable item in _connectedItems)
+        foreach (IBeltable item in _connectedItems.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }

@@ -15,7 +15,7 @@ For a read-only review, inspect the requested contract and report drift or risks
 
 ## Debug replay profiles: preserve the strict inventory
 
-Profiles in `DatabaseSeeder/DebugSeederReplay.cs` must:
+Profiles in `SeederFoundations/DebugFoundationReplayProfiles.cs` (base installer) and `ArmageddonSeeder/ArmageddonSeederReplayProfiles.cs` (optional product) must:
 
 - use concrete seeder types, never menu numbers or display names;
 - include every enabled seeder exactly once in dependency-plan order;
@@ -23,7 +23,7 @@ Profiles in `DatabaseSeeder/DebugSeederReplay.cs` must:
 - contain every declared question ID for every included seeder, including conditionally inactive questions;
 - keep Medieval, Renaissance and Early Modern profiles cumulative and deterministic.
 
-Whenever an enabled seeder, dependency/order declaration, question ID, filter, validator, default or recommended answer changes, review every replay profile. Update answers deliberately; never hide drift by silently falling back to an interactive default. Preserve the Debug credential warning and fresh-local-database restriction.
+Whenever an enabled seeder, dependency/order declaration, question ID, filter, validator, default or recommended answer changes, review every affected host replay profile. Base profiles exclude optional Armageddon packages; product profiles cover the combined foundation/product inventory. Update answers deliberately; never hide drift by silently falling back to an interactive default. Preserve the Debug credential warning and fresh-local-database restriction.
 
 ## Execution and failure invariants
 

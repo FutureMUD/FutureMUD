@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Implementations;
 using MudSharp.GameItems;
 using MudSharp.Planes;
@@ -53,13 +53,13 @@ public class SpellPlanarStateEffect : MagicSpellEffectBase, IPlanarOverlayEffect
 
 		if (Owner is ICharacter character && character.Body is ConcreteBody body)
 		{
-			body.EjectInventoryForPlanarTransition();
+			body.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 			return;
 		}
 
 		if (Owner is IBody { } bodyInterface && bodyInterface is ConcreteBody concrete)
 		{
-			concrete.EjectInventoryForPlanarTransition();
+			concrete.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
 		}
 	}
 

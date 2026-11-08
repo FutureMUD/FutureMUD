@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
@@ -55,7 +55,7 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
     public override void Quit()
     {
         base.Quit();
-        foreach (IChair item in Chairs)
+        foreach (IChair item in Chairs.ToArray())
         {
             item.Parent.Quit();
         }
@@ -160,7 +160,7 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public override void FinaliseLoad()
     {
-        foreach (IChair item in Chairs)
+        foreach (IChair item in Chairs.ToArray())
         {
             item.Parent.FinaliseLoadTimeTasks();
         }

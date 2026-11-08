@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Prototypes;
@@ -80,12 +80,12 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
 
     public override void Quit()
     {
-        foreach (KeyValuePair<ICraftProduct, ICraftProductData> item in ProducedProducts)
+        foreach (KeyValuePair<ICraftProduct, ICraftProductData> item in ProducedProducts.ToArray())
         {
             item.Value.Quit();
         }
 
-        foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> item in ConsumedInputs)
+        foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> item in ConsumedInputs.ToArray())
         {
             item.Value.Data.Quit();
         }
@@ -289,7 +289,7 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
 
     public override void FinaliseLoad()
     {
-        foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> input in ConsumedInputs)
+        foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> input in ConsumedInputs.ToArray())
         {
             input.Value.Data.FinaliseLoadTimeTasks();
         }

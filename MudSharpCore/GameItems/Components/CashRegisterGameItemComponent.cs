@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using Castle.Components.DictionaryAdapter;
 using MudSharp.Body;
 using MudSharp.Construction;
@@ -432,7 +432,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 
     public override void Quit()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.Quit();
         }
@@ -592,7 +592,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 
     public override void FinaliseLoad()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
             item.FinaliseLoadTimeTasks();
         }

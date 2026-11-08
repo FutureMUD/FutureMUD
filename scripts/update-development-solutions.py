@@ -44,8 +44,8 @@ def generate():
         return refs
 
     for path in entries:
-        if path.startswith(("ItemSeeder/", "ItemSeeder Unit Tests/", "SeederCatalogueTools/")):
-            raise ValueError(f"Optional project belongs in ItemSeeder.sln: {path}")
+        if path.startswith(("ItemSeeder/", "ItemSeeder Unit Tests/", "SeederCatalogueTools/", "ArmageddonSeeder/", "ArmageddonSeeder Unit Tests/")):
+            raise ValueError(f"Optional project belongs in its dedicated product solution: {path}")
         missing = project_dependencies(path) - entries.keys()
         if missing:
             raise ValueError(f"MudSharp.sln is missing dependencies of {path}: {sorted(missing)}")
@@ -105,69 +105,75 @@ def generate():
             p.replace("/", "\\") for p in sorted(closure)
         ]}}, indent=2) + "\n"
 
-    item_roots = [
+    def optional_solution(item_roots, filename):
+        item_projects = set()
+        item_ordered = []
+
+        def include_item_project(path):
+            if path in item_projects:
+                return
+            item_projects.add(path)
+            for dependency in sorted(project_dependencies(path)):
+                include_item_project(dependency)
+            item_ordered.append(path)
+
+        for root in item_roots:
+            include_item_project(root)
+
+        project_type = "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}"
+        heavy_projects = [path for path in item_ordered if path.startswith((
+            "MigrationModels/Batch", "ItemSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/"
+        ))]
+
+        def guid(path):
+            if path in entries:
+                return entries[path][2]
+            return "{" + str(uuid.uuid5(uuid.NAMESPACE_URL, "FutureMUD/" + path)).upper() + "}"
+
+        previous_heavy = dict(zip(heavy_projects[1:], heavy_projects))
+        lines = ["Microsoft Visual Studio Solution File, Format Version 12.00", "# Visual Studio Version 17",
+                 "VisualStudioVersion = 17.0.31903.59", "MinimumVisualStudioVersion = 10.0.40219.1"]
+        for path in sorted(item_projects, key=lambda path: (path != item_roots[0], path)):
+            project_guid = guid(path)
+            project_name = (ROOT / path).stem
+            windows_path = path.replace("/", "\\")
+            block = [f'Project("{project_type}") = "{project_name}", "{windows_path}", "{project_guid}"']
+            if path in previous_heavy:
+                previous_guid = guid(previous_heavy[path])
+                block.extend([
+                    "\tProjectSection(ProjectDependencies) = postProject",
+                    f"\t\t{previous_guid} = {previous_guid}",
+                    "\tEndProjectSection",
+                ])
+            block.append("EndProject")
+            lines.extend(block)
+        lines.extend([
+            "Global",
+            "\tGlobalSection(SolutionConfigurationPlatforms) = preSolution",
+            "\t\tDebug|Any CPU = Debug|Any CPU",
+            "\t\tRelease|Any CPU = Release|Any CPU",
+            "\tEndGlobalSection",
+            "\tGlobalSection(ProjectConfigurationPlatforms) = postSolution",
+        ])
+        for path in sorted(item_projects, key=lambda path: (path != item_roots[0], path)):
+            project_guid = guid(path)
+            for configuration in ("Debug", "Release"):
+                lines.extend([
+                    f"\t\t{project_guid}.{configuration}|Any CPU.ActiveCfg = {configuration}|Any CPU",
+                    f"\t\t{project_guid}.{configuration}|Any CPU.Build.0 = {configuration}|Any CPU",
+                ])
+        lines.extend(["\tEndGlobalSection", "EndGlobal", ""])
+        outputs[ROOT / filename] = "\n".join(lines)
+
+    optional_solution([
         "ItemSeeder/ItemSeeder.csproj",
         "ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj",
         "SeederCatalogueTools/SeederCatalogueTools.csproj",
-    ]
-    item_projects = set()
-    item_ordered = []
-
-    def include_item_project(path):
-        if path in item_projects:
-            return
-        item_projects.add(path)
-        for dependency in sorted(project_dependencies(path)):
-            include_item_project(dependency)
-        item_ordered.append(path)
-
-    for root in item_roots:
-        include_item_project(root)
-
-    project_type = "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}"
-    heavy_projects = [path for path in item_ordered if path.startswith((
-        "MigrationModels/Batch", "ItemSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/"
-    ))]
-
-    def guid(path):
-        if path in entries:
-            return entries[path][2]
-        return "{" + str(uuid.uuid5(uuid.NAMESPACE_URL, "FutureMUD/" + path)).upper() + "}"
-
-    previous_heavy = dict(zip(heavy_projects[1:], heavy_projects))
-    lines = ["Microsoft Visual Studio Solution File, Format Version 12.00", "# Visual Studio Version 17",
-             "VisualStudioVersion = 17.0.31903.59", "MinimumVisualStudioVersion = 10.0.40219.1"]
-    for path in sorted(item_projects, key=lambda path: (path != item_roots[0], path)):
-        project_guid = guid(path)
-        project_name = (ROOT / path).stem
-        windows_path = path.replace("/", "\\")
-        block = [f'Project("{project_type}") = "{project_name}", "{windows_path}", "{project_guid}"']
-        if path in previous_heavy:
-            previous_guid = guid(previous_heavy[path])
-            block.extend([
-                "\tProjectSection(ProjectDependencies) = postProject",
-                f"\t\t{previous_guid} = {previous_guid}",
-                "\tEndProjectSection",
-            ])
-        block.append("EndProject")
-        lines.extend(block)
-    lines.extend([
-        "Global",
-        "\tGlobalSection(SolutionConfigurationPlatforms) = preSolution",
-        "\t\tDebug|Any CPU = Debug|Any CPU",
-        "\t\tRelease|Any CPU = Release|Any CPU",
-        "\tEndGlobalSection",
-        "\tGlobalSection(ProjectConfigurationPlatforms) = postSolution",
-    ])
-    for path in sorted(item_projects, key=lambda path: (path != item_roots[0], path)):
-        project_guid = guid(path)
-        for configuration in ("Debug", "Release"):
-            lines.extend([
-                f"\t\t{project_guid}.{configuration}|Any CPU.ActiveCfg = {configuration}|Any CPU",
-                f"\t\t{project_guid}.{configuration}|Any CPU.Build.0 = {configuration}|Any CPU",
-            ])
-    lines.extend(["\tEndGlobalSection", "EndGlobal", ""])
-    outputs[ROOT / "ItemSeeder.sln"] = "\n".join(lines)
+    ], "ItemSeeder.sln")
+    optional_solution([
+        "ArmageddonSeeder/ArmageddonSeeder.csproj",
+        "ArmageddonSeeder Unit Tests/ArmageddonSeeder Unit Tests.csproj",
+    ], "ArmageddonSeeder.sln")
     return outputs
 
 

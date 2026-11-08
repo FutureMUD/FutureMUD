@@ -16,6 +16,9 @@ namespace MudSharp.Body.Traits
 
         double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,
             TraitBonusContext context = TraitBonusContext.None, params (string Name, object Value)[] values);
+        /// <summary>Evaluates ! trait bindings on target; absent targets contribute zero.</summary>
+        double EvaluateWithTarget(IHaveTraits owner, IHaveTraits target, ITraitDefinition variable = null,
+            TraitBonusContext context = TraitBonusContext.None, params (string Name, object Value)[] values);
         double EvaluateMax(IHaveTraits owner);
         string ShowBuilder(ICharacter actor);
         bool BuildingCommand(ICharacter actor, StringStack command);

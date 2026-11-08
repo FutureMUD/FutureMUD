@@ -100,7 +100,6 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.MountInstanceId).HasColumnType("bigint(20)");
 			entity.Property(e => e.OriginalOwnerId).HasColumnType("bigint(20)");
 			entity.Property(e => e.OriginalOwnerName)
-			      .IsRequired()
 			      .HasColumnType("mediumtext")
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
@@ -115,6 +114,7 @@ public partial class FuturemudDatabaseContext
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
 			entity.Property(e => e.ClosedDateTime)
+			      .IsRequired(false)
 			      .HasColumnType("varchar(500)")
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
@@ -141,7 +141,7 @@ public partial class FuturemudDatabaseContext
 			entity.HasOne(d => d.OriginalOwner)
 			      .WithMany()
 			      .HasForeignKey(d => d.OriginalOwnerId)
-			      .OnDelete(DeleteBehavior.Restrict)
+			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_StableStays_Characters_Owner");
 
 			entity.HasOne(d => d.TicketItem)

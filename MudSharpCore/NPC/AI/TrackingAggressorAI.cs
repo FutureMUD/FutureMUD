@@ -21,7 +21,8 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
     public string EngageEmote { get; set; }
 
     public uint MaximumRange { get; set; }
-    public override bool CountsAsAggressive => true;
+	public bool PursuitOnly { get; private set; }
+    public override bool CountsAsAggressive => !PursuitOnly;
 
     /// <inheritdoc />
     public override string Show(ICharacter actor)
@@ -29,6 +30,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         StringBuilder sb = new(base.Show(actor));
         sb.AppendLine($"Will Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Maximum Range: {MaximumRange.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Pursuit Only: {PursuitOnly.ToColouredString()}");
         sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
         sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");
         return sb.ToString();
@@ -38,6 +40,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
     protected override string TypeHelpText => $@"{base.TypeHelpText}
 	#3willattack <prog>#0 - sets the prog that controls if an NPC will attack
 	#3range <##>#0 - sets the range in rooms
+	#3pursuitonly#0 - toggles pathing without initiating attacks (use a separate combat controller)
 	#3delay <expression>#0 - sets a dice expression for engage delay in milliseconds
 	#3emote <emote>#0 - sets an engage emote when engaging an enemy ($0 = aggressor, $1 = target)
 	#3emote clear#0 - clears the engage emote";
@@ -47,6 +50,11 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
     {
         switch (command.PopForSwitch())
         {
+			case "pursuitonly":
+				PursuitOnly = !PursuitOnly;
+				Changed = true;
+				actor.OutputHandler.Send($"Pursuit-only mode is now {PursuitOnly.ToColouredString()}.");
+				return true;
             case "will":
             case "willattack":
             case "attack":
@@ -179,8 +187,9 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         base.LoadFromXML(root);
         WillAttackProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WillAttackProg").Value));
         EngageDelayDiceExpression = root.Element("EngageDelayDiceExpression").Value;
-        EngageEmote = root.Element("EngageEmote")?.Value;
+        EngageEmote = root.Element("EngageEmote")?.Value ?? string.Empty;
         MaximumRange = uint.Parse(root.Element("MaximumRange").Value);
+		PursuitOnly = (bool?)root.Element("PursuitOnly") ?? false;
     }
 
     protected override string SaveToXml()
@@ -200,7 +209,8 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
             new XElement("CloseDoorsBehind", CloseDoorsBehind),
             new XElement("UseDoorguards", UseDoorguards),
             new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay),
-            new XElement("MaximumRange", MaximumRange)
+            new XElement("MaximumRange", MaximumRange),
+			new XElement("PursuitOnly", PursuitOnly)
         ).ToString();
     }
 
@@ -269,9 +279,9 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         switch (type)
         {
             case EventType.TenSecondTick:
-                return CheckAllTargetsForAttack(ch);
+                return !PursuitOnly && CheckAllTargetsForAttack(ch);
             case EventType.CharacterEnterRoomWitness:
-                return CheckForAttack((ICharacter)arguments[3], (ICharacter)arguments[0]);
+                return !PursuitOnly && CheckForAttack((ICharacter)arguments[3], (ICharacter)arguments[0]);
         }
 
         return base.HandleEvent(type, arguments);
@@ -294,6 +304,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 
     public bool CheckForAttack(ICharacter aggressor, ICharacter target)
     {
+		if (PursuitOnly) return false;
         if (!WillAttack(aggressor, target))
         {
             return false;
@@ -362,6 +373,8 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
                 return false;
             }
 
+			if (PursuitOnly && !ch.CanEngage(xCh)) return false;
+
             if (!WillAttackProg.ExecuteBool(ch, x))
             {
                 return false;
@@ -375,6 +388,22 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
             return true;
         };
     }
+
+	protected override bool IsPathingEnabled(ICharacter ch)
+	{
+		if (!base.IsPathingEnabled(ch)) return false;
+		if (!PursuitOnly) return true;
+		var episode = ch.EffectsOfType<FollowingPath>().FirstOrDefault(x => ReferenceEquals(x.PathingOwner, this));
+		if (episode is not null)
+		{
+			var destination = episode.IsSpatialPath ? episode.SpatialSteps.LastOrDefault()?.Destination.Room : episode.Exits.LastOrDefault()?.Destination;
+			var permitted = GetTargetFunction(ch);
+			return destination is not null && destination.Characters.Any(x => permitted(x));
+		}
+		// Revalidate the live target/admission on each path step; peaceful rooms and
+		// newly applied pacifism must stop an already running pursuit as well.
+		return ch.AcquireTargetAndPath(GetTargetFunction(ch), MaximumRange, GetSuitabilityFunction(ch)).Item1 is not null;
+	}
 
     private void EngageTarget(ICharacter ch, IPerceiver tp)
     {

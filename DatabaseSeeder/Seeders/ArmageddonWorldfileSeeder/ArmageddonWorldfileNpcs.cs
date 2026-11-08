@@ -59,6 +59,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 		clone.Id = Next<Race>();
 		clone.Name = (source?.Name ?? "Unknown") + " (Worldfile NPC)";
 		clone.ParentRaceId = baseline.Id;
+		// Source NPC armour is supplied by the saved NPC value, not the anatomy donor.
+		clone.NaturalArmourTypeId = null;
+		clone.NaturalArmourMaterialId = null;
 		clone.BaseBodyId = body.Id;
 		// The source inventory model has no practical carrying-capacity gate.
 		// Use the existing race expression at the engine's largest finite weight,
@@ -93,6 +96,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		}).ToHashSet();
 		clone.RacesAdditionalBodyparts = _db.RacesAdditionalBodyparts.Where(x => x.RaceId == baseline.Id).AsNoTracking()
 			.Select(x => new RacesAdditionalBodyparts { RaceId = clone.Id, BodypartId = x.BodypartId, Usage = x.Usage }).ToHashSet();
+		clone.DefaultCombatSettingId = NpcCombatSetting("natural", false, IsHumanoidCombatRace(clone)).Id;
 		AddNpcInventory(clone);
 		_db.Races.Add(clone);
 		CaptureNpcRaceDefaults(clone);
@@ -233,25 +237,42 @@ internal sealed partial class ArmageddonWorldfileWriter
 		var raceNames = _db.Races.Include(x => x.RacesAttributes).Include(x => x.DefaultHeightWeightModelNeuter).AsNoTracking().ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 		var racesByBody = _db.Races.Include(x => x.RacesAttributes).Include(x => x.DefaultHeightWeightModelNeuter).AsNoTracking().GroupBy(x => x.BaseBodyId)
 			.ToDictionary(x => x.Key, x => x.OrderBy(r => r.Id).First());
-		var maxHpGroups = _source.Npcs.GroupBy(x => x.Combat[4] > 0 ? x.Combat[4] : 1).OrderBy(x => x.Key).ToArray();
-		var strategies = new Dictionary<int, HealthStrategy>();
+		var sourceHealth = new Dictionary<int, (double HitPoints, double Stun)>();
+		var healthCache = new Dictionary<(int Race, int Guild, int Age, int Hp), (double HitPoints, double Stun)>();
+		foreach (var npc in _source.Npcs)
+		{
+			var key = (npc.Identity[6], npc.Identity[3], npc.Age, npc.Combat[4]);
+			if (!healthCache.TryGetValue(key, out var pools))
+			{
+				pools = SourceNpcHealth(npc, _source.Races.SingleOrDefault(x => x.Index == npc.Identity[6]),
+					_source.Guilds.SingleOrDefault(x => x.Index == npc.Identity[3]),
+					_source.PhysicalGenerators.Single(x => x.Race == npc.Identity[6]), _source.CombatCalibration!);
+				healthCache.Add(key, pools);
+			}
+			sourceHealth.Add(npc.Vnum, pools);
+		}
+		var maxHpGroups = _source.Npcs.GroupBy(x => sourceHealth[x.Vnum]).ToArray();
+		var strategies = new Dictionary<(double HitPoints, double Stun), HealthStrategy>();
 		foreach (var group in maxHpGroups)
 		{
 			var value = group.Key;
-			var expression = new TraitExpression { Id = Next<TraitExpression>(), Name = "Armageddon NPC maximum hit points " + value, Expression = value.ToString(CultureInfo.InvariantCulture) };
+			var expression = new TraitExpression { Id = Next<TraitExpression>(), Name = "Armageddon NPC maximum hit points " + value.HitPoints.ToString(CultureInfo.InvariantCulture), Expression = value.HitPoints.ToString("R", CultureInfo.InvariantCulture) };
 			_db.TraitExpressions.Add(expression);
+			var stunExpression = new TraitExpression { Id = Next<TraitExpression>(), Name = "Armageddon NPC maximum stun " + value.Stun.ToString(CultureInfo.InvariantCulture), Expression = value.Stun.ToString("R", CultureInfo.InvariantCulture) };
+			_db.TraitExpressions.Add(stunExpression);
 			var strategyXml = new XElement(brainXml);
 			strategyXml.Element("MaximumHitPointsExpression")!.Value = expression.Id.ToString(CultureInfo.InvariantCulture);
+			strategyXml.SetElementValue("MaximumStunExpression", stunExpression.Id);
 			strategyXml.Element("CheckHeart")!.Value = "false";
 			strategyXml.Element("UseHypoxiaDamage")!.Value = "false";
 			strategyXml.SetElementValue("KnockoutOnCritical", false);
-			var strategy = new HealthStrategy { Id = Next<HealthStrategy>(), Name = "Armageddon NPC " + value + " HP", Type = "BrainHitpoints", Definition = strategyXml.ToString() };
+			var strategy = new HealthStrategy { Id = Next<HealthStrategy>(), Name = $"Armageddon NPC {value.HitPoints.ToString(CultureInfo.InvariantCulture)} HP {value.Stun.ToString(CultureInfo.InvariantCulture)} stun", Type = "BrainHitpoints", Definition = strategyXml.ToString() };
 			_db.HealthStrategies.Add(strategy);
 			strategies[value] = strategy;
 		}
 		Flush();
-		var skillsByName = _db.TraitDefinitions.AsNoTracking().Where(x => x.Type == 0).ToArray()
-			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ToDictionary(x => x.Key, x => x.First().Id, StringComparer.OrdinalIgnoreCase);
+		var skillsByName = NpcSkillBindings(_db.TraitDefinitions.AsNoTracking().Where(x => x.Type == 0).ToArray(),
+			_db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == ArmageddonSkillPackage.Module).ToArray());
 		foreach (var source in _source.Npcs.OrderBy(x => x.Vnum))
 		{
 			var sourceLanguage = SourcePrimaryLanguage(source);
@@ -265,8 +286,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			var cashProg = Prog("ArmageddonWorldfileNpcCash" + source.Vnum.ToString(CultureInfo.InvariantCulture),
 				$"givecurrency(tocurrency({_currency.Id}), random({cashMinimum}, {cashMaximum}), @npc, false)\nreturn true",
 				ProgVariableTypes.Boolean, ("npc", ProgVariableTypes.Character));
-			var hp = source.Combat[4] > 0 ? source.Combat[4] : 1;
-			if (source.Combat[4] <= 0) Adapt("npc hit points", source.Vnum, $"Nonpositive source maximum hit points {source.Combat[4]} repaired to 1.");
+			var hp = sourceHealth[source.Vnum];
 			var sourceRace = _source.Races.FirstOrDefault(x => x.Index == source.Identity[6]);
 			var sourceRaceName = sourceRace?.Name;
 			var nativeRace = ResolveRace(sourceRace, source.Vnum, human, raceNames, racesByBody);
@@ -294,15 +314,21 @@ internal sealed partial class ArmageddonWorldfileWriter
 				var statValue = sourceStatIndex >= 0 && sourceRace is not null && sourceRace.Stats.Length > sourceStatIndex
 					? MeanDice(sourceRace.Stats[sourceStatIndex]) + (guild is not null && guild.Stats.Length > sourceStatIndex ? guild.Stats[sourceStatIndex] : 0)
 					: MeanDice(link.DiceExpression) + link.AttributeBonus;
+				if (sourceStatIndex is 0 or 1 or 3)
+				{
+					var ageTable = sourceStatIndex == 0 ? _source.CombatCalibration!.StrengthAgePermille
+						: sourceStatIndex == 1 ? _source.CombatCalibration!.AgilityAgePermille : _source.CombatCalibration!.EnduranceAgePermille!;
+					statValue = SourceNpcStatDistribution(source.Age, sourceRace, guild, sourceStatIndex, ageTable).Sum(x => x.Key * x.Value);
+				}
 				skills[link.AttributeId] = Math.Clamp(statValue, 1, 100);
 			}
-			foreach (var entry in source.Skills)
-			{
-				if (entry.Length < 2 || entry[0] <= 0) continue;
-				var name = _source.Skills.ElementAtOrDefault(entry[0]);
-				if (name is not null && skillsByName.TryGetValue(name, out var id)) skills[id] = Math.Clamp(entry[1], 0, 100);
-				else Adapt("npc skill", source.Vnum, $"Source skill index {entry[0]} ({name ?? "unknown"}) has no installed trait mapping; original value {entry[1]} retained in provenance.");
-			}
+			var plannedSpells = NpcSavedCombatSpells(source, _source.Skills).Select(x => x.SourceIndex).ToHashSet();
+			foreach (var entry in ApplyNpcSavedSkills(skills, source.Skills, _source.Skills, skillsByName, _willpowerSkill?.Id))
+				if (!plannedSpells.Contains(entry.Index))
+					Adapt("npc skill", source.Vnum, $"Source skill index {entry.Index} ({entry.Name ?? "unknown"}) has no installed trait mapping; original value {entry.Value} retained in provenance.");
+			ApplyNpcRacialSkills(skills, source.Identity[6], skillsByName);
+			ApplyNpcCombatRatings(source, skills);
+			ApplyNpcDamageProfile(source, sourceRace, skills);
 			if (_willpowerSkill is not null)
 			{
 				var wisdom = sourceRace?.Stats.Length > 2
@@ -362,7 +388,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				sourceClanMemberships.Add(new XElement("Membership", new XAttribute("clan", clan.Id), new XAttribute("rank", rank.Id), new XAttribute("paygrade", 0)));
 			}
 			var definition = new XElement("Definition", new XElement("OnLoadProg", cashProg.Id), new XElement("HealthStrategy", strategies[hp].Id),
-				new XElement("DefaultCombatSetting", 0), new XElement("TemplateLoadAdditions", new XElement("ClanMemberships", sourceClanMemberships),
+				new XElement("DefaultCombatSetting", DefaultNpcCombatSetting(source, nativeRace)), new XElement("TemplateLoadAdditions", new XElement("ClanMemberships", sourceClanMemberships),
 				new XElement("Outfits"), new XElement("Hooks"), new XElement("BankAccounts"), new XElement("BodyLoadout")),
 				new XElement("SelectedEntityDescriptionPatterns"), new XElement("SelectedSdesc", source.ShortDescription),
 				new XElement("SelectedFullDesc", source.FullDescription), new XElement("SelectedRace", nativeRace.Id),
@@ -382,12 +408,13 @@ internal sealed partial class ArmageddonWorldfileWriter
 			_npcs.Add(source.Vnum, template);
 			Record("npc." + source.Vnum, nameof(NpcTemplate), template.Id, template.RevisionNumber,
 				new { Source = source, NativeRace = nativeRace.Id, NativeCulture = culture.Id, NativeLanguage = language.Id,
-					Skills = skills, Dimensions = dimensions, HealthStrategy = strategies[hp].Id, Decisions = "Attributes and physical dimensions use deterministic source generator means; dimensions preserve C integer division, inches and ten-stone units. Native culture/language/accent and calendar supply absent source demographics. Source associations are retained; the later behaviour pass records reviewed native AI/service mappings. Outfits are attached by the population pass." });
+					Skills = skills, Dimensions = dimensions, HealthStrategy = strategies[hp].Id, EffectiveHitPoints = hp.HitPoints, EffectiveStun = hp.Stun,
+					Decisions = "Attributes and physical dimensions use deterministic source generator means; Strength, Agility and Endurance include source age adjustment. Health pools average source Endurance/size adjustments and caps after their nonlinear steps. Dimensions preserve C integer division, inches and ten-stone units. Native culture/language/accent and calendar supply absent source demographics. Source associations are retained; the later behaviour pass records reviewed native AI/service mappings. Outfits are attached by the population pass." });
 		}
 		_counts["NPC templates"] = _npcs.Count;
 		Adapt("npc programs", 0, "Historical scripts are retained in each NPC source provenance record. Reviewed C-special adaptations are recorded separately by the behaviour, service and justice passes; remaining associations are not executed.");
 		Adapt("npc identity", 0, "Native culture/language and deterministic calendar birthday defaults are used where the source lacks native equivalents; source identity and literal descriptions remain archived.");
-		Adapt("npc combat scalars", 0, "Source offense, defense and innate armour scalars are retained in provenance; installed body-family natural attacks/armour and mapped native traits supply combat. The source damroll field has no demonstrated active combat consumer in this source version.");
+		Adapt("npc combat scalars", 0, "Source-derived offence/defence baselines use fixed non-trainable native traits and opponent-relative native check formulas, with fixed calibration against unprofiled opponents. Native weapon proficiency and the selected active defence each contribute once. Innate armour supplies source value / 10 physical damage/stun absorption. Source sequential shield/parry, grip and incoming-weapon knowledge rules are adapted to one native active defence. The source damroll field has no demonstrated active combat consumer.");
 		Flush();
 		RestoreNpcRaceDefaults();
 		Flush();

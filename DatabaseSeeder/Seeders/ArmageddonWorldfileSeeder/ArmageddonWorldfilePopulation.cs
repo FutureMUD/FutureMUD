@@ -25,7 +25,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		public required GameItemProto Prototype { get; set; }
 		public required int SourceVnum { get; init; }
 		public required int[] Values { get; init; }
-		public required OutfitTemplateItemPlacement Placement { get; init; }
+		public required OutfitTemplateItemPlacement Placement { get; set; }
 		public string? ContainerKey { get; set; }
 		public long? WearProfileId { get; init; }
 		public List<ArmWorldExtra> ExtraDescriptions { get; } = [];
@@ -154,6 +154,17 @@ internal sealed partial class ArmageddonWorldfileWriter
 					Id = Next<OutfitTemplate>(), Name = ResetOutfitName(mobile),
 					Description = "Equipment and carried objects created by the source reset sequence.", Exclusivity = 0
 				};
+				if (outfitItems.Any(x => x.Placement == OutfitTemplateItemPlacement.Wielded &&
+					CombatSourceItem(x.SourceVnum).ItemType == 28))
+				{
+					foreach (var ammunition in outfitItems.Where(x => x.Placement == OutfitTemplateItemPlacement.Wielded &&
+						CombatSourceItem(x.SourceVnum) is { ItemType: 5 } item &&
+						(item.Flags[1] & ((1 << 9) | (1 << 21))) != 0))
+					{
+						ammunition.Placement = OutfitTemplateItemPlacement.Inventory;
+						Adapt("npc readied ammunition", ammunition.SourceVnum, "Source hand-readied ammunition starts in native inventory beside the unloaded launcher, freeing native wielding hands for automated loading.");
+					}
+				}
 				foreach (var item in outfitItems)
 				{
 					outfit.OutfitTemplateItems.Add(new OutfitTemplateItem
@@ -170,6 +181,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 				clone.UniqueName = Key(mobile.Arguments[1]) + "_Reset" + mobile.Zone.ToString(CultureInfo.InvariantCulture) + "_" + mobile.Source.Line.ToString(CultureInfo.InvariantCulture);
 				clone.EditableItemId = 0; clone.EditableItem = Approval();
 				var definition = XElement.Parse(baseTemplate.Definition);
+				var sourceNpc = _source.Npcs.Single(x => x.Vnum == mobile.Arguments[1]);
+				var race = _races.Values.Single(x => x.Id == (long)definition.Element("SelectedRace")!);
+				definition.SetElementValue("DefaultCombatSetting", OutfitNpcCombatSetting(clone.Id, sourceNpc, race, outfitItems));
 				var additions = definition.Element("TemplateLoadAdditions")!;
 				additions.Element("Outfits")!.Add(new XElement("Outfit", new XAttribute("template", outfit.Id), new XAttribute("name", outfit.Name)));
 				var sourceOnLoadProgId = long.Parse(definition.Element("OnLoadProg")!.Value, CultureInfo.InvariantCulture);
@@ -232,7 +246,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				if (values.Length != 6) { lastSucceeded = false; continue; }
 				var placement = reset.Opcode switch
 				{
-					"E" when reset.Arguments[3] is 16 or 17 or 19 && sourceItem.ItemType is 5 or 28 => OutfitTemplateItemPlacement.Wielded,
+					"E" when reset.Arguments[3] is 16 or 17 or 19 && sourceItem.ItemType is 5 or 24 or 28 => OutfitTemplateItemPlacement.Wielded,
 					"E" when reset.Arguments[3] is 11 or 18 && (sourceItem.Flags[2] & (1 << 16)) != 0 => OutfitTemplateItemPlacement.AttachedToBelt,
 					"E" when reset.Arguments[3] is 11 or 16 or 17 or 18 or 19 => OutfitTemplateItemPlacement.Inventory,
 					"E" => OutfitTemplateItemPlacement.Worn,
@@ -246,6 +260,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 						forcedWearMask: placement == OutfitTemplateItemPlacement.Worn ? ResetForcedWearMask(sourceItem, reset.Arguments[3]) : 0),
 					WearProfileId = placement == OutfitTemplateItemPlacement.Worn ? SourceEquipmentProfile(sourceItem, reset.Arguments[3], resetOverride: true) : null
 				};
+				item.Placement = ResetShieldPlacement(reset, item.Prototype, item.Placement);
 				if (placement == OutfitTemplateItemPlacement.Container)
 				{
 					var depth = Math.Max(0, reset.Arguments[0]);
@@ -479,7 +494,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private string BuildZoneResetProgram(int zoneId, ArmWorldReset[] resets,
 		IReadOnlyDictionary<(int Zone, int Line), NpcTemplate> variants, bool boot)
 	{
-		var builder = new System.Text.StringBuilder("var lastcmd as boolean\nlastcmd = true\nvar lastobj as item\nvar mobilenew as boolean\nmobilenew = false\n");
+		var builder = new System.Text.StringBuilder("var lastcmd as boolean\nlastcmd = true\nvar lastobj as item\nvar mobilenew as boolean\nmobilenew = false\nvar ticketorigin as location\n");
+		var savedPopulation = boot && IsSourceSavedPopulationZone(zoneId);
+		if (savedPopulation) builder.Append(SavedPopulationPrelude(zoneId, resets));
 		var lastCommand = "lastcmd";
 		var roomObjectContext = false;
 		var extras = new Dictionary<int, List<ArmWorldExtra>>();
@@ -498,6 +515,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			var reset = resets[index];
 			if (objectLoopOpen && reset.Opcode is not ("P" or "X"))
 			{
+				if (savedPopulation) builder.AppendLine("end if");
 				builder.AppendLine("end foreach");
 				objectLoopOpen = false;
 			}
@@ -506,6 +524,8 @@ internal sealed partial class ArmageddonWorldfileWriter
 			if (reset.Opcode == "O" && reset.ReferenceIssues.Length == 0 && _rooms.TryGetValue(arguments[3], out var rootRoom))
 			{
 				builder.AppendLine($"foreach (destination{index} in instancerooms(tolocation({rootRoom.Id})))");
+				builder.AppendLine($"ticketorigin = @destination{index}");
+				if (savedPopulation) builder.AppendLine($"if ({SavedPopulationAdmission($"destination{index}")})");
 				objectLoopOpen = true;
 			}
 			builder.AppendLine($"{command} = false");
@@ -527,12 +547,15 @@ internal sealed partial class ArmageddonWorldfileWriter
 				var mode = _source.Zones.Single(x => x.Index == zoneId).Fields[2];
 				builder.AppendLine("mobilenew = false");
 				builder.AppendLine($"foreach (destination{index} in instancerooms(tolocation({destination.Id})))");
+				if (savedPopulation) builder.AppendLine($"if ({SavedPopulationAdmission($"destination{index}")})");
 				if (boot || mode != 2 || _interiorTemplates.Contains(arguments[3]))
 				{
 					var slot = boot ? $" and loadedcharacters().Count(x, @x.npctemplateid == {template.Id} and @x.location == @destination{index}) == 0" : "";
 					builder.AppendLine($"if ({familyCount} < {maximum}{slot})\nvar mobile{index} as character\nmobile{index} = loadnpc({template.Id}, @destination{index})\nmobilenew = not(isnull(@mobile{index}))\nend if");
 				}
-				builder.AppendLine($"{command} = @mobilenew\nend foreach");
+				builder.AppendLine($"{command} = @mobilenew");
+				if (savedPopulation) builder.AppendLine("end if");
+				builder.AppendLine("end foreach");
 				roomObjectContext = false;
 			}
 			else if (reset.Opcode == "O" && arguments[1] == 20610 &&
@@ -557,6 +580,10 @@ internal sealed partial class ArmageddonWorldfileWriter
 				builder.AppendLine($"if (@{command})\nlastobj = @item{index}\nelse\nif (not(isnull(@item{index})))\ndeleteitem(@item{index})\nend if\nend if\nend if");
 				roomObjectContext = true;
 			}
+			else if (reset.Opcode == "P" && roomObjectContext && arguments[1] == 1599)
+			{
+				builder.AppendLine(HistoricalStableTicketReset(reset, index, command));
+			}
 			else if (reset.Opcode == "P" && roomObjectContext)
 			{
 				var source = _source.Items.Single(x => x.Vnum == arguments[1]);
@@ -576,7 +603,12 @@ internal sealed partial class ArmageddonWorldfileWriter
 			builder.AppendLine("end if");
 			lastCommand = command;
 		}
-		if (objectLoopOpen) builder.AppendLine("end foreach");
+		if (objectLoopOpen)
+		{
+			if (savedPopulation) builder.AppendLine("end if");
+			builder.AppendLine("end foreach");
+		}
+		if (savedPopulation) builder.Append(SavedPopulationCompletion(zoneId));
 		builder.AppendLine("return true");
 		return builder.ToString();
 	}

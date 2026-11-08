@@ -25,6 +25,20 @@ namespace MudSharp_Unit_Tests;
 public partial class MagicEngineV4Tests
 {
 	[TestMethod]
+	public void WeightedTravel_TravellerWaystepMovesExactTargetWithoutBanishResistance()
+	{
+		var f = new WeightedFixture(false, targetTraveller: true); f.UrbanTags.Clear();
+		f.Pair.F.Check.Setup(x => x.CheckAgainstAllDifficulties(It.Is<IPerceivableHaveTraits>(x => ReferenceEquals(x, f.Pair.Target.Object)),
+			It.IsAny<Difficulty>(), It.IsAny<ITraitDefinition>(), It.IsAny<IPerceivable>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
+			.Returns(Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Outcome.MajorPass)));
+		var result = f.Pair.F.Service.Cast(f.Intent(1));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreSame(f.Pair.Source.Object, f.Pair.CasterLocation);
+		Assert.AreSame(f.Pair.Destination.Object, f.Pair.TargetLocation);
+		Assert.AreEqual(1, f.Moves);
+		Assert.IsTrue(f.Pair.F.Balances[f.Pair.F.Resources[1]] < 100.0);
+	}
+	[TestMethod]
 	[DataRow(true, "indoors")]
 	[DataRow(false, "indoors")]
 	[DataRow(true, "lethal")]
@@ -183,8 +197,10 @@ public partial class MagicEngineV4Tests
 		public int Moves { get; private set; }
 		public Action? BeforeMove { get; set; }
 		private readonly bool _banish;
-		public WeightedFixture(bool banish, bool? runePoolRules = null)
+		private readonly bool _targetTraveller;
+		public WeightedFixture(bool banish, bool? runePoolRules = null, bool targetTraveller = false)
 		{
+			_targetTraveller = targetTraveller;
 			_banish = banish; var f = Pair.F;
 			Pair.DestinationMembers.Clear(); Pair.SourceMembers.Add(Pair.Target.Object); Pair.TargetLocation = Pair.Source.Object;
 			var members = new List<ICharacter>();
@@ -212,6 +228,11 @@ public partial class MagicEngineV4Tests
 			var content = ArmageddonWeightedTravelSpellContent.Create(21, 23, 24, 25, 26, [2], 1)[banish ? 1 : 0].Content;
 			var row = content.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2;
 			var definition = content.BuildDefinition(10, 1, 0);
+			if (targetTraveller)
+			{
+				definition.Element("Trigger")!.SetAttributeValue("type", "banishtraveller");
+				definition.Element("Effects")!.Elements().Single().SetElementValue("TargetTraveller", true);
+			}
 			if (runePoolRules.HasValue) definition.Element("Effects")!.Elements().Single().SetElementValue("RuneUsesPoolRestrictions", runePoolRules.Value);
 			row.Definition = definition.ToString();
 			f.Spells.Clear(); f.Spells.Add(new MagicSpell(row, f.World.Object) { EffectDurationExpression = new TraitExpression("0", f.World.Object) });
@@ -228,7 +249,7 @@ public partial class MagicEngineV4Tests
 			f.Actor.Setup(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), false, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Callback(new InvocationAction(call => Move(false, call)));
 			Pair.Target.Setup(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), false, It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Callback(new InvocationAction(call => Move(true, call)));
 		}
-		public MagicCastingIntent Intent(int grade) => new(Pair.F.Actor.Object, Pair.F.Earth.Id, 1, grade, false, _banish ? "traveller" : "random", OriginId: Guid.NewGuid());
+		public MagicCastingIntent Intent(int grade) => new(Pair.F.Actor.Object, Pair.F.Earth.Id, 1, grade, false, _banish || _targetTraveller ? "traveller" : "random", OriginId: Guid.NewGuid());
 		public Mock<IGameItem> AddPublicRune()
 		{
 			var f = Pair.F; var item = new Mock<IGameItem>(); var effects = new List<IEffect>();

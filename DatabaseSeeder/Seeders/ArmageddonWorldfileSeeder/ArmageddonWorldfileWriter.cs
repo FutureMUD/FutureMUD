@@ -57,6 +57,8 @@ internal sealed partial class ArmageddonWorldfileWriter
 	{
 		source = source.ForInstallation();
 		var errors = new List<string>();
+		if (NpcCombatCalibrationError(source) is { } combatError) errors.Add(combatError);
+		if (NpcDamageCalibrationError(source) is { } damageError) errors.Add(damageError);
 		ArmageddonInstallationSettings? settings = null;
 		try
 		{
@@ -89,6 +91,10 @@ internal sealed partial class ArmageddonWorldfileWriter
 			if (db.ArmourTypes.Count(x => x.Name == name) != 1) errors.Add($"Combat must supply one armour type named {name}.");
 		foreach (var name in new[] { "Shortbow", "Longbow" })
 			if (db.RangedWeaponTypes.Count(x => x.Name == name) != 1) errors.Add($"Combat must supply one ranged weapon type named {name}.");
+		errors.AddRange(ShieldBindingErrors(db, source));
+		foreach (var name in new[] { "Melee (Auto)", "Brawler (Auto)", "Beast Brawler", "Musketeer (Auto)", "Shielder (Auto)" })
+			if (db.CharacterCombatSettings.Count(x => x.Name == name && x.GlobalTemplate) != 1)
+				errors.Add($"Core combat must supply one selectable combat setting named {name}.");
 		if (!db.RangedWeaponTypes.Any(x => x.RangedWeaponType == (int)MudSharp.Combat.RangedWeaponType.Thrown))
 			errors.Add("Combat must supply a native thrown weapon type for imported darts.");
 		foreach (var name in RequiredBodies)
@@ -148,15 +154,20 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallClansAndCurrency();
 		InstallLegacyUntal();
 		InstallWillpowerSkill();
+		InstallNpcCombatRatings();
+		InstallNpcDamageDefinitions();
 		Console.WriteLine("Armageddon Worldfile: creating equipment...");
 		InstallItems();
 		InstallTables();
 		Console.WriteLine("Armageddon Worldfile: creating NPC definitions...");
 		InstallNpcTemplates();
+		InstallPlayerHealthPools();
+		CalibrateNpcNaturalAttacks();
 		ConfigureTunnelCosts();
 		InstallForagingAndCrafts();
 		Console.WriteLine("Armageddon Worldfile: configuring population...");
 		InstallPopulation();
+		AuditImportedCombatSettings();
 		InstallGanZienCamp();
 		InstallArenaRelease();
 		Console.WriteLine("Armageddon Worldfile: creating permanent shops and stock...");
@@ -207,6 +218,9 @@ internal sealed partial class ArmageddonWorldfileWriter
 		InstallNpcInitialStates();
 		InstallJustice();
 		InstallJailNeeds();
+		InstallGenericNpcAi();
+		InstallNpcCombatAbilities();
+		InstallNpcMemories();
 		FinalizeInteriorTemplates();
 		FinalizeAuxiliaryRooms();
 		if (ArmageddonChargenPolicy.ConfigureWorldfileStart(_db))
@@ -285,6 +299,6 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private static void Attach(GameItemProto item, GameItemComponentProto component) =>
 		item.GameItemProtosGameItemComponentProtos.Add(new()
 		{
-			GameItemComponentProtoId = component.Id, GameItemComponentRevision = component.RevisionNumber
+			GameItemComponentProtoId = component.Id, GameItemComponentRevision = component.RevisionNumber, GameItemComponent = component
 		});
 }

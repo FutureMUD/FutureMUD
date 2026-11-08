@@ -61,6 +61,7 @@ policy exposes these ordinary builder-editable settings:
 | Energy binding | Identify exactly one source cost resource on the spell and the route's destination reserve. Reject a missing or ambiguous source line. |
 | Grade profile | Ordered `SpellPower` mapping, next-grade thresholds, difficulty and cost policy, mastery chance and opportunity interval. Shared entries for the same spell must use one compatible progression profile. |
 | Acquisition rules | Starting grants, prerequisite edges, teaching permission and approved explicit grant hooks. Each edge is owned by this capability admission. |
+| Initial mastery | Optional admission `initialGrade` sets the controlled grade of a newly acquired spell. Omission preserves grade 1. An explicit value must lie within the admission's grade range. `casting entry initialgrade <spell> <grade|default>` edits it; changing or re-enrolling a route never upgrades existing acquired knowledge. Skill thresholds, costs, materials and casting checks still apply. This supports authored experienced NPCs without granting a player class or training them through artificial casts. |
 | Physical/action policy | Speech, free manipulation, retained focus plan, normal component plan and a separate practice plan; acting-body permission prog. |
 | Variant/formula rules | Permitted normal/quiet/area modes, exact target adapter, pronunciation tokens and mode-specific checks/costs. |
 | Production permissions | Explicit carrier eligibility, manufacturing/recharging policy and optional learning/improvement flags. |

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CultureInfo = System.Globalization.CultureInfo;
 using System.Text;
 using MudSharp.Models;
 
@@ -24,12 +25,14 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private void InstallNpcInitialStates()
 	{
 		long? shadow = null;
-		foreach (var source in _source.Npcs.Where(x => x.Flags[2] != 0))
+		foreach (var source in _source.Npcs.Where(x => x.Flags[2] != 0 || x.Combat[3] > 0))
 		{
 			var mask = unchecked((uint)source.Flags[2]);
 			var mapped = 0u;
 			const uint markerBits = (1u << 2) | (1u << 10) | (1u << 14) | (1u << 18) | (1u << 21) | (1u << 22) | (1u << 25) | (1u << 31);
 			var code = new StringBuilder();
+			if (source.Combat[3] > 0)
+				code.AppendLine($"addphysicalabsorptioneffect(@npc, {(source.Combat[3] / 10.0).ToString(CultureInfo.InvariantCulture)})");
 			foreach (var (bit, function) in InitialNpcStatuses)
 			{
 				if ((mask & (1u << bit)) == 0) continue;
@@ -63,7 +66,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 			}
 			if (code.Length > 0) AppendNpcOnLoadCode(source.Vnum, code.ToString());
 			Record("npc-initial-state." + source.Vnum, "NpcInitialState", _npcs[source.Vnum].Id, null,
-				new { Source = source.Vnum, AffectedBy = mask, Mapped = mapped, RetainedMarkers = mask & markerBits, Remaining = mask & ~mapped & ~markerBits,
+				new { Source = source.Vnum, PhysicalAbsorption = source.Combat[3] / 10.0, AffectedBy = mask, Mapped = mapped, RetainedMarkers = mask & markerBits, Remaining = mask & ~mapped & ~markerBits,
 					Disposition = "Initial native saved effects compose the existing cash/outfit onload prog and its reset variants. Visual invisibility retains other senses; flight attempts native flying posture without changing rooms. Ethereal uses the existing Shadow planar rules with no closed-door/magical-barrier bypass or player transitions. A raw bit without its source ownership/effect payload does not invent a caster, master or resource/attribute modifier." });
 		}
 	}

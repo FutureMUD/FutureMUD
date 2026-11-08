@@ -805,6 +805,16 @@ namespace MudSharp.Events
         CharacterInRoomParched = 164,
 
 		[EventInfo("Fires on an item immediately before a confirmed, permitted junk action destroys it. Ordinary dropping does not fire this event.", ["character", "item"], ["actor", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
-		ItemAboutToBeJunked = 165
+		ItemAboutToBeJunked = 165,
+
+		[EventInfo("Fires on the attacker once after an ordinary melee/natural attack action resolves and its target survives, including misses. Authored additional actions do not fire it. Notification does not replace the scheduled turn.",
+			["character", "character", "boolean"], ["attacker", "target", "successful"],
+			[ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Boolean])]
+		CharacterCombatAttackResolved = 166,
+
+		[EventInfo("Fires on a character after an actual room exit traversal begun by a combat flee. Includes characters visible at departure that remain in the original room. Cancelled movement, breaking melee and movement within a route room do not fire it.",
+			["character", "location", "character collection"], ["actor", "origin", "leftbehind"],
+			[ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Character | ProgVariableTypeCode.Collection])]
+		CharacterEscapedCombat = 167
     }
 }

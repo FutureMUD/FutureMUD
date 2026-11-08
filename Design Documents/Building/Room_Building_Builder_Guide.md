@@ -267,6 +267,8 @@ Deletion is blocked while any room uses that package revision as its active over
 
 ## Terrain, Outdoors Type, and Environment
 
+Ordinary up/down exits (such as stairs) are available on terrain layers shared by both rooms, excluding blocked layers, just like horizontal exits. An ordinary up exit does not require reaching a terrain's rooftops or highest flight layer. Climb/fall/fly up/down exits retain their highest/lowest terrain-boundary behaviour.
+
 Terrain is the main mechanical profile for a room. It is not only display text. Terrain affects movement, stamina, infection risk, weather behaviour, forage defaults, available room layers, natural light expectations, tracks, atmosphere, and map/editor presentation.
 
 Useful terrain commands:
@@ -672,6 +674,8 @@ room new Rectangle 3 4 Blank "Grasslands"
 ```
 
 Terrain mask rectangle:
+
+For multilayer maps, create an auto-area with type `terrain stack`, then use `room new <area> [prog=<prog>] <room-template> <FMS1:token|editor>`. Terrain Planner supplies the compressed token or a wrapped editor paste. Submit editor input with `@`; cancel with `*cancel`. The stack supports signed Z levels, ordinary up/down exits by default, and per-connection suppression/climb/fall settings. See [stacked terrain plans](Autobuilder_Builder_How_To.md#stacked-terrain-plans) for the complete workflow and limits. Existing rectangle masks retain their syntax.
 
 ```text
 room new "Terrain Rectangle" 3 4 Blank 12,12,13,13,12,0,13,14,12,12,14,14

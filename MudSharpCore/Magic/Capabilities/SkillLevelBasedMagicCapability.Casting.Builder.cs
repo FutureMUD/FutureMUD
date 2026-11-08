@@ -23,6 +23,7 @@ public partial class SkillLevelBasedMagicCapability
 	#3casting entry trait <spell> <skill|default>#0
 	#3casting entry starting <spell> on|off#0
 	#3casting entry grades <spell> <min> <max>#0
+	#3casting entry initialgrade <spell> <grade|default>#0 - controls new acquisitions only
 	#3casting entry skill <spell> <opening> <raw cap> absolute|relative#0
 	#3casting entry skill <spell> default#0
 	#3casting prerequisite add <spell> <prerequisite> <grade> <raw skill>#0
@@ -105,6 +106,10 @@ Removing admission preserves player knowledge. Starting grants require explicit 
 						{
 							case "remove": entries.RemoveAt(position); break;
 							case "starting": entries[position] = admission with { Starting = Toggle(command.PopSpeech()) }; break;
+							case "initialgrade":
+								var initial = command.PopSpeech();
+								entries[position] = admission with { InitialControlledGrade = initial.EqualTo("default") ? null : int.Parse(initial, CultureInfo.InvariantCulture) };
+								break;
 							case "trait":
 								var arg = command.PopSpeech();
 								entries[position] = admission with { TraitId = arg.EqualTo("default") ? null :

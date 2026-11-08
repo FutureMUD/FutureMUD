@@ -10,6 +10,42 @@ SPEC.loader.exec_module(PACKAGE)
 
 
 class PackageTests(unittest.TestCase):
+    def test_size_bonus_integrates_discrete_threshold_before_averaging(self):
+        source = """char_init_height(int race)
+{
+switch (race) {
+default: ht = (146 + dice(1, 3)); break;
+}
+}
+char_init_weight(int race)
+{
+switch (race) {
+default: wt = 7; break;
+}
+}
+"""
+        physical = PACKAGE.physical_generators(source, "", [1])[0]
+        self.assertAlmostEqual(2 / 3, physical["SizeBonuses"]["0"])
+        self.assertAlmostEqual(1 / 3, physical["SizeBonuses"]["42"])
+
+    def test_combat_tables_extract_only_correct_columns_from_synthetic_source(self):
+        agility = ",".join("{" + ",".join(str(row * 10 + col) for col in range(5)) + "}" for row in range(101))
+        ages = ",".join("{" + ",".join(str(row * 100 + col) for col in range(21)) + "}" for row in range(4))
+        strength = ",".join("{" + ",".join(str(row * 3 + col) for col in range(3)) + "}" for row in range(101))
+        source = "struct agl_app_type agl_app[101] = { /* 999 */" + agility + "};\nstruct age_stat_data age_stat_table = {" + ages + "};"
+        source += "\nstruct str_app_type str_app[101] = {" + strength + "};\nstruct end_app_type end_app[101] = {" + strength + "};"
+        tables = PACKAGE.combat_calibration_tables(source)
+        self.assertEqual([row * 10 for row in range(101)], tables["AgilityReaction"])
+        self.assertEqual(list(range(21)), tables["StrengthAgePermille"])
+        self.assertEqual(list(range(200, 221)), tables["AgilityAgePermille"])
+        self.assertEqual(list(range(100, 121)), tables["EnduranceAgePermille"])
+        self.assertEqual([row * 3 for row in range(101)], tables["StrengthDamage"])
+        self.assertEqual([row * 3 for row in range(101)], tables["EnduranceSaves"])
+        with self.assertRaises(ValueError):
+            PACKAGE.combat_calibration_tables(source.replace("{0,1,2,3,4}", "{1,2}"))
+        with self.assertRaises(ValueError):
+            PACKAGE.combat_calibration_tables(source + source)
+
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)

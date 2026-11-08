@@ -44,6 +44,7 @@ CorpseAnimationDispelProxy
 CorpsePossessionDispelProxy
 CriticalInjureKnockout
 DamageProtectionStatus
+PhysicalDamageAbsorption
 DelayedNeedsFulfillment
 DelayedPsychicSuggestion
 DescriptionAddition

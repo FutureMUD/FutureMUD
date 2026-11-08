@@ -14,7 +14,7 @@ These figures are a practical baseline for a small installation. Capacity needs 
 
 ## 1. Choose a supported runtime
 
-Download the Engine and Database Seeder for your operating system from the downloads page. Current packages target Windows x64, Linux x64, and Linux ARM64. Archives are framework-dependent and require the appropriate .NET runtime.
+Download the Engine and Database Seeder for your operating system from the downloads page. Current packages target Windows x64, Linux x64, and Linux ARM64. Archives are framework-dependent and require the appropriate .NET runtime. The Item Seeder is an optional separate download for installing or updating stock item catalogues after the initial world setup.
 
 ## 2. Prepare MySQL
 
@@ -22,7 +22,7 @@ Create an empty MySQL database and a dedicated database user. Keep the connectio
 
 ## 3. Run the Database Seeder
 
-The seeder asks how you want the initial world configured, creates the database content, and writes supporting startup configuration. You can run it again later to install additional supported content.
+The Database Seeder asks how you want the initial world configured, creates the database content, and writes supporting startup configuration. You can run it again later to install additional supported content. To install stock items, download and run the Item Seeder against that existing database after running Core, Kickstart with Standard Item Components, and Animal Seeder. The selected era can also require stock from Combat, Health Seeder, or Kickstart’s Modern Item Components option. Item Seeder reports missing records and accepts equivalent builder-created records.
 
 ## 4. Start the Engine
 

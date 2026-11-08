@@ -9,6 +9,7 @@ Paths and commands below are relative to the repository root. Read the section n
 | `FutureMUDLibrary Unit Tests` | Shared extensions, helpers, abstractions and value objects. |
 | `ExpressionEngine Unit Tests` | Parser, custom functions and formula semantics. |
 | `DatabaseSeeder Unit Tests` | Fast content/template/workflow/source checks by default; opt in to full installer/rerun matrices and exhaustive catalogue checks. |
+| `ItemSeeder Unit Tests` | Item catalogue compilation, manifest capture/reconciliation and Item Seeder replay. Run from `ItemSeeder.sln` or its dedicated product workflow. |
 | `MudSharpCore Unit Tests` | Runtime/gameplay, FutureProg, AI, arenas and engine services. |
 | `MudsharpDatabaseLibrary Unit Tests` | EF models/mappings, upgrade coordination and persistence helpers. |
 | `DiscordBotCore Unit Tests` | Bot commands, protocol and message formatting. |
@@ -38,10 +39,13 @@ Examples after a successful restore:
 dotnet build MudSharpCore/MudSharpCore.csproj -c Debug --no-restore -m:1
 dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug --no-restore -m:1
 dotnet test "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj" -c Debug --no-restore -m:1
+dotnet test "ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj" -c Debug --no-restore -m:1
 dotnet test "MudSharpCore Climate Tests/MudSharpCore Climate Tests.csproj" -c Debug --no-restore -m:1 --filter WeatherSeederClimateTests
 ```
 
 Select the command for the affected product; these examples do not require building both products for every edit.
+
+`MudSharp.Development.slnf` deliberately excludes the standalone Item Seeder. Open `ItemSeeder.sln` for catalogue development.
 
 | Windows script | Purpose | POSIX equivalent |
 | --- | --- | --- |

@@ -30,6 +30,20 @@
       "runtimes": [ "win-x64", "linux-x64", "linux-arm64" ]
     },
     {
+      "id": "itemseeder",
+      "publicName": "FutureMUD Item Seeder",
+      "tagPrefix": "itemseeder-v",
+      "projectPath": "ItemSeeder/ItemSeeder.csproj",
+      "packageKind": "single-file",
+      "versionSource": "Version",
+      "frameworkDependent": true,
+      "singleFile": true,
+      "includeNativeLibrariesForSelfExtract": true,
+      "archiveName": "itemseeder-{version}-{runtime}.zip",
+      "testProjects": [ "ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj" ],
+      "runtimes": [ "win-x64", "linux-x64", "linux-arm64" ]
+    },
+    {
       "id": "discordbot",
       "publicName": "FutureMUD Discord Bot",
       "tagPrefix": "discordbot-v",

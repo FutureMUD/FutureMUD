@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Models;
@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public class CurrencySeeder : IDatabaseSeeder
+public class CurrencySeeder : IFoundationSeeder
 {
     public bool SafeToRunMoreThanOnce => true;
 

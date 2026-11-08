@@ -18,7 +18,7 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 SEEDING = ROOT / "Design Documents" / "Seeding"
-SEEDERS = ROOT / "DatabaseSeeder" / "Seeders" / "ItemSeeder"
+SEEDERS = ROOT / "ItemSeeder" / "Seeders" / "ItemSeeder"
 
 
 @dataclass(frozen=True)

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Use this procedure for stable releases of the products in `FutureMUD.Web/Configuration/release-products.json`. Stable product tags are the only routine publishing trigger. FutureMUD does not publish nightly or incremental builds.
+Use this procedure for stable releases of the products in `FutureMUD.Web/Configuration/release-products.json`. Stable product tags are the only routine publishing trigger. FutureMUD does not publish nightly or incremental builds. The Database Seeder creates and configures worlds. The optional FutureMUD Item Seeder is downloaded separately and applies stock item catalogues to existing databases after their foundational packages are installed.
 
 ## Product tags
 
@@ -10,6 +10,7 @@ Use this procedure for stable releases of the products in `FutureMUD.Web/Configu
 | --- | --- | --- |
 | Engine | `MudSharpCore/MudSharpCore.csproj` | `engine-vX.Y.Z` |
 | Database Seeder | `DatabaseSeeder/DatabaseSeeder.csproj` | `seeder-vX.Y.Z` |
+| Item Seeder | `ItemSeeder/ItemSeeder.csproj` | `itemseeder-vX.Y.Z` |
 | Discord Bot | `DiscordBotCore/DiscordBotCore.csproj` | `discordbot-vX.Y.Z` |
 | Terrain Planner & Engine API | `TerrainPlanner/TerrainPlanner.Server/TerrainPlanner.Server.csproj` | `terrainplanner-vX.Y.Z` |
 | Web MUD Client | `MudClient/MudWebSocketProxy/MudWebSocketProxy.csproj` | `mudclient-vX.Y.Z` |
@@ -28,7 +29,7 @@ The tag version must contain exactly three numeric parts and must exactly equal 
 
 For Web MUD Client and Terrain Planner releases, verify every published runtime package includes the self-contained deployment verifier and platform deployment wrappers. The protected production environment signs the current update manifest; live verification must include the latest manifest and signature endpoints as well as every archive and checksum link. Terrain API is retired and `terrainapi-v*` is no longer a publishing trigger.
 
-For Database Seeder releases, refresh the bundled blank database snapshot whenever its manifest does not name the latest migration. Run the seeder with `--refresh-blank-snapshot`; maintainers who cannot use the default local snapshot database can set `FUTUREMUD_SNAPSHOT_CONNECTION_STRING` to a disposable database connection string. The refresh command drops and recreates the database named by that connection string, so never point it at a database that must be retained.
+For Database Seeder releases, refresh the bundled blank database snapshot whenever its manifest does not name the latest migration. Run the seeder with `--refresh-blank-snapshot`; maintainers who cannot use the default local snapshot database can set `FUTUREMUD_SNAPSHOT_CONNECTION_STRING` to a disposable database connection string. The refresh command drops and recreates the database named by that connection string, so never point it at a database that must be retained. Item Seeder releases use the dedicated `itemseeder-vX.Y.Z` tag and their own test project. Publish the `item-seeder-X-Y-Z` patch-notes document before tagging so the release announcement can verify the public route.
 
 Do not tag an earlier feature commit, an unmerged PR head, or a later unrelated commit. If a PR is squash-merged, tag the squash commit on `master`.
 

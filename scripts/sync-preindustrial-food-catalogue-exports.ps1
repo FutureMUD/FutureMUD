@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$catalogueRoot = Join-Path $repoRoot "DatabaseSeeder\Seeders\ItemSeeder\FoodCatalogue"
+$catalogueRoot = Join-Path $repoRoot "ItemSeeder\Seeders\ItemSeeder\FoodCatalogue"
 $componentPath = Join-Path $repoRoot "Design Documents\Data\Seeded_Item_Components.json"
 $liquidPath = Join-Path $repoRoot "Design Documents\Data\Seeded_Liquids.json"
 $tagPath = Join-Path $repoRoot "Design Documents\Data\SeededTagHierarchy.csv"

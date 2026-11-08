@@ -12,7 +12,7 @@ using MudSharp.RPG.Checks;
 
 namespace DatabaseSeeder.Seeders;
 
-public sealed partial class PsionicsSeeder : IDatabaseSeeder
+public sealed partial class PsionicsSeeder : IFoundationSeeder
 {
 	public string Name => "Psionics";
 	public string Tagline => "Optional Basic and Advanced Psionics, with unassigned capabilities.";

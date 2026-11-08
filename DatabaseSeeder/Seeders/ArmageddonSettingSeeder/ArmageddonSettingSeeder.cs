@@ -9,7 +9,7 @@ using MudSharp.Database;
 namespace DatabaseSeeder.Seeders;
 
 /// <summary>Opt-in v1 package settings and retained prepared-world APIs.</summary>
-public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
+public sealed partial class ArmageddonSettingSeeder : IFoundationSeeder
 {
 	public bool Enabled => true;
 	public int SortOrder => 305;

@@ -1,0 +1,8 @@
+<Project>
+	<Target Name="RemoveSeederDevelopmentSidecars" BeforeTargets="_ComputeFilesToBundle">
+		<ItemGroup>
+			<ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+				Condition="'%(ResolvedFileToPublish.Extension)' == '.pdb' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Readme.txt' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'MudSharp.runtimeconfig.json'" />
+		</ItemGroup>
+	</Target>
+</Project>

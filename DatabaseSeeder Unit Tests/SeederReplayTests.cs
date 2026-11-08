@@ -21,12 +21,15 @@ public class SeederReplayTests
 	public void StandardProfiles_AreCompleteAndMatchTheCurrentDependencyPlan()
 	{
 		IReadOnlyList<IDatabaseSeeder> seeders = SeederCatalogue.GetEnabledSeeders();
+		Assert.IsTrue(seeders.Count > 0, "The Database Seeder package assembly did not yield an inventory.");
 		Assert.IsTrue(seeders.Any(x => x.GetType() == typeof(SkillSeeder)));
 		Assert.IsTrue(((IDatabaseSeeder)new UsefulSeeder()).Metadata.RequiredSeederTypes.Contains(typeof(HumanSeeder)));
 		Assert.IsTrue(((IDatabaseSeeder)new AnimalSeeder()).Metadata.RequiredSeederTypes.Contains(typeof(CultureSeeder)));
 
 		foreach (SeederReplayProfile profile in DebugSeederReplayProfiles.All)
 		{
+			Assert.IsFalse(profile.Steps.Any(x => x.SeederType.Name == "ItemSeeder"),
+				$"{profile.Id} must be replayed through the independent Item Seeder product.");
 			SeederReplayValidationResult validation = SeederReplayRunner.Validate(profile, seeders);
 			Assert.IsTrue(validation.IsValid,
 				$"{profile.Id}:{Environment.NewLine}{string.Join(Environment.NewLine, validation.Errors)}");

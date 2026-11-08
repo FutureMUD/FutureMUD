@@ -20,7 +20,7 @@ using TimeZoneInfo = MudSharp.Models.TimeZoneInfo;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class CoreDataSeeder : IDatabaseSeeder
+public partial class CoreDataSeeder : IFoundationSeeder
 {
 	private static readonly Regex EmailRegex =
 		new(

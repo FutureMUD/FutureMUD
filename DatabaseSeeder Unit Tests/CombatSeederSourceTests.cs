@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DatabaseSeeder.Seeders;
-using Recipes = MudSharp_Unit_Tests.CompiledRecipeFixtures;
 using MudSharp.GameItems;
 using System;
 using System.Collections.Generic;
@@ -448,17 +447,6 @@ public class CombatSeederSourceTests
 		}
 	}
 
-	[TestMethod]
-	public void EarlyModernLowComplexityStockItems_HaveStableReferencesAndExactFunctionalCompositions()
-	{
-		foreach (var pair in new[] { ("earlymodern_military_tool_cranequin", "Cranequin"), ("earlymodern_military_tool_goats_foot", "Goat's Foot"), ("earlymodern_military_tool_spanning_lever", "Lever"), ("earlymodern_military_tool_spanning_hook", "Spanning Hook"), ("earlymodern_military_tool_windlass", "Windlass") })
-		{
-			var item = Recipes.Item(pair.Item1); Assert.IsTrue(item.Components.Contains("Holdable"));
-			Assert.IsTrue(item.Tags.Any(tag => tag.EndsWith(" / " + pair.Item2, StringComparison.Ordinal)), pair.Item1);
-		}
-		foreach (var pair in new[] { ("earlymodern_military_melee_plug_bayonet_service", "Bayonet_Plug"), ("earlymodern_military_melee_socket_bayonet_service", "Bayonet_Socket"), ("earlymodern_military_melee_sword_bayonet_service", "Bayonet_Sword") })
-		{ var item = Recipes.Item(pair.Item1); foreach (var component in new[] { "Melee_Bayonet", pair.Item2, "Destroyable_Weapon", "Beltable" }) CollectionAssert.Contains(item.Components.ToArray(), component); }
-	}
 
 	[TestMethod]
 	public void CombatSeederSource_StockManualCombatCommands_LinkBashAndKick()

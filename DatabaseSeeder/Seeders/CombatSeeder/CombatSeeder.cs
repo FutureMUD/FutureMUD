@@ -18,7 +18,7 @@ using System;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class CombatSeeder : IDatabaseSeeder
+public partial class CombatSeeder : IFoundationSeeder
 {
 	private static readonly string[] RpiLegacyCombatSkillNames =
 	[

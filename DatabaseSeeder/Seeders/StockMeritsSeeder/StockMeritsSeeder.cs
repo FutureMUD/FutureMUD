@@ -21,7 +21,7 @@ using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
-public class StockMeritsSeeder : IDatabaseSeeder
+public class StockMeritsSeeder : IFoundationSeeder
 {
     private const string IsDarkProgName = "StockMeritsIsDark";
     private const string IsNaturalTerrainProgName = "StockMeritsIsNaturalTerrain";

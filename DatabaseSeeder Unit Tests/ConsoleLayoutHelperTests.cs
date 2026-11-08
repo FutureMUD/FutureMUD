@@ -61,17 +61,17 @@ public class ConsoleLayoutHelperTests
     [TestMethod]
     public void ResolveQuestionAnswer_UsesDefaultForBlankInput()
     {
-        Assert.AreEqual("01/january/2000", Program.ResolveQuestionAnswer("", "01/january/2000"));
-        Assert.AreEqual("typed", Program.ResolveQuestionAnswer("typed", "01/january/2000"));
-        Assert.AreEqual("", Program.ResolveQuestionAnswer("", null));
+		Assert.AreEqual("01/january/2000", SeederConsole.ResolveQuestionAnswer("", "01/january/2000"));
+		Assert.AreEqual("typed", SeederConsole.ResolveQuestionAnswer("typed", "01/january/2000"));
+		Assert.AreEqual("", SeederConsole.ResolveQuestionAnswer("", null));
     }
 
     [TestMethod]
     public void ShowSeederInMainMenu_HidesBlockedPackagesUnlessRequested()
     {
-        Assert.IsFalse(Program.ShowSeederInMainMenu(SeederAssessmentStatus.Blocked, false));
-        Assert.IsTrue(Program.ShowSeederInMainMenu(SeederAssessmentStatus.Blocked, true));
-        Assert.IsTrue(Program.ShowSeederInMainMenu(SeederAssessmentStatus.ReadyToInstall, false));
+		Assert.IsFalse(SeederConsole.ShowSeederInMainMenu(SeederAssessmentStatus.Blocked, false));
+		Assert.IsTrue(SeederConsole.ShowSeederInMainMenu(SeederAssessmentStatus.Blocked, true));
+		Assert.IsTrue(SeederConsole.ShowSeederInMainMenu(SeederAssessmentStatus.ReadyToInstall, false));
     }
 
     [TestMethod]
@@ -79,12 +79,12 @@ public class ConsoleLayoutHelperTests
     {
         Assert.AreEqual(
             "There are 13 packages reporting prerequisites not met. Type INVALID to see a list of them.",
-            Program.GetBlockedSeederSummary(13, false));
+			SeederConsole.GetBlockedSeederSummary(13, false));
         Assert.AreEqual(
             "There is 1 package reporting prerequisites not met. Type INVALID to see it.",
-            Program.GetBlockedSeederSummary(1, false));
+			SeederConsole.GetBlockedSeederSummary(1, false));
         Assert.AreEqual(
             "1 blocked package is currently visible. Type VALID to hide it again.",
-            Program.GetBlockedSeederSummary(1, true));
+			SeederConsole.GetBlockedSeederSummary(1, true));
     }
 }

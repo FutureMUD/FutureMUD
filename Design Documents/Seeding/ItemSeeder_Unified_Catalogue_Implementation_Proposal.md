@@ -31,7 +31,7 @@ Most ordinary item paths eventually call `CreateItem`; crafts converge on `AddCr
 | Historical/industrial clothing graphs | Bases/reuse, palettes, skins, outfits, physical bindings, recipes and ownership preflights | Use the same catalogue envelope with dedicated typed graph records |
 | Vehicles | Example/factory specifications produce exterior items, components and vehicle child graphs | Freeze each fixed example graph; retain database-reference binding and specialised persistence |
 
-The [ItemSeeder guide](Seeders/ItemSeeder.md) gives the detailed source routes. Representative implementation seams are [CreateItem](../../DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.cs), [craft definitions and AddCraft](../../DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs), [ordinary era specs](../../DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.EraCatalogueSupport.cs), and [industrial records](../../DatabaseSeeder/Seeders/IndustrialisedItemCatalogue.cs).
+The [ItemSeeder guide](Seeders/ItemSeeder.md) gives the detailed source routes. Representative implementation seams are [CreateItem](../../ItemSeeder/Seeders/ItemSeeder/ItemSeeder.cs), [craft definitions and AddCraft](../../ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs), [ordinary era specs](../../ItemSeeder/Seeders/ItemSeeder/ItemSeeder.EraCatalogueSupport.cs), and [industrial records](../../DatabaseSeeder/Seeders/IndustrialisedItemCatalogue.cs).
 
 ### Scale and limits of the current inventory
 
@@ -83,7 +83,7 @@ Migrate those definitions and their readiness metadata without activating them. 
 
 ### One authoritative source and one contract
 
-Put catalogue code under `DatabaseSeeder/Seeders/ItemSeeder/Catalogue/`, grouped by subject. Era subfolders may help navigation, but folder names must not select parsers, establish identity or determine runtime eligibility.
+Put catalogue code under `ItemSeeder/Seeders/ItemSeeder/Catalogue/`, grouped by subject. Era subfolders may help navigation, but folder names must not select parsers, establish identity or determine runtime eligibility.
 
 Suggested responsibilities, all within the existing DatabaseSeeder project initially:
 
@@ -133,9 +133,9 @@ Runtime retains:
 - reference resolution, revision selection, ownership checks and XML serialization;
 - existing gameplay rules such as quality checks, failure products and selection among an explicitly authored set of outputs.
 
-The last category must be distinguished from creating types. For example, the food selector in [Crafting.PreIndustrialFoodCatalogue](../../DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.PreIndustrialFoodCatalogue.cs) emits `collectionfirst(collectionshuffle(@products))`. It randomly chooses among existing prototypes; it does not author new types. Preserve its explicit output set and selection behaviour during conversion. Replacing it with deterministic per-dish recipes would be a gameplay change requiring a separately reviewed conversion, not a lossless format change.
+The last category must be distinguished from creating types. For example, the food selector in [Crafting.PreIndustrialFoodCatalogue](../../ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.PreIndustrialFoodCatalogue.cs) emits `collectionfirst(collectionshuffle(@products))`. It randomly chooses among existing prototypes; it does not author new types. Preserve its explicit output set and selection behaviour during conversion. Replacing it with deterministic per-dish recipes would be a gameplay change requiring a separately reviewed conversion, not a lossless format change.
 
-The [Renaissance finished-item craft path](../../DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Renaissance.cs) currently derives names, material quantities and recipes from items held in the live seeder cache. Fixed catalogue recipes intentionally stop recomputing those definitions from builder-modified item properties. Preserve existing customized crafts; diagnose incompatible customized prerequisites rather than silently rewriting them. Record this behavioural difference in acceptance fixtures, including renamed items and changed weights/materials. Exact preservation of arbitrary live-state synthesis would conflict with the requirement for explicit fixed definitions.
+The [Renaissance finished-item craft path](../../ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Renaissance.cs) currently derives names, material quantities and recipes from items held in the live seeder cache. Fixed catalogue recipes intentionally stop recomputing those definitions from builder-modified item properties. Preserve existing customized crafts; diagnose incompatible customized prerequisites rather than silently rewriting them. Record this behavioural difference in acceptance fixtures, including renamed items and changed weights/materials. Exact preservation of arbitrary live-state synthesis would conflict with the requirement for explicit fixed definitions.
 
 ### Shared application pipeline
 
@@ -173,7 +173,7 @@ There is no inherent need for an EF schema migration to change the authoring for
 
 ### Existing hazards that affect the migration
 
-1. [UpsertPreIndustrialFoodItem](../../DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.PreIndustrialFoodCatalogue.cs) assigns scalar fields and reconciles links after `CreateItem` returns. `CreateItem` can return a customized item. This is a concrete source path that can bypass preservation; reproduce it with a customized-food rerun fixture before moving that family. Correct preservation at the shared writer boundary is necessary to satisfy the no-data-loss requirement, and should have its own regression and explicit change receipt.
+1. [UpsertPreIndustrialFoodItem](../../ItemSeeder/Seeders/ItemSeeder/ItemSeeder.PreIndustrialFoodCatalogue.cs) assigns scalar fields and reconciles links after `CreateItem` returns. `CreateItem` can return a customized item. This is a concrete source path that can bypass preservation; reproduce it with a customized-food rerun fixture before moving that family. Correct preservation at the shared writer boundary is necessary to satisfy the no-data-loss requirement, and should have its own regression and explicit change receipt.
 2. [ComputeSourceFingerprint](../../DatabaseSeeder/ItemSeederManifest.cs) includes `ItemSeeder*.cs` inside the ItemSeeder folder and root `Industrialised*.cs`, but omits root `ItemSeeder.*.cs` helpers and other relevant support files. A new nested catalogue would also escape the current top-directory glob. Replace this with an explicit, tested source-input inventory covering definitions, adapters and schema; retain cross-platform path/newline normalization.
 3. Existing fixed-count/allocation guards are meaningful content contracts. Keep them as conversion checks; do not lower or delete them to make the migrated catalogue pass. The Early Modern household generator's allocation scheme makes casual source additions capable of changing existing rows.
 4. The checked-in inventory and capture mode do not prove successful Industrial installation: retain the current negative readiness test until the food programme is separately completed.

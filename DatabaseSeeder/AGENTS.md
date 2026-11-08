@@ -28,4 +28,4 @@ Inherits [repository instructions](../AGENTS.md). This project is the interactiv
 - For economy seeding, consult the relevant `Design Documents/Economy/` runtime, integration, and seeder-state documents. Treat broader economy seeding as an explicit product decision informed by the opportunity matrix; inspect the current seeder inventory rather than relying on a fixed count in prose.
 - For emitted markup, use [character descriptions](../Design%20Documents/Markup/Character_Description_System.md) or [human seeder patterns](../Design%20Documents/Markup/Human_Seeder_Description_Patterns.md), as applicable.
 
-Seeder regressions belong in `DatabaseSeeder Unit Tests`; long-running seeded-climate regressions belong in `MudSharpCore Climate Tests`. Preserve the additional workflow/replay verification gates when those contracts change.
+Database Seeder regressions belong in `DatabaseSeeder Unit Tests`. The separate Item Seeder solution owns the item catalogue, Primary Production, and their dedicated tests; long-running seeded-climate regressions belong in `MudSharpCore Climate Tests`. Preserve the additional workflow/replay verification gates when those contracts change.

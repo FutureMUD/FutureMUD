@@ -12,7 +12,7 @@ using MudSharp.Work.Agriculture;
 
 namespace DatabaseSeeder.Seeders;
 
-public sealed partial class AgricultureSeeder : IDatabaseSeeder
+public sealed partial class AgricultureSeeder : IFoundationSeeder
 {
 	private const string StockPrefix = "Stock Agriculture";
 	private const string SeedTagName = "Seeds";

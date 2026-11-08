@@ -1,0 +1,201 @@
+#nullable enable
+
+using DatabaseSeeder.Seeders;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace MudSharp_Unit_Tests;
+
+[TestClass]
+public class ItemSeederRenaissanceEarlyModernScaffoldingTests
+{
+	private static readonly IReadOnlyDictionary<string, string> RenaissanceBranches =
+		new Dictionary<string, string>
+		{
+			["FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md"] = "SeedRenaissanceSharedBaselineAdmissionManifest",
+			["FutureMUD_Renaissance_Clothing_Accessories_Design_Reference.md"] = "SeedRenaissanceClothingAndAccessories",
+			["FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md"] = "SeedRenaissanceMilitaryFirearmsAndArmour",
+			["FutureMUD_Renaissance_Writing_Print_Administration_Design_Reference.md"] = "SeedRenaissanceWritingPrintAndAdministration",
+			["FutureMUD_Renaissance_Household_Urban_Trade_Design_Reference.md"] = "SeedRenaissanceHouseholdUrbanAndTrade",
+			["FutureMUD_Renaissance_Art_Craft_Science_Navigation_Design_Reference.md"] = "SeedRenaissanceArtCraftScienceAndNavigation",
+			["FutureMUD_Renaissance_Agriculture_Food_Drink_Commodities_Design_Reference.md"] = "SeedRenaissanceAgricultureFoodDrinkAndCommodities",
+			["FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedRenaissancePrimaryIndustryAndUsefulSeederImpacts",
+			["FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedRenaissanceJewelleryAndDevotionalGoods",
+			["FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedRenaissanceDoorsLocksAndGates",
+			["FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md"] = "SeedRenaissanceMedicalAndRepair",
+			["FutureMUD_Renaissance_Culture_Manifest_Reference.md"] = "SeedRenaissanceCultureManifest"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> EarlyModernBranches =
+		new Dictionary<string, string>
+		{
+			["FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md"] = "SeedEarlyModernSharedBaselineAdmissionManifest",
+			["FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md"] = "SeedEarlyModernClothingAndAccessories",
+			["FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md"] = "SeedEarlyModernMilitaryFirearmsUniformsAndNaval",
+			["FutureMUD_EarlyModern_Writing_Print_Administration_Finance_Design_Reference.md"] = "SeedEarlyModernWritingPrintAdministrationAndFinance",
+			["FutureMUD_EarlyModern_Household_Coffeehouse_Tavern_Trade_Design_Reference.md"] = "SeedEarlyModernHouseholdCoffeehouseTavernAndTrade",
+			["FutureMUD_EarlyModern_Science_Navigation_Optics_Measurement_Design_Reference.md"] = "SeedEarlyModernScienceNavigationOpticsAndMeasurement",
+			["FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md"] = "SeedEarlyModernAgricultureFoodDrinkAndCommodities",
+			["FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md"] = "SeedEarlyModernPrimaryIndustryAndUsefulSeederImpacts",
+			["FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md"] = "SeedEarlyModernJewelleryAndDevotionalGoods",
+			["FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md"] = "SeedEarlyModernDoorsLocksAndGates",
+			["FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md"] = "SeedEarlyModernMedicalAndRepair",
+			["FutureMUD_EarlyModern_Culture_Manifest_Reference.md"] = "SeedEarlyModernCultureManifest"
+		};
+
+	[TestMethod]
+	public void RecommendedBranchReferences_HaveMatchingInvokedItemSeederStubs()
+	{
+		var dispatcher = ReadSource("ItemSeeder", "Seeders", "ItemSeeder", "ItemSeeder.PreIndustrialBaseline.cs");
+		AssertBranches(RenaissanceBranches, dispatcher);
+		AssertBranches(EarlyModernBranches, dispatcher);
+	}
+
+	[TestMethod]
+	public void GeneratedHouseholdAndMilitaryReferencesAreProductFocused()
+	{
+		var renaissanceReferences = ItemSeeder.RenaissanceHouseholdItemSpecsForTesting
+			.Select(x => x.StableReference)
+			.ToArray();
+		var earlyModernReferences = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting
+			.Select(x => x.StableReference)
+			.ToArray();
+
+		Assert.AreEqual(renaissanceReferences.Length, renaissanceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.AreEqual(earlyModernReferences.Length, earlyModernReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+		Assert.IsFalse(renaissanceReferences.Any(x => x.Contains("_expansion_", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsFalse(earlyModernReferences.Any(x => x.Contains("_naval_naval_", StringComparison.OrdinalIgnoreCase)));
+		CollectionAssert.Contains(renaissanceReferences, "renaissance_furniture_nac_lamp_table_02");
+		CollectionAssert.Contains(earlyModernReferences, "earlymodern_military_naval_rope_coil_issue");
+	}
+
+	[TestMethod]
+	public void GeneratedEarlyModernMilitaryItems_HaveSubstantiveAppearanceProseAndLeafTags()
+	{
+		var items = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting.ToArray();
+		Assert.AreEqual(1664, items.Length);
+
+		foreach (var item in items)
+		{
+			Assert.IsTrue(item.FullDescription.Length >= 160,
+				$"{item.StableReference} needs a substantive full description.");
+			Assert.AreEqual(4, Regex.Matches(item.FullDescription, @"[.!?](?:\s|$)").Count,
+				$"{item.StableReference} should have four appearance-focused sentences.");
+			Assert.IsFalse(item.FullDescription.Contains("documented Early Modern", StringComparison.OrdinalIgnoreCase));
+			Assert.IsFalse(item.Tags.Any(tag => item.Tags.Any(other =>
+				other.StartsWith($"{tag} / ", StringComparison.OrdinalIgnoreCase))),
+				$"{item.StableReference} has a redundant parent tag.");
+		}
+	}
+
+	[TestMethod]
+	public void EarlyModernBlackPowderSupportItems_HaveRuntimeFunctionalTags()
+	{
+		var items = ItemSeeder.EarlyModernSupportedMilitaryItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+
+		CollectionAssert.Contains(items["earlymodern_military_naval_cannon_sponge"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Sponge");
+		CollectionAssert.Contains(items["earlymodern_military_naval_artillery_linstock"].Tags.ToArray(),
+			"Functions / Tools / Artillery Tools / Artillery Linstock");
+		foreach (var reference in new[]
+		         {
+			         "earlymodern_military_firearm_gunflint_packet",
+			         "earlymodern_military_firearm_pyrite_packet"
+		         })
+		{
+			CollectionAssert.Contains(items[reference].Tags.ToArray(),
+				"Functions / Material Functions / Ignition Source");
+		}
+		CollectionAssert.Contains(items["earlymodern_military_naval_peterero_chamber"].Tags.ToArray(),
+			"Functions / Military Equipment / Military Ammunition");
+		CollectionAssert.AreEquivalent(
+			new[]
+			{
+				"earlymodern_military_naval_cannon_sponge",
+				"earlymodern_military_naval_artillery_linstock",
+				"earlymodern_military_firearm_gunflint_packet",
+				"earlymodern_military_firearm_pyrite_packet",
+				"earlymodern_military_naval_peterero_chamber"
+			},
+			ItemSeeder.EarlyModernBlackPowderSupportStableReferencesForTesting.ToArray());
+	}
+
+	[TestMethod]
+	public void EraItemStableReferencesAvoidProcessProvenanceAndRepeatedSegments()
+	{
+		var stableReferences = Directory
+			.GetFiles(SourcePath("ItemSeeder", "Seeders", "ItemSeeder"), "ItemSeeder*.cs")
+			.SelectMany(File.ReadLines)
+			.SelectMany(line => Regex.Matches(line, "\"((?:antiquity|medieval|renaissance|earlymodern)_[a-z0-9_]+)\"", RegexOptions.IgnoreCase)
+				.Select(match => match.Groups[1].Value))
+			.ToArray();
+
+		Assert.IsTrue(stableReferences.Length > 0);
+		Assert.IsFalse(stableReferences.Any(reference =>
+			reference.Contains("_expansion_", StringComparison.OrdinalIgnoreCase) ||
+			reference.Contains("_rework_", StringComparison.OrdinalIgnoreCase) ||
+			reference.Contains("_pass_", StringComparison.OrdinalIgnoreCase) ||
+			reference.Contains("_content_pass_", StringComparison.OrdinalIgnoreCase)),
+			"Item stable references must identify the product, not the design or content pass that introduced it.");
+		Assert.IsFalse(stableReferences.Any(HasRepeatedReferenceSegment),
+			"Item stable references must not repeat an adjacent package or culture segment.");
+	}
+
+	private static bool HasRepeatedReferenceSegment(string stableReference)
+	{
+		var segments = stableReference.Split('_');
+		return segments.Zip(segments.Skip(1), (first, second) =>
+			string.Equals(first, second, StringComparison.OrdinalIgnoreCase)).Any(x => x);
+	}
+
+	private static void AssertBranches(IReadOnlyDictionary<string, string> branches, string dispatcher)
+	{
+		foreach (var (document, method) in branches)
+		{
+			Assert.IsTrue(File.Exists(SourcePath("Design Documents", "Seeding", document)),
+				$"Missing recommended design reference {document}.");
+			StringAssert.Contains(dispatcher, $"{method}();",
+				$"The era dispatcher does not invoke {method}.");
+
+			var methodFile = FindSeederFileContaining(method);
+			Assert.IsNotNull(methodFile, $"No ItemSeeder partial declares {method}.");
+			var methodSource = File.ReadAllText(methodFile);
+			StringAssert.Contains(methodSource, $"private void {method}()",
+				$"The ItemSeeder partial does not declare the expected {method} stub.");
+		}
+	}
+
+	private static string? FindSeederFileContaining(string method)
+	{
+		foreach (var file in Directory.GetFiles(SourcePath("ItemSeeder", "Seeders", "ItemSeeder"), "ItemSeeder.*.cs"))
+		{
+			if (File.ReadAllText(file).Contains($"private void {method}()", StringComparison.Ordinal))
+			{
+				return file;
+			}
+		}
+
+		return null;
+	}
+
+	private static string ReadSource(params string[] parts)
+	{
+		return File.ReadAllText(SourcePath(parts));
+	}
+
+	private static string SourcePath(params string[] parts)
+	{
+		return Path.GetFullPath(Path.Combine(
+			AppContext.BaseDirectory,
+			"..",
+			"..",
+			"..",
+			"..",
+			Path.Combine(parts)));
+	}
+}

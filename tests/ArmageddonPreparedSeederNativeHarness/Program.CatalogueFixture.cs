@@ -17,7 +17,7 @@ internal static partial class GNHProgram
 	private static string CatalogueContentSourceHash()
 	{
 		var root = CatalogueRepository;
-		var paths = new[] { "DatabaseSeeder", "MudsharpDatabaseLibrary" }
+		var paths = new[] { "DatabaseSeeder", "SeederFramework", "MudsharpDatabaseLibrary" }
 			.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.cs", SearchOption.TopDirectoryOnly))
 			.Concat(new[] { "DatabaseSeeder/Seeders", "MudsharpDatabaseLibrary/Models", "MudsharpDatabaseLibrary/Migrations", "MudsharpDatabaseLibrary/Database" }
 				.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.cs", SearchOption.AllDirectories)))

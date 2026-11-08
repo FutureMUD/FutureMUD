@@ -99,9 +99,9 @@ The Python handoff validator checks references, encoding, policies, generated pr
 
 Each entry states the actual use of the source. An abstract-only source does not license names or facts absent from that abstract. Repository references describe code; they are not historical evidence.
 
-### R01 — DatabaseSeeder/Seeders/ItemSeeder.cs
+### R01 — ItemSeeder/Seeders/ItemSeeder.cs
 
-https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/DatabaseSeeder/Seeders/ItemSeeder.cs
+https://github.com/FutureMUD/FutureMUD/blob/f06a9eff0e14b19f7ca41b0372738ec3a7078c8b/ItemSeeder/Seeders/ItemSeeder.cs
 
 Current selectable item eras; Dark Ages is within Medieval, not a separate menu option.
 Kind: repository. Accessed: 2026-09-07.

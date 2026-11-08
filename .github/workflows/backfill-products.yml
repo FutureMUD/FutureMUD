@@ -68,11 +68,14 @@ jobs:
           $allowedDefinitions = @{
             engine = [pscustomobject]@{ TagPrefix = 'engine-v'; ProjectPath = 'MudSharpCore/MudSharpCore.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64'); ArchiveName = 'engine-{version}-{runtime}.zip' }
             seeder = [pscustomobject]@{ TagPrefix = 'seeder-v'; ProjectPath = 'DatabaseSeeder/DatabaseSeeder.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64'); ArchiveName = 'seeder-{version}-{runtime}.zip' }
+            # Validate the current manifest entry without admitting a new historical backfill release.
+            itemseeder = [pscustomobject]@{ TagPrefix = 'itemseeder-v'; ProjectPath = 'ItemSeeder/ItemSeeder.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64'); ArchiveName = 'itemseeder-{version}-{runtime}.zip' }
+            mudclient = [pscustomobject]@{ TagPrefix = 'mudclient-v'; ProjectPath = 'MudClient/MudWebSocketProxy/MudWebSocketProxy.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64', 'linux-arm64'); ArchiveName = 'mudclient-{version}-{runtime}.zip' }
             discordbot = [pscustomobject]@{ TagPrefix = 'discordbot-v'; ProjectPath = 'DiscordBotCore/DiscordBotCore.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64'); ArchiveName = 'discordbot-{version}-{runtime}.zip' }
             terrainplanner = [pscustomobject]@{ TagPrefix = 'terrainplanner-v'; ProjectPath = 'Terrain Planner Core/Terrain Planner Core.csproj'; Runtimes = [string[]]@('win-x64'); ArchiveName = 'terrainplanner-{version}-{runtime}.zip' }
             terrainapi = [pscustomobject]@{ TagPrefix = 'terrainapi-v'; ProjectPath = 'Terrain API/Terrain API.csproj'; Runtimes = [string[]]@('win-x64', 'linux-x64'); ArchiveName = 'terrainapi-{version}-{runtime}.zip' }
           }
-          $allowedIds = [string[]]@('engine', 'seeder', 'discordbot', 'terrainplanner', 'terrainapi')
+          $allowedIds = [string[]]@('engine', 'seeder', 'itemseeder', 'discordbot', 'terrainplanner', 'terrainapi', 'mudclient')
 
           if ($env:RELEASE_TAG -cnotmatch '^(engine-v1\.55\.0|seeder-v2\.3\.0|discordbot-v1\.5\.0|terrainplanner-v1\.1\.0|terrainapi-v1\.0\.1)$') {
             throw "Release tag '$($env:RELEASE_TAG)' is not an allowlisted historical release."

@@ -2,7 +2,7 @@
 
 These internal maintainer guides describe the pinned published master revision `39eb9d32d2012f56ac3ef33c441b5dac7c3535e3` (verified with `git ls-remote origin refs/heads/master` on 2026-10-06). They are a source map and authoring reference, not a public feature announcement or database execution receipt. Later source deltas have not been reconciled.
 
-There are **34 concrete seeders** in the DatabaseSeeder executable: 33 enabled in Release and one disabled (`PrimaryProductionSeeder`). The abstract `SkillSeederBase` is supporting infrastructure for the two concrete skill alternatives. Disabled catalogue definitions and non-selectable item eras are included. Reflection discovery includes internal concrete classes; a source folder does not register or activate content.
+Database Seeder installs world foundations. The separate Item Seeder product owns Items and disabled Primary Production. Both products discover concrete package types in their own assemblies; the shared framework supplies the execution and ordering rules. The table records the original inventory and its package availability.
 
 ## Inventory
 
@@ -51,7 +51,7 @@ Each concrete class has one guide named `<ClassName>.md`. It starts with the lea
 
 ## Shared execution contract
 
-The entrypoints are [Program](../../../DatabaseSeeder/Program.cs), [SeederCatalogue](../../../DatabaseSeeder/SeederCatalogue.cs), [IDatabaseSeeder](../../../DatabaseSeeder/IDatabaseSeeder.cs), [SeederMetadataRegistry](../../../DatabaseSeeder/SeederMetadataRegistry.cs), [SeederQuestionRegistry](../../../DatabaseSeeder/SeederQuestionRegistry.cs), [SeederAnswerMemory](../../../DatabaseSeeder/SeederAnswerMemory.cs) and [SeederExecutionService](../../../DatabaseSeeder/SeederExecutionService.cs).
+The console entrypoints are [ItemSeederProgram](../../../ItemSeeder/ItemSeederProgram.cs) and [Program](../../../DatabaseSeeder/Program.cs), [SeederCatalogue](../../../DatabaseSeeder/SeederCatalogue.cs), [IDatabaseSeeder](../../../SeederFramework/IDatabaseSeeder.cs), [SeederMetadataRegistry](../../../DatabaseSeeder/SeederMetadataRegistry.cs), [SeederQuestionRegistry](../../../DatabaseSeeder/SeederQuestionRegistry.cs), [SeederAnswerMemory](../../../SeederFramework/SeederAnswerMemory.cs) and [SeederExecutionService](../../../SeederFramework/SeederExecutionService.cs).
 
 ```mermaid
 flowchart LR
@@ -66,7 +66,7 @@ flowchart LR
 
 `SeederCatalogue.GetEnabledSeeders` reflects the executing assembly, excludes abstract types, instantiates concrete `IDatabaseSeeder` implementations and filters `Enabled`. `Enabled` defaults to true; `SafeToRunMoreThanOnce` defaults to false and is a legacy signal. Concrete metadata declares repeatability, update capabilities, database-backed prerequisite predicates and ordering edges. `Assess` combines those predicates with legacy readiness; a single marker or an `ExtraPackagesAvailable` result is not a complete installed-content or safety check.
 
-`Program.DoSeederQuestions` uses enhanced questions, live filters, validators, defaults and generic answer memory. A question can be declared but inactive. Shared answer keys intentionally carry compatible choices between packages. [SeederQuestionRegistry](../../../DatabaseSeeder/SeederQuestionRegistry.cs) suppresses persistence of the Core password. Do not duplicate menu numbers or bypass validation in new content-authoring instructions.
+`SeederConsole.DoSeederQuestions` uses enhanced questions, live filters, validators, defaults and generic answer memory. A question can be declared but inactive. Shared answer keys intentionally carry compatible choices between packages. [SeederQuestionRegistry](../../../DatabaseSeeder/SeederQuestionRegistry.cs) suppresses persistence of the Core password. Do not duplicate menu numbers or bypass validation in new content-authoring instructions.
 
 `SeederExecutionService.Execute` calls `SeedData`, normalizes answers for `ISeederAnswerNormalizer`, persists answers, and performs another `SaveChanges`. An exception rolls back only a currently active transaction and clears tracked changes. It does **not** supply one transaction covering all seeders, undo a transaction already committed inside `SeedData`, or reverse work saved without a transaction. A failure saving answer memory after a seeder commit can leave content installed. A returned warning string is still a successful execution unless an exception is raised. Each guide describes its own boundary.
 

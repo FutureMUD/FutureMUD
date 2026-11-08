@@ -63,7 +63,7 @@ internal static class VerifyLiveCultureImport
 			var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == "medieval-standard");
 			var steps = (IEnumerable)profile.GetType().GetProperty("Steps")!.GetValue(profile)!;
 			var selected = new[] { typeof(CoreDataSeeder), typeof(TimeSeeder), typeof(AttributeSeeder), assembly.GetType("DatabaseSeeder.Seeders.SkillPackageSeeder")!, typeof(HumanSeeder), typeof(ChargenSeeder), typeof(CultureSeeder) };
-			var execute = assembly.GetType("DatabaseSeeder.SeederExecutionService")!.GetMethod("Execute", BindingFlags.NonPublic | BindingFlags.Static)!;
+			var execute = typeof(IDatabaseSeeder).Assembly.GetType("DatabaseSeeder.SeederExecutionService")!.GetMethod("Execute", BindingFlags.NonPublic | BindingFlags.Static)!;
 			foreach (var step in steps)
 			{
 				var type = (Type)step.GetType().GetProperty("SeederType")!.GetValue(step)!;

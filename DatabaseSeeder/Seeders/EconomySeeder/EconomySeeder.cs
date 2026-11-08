@@ -15,7 +15,7 @@ using CultureInfo = System.Globalization.CultureInfo;
 
 namespace DatabaseSeeder.Seeders;
 
-public class EconomySeeder : IDatabaseSeeder
+public class EconomySeeder : IFoundationSeeder
 {
     private const string MarketRootTagName = "Market";
     private const string CategoryPrefix = "Economy Category";

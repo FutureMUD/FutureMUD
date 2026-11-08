@@ -13,7 +13,7 @@ using Calendar = MudSharp.Models.Calendar;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class CelestialSeeder : IDatabaseSeeder
+public partial class CelestialSeeder : IFoundationSeeder
 {
     private const string EarthSunPackage = "EarthSun";
     private const string EarthMoonPackage = "EarthMoonView";

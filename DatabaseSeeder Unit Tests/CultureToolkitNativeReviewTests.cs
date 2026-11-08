@@ -28,7 +28,7 @@ public class CultureToolkitNativeReviewTests
 		var aliases = new Dictionary<string, HashSet<string>>();
 		foreach (var module in CultureToolkitLanguageBindings.SourceModuleFirstEra)
 		{
-			var path = Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(AppContext.BaseDirectory),
+			var path = Path.Combine(SeederSourceTestHelper.RepositoryRoot,
 				"Design Documents", "Seeding", "CultureSeederOriginalCorpus", module.Key + ".json");
 			using var document = JsonDocument.Parse(File.ReadAllText(path));
 			foreach (var row in document.RootElement.GetProperty("Tables").GetProperty("Language").EnumerateArray())
@@ -129,7 +129,7 @@ public class CultureToolkitNativeReviewTests
 	[DataRow("renaissance", "earthrenaissanceeurope", "MedievalEurope")]
 	public void EveryRetainedAncientAndEuropeanEthnicityHasAResolvedDefault(string era, string module, string suffix)
 	{
-		var path = Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(AppContext.BaseDirectory),
+		var path = Path.Combine(SeederSourceTestHelper.RepositoryRoot,
 			"DatabaseSeeder", "Seeders", "CultureSeeder", $"CultureSeeder.Heritage.{suffix}.cs");
 		var names = Regex.Matches(File.ReadAllText(path), "AddEthnicity\\(_humanRace, \"([^\"]+)\"")
 			.Select(x => x.Groups[1].Value).Distinct().ToArray();

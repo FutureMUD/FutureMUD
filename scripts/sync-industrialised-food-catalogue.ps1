@@ -12,10 +12,10 @@ if ($selectedModeCount -ne 1) {
 }
 
 $repoRoot = Split-Path $PSScriptRoot -Parent
-$project = Join-Path $repoRoot 'DatabaseSeeder/DatabaseSeeder.csproj'
+$project = Join-Path $repoRoot 'ItemSeeder/ItemSeeder.csproj'
 
 if ($SelfTest) {
-	& dotnet test (Join-Path $repoRoot 'DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj') -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~IndustrialisedFood'
+	& dotnet test (Join-Path $repoRoot 'ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj') -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~IndustrialisedFood'
 	exit $LASTEXITCODE
 }
 

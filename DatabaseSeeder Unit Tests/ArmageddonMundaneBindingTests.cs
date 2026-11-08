@@ -66,7 +66,7 @@ public class ArmageddonMundaneBindingTests
 		Assert.AreEqual(db.Tags.Single().Id, (long)xml.Element("Tags")!.Element("Tag")!);
 		Assert.IsTrue((int)xml.Element("RepairPoints")! > 0);
 		Assert.AreEqual(0, db.SeederManagedRecords.Single(x => x.StableKey == "arm.repair.armour.component").RevisionNumber);
-		Assert.IsFalse(db.SeederChoices.Any(x => x.Seeder == nameof(UsefulSeeder) || x.Seeder == nameof(ItemSeeder)));
+		Assert.IsFalse(db.SeederChoices.Any(x => x.Seeder == nameof(UsefulSeeder) || x.Seeder == "Items"));
 	}
 
 	[TestMethod]

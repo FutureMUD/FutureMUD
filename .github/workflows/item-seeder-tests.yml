@@ -1,0 +1,96 @@
+name: Item Seeder Tests
+
+on:
+  pull_request:
+    paths:
+      - 'ItemSeeder/**'
+      - 'ItemSeeder Unit Tests/**'
+      - 'SeederFramework/**'
+      - 'SeederCatalogueTools/**'
+      - 'DatabaseSeeder/**'
+      - 'DatabaseSeeder Unit Tests/**'
+      - 'FutureMUDLibrary/**'
+      - 'MudsharpDatabaseLibrary/**'
+      - 'MudSharpCore/**'
+      - 'MigrationModels/**'
+      - 'BuildTools/MigrationModelCompiler/**'
+      - 'ExpressionEngine/**'
+      - 'FutureMUD Analyzers/FutureMUD_Analyzers/**'
+      - 'Design Documents/Data/**'
+      - 'Design Documents/Items/**'
+      - 'Design Documents/Seeding/Seeded_Item_Manifest.json'
+      - 'Design Documents/Seeding/Industrialised_*'
+      - 'scripts/*Item*'
+      - 'scripts/*item*'
+      - 'scripts/*Catalogue*'
+      - 'scripts/*catalogue*'
+      - 'scripts/TestReporting/**'
+      - 'scripts/unit-test-projects.txt'
+      - 'global.json'
+      - 'Directory.Build.*'
+      - 'Directory.Packages.props'
+      - 'ItemSeeder.sln'
+      - 'MudSharp.sln'
+      - '.github/workflows/**'
+      - 'scripts/Publish-WebsiteRelease.ps1'
+      - 'FutureMUD.Web/Publishing/**'
+      - 'FutureMUD.Web/Configuration/release-products.json'
+      - 'scripts/update-development-solutions.py'
+      - 'scripts/invoke-test-reporting.*'
+  push:
+    branches: [master]
+    tags: ['itemseeder-v*']
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: item-seeder-tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  item-seeder:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Check opt-in solution layout
+        run: python scripts/update-development-solutions.py --check
+      - name: Restore Item Seeder unit-test graph
+        run: dotnet restore "ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj" -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=true
+      - name: Build Item Seeder Debug
+        run: dotnet build ItemSeeder/ItemSeeder.csproj -c Debug --no-restore -m:1
+      - name: Build Item Seeder Release
+        run: dotnet build ItemSeeder/ItemSeeder.csproj -c Release --no-restore -m:1
+      - name: Run Item Seeder unit tests
+        if: runner.os == 'Linux'
+        run: bash ./scripts/invoke-test-reporting.sh fast --output-mode compact --project 'ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj'
+      - name: Run Item Seeder unit tests
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .\scripts\invoke-test-reporting.ps1 -Suite fast -OutputMode Compact -Project "ItemSeeder Unit Tests/ItemSeeder Unit Tests.csproj"
+      - name: Retain structured test evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: item-seeder-test-evidence-${{ matrix.os }}
+          path: |
+            .artifacts/test-runs/**/run.json
+            .artifacts/test-runs/**/summary.json
+            .artifacts/test-runs/**/summary.txt
+            .artifacts/test-runs/**/test-results.json
+            .artifacts/test-runs/**/failures.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

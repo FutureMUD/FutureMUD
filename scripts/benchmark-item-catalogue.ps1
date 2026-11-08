@@ -8,8 +8,8 @@ $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $taskRoot ('.artifacts/item-catalogue-benchmarks/' + [guid]::NewGuid().ToString('N')) }
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
-$taskDll = Join-Path $taskRoot 'DatabaseSeeder/bin/Release/net10.0/DatabaseSeeder.dll'
-if (-not (Test-Path -LiteralPath $taskDll)) { throw 'Build DatabaseSeeder in Release before benchmarking.' }
+$taskDll = Join-Path $taskRoot 'ItemSeeder/bin/Release/net10.0/ItemSeeder.dll'
+if (-not (Test-Path -LiteralPath $taskDll)) { throw 'Build ItemSeeder in Release before benchmarking.' }
 $binaryHash = (Get-FileHash -LiteralPath $taskDll -Algorithm SHA256).Hash
 if ($LegacyBinary) {
 	$LegacyBinary = (Resolve-Path -LiteralPath $LegacyBinary).Path

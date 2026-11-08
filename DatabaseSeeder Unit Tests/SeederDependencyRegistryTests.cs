@@ -8,7 +8,6 @@ using MudSharp.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace MudSharp_Unit_Tests;
 
@@ -36,7 +35,6 @@ public class SeederDependencyRegistryTests
 			.ToDictionary(x => x.SeederType, x => x.Index);
 
 		Assert.IsTrue(positions[typeof(UsefulSeeder)] < positions[typeof(CombatSeeder)]);
-		Assert.IsTrue(positions[typeof(UsefulSeeder)] < positions[typeof(ItemSeeder)]);
 		Assert.IsTrue(positions[typeof(CoreDataSeeder)] < positions[typeof(EconomySeeder)]);
 		CollectionAssert.DoesNotContain(SeederMetadataRegistry.GetMetadata(new EconomySeeder()).RequiredSeederTypes.ToList(), typeof(UsefulSeeder));
 		Assert.IsTrue(positions[typeof(AnimalSeeder)] < positions[typeof(MythicalAnimalSeeder)]);
@@ -71,7 +69,7 @@ public class SeederDependencyRegistryTests
 	private static List<IDatabaseSeeder> GetSeeders()
 	{
 		Type seederInterface = typeof(IDatabaseSeeder);
-		return Assembly.GetAssembly(seederInterface)!
+		return typeof(CoreDataSeeder).Assembly
 			.GetTypes()
 			.Where(x => !x.IsAbstract && seederInterface.IsAssignableFrom(x))
 			.Select(Activator.CreateInstance)

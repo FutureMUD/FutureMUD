@@ -22,7 +22,7 @@ namespace DatabaseSeeder.Seeders;
 /// controller rows intentionally remain untouched as builder examples; this package owns the
 /// Wildlife- and Managed Animal-prefixed rows and repairs them on every rerun.
 /// </summary>
-public sealed class WildlifeCatalogueSeeder : IDatabaseSeeder
+public sealed class WildlifeCatalogueSeeder : IFoundationSeeder
 {
 	private const string StockPrefix = "Wildlife";
 	private const int ShelterDecaySeconds = 30 * 24 * 60 * 60;

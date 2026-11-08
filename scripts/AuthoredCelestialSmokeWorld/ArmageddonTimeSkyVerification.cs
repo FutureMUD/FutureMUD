@@ -32,7 +32,8 @@ internal static class ArmageddonTimeSkyVerification
 			["packages"] = "Armageddon"
 		};
 		var assembly = typeof(TimeSeeder).Assembly;
-		var execute = assembly.GetType("DatabaseSeeder.SeederExecutionService")!.GetMethod("Execute", BindingFlags.Static | BindingFlags.NonPublic)!;
+		var executionAssembly = typeof(IDatabaseSeeder).Assembly;
+		var execute = executionAssembly.GetType("DatabaseSeeder.SeederExecutionService")!.GetMethod("Execute", BindingFlags.Static | BindingFlags.NonPublic)!;
 		void Execute(IDatabaseSeeder seeder, IReadOnlyDictionary<string, string> answers)
 		{
 			using var db = Context();

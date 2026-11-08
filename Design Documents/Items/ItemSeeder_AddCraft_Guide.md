@@ -1,10 +1,10 @@
 # ItemSeeder AddCraft Authoring Guide
 
-New stock recipes use `CatalogueRecipeDefinition` in the [compiled catalogue](../../DatabaseSeeder/Seeders/ItemSeeder/Catalogue/Assemblies), with explicit typed inputs, tools, phases and success/failure products. Follow the [ItemSeeder authoring workflow](../Seeding/Seeders/ItemSeeder.md#start-here-to-add-content). For a complete literal example, see [the first recipe batch](../../DatabaseSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/Recipes01/Content/Batch001.cs).
+New stock recipes use `CatalogueRecipeDefinition` in the [compiled catalogue](../../ItemSeeder/Seeders/ItemSeeder/Catalogue/Assemblies), with explicit typed inputs, tools, phases and success/failure products. Follow the [ItemSeeder authoring workflow](../Seeding/Seeders/ItemSeeder.md#start-here-to-add-content). For a complete literal example, see [the first recipe batch](../../ItemSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/Recipes01/Content/Batch001.cs).
 
 Add every fixed variant as an authored definition and register its factory in the appropriate `CompiledRecipeSelection` batch. Preserve stable keys, insertion order, module/admissions, gates, configured check-trait choices and dependencies. The typed writer resolves stable references, saves selector programs before serialising permanent IDs and uses the common craft persistence/ownership implementation. `Compatibility` prose preserves historical fingerprint projections; the normal stock writer does not parse it.
 
-The rest of this guide documents the `AddCraft` persistence API and its compact import syntax in `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`. Import strings remain available for explicit developer/import operations and compatibility tests. They are not the stock catalogue authoring format. The phase, quality, indexing, product and FutureProg contracts below also inform typed catalogue records.
+The rest of this guide documents the `AddCraft` persistence API and its compact import syntax in `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs`. Import strings remain available for explicit developer/import operations and compatibility tests. They are not the stock catalogue authoring format. The phase, quality, indexing, product and FutureProg contracts below also inform typed catalogue records.
 
 For the broader runtime and builder model, see:
 

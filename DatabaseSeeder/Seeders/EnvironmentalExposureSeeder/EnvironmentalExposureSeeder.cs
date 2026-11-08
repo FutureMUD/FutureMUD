@@ -17,7 +17,7 @@ using MudSharp.Models;
 namespace DatabaseSeeder.Seeders;
 
 /// <summary>Optional definitions and field-owned overlays; never enables an existing world.</summary>
-public partial class EnvironmentalExposureSeeder : IDatabaseSeeder
+public partial class EnvironmentalExposureSeeder : IFoundationSeeder
 {
 	private FuturemudDatabaseContext _context = null!;
 	private readonly List<string> _notes = new();

@@ -18,7 +18,7 @@ namespace DatabaseSeeder.Seeders;
 /// Installs the stock trap skill, check mappings, and deliberately conservative example trap templates.
 /// The package owns only records with the Stock Trap prefix and is safe to rerun.
 /// </summary>
-public sealed class TrapSeeder : IDatabaseSeeder
+public sealed class TrapSeeder : IFoundationSeeder
 {
 	private const string StockPrefix = "Stock Trap - ";
 	private const string TrapComponentRoot = "Trap Components";

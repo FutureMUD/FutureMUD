@@ -15,7 +15,7 @@ if ($Runtime -ne [System.Runtime.InteropServices.RuntimeInformation]::RuntimeIde
 	throw 'This measurement executes published binaries and requires the local host runtime identifier.'
 }
 [IO.Directory]::CreateDirectory($outputRoot) | Out-Null
-$project = Join-Path $repoRoot 'DatabaseSeeder/DatabaseSeeder.csproj'
+$project = Join-Path $repoRoot 'ItemSeeder/ItemSeeder.csproj'
 $oldCache = $env:NUGET_HTTP_CACHE_PATH
 $oldExtractionRoot = $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR
 $env:NUGET_HTTP_CACHE_PATH = Join-Path $outputRoot 'nuget-http-cache'
@@ -36,7 +36,7 @@ try {
 		& dotnet publish $project -c Release -r $Runtime --self-contained false -m:1 -p:RestoreBuildInParallel=false -p:BuildInParallel=false -p:UseSharedCompilation=false -p:NuGetAudit=false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=embedded -p:PublishSelfContained=false "-p:PublishReadyToRun=$($native.ToString().ToLowerInvariant())" @dependencyArguments -o $publish *> (Join-Path $outputRoot "$mode-publish.log")
 		$timer.Stop()
 		if ($LASTEXITCODE) { throw "Publish failed: $mode" }
-		$publishedEntry = Join-Path $publish $(if ($Runtime.StartsWith('win-')) { 'DatabaseSeeder.exe' } else { 'DatabaseSeeder' })
+		$publishedEntry = Join-Path $publish $(if ($Runtime.StartsWith('win-')) { 'ItemSeeder.exe' } else { 'ItemSeeder' })
 		$runDirectory = Join-Path $runRoot $mode
 		[IO.Directory]::CreateDirectory($runDirectory) | Out-Null
 		$entry = Join-Path $runDirectory (Split-Path -Leaf $publishedEntry)
@@ -66,7 +66,7 @@ try {
 		if ((Get-FileHash -LiteralPath $artifact.Entry -Algorithm SHA256).Hash -ne $artifact.Sha256) { throw 'Published binary changed during measurement' }
 		if (@(Get-ChildItem -LiteralPath $artifact.Directory -Force).Count -ne 1) { throw 'Executable-only run directory gained a dependency' }
 	}
-	$inputReceipt = Get-ChildItem (Join-Path $repoRoot 'DatabaseSeeder/obj/Release') -Recurse -File -Filter 'CatalogueReadyToRunInputs.txt' | Where-Object { $_.FullName.Contains($Runtime) } | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+	$inputReceipt = Get-ChildItem (Join-Path $repoRoot 'ItemSeeder/obj/Release') -Recurse -File -Filter 'CatalogueReadyToRunInputs.txt' | Where-Object { $_.FullName.Contains($Runtime) } | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
 	if (!$inputReceipt) { throw 'Missing SDK-selected assembly receipt' }
 	$headers = foreach ($path in Get-Content -LiteralPath $inputReceipt.FullName) {
 		$stream = [IO.File]::OpenRead($path)

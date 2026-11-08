@@ -3,11 +3,11 @@
 **Status:** implemented item catalogue with active production-chain and food/beverage/preservation craft foundations.
 **Date:** 30 July 2026.
 **Era band:** approximately 500-1300 CE.  
-**Implementation files:** `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs`, `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalComponentGaps.cs`, and `DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalFoodProduction.cs`.
+**Implementation files:** `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalHouseholdTools.cs`, `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalComponentGaps.cs`, and `ItemSeeder/Seeders/ItemSeeder/ItemSeeder.MedievalFoodProduction.cs`.
 
 This catalogue is the concrete item-prototype layer for the medieval industry chain. It creates the tools, workshop apparatus, and shared intermediate stock that later crafts consume while recursively closing finished items back to butchery, forage, agricultural, or primary-industry products.
 
-`DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs` activates the first 35 production-chain crafts: 16 first-tier stock recipes, 17 tool or apparatus recipes, and two high-heat activation recipes. `ItemSeeder.Crafting.MedievalFood.cs` adds 48 food, beverage, and preservation crafts. The remaining catalogue rows are still staged for later dependency-ordered craft passes.
+`ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.Medieval.cs` activates the first 35 production-chain crafts: 16 first-tier stock recipes, 17 tool or apparatus recipes, and two high-heat activation recipes. `ItemSeeder.Crafting.MedievalFood.cs` adds 48 food, beverage, and preservation crafts. The remaining catalogue rows are still staged for later dependency-ordered craft passes.
 
 ---
 

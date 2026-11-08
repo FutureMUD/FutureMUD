@@ -18,7 +18,7 @@ using System.Text;
 
 namespace DatabaseSeeder.Seeders;
 
-public partial class MythicalAnimalSeeder : IDatabaseSeeder
+public partial class MythicalAnimalSeeder : IFoundationSeeder
 {
     private static readonly string[] HumanoidFullLegRemovalAliases =
     [

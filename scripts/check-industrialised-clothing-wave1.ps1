@@ -132,7 +132,7 @@ if (-not $garments.Count -or -not $outfits.Count) { throw 'Planning tables must 
 $manifest = Get-Content (Join-Path $seedingRoot 'Seeded_Item_Manifest.json') -Raw | ConvertFrom-Json -Depth 70
 $existing = @{}
 foreach ($entry in $manifest.entries) { if ($entry.entityType -eq 'item') { $existing[$entry.stableKey] = $true } }
-$sourceFiles = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'DatabaseSeeder/Seeders') -Filter 'ItemSeeder*.cs' | Sort-Object Name)
+$sourceFiles = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'ItemSeeder/Seeders/ItemSeeder') -Filter 'ItemSeeder*.cs' | Sort-Object Name)
 $sourceText = ($sourceFiles | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
 $sourceHashInput = (($sourceFiles | ForEach-Object { "$($_.Name):$((Get-FileHash -LiteralPath $_.FullName).Hash)" }) -join "`n") + "`n" + (Get-FileHash -LiteralPath (Join-Path $seedingRoot 'Seeded_Item_Manifest.json')).Hash
 $sourceHash = [Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData([System.Text.Encoding]::UTF8.GetBytes($sourceHashInput))).ToLowerInvariant()

@@ -20,12 +20,11 @@ public partial class HumanSeeder
 	{
 		var components = _context.GameItemComponentProtos.Include(x => x.EditableItem).ToArray();
 		var existingNames = components.Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var missing = IndustrialisedClothingDependencyPlan.WearLayerStock.Where(x => !existingNames.Contains(x.Name)).ToArray();
+		var missing = WearLayerStock.Where(x => !existingNames.Contains(x.Name)).ToArray();
 		if (missing.Length == 0) return false;
 
 		var profiles = _context.WearProfiles.ToArray();
 		var progs = _context.FutureProgs.Select(x => x.Id).ToArray();
-		var holdable = new GameItemComponentProto { Id = -1, Name = "Holdable", Type = "Holdable", Definition = "<Definition/>" };
 		var planned = new List<(ClothingWearLayerStock Stock, string Definition)>();
 		foreach (var stock in missing)
 		{
@@ -41,7 +40,7 @@ public partial class HumanSeeder
 			// Validate the actual source before copying. Keep all its profile alternatives, default,
 			// visibility flags and supported behaviour; alter thickness and only an explicitly authored
 			// bulk override on a separately named identity. Never change shared source stock in place.
-			IndustrialisedClothingPhysicalBindings.Bind([holdable, source], profiles, progs, location);
+			WearableComponentValidation.BindWearable(source, profiles, progs, location);
 			var root = XElement.Parse(source.Definition);
 			root.Elements("LayerWeightConsumption").Remove();
 			root.Add(new XElement("LayerWeightConsumption", stock.LayerWeight));

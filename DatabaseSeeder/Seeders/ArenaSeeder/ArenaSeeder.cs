@@ -13,7 +13,7 @@ using System.Text;
 
 namespace DatabaseSeeder.Seeders;
 
-public class ArenaSeeder : IDatabaseSeeder
+public class ArenaSeeder : IFoundationSeeder
 {
 	private const string DefaultArenaName = "Grand Coliseum";
 	private const string EligibilityProgName = "ArenaAlwaysEligible";

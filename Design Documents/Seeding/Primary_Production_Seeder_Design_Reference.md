@@ -139,13 +139,13 @@ Recommended file layout:
 
 ```text
 Design Documents/Seeding/Primary_Production_Seeder_Design_Reference.md
-DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.PrimaryProductionTools.cs
-DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.PrimaryProduction.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.Projects.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.Progs.cs
-DatabaseSeeder Unit Tests/PrimaryProductionSeederTests.cs
-DatabaseSeeder Unit Tests/ItemSeederPrimaryProductionCraftingTests.cs
+ItemSeeder/Seeders/ItemSeeder/ItemSeeder.PrimaryProductionTools.cs
+ItemSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.PrimaryProduction.cs
+ItemSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs
+ItemSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.Projects.cs
+ItemSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.Progs.cs
+ItemSeeder Unit Tests/PrimaryProductionSeederTests.cs
+ItemSeeder Unit Tests/ItemSeederPrimaryProductionCraftingTests.cs
 MudSharpCore/Work/Projects/Actions/CommodityOutputAction.cs
 ```
 

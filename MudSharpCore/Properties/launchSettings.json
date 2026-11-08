@@ -77,7 +77,7 @@
     },
     "Armageddon": {
       "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=armageddon_test;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=armageddon_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

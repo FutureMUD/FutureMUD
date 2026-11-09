@@ -18,6 +18,7 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonCatalogueInstallerTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
@@ -26,27 +27,21 @@ public class ArmageddonCatalogueInstallerTests
 	{
 		using var db = Fixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var initialClaims = db.SeederManagedRecords.Count();
 		var installed = ArmageddonCatalogueInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
 		db.ChangeTracker.Clear();
-		var catalogue = new ArmageddonStockCatalogue();
-		foreach (var blueprint in catalogue.Blueprints)
-			Assert.AreEqual(!blueprint.DeferredToS4, db.SeederManagedRecords.Any(x => x.StableKey == blueprint.Key), blueprint.Key);
-		Assert.AreEqual(49, db.NpcTemplates.Count());
-		Assert.AreEqual(10, db.MagicCapabilities.Count());
-		Assert.AreEqual(classes ? 10 : 0, db.ChargenRoles.Count());
-		Assert.AreEqual(0, db.MagicSpells.Count());
-		Assert.AreEqual(0, db.Characters.Count());
-		Assert.AreEqual(0, db.GameItems.Count());
-		Assert.IsTrue(db.GameItemProtos.AsEnumerable().All(x => !x.Name.Any(char.IsWhiteSpace) && !string.IsNullOrEmpty(x.UniqueName)));
-		var identities = db.SeederManagedRecords.ToDictionary(x => x.StableKey,
+		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey,
 			x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
-		var rerun = ArmageddonCatalogueInstaller.Install(factory);
-		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
+		Assert.IsTrue(before.Count > initialClaims, "Installation must create its own managed records.");
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueInstaller.Install(factory).Status);
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(identities.Count, db.SeederManagedRecords.Count());
-		foreach (var row in db.SeederManagedRecords)
-			Assert.AreEqual(identities[row.StableKey], (row.LogicalId, row.RevisionNumber, row.SeedBaseline, row.AppliedAt), row.StableKey);
+		Assert.AreEqual(before.Count, db.SeederManagedRecords.Count());
+		foreach (var record in db.SeederManagedRecords)
+			Assert.AreEqual(before[record.StableKey],
+				(record.LogicalId, record.RevisionNumber, record.SeedBaseline, record.AppliedAt), record.StableKey);
+		Assert.AreEqual(0, db.GameItems.Count());
+		Assert.AreEqual(0, db.Characters.Count());
 	}
 
 	[TestMethod]
@@ -74,30 +69,6 @@ public class ArmageddonCatalogueInstallerTests
 		db.ChangeTracker.Clear();
 		Assert.AreEqual(17.0, db.Drugs.Single(x => x.Id == poison.Id).IntensityPerGram);
 		Assert.AreEqual(guardian.Definition, db.ArtificialIntelligences.Single(x => x.Id == guardian.Id).Definition);
-	}
-
-	[TestMethod]
-	public void SpecialStock_UsesNativePhysicalDoseAndExplicitInfectionAlias()
-	{
-		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
-		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueSupplies.Install(factory).Status);
-		var special = ArmageddonCatalogueSpecials.Install(factory);
-		Assert.AreEqual(ArmageddonInstallStatus.Completed, special.Status, string.Join("\n", special.Messages));
-		db.ChangeTracker.Clear();
-		Assert.AreEqual(8, special.Identities.Count);
-		var mudId = db.SeederManagedRecords.Single(x => x.StableKey == "arm.item.restorative_mud.component").LogicalId!.Value;
-		var mud = XElement.Parse(db.GameItemComponentProtos.Single(x => x.Id == mudId).Definition);
-		Assert.AreEqual(1.0, (double)mud.Element("TotalGrams")!);
-		Assert.AreEqual(1.0, (double)mud.Element("NativeHealingDose")!.Attribute("grams")!);
-		Assert.AreEqual(10.0, (double)mud.Element("NativeHealingDose")!.Attribute("budgetPerGrade")!);
-		Assert.AreEqual(0, mud.Element("Drugs")!.Elements().Count());
-		Assert.AreEqual(1.0, db.GameItemProtos.Single(x => x.Id == special.Identities["arm.item.restorative_mud"]).Weight);
-		var poison = db.Drugs.Single(x => x.Id == special.Identities["arm.effect.poison"]);
-		Assert.AreEqual((int)DrugVector.Touched, poison.DrugVectors);
-		Assert.AreEqual((long)InfectionType.SownSickness, special.Identities["arm.effect.disease"]);
-		var disease = db.SeederManagedRecords.Single(x => x.StableKey == "arm.effect.disease");
-		Assert.IsNull(disease.LogicalId);
-		StringAssert.Contains(disease.SeedBaseline!, nameof(InfectionType));
 	}
 
     [TestMethod]

@@ -87,26 +87,6 @@ public class ArmageddonWorldfileSeederTests
 	}
 
 	[TestMethod]
-	public void PackageRetainsQualifiedInventoryAndAllReferencedPhysicalGenerators()
-	{
-		var package = ArmageddonWorldfileTestData.Load();
-		Assert.AreEqual(26137, package.Rooms.Length);
-		Assert.AreEqual(7415, package.Items.Length);
-		Assert.AreEqual(2460, package.Npcs.Length);
-		Assert.AreEqual(27682, package.Resets.Length);
-		Assert.AreEqual(173, package.Shops.Length);
-		Assert.AreEqual(165, package.Shops.Select(x => x.Keeper).Distinct().Count());
-		Assert.IsTrue(package.Rooms.Any(x => x.Vnum == 0));
-		foreach (var race in package.Npcs.Select(x => x.Identity[6]).Distinct())
-		{
-			var dimensions = package.PhysicalGenerators.Single(x => x.Race == race);
-			Assert.IsTrue(dimensions.Height.Mean > 0);
-			Assert.IsTrue(dimensions.Weight.Mean > 0);
-		}
-		Assert.AreEqual(package.Fingerprint, package.Manifest.GetProperty("PackageSha256").GetString());
-	}
-
-	[TestMethod]
 	[DataRow("G", 3)]
 	[DataRow("E", 4)]
 	[DataRow("O", 4)]

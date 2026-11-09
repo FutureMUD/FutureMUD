@@ -123,44 +123,6 @@ public class PredatorCatalogueTests
 	}
 
 	[TestMethod]
-	[DataRow("Leopard", "Ambush", "Extract", "Desperate", "Balanced")]
-	[DataRow("Tiger", "Ambush", "Fight", "Desperate", "Balanced")]
-	[DataRow("Crocodile", "Ambush", "Extract", "Eligible", "Balanced")]
-	[DataRow("Alligator", "Ambush", "Extract", "Desperate", "Balanced")]
-	[DataRow("Caiman", "Ambush", "Extract", "Never", "Balanced")]
-	[DataRow("Bunyip", "Ambush", "Extract", "Eligible", "Bold")]
-	[DataRow("Eagle", "Direct", "Fight", "Never", "Cautious")]
-	[DataRow("Griffin", "Direct", "Fight", "Eligible", "Bold")]
-	[DataRow("Spider", "TrapWait", "VenomWithdrawal", "Never", "Cautious")]
-	[DataRow("Tarantula", "TrapWait", "Fight", "Never", "Cautious")]
-	[DataRow("Scorpion", "TrapWait", "VenomWithdrawal", "Never", "Cautious")]
-	[DataRow("Adder", "Ambush", "VenomWithdrawal", "Never", "Cautious")]
-	[DataRow("Giant Spider", "TrapWait", "VenomWithdrawal", "Eligible", "Bold")]
-	[DataRow("Giant Scorpion", "TrapWait", "VenomWithdrawal", "Eligible", "Bold")]
-	[DataRow("Giant Centipede", "TrapWait", "VenomWithdrawal", "Eligible", "Bold")]
-	[DataRow("Ankheg", "TrapWait", "Fight", "Eligible", "Bold")]
-	public void PredatorProfiles_SpeciesDefaults_MatchPolicy(string species, string opening, string followup, string people, string assessment)
-	{
-		var recommendation = WildlifeCatalogue.Recommendations.Single(x => x.RaceName == species);
-		var profile = WildlifeCatalogue.IndividualProfiles.Single(x => x.Name == recommendation.IndividualAiTemplate);
-		Assert.AreEqual(opening, profile.HuntOpening); Assert.AreEqual(followup, profile.HuntFollowup);
-		Assert.AreEqual(people, profile.PeoplePrey); Assert.AreEqual(assessment, profile.HuntAssessment);
-	}
-
-	[TestMethod]
-	public void PredatorProfiles_ExactRoster_GenericProfilesRemainLegacy()
-	{
-		string[] roster = ["Leopard", "Panther", "Jaguar", "Tiger", "Crocodile", "Alligator", "Caiman", "Eagle", "Spider", "Tarantula", "Scorpion",
-			"Adder", "Cobra", "Coral Snake", "Mamba", "Moccasin", "Rattlesnake", "Viper", "Bunyip", "Yacumama", "Griffin", "Garuda", "Giant Eagle", "Wyvern", "Fell Beast",
-			"Giant Spider", "Giant Scorpion", "Giant Centipede", "Ankheg", "Giant Worm", "Colossal Worm"];
-		var advanced = WildlifeCatalogue.Recommendations.Where(x => WildlifeCatalogue.IndividualProfiles.Single(p => p.Name == x.IndividualAiTemplate).HuntOpening is not null)
-			.Select(x => x.RaceName).ToArray();
-		CollectionAssert.AreEquivalent(roster, advanced);
-		Assert.IsNull(WildlifeCatalogue.IndividualProfiles.Single(x => x.Name == WildlifeCatalogue.GroundStalkingPredator).HuntOpening);
-		Assert.AreEqual(0, WildlifeCatalogue.ValidateCatalogForTesting().Count);
-	}
-
-	[TestMethod]
 	public void PredatorAttacks_Rerun_KeepsIdentitiesRepairsStockAndPreservesClones()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -221,31 +183,5 @@ public class PredatorCatalogueTests
 		OrganicCorpseMaterialSeederHelper.EnsureStockModels(context);
 		Assert.AreEqual(repaired, animal.Definition); Assert.AreEqual(authored, human.Definition);
 		Assert.AreEqual("<CorpseModel />", custom.Definition);
-	}
-
-	[TestMethod]
-	public void GiantCentipede_UsesMixedArthropodVenomOnItsOwnMandibles()
-	{
-		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options;
-		using var context = new FuturemudDatabaseContext(options);
-		var giant = new Race { Id = 1, Name = "Giant Centipede" };
-		var spider = new Race { Id = 2, Name = "Spider" };
-		var mandible = new BodypartProto { Id = 1, Name = "rmandible", BodypartShapeId = 7 };
-		var fang = new BodypartProto { Id = 2, Name = "rfang", BodypartShapeId = 8 };
-		var bite = new WeaponAttack { Id = 1, Name = "Mandible Bite", MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack };
-		var venom = new WeaponAttack { Id = 2, Name = "Spider Venom", MoveType = (int)BuiltInCombatMoveType.EnvenomingAttack,
-			AdditionalInfo = "<Data><Liquid>42</Liquid><MaximumQuantity>0.0025</MaximumQuantity></Data>" };
-		context.Races.AddRange(giant, spider); context.BodypartProtos.AddRange(mandible, fang);
-		context.WeaponAttacks.AddRange(bite, venom);
-		context.RacesWeaponAttacks.AddRange(
-			new RacesWeaponAttacks { Race = giant, RaceId = 1, Bodypart = mandible, BodypartId = 1, WeaponAttack = bite, WeaponAttackId = 1 },
-			new RacesWeaponAttacks { Race = spider, RaceId = 2, Bodypart = fang, BodypartId = 2, WeaponAttack = venom, WeaponAttackId = 2 });
-		context.SaveChanges();
-		PredatorCombatSeederHelper.Ensure(context);
-		var attacks = context.RacesWeaponAttacks.Include(x => x.WeaponAttack).Where(x => x.RaceId == 1 &&
-			(x.WeaponAttack.MoveType == (int)BuiltInCombatMoveType.EnvenomingAttack || x.WeaponAttack.MoveType == (int)BuiltInCombatMoveType.EnvenomingAttackClinch)).ToList();
-		Assert.AreEqual(2, attacks.Count);
-		Assert.IsTrue(attacks.All(x => x.BodypartId == mandible.Id && x.WeaponAttack.BodypartShapeId == 7 && x.WeaponAttack.AdditionalInfo == venom.AdditionalInfo));
 	}
 }

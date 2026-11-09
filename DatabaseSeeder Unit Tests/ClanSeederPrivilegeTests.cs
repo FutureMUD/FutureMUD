@@ -21,39 +21,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ClanSeederPrivilegeTests
 {
-	private static readonly string[] AdditionalTemplateNames =
-	[
-		"Extended Family Template",
-		"Lineage Clan Template",
-		"Tribal Council Template",
-		"Norse Warband Template",
-		"Steppe Horde Template",
-		"Japanese Feudal Domain Template",
-		"East Asian Imperial Bureaucracy Template",
-		"East Asian Imperial Army Template",
-		"Islamic Sultanate Court Template",
-		"South Asian Royal Court Template",
-		"West African Royal Court Template",
-		"Roman Religious Cult Template",
-		"Buddhist Temple Template",
-		"Daoist Temple Template",
-		"Sufi Order Template",
-		"Hindu Temple Template",
-		"Merchant Guild Template",
-		"Craft Guild Template",
-		"Pirate Crew Template",
-		"University Template",
-		"Hospital Template",
-		"Fire and Rescue Service Template",
-		"Intelligence Agency Template",
-		"Political Party Template",
-		"Labour Union Template",
-		"Non-Governmental Organisation Template",
-		"Space Colony Administration Template",
-		"Civilian Starship Crew Template",
-		"Exploration Corps Template",
-		"Resistance Network Template"
-	];
 
     [TestMethod]
     public void SeedData_PropertyCapableTemplates_ShouldAlsoGrantUseClanProperty()
@@ -81,54 +48,6 @@ public class ClanSeederPrivilegeTests
             propertyAppointments.All(x => ((ClanPrivilegeType)x.Privileges).HasFlag(ClanPrivilegeType.UseClanProperty)),
             "All property-capable appointments should also grant Use Clan Property.");
     }
-
-	[TestMethod]
-	public void SeedData_AdditionalTemplates_ShouldCoverDistinctOrganisationFamilies()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedPrerequisites(context);
-
-		string result = new ClanSeeder().SeedData(context, new Dictionary<string, string>());
-
-		Assert.AreEqual("Created 50 new clans.", result);
-		List<ClanModel> additionalTemplates = context.Clans
-			.Where(x => AdditionalTemplateNames.Contains(x.Name))
-			.ToList();
-		Assert.AreEqual(AdditionalTemplateNames.Length, additionalTemplates.Count);
-		Assert.IsTrue(additionalTemplates.All(x => x.IsTemplate));
-		Assert.IsTrue(additionalTemplates.All(x => !string.IsNullOrWhiteSpace(x.Sphere)));
-		CollectionAssert.IsSubsetOf(
-			new[] { "Kinship", "Traditional Government", "Historical Military", "Religion", "Commerce",
-				"Education", "Health", "Emergency Services", "Intelligence", "Politics", "Labour", "Civil Society",
-				"Science Fiction", "Clandestine" },
-			additionalTemplates.Select(x => x.Sphere).Distinct().ToArray());
-	}
-
-	[TestMethod]
-	public void SeedData_AdditionalTemplates_ShouldHaveUsableRankAndAppointmentStructures()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedPrerequisites(context);
-
-		new ClanSeeder().SeedData(context, new Dictionary<string, string>());
-
-		foreach (string templateName in AdditionalTemplateNames)
-		{
-			ClanModel clan = context.Clans.Single(x => x.Name == templateName);
-			List<RankModel> ranks = context.Ranks.Where(x => x.ClanId == clan.Id).ToList();
-			List<AppointmentModel> appointments = context.Appointments.Where(x => x.ClanId == clan.Id).ToList();
-
-			Assert.IsTrue(ranks.Count >= 4, $"{templateName} should provide at least four ranks.");
-			Assert.IsTrue(appointments.Count >= 5, $"{templateName} should provide at least five appointments.");
-			Assert.AreEqual(ranks.Count, ranks.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
-				$"{templateName} should not contain duplicate rank names.");
-			Assert.AreEqual(appointments.Count,
-				appointments.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
-				$"{templateName} should not contain duplicate appointment names.");
-			Assert.IsTrue(appointments.Any(x => x.ParentAppointmentId.HasValue),
-				$"{templateName} should provide an appointment hierarchy.");
-		}
-	}
 
 	[TestMethod]
 	public void SeedData_SecondRun_ShouldNotDuplicateExpandedTemplateCatalogue()

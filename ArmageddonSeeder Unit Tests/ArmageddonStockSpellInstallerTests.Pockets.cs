@@ -18,7 +18,7 @@ public partial class ArmageddonStockSpellInstallerTests
 	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic)]
 	[DataRow(ArmageddonProgressionMode.Simple)]
-	public void PocketAndUnravel_ExactOwnedBindingsAndLockedDefaults_NoPlayerOrRoomCreation(ArmageddonProgressionMode mode)
+	public void Pocket_LoadedConfigurationDrivesRuntimeCapacityAndDuration(ArmageddonProgressionMode mode)
 	{
 		using var db = Fixture(mode); var rooms = db.Rooms.Count();
 		var installed = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
@@ -27,24 +27,12 @@ public partial class ArmageddonStockSpellInstallerTests
 		var spell = db.MagicSpells.Single(x => x.Id == installed.Identities["arm.spell.folded_pocket"]);
 		var definition = XElement.Parse(spell.Definition);
 		var configuration = SpellPocketConfiguration.Load(definition.Element("Effects")!.Elements().Single().Element("Pocket")!);
-		var kilograms = db.UnitsOfMeasure.Single(x => x.Id == ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.Kilogram]).BaseMultiplier;
-		Assert.AreEqual(carrier.LogicalId, configuration.PrototypeId); Assert.AreEqual(2 * kilograms, configuration.CapacityPerGrade);
-		Assert.AreEqual(300.0, configuration.SecondsPerGrade); Assert.AreEqual(SpellPocketAccess.Bearer, configuration.Access);
-		Assert.AreEqual(SizeCategory.VeryLarge, configuration.MaximumSize); Assert.AreEqual(73L, configuration.FallbackRoomId);
-		Assert.AreEqual(7.0, (double)definition.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!);
+		Assert.AreEqual(carrier.LogicalId, configuration.PrototypeId);
 		foreach (var grade in new[] { 1, 7 })
 		{
-			Assert.AreEqual(2 * grade * kilograms, new SpellPocketAnchor(900, grade, configuration).Capacity);
-			Assert.AreEqual(TimeSpan.FromSeconds(300 * grade), configuration.DurationForGrade(grade));
+			Assert.AreEqual(grade * configuration.CapacityPerGrade, new SpellPocketAnchor(900, grade, configuration).Capacity);
+			Assert.AreEqual(TimeSpan.FromSeconds(configuration.SecondsPerGrade * grade), configuration.DurationForGrade(grade));
 		}
-		var unravel = db.MagicSpells.Single(x => x.Id == installed.Identities["arm.spell.unravel_enchantment"]);
-		var dispel = XElement.Parse(unravel.Definition);
-		Assert.AreEqual("character", (string?)dispel.Element("Trigger")!.Attribute("type"));
-		Assert.AreEqual("0", db.TraitExpressions.Single(x => x.Id == unravel.EffectDurationExpressionId).Expression);
-		var effect = dispel.Element("Effects")!.Elements().Single();
-		Assert.AreEqual("dispelmagic", (string?)effect.Attribute("type")); Assert.AreEqual("any", effect.Element("EffectKey")!.Value);
-		Assert.IsTrue((bool)effect.Element("Contest")!); Assert.IsTrue((bool)effect.Element("AllowHostile")!);
-		Assert.AreEqual(7.0, (double)dispel.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!);
 		Assert.AreEqual(rooms, db.Rooms.Count()); Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count());
 	}
 

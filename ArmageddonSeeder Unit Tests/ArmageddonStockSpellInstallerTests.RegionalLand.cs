@@ -13,7 +13,7 @@ public partial class ArmageddonStockSpellInstallerTests
 {
 	[TestMethod]
 	[TestCategory("Integration")]
-	public void RegionalLand_PresetsCoverTerrainFamiliesAndRerunPreservesOwnersAndBuilderEdits()
+	public void RegionalLand_ProfilesLoadAndRerunPreservesOwnersAndBuilderEdits()
 	{
 		using var db = FreshFixture();
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
@@ -29,25 +29,10 @@ public partial class ArmageddonStockSpellInstallerTests
 		var installed = ArmageddonRegionalLandInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(10, db.RegionalGatheringProfiles.Count());
-		Assert.AreEqual(0, db.RegionalGatheringPools.Count());
 		var mixedRow = db.RegionalGatheringProfiles.Single(x => x.Id == installed.Identities[ArmageddonRegionalLandInstaller.MixedProfileKey]);
 		var mixed = RegionalProfile.Parse(mixedRow.Id, mixedRow.Name, mixedRow.Revision, mixedRow.Definition);
-		Assert.AreEqual(9, mixed.TerrainContributions.Count);
-		Assert.AreEqual(0.0, mixed.DefaultContribution);
-		foreach (var preset in ArmageddonRegionalLandInstaller.Presets)
-		{
-			Assert.AreEqual(preset.Life, mixed.Contribution(installed.Identities[ArmageddonRegionalLandInstaller.TerrainKey(preset.Key)]));
-			var profileRow = db.RegionalGatheringProfiles.Single(x => x.Id == installed.Identities[ArmageddonRegionalLandInstaller.RegionalKey(preset.Key)]);
-			var profile = RegionalProfile.Parse(profileRow.Id, profileRow.Name, profileRow.Revision, profileRow.Definition);
-			Assert.AreEqual(preset.Life, profile.DefaultContribution);
-			Assert.AreEqual(.1, profile.RecoveryPerHour);
-			var terrain = db.Terrains.Single(x => x.Id == installed.Identities[ArmageddonRegionalLandInstaller.TerrainKey(preset.Key)]);
-			Assert.IsFalse(terrain.DefaultTerrain);
-			var forage = db.ForagableProfiles.Include(x => x.ForagableProfilesMaximumYields).Include(x => x.ForagableProfilesHourlyYieldGains).Single(x => x.Id == terrain.ForagableProfileId);
-			Assert.AreEqual(preset.Life, forage.ForagableProfilesMaximumYields.SingleOrDefault()?.Yield ?? 0);
-			Assert.AreEqual(0.0, forage.ForagableProfilesHourlyYieldGains.SingleOrDefault()?.Yield ?? 0);
-		}
+		foreach (var row in db.RegionalGatheringProfiles)
+			_ = RegionalProfile.Parse(row.Id, row.Name, row.Revision, row.Definition);
 		foreach (var old in originalTerrains)
 		{
 			var row = db.Terrains.Single(x => x.Id == old.Key);

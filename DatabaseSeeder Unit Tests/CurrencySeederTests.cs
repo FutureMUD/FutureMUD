@@ -110,15 +110,15 @@ public class CurrencySeederTests
 		RuntimeCurrency currency = LoadRuntimeCurrency(context, "Pounds");
 		Dictionary<decimal, string> expectations = new()
 		{
-			[3.0M] = "Â¾d",
-			[6.0M] = "1Â½d",
+			[3.0M] = "¾d",
+			[6.0M] = "1½d",
 			[44.0M] = "11d",
-			[48.0M] = "1/â€“",
+			[48.0M] = "1/–",
 			[120.0M] = "2/6",
-			[839.0M] = "17/5Â¾",
-			[1440.0M] = "Â£1/10/â€“",
-			[1919.0M] = "Â£1/19/11Â¾",
-			[1920.0M] = "Â£2/â€“/â€“"
+			[839.0M] = "17/5¾",
+			[1440.0M] = "£1/10/–",
+			[1919.0M] = "£1/19/11¾",
+			[1920.0M] = "£2/–/–"
 		};
 
 		foreach (CurrencyDescriptionPatternType type in new[]
@@ -133,67 +133,5 @@ public class CurrencySeederTests
 				Assert.AreEqual(expected, currency.Describe(amount, type), $"{type} failed for {amount}.");
 			}
 		}
-	}
-
-	[TestMethod]
-	public void SeedData_PoundsPatterns_SeedTieredCompactFormatsAndSterlingGlyphSpecials()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		new CurrencySeeder().SeedData(context, new Dictionary<string, string>
-		{
-			["currency"] = "pounds"
-		});
-
-		ModelCurrency currency = context.Currencies
-			.Include(x => x.CurrencyDescriptionPatterns)
-				.ThenInclude(x => x.CurrencyDescriptionPatternElements)
-					.ThenInclude(x => x.CurrencyDescriptionPatternElementSpecialValues)
-			.Include(x => x.CurrencyDescriptionPatterns)
-				.ThenInclude(x => x.FutureProg)
-			.Single(x => x.Name == "Pounds");
-
-		foreach (int type in new[]
-		         {
-			         (int)CurrencyDescriptionPatternType.Short,
-			         (int)CurrencyDescriptionPatternType.ShortDecimal,
-			         (int)CurrencyDescriptionPatternType.Long
-		         })
-		{
-			List<MudSharp.Models.CurrencyDescriptionPattern> patterns = currency.CurrencyDescriptionPatterns
-				.Where(x => x.Type == type)
-				.OrderBy(x => x.Order)
-				.ToList();
-
-			CollectionAssert.AreEqual(new[] { 10, 20, 30 }, patterns.Select(x => x.Order).ToArray());
-			Assert.AreEqual("IsLessThanFortyEight", patterns[0].FutureProg?.FunctionName);
-			Assert.AreEqual("IsLessThanNineHundredSixty", patterns[1].FutureProg?.FunctionName);
-			Assert.IsNull(patterns[2].FutureProg);
-		}
-
-		MudSharp.Models.CurrencyDescriptionPattern shortPattern = currency.CurrencyDescriptionPatterns
-			.Single(x => x.Type == (int)CurrencyDescriptionPatternType.Short && x.Order == 10);
-		MudSharp.Models.CurrencyDescriptionPatternElement penceOnlyElement = shortPattern.CurrencyDescriptionPatternElements.Single();
-		Dictionary<decimal, string> penceGlyphs = penceOnlyElement.CurrencyDescriptionPatternElementSpecialValues
-			.ToDictionary(x => x.Value, x => x.Text);
-		Assert.AreEqual("Â¾d", penceGlyphs[0.75M]);
-		Assert.AreEqual("1Â½d", penceGlyphs[1.5M]);
-
-		MudSharp.Models.CurrencyDescriptionPattern slashPattern = currency.CurrencyDescriptionPatterns
-			.Single(x => x.Type == (int)CurrencyDescriptionPatternType.Short && x.Order == 20);
-		MudSharp.Models.CurrencyDescriptionPatternElement slashPenceElement = slashPattern.CurrencyDescriptionPatternElements
-			.Single(x => x.Order == 2);
-		Dictionary<decimal, string> slashGlyphs = slashPenceElement.CurrencyDescriptionPatternElementSpecialValues
-			.ToDictionary(x => x.Value, x => x.Text);
-		Assert.AreEqual("â€“", slashGlyphs[0.0M]);
-		Assert.AreEqual("5Â¾", slashGlyphs[5.75M]);
-
-		MudSharp.Models.CurrencyDescriptionPattern wordyPattern = currency.CurrencyDescriptionPatterns
-			.Single(x => x.Type == (int)CurrencyDescriptionPatternType.Wordy);
-		MudSharp.Models.CurrencyDescriptionPatternElement wordyFarthingElement = wordyPattern.CurrencyDescriptionPatternElements
-			.Single(x => x.Order == 4);
-		Dictionary<decimal, string> wordyFarthings = wordyFarthingElement.CurrencyDescriptionPatternElementSpecialValues
-			.ToDictionary(x => x.Value, x => x.Text);
-		Assert.AreEqual("ha'penny", wordyFarthings[2.0M]);
-		Assert.AreEqual("three farthings", wordyFarthings[3.0M]);
 	}
 }

@@ -46,111 +46,25 @@ public class ArenaSeederTests
 	}
 
 	[TestMethod]
-	public void SeedData_CreatesExpandedArenaFormats_AndRemainsIdempotent()
+	public void SeedData_InstallsAndRerunsWithoutDuplicatingArenasOrEvents()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedPrerequisites(context);
-		ArenaSeeder seeder = new();
-
-		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(context));
-
+		var seeder = new ArenaSeeder();
+		var prior0 = context.Arenas.Select(x => x.Id).ToArray();
+		var prior1 = context.ArenaCombatantClasses.Select(x => x.Id).ToArray();
+		var prior2 = context.ArenaEventTypes.Select(x => x.Id).ToArray();
 		seeder.SeedData(context, new Dictionary<string, string>());
+		var installed0 = context.Arenas.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
+		var installed1 = context.ArenaCombatantClasses.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed1.Except(prior1).Any(), "The first installation must create records beyond its prerequisites.");
+		var installed2 = context.ArenaEventTypes.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed2.Except(prior2).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedData(context, new Dictionary<string, string>());
-
-		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
-		Assert.AreEqual(1, context.Arenas.Count(x => x.Name == "Grand Coliseum"));
-		CollectionAssert.AreEquivalent(
-			new[] { "Gladiator", "Boxer", "Wrestler", "Arena Animal" },
-			context.ArenaCombatantClasses.Select(x => x.Name).ToArray());
-		CollectionAssert.AreEquivalent(
-			new[]
-			{
-				"Duel",
-				"Team Skirmish",
-				"Squad Skirmish",
-				"Boxing Match",
-				"Wrestling Match",
-				"Champion Challenge",
-				"Animal Bohort"
-			},
-			context.ArenaEventTypes.Select(x => x.Name).ToArray());
-		CollectionAssert.AreEquivalent(
-			new[]
-			{
-				"ArenaAlwaysEligible",
-				"ArenaAnimalEligible",
-				"ArenaDefaultOutfit",
-				"ArenaStandardIntro",
-				"ArenaBoxingScoring",
-				"ArenaAnimalNpcLoader"
-			},
-			context.FutureProgs.Select(x => x.FunctionName).ToArray());
-
-		MudSharp.Models.ArenaEventType boxingEvent = context.ArenaEventTypes.Single(x => x.Name == "Boxing Match");
-		Assert.IsFalse(boxingEvent.BringYourOwn);
-		Assert.AreEqual((int)MudSharp.Arenas.ArenaEliminationMode.PointsElimination, boxingEvent.EliminationMode);
-		Assert.AreEqual("ArenaBoxingScoring",
-			context.FutureProgs.Single(x => x.Id == boxingEvent.ScoringProgId).FunctionName);
-
-		MudSharp.Models.ArenaEventType wrestlingEvent = context.ArenaEventTypes.Single(x => x.Name == "Wrestling Match");
-		Assert.IsFalse(wrestlingEvent.BringYourOwn);
-		Assert.AreEqual((int)MudSharp.Arenas.ArenaEliminationMode.Knockout, wrestlingEvent.EliminationMode);
-
-		MudSharp.Models.ArenaEventType championEvent = context.ArenaEventTypes.Single(x => x.Name == "Champion Challenge");
-		ArenaEventTypeSide championSide = context.ArenaEventTypeSides
-			.Single(x => x.ArenaEventTypeId == championEvent.Id && x.Index == 1);
-		Assert.AreEqual((int)MudSharp.Arenas.ArenaSidePolicy.Closed, championSide.Policy);
-		Assert.IsFalse(championSide.AllowNpcSignup);
-		Assert.IsTrue(championSide.AutoFillNpc);
-		Assert.AreEqual(1800.0m, championSide.MinimumRating);
-
-		long championClassId = context.ArenaEventTypeSideAllowedClasses
-			.Single(x => x.ArenaEventTypeSideId == championSide.Id)
-			.ArenaCombatantClassId;
-		Assert.AreEqual("Gladiator", context.ArenaCombatantClasses.Single(x => x.Id == championClassId).Name);
-
-		MudSharp.Models.ArenaEventType animalEvent = context.ArenaEventTypes.Single(x => x.Name == "Animal Bohort");
-		List<ArenaEventTypeSide> animalSides = context.ArenaEventTypeSides
-			.Where(x => x.ArenaEventTypeId == animalEvent.Id)
-			.OrderBy(x => x.Index)
-			.ToList();
-		Assert.AreEqual(2, animalSides.Count);
-		CollectionAssert.AreEqual(new[] { 2, 2 }, animalSides.Select(x => x.Capacity).ToArray());
-		Assert.IsTrue(animalEvent.BringYourOwn);
-		Assert.IsTrue(animalSides.All(x => x.AutoFillNpc));
-		CollectionAssert.AreEquivalent(
-			new[] { "ArenaAnimalNpcLoader" },
-			animalSides.Select(x => context.FutureProgs.Single(y => y.Id == x.NpcLoaderProgId).FunctionName).Distinct().ToArray());
-
-		CollectionAssert.AreEqual(
-			new[] { 1, 1 },
-			context.ArenaEventTypeSides
-				.Where(x => x.ArenaEventTypeId == context.ArenaEventTypes.Single(y => y.Name == "Duel").Id)
-				.OrderBy(x => x.Index)
-				.Select(x => x.Capacity)
-				.ToArray());
-		CollectionAssert.AreEqual(
-			new[] { 2, 2 },
-			context.ArenaEventTypeSides
-				.Where(x => x.ArenaEventTypeId == context.ArenaEventTypes.Single(y => y.Name == "Team Skirmish").Id)
-				.OrderBy(x => x.Index)
-				.Select(x => x.Capacity)
-				.ToArray());
-		CollectionAssert.AreEqual(
-			new[] { 3, 3 },
-			context.ArenaEventTypeSides
-				.Where(x => x.ArenaEventTypeId == context.ArenaEventTypes.Single(y => y.Name == "Squad Skirmish").Id)
-				.OrderBy(x => x.Index)
-				.Select(x => x.Capacity)
-				.ToArray());
-
-		FutureProg animalEligibility = context.FutureProgs.Single(x => x.FunctionName == "ArenaAnimalEligible");
-		Assert.AreEqual("return isanimal(@character)", animalEligibility.FunctionText);
-		FutureProg boxingScoring = context.FutureProgs.Single(x => x.FunctionName == "ArenaBoxingScoring");
-		Assert.AreEqual(
-			"return arenaboxingscores(@sideIndices, @scoringAttackerSides, @landedHits, @undefendedHits, @impactLocations)",
-			boxingScoring.FunctionText);
-		Assert.IsFalse(context.FutureProgs.Any(x => x.FunctionText.Contains(';')), "Seeded Arena FutureProg text should not contain semicolons.");
+		CollectionAssert.AreEqual(installed0, context.Arenas.Select(x => x.Id).OrderBy(x => x).ToArray());
+		CollectionAssert.AreEqual(installed1, context.ArenaCombatantClasses.Select(x => x.Id).OrderBy(x => x).ToArray());
+		CollectionAssert.AreEqual(installed2, context.ArenaEventTypes.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]

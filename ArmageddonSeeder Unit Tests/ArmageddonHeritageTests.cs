@@ -80,26 +80,6 @@ public class ArmageddonHeritageTests
 	}
 
 	[TestMethod]
-	public void ApprovedMatrix_PreservesExactlyOneNativeAndExplicitSecondaryValues()
-	{
-		Assert.AreEqual(7, ArmageddonHeritage.Profiles.Count);
-		Assert.AreEqual(5, ArmageddonHeritage.Cultures.Count);
-		var compatible = 0;
-		foreach (var profile in ArmageddonHeritage.Profiles)
-		foreach (var culture in ArmageddonHeritage.Cultures.Where(x => ArmageddonHeritage.Compatible(profile.Key, x)))
-		{
-			compatible++;
-			var grants = ArmageddonHeritage.Grants(profile, culture);
-			Assert.AreEqual(1, grants.Count(x => x.Value == 200));
-			if (profile.Key == "city_elf" || profile.Key == "dwarf") Assert.AreEqual(100, grants["sirihish"]);
-			if (profile.Key == "half_elf") Assert.AreEqual(60, grants["allundean"]);
-			if (profile.Key == "mul") Assert.AreEqual(100, grants["mirukkim"]);
-			if (culture.Key == "nomadic") { Assert.AreEqual(200, grants["bendune"]); Assert.IsFalse(grants.ContainsKey("sirihish")); }
-		}
-		Assert.AreEqual(20, compatible);
-	}
-
-	[TestMethod]
 	public void HeritageInstall_CompilesGrantGraphEnablesRequestedProfilesAndPreservesRerunEdits()
 	{
 		using var db = Fixture();

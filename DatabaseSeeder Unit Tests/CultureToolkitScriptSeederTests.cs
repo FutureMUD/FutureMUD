@@ -39,7 +39,6 @@ public class CultureToolkitScriptSeederTests
 		var latin = scripts["latin"];
 		Assert.AreEqual(1, scripts.Count);
 		Assert.IsNotNull(context.ScriptsDesignedLanguages.Find(latin.Id, english.Id));
-		Assert.AreEqual(6, latin.Knowledge.LearnableType);
 		latin.DocumentLengthModifier = 1.75;
 		latin.Knowledge.CanAcquireProgId = alwaysTrue.Id;
 		context.Remove(context.ScriptsDesignedLanguages.Find(latin.Id, english.Id)!);

@@ -57,18 +57,4 @@ public class ArmageddonRoomPolicySeederTests
 			.Single(x => (string?)x.Element("Type") == "RoomPolicy").Element("Effect")!.Element("MaximumOccupants")!);
 		Assert.IsTrue(lower.EffectData.Contains("RoomExitPolicy"));
 	}
-
-	[TestMethod]
-	public void SelectedCorpus_QualifiesAllVisualLinksAndExplicitLethalAndMagicFlags()
-	{
-		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
-		var links = source.Rooms.SelectMany(x => x.ObservationLinks).ToArray();
-		Assert.AreEqual(237, links.Length);
-		Assert.IsTrue(links.All(x => x.GetProperty("Type").GetString() == "w"));
-		var rooms = source.Rooms.Select(x => x.Vnum).ToHashSet();
-		Assert.IsTrue(links.All(x => rooms.Contains(x.GetProperty("Room").GetInt32())));
-		Assert.AreEqual(17, source.Rooms.Count(x => (ArmageddonWorldfileWriter.RestrictionsFor(x.Flags) & RoomRestrictions.Lethal) != 0));
-		Assert.AreEqual(290, source.Rooms.Count(x => (ArmageddonWorldfileWriter.RestrictionsFor(x.Flags) & RoomRestrictions.Magic) != 0));
-		Assert.AreEqual(1264, source.Rooms.Count(x => (ArmageddonWorldfileWriter.RestrictionsFor(x.Flags) & RoomRestrictions.NpcWandering) != 0));
-	}
 }

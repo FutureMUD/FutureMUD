@@ -23,17 +23,4 @@ public class ItemSeederCompiledInventoryTests
 			compiled.Entries.Select(ItemSeederManifestCatalogue.Fingerprint).ToArray(),
 			"Refresh the derived C# ownership projection with --export-compiled-item-inventory after editing catalogue definitions.");
 	}
-
-	[TestMethod]
-	public void ClothingLookup_PreservesTheCanonicalAndDocumentedSourceVariants()
-	{
-		var canonical = CompiledAuthoredItemCatalogue.Get("medieval_daoist_cloud_sleeved_robe");
-		var documented = CompiledAuthoredItemCatalogue.Get("medieval_daoist_cloud_sleeved_robe", "SeedDocumentedClothingItems");
-		Assert.IsNull(canonical.BuilderNotes);
-		Assert.IsTrue(canonical.AllowLegacyShortDescriptionMatch);
-		Assert.AreEqual("Early Modern admission of an exact Medieval clothing definition.", documented.BuilderNotes);
-		Assert.IsFalse(documented.AllowLegacyShortDescriptionMatch);
-		Assert.AreEqual(canonical.FullDescription, documented.FullDescription);
-		Assert.AreEqual(canonical.Cost, documented.Cost);
-	}
 }

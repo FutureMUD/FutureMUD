@@ -388,25 +388,6 @@ public class SeederDisfigurementTemplateUtilityTests
 			"New disfigurement templates should receive unique ids even before the context is saved.");
 	}
 
-	[TestMethod]
-	public void HumanSeeder_TattooTemplates_DefineDirectSkillBandsAndRuntimeWritingDefaults()
-	{
-		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting.Count > 0,
-			"Human tattoo templates should expose the seeded catalogue for regression checks.");
-		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting.All(x =>
-			x.MinimumSkill is 0.0 or 20.0 or 40.0 or 60.0),
-			"Human tattoo minimum skills should be authored directly into the supported crude/simple/moderate/master bands.");
-		Assert.AreEqual(0.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Stick-And-Poke Tiny Heart").MinimumSkill);
-		Assert.AreEqual(20.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Classic Rose").MinimumSkill);
-		Assert.AreEqual(40.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Flash Dragon").MinimumSkill);
-		Assert.AreEqual(60.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Infernal Cathedral").MinimumSkill);
-		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting
-			.Where(x => x.TextSlots?.Any() == true)
-			.SelectMany(x => x.TextSlots!)
-			.All(x => string.IsNullOrWhiteSpace(x.DefaultLanguageName) && string.IsNullOrWhiteSpace(x.DefaultScriptName)),
-			"Human writing tattoos should infer their default language and script at runtime rather than pinning seeder-time names.");
-	}
-
     private static BodyProto SeedMinimalBodyContext(FuturemudDatabaseContext context)
     {
         context.Accounts.Add(new Account

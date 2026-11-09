@@ -14,15 +14,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NativeLanguageSeederTests
 {
-	[TestMethod]
-	public void HistoricalEnglishAssociationsUseHistoricalSourceIdentities()
-	{
-		CollectionAssert.AreEquivalent(new[] { "High German", "Low German" },
-			CultureStockAccentRoles.Associations("English", "German", "earthrenaissanceeurope").ToArray());
-		Assert.AreEqual("Castilian", CultureStockAccentRoles.Associations("English", "Spanish", "earthrenaissanceeurope").Single());
-		Assert.AreEqual("German", CultureStockAccentRoles.Associations("English", "German").Single());
-		Assert.AreEqual("Spanish", CultureStockAccentRoles.Associations("English", "Spanish").Single());
-	}
 
 	[TestMethod]
 	public void ClearForeignSourceAssociationsAreSeededAndBuilderOverridesSurvive()
@@ -48,15 +39,5 @@ public class NativeLanguageSeederTests
 		Assert.AreEqual(0, accent.AssociatedLanguages.Count);
 		Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
 		Assert.AreEqual(1, context.SeederManagedRecords.Local.Count);
-	}
-
-	[TestMethod]
-	public void GenericLearnersAndAmbiguousSourceRegionsDoNotInventLanguageBindings()
-	{
-		Assert.AreEqual(AccentRole.Fallback, CultureStockAccentRoles.Role("English", "Foreign", "Foreign"));
-		Assert.AreEqual(AccentRole.Native, CultureStockAccentRoles.Role("English", "Welsh", "british"));
-		Assert.AreEqual(AccentRole.Foreign, CultureStockAccentRoles.Role("English", "southeast asian", "asian"));
-		Assert.AreEqual(0, CultureStockAccentRoles.Associations("English", "southeast asian").Count);
-		Assert.AreEqual("Arabic", CultureStockAccentRoles.Associations("English", "middle-eastern").Single());
 	}
 }

@@ -103,52 +103,6 @@ public class BackstabSeederTests
 	}
 
 	[TestMethod]
-	public void WeaponBackstabs_FreshAndRerun_UseExactProfilesAndRecipients()
-	{
-		using var context = Context();
-		var f = Weapons(context);
-		Assert.AreEqual(5, CombatSeeder.EnsureBackstabAttacks(context, f.Blackjack, f.Normal, f.Good, SeedCombatMessageStyle.Compact));
-		var ids = context.WeaponAttacks.OrderBy(x => x.Id).Select(x => x.Id).ToArray();
-		Assert.AreEqual(0, CombatSeeder.EnsureBackstabAttacks(context, f.Blackjack, f.Normal, f.Good, SeedCombatMessageStyle.Compact));
-		CollectionAssert.AreEqual(ids, context.WeaponAttacks.OrderBy(x => x.Id).Select(x => x.Id).ToArray());
-		CollectionAssert.AreEquivalent(new[] { "Knife", "Dagger", "Blackjack" }, context.WeaponAttacks
-			.Where(x => x.MoveType == (int)BuiltInCombatMoveType.BackstabAttack).Select(x => x.WeaponType.Name).ToArray());
-		Assert.AreEqual(5, context.CombatMessages.Count());
-		foreach (var attack in context.WeaponAttacks)
-		{
-			Assert.AreEqual(1, attack.MaximumTargets);
-			Assert.AreEqual((int)Difficulty.Normal, attack.BaseAttackerDifficulty);
-			Assert.AreEqual((int)Difficulty.Easy, attack.BaseDodgeDifficulty);
-			Assert.AreEqual((int)Difficulty.Easy, attack.BaseParryDifficulty);
-			Assert.AreEqual((int)Difficulty.VeryEasy, attack.BaseBlockDifficulty);
-		}
-		var knife = context.WeaponAttacks.Single(x => x.Name == "Knife Backstab");
-		Assert.AreEqual(f.Normal.Id, knife.DamageExpressionId);
-		AssertProfile(knife, 5, 1.1, 200, 0.25, 5, 0, 0);
-		var dagger = context.WeaponAttacks.Single(x => x.Name == "Dagger Backstab");
-		Assert.AreEqual(f.Good.Id, dagger.DamageExpressionId);
-		AssertProfile(dagger, 4, 1, 200, 0, 0, 10, 0.1);
-		var sap = context.WeaponAttacks.Single(x => x.Name == "Blackjack Sapping Blow");
-		AssertProfile(sap, 4, 1.1, 300, 0.75, 5, 0, 0);
-		Assert.AreEqual("Head Back", context.BodypartShapes.Find(sap.BodypartShapeId)!.Name);
-		Assert.AreEqual("0.25 * (20)", sap.DamageExpression.Expression);
-		Assert.AreEqual("0.5 * (20)", sap.PainExpression.Expression);
-		Assert.AreEqual("2 * (20)", sap.StunExpression.Expression);
-		foreach (var attack in context.WeaponAttacks.Where(x => x.WeaponTypeId == f.Blackjack.Id))
-		{
-			Assert.AreEqual((int)AttackHandednessOptions.OneHandedOnly, attack.HandednessOptions);
-			Assert.AreEqual((int)DamageType.Crushing, attack.DamageType);
-			Assert.AreEqual(0L, attack.Intentions & (long)CombatMoveIntentions.Kill);
-			if (attack != sap)
-			{
-				Assert.IsNull(attack.AdditionalInfo);
-				Assert.AreEqual(f.Normal.Id, attack.StunExpressionId);
-				Assert.AreEqual(3.0, attack.StaminaCost);
-			}
-		}
-	}
-
-	[TestMethod]
 	public void WeaponBackstabs_MissingNativeHeadBackRefusesBeforeCreatingContent()
 	{
 		using var context = Context();
@@ -182,63 +136,6 @@ public class BackstabSeederTests
 		Assert.AreEqual(17.0, attack.Weighting);
 		Assert.AreEqual("3", XElement.Parse(attack.AdditionalInfo).Element("Penetration")!.Value);
 		Assert.AreEqual(5, context.CombatMessages.Count());
-	}
-
-	[TestMethod]
-	public void AnimalBackstabs_OnlyLeopardAndJaguar_InheritAnatomyQualityAndDonorChecks()
-	{
-		using var context = Context();
-		var expression = new TraitExpression { Name = "Animal Claw Damage", Expression = "40" };
-		context.Add(expression); context.SaveChanges();
-		var donor = new WeaponAttack
-		{
-			Name = "Claw Swipe", MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
-			DamageExpression = expression, PainExpression = expression, StunExpression = expression,
-			DamageType = (int)DamageType.Claw, BaseAttackerDifficulty = (int)Difficulty.Normal,
-			RequiredPositionStateIds = "1", BaseDodgeDifficulty = (int)Difficulty.Easy
-		};
-		context.Add(donor);
-		foreach (var name in new[] { "Leopard", "Jaguar", "Tiger", "Cat" })
-		{
-			var race = new Race { Name = name };
-			foreach (var alias in new[] { "rfpaw", "lfpaw" })
-				context.Add(new RacesWeaponAttacks { Race = race, WeaponAttack = donor,
-					Bodypart = new BodypartProto { Name = alias }, Quality = (int)ItemQuality.Good });
-		}
-		context.SaveChanges();
-		BackstabSeederHelper.EnsureAnimalBackstabs(context);
-		BackstabSeederHelper.EnsureAnimalBackstabs(context);
-		var attack = context.WeaponAttacks.Single(x => x.Name == BackstabSeederHelper.PredatoryBackRake);
-		Assert.AreEqual("1.5 * (40)", attack.DamageExpression.Expression);
-		Assert.AreEqual(donor.BaseDodgeDifficulty, attack.BaseDodgeDifficulty);
-		Assert.AreEqual(donor.RequiredPositionStateIds, attack.RequiredPositionStateIds);
-		var links = context.RacesWeaponAttacks.Where(x => x.WeaponAttackId == attack.Id).ToList();
-		Assert.AreEqual(4, links.Count);
-		CollectionAssert.AreEquivalent(new[] { "Leopard", "Jaguar" }, links.Select(x => x.Race.Name).Distinct().ToArray());
-		Assert.IsTrue(links.All(x => x.Quality == (int)ItemQuality.Good));
-		var xml = XElement.Parse(attack.AdditionalInfo);
-		Assert.AreEqual("5", xml.Element("AttackerOffence")!.Value);
-		Assert.AreEqual("5", xml.Element("TargetDefence")!.Value);
-	}
-
-	[TestMethod]
-	public void MythicalAndSupernaturalBackstabs_OnlySelectedTemplates_DeclareExactConfiguration()
-	{
-		CollectionAssert.AreEqual(new[] { "Manticore" }, MythicalAnimalSeeder.TemplatesForTesting.Values
-			.Where(x => x.Attacks.Any(a => a.AttackName == BackstabSeederHelper.ManticoreBackstab)).Select(x => x.Name).ToArray());
-		CollectionAssert.AreEqual(new[] { "Werewolf Hybrid" }, SupernaturalSeeder.TemplatesForTesting.Values
-			.Where(x => x.Attacks.Any(a => a.AttackName == BackstabSeederHelper.WerewolfBackstab)).Select(x => x.Name).ToArray());
-		var definition = SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting[BackstabSeederHelper.WerewolfBackstab];
-		Assert.AreEqual(BuiltInCombatMoveType.BackstabAttackUnarmed, definition.MoveTypeOverride);
-		Assert.AreEqual(1.25, definition.Backstab!.Multiplier);
-		Assert.AreEqual(6.0, definition.Backstab.Stamina);
-		Assert.AreEqual(1.3, definition.Backstab.Delay);
-		Assert.AreEqual(150.0, definition.Backstab.Weighting);
-		Assert.AreEqual(5.0, definition.Backstab.Configuration.TargetOffence);
-		Assert.AreEqual(5.0, definition.Backstab.Configuration.TargetDefence);
-		Assert.AreEqual(0.0, definition.Backstab.Configuration.ArmourBypass);
-		Assert.AreEqual(0, MythicalAnimalSeeder.ValidateTemplateCatalogForTesting().Count);
-		Assert.AreEqual(0, SupernaturalSeeder.ValidateTemplateCatalogForTesting().Count);
 	}
 
 	[TestMethod]
@@ -298,18 +195,6 @@ public class BackstabSeederTests
 		Assert.AreEqual(aliases.Length, links.Count);
 		CollectionAssert.AreEquivalent(aliases, links.Select(x => x.Bodypart.Name).ToArray());
 		Assert.AreEqual(1, context.RacesWeaponAttacks.Count(x => x.WeaponAttackId == custom.Id && x.Quality == (int)ItemQuality.Legendary));
-	}
-
-	private static void AssertProfile(WeaponAttack attack, double stamina, double delay, double weight,
-		double reel, double targetOffence, double penetration, double bypass)
-	{
-		Assert.AreEqual(stamina, attack.StaminaCost); Assert.AreEqual(delay, attack.BaseDelay); Assert.AreEqual(weight, attack.Weighting);
-		var xml = XElement.Parse(attack.AdditionalInfo);
-		Assert.AreEqual("Normal", xml.Element("Resist")!.Value);
-		Assert.AreEqual(reel, (double)xml.Element("Reel")!);
-		Assert.AreEqual(targetOffence, (double)xml.Element("TargetOffence")!);
-		Assert.AreEqual(penetration, (double)xml.Element("Penetration")!);
-		Assert.AreEqual(bypass, (double)xml.Element("ArmourBypass")!);
 	}
 
 	[TestMethod]

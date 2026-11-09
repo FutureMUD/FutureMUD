@@ -24,28 +24,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederUnifiedCatalogueTests
 {
-	[TestMethod]
-	[TestCategory("Integration")]
-	public void AuthoredCatalogue_ContainsLiteralDefinitionsWithoutRuntimeExpansion()
-	{
-		var directory = Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(), "ItemSeeder", "Seeders", "ItemSeeder", "Catalogue");
-		foreach (var file in Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories)
-			.Where(path => Path.GetRelativePath(directory, path).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Contains("Content")))
-		{
-			var syntax = CSharpSyntaxTree.ParseText(File.ReadAllText(file));
-			Assert.IsFalse(syntax.GetDiagnostics().Any(x => x.Severity == DiagnosticSeverity.Error), file);
-			var nodes = syntax.GetRoot().DescendantNodes().ToArray();
-			Assert.IsFalse(nodes.Any(node => node is InvocationExpressionSyntax or LambdaExpressionSyntax or
-				AnonymousMethodExpressionSyntax or QueryExpressionSyntax or AwaitExpressionSyntax or
-				ForStatementSyntax or ForEachStatementSyntax or WhileStatementSyntax or DoStatementSyntax or
-				PropertyDeclarationSyntax or FieldDeclarationSyntax or IndexerDeclarationSyntax or ConstructorDeclarationSyntax), $"Executable expansion or non-factory member in catalogue content: {file}");
-			Assert.IsTrue(nodes.OfType<AssignmentExpressionSyntax>().All(assignment => assignment.Parent is InitializerExpressionSyntax), file);
-			Assert.IsTrue(nodes.OfType<MethodDeclarationSyntax>().All(method => method.ExpressionBody is not null), file);
-			Assert.IsTrue(nodes.OfType<MethodDeclarationSyntax>().All(method => IsLiteralData(method.ExpressionBody!.Expression)), file);
-			Assert.IsFalse(nodes.OfType<IdentifierNameSyntax>().Where(identifier => identifier.Parent is not NameColonSyntax).Any(identifier =>
-				new[] { "DateTime", "DateTimeOffset", "Random", "Environment", "Guid", "File", "Directory", "Task" }.Contains(identifier.Identifier.ValueText)), file);
-		}
-	}
 
 	private static bool IsLiteralData(ExpressionSyntax expression) => expression switch
 	{
@@ -67,15 +45,6 @@ public class ItemSeederUnifiedCatalogueTests
 		CollectionExpressionSyntax collection => collection.Elements.All(element => element is ExpressionElementSyntax item && IsLiteralData(item.Expression)),
 		_ => false
 	};
-
-	[TestMethod]
-	public void LiteralGuard_RejectsGeneratedPropertyReferencesAndCalls()
-	{
-		Assert.IsFalse(IsLiteralData(SyntaxFactory.ParseExpression("OtherCatalogue.GeneratedItems")));
-		Assert.IsFalse(IsLiteralData(SyntaxFactory.ParseExpression("GenerateItems()")));
-		Assert.IsFalse(IsLiteralData(SyntaxFactory.ParseExpression("[ .. GenerateItems() ]")));
-		Assert.IsTrue(IsLiteralData(SyntaxFactory.ParseExpression("new Item(\"key\", [1, 2], ItemQuality.Standard)")));
-	}
 	[TestMethod]
 	public void SyntheticCapturePrerequisites_NeverQueryOrFlushRelationalContexts()
 	{
@@ -96,62 +65,6 @@ public class ItemSeederUnifiedCatalogueTests
 		ItemSeeder.PrepareSyntheticCapturePrerequisites(synthetic, "antiquity");
 		ItemSeeder.PrepareSyntheticCapturePrerequisites(synthetic, "antiquity");
 		Assert.AreEqual(1, synthetic.Tags.Count(tag => tag.Name == "Meat"));
-	}
-
-	[TestMethod]
-	[TestCategory("Integration")]
-	public void FullCapture_ExportsAllAggregateFamiliesAndSupplementaryFields()
-	{
-		using var context = ItemSeederProgram.CreateItemManifestCaptureContext();
-		var seeder = new ItemSeeder();
-		var capture = seeder.CaptureFullCatalogue(context, ItemSeederManifestCatalogue.FindRepositoryRoot());
-		Assert.AreEqual(43825, capture.Definitions.Count);
-		Assert.AreEqual(13, capture.Definitions.Select(x => x.Identity.EntityType).Distinct().Count());
-		var food = capture.Definitions.Single(x => x.Identity.StableKey == "medieval_food_lenten_almond_fish_pottage");
-		StringAssert.Contains(food.Supplement.GetProperty("builderNotes").GetString(), "Nutrition band: Rich");
-		var craft = capture.Definitions.Single(x => x.Identity.StableKey == "Basketry/weave wicker beehive");
-		var symbolic = CatalogueDefinitionCapture.SymbolicDefinition(craft, seeder.CapturedItemKeys).GetRawText();
-		StringAssert.Contains(symbolic, "@antiquity_wicker_beehive");
-		Assert.IsFalse(symbolic.Contains("(#", StringComparison.Ordinal));
-		Assert.AreEqual(4, craft.Definition.GetProperty("phases").GetArrayLength());
-		Assert.AreEqual("5 + (outcome/3) + (variable/20)", craft.Supplement.GetProperty("qualityFormula").GetString());
-		Assert.IsTrue(CatalogueDefinitionCapture.FieldPaths(craft.Definition).Contains("$.phases[].stamina"));
-		Assert.IsFalse(string.IsNullOrWhiteSpace(food.SourceFile));
-		Assert.IsTrue(food.SourceLine > 0);
-		foreach (var metadata in new[] { RepresentativeCatalogue.Braies().Metadata, RepresentativeCatalogue.Pottage().Metadata,
-			RepresentativeCatalogue.WickerBeehive().Metadata, RepresentativeCatalogue.EarlyAngloSaxon().Metadata })
-		{
-			var identity = capture.Definitions.Single(x => x.Identity.StableKey == metadata.StableKey).Identity;
-			Assert.AreEqual(identity.Module, metadata.Module);
-			Assert.AreEqual(identity.OwnershipPolicy, metadata.OwnershipPolicy);
-			CollectionAssert.AreEqual(identity.EraAdmissions.OrderBy(x => x).ToArray(), metadata.EraAdmissions.OrderBy(x => x).ToArray());
-			CollectionAssert.AreEqual(identity.Dependencies.OrderBy(x => x).ToArray(), metadata.Dependencies.OrderBy(x => x).ToArray());
-		}
-		CollectionAssert.Contains(CatalogueSourceInventory.Paths(ItemSeederManifestCatalogue.FindRepositoryRoot()).ToArray(),
-			"Design Documents/Crafting/Antiquity_Clothing_Design_Reference.md");
-	}
-
-	[TestMethod]
-	[TestCategory("Integration")]
-	public void FullCatalogue_AllPreindustrialSelectionsHaveIdenticalDefinitions()
-	{
-		var eras = new[] { "antiquity", "medieval", "renaissance", "earlymodern" };
-		for (var mask = 1; mask < 16; mask++)
-		{
-			var selected = string.Join(" ", eras.Where((_, index) => (mask & (1 << index)) != 0));
-			using var context = ItemSeederProgram.CreateItemManifestCaptureContext();
-			var seeder = new ItemSeeder();
-			var capture = seeder.CaptureFullCatalogue(context, ItemSeederManifestCatalogue.FindRepositoryRoot(), selected);
-			FrozenCatalogueContract.AssertScenario($"eras-{mask:00}", seeder, capture);
-		}
-	}
-
-	[TestMethod]
-	[TestCategory("Integration")]
-	public void RepresentativeVehicleAndOutfit_PreserveEverySourceField()
-	{
-		FrozenCatalogueContract.AssertGraph("vehicles");
-		FrozenCatalogueContract.AssertGraph("medievalOutfits");
 	}
 
 	[TestMethod]

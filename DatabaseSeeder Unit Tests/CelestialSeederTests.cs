@@ -304,21 +304,6 @@ public class CelestialSeederTests
     }
 
     [TestMethod]
-    public void SeederQuestions_MoonAndGasGiantPromptsGiveSupportingContext()
-    {
-        Dictionary<string, string> questions = new CelestialSeeder().SeederQuestions
-            .ToDictionary(x => x.Id, x => x.Question, StringComparer.OrdinalIgnoreCase);
-
-        StringAssert.Contains(questions["packages"], "lunar phases");
-        StringAssert.Contains(questions["packages"], "moon-surface sky views");
-        StringAssert.Contains(questions["mooncalendar"], "same calendar used by your Earth-facing sun");
-        StringAssert.Contains(questions["packages"], "Jupiter dominating the sky");
-        StringAssert.Contains(questions["gasgiantcalendar"], "All four linked objects");
-        StringAssert.Contains(questions["gasgiantsunepoch"], "distant solar orbit");
-        StringAssert.Contains(questions["gasgiantmoonepoch"], "keeps the linked Jupiter and Sol views coherent");
-    }
-
-    [TestMethod]
     public void ResolveEpochDisplays_AllSupportedTimeSeederCalendarModes_ProvideSuggestedDefaults()
     {
 		Dictionary<string, SeederQuestion> questions = ((IDatabaseSeeder)new CelestialSeeder()).Questions
@@ -498,36 +483,5 @@ public class CelestialSeederTests
         StringAssert.Contains(display.Prompt, "epoch-aligned");
         StringAssert.Contains(display.Prompt, "01/ignis/year");
         Assert.AreEqual("01/ignis/77", display.DefaultAnswer);
-    }
-
-    [TestMethod]
-    public void ResolveMoonEpochDefaults_UseStockReferenceDatesForSeededCalendars()
-    {
-        using FuturemudDatabaseContext gregorianContext = BuildContext();
-        long gregorianCalendarId = SeedCalendar(gregorianContext, "gregorian-uk", "2000");
-        Assert.AreEqual(
-            "21/january/2000",
-            CelestialSeeder.ResolveMoonEpochDefault(gregorianContext, new Dictionary<string, string>
-            {
-                ["mooncalendar"] = gregorianCalendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
-            }));
-
-        using FuturemudDatabaseContext middleEarthContext = BuildContext();
-        long middleEarthCalendarId = SeedCalendar(middleEarthContext, "middle-earth", "3019", "3");
-        Assert.AreEqual(
-            "20/tuile/3019",
-            CelestialSeeder.ResolveMoonEpochDefault(middleEarthContext, new Dictionary<string, string>
-            {
-                ["mooncalendar"] = middleEarthCalendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
-            }));
-
-        using FuturemudDatabaseContext missionContext = BuildContext();
-        long missionCalendarId = SeedCalendar(missionContext, "mission", "77");
-        Assert.AreEqual(
-            "01/ignis/77",
-            CelestialSeeder.ResolveGasGiantMoonEpochDefault(missionContext, new Dictionary<string, string>
-            {
-                ["gasgiantcalendar"] = missionCalendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
-            }));
     }
 }

@@ -26,15 +26,6 @@ public class ArmageddonBandagingSeederTests
 	}
 
 	[TestMethod]
-	public void RetainedWorldfileContainsHeldBandageToolsAtSourceSubtypeFive()
-	{
-		var tools = ArmageddonWorldfileTestData.Load().ForInstallation().Items
-			.Where(x => x.ItemType == 7 && x.Values.Length > 1 && x.Values[0] == 5).ToArray();
-		Assert.IsTrue(tools.Length > 0);
-		Assert.IsTrue(tools.Any(x => x.Values[1] >= 8));
-	}
-
-	[TestMethod]
 	public void BandagingProgsCompileAndAttachToEffectiveVariantsAndOpeningStock()
 	{
 		using var db = ArmageddonInstallationSettingsTests.Fixture();

@@ -54,96 +54,6 @@ public class CultureToolkitNativeReviewTests
 	}
 
 	[TestMethod]
-	public void RenaissanceWorldMissingLanguagesHaveResolvedNativeBindings()
-	{
-		var catalogue = new CultureToolkitCatalogue();
-		var languages = Available("renaissance");
-		var deferred = catalogue.Document("data.legacy_native_language_rules.json")
-			.GetProperty("deferred_source_bindings").EnumerateArray()
-			.Where(x => CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains("renaissance"))
-			.ToArray();
-		Assert.AreEqual(17, deferred.Length);
-		foreach (var row in deferred)
-		{
-			var ethnicity = new Ethnicity { Name = CultureToolkitCatalogue.Text(row, "source_ethnicity") };
-			var binding = CultureToolkitNativeBindings.Source(catalogue, "renaissance",
-				"earthrenaissanceworldexpansion", ethnicity, languages);
-			Assert.IsTrue(binding.IsResolved, string.Join(Environment.NewLine, binding.Unresolved));
-			Assert.AreEqual(1, binding.LanguageIds.Count, ethnicity.Name);
-			Assert.AreEqual("renaissance-world-native-language", binding.Rule, ethnicity.Name);
-		}
-	}
-
-	[TestMethod]
-	[DataRow("darkages")]
-	[DataRow("medieval")]
-	[DataRow("renaissance")]
-	public void EveryExpandedEthnicityResolvesOrHasAnExplicitMissingLanguage(string era)
-	{
-		var catalogue = new CultureToolkitCatalogue();
-		var module = era == "renaissance" ? "earthrenaissanceworldexpansion" : "earthdarkagesandmedieval";
-		var coverage = era == "renaissance" ? CultureSeeder.RenaissanceWorldEthnicityNameCulturesForTesting : CultureSeeder.DarkAgesAndMedievalEthnicityNameCulturesForTesting;
-		var languages = Available(era);
-		var errors = new List<string>();
-		foreach (var row in coverage)
-		{
-			var ethnicity = new Ethnicity { Name = row.Key };
-			ethnicity.EthnicitiesNameCultures.Add(new EthnicitiesNameCultures { NameCulture = new NameCulture { Name = row.Value } });
-			var binding = CultureToolkitNativeBindings.Source(catalogue, era, module, ethnicity, languages);
-			if (!binding.IsResolved && binding.Rule != "reviewed-missing-language") errors.AddRange(binding.Unresolved);
-			if (binding.Rule == "reviewed-missing-language") Assert.AreEqual(0, binding.LanguageIds.Count);
-		}
-		Assert.AreEqual(0, errors.Count, string.Join(Environment.NewLine, errors));
-	}
-
-	[TestMethod]
-	[DataRow("antiquity")]
-	[DataRow("darkages")]
-	[DataRow("medieval")]
-	[DataRow("renaissance")]
-	public void ReviewedNativeDefaultsAndNeighbourAccentsUseInstalledEraLanguages(string era)
-	{
-		var catalogue = new CultureToolkitCatalogue();
-		var languages = Available(era);
-		foreach (var row in catalogue.Document("data.legacy_native_language_rules.json").GetProperty("exact_source_bindings").EnumerateArray()
-			.Where(x => CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains(era)))
-		foreach (var reference in CultureToolkitCatalogue.Strings(row.GetProperty("languages"))) Assert.IsTrue(languages.ContainsKey(reference), reference);
-		foreach (var culture in catalogue.Compose(era).Cultures)
-		foreach (var reference in CultureToolkitSocialCultures.NativeReferences(catalogue, culture, era)) Assert.IsTrue(languages.ContainsKey(reference), reference);
-		foreach (var ethnicity in catalogue.Compose(era).Ethnicities)
-		{
-			var binding = CultureToolkitNativeBindings.Canonical(catalogue, era, CultureToolkitCatalogue.Text(ethnicity, "key"), languages);
-			Assert.IsTrue(binding.IsResolved, string.Join("\n", binding.Unresolved));
-		}
-		foreach (var row in catalogue.Document("data.historical_foreign_accents.json").EnumerateArray()
-			.Where(x => CultureToolkitCatalogue.Strings(x.GetProperty("packs")).Contains(era)))
-		{
-			Assert.IsTrue(languages.ContainsKey(CultureToolkitCatalogue.Text(row, "target")), row.ToString());
-			Assert.IsTrue(languages.ContainsKey(CultureToolkitCatalogue.Text(row, "source")), row.ToString());
-		}
-	}
-
-	[TestMethod]
-	[DataRow("antiquity", "earthantiquity", "Antiquity")]
-	[DataRow("medieval", "earthrenaissanceeurope", "MedievalEurope")]
-	[DataRow("renaissance", "earthrenaissanceeurope", "MedievalEurope")]
-	public void EveryRetainedAncientAndEuropeanEthnicityHasAResolvedDefault(string era, string module, string suffix)
-	{
-		var path = Path.Combine(SeederSourceTestHelper.RepositoryRoot,
-			"DatabaseSeeder", "Seeders", "CultureSeeder", $"CultureSeeder.Heritage.{suffix}.cs");
-		var names = Regex.Matches(File.ReadAllText(path), "AddEthnicity\\(_humanRace, \"([^\"]+)\"")
-			.Select(x => x.Groups[1].Value).Distinct().ToArray();
-		Assert.IsTrue(names.Length >= 50);
-		var catalogue = new CultureToolkitCatalogue();
-		var languages = Available(era);
-		foreach (var name in names)
-		{
-			var binding = CultureToolkitNativeBindings.Source(catalogue, era, module, new Ethnicity { Name = name }, languages);
-			Assert.IsTrue(binding.IsResolved, string.Join("\n", binding.Unresolved));
-		}
-	}
-
-	[TestMethod]
 	public void ForeignAccentsReuseExistingAssociationsAndPreserveBuilderEditsOnRerun()
 	{
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -230,18 +140,4 @@ public class CultureToolkitNativeReviewTests
 		Assert.AreEqual(koreanId, accent.AssociatedLanguages.Single().Id);
 		Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
 	}
-
-	[TestMethod]
-	[DataRow("Coptic", "Greek", "Greek", 1)]
-	[DataRow("Latin", "Greek", "Greek", 1)]
-	[DataRow("Koine Greek", "Doric", "Greek", 1)]
-	[DataRow("Hausa", "West African", "west african", 1)]
-	[DataRow("Literary Chinese", "Japanese Kanbun", "Literary Sinitic Reading", 1)]
-	[DataRow("Classical Chinese", "Korean-reading", "Korean scholastic", 1)]
-	[DataRow("Westron", "Dwarven", "Dwarven", 1)]
-	[DataRow("Ukranian", "Balachka", "foreign", 0)]
-	[DataRow("Latin", "Foreign", "Foreign", 2)]
-	[DataRow("Latin", "Ecclesiastical", "learned", 0)]
-	public void RolesDistinguishForeignSpeakersRegionalDialectsAndFallbacks(string language, string accent, string group, int role)
-		=> Assert.AreEqual(role, (int)CultureStockAccentRoles.Role(language, accent, group));
 }

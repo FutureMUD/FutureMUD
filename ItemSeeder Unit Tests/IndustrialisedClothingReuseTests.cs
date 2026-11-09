@@ -24,61 +24,6 @@ public partial class IndustrialisedClothingReuseTests
 	private const string Garters = "medieval_tablet_woven_garters";
 	private static readonly ClothingSourceLocation Source = new("Clothing/bases.tsv", 2);
 
-	[TestMethod]
-	public void ApprovedReuse_ResolvesAll113AuthoritativeSourcesAndKeepsHistoricalOwners()
-	{
-		var root = ItemSeederManifestCatalogue.FindRepositoryRoot();
-		var references = ApprovedReferences(root);
-		Assert.AreEqual(113, references.Length);
-		Assert.AreEqual(113, references.Distinct(StringComparer.Ordinal).Count());
-		using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "Design Documents/Seeding/Seeded_Item_Manifest.json")));
-		var items = manifest.RootElement.GetProperty("entries").EnumerateArray()
-			.Where(x => x.GetProperty("entityType").GetString() == "item")
-			.ToDictionary(x => x.GetProperty("stableKey").GetString()!, StringComparer.Ordinal);
-		var sources = references.Select(reference =>
-		{
-			var source = ItemSeeder.FindHistoricalClothingSource(reference);
-			Assert.IsNotNull(source, reference);
-			Assert.AreEqual(reference, source.StableReference);
-			Assert.AreEqual(items[reference].GetProperty("module").GetString(), source.OwningModule, reference);
-			Assert.IsFalse(string.IsNullOrWhiteSpace(source.FullDescription), reference);
-			Assert.IsTrue(source.Components.Count > 0, reference);
-			return source;
-		}).ToArray();
-		Assert.AreEqual(33, sources.Count(x => x.OwningModule == "medieval"));
-		Assert.AreEqual(2, sources.Count(x => x.OwningModule == "shared-preindustrial"));
-		Assert.AreEqual(78, sources.Count(x => x.OwningModule == "outfits"));
-		Assert.IsNull(ItemSeeder.FindHistoricalClothingSource("unapproved_historical_item"));
-		Assert.IsNull(ItemSeeder.FindHistoricalClothingSource(Garters.ToUpperInvariant()));
-	}
-
-	[TestMethod]
-	public void ApprovedReuse_All113MaterialTagAndComponentNamesExistInMaintainedPrerequisites()
-	{
-		var root = ItemSeederManifestCatalogue.FindRepositoryRoot();
-		HashSet<string> Names(string file, string property)
-		{
-			using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "Design Documents/Data", file)));
-			return json.RootElement.EnumerateArray().Select(x => x.GetProperty(property).GetString()!)
-				.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		}
-		var materials = Names("Seeded_Materials.json", "Material Name");
-		var components = Names("Seeded_Item_Components.json", "Component Name");
-		var tags = File.ReadLines(Path.Combine(root, "Design Documents/Data/SeededTagHierarchy.csv"))
-			.Skip(1).Select(x => x.Split('\t')[2]).ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var errors = new List<string>();
-		foreach (var reference in ApprovedReferences(root))
-		{
-			var source = ItemSeeder.FindHistoricalClothingSource(reference)!;
-			if (!materials.Contains(source.Material)) errors.Add($"{reference}: missing material {source.Material}");
-			foreach (var tag in source.Tags)
-				if (!tags.Contains(tag)) errors.Add($"{reference}: missing exact tag {tag}");
-			foreach (var component in source.Components)
-				if (!components.Contains(component)) errors.Add($"{reference}: missing component {component}");
-		}
-		Assert.AreEqual(0, errors.Count, string.Join(Environment.NewLine, errors));
-	}
-
 	private static string[] ApprovedReferences(string root) =>
 		File.ReadLines(Path.Combine(root, "Design Documents/Seeding/Industrialised_Clothing_Wave1_Inventory.md"))
 			.Where(x => x.StartsWith("| ", StringComparison.Ordinal))

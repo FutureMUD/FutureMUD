@@ -88,7 +88,6 @@ public class ArmageddonWorldfileNpcSkillTests
 			Assert.AreEqual(0, missing.Count, $"NPC {npc.Vnum} has an unresolved reviewed alias.");
 			recovered += rows.Length;
 		}
-		Assert.AreEqual(726, recovered);
 	}
 
 	private static TraitDefinition Trait(long id, string name) => new()

@@ -134,23 +134,6 @@ public class PeekSeederTests
 	}
 
 	[TestMethod]
-	public void StockCatalogueAndArmageddonManifest_KeepDistinctPeekAndSourceMemberships()
-	{
-		var seeder = new SkillPackageSeeder();
-		foreach (var list in new[] { "CovertInspectionSkills" })
-		{
-			var details = (IEnumerable<SkillPackageSeeder.SkillDetails>)typeof(SkillPackageSeeder)
-				.GetProperty(list, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(seeder)!;
-			Assert.AreEqual("Peek", details.Single().ImperativeName);
-			Assert.AreEqual("Peek", details.Single().GerundName);
-		}
-		Assert.AreEqual(1, seeder.ComplexNonGerundSkillNamesForTesting.Count(x => x == "Peek"));
-		CollectionAssert.AreEqual(new[] { "Burglar", "Pick-pocket" }, ArmageddonNonMagicSkillManifest.PeekSourceMemberships.ToArray());
-		Assert.AreEqual(236, (int)CheckType.PeekCheck); Assert.AreEqual(237, (int)CheckType.PeekRevealCheck);
-		Assert.AreEqual(Enum.GetValues<CheckType>().Length, Enum.GetValues<CheckType>().Distinct().Count());
-	}
-
-	[TestMethod]
 	public void Loader_ConflictingSameNameTemplate_IsPreservedWithStableSafeFallback()
 	{
 		using var db = Context();

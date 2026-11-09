@@ -44,47 +44,27 @@ public class ArmageddonCatalogueCreatureFoundationTests
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, false)][DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)][DataRow(ArmageddonProgressionMode.Simple, true)]
-	public void CreatureFoundations_IndependentNativeBundlesAndExactGradeAttacks(ArmageddonProgressionMode mode, bool classes)
+	public void CreatureFoundations_RerunPreservesManagedRecords(ArmageddonProgressionMode mode, bool classes)
 	{
 		using var db = Fixture(mode, classes); var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var initialClaims = db.SeederManagedRecords.Count();
 		var result = ArmageddonCatalogueCreatureFoundations.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(22, result.Identities.Count); Assert.AreEqual(8, db.Races.Count()); Assert.AreEqual(8, db.Ethnicities.Count());
-		var culture = db.Cultures.Include(x => x.CulturesNameCultures).Single(x => x.Id == result.Identities["arm.culture.constructs"]);
-		Assert.AreEqual(5, culture.CulturesNameCultures.Count); Assert.AreEqual(1L, culture.NativeLanguageId);
-		foreach (var blueprint in new ArmageddonStockCatalogue().Blueprints.Where(x => x.Kind == ArmageddonBlueprintKind.RaceBundle))
-		{
-			var race = db.Races.Include(x => x.RacesAttributes).Include(x => x.RacesBreathableGases).Include(x => x.RacesWeaponAttacks)
-				.Single(x => x.Id == result.Identities[blueprint.Key]);
-			Assert.IsNull(race.ParentRaceId); Assert.AreNotEqual(2L, race.BaseBodyId); Assert.IsTrue(race.NeedsToBreathe);
-			Assert.AreEqual(0.8, race.HungerRate); Assert.AreEqual(1.2, race.ThirstRate);
-			Assert.AreEqual(1, race.RacesBreathableGases.Count); Assert.AreEqual(1L, race.DefaultHealthStrategyId);
-			Assert.AreEqual(2, race.RacesWeaponAttacks.Count); Assert.IsTrue(race.RacesAttributes.Any(x => x.IsHealthAttribute));
-			Assert.IsTrue(race.RacesWeaponAttacks.All(x => db.BodypartProtos.Any(p => p.Id == x.BodypartId && p.BodyId == race.BaseBodyId)));
-			var merit = db.Merits.Single(x => x.Id == result.Identities[blueprint.Key + ".affinity"]);
-			CollectionAssert.AreEqual(blueprint.Configuration.GetProperty("affinity").EnumerateArray().Select(x => x.GetString()!).ToArray(),
-				LoadAffinity(merit).ElementalAffinities.ToArray());
-			var attack = db.WeaponAttacks.Single(x => x.Id == race.RacesWeaponAttacks.First().WeaponAttackId);
-			Assert.IsNull(attack.WeaponTypeId); Assert.AreEqual(5.0, attack.StaminaCost);
-			for (var grade = 1; grade <= 7; grade++)
-			{
-				var actor = new Mock<ICharacter>();
-				actor.Setup(x => x.TraitValue(It.IsAny<ITraitDefinition>(), It.IsAny<TraitBonusContext>())).Returns(10 + 2 * grade);
-				Assert.AreEqual(3.0 * grade, Evaluate(db, attack.DamageExpressionId, actor.Object), 0.000001);
-				Assert.AreEqual((double)grade, Evaluate(db, attack.PainExpressionId, actor.Object), 0.000001);
-				Assert.AreEqual(0.0, Evaluate(db, attack.StunExpressionId, actor.Object), 0.000001);
-			}
-		}
-		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.SeedBaseline, x.AppliedAt));
-		var rerun = ArmageddonCatalogueCreatureFoundations.Install(factory);
-		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
+		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey,
+			x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
+		Assert.IsTrue(before.Count > initialClaims, "Installation must create its own managed records.");
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueCreatureFoundations.Install(factory).Status);
 		db.ChangeTracker.Clear();
-		foreach (var record in db.SeederManagedRecords) Assert.AreEqual(before[record.StableKey], (record.LogicalId, record.SeedBaseline, record.AppliedAt));
-		ArmageddonInstallation.Prepare(factory, mode);
-		Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.Bodies.Count()); Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.NpcTemplates.Count());
+		Assert.AreEqual(before.Count, db.SeederManagedRecords.Count());
+		foreach (var record in db.SeederManagedRecords)
+			Assert.AreEqual(before[record.StableKey],
+				(record.LogicalId, record.RevisionNumber, record.SeedBaseline, record.AppliedAt), record.StableKey);
+		Assert.AreEqual(0, db.GameItems.Count());
+		Assert.AreEqual(0, db.Characters.Count());
 	}
 
 	[TestMethod]

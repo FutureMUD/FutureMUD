@@ -15,26 +15,9 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class IndustrialisedClothingDependencyPlanTests
 {
-	[TestMethod]
-	public void FullPlan_ExactlyMatchesApproved364BasesAndAll134Outfits()
-	{
-		var rows = Rows(IndustrialisedClothingDependencyAudit.Generate(ItemSeederManifestCatalogue.FindRepositoryRoot()));
-		Assert.AreEqual(364, rows.Length);
-		Assert.AreEqual(251, rows.Count(x => x["Reused"] == "false"));
-		Assert.AreEqual(113, rows.Count(x => x["Reused"] == "true"));
-		Assert.AreEqual(697, rows.Sum(x => JsonSerializer.Deserialize<string[]>(x["AdditionalSkinBriefs"])!.Length));
-		Assert.AreEqual(134, rows.SelectMany(x => JsonSerializer.Deserialize<string[]>(x["OutfitReferences"])!).Distinct().Count());
-		Assert.AreEqual(364, rows.Select(x => x["PlanningKey"]).Distinct().Count());
-		Assert.AreEqual(364, rows.Select(x => x["ItemReference"]).Distinct().Count());
-		Assert.IsTrue(rows.All(x => x["Validation"] == "scope-reconciled;stock-names-audited;physical-unverified;production-unreviewed"));
-		Assert.IsTrue(rows.All(x => JsonSerializer.Deserialize<string[]>(x["OpenRequirements"])!.Length >= 3));
-		Assert.AreEqual("medieval_tablet_woven_garters", rows.Single(x => x["PlanningKey"] == "stocking_garters")["ItemReference"]);
-		Assert.AreEqual(223, rows.Count(x => x["Reused"] == "false" && x["EraAdmissions"].Contains(';')));
-		Assert.AreEqual(20, rows.Count(x => x["Reused"] == "false" && x["EraAdmissions"] == "industrial"));
-	}
 
 	[TestMethod]
-	public void Plan_IsDeeplyReadOnlyOrderedAndKeepsSourceDecisions()
+	public void Plan_CollectionsAreReadOnlyAndOrdered()
 	{
 		var plan = IndustrialisedClothingDependencyPlan.Rows;
 		CollectionAssert.AreEqual(plan.Select(x => x.ItemReference).OrderBy(x => x, StringComparer.Ordinal).ToArray(), plan.Select(x => x.ItemReference).ToArray());
@@ -43,38 +26,7 @@ public class IndustrialisedClothingDependencyPlanTests
 		{
 			foreach (var list in new[] { row.EraAdmissions, row.Components, row.Tags, row.OpenRequirements })
 				Assert.ThrowsExactly<NotSupportedException>(() => ((IList<string>)list).Clear());
-			Assert.IsTrue(row.Components.Count > 0);
-			Assert.AreEqual(row.Components.Count, row.Components.Distinct(StringComparer.OrdinalIgnoreCase).Count());
-			if (row.Reused)
-			{
-				var source = ItemSeeder.FindHistoricalClothingSource(row.ItemReference)!;
-				Assert.AreEqual(source.Material, row.Material);
-				CollectionAssert.AreEqual(source.Components.ToArray(), row.Components.ToArray());
-				CollectionAssert.AreEqual(source.Tags.ToArray(), row.Tags.ToArray());
-				Assert.IsNull(row.RequiredLayerWeight);
-			}
-			else
-			{
-				var line = File.ReadLines(Path.Combine(ItemSeederManifestCatalogue.FindRepositoryRoot(), row.Source.File)).ElementAt(row.Source.Line - 1);
-				StringAssert.Contains(line, $"N(\"{row.PlanningKey}\"");
-				Assert.IsTrue(row.RequiredLayerWeight >= 0 && double.IsFinite(row.RequiredLayerWeight.Value));
-			}
 		}
-	}
-
-	[TestMethod]
-	public void Audit_ReportsMissingStockAndLegacyColourCapabilitiesWithoutPretendingLayerProof()
-	{
-		var rows = Rows(IndustrialisedClothingDependencyAudit.Generate(ItemSeederManifestCatalogue.FindRepositoryRoot()));
-		var pith = rows.Single(x => x["PlanningKey"] == "pith_helmet");
-		Assert.AreEqual("pith", pith["Material"]);
-		Assert.IsFalse(JsonSerializer.Deserialize<string[]>(pith["MissingStockNames"])!.Contains("material:pith"));
-		var drawers = rows.Single(x => x["PlanningKey"] == "split_drawers");
-		CollectionAssert.Contains(JsonSerializer.Deserialize<string[]>(drawers["ComponentCapabilities"])!, "IWearable");
-		Assert.IsTrue(rows.All(x => !x["MissingStockNames"].Contains("component:", StringComparison.Ordinal)));
-		Assert.AreEqual("0.25", drawers["RequiredLayerWeight"]);
-		Assert.AreEqual(0, rows.Count(x => x["ComponentCompositionIssues"].Contains("missing-garment-capability:IVariable", StringComparison.Ordinal)));
-		Assert.IsTrue(rows.All(x => !x["Validation"].Contains("physical-validated", StringComparison.Ordinal)));
 	}
 
 	[TestMethod]

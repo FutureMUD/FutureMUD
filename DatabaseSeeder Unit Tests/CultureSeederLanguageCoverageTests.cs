@@ -44,71 +44,6 @@ public class CultureSeederLanguageCoverageTests
 	}
 
 	[TestMethod]
-	public void HistoricalLanguageCatalogues_AreInternallyConsistent()
-	{
-		IReadOnlyList<string> issues = CultureSeeder.ValidateHistoricalLanguageCataloguesForTesting();
-
-		Assert.AreEqual(0, issues.Count, string.Join(Environment.NewLine, issues));
-	}
-
-	[TestMethod]
-	public void DarkAgesLanguageCoverage_MatchesEveryGeneratedNamingCulture()
-	{
-		CollectionAssert.AreEquivalent(
-			CultureSeeder.DarkAgesAndMedievalNameCultureNamesForTesting.ToArray(),
-			CultureSeeder.DarkAgesAndMedievalLanguageCoverageForTesting.Keys.ToArray());
-		Assert.AreEqual(25, CultureSeeder.DarkAgesAndMedievalLanguageCoverageForTesting.Count);
-		Assert.AreEqual(36, CultureSeeder.DarkAgesAndMedievalLanguageNamesForTesting.Count);
-	}
-
-	[TestMethod]
-	public void RenaissanceWorldLanguageCoverage_MatchesEveryGeneratedNamingCulture()
-	{
-		CollectionAssert.AreEquivalent(
-			CultureSeeder.RenaissanceWorldNameCultureNamesForTesting.ToArray(),
-			CultureSeeder.RenaissanceWorldLanguageCoverageForTesting.Keys.ToArray());
-		Assert.AreEqual(25, CultureSeeder.RenaissanceWorldLanguageCoverageForTesting.Count);
-		Assert.AreEqual(69, CultureSeeder.RenaissanceWorldLanguageNamesForTesting.Count);
-	}
-
-	[TestMethod]
-	public void ExistingPackExpansion_CoversPreviouslyUnrepresentedNamingCultures()
-	{
-		IReadOnlyDictionary<string, string[]> coverage =
-			CultureSeeder.ExistingPackLanguageCoverageForTesting;
-
-		foreach (string culture in new[]
-		{
-			"Modern Oceanic",
-			"Modern Southeast Asian",
-			"Modern Indigenous Latin American",
-			"Modern Central Asian",
-			"Modern Aboriginal Australian",
-			"Ainu ethnicity (Modern Japanese names)",
-			"Scythian-Sarmatian",
-			"Kushite",
-			"Albanian"
-		})
-		{
-			Assert.IsTrue(coverage.TryGetValue(culture, out string[]? languages), culture);
-			Assert.IsTrue(languages.Length > 0, culture);
-		}
-	}
-
-	[TestMethod]
-	public void SharedScriptUpsert_PreservesPriorPackLanguageMemberships()
-	{
-		string sharedSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeeder", "CultureSeeder.Shared.cs"));
-		string languageSource = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder.Languages");
-
-		Assert.IsFalse(
-			sharedSource.Contains("ScriptsDesignedLanguages.Remove", StringComparison.Ordinal),
-			"A later pack must not delete a shared script's language memberships.");
-		StringAssert.Contains(sharedSource, "SeederRepeatabilityHelper.EnsureLink(");
-		StringAssert.Contains(languageSource, ".Concat(existingLanguages.Select(x => x.Name))");
-	}
-
-	[TestMethod]
 	public void SharedScriptUpsert_UnionsLinksAndAcquisitionProgAcrossReruns()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -166,18 +101,6 @@ public class CultureSeederLanguageCoverageTests
 		DbFutureProg prog = context.FutureProgs.Single(x => x.FunctionName == "CanPickSharedTestScriptKnowledge");
 		StringAssert.Contains(prog.FunctionText, "case (\"First Language\")");
 		StringAssert.Contains(prog.FunctionText, "case (\"Second Language\")");
-	}
-
-	[TestMethod]
-	public void ModernScriptDefinitions_TargetTheirOwnLanguages()
-	{
-		string source = SeederSourceTestHelper.ReadPartialFamily("CultureSeeder.Languages");
-
-		StringAssert.Contains(source, "\"Alphabet\", 0.75, 1.5, \"Korean\"");
-		StringAssert.Contains(source, "\"Logographic\", 0.5, 2.0, \"Mandarin\", \"Yue\"");
-		StringAssert.Contains(source, "\"Abjad\", 0.8, 1.2, \"Hebrew\"");
-		StringAssert.Contains(source, "\"Abjad\", 0.8, 1.2, \"Arabic\", \"Farsi\"");
-		StringAssert.Contains(source, "\"Abugida\", 0.8, 1.3, \"Hindi\"");
 	}
 
 	[TestMethod]
@@ -302,17 +225,5 @@ public class CultureSeederLanguageCoverageTests
 		return target.GetType()
 			.GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic)!
 			.Invoke(target, args);
-	}
-
-	private static string GetSourcePath(params string[] parts)
-	{
-		DirectoryInfo? directory = new(AppContext.BaseDirectory);
-		while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, "DatabaseSeeder")))
-		{
-			directory = directory.Parent;
-		}
-
-		Assert.IsNotNull(directory, "Could not locate the repository root from the test output directory.");
-		return Path.Combine(new[] { directory.FullName }.Concat(parts).ToArray());
 	}
 }

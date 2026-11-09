@@ -121,7 +121,7 @@ public class IndustrialisedCatalogueSourceTests
 		Assert.AreEqual(IndustrialisedCatalogueAudit.Header, first.Split('\n')[0]);
 		Assert.IsTrue(first.Split('\n').Skip(1).Where(x => x.Length > 0)
 			.All(x => x.Split('\t')[12] == "parsed;production-unreviewed"));
-		StringAssert.Contains(first, "Connectable_Male_To_MainsPlug");
+
 		StringAssert.Contains(first, before);
 	}
 

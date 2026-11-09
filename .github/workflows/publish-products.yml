@@ -338,8 +338,22 @@ jobs:
           # Release test compilations before rebuilding the product for its runtime.
           dotnet build-server shutdown
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $runtimeProperties = @()
+          if ($env:PRODUCT -eq 'seeder' -and $env:RUNTIME -eq 'linux-arm64') {
+            # Preserve the target RID through SeederFoundations to its Engine executable reference.
+            # Scope this opt-in so the build-time analyzer retains its host-compatible defaults.
+            $runtimeOverride = Join-Path $env:RUNNER_TEMP 'seeder-cross-publish.targets'
+            @'
+          <Project>
+            <PropertyGroup Condition="'$(MSBuildProjectName)' == 'SeederFoundations'">
+              <IsRidAgnostic>false</IsRidAgnostic>
+            </PropertyGroup>
+          </Project>
+          '@ | Set-Content -LiteralPath $runtimeOverride
+            $runtimeProperties += "-p:CustomBeforeMicrosoftCommonTargets=$runtimeOverride"
+          }
           # Carry the framework-dependent setting into executable project references as well.
-          dotnet publish $env:PROJECT_PATH -c Release -r $env:RUNTIME --self-contained false -o $output -m:1 -p:RestoreBuildInParallel=false -p:BuildInParallel=false -p:UseSharedCompilation=false -p:NuGetAudit=false -p:PublishSingleFile=$singleFile -p:IncludeNativeLibrariesForSelfExtract=$includeNativeLibraries -p:PublishTrimmed=false -p:DebugType=embedded -p:PublishSelfContained=false
+          dotnet publish $env:PROJECT_PATH -c Release -r $env:RUNTIME --self-contained false -o $output -m:1 -p:RestoreBuildInParallel=false -p:BuildInParallel=false -p:UseSharedCompilation=false -p:NuGetAudit=false -p:PublishSingleFile=$singleFile -p:IncludeNativeLibrariesForSelfExtract=$includeNativeLibraries -p:PublishTrimmed=false -p:DebugType=embedded -p:PublishSelfContained=false @runtimeProperties
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $archive = "$($env:PRODUCT)-$($env:VERSION)-$($env:RUNTIME).zip"
           Compress-Archive -Path "$output/*" -DestinationPath (Join-Path $env:RUNNER_TEMP $archive) -CompressionLevel Optimal

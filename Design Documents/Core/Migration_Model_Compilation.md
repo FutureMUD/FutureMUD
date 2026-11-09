@@ -4,6 +4,8 @@ EF migration designers remain authoritative generated source in `MudsharpDatabas
 
 The build projects their `BuildTargetModel` bodies into `MudSharp.MigrationModels.BatchNNNN` assemblies. `MudsharpDatabaseLibrary` still owns the migration classes, IDs, context attributes, operations and model snapshot. Generated forwarders call the corresponding helper. No custom EF migration discovery service is used, and the two historical designers without model methods remain empty.
 
+The persistence project and migration batch props both declare MySqlConnector 2.6.1. This keeps independent helper restores on the patched driver rather than the older transitive minimum supplied by Pomelo. The EF and Pomelo versions and historical model definitions remain unchanged.
+
 `MigrationModels/partitions.json` assigns each designer exactly once. Batches have at most 16 MiB of normalized UTF-8 source. The projects disable parallel project builds and shared compilation to bound compiler memory; direct repository build commands also use `-m:1`. The build tool rejects missing, duplicate and oversized assignments and unsupported designer shapes. Generated projections live beneath each project's configuration/runtime-specific `obj` directory. The compiler tool is a build dependency, not part of the product package; the helper assemblies are runtime dependencies and must be included in published bundles.
 
 ## Adding or removing migrations

@@ -224,6 +224,25 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	[DataRow("DetectionVisibility", "<Visibility senses='2097152' plane='9000' />")]
+	[DataRow("ItemPresentation", "<Humming>true</Humming>")]
+	[DataRow("ItemPresentation", "<Humming>false</Humming>")]
+	[DataRow("ItemMagicAura", "<Blank />")]
+	public void ItemPresentationEffects_PreservePayloadWithoutRoomRewriting(string factory, string payload)
+	{
+		// Detection masks and plane IDs do not belong to the legacy containing-Room namespace.
+		var effect = $"<Effect><Type>{factory}</Type>{payload}</Effect>";
+		foreach (var xml in new[]
+		{
+			$"<Effects>\r\n<!-- retain formatting -->{effect}\r\n</Effects>",
+			$"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{effect}</Children></Effect></Effect></Effects>"
+		})
+		{
+			Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "GameItems #1.EffectData"));
+		}
+	}
+
+	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
 		Assert.ThrowsExactly<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));

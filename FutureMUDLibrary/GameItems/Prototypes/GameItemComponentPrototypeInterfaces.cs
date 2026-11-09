@@ -31,6 +31,14 @@ public interface IEquippedItemBonusProviderPrototype : IAggregateGameItemCompone
 {
 }
 
+public interface IItemInteractionPermissionsPrototype : IAggregateGameItemComponentPrototype<IItemInteractionPermissions>
+{
+}
+
+public interface ITransientItemPolicyPrototype : IAggregateGameItemComponentPrototype<ITransientItemPolicy>
+{
+}
+
 public interface IActiveCraftGameItemComponentPrototype : IExclusiveGameItemComponentPrototype<IActiveCraftGameItemComponent>
 {
 }

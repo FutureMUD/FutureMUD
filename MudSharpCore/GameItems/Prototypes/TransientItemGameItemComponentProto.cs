@@ -7,7 +7,7 @@ using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public sealed class TransientItemGameItemComponentProto : GameItemComponentProto
+public sealed class TransientItemGameItemComponentProto : GameItemComponentProto, ITransientItemPolicyPrototype
 {
 	public override string TypeDescription => "Transient Item";
 	public long RetirementPlaneId { get; private set; }

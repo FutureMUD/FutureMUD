@@ -78,8 +78,8 @@ public sealed class DocumentationCatalogueExporterTests
 			Assert.AreEqual("HumanSeeder;AnimalSeeder", row[9]);
 			using var types = JsonDocument.Parse(File.ReadAllText(Path.Combine(data.FullName, "Item_Component_Types.json")));
 			var exported = types.RootElement.EnumerateArray().ToArray();
-			Assert.AreEqual(256, exported.Length);
-			foreach (var type in new[] { "Climbing Aid", "Equipment Bonuses" })
+			Assert.AreEqual(258, exported.Length);
+			foreach (var type in new[] { "Climbing Aid", "Equipment Bonuses", "Item Permissions", "Transient Item" })
 			{
 				var componentRow = File.ReadLines(Path.Combine(seeding.FullName, "Industrialised_Component_Prerequisite_Audit.tsv"))
 					.Single(x => x.StartsWith(type + "\t", StringComparison.Ordinal)).Split('\t');

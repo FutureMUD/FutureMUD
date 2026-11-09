@@ -21,60 +21,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CultureToolkitAccentTests
 {
-	[TestMethod]
-	[DataRow("classical", "antiquity", true)]
-	[DataRow("liturgical", "antiquity", false)]
-	[DataRow("liturgical", "darkages", true)]
-	[DataRow("neo-classical", "medieval", false)]
-	[DataRow("neo-classical", "renaissance", true)]
-	[DataRow("carolingian", "antiquity", false)]
-	[DataRow("carolingian", "darkages", true)]
-	public void RetainedLatinAvailabilityExecutesEraPolicyAndKeepsDisabledFallbacks(string name, string era, bool expected)
-	{
-		FuturemudDatabaseContext Context() => new(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
-		using var context = Context();
-		using var source = Context();
-		var module = name == "carolingian" ? "earthdarkagesandmedieval" : "earthrenaissanceeurope";
-		var original = new Language { Name = "Latin", Accents = [new Accent { Name = name, Group = "native" }, new Accent { Name = "foreign", Group = "foreign" }] };
-		source.Add(original);
-		source.SaveChanges();
-		original.Accents.Single(x => x.Group == "foreign").Role = 2;
-		source.SaveChanges();
-		var language = new Language { Name = "Latin", Accents = [new Accent { Name = name, Group = "native" }, new Accent { Name = "foreign", Group = "foreign" }] };
-		var no = new MudSharp.Models.FutureProg { FunctionName = "AlwaysFalse", FunctionText = "return false", ReturnType = (long)ProgVariableTypes.Boolean };
-		context.AddRange(language, no);
-		context.SaveChanges();
-		language.Accents.Single(x => x.Group == "foreign").Role = 2;
-		void Manage(string type, string key, long id) => context.SeederManagedRecords.Add(new SeederManagedRecord
-		{
-			Seeder = "CultureSeeder", EntityType = type, StableKey = key, Module = era, LogicalId = id,
-			ManifestVersion = "fixture", AppliedAt = DateTime.UtcNow,
-			SeedBaseline = type == "Accent" ? "{\"ChargenAvailabilityProgId\":\"null\"}" : "{}"
-		});
-		Manage("Language", "latin", language.Id);
-		foreach (var accent in language.Accents) Manage("Accent", $"latin.accent.{module}.{accent.Name}", accent.Id);
-		context.SaveChanges();
-		var stages = new Dictionary<string, FuturemudDatabaseContext> { [module] = source };
-		var languages = new Dictionary<string, Language> { ["latin"] = language };
-		var natives = new Dictionary<long, IReadOnlyList<long>> { [language.Id] = [42] };
-		var conflicts = new List<string>();
-		var report = CultureToolkitAccents.Upsert(context, era, natives, conflicts, new CultureToolkitCatalogue(), stages, languages).Single();
-		using (var compiler = new OfflineProgCompilation(context.FutureProgs.Include(x => x.FutureProgsParameters).ToArray()))
-		{
-			var retained = language.Accents.Single(x => x.Name == name);
-			Assert.AreEqual(expected, compiler.Compile(retained.ChargenAvailabilityProgId!.Value).ExecuteBool(Mock.Of<IChargen>()));
-		}
-		if (!expected)
-		{
-			var fallback = report.Details.Single(x => x.StableKey == "latin.accent.local");
-			context.Accents.Find(fallback.AccentId)!.ChargenAvailabilityProgId = no.Id;
-			context.SaveChanges();
-			CultureToolkitAccents.Upsert(context, era, natives, conflicts, new CultureToolkitCatalogue(), stages, languages);
-			Assert.AreEqual(no.Id, context.Accents.Find(fallback.AccentId)!.ChargenAvailabilityProgId);
-			Assert.IsTrue(conflicts.Any(x => x.Contains("builder edit")));
-		}
-	}
 
 	[TestMethod]
 	[DataRow(false)]

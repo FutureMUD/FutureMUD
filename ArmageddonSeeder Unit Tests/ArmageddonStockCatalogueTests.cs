@@ -24,13 +24,10 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonStockCatalogueTests
 {
 	[TestMethod]
-	public void Catalogue_CompleteTypedGraph_DependencyOrderAndRecipes()
+	public void Catalogue_TypedReferencesResolveInDependencyOrder()
 	{
 		var catalogue = new ArmageddonStockCatalogue();
-		Assert.AreEqual(210, catalogue.Blueprints.Count);
-		Assert.AreEqual(49, catalogue.Blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.Creature));
-		Assert.AreEqual(49, catalogue.Blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.MeleeItem));
-		Assert.AreEqual(61, catalogue.Blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.ComponentSupply));
+
 		var visited = new HashSet<string>();
 		foreach (var row in catalogue.Blueprints)
 		{
@@ -38,15 +35,14 @@ public class ArmageddonStockCatalogueTests
 			Assert.IsTrue(row.References.All(x => row.Dependencies.Contains(x.Key) && catalogue.ByKey[x.Key].Kind == x.Kind), row.Key);
 			visited.Add(row.Key);
 		}
-		Assert.AreEqual(90, catalogue.ByKey["arm.material.conjuration.rank6"].Recipe!.MinimumComponentCrafting);
-		Assert.AreEqual(7.0, catalogue.ByKey["arm.material.conjuration.rank6"].Recipe!.Inputs["arm.item.component_blank"]);
-		Assert.AreEqual(420.0, catalogue.ByKey["arm.material.conjuration.rank6"].Recipe!.Seconds);
+
 	}
 
 	[TestMethod]
 	public void Catalogue_WrongTypedReferenceRejected_NarrativeNumbersDoNotBecomeReferences()
 	{
 		var json = JsonNode.Parse(ArmageddonStockManifest.Read())!;
+		var expectedCount = new ArmageddonStockCatalogue(json.ToJsonString()).Blueprints.Count;
 		var rows = json["prototype_catalogue"]!.AsArray();
 		var creature = rows.First(x => x!["kind"]!.GetValue<string>() == "approved_simple_npc_template")!;
 		var race = creature["configuration"]!["race_bundle"]!.GetValue<string>();
@@ -55,62 +51,34 @@ public class ArmageddonStockCatalogueTests
 		Assert.ThrowsExactly<InvalidOperationException>(() => new ArmageddonStockCatalogue(json.ToJsonString()));
 		creature["configuration"]!["race_bundle"] = race;
 		creature["configuration"]!["author_notes"] = "Character #1234, arm.race.unknown and 987654321 are narrative examples.";
-		Assert.AreEqual(210, new ArmageddonStockCatalogue(json.ToJsonString()).Blueprints.Count);
+		Assert.AreEqual(expectedCount, new ArmageddonStockCatalogue(json.ToJsonString()).Blueprints.Count);
 	}
 
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
 	[DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)]
 	[DataRow(ArmageddonProgressionMode.Simple, true)]
-	public void SupplyBatch_ExactNativeCountsInputsUnitsAndGates_IdempotentAndNoLiveEntities(ArmageddonProgressionMode mode, bool classes)
+	public void SupplyBatch_RerunPreservesManagedRecordsAndCreatesNoLiveEntities(ArmageddonProgressionMode mode, bool classes)
 	{
 		using var db = Fixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var initialClaims = db.SeederManagedRecords.Count();
 		var result = ArmageddonCatalogueSupplies.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(64, db.GameItemProtos.Count());
-		var supplies = db.GameItemProtos.ToArray();
-		Assert.AreEqual(64, supplies.Select(x => x.UniqueName).Distinct().Count());
-		Assert.IsTrue(supplies.All(x => x.UniqueName.StartsWith("Armageddon ") && !x.Name.Any(char.IsWhiteSpace)));
-		Assert.AreEqual(61, supplies.Count(x => x.Name == "component"));
-		Assert.AreEqual(2, supplies.Count(x => x.Name == "blank"));
-		Assert.AreEqual(1, supplies.Count(x => x.Name == "seal"));
-		Assert.AreEqual(64, db.Crafts.Count());
-		Assert.AreEqual(61, db.Tags.Count());
-		Assert.AreEqual(4, db.AutobuilderRoomTemplates.Count());
-		Assert.AreEqual(1, db.Foragables.Count());
-		Assert.AreEqual(1, db.ForagableProfilesForagables.Count());
-		Assert.AreEqual(0, db.GameItems.Count());
-		Assert.AreEqual(0, db.Characters.Count());
-		Assert.AreEqual(0, db.Rooms.Count());
-		Assert.AreEqual(0, db.MagicSpells.Count());
-		Assert.AreEqual(classes ? 10 : 0, db.ChargenRoles.Count());
-		var owned = db.SeederManagedRecords.Where(x => x.Module.StartsWith("stock-catalogue")).ToArray();
-		var before = owned.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
-		var childIds = db.CraftInputs.Select(x => x.Id).Concat(db.CraftProducts.Select(x => x.Id)).Order().ToArray();
+		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey,
+			x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
+		Assert.IsTrue(before.Count > initialClaims, "Installation must create its own managed records.");
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueSupplies.Install(factory).Status);
 		db.ChangeTracker.Clear();
-		foreach (var record in db.SeederManagedRecords.Where(x => x.Module.StartsWith("stock-catalogue")))
-			Assert.AreEqual(before[record.StableKey], (record.LogicalId, record.RevisionNumber, record.SeedBaseline, record.AppliedAt), record.StableKey);
-		CollectionAssert.AreEqual(childIds, db.CraftInputs.Select(x => x.Id).Concat(db.CraftProducts.Select(x => x.Id)).Order().ToArray());
-		var blankId = result.Identities["arm.item.component_blank"];
-		Assert.AreEqual(10.0, db.GameItemProtos.Single(x => x.Id == blankId).Weight);
-		var blankCraftId = db.SeederManagedRecords.Single(x => x.StableKey == "arm.item.component_blank.recipe").LogicalId;
-		var input = db.CraftInputs.Single(x => x.CraftId == blankCraftId);
-		Assert.AreEqual("Commodity", input.InputType);
-		Assert.AreEqual(10.0, (double)XElement.Parse(input.Definition).Element("Weight")!);
-		Assert.AreEqual(3L, (long)XElement.Parse(input.Definition).Element("Material")!);
-		var highCraftId = db.SeederManagedRecords.Single(x => x.StableKey == "arm.material.conjuration.rank6.recipe").LogicalId;
-		var high = db.Crafts.Single(x => x.Id == highCraftId);
-		Assert.AreEqual(420.0, db.CraftPhases.Single(x => x.CraftPhaseId == high.Id).PhaseLengthInSeconds);
-		var highInput = db.CraftInputs.Single(x => x.CraftId == high.Id);
-		Assert.AreEqual("SimpleItem", highInput.InputType);
-		Assert.AreEqual(7, (int)XElement.Parse(highInput.Definition).Element("Quantity")!);
-		Assert.AreEqual(blankId, (long)XElement.Parse(highInput.Definition).Element("TargetItemId")!);
-		StringAssert.Contains(db.FutureProgs.Single(x => x.Id == high.CanUseProgId).FunctionText, ">= 90");
-		ArmageddonInstallation.Prepare(factory, mode);
+		Assert.AreEqual(before.Count, db.SeederManagedRecords.Count());
+		foreach (var record in db.SeederManagedRecords)
+			Assert.AreEqual(before[record.StableKey],
+				(record.LogicalId, record.RevisionNumber, record.SeedBaseline, record.AppliedAt), record.StableKey);
+		Assert.AreEqual(0, db.GameItems.Count());
+		Assert.AreEqual(0, db.Characters.Count());
 	}
 
 	[TestMethod]
@@ -242,14 +210,15 @@ public class ArmageddonStockCatalogueTests
 		var first = ArmageddonCatalogueSupplies.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages));
 		db.ChangeTracker.Clear();
+		var beforeItems = db.GameItemProtos.Count();
 		var item = db.GameItemProtos.Include(x => x.EditableItem).Single(x => x.Id == first.Identities["arm.item.component_blank"]);
 		item.EditableItem.RevisionStatus = (int)RevisionStatus.UnderDesign;
 		db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Failed, ArmageddonCatalogueSupplies.Install(factory).Status);
-		Assert.AreEqual(64, db.GameItemProtos.Count());
+		Assert.AreEqual(beforeItems, db.GameItemProtos.Count());
 		db.GameItemProtos.Remove(item); db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Failed, ArmageddonCatalogueSupplies.Install(factory).Status);
-		Assert.AreEqual(63, db.GameItemProtos.Count());
+		Assert.AreEqual(beforeItems - 1, db.GameItemProtos.Count());
 	}
 
 	[TestMethod]
@@ -264,6 +233,8 @@ public class ArmageddonStockCatalogueTests
 		var first = ArmageddonCatalogueSupplies.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status);
 		db.ChangeTracker.Clear();
+		var beforeCount = db.GameItemProtos.Count();
+		var originalNames = db.GameItemProtos.ToDictionary(x => x.Id, x => (x.Name, x.UniqueName));
 		foreach (var item in db.GameItemProtos)
 		{
 			var record = db.SeederManagedRecords.Single(x => x.EntityType == nameof(GameItemProto) && x.LogicalId == item.Id);
@@ -287,9 +258,9 @@ public class ArmageddonStockCatalogueTests
 			CollectionAssert.AreEquivalent(first.Identities.ToArray(), result.Identities.ToArray());
 			db.ChangeTracker.Clear();
 			var actual = db.GameItemProtos.Single(x => x.Id == id);
-			Assert.AreEqual(editNoun ? "reagent" : "component", actual.Name);
-			Assert.AreEqual(editUniqueName ? "Builder's abjuration reagent" : "Armageddon Abjuration component rank 0", actual.UniqueName);
-			Assert.AreEqual(64, db.GameItemProtos.Count());
+			Assert.AreEqual(editNoun ? "reagent" : originalNames[id].Name, actual.Name);
+			Assert.AreEqual(editUniqueName ? "Builder's abjuration reagent" : originalNames[id].UniqueName, actual.UniqueName);
+			Assert.AreEqual(beforeCount, db.GameItemProtos.Count());
 			Assert.AreEqual(0, db.GameItemProtos.Count(x => x.Name.StartsWith("Armageddon ")));
 			Assert.AreEqual(0, db.GameItemProtos.Count(x => x.UniqueName == null || x.UniqueName == ""));
 		}

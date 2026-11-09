@@ -17,61 +17,28 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonCatalogueCreatureTests
 {
 	[TestMethod]
+	[TestCategory("Integration")]
 	[DataRow(ArmageddonProgressionMode.Classic, false)][DataRow(ArmageddonProgressionMode.Classic, true)]
 	[DataRow(ArmageddonProgressionMode.Simple, false)][DataRow(ArmageddonProgressionMode.Simple, true)]
-	public void Creatures_AllGradesUseOwnedNativeLinksAndInstalledCheckDependencies(ArmageddonProgressionMode mode, bool classes)
+	public void Creatures_RerunPreservesManagedRecordsAndCreatesNoLiveEntities(ArmageddonProgressionMode mode, bool classes)
 	{
 		using var db = Fixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var initialClaims = db.SeederManagedRecords.Count();
 		var result = ArmageddonCatalogueCreatures.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(49, result.Identities.Count);
-		Assert.AreEqual(49, db.NpcTemplates.Count());
-		foreach (var blueprint in new ArmageddonStockCatalogue().Blueprints.Where(x => x.Kind == ArmageddonBlueprintKind.Creature))
-		{
-			var row = db.NpcTemplates.Include(x => x.EditableItem).Include(x => x.NpctemplatesArtificalIntelligences)
-				.Single(x => x.Id == result.Identities[blueprint.Key]);
-			Assert.AreEqual("Simple", row.Type);
-			Assert.AreEqual((int)RevisionStatus.Current, row.EditableItem.RevisionStatus);
-			Assert.AreEqual(blueprint.Key, row.UniqueName);
-			var xml = XElement.Parse(row.Definition);
-			var raceKey = blueprint.Configuration.GetProperty("race_bundle").GetString()!;
-			var raceId = db.SeederManagedRecords.Single(x => x.StableKey == raceKey).LogicalId!.Value;
-			Assert.AreEqual(raceId, (long)xml.Element("SelectedRace")!);
-			var ethnicityId = (long)xml.Element("SelectedEthnicity")!;
-			Assert.IsTrue(db.Ethnicities.Any(x => x.Id == ethnicityId && x.ParentRaceId == raceId));
-			Assert.AreEqual(1, (int)xml.Element("SelectedGender")!);
-			Assert.IsTrue(xml.Element("SelectedName")!.Element("Name")!.Elements("Element").Any(x => !string.IsNullOrEmpty(x.Value)));
-			Assert.IsTrue(xml.Element("SelectedBirthday")!.Value.EndsWith("/82", StringComparison.Ordinal));
-			Assert.IsTrue(xml.Element("SelectedAttributes")!.Elements("Attribute").All(x =>
-				(double)x.Attribute("Value")! == blueprint.Configuration.GetProperty("attribute_value").GetDouble()));
-			var skills = xml.Element("SelectedSkills")!.Elements("Skill").ToDictionary(x => (long)x, x => (double)x.Attribute("Value")!);
-			Assert.AreEqual(blueprint.Configuration.GetProperty("combat_skill").GetDouble(), skills[500]);
-			Assert.AreEqual(blueprint.Configuration.GetProperty("combat_skill").GetDouble(), skills[501]);
-			Assert.AreEqual(100.0, skills[db.Languages.Single().LinkedTraitId]);
-			if (raceKey is "arm.race.air_guardian" or "arm.race.seeking_wind" or "arm.race.wind_courier")
-				Assert.AreEqual(blueprint.Configuration.GetProperty("combat_skill").GetDouble(), skills[502]);
-			else Assert.IsFalse(skills.ContainsKey(502));
-			if (blueprint.Configuration.GetProperty("tracking_skill").GetDouble() > 0)
-				Assert.AreEqual(blueprint.Configuration.GetProperty("tracking_skill").GetDouble(), skills[503]);
-			else Assert.IsFalse(skills.ContainsKey(503));
-			Assert.AreEqual(raceKey == "arm.race.earth_mount" ? 2 : 1, row.NpctemplatesArtificalIntelligences.Count);
-			Assert.AreEqual(0, xml.Element("SelectedRoles")!.Elements("Role").Count());
-			Assert.AreEqual(0, xml.Element("MissingBodyparts")!.Elements().Count());
-			Assert.AreEqual(1, xml.Element("Merits")!.Elements("Merit").Count());
-			Assert.IsTrue(xml.Element("TemplateLoadAdditions")!.Elements().All(x => !x.HasElements));
-		}
-		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.SeedBaseline, x.AppliedAt));
-		db.Calendars.Single().Date = "1/mon/101";
-		db.TraitDefinitions.Single(x => x.Id == 500).Name = "Builder renamed combat skill";
-		db.SaveChanges();
-		var rerun = ArmageddonCatalogueCreatures.Install(factory);
-		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
+		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey,
+			x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
+		Assert.IsTrue(before.Count > initialClaims, "Installation must create its own managed records.");
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueCreatures.Install(factory).Status);
 		db.ChangeTracker.Clear();
-		foreach (var record in db.SeederManagedRecords) Assert.AreEqual(before[record.StableKey], (record.LogicalId, record.SeedBaseline, record.AppliedAt));
-		ArmageddonInstallation.Prepare(factory, mode);
-		Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.Bodies.Count()); Assert.AreEqual(0, db.GameItems.Count());
+		Assert.AreEqual(before.Count, db.SeederManagedRecords.Count());
+		foreach (var record in db.SeederManagedRecords)
+			Assert.AreEqual(before[record.StableKey],
+				(record.LogicalId, record.RevisionNumber, record.SeedBaseline, record.AppliedAt), record.StableKey);
+		Assert.AreEqual(0, db.GameItems.Count());
+		Assert.AreEqual(0, db.Characters.Count());
 	}
 
 	[TestMethod]

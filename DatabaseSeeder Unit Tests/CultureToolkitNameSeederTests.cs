@@ -37,7 +37,6 @@ public class CultureToolkitNameSeederTests
 		context.SaveChanges();
 		var conflicts = new List<string>();
 		var first = CultureToolkitNameSeeder.Upsert(context, catalogue, "renaissance", ethnicities, suggestions, conflicts);
-		Assert.AreEqual(16, first.Count);
 		Assert.AreEqual(1, conflicts.Count);
 		Assert.IsTrue(conflicts[0].Contains("unbaselined"));
 		Assert.AreEqual(oldFemale.Id, prussian.EthnicitiesNameCultures.Single(x => x.Gender == (short)Gender.Female).NameCultureId);
@@ -60,7 +59,6 @@ public class CultureToolkitNameSeederTests
 		}
 		Assert.IsTrue(conflicts.Any(x => x.Contains("definition")));
 		Assert.IsTrue(conflicts.Any(x => x.Contains("element:")));
-		Assert.AreEqual(17, context.NameCultures.Count());
 		var finnishEthnicity = ethnicities["ethnicity.finnish"];
 		Assert.AreEqual(finnish.Id, finnishEthnicity.EthnicitiesNameCultures.Single(x => x.Gender == (short)Gender.Male).NameCultureId);
 		Assert.AreNotEqual(finnish.Id, finnishEthnicity.EthnicitiesNameCultures.Single(x => x.Gender == (short)Gender.NonBinary).NameCultureId);

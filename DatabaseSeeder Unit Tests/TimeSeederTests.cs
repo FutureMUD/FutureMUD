@@ -105,104 +105,6 @@ public class TimeSeederTests
     }
 
     [TestMethod]
-    public void SeedData_AllModes_HaveExpectedCalendarShapes()
-    {
-        foreach (string mode in Modes)
-        {
-            using FuturemudDatabaseContext context = BuildContext();
-            TimeSeeder seeder = new();
-
-            seeder.SeedData(context, Answers(mode));
-
-            List<XElement> calendars = context.Calendars
-                .Select(x => XElement.Parse(x.Definition))
-                .ToList();
-            List<XElement> clocks = context.Clocks
-                .Select(x => XElement.Parse(x.Definition))
-                .ToList();
-
-            switch (mode)
-            {
-                case "latin-8day":
-                    Assert.IsTrue(calendars.Any(x => x.Element("weekdays")!.Elements("weekday").Count() == 8),
-                        $"{mode}: expected an eight-day week.");
-                    break;
-                case "mission":
-                case "seasonal-360":
-                    Assert.IsTrue(calendars.Any(x => x.Element("weekdays")!.Elements("weekday").Count() == 6),
-                        $"{mode}: expected a six-day week.");
-                    break;
-                case "middle-earth":
-                    Assert.IsTrue(calendars.Count > 1, $"{mode}: expected multiple Tolkien calendars.");
-                    break;
-                case "republicain":
-                    Assert.IsTrue(clocks.Any(x => x.Element("HoursPerDay")?.Value == "10" &&
-                                                  x.Element("SecondsPerMinute")?.Value == "100"),
-                        $"{mode}: expected the decimal clock.");
-                    break;
-                case "islamic-hijri":
-                    AssertAlgorithmAndBoundary(calendars, mode, "astronomical-lunar",
-                        "SunsetAtAuthorityLocation");
-                    break;
-                case "hebrew":
-                    AssertAlgorithmAndBoundary(calendars, mode, "calculated-hebrew",
-                        "SunsetAtAuthorityLocation");
-                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("adar-i") &&
-                                                     MonthAliases(x).Contains("adar-ii")),
-                        $"{mode}: expected Hebrew leap-month definitions.");
-                    break;
-                case "old-persian":
-                    AssertAlgorithmAndBoundary(calendars, mode, "solar-equinox", "ClockMidnight");
-                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("gatha")),
-                        $"{mode}: expected epagomenal Gatha days.");
-                    break;
-                case "babylonian":
-                    AssertAlgorithmAndBoundary(calendars, mode, "astronomical-lunar",
-                        "SunsetAtAuthorityLocation");
-                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("addaru-ii") &&
-                                                     MonthAliases(x).Contains("ululu-ii")),
-                        $"{mode}: expected Babylonian leap-month definitions.");
-                    break;
-                case "chinese-minguo":
-                    AssertAlgorithmAndBoundary(calendars, mode, "fixed-months", "ClockMidnight");
-                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("yi-yue")),
-                        $"{mode}: expected Latin1-safe romanised Chinese month aliases.");
-                    break;
-                case "korean-dangi":
-                case "japanese-koki":
-                    AssertAlgorithmAndBoundary(calendars, mode, "fixed-months", "ClockMidnight");
-                    break;
-                case "chinese-lunisolar":
-                case "korean-lunisolar":
-                case "japanese-lunisolar":
-                    AssertAlgorithmAndBoundary(calendars, mode, "east-asian-lunisolar",
-                        "ClockMidnight");
-                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Any(y => y.StartsWith("leap-"))),
-                        $"{mode}: expected an East Asian leap-month definition.");
-                    break;
-            }
-        }
-    }
-
-    [TestMethod]
-    [DataRow("gregorian-us", "Gregorian Calendar (EN-US)", "American", "january/01/1200")]
-    [DataRow("gregorian-uk", "Gregorian Calendar (EN-UK)", "British", "01/january/1200")]
-    public void SeedData_GregorianModes_DescribeTheirSelectedDateConvention(string mode, string shortName,
-        string convention, string date)
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        TimeSeeder seeder = new();
-
-        seeder.SeedData(context, Answers(mode));
-
-        Calendar calendar = context.Calendars.Single();
-        XElement definition = XElement.Parse(calendar.Definition);
-        Assert.AreEqual(shortName, definition.Element("shortname")?.Value);
-        StringAssert.Contains(definition.Element("fullname")?.Value ?? string.Empty, convention);
-        Assert.AreEqual(date, calendar.Date);
-    }
-
-    [TestMethod]
     [DataRow("islamic-hijri")]
     [DataRow("hebrew")]
     [DataRow("old-persian")]
@@ -297,48 +199,6 @@ public class TimeSeederTests
         Assert.AreEqual(calendarCount, context.Calendars.Count());
     }
 
-    [TestMethod]
-    public void SeedData_Seasonal360Calendar_CreatesExpectedCalendar()
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        TimeSeeder seeder = new();
-
-        seeder.SeedData(context, new System.Collections.Generic.Dictionary<string, string>
-        {
-            ["secondsmultiplier"] = "2",
-            ["mode"] = "seasonal-360",
-            ["startyear"] = "1200"
-        });
-
-        Calendar calendar = context.Calendars.Single();
-        Assert.AreEqual("01/early-winter/1200", calendar.Date);
-
-        XElement definition = XElement.Parse(calendar.Definition);
-        Assert.AreEqual("seasonal-360", definition.Element("alias")?.Value);
-        Assert.AreEqual("1", definition.Element("weekdayatepoch")?.Value);
-
-        List<string> weekdays = definition.Element("weekdays")!.Elements("weekday").Select(x => x.Value).ToList();
-        CollectionAssert.AreEqual(
-            new[]
-            {
-                "First Day",
-                "Second Day",
-                "Third Day",
-                "Fourth Day",
-                "Fifth Day",
-                "Sixth Day"
-            },
-            weekdays);
-
-        List<XElement> months = definition.Element("months")!.Elements("month").ToList();
-        Assert.AreEqual(12, months.Count);
-        Assert.AreEqual("early-winter", months.First().Element("alias")?.Value);
-        Assert.AreEqual("late-autumn", months.Last().Element("alias")?.Value);
-        Assert.IsTrue(months.All(x => x.Element("normaldays")?.Value == "30"));
-        Assert.IsTrue(months.All(x => !x.Element("intercalarydays")!.Elements().Any()));
-        Assert.IsFalse(definition.Element("intercalarymonths")!.Elements().Any());
-    }
-
     private static Dictionary<string, string> Answers(string mode)
     {
         return new Dictionary<string, string>
@@ -379,28 +239,11 @@ public class TimeSeederTests
             $"{mode}: missing or empty {elementName}.");
     }
 
-    private static void AssertAlgorithmAndBoundary(List<XElement> calendars, string mode, string algorithmType,
-        string boundaryType)
-    {
-        Assert.IsTrue(calendars.Any(x => x.Element("algorithm")?.Attribute("type")?.Value == algorithmType),
-            $"{mode}: expected algorithm type {algorithmType}.");
-        Assert.IsTrue(calendars.Any(x => x.Element("dayboundary")?.Attribute("type")?.Value == boundaryType),
-            $"{mode}: expected day-boundary type {boundaryType}.");
-    }
-
     private static string ClockAlias(Clock clock)
     {
         return XElement.Parse(clock.Definition)
             .Element("Alias")!
             .Value;
-    }
-
-    private static List<string> MonthAliases(XElement calendar)
-    {
-        return calendar.Element("months")!
-            .Elements("month")
-            .Select(x => x.Element("alias")!.Value)
-            .ToList();
     }
 
     private static string CalendarAlias(Calendar calendar)

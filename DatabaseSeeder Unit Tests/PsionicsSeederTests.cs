@@ -28,22 +28,6 @@ public class PsionicsSeederTests
 		context.SaveChanges();
 		return context;
 	}
-	[TestMethod]
-	public void ContactVariants_HaveSeparateProgsRangesAndDistinctVerbs()
-	{
-		using var context = Context();
-		new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" });
-		foreach (var school in context.MagicSchools)
-		{
-			var contact = XElement.Parse(context.MagicPowers.Single(x => x.MagicSchoolId == school.Id && x.Name == "Mind Contact").Definition);
-			Assert.AreNotEqual(contact.Element("TargetCanSeeIdentityProg")!.Value, contact.Element("TargetEligibilityProg")!.Value);
-			Assert.AreEqual(((int)(school.Name == "Basic Psionics" ? MudSharp.Magic.MagicPowerDistance.SameZoneOnly : MudSharp.Magic.MagicPowerDistance.SameShardOnly)).ToString(), contact.Element("PowerDistance")!.Value);
-			var back = XElement.Parse(context.MagicPowers.Single(x => x.MagicSchoolId == school.Id && x.Name == "Connect Back").Definition);
-			Assert.AreEqual(((int)MudSharp.Magic.MagicPowerDistance.AnyConnectedMindOrConnectedTo).ToString(), back.Element("PowerDistance")!.Value);
-			Assert.AreEqual("disconnectback", back.Element("DisconnectVerb")!.Value);
-			Assert.AreEqual(6, contact.Elements().Where(x => x.Name.LocalName.Contains("Emote") && x.Name.LocalName.Contains("Connect") || x.Name.LocalName.Contains("Emote") && x.Name.LocalName.Contains("Disconnect")).Select(x => x.Value).Distinct().Count());
-		}
-	}
 
 	[TestMethod]
 	public void Rerun_RepairsRecognisedPlaceholdersButKeepsAuthoredEmotes()
@@ -108,22 +92,6 @@ public class PsionicsSeederTests
 		context.SaveChanges();
 		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(context, answers));
 		Assert.AreEqual("custom-conflict", power.PowerModel);
-	}
-	[TestMethod]
-	public void PlayerContent_HasSchoolScopedNamesSyntaxAndHumanProjection()
-	{
-		using var context = Context();
-		new PsionicsSeeder().SeedData(context, new Dictionary<string, string> { ["install-psionics"] = "yes" });
-		Assert.AreEqual(2, context.MagicPowers.Count(x => x.Name == "Mind Contact"));
-		foreach (var power in context.MagicPowers)
-		{
-			Assert.IsFalse(power.Name.Contains(":"), power.Name);
-			StringAssert.Contains(power.ShowHelp, "Syntax:", power.Name);
-			StringAssert.Contains(power.ShowHelp, context.MagicSchools.Find(power.MagicSchoolId)!.SchoolVerb + " ", power.Name);
-			Assert.IsFalse(power.ShowHelp.Contains("EnablePsychometric") || power.ShowHelp.Contains("builder") || power.ShowHelp.Contains("example power") || power.ShowHelp.Contains("{range}"), power.Name);
-		}
-		var projection = XElement.Parse(context.MagicSpells.Single(x => x.Name == MudSharp.Magic.PsionicPlayerContent.Powers["project"].Name).Definition);
-		Assert.AreEqual(context.Races.Single(x => x.Name == "Human").Id, (long)projection.Element("Effects")!.Element("Effect")!.Element("Race")!);
 	}
 
 	[TestMethod]

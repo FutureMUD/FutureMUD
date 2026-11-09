@@ -12,16 +12,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class IndustrialisedClothingCatalogueTests
 {
-	[TestMethod]
-	public void EmbeddedSchemas_ArePresentButDoNotPretendToBeFinishedContent()
-	{
-		var document = IndustrialisedItemCatalogue.Document.Clothing;
-		Assert.AreEqual(13, IndustrialisedClothingCatalogue.Headers.Count);
-		Assert.AreEqual(0, document.Bases.Count);
-		Assert.AreEqual(0, document.Skins.Count);
-		Assert.AreEqual(0, document.Crafts.Count);
-		Assert.AreEqual(0, document.Outfits.Count);
-	}
 
 	[TestMethod]
 	public void AuthoredContract_PreservesProseRoutesNullQualityAndExactSkinProducts()

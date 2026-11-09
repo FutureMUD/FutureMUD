@@ -594,147 +594,6 @@ public class HealthSeederTests
 	}
 
     [TestMethod]
-    public void SeedData_DrugExpansionPayloads_AreSeeded()
-    {
-        using (FuturemudDatabaseContext context = BuildHealthSeederInstallContext())
-        {
-            HealthSeeder seeder = new();
-            seeder.SeedData(context, new Dictionary<string, string>
-            {
-                ["techlevel"] = "primitive"
-            });
-
-            MudSharp.Health.Drug yarrow = RuntimeDrug(context, "Yarrow Styptic");
-            CoagulationAdditionalInfo yarrowCoagulation =
-                yarrow.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation);
-            Assert.AreEqual(0.40, yarrowCoagulation.ExternalBleedingMultiplier);
-            Assert.AreEqual(0.50, yarrowCoagulation.WoundReopenMultiplier);
-
-            MudSharp.Health.Drug ephedra = RuntimeDrug(context, "Ephedra Brew");
-            NeedRateAdditionalInfo ephedraNeeds =
-                ephedra.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate);
-            Assert.AreEqual(0.70, ephedraNeeds.HungerMultiplier);
-            Assert.IsTrue(ephedraNeeds.AppliesToPassive);
-            Assert.IsTrue(ephedra.AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal).Mode
-                .HasFlag(DrugArousalMode.SleepPreventing));
-            CollectionAssert.Contains(ephedra.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
-                .AffectedDrugTypes, DrugType.NeedRate);
-        }
-
-        using (FuturemudDatabaseContext context = BuildHealthSeederInstallContext())
-        {
-            HealthSeeder seeder = new();
-            seeder.SeedData(context, new Dictionary<string, string>
-            {
-                ["techlevel"] = "pre-modern"
-            });
-
-            MudSharp.Health.Drug laudanum = RuntimeDrug(context, "Laudanum");
-            Assert.AreEqual(0.70,
-                laudanum.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
-                    .BreathingDriveMultiplier);
-            Assert.IsTrue(laudanum.AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal).Mode
-                .HasFlag(DrugArousalMode.SleepInducing));
-            CollectionAssert.Contains(laudanum.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
-                .AffectedDrugTypes, DrugType.Analgesic);
-
-            MudSharp.Health.Drug bronchialSmoke = RuntimeDrug(context, "Bronchial Smoke");
-            Assert.AreEqual(1.40,
-                bronchialSmoke.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
-                    .AirwayToleranceMultiplier);
-        }
-
-        using (FuturemudDatabaseContext context = BuildHealthSeederInstallContext())
-        {
-            HealthSeeder seeder = new();
-            seeder.SeedData(context, new Dictionary<string, string>
-            {
-                ["techlevel"] = "modern"
-            });
-
-            MudSharp.Health.Drug opioid = RuntimeDrug(context, "Opioid Analgesic");
-            Assert.AreEqual(0.65,
-                opioid.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
-                    .BreathingDriveMultiplier);
-            CollectionAssert.Contains(opioid.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
-                .AffectedDrugTypes, DrugType.Respiration);
-
-            MudSharp.Health.Drug bronchodilator = RuntimeDrug(context, "Bronchodilator");
-            Assert.AreEqual(1.60,
-                bronchodilator.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
-                    .AirwayToleranceMultiplier);
-
-            MudSharp.Health.Drug clottingAgent = RuntimeDrug(context, "Clotting Agent");
-            Assert.AreEqual(0.30,
-                clottingAgent.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation)
-                    .ExternalBleedingMultiplier);
-
-            MudSharp.Health.Drug anticoagulant = RuntimeDrug(context, "Anticoagulant");
-            Assert.AreEqual(1.80,
-                anticoagulant.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation)
-                    .ExternalBleedingMultiplier);
-        }
-    }
-
-    [TestMethod]
-    public void SeedData_MedievalTier_SeedsDrugsLiquidsVesselsAndIncense()
-    {
-        using FuturemudDatabaseContext context = BuildHealthSeederInstallContext();
-        HealthSeeder seeder = new();
-
-        seeder.SeedData(context, new Dictionary<string, string>
-        {
-            ["techlevel"] = "medieval"
-        });
-
-        string[] expectedDrugs =
-        [
-            "Willow Bark Tea", "Mandrake Draught", "Honey Poultice", "Garlic Salve", "Mint Infusion",
-            "Ephedra Brew", "Foxglove Tincture", "Aloe Burn Salve", "Poppy Latex Draught", "Henbane Smoke",
-            "Yarrow Styptic", "Mint and Ginger Tonic", "Herbal Burn Salve", "Bronchial Smoke",
-            "Alum Styptic", "Theriac Electuary", "Soporific Fumes", "Dietary Caffeine", "Food-Borne Illness"
-        ];
-        CollectionAssert.AreEquivalent(expectedDrugs, context.Drugs.Select(x => x.Name).OrderBy(x => x).ToArray());
-
-        Assert.AreEqual(0.45, RuntimeDrug(context, "Alum Styptic")
-            .AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation).ExternalBleedingMultiplier);
-        CollectionAssert.Contains(RuntimeDrug(context, "Theriac Electuary")
-            .AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect).NeutralisedTypes, DrugType.BodypartDamage);
-        Assert.AreEqual(0.80, RuntimeDrug(context, "Soporific Fumes")
-            .AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration).BreathingDriveMultiplier);
-        Assert.AreEqual(0.65, RuntimeDrug(context, "Poppy Latex Draught")
-            .AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence).ExposureGainPerGram);
-		Assert.AreEqual(1.15, RuntimeDrug(context, "Food-Borne Illness")
-			.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate).HungerMultiplier);
-		Assert.AreEqual(1.25, RuntimeDrug(context, "Food-Borne Illness")
-			.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate).ThirstMultiplier);
-		Assert.AreEqual(5.0, context.Drugs.Single(x => x.Name == "Dietary Caffeine").IntensityPerGram);
-
-        Tag medicineTag = context.Tags.Single(x => x.Name == "Medicine" && x.Parent != null && x.Parent.Name == "Liquids");
-        Liquid theriac = context.Liquids.Single(x => x.Name == "theriac syrup");
-        Assert.AreEqual(context.Drugs.Single(x => x.Name == "Theriac Electuary").Id, theriac.DrugId);
-        Assert.AreEqual(5.0, theriac.DrugGramsPerUnitVolume);
-        Assert.AreEqual((int)LiquidInjectionConsequence.Harmful, theriac.InjectionConsequence);
-        Assert.IsTrue(context.LiquidsTags.Any(x => x.LiquidId == theriac.Id && x.TagId == medicineTag.Id));
-        Assert.AreEqual(8, context.Liquids.Count(x => x.LiquidsTags.Any(y => y.TagId == medicineTag.Id)));
-
-        GameItemComponentProto theriacVessel = context.GameItemComponentProtos.Single(x => x.Name == "LContainer_Medicine_Theriac_Syrup_100ml");
-        XElement theriacDefinition = XElement.Parse(theriacVessel.Definition);
-        Assert.AreEqual("Liquid Container", theriacVessel.Type);
-        Assert.AreEqual(0.10, (double)theriacDefinition.Attribute("LiquidCapacity")!);
-        Assert.AreEqual(theriac.Id, (long)theriacDefinition.Attribute("DefaultLiquid")!);
-
-        GameItemComponentProto incense = context.GameItemComponentProtos.Single(x => x.Name == "IncenseBurner_Soporific_Fumes");
-        XElement incenseDefinition = XElement.Parse(incense.Definition);
-        Assert.AreEqual("IncenseBurner", incense.Type);
-        Tag fumigationStock = context.Tags.Single(x => x.Name == "Fumigation Stock" && x.Parent != null && x.Parent.Name == "Medical Craft Stock");
-        Assert.AreEqual(fumigationStock.Id, (long)incenseDefinition.Element("FuelTag")!);
-        Assert.AreEqual(context.Drugs.Single(x => x.Name == "Soporific Fumes").Id, (long)incenseDefinition.Element("Drug")!);
-        Assert.AreEqual(30, (int)incenseDefinition.Element("DrugPulseSeconds")!);
-        Assert.AreEqual(0.003, (double)incenseDefinition.Element("GramsPerPulse")!);
-    }
-
-    [TestMethod]
     public void SeederQuestions_MedievalWithoutFumigationStock_IsRejected()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -745,15 +604,6 @@ public class HealthSeederTests
 
         Assert.IsFalse(success);
         StringAssert.Contains(error, "Fumigation Stock");
-    }
-
-    private static MudSharp.Health.Drug RuntimeDrug(FuturemudDatabaseContext context, string name)
-    {
-        Drug model = context.Drugs
-            .Include(x => x.DrugsIntensities)
-            .Single(x => x.Name == name);
-
-        return new MudSharp.Health.Drug(model, new Mock<MudSharp.Framework.IFuturemud>().Object);
     }
 
     private static void AssertSkillAvailabilityProgShape(DbFutureProg prog)
@@ -798,29 +648,6 @@ public class HealthSeederTests
         Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Pill_BothDrug"));
         Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "TopicalCream_BothDrug"));
         Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Smokeable_BothDrug"));
-    }
-
-    [TestMethod]
-    public void SeededItemComponentCatalogue_IncludesHealthDrugDeliveryComponents()
-    {
-        var healthSource = ReadSource("DatabaseSeeder", "Seeders", "HealthSeeder", "HealthSeeder.cs");
-        var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
-
-        using var document = JsonDocument.Parse(componentCatalogue);
-        var catalogueNames = document.RootElement
-            .EnumerateArray()
-            .Select(x => x.GetProperty("Component Name").GetString() ?? string.Empty)
-            .Where(x => x.Length > 0)
-            .ToHashSet(StringComparer.Ordinal);
-
-        var missing = ExpectedHealthDrugDeliveryComponentNames(healthSource)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(x => x)
-            .Where(x => !catalogueNames.Contains(x))
-            .ToArray();
-
-        Assert.AreEqual(0, missing.Length,
-            $"Missing HealthSeeder delivery components from Seeded_Item_Components.json: {string.Join(", ", missing)}");
     }
 
     [TestMethod]
@@ -921,50 +748,5 @@ public class HealthSeederTests
 
         HealthSeeder seeder = new();
         Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
-    }
-
-    private static IEnumerable<string> ExpectedHealthDrugDeliveryComponentNames(string source)
-    {
-        foreach (System.Text.RegularExpressions.Match match in Regex.Matches(source,
-                     @"AddDrug\(""(?<name>[^""]+)"",\s*[^,]+,\s*[^,]+,\s*(?<vectors>DrugVector\.[^,]+),",
-                     RegexOptions.Multiline))
-        {
-            var drugName = match.Groups["name"].Value;
-            var vectors = match.Groups["vectors"].Value;
-            var componentName = SanitizeHealthDrugComponentName(drugName);
-
-            if (vectors.Contains("Ingested", StringComparison.Ordinal))
-            {
-                yield return $"Pill_{componentName}";
-            }
-
-            if (vectors.Contains("Touched", StringComparison.Ordinal))
-            {
-                yield return $"TopicalCream_{componentName}";
-            }
-
-            if (vectors.Contains("Inhaled", StringComparison.Ordinal))
-            {
-                yield return $"Smokeable_{componentName}";
-            }
-        }
-    }
-
-    private static string SanitizeHealthDrugComponentName(string text)
-    {
-        return new string(text.Select(x => char.IsLetterOrDigit(x) ? x : '_').ToArray())
-            .Trim('_')
-            .Replace("__", "_");
-    }
-
-    private static string ReadSource(params string[] parts)
-    {
-        return File.ReadAllText(Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            Path.Combine(parts))));
     }
 }

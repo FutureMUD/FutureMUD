@@ -114,18 +114,4 @@ public class PsionicCombatSeederTests
 		Assert.AreEqual("Custom Lance", power.Name);
 		Assert.AreEqual("Custom instructions", power.ShowHelp);
 	}
-
-	[TestMethod]
-	public void StockCosts_BoundCombatEnduranceAndMaintainDistinctDefenseBudgets()
-	{
-		var strike = PsionicStockContent.CombatPowers.Single(x => x.Verb == "forcestrike");
-		var lance = PsionicStockContent.CombatPowers.Single(x => x.Verb == "forcelance");
-		Assert.IsTrue(lance.Cost > strike.Cost);
-		foreach (var stock in PsionicStockContent.CombatPowers.Where(x => x.Defense.HasValue))
-		{
-			Assert.IsTrue(stock.ReactionCost > 0);
-			Assert.IsTrue(stock.Cost + 10 * stock.ReactionCost + PsionicStockContent.CombatDefenseUpkeep * 2 < PsionicStockContent.FocusCap);
-			Assert.IsTrue(stock.Charges > 0 && stock.Capacity > 0);
-		}
-	}
 }

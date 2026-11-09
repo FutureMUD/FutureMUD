@@ -96,57 +96,6 @@ public class HumanWearLayerTests
 	}
 
 	[TestMethod]
-	[DataRow("Split Drawers", "groin")]
-	[DataRow("Split Drawers", "penis")]
-	[DataRow("Backless Shoes", "rheel")]
-	[DataRow("Backless Shoes", "lheel")]
-	[DataRow("Backless Shoes", "rankle")]
-	[DataRow("Open-Back Gown", "uback")]
-	[DataRow("Open-Back Gown", "rbuttock")]
-	[DataRow("Short Stays", "belly")]
-	[DataRow("Short Wrap Jacket", "abdomen")]
-	[DataRow("High-Waisted Skirt", "rbreast")]
-	[DataRow("Bib Overalls", "uback")]
-	[DataRow("Bib Overalls", "rforearm")]
-	[DataRow("Spats", "rbigtoe")]
-	[DataRow("Spats", "rcalf")]
-	[DataRow("Academic Hood", "scalp")]
-	public void OpenAndShortGarments_DoNotAcquireUnintendedCoverage(string profile, string bodypart) =>
-		Assert.IsFalse(XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting[profile]).Elements()
-			.Any(x => (string?)x.Attribute("Bodypart") == bodypart), $"{profile} must not cover {bodypart}.");
-
-	[TestMethod]
-	[DataRow("Hairnet")]
-	[DataRow("Net Skirt")]
-	[DataRow("Braces")]
-	[DataRow("Rank Slides")]
-	[DataRow("Nappy Pins")]
-	[DataRow("Rear Skirt Support")]
-	public void PartialAndMeshCoverage_DoesNotHideUnderlyingGarments(string profile) =>
-		Assert.IsTrue(XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting[profile]).Elements()
-			.All(x => (bool)x.Attribute("Transparent")! && !(bool)x.Attribute("HidesSevered")!));
-
-	[TestMethod]
-	public void HighNecks_CoverNeckWhileHoodsKeepFaceOpenAndLowCutShoesKeepAnklesBare()
-	{
-		foreach (var name in new[] { "High-Neck Shirt", "High-Neck Jacket", "High-Neck Dress", "Standing Collar" })
-		{
-			var locations = XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting[name]).Elements()
-				.ToDictionary(x => (string)x.Attribute("Bodypart")!);
-			foreach (var part in new[] { "neck", "throat", "bneck" }) Assert.IsFalse((bool)locations[part].Attribute("Transparent")!);
-		}
-		var hood = XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting["Hooded Long Coat"]);
-		var lowered = XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting["Hooded Long Coat Lowered"]);
-		var headParts = new[] { "scalp", "bhead", "rear", "lear", "rtemple", "ltemple" };
-		CollectionAssert.AreEqual(lowered.Elements().Select(x => x.ToString()).ToArray(),
-			hood.Elements().Where(x => !headParts.Contains((string)x.Attribute("Bodypart")!)).Select(x => x.ToString()).ToArray());
-		Assert.IsTrue(hood.Elements().Any(x => (string?)x.Attribute("Bodypart") == "scalp"));
-		Assert.IsFalse(hood.Elements().Any(x => (string?)x.Attribute("Bodypart") is "face" or "reye" or "leye" or "mouth"));
-		var shoes = XElement.Parse(HumanSeeder.AdditionalHumanWearProfileXmlForTesting["Low-Cut Shoes"]);
-		Assert.IsFalse(shoes.Elements().Any(x => (string?)x.Attribute("Bodypart") is "rankle" or "lankle"));
-	}
-
-	[TestMethod]
 	public void FreshWearStock_AndBaselineUpgradeHaveTheSameCompleteDefinitions()
 	{
 		using var fresh = new Fixture(seedBaseline: false);

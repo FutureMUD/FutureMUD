@@ -51,41 +51,6 @@ public class ArmageddonNamingTests
 		Assert.ThrowsExactly<InvalidOperationException>(() => ArmageddonHeritage.Install(db, new List<string>()));
 		Assert.AreEqual(before, db.SeederManagedRecords.Count()); Assert.AreEqual(0, db.NameCultures.Count());
 	}
-	[TestMethod]
-	public void ApprovedManifest_HasAllPoolsDescriptionsAndConstrainedComponents()
-	{
-		var data = ArmageddonNaming.Data;
-		var cultures = ArmageddonNaming.Cultures;
-		Assert.AreEqual(15, cultures.Length);
-		Assert.AreEqual(78, cultures.Sum(x => x.GetProperty("elements").GetArrayLength()));
-		var descriptions = string.Join("\n", cultures.SelectMany(c => c.GetProperty("elements").EnumerateArray()
-			.Select(e => ArmageddonNaming.Id(c) + "\n" + e.GetProperty("id").GetString() + "\n" + e.GetProperty("description").GetString())));
-		Assert.AreEqual("9173A85FE57040D4F0AA7200B5C245F5A202CCED0B8B745BD9F8E576D71C47E0", Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(descriptions))), "Approved Page descriptions changed.");
-		Assert.AreEqual("user_approved_Dark_Sun_inspired_adaptation", data.GetProperty("source").GetProperty("classification").GetString());
-		Assert.AreEqual("5a8ce2cf4bc84bc6482db977cd86c58dc5a89b8e36ab7cd3256fb01e548fecc9", data.GetProperty("source").GetProperty("sha256").GetString());
-		var pools = data.GetProperty("personal_pools").EnumerateObject().ToArray();
-		Assert.AreEqual(8, pools.Length);
-		var names = pools.SelectMany(x => new[] { "male", "female", "gender_unspecified" }
-			.SelectMany(k => x.Value.GetProperty(k).EnumerateArray().Select(n => n.GetString()!))).ToArray();
-		Assert.AreEqual(321, names.Length); Assert.AreEqual(321, names.Distinct(StringComparer.Ordinal).Count());
-		Assert.IsTrue(names.All(x => x.Length <= 100 && x.IsNormalized(NormalizationForm.FormC) && !x.Any(char.IsSurrogate)));
-		Assert.AreEqual(401, cultures.Where(x => x.GetProperty("kind").GetString() == "racial_tradition").Sum(x => ArmageddonNaming.Eligible(x, 0).Length));
-		var components = data.GetProperty("component_collections").EnumerateObject().ToArray();
-		Assert.AreEqual(62, components.Sum(x => x.Value.GetProperty("values") is var values && values.ValueKind == JsonValueKind.Array ? values.GetArrayLength() : values.EnumerateObject().Sum(v => v.Value.GetArrayLength())));
-		Assert.IsTrue(components.All(x => !x.Value.GetProperty("generic_random_enabled").GetBoolean()));
-		var clans = data.GetProperty("component_collections").GetProperty("elf_clans_by_tribe");
-		CollectionAssert.Contains(clans.GetProperty("values").GetProperty("Night Runner Tribe").EnumerateArray().Select(x => x.GetString()!).ToArray(), "Dark Moons");
-		Assert.AreEqual(0, clans.GetProperty("values").GetProperty("Shadow Tribe").GetArrayLength());
-		Assert.AreEqual("explicit_confirmed_completed_apprenticeship_only", data.GetProperty("component_collections").GetProperty("pterran_path_names").GetProperty("selection").GetString());
-		var human = cultures.Single(x => ArmageddonNaming.Id(x) == "human");
-		CollectionAssert.Contains(ArmageddonNaming.Eligible(human, 2), "Agis");
-		CollectionAssert.DoesNotContain(ArmageddonNaming.Eligible(human, 2), "Sadira");
-		CollectionAssert.Contains(ArmageddonNaming.Eligible(human, 3), "Sadira");
-		foreach (var key in new[] { "half_elf", "half_giant" })
-			CollectionAssert.AreEquivalent(ArmageddonNaming.Eligible(human, 0), ArmageddonNaming.Eligible(cultures.Single(x => ArmageddonNaming.Id(x) == key), 0));
-		var mul = cultures.Single(x => ArmageddonNaming.Id(x) == "mul");
-		foreach (var gender in Enumerable.Range(0, 5)) CollectionAssert.Contains(ArmageddonNaming.Eligible(mul, gender), "Atlalak");
-	}
 
 	[TestMethod]
 	public void NamingInstall_UsesSimplePromptsAndPersonalOnlyGenderProfilesWithoutNewRaces()

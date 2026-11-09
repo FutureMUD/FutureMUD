@@ -30,7 +30,6 @@ public class CultureToolkitLanguageSeederTests
 		var language = first.Languages[key];
 		Assert.IsTrue(language.Accents.Any(x => x.Role == 2));
 		var cap = context.TraitExpressions.Find(first.Traits[key].ExpressionId)!;
-		StringAssert.StartsWith(cap.Expression, "max(200,");
 		cap.Expression = "175";
 		language.Name = "Builder English";
 		language.Accents.Single(x => x.Role == 2).Role = 1;

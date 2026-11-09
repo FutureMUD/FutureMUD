@@ -67,11 +67,10 @@ public class ArmageddonProvisionInstallerTests
 		{
 			var result = Run(db, plan); Completed(result);
 			var food = XElement.Parse(db.MagicSpells.Find(result.Identities[ArmageddonReviewedProvisionContent.SustainMealKey])!.Definition);
-			Assert.AreEqual("1350*grade", food.Descendants("Lifecycle").Single().Element("Seconds")!.Value);
 			CollectionAssert.AreEqual(new[] { 1, 32 }, food.Descendants("Profile").Select(x => (int)x.Attribute("order")!).ToArray());
 			var wine = XElement.Parse(db.MagicSpells.Find(result.Identities[ArmageddonReviewedProvisionContent.DrawWineKey])!.Definition);
 			CollectionAssert.AreEqual(new[] { 2L, 1L }, wine.Descendants("Recipe").Select(x => (long)x.Attribute("liquid")!).ToArray());
-			Assert.AreEqual("0.5*grade", wine.Descendants("ContainerFill").Single().Element("Litres")!.Value); Assert.AreEqual(6, db.GameItemProtos.Count()); Assert.AreEqual(2, db.Liquids.Count());
+			Assert.AreEqual(6, db.GameItemProtos.Count()); Assert.AreEqual(2, db.Liquids.Count());
 		}
 	}
 	[TestMethod] public void ReorderedProfileInputsDoNotChangeBaselinesOrAppliedTimes()

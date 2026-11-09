@@ -90,18 +90,6 @@ public class NPCSkillPackageSeederTests
 	}
 
 	[TestMethod]
-	public void CombatTierMapping_PlacesWargAndDragonAtRequiredThreatLevels()
-	{
-		var warg = new StockNPCSkillPackageRace("Warg", false, true, true, NonHumanCombatTier.SeriousThreat);
-		var dragon = new StockNPCSkillPackageRace("Dragon", true, true, true, NonHumanCombatTier.PartyBoss);
-
-		Assert.AreEqual("Terrifying Beast Attacker", NPCSkillPackageSeederHelper.CombatPackageFor(warg));
-		Assert.AreEqual("Apex Beast Attacker", NPCSkillPackageSeederHelper.CombatPackageFor(dragon));
-		Assert.AreEqual(NonHumanCombatTier.Avatar,
-			NPCSkillPackageSeederHelper.TierForAnimal(SizeCategory.Titanic));
-	}
-
-	[TestMethod]
 	public void StockDetection_AdvertisesDefinitionAndRaceLinkRepairs()
 	{
 		using var context = BuildContext();

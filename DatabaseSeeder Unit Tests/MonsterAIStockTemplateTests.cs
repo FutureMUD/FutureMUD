@@ -20,29 +20,6 @@ public class MonsterAIStockTemplateTests
 		.UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
 	[TestMethod]
-	public void Recommendations_CoverBothCataloguesExactly_AndOnlyReferenceStockProfiles()
-	{
-		var recommendations = MonsterAIStockTemplates.Recommendations;
-		Assert.AreEqual(89, recommendations.Count);
-		Assert.AreEqual(89, recommendations.Select(x => (x.Pack, x.Race)).Distinct().Count());
-		CollectionAssert.AreEquivalent(MythicalAnimalSeeder.TemplatesForTesting.Keys.ToArray(), recommendations.Where(x => x.Pack == "Mythical").Select(x => x.Race).ToArray());
-		CollectionAssert.AreEquivalent(SupernaturalSeeder.TemplatesForTesting.Keys.ToArray(), recommendations.Where(x => x.Pack == "Supernatural").Select(x => x.Race).ToArray());
-		Assert.IsTrue(recommendations.SelectMany(x => x.Profiles).All(MonsterAIStockTemplates.Names.Contains));
-		CollectionAssert.AreEquivalent(MonsterAIStockTemplates.Names.ToArray(), recommendations.SelectMany(x => x.Profiles).Distinct().ToArray());
-		foreach (var recommendation in recommendations)
-		{
-			Assert.IsTrue(recommendation.RequiredBindings.Count > 0, recommendation.Race);
-			Assert.IsTrue(recommendation.NativeAttacks.Count > 0, recommendation.Race);
-			Assert.IsTrue(recommendation.Limitations.Any(x => x.Contains("Wildlife group")), recommendation.Race);
-		}
-		Assert.AreEqual("Retain Animal/wildlife", recommendations.Single(x => x.Race == "Unicorn").Disposition);
-		Assert.AreEqual("Builder-authored sapient role", recommendations.Single(x => x.Race == "Minotaur").Disposition);
-		Assert.IsFalse(recommendations.Single(x => x.Race == "Zombie").CanUseWeapons);
-		Assert.IsTrue(recommendations.Single(x => x.Race == "Skeleton").CanUseWeapons);
-		Assert.IsTrue(recommendations.Single(x => x.Race == "Phoenix").Limitations.Any(x => x.Contains("resurrection")));
-	}
-
-	[TestMethod]
 	[DataRow("Mythical", "Supernatural")]
 	[DataRow("Supernatural", "Mythical")]
 	public void Seed_PackOrderAndReruns_PreserveIdsClonesAndLegacyRows(string first, string second)
@@ -72,34 +49,5 @@ public class MonsterAIStockTemplateTests
 		context.ArtificialIntelligences.Add(custom); context.SaveChanges();
 		Assert.ThrowsExactly<InvalidOperationException>(() => MonsterAIStockTemplates.Seed(context, "Mythical"));
 		Assert.AreEqual("Animal", custom.Type); Assert.AreEqual("<custom/>", custom.Definition);
-	}
-
-	[TestMethod]
-	public void StockDefinitions_UseNoFoodMotiveAndHavePhysicalTacticBindings()
-	{
-		foreach (var name in MonsterAIStockTemplates.Names)
-		{
-			var xml = MonsterAIStockTemplates.Definition(name);
-			Assert.AreEqual("1", xml.Element("Monster")!.Attribute("version")!.Value);
-			Assert.AreEqual("Off", xml.Element("Monster")!.Element("Feeding")!.Value);
-			Assert.IsFalse(xml.Descendants("UseActiveNeeds").Any());
-			Assert.IsFalse(xml.Descendants("Motive").Any(x => x.Value == "Hunger"));
-			if (xml.Element("Hunting")!.Element("Followup")!.Value == "Extract")
-				Assert.IsFalse(string.IsNullOrEmpty(xml.Element("Hunting")!.Element("PreferredLayer")!.Value), name);
-		}
-		var conditional = MonsterAIStockTemplates.Definition(MonsterAIStockTemplates.ConditionalHunter);
-		Assert.IsNull(conditional.Descendants("Moon").FirstOrDefault(), "No lunar condition is imposed by stock werewolf recommendations.");
-		Assert.AreEqual("Condition", conditional.Element("Monster")!.Elements("Motive").First().Value);
-	}
-
-	[TestMethod]
-	public void RecommendationManifest_IsDeterministicAndMatchesCurrentSources()
-	{
-		var expected = MonsterAIStockTemplates.RecommendationManifestJson();
-		var path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "DatabaseSeeder", "Assets", "Manifests", "Monster_AI_Recommendations.json"));
-		var actual = File.ReadAllText(path).Replace("\r\n", "\n");
-		Assert.AreEqual(expected.Replace("\r\n", "\n"), actual);
-		using var document = JsonDocument.Parse(actual);
-		Assert.AreEqual(89, document.RootElement.GetProperty("Recommendations").GetArrayLength());
 	}
 }

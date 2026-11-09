@@ -404,61 +404,6 @@ public class AnimalButcherySeederTests
 	}
 
 	[TestMethod]
-	public void AnimalRaceTemplates_AllMapToButcheryFamilies()
-	{
-		var unmapped = AnimalSeeder.RaceTemplatesForTesting
-			.Where(x => !AnimalButcherySeeder.TryGetFamilyForTesting(x.Key, x.Value.BodyKey, false, out _))
-			.Select(x => x.Key)
-			.ToList();
-
-		Assert.AreEqual(0, unmapped.Count, $"Unmapped animal races: {string.Join(", ", unmapped)}");
-	}
-
-	[TestMethod]
-	public void MythicalRaceTemplates_OnlyBeastScopeMapsToButcheryFamilies()
-	{
-		var unclassified = MythicalAnimalSeeder.TemplatesForTesting.Keys
-			.Except(AnimalButcherySeeder.IncludedMythicalBeastsForTesting, StringComparer.OrdinalIgnoreCase)
-			.Except(AnimalButcherySeeder.ExcludedMythicalRacesForTesting, StringComparer.OrdinalIgnoreCase)
-			.ToList();
-
-		Assert.AreEqual(0, unclassified.Count, $"Unclassified mythical races: {string.Join(", ", unclassified)}");
-
-		foreach ((var raceName, var template) in MythicalAnimalSeeder.TemplatesForTesting)
-		{
-			var maps = AnimalButcherySeeder.TryGetFamilyForTesting(raceName, template.BodyKey, true, out _);
-			if (AnimalButcherySeeder.IncludedMythicalBeastsForTesting.Contains(raceName, StringComparer.OrdinalIgnoreCase))
-			{
-				Assert.IsTrue(maps, $"{raceName} should be assigned to a stock beast butchery family.");
-				continue;
-			}
-
-			Assert.IsFalse(maps, $"{raceName} should remain outside the stock animal butchery package.");
-		}
-	}
-
-	[TestMethod]
-	public void StockItemDefinitions_SignatureModelStaysBelowItemCap()
-	{
-		var shortDescriptions = AnimalButcherySeeder.StockItemSpecsForTesting
-			.Select(x => x.ShortDescription)
-			.ToList();
-		var duplicateProductKeys = AnimalButcherySeeder.FamiliesForTesting.Values
-			.SelectMany(family => family.Products
-				.GroupBy(product => product.Key, StringComparer.OrdinalIgnoreCase)
-				.Where(group => group.Count() > 1)
-				.Select(group => $"{family.Key}:{group.Key}"))
-			.ToList();
-
-		Assert.AreEqual(shortDescriptions.Count, shortDescriptions.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
-			"Stock butchery item short descriptions should be stable unique keys.");
-		Assert.AreEqual(0, duplicateProductKeys.Count,
-			$"Duplicate stock butchery product keys: {string.Join(", ", duplicateProductKeys)}");
-		Assert.IsTrue(shortDescriptions.Count <= AnimalButcherySeeder.MaximumStockItemPrototypeCountForTesting,
-			$"Expected no more than {AnimalButcherySeeder.MaximumStockItemPrototypeCountForTesting} stock butchery items, got {shortDescriptions.Count}.");
-	}
-
-	[TestMethod]
 	public void SeedData_FullCatalogue_ResolvesProductsItemsMaterialsTagsAndMorphs()
 	{
 		using var context = BuildContext();

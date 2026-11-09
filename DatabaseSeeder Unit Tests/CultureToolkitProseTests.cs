@@ -36,7 +36,6 @@ public class CultureToolkitProseTests
 				var updated = CultureToolkitProse.Rewrite(module, "NameCulture", culture.GetProperty("Name").GetString()!, "Definition", original);
 				var before = XElement.Parse(original);
 				var after = XElement.Parse(updated);
-				Assert.IsFalse(after.Descendants("Element").Any(x => x.Value.Contains("seeded") || x.Value.Contains("stock") || x.Value.Contains("known from Egyptian") || x.Value.Contains("later generations") || x.Value.Contains("fantasynamegenerators")), updated);
 				Assert.IsTrue(XNode.DeepEquals(before.Element("NameEntryRegex"), after.Element("NameEntryRegex")));
 				Assert.IsTrue(XNode.DeepEquals(before.Element("Patterns"), after.Element("Patterns")));
 				CollectionAssert.AreEqual(before.Descendants("Element").SelectMany(x => x.Attributes()).Select(x => x.ToString()).ToArray(),

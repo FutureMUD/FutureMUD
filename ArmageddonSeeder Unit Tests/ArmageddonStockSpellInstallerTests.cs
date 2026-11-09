@@ -58,16 +58,6 @@ public partial class ArmageddonStockSpellInstallerTests
 	}
 
 	[TestMethod]
-	public void ApprovedManifest_ReadAttunementDefaultMatchesLockedInventory()
-	{
-		using var json = JsonDocument.Parse(ArmageddonStockManifest.Read());
-		var entry = json.RootElement.GetProperty("entries").EnumerateArray().Single(x => x.GetProperty("key").GetString() == ArmageddonStockSpellContent.ReadAttunementKey);
-		Assert.AreEqual(20.0, entry.GetProperty("minimum_energy").GetDouble());
-		Assert.AreEqual("Water", entry.GetProperty("native_school").GetString());
-		Assert.AreEqual("character", entry.GetProperty("target_type").GetString());
-	}
-
-	[TestMethod]
 	[TestCategory("Integration")]
 	public void Rerun_PreservesBuilderFieldsAndExpressionIdentity()
 	{

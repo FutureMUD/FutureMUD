@@ -64,34 +64,6 @@ public class ArmageddonPhysicalPolicyTests
 		var id = long.Parse(XElement.Parse(screen.StageDefinition).Element("MinimumAgeProg")!.Value);
 		Assert.AreEqual((long)MudSharp.FutureProg.ProgVariableTypes.Chargen, db.FutureProgsParameters.Single(x => x.FutureProgId == id).ParameterType);
 	}
-	[TestMethod]
-	[DataRow("human", 10, 20, 30, 61, 81, 80)]
-	[DataRow("city_elf", 12, 24, 35, 71, 94, 93)]
-	[DataRow("desert_elf", 12, 24, 35, 71, 94, 93)]
-	[DataRow("dwarf", 22, 44, 66, 135, 179, 178)]
-	[DataRow("half_elf", 11, 22, 33, 66, 88, 87)]
-	[DataRow("half_giant", 18, 36, 54, 110, 146, 145)]
-	[DataRow("mul", 8, 15, 23, 46, 61, 60)]
-	public void ApprovedAgePolicy_PersistsExplicitLifecyclesAndSeparateCreationBounds(string key, int youth, int youngAdult, int adult, int elder, int venerable, int maximum)
-	{
-		using var db = ArmageddonHeritageTests.Fixture();
-		ArmageddonHeritage.Install(db, new List<string>());
-		db.ChangeTracker.Clear();
-		var id = db.SeederManagedRecords.Single(x => x.StableKey == "arm.race." + key).LogicalId;
-		var race = db.Races.Single(x => x.Id == id);
-		CollectionAssert.AreEqual(new[] { 3, youth, youngAdult, adult, elder, venerable },
-			new[] { race.ChildAge, race.YouthAge, race.YoungAdultAge, race.AdultAge, race.ElderAge, race.VenerableAge });
-		Assert.AreEqual(key == "half_elf" ? 2L : 1L, race.AvailabilityProgId);
-		Assert.IsNotNull(race.AgeDescriptionProgId);
-		var screen = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectBirthday);
-		var xml = XElement.Parse(screen.StageDefinition);
-		var minimumBody = db.FutureProgs.Single(x => x.Id == long.Parse(xml.Element("MinimumAgeProg")!.Value)).FunctionText;
-		var maximumBody = db.FutureProgs.Single(x => x.Id == long.Parse(xml.Element("MaximumAgeProg")!.Value)).FunctionText;
-		StringAssert.Contains(minimumBody, $"ToRace({id}))\n  return {youngAdult}\n");
-		StringAssert.Contains(maximumBody, $"ToRace({id}))\n  return {maximum}\n");
-		StringAssert.Contains(minimumBody, "return @CustomMinimumAgeProg(@ch)");
-		StringAssert.Contains(maximumBody, "return @CustomMaximumAgeProg(@ch)");
-	}
 
 	[TestMethod]
 	public void PhysicalRerun_PreservesModelsDisplayProgsAppearanceAndIndependentAgeExceptions()

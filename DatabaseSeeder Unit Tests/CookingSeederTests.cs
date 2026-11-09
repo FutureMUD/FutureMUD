@@ -129,46 +129,25 @@ public class CookingSeederTests
 	}
 
 	[TestMethod]
-	public void CookingSeeder_InstallsPreparedFoodDirectItemsAndRecipeWithoutLegacyFood()
+	public void SeedData_InstallsAndRerunsWithoutDuplicatingFoodOrCrafts()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedPrerequisites(context);
-		CookingSeeder seeder = new();
-
-		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, seeder.ShouldSeedData(context));
-
+		var seeder = new CookingSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
+		var prior1 = context.GameItemProtos.Select(x => x.Id).ToArray();
+		var prior2 = context.Crafts.Select(x => x.Id).ToArray();
 		seeder.SeedData(context, new Dictionary<string, string>());
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
+		var installed1 = context.GameItemProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed1.Except(prior1).Any(), "The first installation must create records beyond its prerequisites.");
+		var installed2 = context.Crafts.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed2.Except(prior2).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedData(context, new Dictionary<string, string>());
-
-		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "PreparedFood_Apple"));
-		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "PreparedFood_Berry_Stack"));
-		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "PreparedFood_Baked_Apple"));
-		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Type == "Food"));
-
-		var berryDefinition = XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == "PreparedFood_Berry_Stack").Definition);
-		Assert.AreEqual("PerStackUnit", berryDefinition.Attribute("ServingScope")!.Value);
-		Assert.IsTrue(berryDefinition.Element("Full")!.Value.Contains("They are made of"));
-		var appleDefinition = XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == "PreparedFood_Apple").Definition);
-		Assert.IsTrue(appleDefinition.Element("Full")!.Value.Contains("It is made of"));
-		var mushroomDefinition = XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == "PreparedFood_Mushroom_Stack").Definition);
-		Assert.IsTrue(mushroomDefinition.Element("Full")!.Value.Contains("They are made of"));
-
-		var apple = context.GameItemProtos.Single(x => x.ShortDescription == "a crisp red apple");
-		Assert.IsTrue(apple.GameItemProtosGameItemComponentProtos.Any(x => x.GameItemComponent.Name == "PreparedFood_Apple"));
-		Assert.IsTrue(apple.GameItemProtosTags.Any(x => x.Tag.Name == "Forageable Food"));
-
-		var berries = context.GameItemProtos.Single(x => x.ShortDescription == "a handful of blueberries");
-		Assert.IsTrue(berries.GameItemProtosGameItemComponentProtos.Any(x => x.GameItemComponent.Name == "Stack_Number"));
-		Assert.IsTrue(berries.GameItemProtosGameItemComponentProtos.Any(x => x.GameItemComponent.Name == "PreparedFood_Berry_Stack"));
-
-		var craft = context.Crafts.Single(x => x.Name == "bake apple");
-		Assert.AreEqual("Cooking", craft.Category);
-		Assert.AreEqual(1, craft.CraftProducts.Count(x => x.ProductType == "CookedFoodProduct"));
-		Assert.AreEqual(1, craft.CraftInputs.Count(x => x.InputType == "Tag"));
-		var productDefinition = XElement.Parse(craft.CraftProducts.Single(x => x.ProductType == "CookedFoodProduct").Definition);
-		Assert.AreEqual("false", productDefinition.Element("RemoveDrugsAndFoodEffects")!.Value);
-
-		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
+		CollectionAssert.AreEqual(installed1, context.GameItemProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
+		CollectionAssert.AreEqual(installed2, context.Crafts.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]

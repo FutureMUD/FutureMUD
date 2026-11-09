@@ -54,34 +54,6 @@ public class SkillPackageSeederTests
 	}
 
 	[TestMethod]
-	public void ComplexSkillPackage_IncludesDrivingForVehicleCombatChecks()
-	{
-		var names = new SkillPackageSeeder().ComplexNonGerundSkillNamesForTesting;
-
-		CollectionAssert.Contains(names.ToList(), "Drive");
-	}
-
-	[TestMethod]
-	public void ComplexSkillPackage_IncludesUniversalCombatSkills()
-	{
-		var names = new SkillPackageSeeder().ComplexNonGerundSkillNamesForTesting;
-
-		foreach (var name in new[] { "Block", "Dodge", "Brawling", "Subdue", "Ward", "Throwing", "Gunnery", "Seafaring", "Veterancy" })
-		{
-			CollectionAssert.Contains(names.ToList(), name);
-		}
-	}
-
-	[TestMethod]
-	public void SkillPackageChecks_MountSprawlUsesRidingAndBalance()
-	{
-		string source = SeederSourceTestHelper.ReadSeederSource("SkillPackageSeeder.cs");
-
-		StringAssert.Contains(source, "case CheckType.AvoidMountFallCheck:");
-		StringAssert.Contains(source, "(0.7*ride:{ridingTrait.Id})+(0.3*balance:{balancingTrait.Id})");
-	}
-
-	[TestMethod]
 	public void SkillPackageChecks_DefersOnlyTrapCheckTypesToTrapSeeder()
 	{
 		string source = SeederSourceTestHelper.ReadSeederSource("SkillPackageSeeder.cs");

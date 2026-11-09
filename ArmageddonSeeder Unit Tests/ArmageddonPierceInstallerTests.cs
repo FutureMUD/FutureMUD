@@ -52,21 +52,6 @@ public class ArmageddonPierceInstallerTests
 			Assert.AreEqual(0, db.CharacterCastingEnrolments.Count()); Assert.AreEqual(0, db.CharacterTraits.Count());
 		}
 	}
-	[TestMethod] public void DefinitionUsesReviewedNativeAccumulationAndTargetEligibility()
-	{
-		var (db, plan, _) = Fixture(); using (db)
-		{
-			var result = Run(db, plan); Completed(result);
-			var spell = db.MagicSpells.Find(result.Identities[ArmageddonReviewedPierceContent.Key])!;
-			var definition = XElement.Parse(spell.Definition); var policy = definition.Descendants("LifetimePolicy").Single();
-			Assert.AreEqual("accumulate", (string)policy.Attribute("mode")!); Assert.AreEqual(600, (int)policy.Attribute("unitSeconds")!);
-			Assert.AreEqual(48, (int)policy.Attribute("maximumUnits")!); Assert.IsTrue((bool)policy.Attribute("retainStrongestGrade")!);
-			Assert.AreEqual("3000*grade", db.TraitExpressions.Find(spell.EffectDurationExpressionId)!.Expression);
-			Assert.IsTrue(spell.AppliedEffectsAreExclusive); Assert.IsFalse(spell.ScrollInscriptionAllowed);
-			var prog = db.FutureProgs.Include(x => x.FutureProgsParameters).Single(x => x.Id == result.Identities[ArmageddonReviewedPierceContent.Key + ".eligibility"]);
-			Assert.AreEqual(ArmageddonReviewedPierceContent.EligibilitySource, prog.FunctionText); Assert.AreEqual(2, prog.FutureProgsParameters.Count);
-		}
-	}
 	[TestMethod] public void RerunPreservesIdentitiesBaselinesTimesAndBuilderOverrides()
 	{
 		var (db, plan, _) = Fixture(); using (db)

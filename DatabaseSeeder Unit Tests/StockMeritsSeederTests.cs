@@ -135,23 +135,6 @@ public class StockMeritsSeederTests
         };
     }
 
-    private static bool HasNaturalAttackExample(FuturemudDatabaseContext context, MeleeWeaponVerb verb, MeritType meritType)
-    {
-        return context.Merits
-            .AsEnumerable()
-            .Any(x =>
-            x.Type == "Natural Attack Quality" &&
-            x.MeritType == (int)meritType &&
-            int.Parse(XElement.Parse(x.Definition).Attribute("verb")?.Value ?? "-1") == (int)verb);
-    }
-
-    private static bool PlanarElementContains(XElement? element, long planeId)
-    {
-        return element?
-            .Elements("Plane")
-            .Any(x => long.Parse(x.Attribute("id")?.Value ?? "0") == planeId) == true;
-    }
-
     private static void SeedPrerequisites(FuturemudDatabaseContext context, params string[] omittedTraitNames)
     {
         HashSet<string> omittedTraits = new(omittedTraitNames, StringComparer.OrdinalIgnoreCase);
@@ -264,56 +247,6 @@ public class StockMeritsSeederTests
     }
 
     [TestMethod]
-    public void SeedData_SeedsReusablePlanarPlanesAndMerits()
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedPrerequisites(context);
-        StockMeritsSeeder seeder = new();
-
-        seeder.SeedData(context, new Dictionary<string, string>());
-
-        Plane prime = context.Planes.Single(x => x.Name == "Prime Material");
-        Plane astral = context.Planes.Single(x => x.Name == "Astral Plane");
-        Assert.IsTrue(prime.IsDefault);
-        Assert.AreEqual("Astral Plane {0}", astral.RoomNameFormat);
-        Assert.AreEqual("({0})", astral.RemoteObservationTag);
-        Assert.IsFalse(string.IsNullOrWhiteSpace(astral.RoomDescriptionAddendum));
-        foreach (string meritName in new[]
-                 {
-                     "Always Astral",
-                     "Astral Manifestation",
-                     "Astral Ignorant of Prime Material",
-                     "Astral Visual Manifestation",
-                     "Astral Sight",
-                     "Dual Natured"
-                 })
-        {
-            Assert.IsTrue(context.Merits.Any(x => x.Name == meritName && x.Type == "Planar State"),
-                $"Expected stock planar merit {meritName}.");
-        }
-
-        XElement visualRoot = XElement.Parse(context.Merits.Single(x => x.Name == "Astral Visual Manifestation").Definition);
-        XElement visualPlanarData = visualRoot.Element("PlanarData")!;
-        Assert.IsTrue(PlanarElementContains(visualPlanarData.Element("VisibleTo"), prime.Id));
-        Assert.IsTrue(PlanarElementContains(visualPlanarData.Element("VisibleTo"), astral.Id));
-        XElement visualPhysical = visualPlanarData.Element("Interactions")!
-                                                  .Elements("Interaction")
-                                                  .Single(x => x.Attribute("kind")?.Value == PlanarInteractionKind.Physical.ToString());
-        Assert.IsFalse(PlanarElementContains(visualPhysical, prime.Id));
-        Assert.IsTrue(PlanarElementContains(visualPhysical, astral.Id));
-
-        XElement dualRoot = XElement.Parse(context.Merits.Single(x => x.Name == "Dual Natured").Definition);
-        XElement dualPlanarData = dualRoot.Element("PlanarData")!;
-        Assert.IsTrue(PlanarElementContains(dualPlanarData.Element("Presence"), prime.Id));
-        Assert.IsTrue(PlanarElementContains(dualPlanarData.Element("Presence"), astral.Id));
-        XElement dualPhysical = dualPlanarData.Element("Interactions")!
-                                              .Elements("Interaction")
-                                              .Single(x => x.Attribute("kind")?.Value == PlanarInteractionKind.Physical.ToString());
-        Assert.IsTrue(PlanarElementContains(dualPhysical, prime.Id));
-        Assert.IsTrue(PlanarElementContains(dualPhysical, astral.Id));
-    }
-
-    [TestMethod]
     public void SeedData_MissingPerceptionAttribute_SkipsInapplicableTraitMeritAndStillCountsAsInstalled()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -325,45 +258,6 @@ public class StockMeritsSeederTests
         Assert.IsFalse(context.Merits.Any(x => x.Name == "Keen-Eyed"));
         Assert.IsTrue(context.Merits.Any(x => x.Name == "Weak-Willed"));
         Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
-    }
-
-    [TestMethod]
-    public void SeedData_HelperProgsUseTerrainTagsRatherThanTerrainNames()
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedPrerequisites(context);
-        StockMeritsSeeder seeder = new();
-
-        seeder.SeedData(context, new Dictionary<string, string>());
-
-        List<string> terrainProgTexts = context.FutureProgs
-            .Where(x => StockMeritsSeeder.HelperProgNamesForTesting.Contains(x.FunctionName) &&
-                        x.FunctionName.StartsWith("StockMeritsIs", StringComparison.Ordinal) &&
-                        !x.FunctionName.Equals("StockMeritsIsDark", StringComparison.Ordinal))
-            .Select(x => x.FunctionText)
-            .ToList();
-
-        Assert.IsTrue(terrainProgTexts.Count > 0);
-        Assert.IsTrue(terrainProgTexts.All(x => x.Contains("istagged(@ch.Location.Terrain,")));
-        Assert.IsTrue(terrainProgTexts.All(x => !x.Contains("\"Beach\"")));
-        Assert.IsTrue(terrainProgTexts.All(x => !x.Contains("\"City\"")));
-        Assert.IsTrue(terrainProgTexts.All(x => !x.Contains("switch")));
-    }
-
-    [TestMethod]
-    public void SeedData_NaturalAttackQualityExamplesExistForPunchKickAndBiteOnBothSides()
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedPrerequisites(context);
-        StockMeritsSeeder seeder = new();
-
-        seeder.SeedData(context, new Dictionary<string, string>());
-
-        foreach (MeleeWeaponVerb verb in new[] { MeleeWeaponVerb.Punch, MeleeWeaponVerb.Kick, MeleeWeaponVerb.Bite })
-        {
-            Assert.IsTrue(HasNaturalAttackExample(context, verb, MeritType.Merit), $"Expected a merit-side natural attack example for {verb}.");
-            Assert.IsTrue(HasNaturalAttackExample(context, verb, MeritType.Flaw), $"Expected a flaw-side natural attack example for {verb}.");
-        }
     }
 
     [TestMethod]

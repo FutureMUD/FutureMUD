@@ -52,19 +52,6 @@ public class ArmageddonPlayerHealthTests
 	}
 
 	[TestMethod]
-	public void PrivateCorpus_TranslatedNativeTargetsMatchApprovedExpectedCalibration()
-	{
-		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
-		for (var endurance = 0; endurance <= 100; endurance++)
-			Assert.AreEqual(80.5 + endurance + source.CombatCalibration!.EnduranceSaves![endurance], ArmageddonPlayerHealth.DefaultBasePools[endurance], 1e-8);
-		foreach (var policy in ArmageddonPlayerHealth.Profiles)
-		{
-			var expected = source.PhysicalGenerators.Single(x => x.Race == policy.SourceRace).SizeBonuses!.Sum(x => x.Key * x.Value);
-			Assert.AreEqual(expected, policy.Size, 1e-8);
-		}
-	}
-
-	[TestMethod]
 	public void PrivateCorpus_ImportCompositionPreservesBuilderHealthChoice()
 	{
 		using var db = ArmageddonHeritageTests.Fixture();

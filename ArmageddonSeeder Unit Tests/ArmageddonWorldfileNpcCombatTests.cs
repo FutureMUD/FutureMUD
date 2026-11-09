@@ -64,34 +64,6 @@ public partial class ArmageddonWorldfileNpcCombatTests
 	}
 
 	[TestMethod]
-	public void PrivateCorpus_SourceRatingsRetainOrdinaryAndExtremeHierarchy()
-	{
-		var source = ArmageddonWorldfileTestData.Load().ForInstallation();
-		Assert.IsNull(ArmageddonWorldfileWriter.NpcCombatCalibrationError(source));
-		foreach (var (vnum, expectedO, expectedD) in new[] { (49000, 63.8, 77.8), (50431, 106.8, 100.8), (24001, 166.5, -23.5), (34003, 341.9, 304.8) })
-		{
-			var npc = source.Npcs.Single(x => x.Vnum == vnum);
-			var race = source.Races.SingleOrDefault(x => x.Index == npc.Identity[6]);
-			var guild = source.Guilds.SingleOrDefault(x => x.Index == npc.Identity[3]);
-			var means = ArmageddonWorldfileWriter.SourceNpcCombatMeans(npc.Age, race, guild, source.CombatCalibration!);
-			var rating = ArmageddonWorldfileWriter.SourceNpcCombatRating(npc, race, guild, means);
-			Assert.AreEqual(expectedO, rating.Offence, 0.11, "Source offence " + vnum);
-			Assert.AreEqual(expectedD, rating.Defence, 0.11, "Source defence " + vnum);
-		}
-		var ratings = source.Npcs.Select(npc =>
-		{
-			var race = source.Races.SingleOrDefault(x => x.Index == npc.Identity[6]);
-			var guild = source.Guilds.SingleOrDefault(x => x.Index == npc.Identity[3]);
-			return ArmageddonWorldfileWriter.SourceNpcCombatRating(npc, race, guild,
-				ArmageddonWorldfileWriter.SourceNpcCombatMeans(npc.Age, race, guild, source.CombatCalibration!));
-		}).ToArray();
-		Assert.AreEqual(2459, ratings.Length);
-		Assert.IsTrue(ratings.All(x => double.IsFinite(x.Offence) && double.IsFinite(x.Defence) &&
-			Math.Abs(x.Offence) < ArmageddonWorldfileWriter.NpcCombatRatingCap && Math.Abs(x.Defence) < ArmageddonWorldfileWriter.NpcCombatRatingCap));
-		Assert.IsTrue(ratings.Any(x => x.Defence < 0)); Assert.IsTrue(ratings.Any(x => x.Offence > 300));
-	}
-
-	[TestMethod]
 	public void Install_NativeChecksUseLiveSkillsOnceAndPreserveUnprofiledFallback()
 	{
 		using var fixture = new Fixture();

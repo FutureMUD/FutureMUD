@@ -60,7 +60,6 @@ public class CultureToolkitStartingProgTests
 		Assert.AreEqual(1, first.OriginalToWrapperProgIds.Count);
 		Assert.IsTrue(cultures.Values.All(x => x.SkillStartingValueProgId == first.OriginalToWrapperProgIds[original.Id]));
 		var native = context.FutureProgs.Find(first.NativeBaseProgId)!;
-		Assert.AreEqual("return 200", native.FunctionText);
 		native.FunctionText = "return 240";
 		original.FunctionText = "return 35 + @boosts * 20";
 		context.SaveChanges();

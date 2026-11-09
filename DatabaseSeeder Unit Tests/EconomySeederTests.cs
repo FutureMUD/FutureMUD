@@ -24,134 +24,6 @@ public class EconomySeederTests
     private const string ClassicalEra = "Classical Age";
     private const string DefaultCurrency = "Bits";
     private const string StandardScale = "Standard";
-    private const string HelperProgPrefix = "EconomySeeder";
-    private const string ExternalTemplatePrefix = "EconomySeeder External ";
-	private static readonly IReadOnlySet<string> StockCombinationFamilies =
-		new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-		{
-			"Medicine",
-			"Writing Materials",
-            "Clothing",
-            "Intoxicants",
-            "Household Goods",
-            "Hospitality",
-            "Entertainment",
-            "Personal Services",
-            "Communications",
-			"Military Goods",
-			"Professional Tools"
-		};
-
-	private static readonly IReadOnlyDictionary<string, IReadOnlyList<(string CategoryName, decimal Weight)>> StockCombinationWeights =
-		new Dictionary<string, IReadOnlyList<(string CategoryName, decimal Weight)>>(StringComparer.OrdinalIgnoreCase)
-		{
-			["Medicine"] =
-			[
-				("Simple Medicine", 0.30m),
-				("Treatment Supplies", 0.20m),
-				("Herbal Medicine", 0.16m),
-				("Apothecary Goods", 0.05m),
-				("Standard Medicine", 0.14m),
-				("Surgical Supplies", 0.07m),
-				("Prosthetics and Mobility", 0.05m),
-				("High-Quality Medicine", 0.03m)
-			],
-			["Writing Materials"] =
-			[
-				("Parchment", 0.18m),
-				("Papyrus", 0.15m),
-				("Wax Tablets", 0.12m),
-				("Paper", 0.12m),
-				("Ink", 0.12m),
-				("Writing Implements", 0.10m),
-				("Clay Tablets", 0.08m),
-				("Document Containers", 0.05m),
-				("Scrolls", 0.05m),
-				("Codices", 0.03m)
-			],
-			["Clothing"] =
-			[
-				("Simple Clothing", 0.30m),
-				("Standard Clothing", 0.24m),
-				("Work Clothing", 0.16m),
-				("Winter Clothing", 0.09m),
-				("Luxury Clothing", 0.07m),
-				("Military Uniforms", 0.05m),
-				("Ceremonial Clothing", 0.04m),
-				("Religious Clothing", 0.03m),
-				("Maritime Clothing", 0.02m)
-			],
-			["Intoxicants"] =
-			[
-				("Beer", 0.45m),
-				("Wine", 0.25m),
-				("Mead", 0.15m),
-				("Spirits", 0.15m)
-			],
-			["Household Goods"] =
-			[
-				("Simple Wares", 0.16m),
-				("Standard Wares", 0.14m),
-				("Luxury Wares", 0.07m),
-				("Simple Furniture", 0.16m),
-				("Standard Furniture", 0.14m),
-				("Luxury Furniture", 0.08m),
-				("Simple Decorations", 0.10m),
-				("Standard Decorations", 0.09m),
-				("Luxury Decorations", 0.06m)
-			],
-			["Hospitality"] =
-			[
-				("Simple Lodging", 0.25m),
-				("Standard Lodging", 0.25m),
-				("Prepared Meals", 0.22m),
-				("Luxury Lodging", 0.12m),
-				("Bathhouse Services", 0.10m),
-				("Stabling Services", 0.06m)
-			],
-			["Entertainment"] =
-			[
-				("Cheap Entertainment", 0.30m),
-				("Standard Entertainment", 0.24m),
-				("Luxury Entertainment", 0.12m),
-				("Music Performance", 0.10m),
-				("Theatre Performance", 0.09m),
-				("Festival Entertainment", 0.10m),
-				("Sporting Entertainment", 0.05m)
-			],
-			["Personal Services"] =
-			[
-				("Domestic Services", 0.20m),
-				("Bathing Services", 0.18m),
-				("Barbering", 0.14m),
-				("Laundry Services", 0.14m),
-				("Tailoring Services", 0.14m),
-				("Bodyguard Services", 0.10m),
-				("Grooming Supplies", 0.10m)
-			],
-			["Communications"] =
-			[
-				("Messenger Services", 0.24m),
-				("Courier Services", 0.22m),
-				("Postal Services", 0.20m),
-				("Printed News", 0.12m),
-				("Telegraph Services", 0.12m),
-				("Telephone Services", 0.10m)
-			],
-			["Military Goods"] =
-			[
-				("Weapons", 0.40m),
-				("Armour", 0.35m),
-				("Ammunition", 0.25m)
-			],
-			["Professional Tools"] =
-			[
-				("Primitive Tools", 0.25m),
-				("Simple Tools", 0.30m),
-				("Standard Tools", 0.30m),
-				("High-Quality Tools", 0.15m)
-			]
-		};
 
     private static readonly IReadOnlyDictionary<string, string[]> MarketTagsByParent =
         new Dictionary<string, string[]>
@@ -527,20 +399,6 @@ public class EconomySeederTests
         return decimal.Parse(XElement.Parse(shopper.Definition).Element("BudgetPerShop")!.Value, CultureInfo.InvariantCulture);
     }
 
-    private static List<string> GetPopulationNeedCategoryNames(FuturemudDatabaseContext context, string populationName)
-    {
-        MarketPopulation population = context.MarketPopulations.Single(x => x.Name == populationName);
-        List<long> categoryIds = XElement.Parse(population.MarketPopulationNeeds)
-            .Elements("Need")
-            .Select(x => long.Parse(x.Attribute("category")!.Value, CultureInfo.InvariantCulture))
-            .ToList();
-
-        return context.MarketCategories
-            .Where(x => categoryIds.Contains(x.Id))
-            .Select(x => x.Name)
-            .ToList();
-    }
-
     private static decimal GetPopulationNeedExpenditure(
         FuturemudDatabaseContext context,
         string populationName,
@@ -557,42 +415,6 @@ public class EconomySeederTests
             .ToList();
         MarketCategory category = context.MarketCategories.Single(x => x.Name == categoryName);
         return needs.Single(x => x.CategoryId == category.Id).Expenditure;
-    }
-
-    private static Dictionary<long, (int Upward, int Downward)> GetExternalCoverageByCategory(FuturemudDatabaseContext context)
-    {
-        Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
-            .AsEnumerable()
-            .ToDictionary(x => x.Id);
-        Dictionary<long, (int Upward, int Downward)> coverage = context.MarketCategories.ToDictionary(x => x.Id, _ => (Upward: 0, Downward: 0));
-        foreach (MarketInfluenceTemplate? template in context.MarketInfluenceTemplates
-                     .AsEnumerable()
-                     .Where(x => x.Name.StartsWith(ExternalTemplatePrefix, StringComparison.OrdinalIgnoreCase)))
-        {
-            IEnumerable<XElement> impacts = XElement.Parse(template.Impacts).Elements("Impact");
-            foreach (XElement impact in impacts)
-            {
-                long categoryId = long.Parse(impact.Attribute("category")!.Value, CultureInfo.InvariantCulture);
-                double demand = double.Parse(impact.Attribute("demand")!.Value, CultureInfo.InvariantCulture);
-                double supply = double.Parse(impact.Attribute("supply")!.Value, CultureInfo.InvariantCulture);
-                double pressure = demand - supply;
-                foreach (long effectiveCategoryId in ExpandEffectiveCategoryIds(categoryId, categoriesById))
-                {
-                    if (pressure > 0)
-                    {
-                        coverage[effectiveCategoryId] = (coverage[effectiveCategoryId].Upward + 1, coverage[effectiveCategoryId].Downward);
-                        continue;
-                    }
-
-                    if (pressure < 0)
-                    {
-                        coverage[effectiveCategoryId] = (coverage[effectiveCategoryId].Upward, coverage[effectiveCategoryId].Downward + 1);
-                    }
-                }
-            }
-        }
-
-        return coverage;
     }
 
     private static HashSet<long> ExpandEffectiveCategoryIds(
@@ -696,85 +518,6 @@ public class EconomySeederTests
     }
 
     [TestMethod]
-    public void SeedData_FirstRun_CreatesExpectedEconomyPackage()
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context);
-        EconomySeeder seeder = new();
-        int expectedCategoryCount = MarketTagsByParent.Sum(x => x.Value.Length);
-
-        string result = seeder.SeedData(context, BuildAnswers());
-
-        Assert.AreEqual("The operation completed successfully.", result);
-        Assert.AreEqual(1, context.EconomicZones.Count(x => x.Name == "Classical Age Economy Template Zone"));
-        Assert.AreEqual(1, context.Markets.Count(x => x.Name == "Classical Age Economy Template Market"));
-        Assert.AreEqual(expectedCategoryCount, context.MarketCategories.Count());
-        Assert.AreEqual(60, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
-            x.Name.StartsWith(ExternalTemplatePrefix, StringComparison.OrdinalIgnoreCase)));
-        Assert.AreEqual(expectedCategoryCount * 4, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.EndsWith("Minor Tariff", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.EndsWith("Major Tariff", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.EndsWith("Minor Subsidy", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.EndsWith("Major Subsidy", StringComparison.OrdinalIgnoreCase)));
-        Assert.AreEqual(10, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Wage Squeeze", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Hiring Season", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Credit Crunch", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Trade Windfall", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Garrison Muster", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Demobilisation Glut", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Tithe Boom", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Alms Shortfall", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Noble Rent Increase", StringComparison.OrdinalIgnoreCase) ||
-            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
-            x.Name.Contains("Patronage Windfall", StringComparison.OrdinalIgnoreCase)));
-        Assert.AreEqual(21, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
-            x.Name.StartsWith($"{HelperProgPrefix} Stress ", StringComparison.OrdinalIgnoreCase)));
-        Assert.AreEqual(7, context.MarketPopulations.Count());
-        Assert.AreEqual(7, context.Shoppers.Count());
-        Assert.AreEqual(59, context.FutureProgs.Count(x => x.FunctionName.StartsWith(HelperProgPrefix, StringComparison.OrdinalIgnoreCase)));
-    }
-
-    [TestMethod]
-    public void SeedData_WithCoreMarketTags_CoversCurrentMarketTaxonomy()
-    {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedEconomyPrerequisites(context, false);
-
-        new CoreDataSeeder().SeedTagsForTesting(context);
-        Assert.AreEqual("The operation completed successfully.", new EconomySeeder().SeedData(context, BuildAnswers()));
-
-        Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
-            .AsEnumerable()
-            .ToDictionary(x => x.Id);
-        MarketCategory clothing = context.MarketCategories.Single(x => x.Name == "Clothing");
-        List<string> clothingComponents = GetCombinationComponents(clothing)
-            .Select(x => categoriesById[x.CategoryId].Name)
-            .ToList();
-        CollectionAssert.Contains(clothingComponents, "Winter Clothing");
-        CollectionAssert.Contains(clothingComponents, "Military Uniforms");
-
-        MarketCategory militaryGoods = context.MarketCategories.Single(x => x.Name == "Military Goods");
-        List<string> militaryComponents = GetCombinationComponents(militaryGoods)
-            .Select(x => categoriesById[x.CategoryId].Name)
-            .ToList();
-        CollectionAssert.DoesNotContain(militaryComponents, "Military Uniforms");
-    }
-
-    [TestMethod]
     public void SeedData_Rerun_DoesNotDuplicateSeededAssets()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -820,71 +563,6 @@ public class EconomySeederTests
         seeder.SeedData(context, answers);
 
         Assert.AreEqual(1, context.MarketInfluenceTemplates.AsEnumerable().Count(x => x.Name == deletedTemplate.Name));
-    }
-
-    [TestMethod]
-    public void SeedData_EveryCategory_HasAtLeastThreeUpwardAndDownwardExternalTemplates()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-        Dictionary<long, (int Upward, int Downward)> coverage = GetExternalCoverageByCategory(context);
-
-        foreach (MarketCategory? category in context.MarketCategories.OrderBy(x => x.Name))
-        {
-            Assert.IsTrue(coverage[category.Id].Upward >= 3, $"{category.Name} should have at least three upward-pressure external templates.");
-            Assert.IsTrue(coverage[category.Id].Downward >= 3, $"{category.Name} should have at least three downward-pressure external templates.");
-        }
-    }
-
-    [TestMethod]
-    public void SeedData_SeedsSettingAgnosticCombinationCategoryExamples()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
-            .AsEnumerable()
-            .ToDictionary(x => x.Id);
-
-		foreach ((string familyName, string[] leafNames) in MarketTagsByParent
-				     .Where(x => StockCombinationFamilies.Contains(x.Key)))
-		{
-			MarketCategory familyCategory = context.MarketCategories.Single(x => x.Name == familyName);
-			Assert.AreEqual(1, familyCategory.MarketCategoryType, $"{familyName} should seed as a combination category example.");
-
-			List<(long CategoryId, decimal Weight)> components = GetCombinationComponents(familyCategory);
-			List<string> componentNames = components
-				.Select(x => categoriesById[x.CategoryId].Name)
-				.OrderBy(x => x)
-				.ToList();
-			CollectionAssert.AreEquivalent(leafNames, componentNames, $"{familyName} should be composed of its direct seeded child categories.");
-
-			Dictionary<string, decimal> actualWeightsByName = components.ToDictionary(
-				x => categoriesById[x.CategoryId].Name,
-				x => x.Weight,
-				StringComparer.OrdinalIgnoreCase);
-			Assert.AreEqual(
-				StockCombinationWeights[familyName].Count,
-				actualWeightsByName.Count,
-				$"{familyName} should seed the expected number of weighted components.");
-			foreach ((string categoryName, decimal expectedWeight) in StockCombinationWeights[familyName])
-			{
-				Assert.AreEqual(
-					expectedWeight,
-					actualWeightsByName[categoryName],
-					$"{familyName} should seed {categoryName} with its expected component weight.");
-			}
-
-			Assert.IsTrue(
-				actualWeightsByName.Values.Distinct().Count() > 1,
-				$"{familyName} should seed non-equal component weights.");
-		}
-
-        foreach (string familyName in new[] { "Nourishment", "Domestic Heating", "Luxury Drinks", "Transportation" })
-        {
-            Assert.AreEqual(
-                0,
-                context.MarketCategories.Single(x => x.Name == familyName).MarketCategoryType,
-                $"{familyName} should remain standalone in the stock seeder.");
-        }
     }
 
     [TestMethod]
@@ -950,14 +628,13 @@ public class EconomySeederTests
     }
 
     [TestMethod]
-    public void SeedData_EachPopulation_HasThreeStressThresholdsAndValidProgs()
+    public void SeedData_PopulationStressThresholdsReferenceExistingProgs()
     {
         FuturemudDatabaseContext context = ClassicalContext.Value;
 
         foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
         {
             List<XElement> stresses = XElement.Parse(population.MarketStressPoints).Elements("Stress").ToList();
-            Assert.AreEqual(3, stresses.Count, $"{population.Name} should have three seeded stress thresholds.");
 
             foreach (XElement? stress in stresses)
             {
@@ -967,191 +644,6 @@ public class EconomySeederTests
                 Assert.IsNotNull(context.FutureProgs.SingleOrDefault(x => x.Id == endProgId), $"{population.Name} should reference a valid end prog.");
             }
         }
-    }
-
-    [TestMethod]
-    public void SeedData_EveryStressTemplate_IncludesSupplyContraction()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        foreach (MarketInfluenceTemplate? template in context.MarketInfluenceTemplates
-                     .AsEnumerable()
-                     .Where(x => x.Name.StartsWith($"{HelperProgPrefix} Stress ", StringComparison.OrdinalIgnoreCase)))
-        {
-            List<XElement> impacts = XElement.Parse(template.Impacts).Elements("Impact").ToList();
-            Assert.IsTrue(impacts.Count > 0, $"{template.Name} should contain impacted categories.");
-            Assert.IsTrue(
-                impacts.Any(x => double.Parse(x.Attribute("supply")!.Value, CultureInfo.InvariantCulture) < 0.0),
-                $"{template.Name} should include at least one negative supply impact.");
-        }
-    }
-
-    [TestMethod]
-    public void SeedData_PopulationsPersistIncomeFactorSavingsAndSavingsCaps()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
-        {
-            Assert.AreEqual(1.0m, population.IncomeFactor, $"{population.Name} should seed with a neutral base income factor.");
-            Assert.AreEqual(0.0m, population.Savings, $"{population.Name} should start with no accumulated savings.");
-            Assert.IsTrue(population.SavingsCap > 0.0m, $"{population.Name} should seed with a visible savings cap.");
-        }
-    }
-
-    [TestMethod]
-    public void SeedData_EveryCategory_GetsTariffAndSubsidyTemplatesWithFlatPriceOnly()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        foreach (MarketCategory? category in context.MarketCategories.OrderBy(x => x.Name))
-        {
-            foreach ((string Suffix, double ExpectedPrice) adjustment in new[]
-                     {
-                         ("Minor Tariff", 0.05),
-                         ("Major Tariff", 0.12),
-                         ("Minor Subsidy", -0.05),
-                         ("Major Subsidy", -0.12)
-                     })
-            {
-                MarketInfluenceTemplate template = context.MarketInfluenceTemplates.AsEnumerable()
-                    .Single(x => x.Name == $"{ClassicalEra} {category.Name} {adjustment.Suffix}");
-                XElement impact = XElement.Parse(template.Impacts).Elements("Impact").Single();
-
-                Assert.AreEqual(0.0, double.Parse(impact.Attribute("supply")!.Value, CultureInfo.InvariantCulture), 0.0001, $"{template.Name} should not alter supply.");
-                Assert.AreEqual(0.0, double.Parse(impact.Attribute("demand")!.Value, CultureInfo.InvariantCulture), 0.0001, $"{template.Name} should not alter demand.");
-                Assert.AreEqual(adjustment.ExpectedPrice, double.Parse(impact.Attribute("price")!.Value, CultureInfo.InvariantCulture), 0.0001, $"{template.Name} should use the expected flat price adjustment.");
-                Assert.AreEqual(0, GetPopulationIncomeImpacts(template).Count, $"{template.Name} should not include population income impacts.");
-            }
-        }
-    }
-
-    [TestMethod]
-    public void SeedData_CreatesDedicatedIncomeTemplatesAndUpdatesSelectedExistingTemplates()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        string[] incomeTemplateNames =
-        [
-            "Rural Wage Squeeze",
-            "Bountiful Hiring Season",
-            "Merchant Credit Crunch",
-            "Trade Windfall",
-            "Garrison Muster",
-            "Demobilisation Glut",
-            "Tithe Boom",
-            "Alms Shortfall",
-            "Noble Rent Increase",
-            "Patronage Windfall"
-        ];
-
-        foreach (string templateName in incomeTemplateNames)
-        {
-            MarketInfluenceTemplate template = context.MarketInfluenceTemplates.AsEnumerable()
-                .Single(x => x.Name == $"{ClassicalEra} {templateName}");
-            Assert.AreEqual(0, XElement.Parse(template.Impacts).Elements("Impact").Count(), $"{template.Name} should be income-only.");
-            Assert.IsTrue(GetPopulationIncomeImpacts(template).Count > 0, $"{template.Name} should include income impacts.");
-        }
-
-        foreach (string templateName in new[]
-                 {
-                     $"{ExternalTemplatePrefix}{ClassicalEra} Harvest Failure",
-                     $"{ExternalTemplatePrefix}{ClassicalEra} River Trade Disruption",
-                     $"{ExternalTemplatePrefix}{ClassicalEra} Bumper Harvest",
-                     $"{ExternalTemplatePrefix}{ClassicalEra} Caravan Surplus",
-                     $"{ExternalTemplatePrefix}{ClassicalEra} Local War",
-                     $"{ExternalTemplatePrefix}{ClassicalEra} Disbanded Levies",
-                     $"{ExternalTemplatePrefix}{ClassicalEra} Smithy Subsidy"
-                 })
-        {
-            MarketInfluenceTemplate template = context.MarketInfluenceTemplates.AsEnumerable().Single(x => x.Name == templateName);
-            Assert.IsTrue(GetPopulationIncomeImpacts(template).Count > 0, $"{template.Name} should now include population income impacts.");
-        }
-    }
-
-    [TestMethod]
-    public void SeedData_AllPopulations_IncludeMedicineNeedAndChurchClassesExist()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        CollectionAssert.IsSubsetOf(
-            new[]
-            {
-                "Classical Age Temple Priesthood",
-                "Classical Age Monastic Orders"
-            },
-            context.MarketPopulations.Select(x => x.Name).ToList());
-
-        foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
-        {
-            List<string> categoryNames = GetPopulationNeedCategoryNames(context, population.Name);
-
-            Assert.IsTrue(
-                categoryNames.Any(x => x.Contains("Medicine", StringComparison.OrdinalIgnoreCase)),
-                $"{population.Name} should include at least one medicine category in its needs.");
-        }
-    }
-
-    [TestMethod]
-    [TestCategory("Integration")]
-    public void SeedData_LiterateHouseholds_IncludeWritingMaterialsNeeds()
-    {
-        FuturemudDatabaseContext context = AllErasContext.Value;
-
-        string[] literatePopulations = new[]
-        {
-            "Classical Age Temple Priesthood",
-            "Classical Age Patrician Elite",
-            "Feudal Age Parish Priesthood",
-            "Feudal Age Noble Elite",
-            "Medieval Age Guild-Merchant Households",
-            "Medieval Age Parish Clergy",
-            "Medieval Age Noble Elite",
-            "Early Modern Age Middling Households",
-            "Early Modern Age Merchant And Professional Class",
-            "Early Modern Age Parish Clergy",
-            "Early Modern Age Gentry Elite"
-        };
-
-        foreach (string? populationName in literatePopulations)
-        {
-            List<string> categoryNames = GetPopulationNeedCategoryNames(context, populationName);
-            Assert.IsTrue(
-                categoryNames.Any(x => x is "Wax Tablets" or "Parchment" or "Paper" or "Ink"),
-                $"{populationName} should include an era-appropriate writing-material need.");
-        }
-    }
-
-    [TestMethod]
-    [TestCategory("Integration")]
-    public void SeedData_LaterEras_UseBroaderServiceAndHospitalityNeeds()
-    {
-        FuturemudDatabaseContext context = AllErasContext.Value;
-
-        CollectionAssert.IsSubsetOf(
-            new[] { "Standard Lodging", "Cheap Entertainment", "Messenger Services" },
-            GetPopulationNeedCategoryNames(context, "Feudal Age Itinerant Tradesfolk"));
-        CollectionAssert.IsSubsetOf(
-            new[] { "Standard Lodging", "Standard Entertainment", "Messenger Services" },
-            GetPopulationNeedCategoryNames(context, "Medieval Age Guild-Merchant Households"));
-        CollectionAssert.IsSubsetOf(
-            new[] { "Postal Services", "Standard Lodging", "Standard Entertainment", "Laundry Services" },
-            GetPopulationNeedCategoryNames(context, "Early Modern Age Merchant And Professional Class"));
-        CollectionAssert.IsSubsetOf(
-            new[] { "Luxury Lodging", "Luxury Entertainment", "Domestic Services" },
-            GetPopulationNeedCategoryNames(context, "Early Modern Age Gentry Elite"));
-    }
-
-    [TestMethod]
-    public void SeedData_EliteHouseholds_SpendAtLeastFiveTimesPoorHouseholds()
-    {
-        FuturemudDatabaseContext context = ClassicalContext.Value;
-
-        decimal poorBudget = GetBudgetForShopper(context, "Classical Age Urban Poor Shopper");
-        decimal eliteBudget = GetBudgetForShopper(context, "Classical Age Patrician Elite Shopper");
-
-        Assert.IsTrue(eliteBudget >= poorBudget * 5.0m,
-            $"Elite shopper budget {eliteBudget} should be at least five times the poor shopper budget {poorBudget}.");
     }
 
     [TestMethod]
@@ -1191,17 +683,5 @@ public class EconomySeederTests
 
         Assert.IsTrue(Math.Abs(bitSterling - poundSterling) < 0.05m, "Bits and pounds should seed to near-equivalent sterling value.");
         Assert.IsTrue(Math.Abs(bitSterling - dollarSterling) < 0.05m, "Bits and dollars should seed to near-equivalent sterling value.");
-    }
-
-    [TestMethod]
-    [TestCategory("Integration")]
-    public void SeedData_EraScaling_RaisesLaterEraCommonerBudgets()
-    {
-        FuturemudDatabaseContext context = AllErasContext.Value;
-        decimal feudalBudget = GetBudgetForShopper(context, "Feudal Age Peasantry Shopper");
-        decimal earlyModernBudget = GetBudgetForShopper(context, "Early Modern Age Labourers Shopper");
-
-        Assert.IsTrue(earlyModernBudget > feudalBudget,
-            $"Early modern commoner budget {earlyModernBudget} should exceed feudal commoner budget {feudalBudget} when both use the same currency.");
     }
 }

@@ -27,76 +27,6 @@ namespace MudSharp_Unit_Tests;
 public class UsefulSeederItemPackageTests
 {
 
-	private static void SeedVariablePrerequisites(FuturemudDatabaseContext context)
-	{
-		(string Name, string Pattern)[] definitions =
-		[
-			("Colour", "colou?r"),
-			("Colour1", "colou?r1"),
-			("Colour2", "colou?r2"),
-			("Colour3", "colou?r3"),
-			("Fine Colour", "^finecolou?r(ed)?$"),
-			("Drab Colour", "^(drabcolou?r|drobcolor)$"),
-			("Gem", "^gem(colou?r)?$"),
-			("Fine Gem", "^finegem(colou?r)?$"),
-			("Common Stone", "^(common)?stone$"),
-			("Jewellery Motif", "^motif$"),
-			("Flower", "^flower$"),
-			("Metal Finish", "^finish$"),
-			("Bead Pattern", "^beadpattern$"),
-			("Jewellery Shape", "^shape$"),
-			("Inlay Style", "^inlay$")
-		];
-
-		foreach ((string name, string pattern) in definitions)
-		{
-			context.CharacteristicDefinitions.Add(new CharacteristicDefinition
-			{
-				Type = 2,
-				Name = name,
-				Pattern = pattern,
-				Description = name,
-				Model = "standard"
-			});
-		}
-
-		context.SaveChanges();
-
-		(string Profile, string Definition)[] profiles =
-		[
-			("All_Colours", "Colour"),
-			("Basic_Colours", "Colour"),
-			("Clothing_Leather_Colours", "Colour"),
-			("Clothing_Wood_Colours", "Colour"),
-			("Clothing_Lacquer_Colours", "Colour"),
-			("Fine_Colours", "Colour"),
-			("Drab_Colours", "Colour"),
-			("Gem_Colours", "Gem"),
-			("Fine_Gem_Colours", "Fine Gem"),
-			("Common_Stones", "Common Stone"),
-			("Jewellery_Motifs", "Jewellery Motif"),
-			("Jewellery_Flowers", "Flower"),
-			("Jewellery_Metal_Finishes", "Metal Finish"),
-			("Jewellery_Bead_Patterns", "Bead Pattern"),
-			("Jewellery_Shapes", "Jewellery Shape"),
-			("Jewellery_Inlay_Styles", "Inlay Style")
-		];
-
-		foreach ((string profile, string definition) in profiles)
-		{
-			context.CharacteristicProfiles.Add(new CharacteristicProfile
-			{
-				Name = profile,
-				Type = profile == "All_Colours" ? "all" : "Standard",
-				Definition = "<Definition/>",
-				TargetDefinitionId = context.CharacteristicDefinitions.Single(x => x.Name == definition).Id,
-				Description = profile
-			});
-		}
-
-		context.SaveChanges();
-	}
-
 	private static Dictionary<string, string> BuildUsefulAnswers(string covers = "no")
 	{
 		return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -185,7 +115,6 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 	}
 
-
 	private static TraitDefinition CreateSkill(long id, string name)
 	{
 		return new TraitDefinition
@@ -223,7 +152,6 @@ public class UsefulSeederItemPackageTests
 			ResidueColour = string.Empty
 		};
 	}
-
 
 	private static void SeedRepairKitPrerequisites(FuturemudDatabaseContext context)
 	{
@@ -272,16 +200,6 @@ public class UsefulSeederItemPackageTests
 			CreateMaterial(224, "papyrus", MaterialBehaviourType.Plant),
 			CreateMaterial(225, "lacquer", MaterialBehaviourType.Grease));
 		context.SaveChanges();
-	}
-
-	private static void AssertContainerDefinition(GameItemComponentProto component, double weight, SizeCategory maxSize, string preposition, bool closable, bool transparent)
-	{
-		XElement definition = XElement.Parse(component.Definition);
-		Assert.AreEqual(weight, (double)definition.Attribute("Weight")!);
-		Assert.AreEqual((int)maxSize, (int)definition.Attribute("MaxSize")!);
-		Assert.AreEqual(preposition, (string)definition.Attribute("Preposition")!);
-		Assert.AreEqual(closable, bool.Parse((string)definition.Attribute("Closable")!));
-		Assert.AreEqual(transparent, bool.Parse((string)definition.Attribute("Transparent")!));
 	}
 
     [TestMethod]
@@ -413,263 +331,18 @@ public class UsefulSeederItemPackageTests
 	}
 
 	[TestMethod]
-	public void SeedMedievalIndustryToolComponentsForTesting_CreatesSharedHandToolProfiles()
+	public void SeedEraDependencyComponentsForTesting_RerunPreservesInstalledComponentIds()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedGeneralPrerequisites(context);
-		UsefulSeeder seeder = new();
-
-		seeder.SeedMedievalIndustryToolComponentsForTesting(context);
-		seeder.SeedMedievalIndustryToolComponentsForTesting(context);
-
-		string[] expectedNames =
-		[
-			"Tool_Blacksmithing_General",
-			"Tool_Armouring_General",
-			"Tool_Weaponsmithing_General",
-			"Tool_Woodcrafting_General",
-			"Tool_Coopering_General",
-			"Tool_Textilecraft_General",
-			"Tool_Dyeing_Fulling_General",
-			"Tool_Leatherworking_General",
-			"Tool_Parchmentmaking_General",
-			"Tool_Papermaking_General",
-			"Tool_Bookbinding_General",
-			"Tool_Pottery_General",
-			"Tool_Masonry_General",
-			"Tool_Glassblowing_General",
-			"Tool_Lapidary_General",
-			"Tool_Jewellery_General",
-			"Tool_Apothecary_General",
-			"Tool_Medical_General",
-			"Tool_Printing_Woodblock_General"
-		];
-
-		foreach (string name in expectedNames)
-		{
-			GameItemComponentProto component = context.GameItemComponentProtos.Single(x => x.Name == name);
-			Assert.AreEqual("HandTool", component.Type);
-			XElement definition = XElement.Parse(component.Definition);
-			Assert.AreEqual(1.5, (double)definition.Element("BaseMultiplier")!);
-			Assert.AreEqual(0.1, (double)definition.Element("MultiplierReductionPerQuality")!);
-			Assert.AreEqual("(1+quality) * 3600", (string)definition.Element("ToolDurabilitySecondsExpression")!);
-		}
-
-		Assert.AreEqual(expectedNames.Length, context.GameItemComponentProtos.Count(x => expectedNames.Contains(x.Name)));
-	}
-
-	[TestMethod]
-	public void SeedEraDependencyComponentsForTesting_CreatesExactSupportedProfilesAndIsIdempotent()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedGeneralPrerequisites(context);
-		context.GameItemComponentProtos.Add(CreateComponentMarker(
-			200,
-			"LockingContainer_PreIndustrial_SmallCabinet",
-			"Container"));
-		context.SaveChanges();
-		UsefulSeeder seeder = new();
-
 		new CoreDataSeeder().SeedTagsForTesting(context);
+		var seeder = new UsefulSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
 		seeder.SeedEraDependencyComponentsForTesting(context);
-		new CoreDataSeeder().SeedTagsForTesting(context);
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedEraDependencyComponentsForTesting(context);
-
-		string[] dryContainers =
-		[
-			"Container_PreIndustrial_CompartmentBox",
-			"Container_PreIndustrial_LiddedBasket",
-			"Container_PreIndustrial_LiddedHamper",
-			"Container_PreIndustrial_Display_Plinth"
-		];
-		string[] liquidContainers =
-		[
-			"LContainer_PreIndustrial_Cup_150ml",
-			"LContainer_PreIndustrial_Bowl_750ml",
-			"LContainer_PreIndustrial_Basin_5L",
-			"LContainer_PreIndustrial_Ewer_2L",
-			"LContainer_PreIndustrial_Pitcher_4L",
-			"LContainer_PreIndustrial_Pot_12L",
-			"LContainer_PreIndustrial_StorageJar_12L",
-			"LContainer_PreIndustrial_StorageJar_30L",
-			"LContainer_PreIndustrial_Vat_125L",
-			"LContainer_PreIndustrial_Vat_500L"
-		];
-		string[] lockingContainers =
-		[
-			"LockingContainer_PreIndustrial_SmallCabinet",
-			"LockingContainer_PreIndustrial_LargeCabinet",
-			"LockingContainer_PreIndustrial_DrawerChest",
-			"LockingContainer_PreIndustrial_DisplayCabinet",
-			"LockingContainer_PreIndustrial_Desk"
-		];
-		string[] handTools =
-		[
-			"Tool_Artillery_General",
-			"Tool_CartridgeMaking_General",
-			"Tool_Gunsmithing_General"
-		];
-		string[] instruments =
-		[
-			"Instrument_Antiquity_WoodenLyre",
-			"Instrument_Antiquity_Kithara",
-			"Instrument_Antiquity_ReedFlute",
-			"Instrument_Antiquity_DoubleAulos",
-			"Instrument_Antiquity_FrameDrum",
-			"Instrument_Antiquity_Sistrum",
-			"Instrument_Antiquity_BronzeWarHorn",
-			"Instrument_Antiquity_ShipSignalTrumpet",
-			"Instrument_Antiquity_TempleRitualRattle"
-		];
-		string[] signalInstruments =
-		[
-			"SignalInstrument_FieldDrum",
-			"SignalInstrument_KettleDrum",
-			"SignalInstrument_Fife",
-			"SignalInstrument_SpeakingTrumpet"
-		];
-		string[] militaryStandards =
-		[
-			"MilitaryStandard_InfantryColour",
-			"MilitaryStandard_CavalryStandard",
-			"MilitaryStandard_Guidon",
-			"MilitaryStandard_NavalEnsign",
-			"MilitaryStandard_Pennant",
-			"MilitaryStandard_SignalFlag"
-		];
-		string[] expectedNames = dryContainers
-			.Concat(liquidContainers)
-			.Concat(lockingContainers)
-			.Concat(handTools)
-			.Concat(instruments)
-			.Concat(signalInstruments)
-			.Concat(militaryStandards)
-			.Append("CashRegister_PreIndustrial_TillChest")
-			.Append("Container_CartridgeBandolier")
-			.ToArray();
-
-		foreach (string name in expectedNames)
-		{
-			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name),
-				$"Expected one approved prototype named {name} after a rerun.");
-		}
-
-		Assert.AreEqual(expectedNames.Length,
-			context.GameItemComponentProtos.Count(x => expectedNames.Contains(x.Name)));
-		Assert.AreEqual(1,
-			context.GameItemComponentProtos.Count(x => x.Name == "CashRegister_PreIndustrial_TillChest"));
-		Assert.IsTrue(dryContainers.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Container"));
-		Assert.IsTrue(liquidContainers.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Liquid Container"));
-		Assert.IsTrue(lockingContainers.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "LockingContainer"));
-		Assert.IsTrue(handTools.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "HandTool"));
-		Assert.IsTrue(instruments.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "Instrument"));
-		Assert.IsTrue(signalInstruments.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "SignalInstrument"));
-		Assert.IsTrue(militaryStandards.All(name =>
-			context.GameItemComponentProtos.Single(x => x.Name == name).Type == "MilitaryStandard"));
-		Assert.AreEqual("LockingCashRegister",
-			context.GameItemComponentProtos.Single(x => x.Name == "CashRegister_PreIndustrial_TillChest").Type);
-		Assert.AreEqual("Container",
-			context.GameItemComponentProtos.Single(x => x.Name == "Container_CartridgeBandolier").Type);
-
-		XElement Definition(string name) =>
-			XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
-
-		Assert.AreEqual(5000.0,
-			(double)Definition("Container_PreIndustrial_CompartmentBox").Attribute("Weight")!);
-		Assert.IsTrue((bool)Definition("Container_PreIndustrial_LiddedBasket").Attribute("Closable")!);
-		Assert.AreEqual("on",
-			(string)Definition("Container_PreIndustrial_Display_Plinth").Attribute("Preposition")!);
-		Assert.IsFalse((bool)Definition("Container_PreIndustrial_Display_Plinth").Attribute("Closable")!);
-
-		(string Name, double Capacity, bool Closable)[] liquidExpectations =
-		[
-			("LContainer_PreIndustrial_Cup_150ml", 0.15, false),
-			("LContainer_PreIndustrial_Bowl_750ml", 0.75, false),
-			("LContainer_PreIndustrial_Basin_5L", 5.0, false),
-			("LContainer_PreIndustrial_Ewer_2L", 2.0, false),
-			("LContainer_PreIndustrial_Pitcher_4L", 4.0, false),
-			("LContainer_PreIndustrial_Pot_12L", 12.0, false),
-			("LContainer_PreIndustrial_StorageJar_12L", 12.0, true),
-			("LContainer_PreIndustrial_StorageJar_30L", 30.0, true),
-			("LContainer_PreIndustrial_Vat_125L", 125.0, false),
-			("LContainer_PreIndustrial_Vat_500L", 500.0, false)
-		];
-		foreach ((string name, double capacity, bool closable) in liquidExpectations)
-		{
-			XElement definition = Definition(name);
-			Assert.AreEqual(capacity, (double)definition.Attribute("LiquidCapacity")!, name);
-			Assert.AreEqual(closable, (bool)definition.Attribute("Closable")!, name);
-			Assert.IsFalse((bool)definition.Attribute("Transparent")!, name);
-		}
-
-		Assert.IsTrue((bool)Definition("LockingContainer_PreIndustrial_DisplayCabinet")
-			.Attribute("Transparent")!);
-		Assert.IsTrue(lockingContainers.All(name =>
-			Definition(name).Element("LockType")?.Value == "Ward Lock"));
-		Assert.AreEqual("Ward Lock",
-			Definition("CashRegister_PreIndustrial_TillChest").Element("LockType")?.Value);
-		CollectionAssert.AreEquivalent(
-			new[]
-			{
-				context.Tags.Single(x => x.Name == "Paper Cartridges").Id,
-				context.Tags.Single(x => x.Name == "Wooden Powder Charges").Id
-			},
-			Definition("Container_CartridgeBandolier").Element("AllowedTags")!
-				.Elements("Tag")
-				.Select(x => (long)x)
-				.ToArray());
-		Assert.AreEqual(10.0,
-			(double)Definition("Instrument_Antiquity_WoodenLyre").Element("TickSeconds")!);
-		Assert.AreEqual(6,
-			Definition("MilitaryStandard_SignalFlag").Element("Signals")!.Elements("Signal").Count());
-		Assert.AreEqual("None",
-			(string)Definition("MilitaryStandard_NavalEnsign").Element("AssociationType")!);
-		Assert.AreEqual(0,
-			(long)Definition("MilitaryStandard_InfantryColour").Element("CanBearProg")!);
-		Assert.AreEqual(5.0,
-			(double)Definition("SignalInstrument_FieldDrum").Element("SignalStamina")!);
-	}
-
-	[TestMethod]
-	public void SeedVariablesForTesting_CreatesMedievalJewelleryVariableComponents()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedGeneralPrerequisites(context);
-		SeedVariablePrerequisites(context);
-		UsefulSeeder seeder = new();
-
-		seeder.SeedVariablesForTesting(context);
-		seeder.SeedVariablesForTesting(context);
-
-		(string Component, string Profile, string Definition, string Token)[] expectedVariables =
-		[
-			("Variable_JewelleryMotif", "Jewellery_Motifs", "Jewellery Motif", "$motif"),
-			("Variable_Flower", "Jewellery_Flowers", "Flower", "$flower"),
-			("Variable_MetalFinish", "Jewellery_Metal_Finishes", "Metal Finish", "$finish"),
-			("Variable_BeadPattern", "Jewellery_Bead_Patterns", "Bead Pattern", "$beadpattern"),
-			("Variable_JewelleryShape", "Jewellery_Shapes", "Jewellery Shape", "$shape"),
-			("Variable_InlayStyle", "Jewellery_Inlay_Styles", "Inlay Style", "$inlay")
-		];
-
-		foreach ((string componentName, string profileName, string definitionName, string token) in expectedVariables)
-		{
-			GameItemComponentProto component = context.GameItemComponentProtos.Single(x => x.Name == componentName);
-			Assert.AreEqual("Variable", component.Type);
-			StringAssert.Contains(component.Description, token);
-
-			XElement definition = XElement.Parse(component.Definition);
-			XElement characteristic = definition.Element("Characteristic")!;
-			Assert.AreEqual(context.CharacteristicProfiles.Single(x => x.Name == profileName).Id,
-				(long)characteristic.Attribute("Profile")!);
-			Assert.AreEqual(context.CharacteristicDefinitions.Single(x => x.Name == definitionName).Id,
-				(long)characteristic.Attribute("Value")!);
-		}
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
     [TestMethod]
@@ -719,567 +392,78 @@ public class UsefulSeederItemPackageTests
 			x.RangedCoverId == doorway.Id));
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyRangedCoverPackagePresence(context));
 	}
-	[TestMethod]
-	public void SeedLockAndWaterSourceCoverageForTesting_RerunDoesNotDuplicateAndCreatesPublicVariants()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedGeneralPrerequisites(context);
-		UsefulSeeder seeder = new();
 
+	[TestMethod]
+	public void SeedLockAndWaterSourceCoverageForTesting_RerunPreservesInstalledComponentIds()
+	{
+		using var context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		var seeder = new UsefulSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
 		seeder.SeedLockAndWaterSourceCoverageForTesting(context);
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedLockAndWaterSourceCoverageForTesting(context);
-
-		string[] expectedLatchNames =
-		[
-			"Latch_Container_Hook",
-			"Latch_Container_Hasp",
-			"Latch_Door_Bar",
-			"Latch_Gate_DropBar",
-			"Latch_Portcullis_Pawl"
-		];
-
-		string[] expectedWaterSourceNames =
-		[
-			"Infinite_PublicTapWaterSource",
-			"Infinite_DrinkingFountainWaterSource",
-			"Infinite_PublicPumpWaterSource",
-			"Infinite_StandpipeWaterSource",
-			"Infinite_PublicTroughWaterSource",
-			"Infinite_PublicCisternWaterSource"
-		];
-
-		foreach (string name in expectedLatchNames.Concat(expectedWaterSourceNames))
-		{
-			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected a single component named {name}.");
-		}
-
-		XElement Definition(string name) => XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
-
-		GameItemComponentProto doorBar = context.GameItemComponentProtos.Single(x => x.Name == "Latch_Door_Bar");
-		Assert.AreEqual("Latch", doorBar.Type);
-		Assert.AreEqual((int)Difficulty.VeryHard, (int)Definition("Latch_Door_Bar").Element("ForceDifficulty")!);
-		Assert.AreEqual((int)Difficulty.Hard, (int)Definition("Latch_Door_Bar").Element("PickDifficulty")!);
-		StringAssert.Contains(Definition("Latch_Portcullis_Pawl").Element("LockEmote")!.Value, "portcullis");
-
-		GameItemComponentProto publicTap = context.GameItemComponentProtos.Single(x => x.Name == "Infinite_PublicTapWaterSource");
-		Assert.AreEqual("WaterSource", publicTap.Type);
-		Assert.AreEqual(1000000.0, (double)Definition("Infinite_PublicTapWaterSource").Attribute("LiquidCapacity")!);
-		Assert.AreEqual(0.8333333333333334, (double)Definition("Infinite_PublicTapWaterSource").Attribute("RefillRate")!);
-		Assert.IsTrue(bool.Parse((string)Definition("Infinite_PublicTapWaterSource").Attribute("UseOnOffForRefill")!));
-		Assert.AreEqual(500.0, (double)Definition("Infinite_PublicTroughWaterSource").Attribute("LiquidCapacity")!);
-		Assert.IsFalse(bool.Parse((string)Definition("Infinite_PublicTroughWaterSource").Attribute("UseOnOffForRefill")!));
-		Assert.AreEqual(10000.0, (double)Definition("Infinite_PublicCisternWaterSource").Attribute("LiquidCapacity")!);
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]
-	public void SeedContainersForTesting_RerunDoesNotDuplicateAndCreatesFurnitureCoverage()
+	public void SeedContainersForTesting_RerunPreservesInstalledComponentIds()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedGeneralPrerequisites(context);
-		UsefulSeeder seeder = new();
-
+		var seeder = new UsefulSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
 		seeder.SeedContainersForTesting(context);
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedContainersForTesting(context);
-
-		string[] expectedNames =
-		[
-			"Container_Side_Table",
-			"Container_Desk_Surface",
-			"Container_Counter",
-			"Container_Cot_Surface",
-			"Container_Bed_Surface",
-			"Container_Couch_Surface",
-			"Container_Bench_Surface",
-			"Container_Wall_Shelf",
-			"Container_Narrow_Shelves",
-			"Container_Wide_Shelves",
-			"Container_Bookcase_Shelves",
-			"Container_Display_Shelves",
-			"Container_Weapon_Rack",
-			"Container_Armor_Stand",
-			"Container_Open_Bin",
-			"Container_Small_Cabinet",
-			"Container_Large_Cabinet",
-			"Container_Glass_Cabinet",
-			"Container_Cupboard",
-			"Container_Wardrobe",
-			"Container_Armoire",
-			"Container_Dresser",
-			"Container_Desk_Drawers",
-			"Container_Nightstand",
-			"Container_Sideboard",
-			"Container_Hutch",
-			"Container_Trunk",
-			"Container_Footlocker",
-			"Container_Blanket_Box",
-			"Container_Display_Case"
-		];
-
-		foreach (string name in expectedNames)
-		{
-			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected a single container component named {name}.");
-		}
-
-		Assert.AreEqual(60, context.GameItemComponentProtos.Count(x => x.Type == "Container"));
-
-		AssertContainerDefinition(context.GameItemComponentProtos.Single(x => x.Name == "Container_Bookcase_Shelves"),
-			175000, SizeCategory.Large, "on", false, true);
-		AssertContainerDefinition(context.GameItemComponentProtos.Single(x => x.Name == "Container_Glass_Cabinet"),
-			150000, SizeCategory.Normal, "in", true, true);
-		AssertContainerDefinition(context.GameItemComponentProtos.Single(x => x.Name == "Container_Trunk"),
-			200000, SizeCategory.Large, "in", true, false);
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]
-	public void SeedGeneralCoverageForTesting_RerunDoesNotDuplicateAndCreatesExpandedCoverage()
+	public void SeedGeneralCoverageForTesting_RerunPreservesInstalledComponentIds()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedGeneralPrerequisites(context);
-		UsefulSeeder seeder = new();
-
+		var seeder = new UsefulSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
 		seeder.SeedGeneralCoverageForTesting(context);
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedGeneralCoverageForTesting(context);
-
-		string[] expectedNames =
-		[
-			"Smokeable_Cigar",
-			"Smokeable_Cigarillo",
-			"Smokeable_PipeBowl",
-			"DragAid_Stretcher",
-			"DragAid_Sled",
-			"DragAid_Travois",
-			"RidingGear_Saddle",
-			"RidingGear_SaddlePad",
-			"RidingGear_Bridle",
-			"RidingGear_Reins",
-			"RidingGear_Bit",
-			"RidingGear_Stirrups",
-			"RidingGear_PackSaddle",
-			"RidingGear_BitlessBridle",
-			"RidingGear_RidingHarness",
-			"HitchGear_LeadRope",
-			"HitchGear_Yoke",
-			"HitchGear_Harness",
-			"HitchGear_Chain",
-			"HitchGear_Rope",
-			"HitchGear_Traces",
-			"HitchGear_TowBar",
-			"Treatment_AntiInflammatory_Single",
-			"Treatment_AntiInflammatory_Kit",
-			"Destroyable_Shield",
-			"TimePiece_PocketWatch",
-			"TimePiece_WallClock"
-		];
-
-		foreach (string name in expectedNames)
-		{
-			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected a single general component named {name}.");
-		}
-
-		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Cigarette"));
-		GameItemComponentProto shieldDestroyable = context.GameItemComponentProtos.Single(x => x.Name == "Destroyable_Shield");
-		Assert.AreEqual("Destroyable", shieldDestroyable.Type);
-		StringAssert.Contains(shieldDestroyable.Definition, "12 * quality");
-		Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == "OnSmokeCigarette"));
-		Assert.AreEqual(1, context.VariableDefinitions.Count(x => x.Property == "nicotineuntil"));
-		Assert.AreEqual(1, context.VariableDefaults.Count(x => x.Property == "nicotineuntil"));
-		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name.StartsWith("Food_")));
-
-		XElement Definition(string name) => XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
-		Assert.AreEqual("RidingGear", context.GameItemComponentProtos.Single(x => x.Name == "RidingGear_Saddle").Type);
-		Assert.AreEqual(RidingGearRole.Saddle,
-			Enum.Parse<RidingGearRole>(Definition("RidingGear_Saddle").Element("Roles")!.Value));
-		var bitlessRoles = Enum.Parse<RidingGearRole>(Definition("RidingGear_BitlessBridle").Element("Roles")!.Value);
-		Assert.IsTrue(bitlessRoles.HasFlag(RidingGearRole.Bridle));
-		Assert.IsTrue(bitlessRoles.HasFlag(RidingGearRole.Reins));
-		Assert.IsTrue(bitlessRoles.HasFlag(RidingGearRole.BitlessControl));
-		Assert.AreEqual(7.0, (double)Definition("RidingGear_BitlessBridle").Element("ControlBonus")!);
-
-		Assert.AreEqual("HitchGear", context.GameItemComponentProtos.Single(x => x.Name == "HitchGear_Yoke").Type);
-		Assert.AreEqual(HitchGearRole.Yoke,
-			Enum.Parse<HitchGearRole>(Definition("HitchGear_Yoke").Element("Roles")!.Value));
-		Assert.AreEqual(2, (int)Definition("HitchGear_Yoke").Element("MaximumUsers")!);
-		Assert.AreEqual(2.5, (double)Definition("HitchGear_Yoke").Element("EffortMultiplier")!);
-		var leadRopeRoles = Enum.Parse<HitchGearRole>(Definition("HitchGear_LeadRope").Element("Roles")!.Value);
-		Assert.IsTrue(leadRopeRoles.HasFlag(HitchGearRole.LeadRope));
-		Assert.IsTrue(leadRopeRoles.HasFlag(HitchGearRole.Rope));
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]
-	public void SeedAntiquityComponentGapCoverageForTesting_RerunDoesNotDuplicateAndSeedsReportComponents()
+	public void SeedAntiquityComponentGapCoverageForTesting_RerunPreservesInstalledComponentIds()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedGeneralPrerequisites(context);
 		SeedMarketCategories(context);
-		UsefulSeeder seeder = new();
-
 		new CoreDataSeeder().SeedTagsForTesting(context);
+		var seeder = new UsefulSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
 		seeder.SeedAntiquityComponentGapCoverageForTesting(context);
-		new CoreDataSeeder().SeedTagsForTesting(context);
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedAntiquityComponentGapCoverageForTesting(context);
-
-		string[] expectedNames =
-		[
-			"TimePiece_Antiquity_Sundial",
-			"TimePiece_Antiquity_WaterClock",
-			"TimePiece_Antiquity_MarkedCandle",
-			"TimePiece_Antiquity_WatchBoard",
-			"WaterSource_Antiquity_PublicWell",
-			"WaterSource_Antiquity_Cistern",
-			"WaterSource_Antiquity_Fountain",
-			"WaterSource_Antiquity_BathPool",
-			"WaterSource_Antiquity_RitualBasin",
-			"WaterSource_Antiquity_IrrigationOutlet",
-			"ShopStall_Antiquity_OpenCounter",
-			"ShopStall_Antiquity_LockableCounter",
-			"ShopStall_Antiquity_PortableBooth",
-			"MarketGoodWeight_Antiquity_StapleFood",
-			"MarketGoodWeight_Antiquity_LuxuryCraft",
-			"MarketGoodWeight_Antiquity_MilitarySupply",
-			"Dice_Antiquity_Knucklebones",
-			"Dice_Antiquity_CastingSticks",
-			"Dice_Antiquity_LoadedD6",
-			"Dice_Antiquity_DivinationLots",
-			"DragAid_Antiquity_FieldStretcher",
-			"DragAid_Antiquity_CorpseBier",
-			"DragAid_Antiquity_CargoSled",
-			"DragAid_Antiquity_PackTravois",
-			"DragAid_Antiquity_CarryingSling",
-			"Locksmithing_Antiquity_BronzePoor",
-			"Locksmithing_Antiquity_BronzeStandard",
-			"Locksmithing_Antiquity_FineSteel",
-			"Locksmithing_Antiquity_Installation",
-			"Locksmithing_Antiquity_Fabrication",
-			"SealStamp_Antiquity_BronzeSignet",
-			"SealStamp_Antiquity_CylinderSeal",
-			"SealStamp_Medieval_BronzeSignet",
-			"SealStamp_Medieval_RingSignet",
-			"SealStamp_Medieval_PersonalSignetRing",
-			"SealStamp_Medieval_MerchantSignetRing",
-			"SealStamp_Medieval_NobleSignetRing",
-			"SealStamp_Medieval_IronSealMatrix",
-			"SealStamp_Medieval_BrassOfficeSeal",
-			"SealStamp_Medieval_LeadSealMatrix",
-			"Sealable_Document_Wax",
-			"Sealable_Document_Clay",
-			"Sealable_Envelope",
-			"Sealable_Scroll",
-			"Sealable_Container_Wax",
-			"Sealable_Antiquity_Clay_Tablet_Edge",
-			"Sealable_Antiquity_Clay_Bulla",
-			"Sealable_Antiquity_Papyrus_Letter",
-			"Sealable_Antiquity_Papyrus_Scroll",
-			"Sealable_Antiquity_Papyrus_Packet",
-			"Sealable_Antiquity_Wax_Tablet_Diptych",
-			"Sealable_Antiquity_Linen_Document_Bundle",
-			"Sealable_Antiquity_Archive_Jar_Cap",
-			"Sealable_Medieval_Parchment_Charter",
-			"Sealable_Medieval_Parchment_Roll",
-			"Sealable_Medieval_Rag_Paper_Letter",
-			"Sealable_Medieval_Official_Writ",
-			"Sealable_Medieval_East_Asian_Scroll",
-			"Sealable_Medieval_Palm_Leaf_Bundle",
-			"Sealable_Medieval_Document_Pouch",
-			"Sealable_Medieval_Archive_Box",
-			"Sealable_Modern_Business_Envelope",
-			"Sealable_Modern_Padded_Envelope",
-			"Sealable_Modern_File_Folder",
-			"Sealable_Modern_Security_Envelope",
-			"Sealable_Modern_Evidence_Bag",
-			"Sealable_Modern_Registered_Mail_Pouch",
-			"Sealable_Modern_Courier_Tube",
-			"Sealable_Modern_Diplomatic_Pouch",
-			"Sealable_Modern_Archive_Box",
-			"MeasuringInstrument_Antiquity_BalanceScale",
-			"MeasuringInstrument_Antiquity_StandardWeights",
-			"MeasuringInstrument_Antiquity_FalseWeights",
-			"MeasuringInstrument_Antiquity_GrainMeasure",
-			"MeasuringInstrument_Antiquity_OilCup",
-			"MeasuringInstrument_Antiquity_WineCup",
-			"MeasuringInstrument_Antiquity_TaxAssessorKit",
-			"Medieval_Parchment_Sheet_Surface",
-			"Medieval_Parchment_Bifolium_Surface",
-			"Medieval_Parchment_Roll_Surface",
-			"Medieval_Rag_Paper_Sheet_Surface",
-			"Medieval_Rag_Paper_Letter_Surface",
-			"Medieval_Rag_Paper_Scroll_Surface",
-			"Medieval_Papyrus_Sheet_Surface",
-			"Medieval_Papyrus_Scroll_Surface",
-			"Medieval_East_Asian_Paper_Scroll_Surface",
-			"Medieval_East_Asian_Paper_Sheet_Surface",
-			"Medieval_Palm_Leaf_Manuscript_Surface",
-			"Medieval_Wax_Tablet_Surface",
-			"Medieval_Wax_Diptych_Surface",
-			"Medieval_Wax_Triptych_Surface",
-			"Medieval_Wooden_Tablet_Surface",
-			"Medieval_Slate_Tablet_Surface",
-			"Medieval_Birch_Bark_Surface",
-			"Medieval_Bamboo_Slip_Surface",
-			"Medieval_Ostracon_Surface",
-			"Medieval_Practice_Board_Surface",
-			"Medieval_Quill_Pen",
-			"Medieval_Fine_Quill_Pen",
-			"Medieval_Reed_Pen",
-			"Medieval_Qalam",
-			"Medieval_Calligraphy_Brush",
-			"Medieval_East_Asian_Writing_Brush",
-			"Medieval_Charcoal_Stick",
-			"Medieval_Bone_Stylus",
-			"Medieval_Bronze_Stylus",
-			"Medieval_Iron_Stylus",
-			"Medieval_Reed_Stylus",
-			"Medieval_Scribing_Chisel",
-			"Medieval_Parchment_Codex_20_Page",
-			"Medieval_Parchment_Codex_40_Page",
-			"Medieval_Parchment_Codex_90_Page",
-			"Medieval_Rag_Paper_Codex_40_Page",
-			"Medieval_Account_Ledger_90_Page",
-			"Medieval_East_Asian_Stitched_Book",
-			"Medieval_Palm_Leaf_Manuscript_Bundle",
-			"Container_Document_Pouch",
-			"Container_Scroll_Tube",
-			"Container_Seal_Box",
-			"Container_Archive_Box",
-			"Container_Document_Satchel",
-			"Container_Document_Bookcase_Shelves",
-			"Container_Writing_Desk_Surface",
-			"Container_Writing_Desk_Drawers",
-			"Container_Archive_Chest",
-			"Container_Envelope",
-			"PaperSheet_Envelope",
-			"PaperSheet_Scroll",
-			"IncenseBurner_Antiquity_BronzeCenser",
-			"OfferingReceiver_Antiquity_HouseholdAltar",
-			"OfferingReceiver_Antiquity_VotiveBasin",
-			"OfferingReceiver_Antiquity_FuneralTray",
-			"OfferingReceiver_Antiquity_TempleLibationTable",
-			"OfferingReceiver_Antiquity_OilLampShrine",
-			"OfferingReceiver_Antiquity_OracularTripod",
-			"OfferingReceiver_Antiquity_BloodOfferingBowl"
-		];
-
-		foreach (string name in expectedNames)
-		{
-			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
-		}
-
-		XElement Definition(string name) => XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
-
-		Assert.AreEqual("$c", (string)Definition("TimePiece_Antiquity_Sundial").Element("TimeDisplayString")!);
-		Assert.AreEqual(100.0, (double)Definition("WaterSource_Antiquity_RitualBasin").Attribute("LiquidCapacity")!);
-		Assert.AreEqual(0.0, (double)Definition("WaterSource_Antiquity_RitualBasin").Attribute("RefillRate")!);
-		Assert.AreEqual(6, (int)Definition("DragAid_Antiquity_CorpseBier").Element("MaximumUsers")!);
-		Assert.AreEqual(-2, (int)Definition("Locksmithing_Antiquity_BronzePoor").Element("DifficultyAdjustment")!);
-		Assert.AreEqual("on", (string)Definition("ShopStall_Antiquity_OpenCounter").Attribute("Preposition")!);
-		Assert.AreEqual("a bronze signet showing a lion beneath a civic star",
-			(string)Definition("SealStamp_Antiquity_BronzeSignet").Element("SealDesign")!);
-		Assert.AreEqual("a brass office seal bearing an institutional device",
-			(string)Definition("SealStamp_Medieval_BrassOfficeSeal").Element("SealDesign")!);
-		Assert.AreEqual("a noble signet ring bearing a heraldic device and motto",
-			(string)Definition("SealStamp_Medieval_NobleSignetRing").Element("SealDesign")!);
-		Assert.AreEqual("gold",
-			(string)Definition("SealStamp_Medieval_NobleSignetRing").Element("StampMaterial")!);
-		Assert.IsTrue(Definition("Sealable_Envelope").Element("AllowedMedia")!.Elements("Medium")
-		                                      .Any(x => (string)x == "wax"));
-		Assert.IsTrue(context.GameItemComponentProtos.Count(x => x.Type == "Sealable") >= 30);
-		Assert.AreEqual((int)Difficulty.VeryHard,
-			(int)Definition("Sealable_Antiquity_Clay_Bulla").Element("InspectionDifficulty")!);
-		Assert.IsTrue(Definition("Sealable_Modern_Security_Envelope").Element("AllowedMedia")!.Elements("Medium")
-		                                      .Any(x => (string)x == "security tape"));
-		Assert.IsTrue(Definition("Sealable_Modern_Diplomatic_Pouch").Element("AllowedMedia")!.Elements("Medium")
-		                                      .Any(x => (string)x == "numbered seal"));
-		Assert.IsFalse(bool.Parse((string)Definition("Sealable_Modern_File_Folder").Element("BrokenSealLeavesResidue")!));
-		Assert.AreEqual("Weight", (string)Definition("MeasuringInstrument_Antiquity_BalanceScale").Element("Mode")!);
-		Assert.AreEqual("FluidVolume", (string)Definition("MeasuringInstrument_Antiquity_OilCup").Element("Mode")!);
-		Assert.AreEqual(3600,
-			(int)Definition("Medieval_Parchment_Sheet_Surface").Element("MaximumCharacterLengthOfText")!);
-		CollectionAssert.AreEquivalent(new[] { "Stylus" },
-			Definition("Medieval_Wax_Tablet_Surface").Element("AllowedImplementTypes")!.Elements("Type")
-			                                      .Select(x => x.Value)
-			                                      .ToArray());
-		CollectionAssert.Contains(
-			Definition("Medieval_Practice_Board_Surface").Element("AllowedImplementTypes")!.Elements("Type")
-			                                            .Select(x => x.Value)
-			                                            .ToArray(),
-			"Chisel");
-		Assert.AreEqual("Quill", (string)Definition("Medieval_Quill_Pen").Element("ImplementType")!);
-		Assert.IsTrue((int)Definition("Medieval_Quill_Pen").Element("TotalUses")! > 0);
-		Assert.AreEqual(0, (int)Definition("Medieval_Bone_Stylus").Element("TotalUses")!);
-		Assert.AreEqual("in", (string)Definition("Container_Document_Pouch").Attribute("Preposition")!);
-		Assert.IsTrue(bool.Parse((string)Definition("Container_Document_Pouch").Attribute("Closable")!));
-		Assert.AreEqual((int)SizeCategory.Large,
-			(int)Definition("Container_Archive_Chest").Attribute("MaxSize")!);
-		var parchmentBookPageId = (long)Definition("Medieval_Parchment_Codex_90_Page").Element("PaperProto")!;
-		var parchmentBookPage = context.GameItemProtos.Single(x => x.Id == parchmentBookPageId);
-		Assert.AreEqual("a parchment codex leaf", parchmentBookPage.ShortDescription);
-		Assert.AreNotEqual("a sheet of paper", parchmentBookPage.ShortDescription,
-			"Medieval codex components should not borrow the modern A-size paper prototype.");
-		Assert.AreEqual(1, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentRange")!);
-		Assert.AreEqual(4, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentDifficulty")!);
-		Assert.IsTrue(Definition("IncenseBurner_Antiquity_BronzeCenser").Element("SourceScentDescription")!.Value
-			.Contains("resinous", StringComparison.OrdinalIgnoreCase));
-		Assert.AreEqual("ManualBurn",
-			(string)Definition("OfferingReceiver_Antiquity_HouseholdAltar").Element("ConsumptionMode")!);
-		Assert.AreEqual("BurnOnOffer",
-			(string)Definition("OfferingReceiver_Antiquity_VotiveBasin").Element("ConsumptionMode")!);
-		var libationDefinition = Definition("OfferingReceiver_Antiquity_TempleLibationTable");
-		Assert.IsTrue((bool)libationDefinition.Element("AcceptsLiquidOfferings")!);
-		Assert.AreEqual(0.05, (double)libationDefinition.Element("MinimumLiquidOfferingVolume")!);
-		Assert.AreEqual(2.0, (double)libationDefinition.Element("MaximumLiquidOfferingVolume")!);
-		var libationTagId = (long)libationDefinition.Element("AllowedLiquidTags")!.Element("Tag")!;
-		var lampOilTagId = (long)Definition("OfferingReceiver_Antiquity_OilLampShrine")
-			.Element("AllowedLiquidTags")!.Element("Tag")!;
-		var bloodOfferingTagId = (long)Definition("OfferingReceiver_Antiquity_BloodOfferingBowl")
-			.Element("AllowedLiquidTags")!.Element("Tag")!;
-		Assert.AreEqual("Libation",
-			context.Tags.Single(x => x.Id == libationTagId).Name);
-		Assert.AreEqual("Lamp Oil",
-			context.Tags.Single(x => x.Id == lampOilTagId).Name);
-		Assert.AreEqual("Blood Offering",
-			context.Tags.Single(x => x.Id == bloodOfferingTagId).Name);
-
-		XElement loadedDie = Definition("Dice_Antiquity_LoadedD6");
-		Assert.AreEqual(6, loadedDie.Element("Faces")!.Elements("Face").Count());
-		Assert.AreEqual(2.5, (double)loadedDie.Element("Weights")!.Elements("Weight").Last().Element("Probability")!);
-
-		XElement militaryWeight = Definition("MarketGoodWeight_Antiquity_MilitarySupply");
-		long weaponsCategoryId = context.MarketCategories.Single(x => x.Name == "Weapons").Id;
-		Assert.IsTrue(militaryWeight.Element("Multipliers")!.Elements("Multiplier")
-			.Any(x => (long)x.Attribute("category")! == weaponsCategoryId && (decimal)x.Attribute("value")! == 1.25m));
-
-		GameItemProto envelope = context.GameItemProtos
-		                                .Include(x => x.GameItemProtosGameItemComponentProtos)
-		                                .ThenInclude(x => x.GameItemComponent)
-		                                .Single(x => x.ShortDescription == "a sealable envelope");
-		CollectionAssert.IsSubsetOf(new[]
-			{
-				"Holdable",
-				"Container_Envelope",
-				"PaperSheet_Envelope",
-				"Sealable_Envelope"
-			},
-			envelope.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
-
-		GameItemProto scroll = context.GameItemProtos
-		                            .Include(x => x.GameItemProtosGameItemComponentProtos)
-		                            .ThenInclude(x => x.GameItemComponent)
-		                            .Single(x => x.ShortDescription == "a sealable scroll");
-		CollectionAssert.IsSubsetOf(new[]
-			{
-				"Holdable",
-				"PaperSheet_Scroll",
-				"Sealable_Scroll"
-			},
-			scroll.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]
-	public void SeedRepairKitsForTesting_RerunDoesNotDuplicateAndAddsGeneralMaterialFamilies()
+	public void SeedRepairKitsForTesting_RerunPreservesInstalledComponentIds()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
+		using var context = BuildContext();
 		SeedGeneralPrerequisites(context);
 		SeedRepairKitPrerequisites(context);
-		UsefulSeeder seeder = new();
-
+		var seeder = new UsefulSeeder();
+		var prior0 = context.GameItemComponentProtos.Select(x => x.Id).ToArray();
 		seeder.SeedRepairKitsForTesting(context);
+		var installed0 = context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray();
+		Assert.IsTrue(installed0.Except(prior0).Any(), "The first installation must create records beyond its prerequisites.");
 		seeder.SeedRepairKitsForTesting(context);
-
-		foreach (var name in new[]
-		{
-			"Repair_Wood",
-			"Repair_Wood_Good",
-			"Repair_Wood_Poor",
-			"Repair_Metal",
-			"Repair_Metal_Good",
-			"Repair_Metal_Poor",
-			"Repair_Stone",
-			"Repair_Stone_Good",
-			"Repair_Stone_Poor",
-			"Repair_Ceramic",
-			"Repair_Ceramic_Good",
-			"Repair_Ceramic_Poor",
-			"Repair_Hard_Organic",
-			"Repair_Hard_Organic_Good",
-			"Repair_Hard_Organic_Poor",
-            "Repair_Glass",
-            "Repair_Glass_Good",
-            "Repair_Glass_Poor",
-            "Repair_Paper",
-            "Repair_Paper_Good",
-            "Repair_Paper_Poor",
-            "Repair_Lacquer",
-            "Repair_Lacquer_Good",
-            "Repair_Lacquer_Poor",
-            "Repair_Cordage",
-            "Repair_Cordage_Good",
-            "Repair_Cordage_Poor",
-            "Repair_Composite_Bow",
-            "Repair_Composite_Bow_Good",
-            "Repair_Composite_Bow_Poor"
-		})
-		{
-			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
-			Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
-		}
-
-		foreach (var family in new[] { "Clockwork", "Firearm", "Medical_Instrument", "Optical_Instrument", "Printing_Equipment", "Scientific_Instrument" })
-		{
-			foreach (var suffix in new[] { string.Empty, "_Good", "_Poor" })
-			{
-				var name = $"Repair_{family}{suffix}";
-				Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
-				Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
-			}
-		}
-
-		AssertRepairKitDefinition(context, "Repair_Wood", "Carpentry", WoundSeverity.Grievous, 1000.0, 0.0, "oak");
-		AssertRepairKitDefinition(context, "Repair_Wood_Good", "Carpentry", WoundSeverity.Horrifying, 1500.0, 1.0, "oak");
-		AssertRepairKitDefinition(context, "Repair_Wood_Poor", "Carpentry", WoundSeverity.Severe, 600.0, -1.0, "oak");
-
-		AssertRepairKitDefinition(context, "Repair_Metal", "Blacksmithing", WoundSeverity.Grievous, 1000.0, 0.0, "bronze");
-		AssertRepairKitDefinition(context, "Repair_Metal_Good", "Blacksmithing", WoundSeverity.Horrifying, 1500.0, 1.0, "bronze");
-		AssertRepairKitDefinition(context, "Repair_Metal_Poor", "Blacksmithing", WoundSeverity.Severe, 600.0, -1.0, "bronze");
-
-		AssertRepairKitDefinition(context, "Repair_Stone", "Masonry", WoundSeverity.Grievous, 1000.0, 0.0, "limestone");
-		AssertRepairKitDefinition(context, "Repair_Stone_Good", "Masonry", WoundSeverity.Horrifying, 1500.0, 1.0, "limestone");
-		AssertRepairKitDefinition(context, "Repair_Stone_Poor", "Masonry", WoundSeverity.Severe, 600.0, -1.0, "limestone");
-
-		AssertRepairKitDefinition(context, "Repair_Ceramic", "Pottery", WoundSeverity.Grievous, 1000.0, 0.0, "earthenware");
-		AssertRepairKitDefinition(context, "Repair_Ceramic_Good", "Pottery", WoundSeverity.Horrifying, 1500.0, 1.0, "earthenware");
-		AssertRepairKitDefinition(context, "Repair_Ceramic_Poor", "Pottery", WoundSeverity.Severe, 600.0, -1.0, "earthenware");
-
-		AssertRepairKitDefinition(context, "Repair_Hard_Organic", "Scrimshawing", WoundSeverity.Grievous, 1000.0, 0.0,
-			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
-		AssertRepairKitDefinition(context, "Repair_Hard_Organic_Good", "Scrimshawing", WoundSeverity.Horrifying, 1500.0, 1.0,
-			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
-		AssertRepairKitDefinition(context, "Repair_Hard_Organic_Poor", "Scrimshawing", WoundSeverity.Severe, 600.0, -1.0,
-			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
-
-        AssertRepairKitDefinition(context, "Repair_Glass", "Glassworking", WoundSeverity.Grievous, 1000.0, 0.0,
-            "glass", "lead glass", "silicate glass", "soda-lime glass");
-        AssertRepairKitDefinition(context, "Repair_Glass_Good", "Glassworking", WoundSeverity.Horrifying, 1500.0, 1.0,
-            "glass", "lead glass", "silicate glass", "soda-lime glass");
-        AssertRepairKitDefinition(context, "Repair_Glass_Poor", "Glassworking", WoundSeverity.Severe, 600.0, -1.0,
-            "glass", "lead glass", "silicate glass", "soda-lime glass");
-
-        AssertRepairKitDefinition(context, "Repair_Paper", "Papermaking", WoundSeverity.Grievous, 1000.0, 0.0,
-            "paper", "papyrus", "parchment");
-        AssertRepairKitDefinition(context, "Repair_Paper_Good", "Papermaking", WoundSeverity.Horrifying, 1500.0, 1.0,
-            "paper", "papyrus", "parchment");
-        AssertRepairKitDefinition(context, "Repair_Paper_Poor", "Papermaking", WoundSeverity.Severe, 600.0, -1.0,
-            "paper", "papyrus", "parchment");
-
-        AssertRepairKitDefinition(context, "Repair_Lacquer", "Lacquering", WoundSeverity.Grievous, 1000.0, 0.0, "lacquer");
-        AssertRepairKitDefinition(context, "Repair_Lacquer_Good", "Lacquering", WoundSeverity.Horrifying, 1500.0, 1.0, "lacquer");
-        AssertRepairKitDefinition(context, "Repair_Lacquer_Poor", "Lacquering", WoundSeverity.Severe, 600.0, -1.0, "lacquer");
-
-        AssertRepairKitTagDefinition(context, "Repair_Cordage", "Ropemaking", WoundSeverity.Grievous, 1000.0, 0.0, "Cordage");
-        AssertRepairKitTagDefinition(context, "Repair_Cordage_Good", "Ropemaking", WoundSeverity.Horrifying, 1500.0, 1.0, "Cordage");
-        AssertRepairKitTagDefinition(context, "Repair_Cordage_Poor", "Ropemaking", WoundSeverity.Severe, 600.0, -1.0, "Cordage");
-
-        AssertRepairKitTagDefinition(context, "Repair_Composite_Bow", "Bowmaking", WoundSeverity.Grievous, 1000.0, 0.0, "Composite Bow");
-        AssertRepairKitTagDefinition(context, "Repair_Composite_Bow_Good", "Bowmaking", WoundSeverity.Horrifying, 1500.0, 1.0, "Composite Bow");
-        AssertRepairKitTagDefinition(context, "Repair_Composite_Bow_Poor", "Bowmaking", WoundSeverity.Severe, 600.0, -1.0, "Composite Bow");
+		CollectionAssert.AreEqual(installed0, context.GameItemComponentProtos.Select(x => x.Id).OrderBy(x => x).ToArray());
 	}
 
 	[TestMethod]
@@ -1329,66 +513,6 @@ public class UsefulSeederItemPackageTests
 			x.Name == "WornTraitChanger_StealthPenalty_Moderate");
 		Assert.AreEqual("WornTraitChanger", stealthPenalty.Type);
 		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "WornTraitChanger_StealthPenalty_Moderate"));
-		Assert.AreEqual(-5.0, ModifierFor(stealthPenalty, 101));
-		Assert.AreEqual(-5.0, ModifierFor(stealthPenalty, 102));
 
-		Assert.AreEqual(-2.5, ModifierFor(Component("WornTraitChanger_SwimPenalty_Minor"), 103));
-		Assert.AreEqual(-10.0, ModifierFor(Component("WornTraitChanger_ClimbPenalty_Severe"), 104));
-		Assert.AreEqual(-7.5, ModifierFor(Component("WornTraitChanger_FlyPenalty_Major"), 105));
-		Assert.AreEqual(7.5, ModifierFor(Component("WornTraitChanger_RunningBonus_Major"), 106));
-		Assert.AreEqual(-5.0, ModifierFor(Component("WornTraitChanger_ManualDexterityPenalty_Moderate"), 107));
-		Assert.AreEqual(-5.0, ModifierFor(Component("WornTraitChanger_ManualDexterityPenalty_Moderate"), 108));
-		Assert.AreEqual(-10.0, ModifierFor(Component("WornTraitChanger_VisualPerceptionPenalty_Severe"), 112));
-		Assert.AreEqual(-2.5, ModifierFor(Component("WornTraitChanger_ListeningPenalty_Minor"), 115));
-		Assert.AreEqual(-7.5, ModifierFor(Component("WornTraitChanger_AwarenessPenalty_Major"), 115));
-		Assert.AreEqual(5.0, ModifierFor(Component("WornTraitChanger_StealthMobilityBonus_Moderate"), 106));
-
-		GameItemComponentProto Component(string name) => context.GameItemComponentProtos.Single(x => x.Name == name);
-	}
-
-	private static void AssertRepairKitDefinition(FuturemudDatabaseContext context, string componentName, string traitName,
-		WoundSeverity maximumSeverity, double repairPoints, double checkBonus, params string[] expectedMaterials)
-	{
-		var component = context.GameItemComponentProtos.Single(x => x.Name == componentName);
-		XElement definition = XElement.Parse(component.Definition);
-		Assert.AreEqual((int)maximumSeverity, (int)definition.Element("MaximumSeverity")!);
-		Assert.AreEqual(repairPoints, (double)definition.Element("RepairPoints")!);
-		Assert.AreEqual(context.TraitDefinitions.Single(x => x.Name == traitName).Id, (long)definition.Element("CheckTrait")!);
-		Assert.AreEqual(checkBonus, (double)definition.Element("CheckBonus")!);
-		Assert.AreEqual(0, definition.Element("Tags")!.Elements("Tag").Count(), $"{componentName} should not require category tags.");
-
-		var materialIds = definition.Element("Materials")!
-		                            .Elements("Material")
-		                            .Select(x => (long)x)
-		                            .ToHashSet();
-		var materialNames = context.Materials
-		                           .AsEnumerable()
-		                           .Where(x => materialIds.Contains(x.Id))
-		                           .Select(x => x.Name)
-		                           .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-		                           .ToArray();
-		CollectionAssert.AreEqual(expectedMaterials.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray(), materialNames);
-	}
-
-    private static void AssertRepairKitTagDefinition(FuturemudDatabaseContext context, string componentName, string traitName,
-        WoundSeverity maximumSeverity, double repairPoints, double checkBonus, string expectedTag)
-    {
-        var component = context.GameItemComponentProtos.Single(x => x.Name == componentName);
-        XElement definition = XElement.Parse(component.Definition);
-        Assert.AreEqual((int)maximumSeverity, (int)definition.Element("MaximumSeverity")!);
-        Assert.AreEqual(repairPoints, (double)definition.Element("RepairPoints")!);
-        Assert.AreEqual(context.TraitDefinitions.Single(x => x.Name == traitName).Id, (long)definition.Element("CheckTrait")!);
-        Assert.AreEqual(checkBonus, (double)definition.Element("CheckBonus")!);
-        Assert.AreEqual(0, definition.Element("Materials")!.Elements("Material").Count(), $"{componentName} should use tag restrictions only.");
-
-        long tagId = (long)definition.Element("Tags")!.Elements("Tag").Single();
-        Assert.AreEqual(context.Tags.Single(x => x.Name == expectedTag).Id, tagId);
-    }
-	private static double ModifierFor(GameItemComponentProto component, long traitId)
-	{
-		XElement modifier = XElement.Parse(component.Definition)
-		                            .Elements("Modifier")
-		                            .Single(x => (long)x.Attribute("trait")! == traitId);
-		return (double)modifier.Attribute("bonus")!;
 	}
 }

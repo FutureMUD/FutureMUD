@@ -29,4 +29,6 @@ Traditional terrain and tag masks remain available for the selected level. Plann
 
 The WebAssembly server package is updated to 10.0.14, addressing [CVE-2026-102870](https://github.com/advisories/GHSA-g27p-qf6j-c96c) in the development debugger's expression evaluation.
 
+MySqlConnector is updated to 2.6.1 to address [GHSA-473q-m89c-ghf8](https://github.com/advisories/GHSA-473q-m89c-ghf8), a password-disclosure issue in certain TLS authentication configurations.
+
 Use [/downloads](/downloads) for packages and checksums. Follow the included deployment guide for installation and signed updates.

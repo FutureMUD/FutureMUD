@@ -25,6 +25,8 @@ Moving these installers does not remove content already installed in a world. Su
 
 ## Installation and existing worlds
 
+MySqlConnector is updated to 2.6.1 to address [GHSA-473q-m89c-ghf8](https://github.com/advisories/GHSA-473q-m89c-ghf8), a password-disclosure issue in certain TLS authentication configurations.
+
 The bundled blank database includes migrations through `20261106083212_RangedWeaponSecondaryDamage`, covering the newer stable-stay and ranged-weapon schema changes.
 
 Back up the database, application, configuration and external files, stop the engine and other writers, and follow the matching Engine's managed upgrade process. Rehearse the upgrade and recovery against a copy before reopening the world.

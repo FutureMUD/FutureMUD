@@ -69,6 +69,8 @@ The custom-template boundary checks only `Id` and `TemplateType`: built-in rooms
 
 `SpellDelayedLocationHint` saves a playable room ID in `Room`, together with a body ID, range and absolute deadline. It has no historical parent-room discriminator. Both direct and nested spell-child payloads are audited and retained byte-for-byte, even when their numeric IDs collide with the old parent namespace.
 
+The `DetectionVisibility`, `ItemPresentation` and `ItemMagicAura` serializers are also audited. Their detection masks, plane IDs, humming flags and intrinsic aura state contain no legacy containing-Room references. Direct and nested payloads remain byte-for-byte unchanged; plane IDs are never rewritten as room IDs.
+
 XML parsing prohibits DTDs/external entities. Changes replace only known scalar value spans in the original string, retaining unrelated whitespace, quotes, comments, CDATA, attributes and payload bytes. Large autobuilder definitions are never loaded by the correction. Diagnostics identify the table, row and supported XML path; they do not include definition contents or credentials.
 
 ### Verification and remaining qualification

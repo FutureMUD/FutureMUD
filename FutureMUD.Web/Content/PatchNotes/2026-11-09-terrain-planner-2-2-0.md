@@ -25,4 +25,8 @@ Existing single-level projects load as level zero and save in schema 2, preservi
 
 Traditional terrain and tag masks remain available for the selected level. Planner levels represent separate connected game rooms rather than elevations within one room.
 
+## Security update
+
+The WebAssembly server package is updated to 10.0.14, addressing [CVE-2026-102870](https://github.com/advisories/GHSA-g27p-qf6j-c96c) in the development debugger's expression evaluation.
+
 Use [/downloads](/downloads) for packages and checksums. Follow the included deployment guide for installation and signed updates.

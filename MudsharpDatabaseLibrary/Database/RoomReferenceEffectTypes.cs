@@ -48,6 +48,7 @@ PhysicalDamageAbsorption
 DelayedNeedsFulfillment
 DelayedPsychicSuggestion
 DescriptionAddition
+DetectionVisibility
 DoorguardMode
 DoorguardOpeningDoor
 DrugThermalImbalance
@@ -82,7 +83,9 @@ InsignificantBodypartExcessivelyDamaged
 Internal Bleeding
 Invis
 ItemHidden
+ItemMagicAura
 ItemOnDisplayInShop
+ItemPresentation
 KeywordDescriptions
 ListeningAwarenessStatus
 MovementTempoStatus

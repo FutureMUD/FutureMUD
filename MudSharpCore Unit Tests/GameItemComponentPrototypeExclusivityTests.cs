@@ -32,6 +32,8 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(IChangeTraitsInInventory),
 		typeof(IConnectable),
 		typeof(IEquippedItemBonusProvider),
+		typeof(IItemInteractionPermissions),
+		typeof(ITransientItemPolicy),
 		typeof(IMediaEndpoint),
 		typeof(IMediaSource),
 		typeof(IMediaSink),
@@ -121,6 +123,21 @@ public class GameItemComponentPrototypeExclusivityTests
 		var second = CreatePrototype<IChangeTraitsInInventoryPrototype>(2, "muffling boots");
 
 		Assert.IsFalse(GameItemComponentPrototypeExclusivity.FindConflicts([first.Object, second.Object]).Any());
+	}
+
+	[TestMethod]
+	public void PolicyPrototypes_AdvertiseAggregateCapabilitiesWithoutCompositionConflicts()
+	{
+		var permissions = CreateDatabasePrototype<ItemPermissionsGameItemComponentProto>("<Definition />");
+		var retirement = CreateDatabasePrototype<TransientItemGameItemComponentProto>("<Definition />");
+
+		CollectionAssert.Contains(permissions.ComponentTypes().ToList(), typeof(IItemInteractionPermissions));
+		CollectionAssert.Contains(retirement.ComponentTypes().ToList(), typeof(ITransientItemPolicy));
+		Assert.IsFalse(GameItemComponentPrototypeExclusivity.FindConflicts(
+			[permissions, permissions, retirement, retirement]).Any());
+		Assert.IsTrue(GameItemComponentPrototypeExclusivity.CanAddComponent(
+			[permissions, retirement], permissions, out var conflict));
+		Assert.IsNull(conflict);
 	}
 
 	[TestMethod]

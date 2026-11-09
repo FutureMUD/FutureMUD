@@ -2,6 +2,8 @@
 
 Terrain Planner 2.x is one service: the hosted planner UI and its read-only Engine API are installed, configured, started, upgraded, and rolled back together. It expects the FutureMUD web-client prerequisite to have already installed Caddy and normal service-management support. The only public listener is Caddy on ports 80/443; Kestrel listens only on `127.0.0.1:5010`.
 
+Terrain Planner 2.2.0 complete-stack exports require Engine 2.17.0 or later. Existing single-level projects load at Z=0 and save in schema 2; retain a backup before editing if you need to reopen them with an older planner. Traditional rectangle masks still export only the selected level.
+
 ## Before installation
 
 1. Create a DNS record such as `planner.example.com` pointing at the game server.
@@ -25,7 +27,7 @@ FLUSH PRIVILEGES;
 Extract the archive. It creates one directory named for the runtime package; change into that directory, then run:
 
 ```bash
-version=2.1.0
+version=2.2.0
 unzip "terrainplanner-$version-linux-x64.zip"
 cd "terrainplanner-$version-linux-x64"
 sudo bash deploy/linux/install-terrainplanner.sh planner.example.com
@@ -45,7 +47,7 @@ The installer creates the unprivileged `terrainplanner` account, installs a hard
 Open an elevated PowerShell prompt. The archive extracts to an outer download directory which contains the actual runtime package directory; change into the inner directory before running the installer:
 
 ```powershell
-$version = '2.1.0'
+$version = '2.2.0'
 $archive = "C:\Install\terrainplanner-$version-win-x64.zip"
 $extractRoot = "C:\Install\terrainplanner-$version"
 Expand-Archive -LiteralPath $archive -DestinationPath $extractRoot -Force

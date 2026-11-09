@@ -33,11 +33,11 @@ public class IndustrialisedPrerequisiteAuditTests
 		using var typeDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(RepositoryRoot,
 			"Design Documents", "Data", "Item_Component_Types.json")));
 		var typeRows = typeDocument.RootElement.EnumerateArray().ToList();
-		Assert.AreEqual(256, typeRows.Count);
-		Assert.AreEqual(256, typeRows
+		Assert.AreEqual(258, typeRows.Count);
+		Assert.AreEqual(258, typeRows
 			.Select(x => x.GetProperty("Component Type Name").GetString())
 			.Distinct(StringComparer.OrdinalIgnoreCase).Count());
-		foreach (var type in new[] { "ArmageddonEmberSeed", "FoldedPocket", "Spellbook", "SpellScroll", "ChargedMagicDevice", "Climbing Aid", "Equipment Bonuses" })
+		foreach (var type in new[] { "ArmageddonEmberSeed", "FoldedPocket", "Spellbook", "SpellScroll", "ChargedMagicDevice", "Climbing Aid", "Equipment Bonuses", "Item Permissions", "Transient Item" })
 		{
 			Assert.AreEqual(1, typeRows.Count(x => x.GetProperty("Component Type Name").GetString() == type));
 		}
@@ -57,7 +57,7 @@ public class IndustrialisedPrerequisiteAuditTests
 
 		var componentAuditRows = File.ReadAllLines(Path.Combine(RepositoryRoot, "Design Documents", "Seeding",
 			"Industrialised_Component_Prerequisite_Audit.tsv"));
-		Assert.AreEqual(257, componentAuditRows.Length);
+		Assert.AreEqual(259, componentAuditRows.Length);
 		Assert.AreEqual(21, componentAuditRows[0].Split('\t').Length);
 		Assert.IsFalse(componentAuditRows.Skip(1).Any(x => x.Split('\t')[11] == "reusable-stock-required"));
 

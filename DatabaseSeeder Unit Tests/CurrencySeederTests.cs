@@ -110,15 +110,15 @@ public class CurrencySeederTests
 		RuntimeCurrency currency = LoadRuntimeCurrency(context, "Pounds");
 		Dictionary<decimal, string> expectations = new()
 		{
-			[3.0M] = "¾d",
-			[6.0M] = "1½d",
+			[3.0M] = "Â¾d",
+			[6.0M] = "1Â½d",
 			[44.0M] = "11d",
-			[48.0M] = "1/–",
+			[48.0M] = "1/â€“",
 			[120.0M] = "2/6",
-			[839.0M] = "17/5¾",
-			[1440.0M] = "£1/10/–",
-			[1919.0M] = "£1/19/11¾",
-			[1920.0M] = "£2/–/–"
+			[839.0M] = "17/5Â¾",
+			[1440.0M] = "Â£1/10/â€“",
+			[1919.0M] = "Â£1/19/11Â¾",
+			[1920.0M] = "Â£2/â€“/â€“"
 		};
 
 		foreach (CurrencyDescriptionPatternType type in new[]

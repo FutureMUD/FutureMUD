@@ -111,9 +111,9 @@ public class ArmageddonNamingTests
 		var messages = new List<string>(); ArmageddonHeritage.Install(db, messages);
 		var profile = db.RandomNameProfiles.Single(x => x.Name == "Thri-kreen naming tradition - 2");
 		var profileId = profile.Id; profile.Name = "Builder profile";
-		db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profile.Id && x.Name == "Ka’Cha").Weighting = 9;
-		db.RandomNameProfilesElements.Remove(db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profile.Id && x.Name == "Ka’Ka’Kyl"));
-		db.RandomNameProfilesElements.Add(new RandomNameProfilesElements { RandomNameProfileId = profile.Id, NameUsage = 0, Name = "Builder’Name", Weighting = 3 });
+		db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profile.Id && x.Name == "Kaâ€™Cha").Weighting = 9;
+		db.RandomNameProfilesElements.Remove(db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profile.Id && x.Name == "Kaâ€™Kaâ€™Kyl"));
+		db.RandomNameProfilesElements.Add(new RandomNameProfilesElements { RandomNameProfileId = profile.Id, NameUsage = 0, Name = "Builderâ€™Name", Weighting = 3 });
 		db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == profile.Id && x.NameUsage == 0).DiceExpression = "0";
 		var native = db.NameCultures.Single(x => x.Id == profile.NameCultureId);
 		native.Definition = native.Definition.Replace("Your given name is the name people use to address you in everyday life.", "Builder guidance.", StringComparison.Ordinal);
@@ -126,9 +126,9 @@ public class ArmageddonNamingTests
 		{
 			db.ChangeTracker.Clear(); ArmageddonHeritage.Install(db, messages); db.ChangeTracker.Clear();
 			Assert.AreEqual("Builder profile", db.RandomNameProfiles.Single(x => x.Id == profileId).Name);
-			Assert.AreEqual(9, db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profileId && x.Name == "Ka’Cha").Weighting);
-			Assert.IsFalse(db.RandomNameProfilesElements.Any(x => x.RandomNameProfileId == profileId && x.Name == "Ka’Ka’Kyl"));
-			Assert.AreEqual(3, db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profileId && x.Name == "Builder’Name").Weighting);
+			Assert.AreEqual(9, db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profileId && x.Name == "Kaâ€™Cha").Weighting);
+			Assert.IsFalse(db.RandomNameProfilesElements.Any(x => x.RandomNameProfileId == profileId && x.Name == "Kaâ€™Kaâ€™Kyl"));
+			Assert.AreEqual(3, db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profileId && x.Name == "Builderâ€™Name").Weighting);
 			Assert.AreEqual("0", db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == profileId && x.NameUsage == 0).DiceExpression);
 			Assert.AreEqual(definition, db.NameCultures.Single(x => x.Id == native.Id).Definition);
 			Assert.AreEqual("false", XElement.Parse(db.ChargenScreenStoryboards.Single(x => x.Id == storyboard.Id).StageDefinition).Element("AllowUnicodeNames")!.Value);

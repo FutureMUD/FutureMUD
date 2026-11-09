@@ -4300,6 +4300,34 @@
     "Has Help": true
   },
   {
+    "Component Type Name": "Item Permissions",
+    "Component Type Description": "Restricts pickup, dropping, giving, putting, sheathing or ordinary room listings.",
+    "Technology": "General",
+    "Builder Primary Type": "itempermissions",
+    "Builder Aliases": [
+      "itempermissions"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.ItemPermissionsGameItemComponentProto",
+    "Component Capabilities": [
+      "IItemInteractionPermissions"
+    ],
+    "Exclusive Types": [],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.ItemPermissionsGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
     "Component Type Name": "ItemIssuer",
     "Component Type Description": "Configurable ItemIssuer item content.",
     "Technology": "General",
@@ -7904,6 +7932,34 @@
     ],
     "Required Sibling Types": [],
     "Runtime Component Class": "MudSharp.GameItems.Components.TorchGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
+    "Component Type Name": "Transient Item",
+    "Component Type Description": "Retires an item on database reload or inventory logout rather than after a timer.",
+    "Technology": "General",
+    "Builder Primary Type": "transientitem",
+    "Builder Aliases": [
+      "transientitem"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.TransientItemGameItemComponentProto",
+    "Component Capabilities": [
+      "ITransientItemPolicy"
+    ],
+    "Exclusive Types": [],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.TransientItemGameItemComponent",
     "Has Prototype XML Load": true,
     "Has Prototype XML Save": true,
     "Has Create Path": true,

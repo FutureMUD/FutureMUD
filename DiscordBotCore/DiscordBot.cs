@@ -6,6 +6,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MudSharp.Framework;
@@ -21,6 +22,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Discord_Bot;
@@ -33,15 +35,16 @@ public partial class DiscordBot
 
     private readonly List<TcpConnection> _tcpConnections = new();
     public IEnumerable<TcpConnection> TCPConnections => _tcpConnections;
-    private readonly ConcurrentDictionary<ulong, CachedDiscordRequest> _cachedDiscordRequests = new();
-    public ConcurrentDictionary<ulong, CachedDiscordRequest> CachedDiscordRequests => _cachedDiscordRequests;
+    private readonly CachedDiscordRequestCache _cachedDiscordRequests = new();
+    public CachedDiscordRequestCache CachedDiscordRequests => _cachedDiscordRequests;
 
     private async Task TcpListenerAsync()
     {
-        TcpListener tcp = new(IPAddress.Any, _tcpClientPort);
+        TcpListener tcp = new(IPAddress.Parse(_listenAddress), _tcpClientPort);
         tcp.Start();
         while (true)
         {
+            await CachedDiscordRequests.SweepExpiredAsync();
             foreach (TcpConnection conn in _tcpConnections.Where(x => !x.Closing).ToList())
             {
                 await conn.CheckIncomingAsync();
@@ -81,6 +84,7 @@ public partial class DiscordBot
                 else
                 {
                     _tcpClientPort = settings.Port;
+                    _listenAddress = settings.ListenAddress;
                     _botToken = settings.Token;
                     _botPrefixes.AddRange(settings.Prefixes);
                     ServerAuth = settings.ServerAuth;
@@ -89,6 +93,7 @@ public partial class DiscordBot
                     _debugAnnounceChannelId = settings.DebugAnnounceChannelId;
                     GameName = settings.GameName;
                     _authorisedUsers.AddRange(settings.AdminUsers);
+                    _ownerUsers.AddRange(settings.OwnerUserIds);
                     _customGlobalReactions.AddRange(settings.CustomGlobalReactions);
                 }
             }
@@ -134,6 +139,7 @@ public partial class DiscordBot
 
     private readonly List<CustomGlobalReaction> _customGlobalReactions = new();
     private int _tcpClientPort;
+    private string _listenAddress = IPAddress.Loopback.ToString();
     private string _botToken;
     private readonly List<string> _botPrefixes = new();
     public string ServerAuth { get; private set; }
@@ -143,6 +149,7 @@ public partial class DiscordBot
     private string _lastVersion;
     private DiscordClient _client;
     private CommandsNextExtension _commands;
+    private SlashCommandsExtension _slashCommands;
     private IServiceProvider _services;
     public string GameName { get; private set; }
     public DiscordChannel AnnounceChannel { get; private set; }
@@ -152,16 +159,37 @@ public partial class DiscordBot
     public CustomCommandHandler CustomCommandHandler { get; private set; }
 
     private readonly List<ulong> _authorisedUsers = new();
+    private readonly List<ulong> _ownerUsers = new();
+    private readonly SemaphoreSlim _botSettingsGate = new(1, 1);
+    private readonly SemaphoreSlim _accountLinksGate = new(1, 1);
+    private readonly DiscordBotAtomicFileWriter _atomicFileWriter = new();
 
     public bool IsAuthorisedUser(DiscordUser user)
     {
         return _authorisedUsers.Contains(user.Id);
     }
 
+    public bool IsOwner(DiscordUser user)
+    {
+        return DiscordRemoteCommandPolicy.IsOwner(user.Id, _ownerUsers, _authorisedUsers);
+    }
+
     public bool TryGetAuthenticatedConnection(out TcpConnection connection)
     {
         connection = _tcpConnections.FirstOrDefault(x => x.TcpClientAuthenticated && !x.Closing);
         return connection != null;
+    }
+
+    internal async Task<bool> TryCacheDiscordRequestAsync(CachedDiscordRequest request)
+    {
+        if (await CachedDiscordRequests.TryAddRequestAsync(request))
+        {
+            return true;
+        }
+
+        await SendPrivateCommandResponseAsync(request.Context,
+            "There are too many outstanding bot requests. Please try again shortly.");
+        return false;
     }
 
     public async Task RunBotAsync()
@@ -203,6 +231,12 @@ public partial class DiscordBot
         });
 
         _commands.RegisterCommands(Assembly.GetExecutingAssembly());
+        _slashCommands = _client.UseSlashCommands(new SlashCommandsConfiguration
+        {
+            Services = _services
+        });
+        _slashCommands.RegisterCommands(Assembly.GetExecutingAssembly());
+        _client.ComponentInteractionCreated += RemoteCommandComponents.HandleAsync;
         CustomCommandHandler = new CustomCommandHandler
         {
             StringPrefixes = _botPrefixes,
@@ -388,35 +422,74 @@ public partial class DiscordBot
 
     public async Task AddAuthorisedUser(ulong who)
     {
-        if (!_authorisedUsers.Contains(who))
-        {
-            _authorisedUsers.Add(who);
-        }
-
-        await using (StreamWriter writer = new(new FileStream("settings.json", FileMode.Create)))
-        {
-            try
-            {
-                await writer.WriteAsync(JsonConvert.SerializeObject(new DiscordBotSetttings
-                {
-                    Port = _tcpClientPort,
-                    Token = _botToken,
-                    Prefixes = _botPrefixes.ToList(),
-                    ServerAuth = ServerAuth,
-                    AnnounceChannelId = _announceChannelId,
-                    AdminAnnounceChannelId = _adminAnnounceChannelId,
-                    DebugAnnounceChannelId = _debugAnnounceChannelId,
-                    GameName = GameName,
-                    AdminUsers = _authorisedUsers.ToList(),
-                    CustomGlobalReactions = _customGlobalReactions.ToList()
-                }, Formatting.Indented));
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("");
-            }
-        }
+		await _botSettingsGate.WaitAsync();
+		try
+		{
+			var added = false;
+			if (!_authorisedUsers.Contains(who))
+			{
+				_authorisedUsers.Add(who);
+				added = true;
+			}
+			try
+			{
+				await WriteBotSettingsAsync();
+			}
+			catch
+			{
+				if (added)
+				{
+					_authorisedUsers.Remove(who);
+				}
+				throw;
+			}
+		}
+		finally
+		{
+			_botSettingsGate.Release();
+		}
     }
+
+	internal async Task<bool> RemoveAuthorisedUserAsync(ulong who)
+	{
+		await _botSettingsGate.WaitAsync();
+		try
+		{
+			_authorisedUsers.Remove(who);
+			_ownerUsers.Remove(who);
+			await WriteBotSettingsAsync();
+			return true;
+		}
+		catch (Exception e)
+		{
+			Log.Warning("Could not persist bot administrator revocation for {DiscordUserId} ({ExceptionType}).", who, e.GetType().Name);
+			return false;
+		}
+		finally
+		{
+			_botSettingsGate.Release();
+		}
+	}
+
+	private Task WriteBotSettingsAsync()
+	{
+		var settings = new DiscordBotSetttings
+		{
+			Port = _tcpClientPort,
+			ListenAddress = _listenAddress,
+			Token = _botToken,
+			Prefixes = _botPrefixes.ToList(),
+			ServerAuth = ServerAuth,
+			AnnounceChannelId = _announceChannelId,
+			AdminAnnounceChannelId = _adminAnnounceChannelId,
+			DebugAnnounceChannelId = _debugAnnounceChannelId,
+			GameName = GameName,
+			AdminUsers = _authorisedUsers.ToList(),
+			OwnerUserIds = _ownerUsers.ToList(),
+			CustomGlobalReactions = _customGlobalReactions.ToList()
+		};
+		return _atomicFileWriter.WriteAsync("settings.json", JsonConvert.SerializeObject(settings, Formatting.Indented));
+	}
 
     public async Task AnnounceToAdminChannel(string message)
     {
@@ -504,24 +577,77 @@ public partial class DiscordBot
         await connection.SendTcpCommand($"shutdown {userid} {reboot}");
     }
 
-    public async Task AskMudToBroadcast(string message)
+    public async Task AskMudToBroadcast(long accountId, string message)
     {
         if (!TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             return;
         }
 
-        await connection.SendTcpCommand($"broadcast {message}");
+        await connection.SendTcpCommand($"broadcast {accountId} {message}");
     }
 
-    public async Task SaveRegistrationConfig()
+    public async Task<bool> ReplaceAccountLinkAsync(DetailedUserSetting setting)
     {
-        await using (StreamWriter writer = new(new FileStream("accountlinks.data", FileMode.Create, FileAccess.Write)))
-        {
-            foreach (string configLine in DiscordBotSettingsStore.SaveAccountLinks(DetailedUserSettings))
-            {
-                await writer.WriteLineAsync(configLine);
-            }
-        }
+		await _accountLinksGate.WaitAsync();
+		try
+		{
+			DetailedUserSettings.RemoveAll(x => x.MudAccountId == setting.MudAccountId || x.DiscordUserId == setting.DiscordUserId);
+			DetailedUserSettings.Add(setting);
+			await WriteRegistrationConfigAsync();
+			return true;
+		}
+		catch (Exception e)
+		{
+			Log.Warning("Could not persist Discord account link for {DiscordUserId} ({ExceptionType}).", setting.DiscordUserId, e.GetType().Name);
+			return false;
+		}
+		finally
+		{
+			_accountLinksGate.Release();
+		}
     }
+
+	public async Task SaveRegistrationConfig()
+	{
+		await _accountLinksGate.WaitAsync();
+		try
+		{
+			await WriteRegistrationConfigAsync();
+		}
+		finally
+		{
+			_accountLinksGate.Release();
+		}
+	}
+
+	internal async Task<bool> RemoveAccountLinkAsync(ulong discordUserId)
+	{
+		await _accountLinksGate.WaitAsync();
+		try
+		{
+			var removed = DetailedUserSettings.RemoveAll(x => x.DiscordUserId == discordUserId);
+			if (removed > 0)
+			{
+				await WriteRegistrationConfigAsync();
+			}
+			return true;
+		}
+		catch (Exception e)
+		{
+			Log.Warning("Could not persist Discord account unlink for {DiscordUserId} ({ExceptionType}).", discordUserId, e.GetType().Name);
+			return false;
+		}
+		finally
+		{
+			_accountLinksGate.Release();
+		}
+	}
+
+	private Task WriteRegistrationConfigAsync()
+	{
+		var configLines = DiscordBotSettingsStore.SaveAccountLinks(DetailedUserSettings.ToArray()).ToArray();
+		var content = configLines.Length == 0 ? "" : string.Join(Environment.NewLine, configLines) + Environment.NewLine;
+		return _atomicFileWriter.WriteAsync("accountlinks.data", content);
+	}
 }

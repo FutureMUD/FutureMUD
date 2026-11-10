@@ -40,8 +40,8 @@ public class Send : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await connection.SendTcpCommand($"send {request.RequestId} {registration.MudAccountName} {to} {message}");
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
+        await connection.SendTcpCommand($"send {request.RequestId} {registration.MudAccountId} {registration.MudAccountName} {to} {message}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)
@@ -51,14 +51,14 @@ public class Send : BaseCommandModule
         {
             case "sendfailed":
                 string to = ss.Pop();
-                await context.RespondAsync($"{context.User.Mention} - Failed to send your message, couldn't find a logged in account with the name **{to}**.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"Failed to send your message, couldn't find a logged in account with the name **{to}**.");
                 return;
             case "sendacknowledge":
                 string from = ss.Pop();
                 to = ss.Pop();
                 string message = ss.RemainingArgument;
-                await context.RespondAsync(
-                    $"{context.User.Mention}:\n\n```**[Sent to {to} as {from}]** {message}```");
+                await DiscordBot.SendPrivateCommandResponseAsync(context,
+                    $"```**[Sent to {to} as {from}]** {message}```");
                 return;
         }
     }

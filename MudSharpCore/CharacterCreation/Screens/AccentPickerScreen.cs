@@ -98,6 +98,30 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
         return sb.ToString();
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+		var knownLanguages = Gameworld.Languages.Where(x => chargen.SelectedSkills.Contains(x.LinkedTrait))
+			.OrderBy(x => x.Id).ToList();
+		if (SelectNativeLanguage && knownLanguages.Count > 1)
+		{
+			return knownLanguages.Select(x => x.Name).Take(100).ToList();
+		}
+
+		foreach (var language in chargen.SelectedSkills
+			         .Select(skill => Gameworld.Languages.FirstOrDefault(x => x.LinkedTrait == skill))
+			         .Where(x => x is not null))
+		{
+			var accents = Gameworld.Accents.Where(x => x.Language == language && x.IsAvailableInChargen(chargen))
+				.OrderBy(x => x.Name).ToList();
+			if (accents.Count > 1)
+			{
+				return accents.Select(x => x.Name).Take(100).ToList();
+			}
+		}
+
+		return [];
+    }
+
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
         if (AdditionalPickResource == null || AdditionalPickCost <= 0)

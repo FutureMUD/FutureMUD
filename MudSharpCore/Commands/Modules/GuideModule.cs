@@ -155,8 +155,10 @@ The syntax is:
             return;
         }
 
-        target.OutputHandler.Send(
-            $"{(actor.AffectedBy<IAdminAvailableEffect>() || target.IsAdministrator() ? string.Format("[From {1}{0}]", actor.Account.Name.TitleCase(), actor.PermissionLevel > PermissionLevel.Guide ? "" : "Player Guide ").Colour(Telnet.Green) : (actor.PermissionLevel > PermissionLevel.Guide ? "[Staff Member]" : "[Player Guide]").Colour(Telnet.Green))} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}");
+        var recipientText =
+            $"{(actor.AffectedBy<IAdminAvailableEffect>() || target.IsAdministrator() ? string.Format("[From {1}{0}]", actor.Account.Name.TitleCase(), actor.PermissionLevel > PermissionLevel.Guide ? "" : "Player Guide ").Colour(Telnet.Green) : (actor.PermissionLevel > PermissionLevel.Guide ? "[Staff Member]" : "[Player Guide]").Colour(Telnet.Green))} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}";
+        target.OutputHandler.Send(recipientText);
+        actor.Gameworld.DiscordConnection?.NotifyAccountMessage(target.Account.Name, recipientText.RawText());
         actor.OutputHandler.Send(
             $"{$"[Sent to {(actor.PermissionLevel > PermissionLevel.Guide ? target.PersonalName.GetName(NameStyle.SimpleFull) : target.Account.Name.TitleCase())}]".Colour(Telnet.Magenta)} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}");
     }

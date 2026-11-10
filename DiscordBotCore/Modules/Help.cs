@@ -30,7 +30,7 @@ public class Help : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudProgHelpResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"proghelp {request.RequestId} {arguments}");
     }
 
@@ -97,8 +97,8 @@ The following commands require you to be registered and authorised before using 
             Context = context,
             OnResponseAction = HandleMudHelpResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await connection.SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
+        await connection.SendTcpCommand($"help {request.RequestId} {arguments}");
     }
 
     private async Task HandleMudHelpResponse(string text, CommandContext context)
@@ -132,7 +132,7 @@ The following commands require you to be registered and authorised before using 
             Context = context,
             OnResponseAction = HandleMudHelpResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"help {request.RequestId} {arguments}");
     }
 }

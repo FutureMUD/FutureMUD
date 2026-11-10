@@ -285,6 +285,7 @@
     "20261029011042_ConfiguredInfectionState.Designer.cs": "Batch0020",
     "20261105032015_OptionalStableStayDepositor.Designer.cs": "Batch0020",
     "20261106083212_RangedWeaponSecondaryDamage.Designer.cs": "Batch0020",
-    "20261109234003_ClanElectionGovernance.Designer.cs": "Batch0020"
+    "20261109234003_ClanElectionGovernance.Designer.cs": "Batch0020",
+    "20261109235037_DiscordRemoteOperations.Designer.cs": "Batch0020"
   }
 }

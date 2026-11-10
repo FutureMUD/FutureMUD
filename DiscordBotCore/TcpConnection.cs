@@ -1,10 +1,12 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using MudSharp.Framework;
+using MudSharp.Discord;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -18,7 +20,8 @@ public class TcpConnection
 	public const int MaximumIncomingCommandBytes = DiscordTcpFrameDecoder.MaximumFrameBytes;
 	private readonly TcpClient _tcpClient;
 	private readonly NetworkStream _networkStream;
-	private readonly DiscordTcpFrameDecoder _frameDecoder = new();
+	private readonly DiscordBridgeFrameDecoder _frameDecoder = CreateInboundDecoder();
+	internal static DiscordBridgeFrameDecoder CreateInboundDecoder() => new(DiscordTcpFrameDecoder.FrameDelimiter);
 	private readonly DiscordClient _discordClient;
 	private readonly DiscordBot _discordBot;
 	public bool TcpClientAuthenticated { get; private set; }
@@ -36,6 +39,11 @@ public class TcpConnection
 	{
 		try
 		{
+			if (_tcpClient.Client.Poll(0, SelectMode.SelectRead) && _tcpClient.Client.Available == 0)
+			{
+				CloseTcpConnection();
+				return;
+			}
 			if (!_networkStream.DataAvailable)
 			{
 				return;
@@ -52,16 +60,8 @@ public class TcpConnection
 			_frameDecoder.Append(inputBuffer.AsSpan(0, bytes));
 			while (true)
 			{
-				var result = _frameDecoder.TryRead(out var command);
-				if (result == DiscordTcpFrameReadResult.NoFrame)
+				if (!_frameDecoder.TryRead(out var command))
 				{
-					return;
-				}
-
-				if (result == DiscordTcpFrameReadResult.Overflow)
-				{
-					Log.Warning("Closing TCP connection after receiving a Discord bot command larger than {MaximumIncomingCommandBytes} bytes.", MaximumIncomingCommandBytes);
-					CloseTcpConnection();
 					return;
 				}
 
@@ -70,25 +70,27 @@ public class TcpConnection
 					continue;
 				}
 
-				await HandleTcpCommandAsync(Encoding.Unicode.GetString(command));
+				await HandleTcpCommandAsync(command);
 			}
 		}
-		catch (SocketException e)
+		catch (Exception e) when (e is SocketException or IOException)
 		{
 			CloseTcpConnection();
 			Log.Information($"TCP Connection encountered a SocketException: {e.Message}");
 		}
-#if DEBUG
-		catch (Exception e)
+		catch (Exception e) when (e is InvalidDataException or DecoderFallbackException or FormatException)
 		{
-			Console.WriteLine(e.Message);
+			Log.Warning("Closing malformed Discord bridge connection ({ExceptionType}).", e.GetType().Name);
+			CloseTcpConnection();
 		}
-#endif
 	}
 	private void CloseTcpConnection()
 	{
 		Closing = true;
-		_frameDecoder.Clear();
+		if (TcpClientAuthenticated)
+		{
+			_ = _discordBot.HandleBridgeDisconnectedAsync();
+		}
 		_tcpClient?.Close();
 		_networkStream?.Close();
 		TcpClientAuthenticated = false;
@@ -98,7 +100,6 @@ public class TcpConnection
     private async Task HandleTcpCommandAsync(string getString)
     {
 
-        Console.WriteLine($"TCP Communique: {getString}");
         if (!DiscordTcpCommandRouter.TryParse(getString, out var command) ||
             command.RequiresAuthentication && !TcpClientAuthenticated)
         {
@@ -110,6 +111,12 @@ public class TcpConnection
         {
             case "request":
                 await HandleTcpCommandRequest(ss);
+                return;
+            case "remote":
+                await HandleRemoteResponseAsync(ss.RemainingArgument);
+                return;
+            case "accountnotification":
+                await HandleAccountNotificationAsync(ss);
                 return;
             case "login":
                 await HandleTcpCommandLoginAsync(ss.RemainingArgument);
@@ -163,6 +170,41 @@ public class TcpConnection
                 return;
         }
     }
+
+	private async Task HandleRemoteResponseAsync(string payload)
+	{
+		if (!_frameDecoder.IsVersion2)
+		{
+			return;
+		}
+
+		var response = DiscordRemoteWire.DeserializeResponse(payload);
+		await _discordBot.HandleRemoteResponseAsync(response);
+	}
+
+	private async Task HandleAccountNotificationAsync(StringStack ss)
+	{
+		if (!_frameDecoder.IsVersion2)
+		{
+			return;
+		}
+
+		if (!ulong.TryParse(ss.Pop(), out var discordUserId))
+		{
+			return;
+		}
+
+		try
+		{
+			var message = Encoding.UTF8.GetString(Convert.FromBase64String(ss.RemainingArgument));
+			var dm = await _discordBot.CreatePrivateChannelAsync(discordUserId);
+			await dm.SendMessageAsync(DiscordResponseText.NeutraliseMentions(message));
+		}
+		catch (Exception e)
+		{
+			Log.Warning("Could not deliver private account notification to {DiscordUserId} ({ExceptionType}).", discordUserId, e.GetType().Name);
+		}
+	}
 
     private async Task HandleProgError(StringStack ss)
     {
@@ -488,7 +530,7 @@ public class TcpConnection
         if (DiscordAuthenticationPolicy.IsValid(auth, _discordBot.ServerAuth))
         {
             TcpClientAuthenticated = true;
-            _tcpClient.Client.Send(DiscordBotProtocol.EncodeCommandForEngine("authsuccess"));
+            await SendTcpCommand("authsuccess");
             await _discordBot.AnnounceToDiscord($"I have successfully heard from {_discordBot.GameName}, and I'm now ready to report on what it's up to!");
             if (!ss.IsFinished)
             {
@@ -497,7 +539,8 @@ public class TcpConnection
         }
         else
         {
-            _tcpClient.Client.Send(DiscordBotProtocol.EncodeCommandForEngine("authfailure"));
+            await SendTcpCommand("authfailure");
+			CloseTcpConnection();
         }
     }
 
@@ -505,13 +548,27 @@ public class TcpConnection
     {
         try
         {
-            byte[] bytes = DiscordBotProtocol.EncodeCommandForEngine(command);
-            await _tcpClient.Client.SendAsync(bytes, SocketFlags.None);
+			byte[] bytes = _frameDecoder.IsVersion2
+				? DiscordBridgeProtocol.EncodeFrame(command)
+				: DiscordBotProtocol.EncodeCommandForEngine(command);
+			await _networkStream.WriteAsync(bytes);
         }
-        catch (SocketException e)
+		catch (Exception e) when (e is SocketException or IOException)
         {
             CloseTcpConnection();
             Log.Information($"TCP Connection encountered a SocketException: {e.Message}");
         }
-    }
+	}
+
+	public bool SupportsRemoteCommands => TcpClientAuthenticated && _frameDecoder.IsVersion2;
+
+	public Task SendRemoteCommandAsync(DiscordRemoteRequest request)
+	{
+		if (!SupportsRemoteCommands)
+		{
+			throw new InvalidOperationException("The game server does not support versioned Discord operations.");
+		}
+
+		return SendTcpCommand("remote " + DiscordRemoteWire.SerializeRequest(request));
+	}
 }

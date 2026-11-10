@@ -35,7 +35,7 @@ public class SendChannel : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"sendchannel {request.RequestId} \"{registration.MudAccountName}\" \"{channel}\" {message}");
     }
 
@@ -46,10 +46,10 @@ public class SendChannel : BaseCommandModule
         {
             case "sendfailed":
                 string channel = ss.SafeRemainingArgument;
-                await context.RespondAsync($"{context.User.Mention} - Failed to send your message, you don't have access to any channel called **{channel}**.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"Failed to send your message, you don't have access to any channel called **{channel}**.");
                 return;
             case "sendfailedaccount":
-                await context.RespondAsync($"{context.User.Mention} - Failed to send your message, couldn't locate your account.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, "Failed to send your message, couldn't locate your account.");
                 return;
             case "sendacknowledge":
                 await context.Message.CreateReactionAsync(DiscordEmoji.FromName(context.Client, ":checkered_flag:"));

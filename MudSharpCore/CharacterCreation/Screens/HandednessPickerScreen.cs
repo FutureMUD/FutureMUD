@@ -61,6 +61,11 @@ public class HandednessPickerScreenStoryboard : ChargenScreenStoryboard
         return new HandednessPickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        return chargen.SelectedRace?.HandednessOptions.Select(x => x.Describe()).Take(100).ToList() ?? [];
+    }
+
     public override string Show(ICharacter voyeur)
     {
         StringBuilder sb = new();

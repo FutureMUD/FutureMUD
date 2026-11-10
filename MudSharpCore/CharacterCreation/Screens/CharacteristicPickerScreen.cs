@@ -83,6 +83,21 @@ public class CharacteristicPickerScreenStoryboard : ChargenScreenStoryboard
         return new CharacteristicPickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        var definition = chargen.SelectedRace?.Characteristics(chargen.SelectedGender).Distinct().FirstOrDefault();
+        if (definition is null || chargen.SelectedEthnicity?.CharacteristicChoices.TryGetValue(definition, out var choice) != true)
+        {
+            return [];
+        }
+
+        var values = choice.Values.Where(x => x.ChargenApplicabilityProg is null ||
+			x.ChargenApplicabilityProg.ExecuteBool(chargen)).Distinct();
+		return definition.ChargenDisplayType == CharacterGenerationDisplayType.GroupByBasic
+			? values.Select(x => x.GetBasicValue).Distinct().OrderBy(x => x).Take(100).ToList()
+			: values.OrderBy(x => x.Name).Select(x => x.GetValue).Take(100).ToList();
+    }
+
     internal class CharacteristicPickerScreen : ChargenScreen
     {
         private readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> SelectedCharacteristics =

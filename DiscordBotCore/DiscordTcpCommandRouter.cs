@@ -13,6 +13,8 @@ internal static class DiscordTcpCommandRouter
 	private static readonly HashSet<string> AuthenticatedCommands = new(StringComparer.Ordinal)
 	{
 		"request",
+		"remote",
+		"accountnotification",
 		"shutdown",
 		"crash",
 		"chargen",

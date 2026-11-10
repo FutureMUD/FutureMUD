@@ -53,7 +53,7 @@ public class RejectChargen : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"rejectchargen {request.RequestId} {which} {accountid} {comment}");
     }
 
@@ -64,14 +64,14 @@ public class RejectChargen : BaseCommandModule
         {
             case "nosuchchargen":
                 long chargenId = long.Parse(ss.Pop());
-                await context.RespondAsync($"{context.User.Mention} - There is no character application with an ID of {chargenId}.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"There is no character application with an ID of {chargenId}.");
                 return;
             case "chargenapprovalerror":
                 chargenId = long.Parse(ss.Pop());
-                await context.RespondAsync($"{context.User.Mention} - Error with rejecting character application {chargenId}: {ss.RemainingArgument}");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"Error with rejecting character application {chargenId}: {ss.RemainingArgument}");
                 return;
             case "success":
-                await context.RespondAsync($"{context.User.Mention} - Character application rejected.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, "Character application rejected.");
                 return;
             default:
                 return;

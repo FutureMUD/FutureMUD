@@ -15,7 +15,7 @@ public class Authorise : BaseCommandModule
     [Aliases("authorize")]
     public async Task AuthoriseAsync(CommandContext context, [RemainingText] string remainder)
     {
-        if (!DiscordBot.Instance.IsAuthorisedUser(context.User))
+        if (!DiscordBot.Instance.IsOwner(context.User))
         {
             await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
             return;

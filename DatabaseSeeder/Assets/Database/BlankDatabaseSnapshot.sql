@@ -16703,3 +16703,208 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 
 COMMIT;
+
+-- Discord remote operations: reviewed EF-generated idempotent delta
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE TABLE `discordaccountlinks` (
+        `DiscordUserId` varchar(20) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+        `AccountId` bigint(20) NOT NULL,
+        `NotificationsEnabled` tinyint(1) NOT NULL,
+        `CreatedUtc` datetime(6) NOT NULL,
+        CONSTRAINT `PK_DiscordAccountLinks` PRIMARY KEY (`DiscordUserId`),
+        CONSTRAINT `FK_DiscordAccountLinks_Accounts_AccountId` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE TABLE `discordhooks` (
+        `Id` bigint NOT NULL AUTO_INCREMENT,
+        `Key` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+        `Category` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+        `Description` text CHARACTER SET utf8mb4 NOT NULL,
+        `Usage` varchar(1000) CHARACTER SET utf8mb4 NOT NULL,
+        `ProgId` bigint(20) NOT NULL,
+        `MinimumAuthority` int NOT NULL,
+        `Enabled` tinyint(1) NOT NULL,
+        `RequireConfirmation` tinyint(1) NOT NULL,
+        `CooldownSeconds` int NOT NULL,
+        `Revision` int NOT NULL,
+        `AllowedGuildIds` text CHARACTER SET utf8mb4 NOT NULL,
+        `AllowedChannelIds` text CHARACTER SET utf8mb4 NOT NULL,
+        `AllowedAccountIds` text CHARACTER SET utf8mb4 NOT NULL,
+        CONSTRAINT `PK_DiscordHooks` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_DiscordHooks_FutureProgs_ProgId` FOREIGN KEY (`ProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE TABLE `discordintegrationsettings` (
+        `Key` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+        `Value` text CHARACTER SET utf8mb4 NOT NULL,
+        CONSTRAINT `PK_DiscordIntegrationSettings` PRIMARY KEY (`Key`)
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE TABLE `discordremoteinvocations` (
+        `Id` varchar(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+        `DiscordUserId` varchar(20) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+        `AccountId` bigint NULL,
+        `Operation` varchar(80) CHARACTER SET utf8mb4 NOT NULL,
+        `Arguments` text CHARACTER SET utf8mb4 NOT NULL,
+        `Fingerprint` varchar(64) CHARACTER SET utf8mb4 NOT NULL,
+        `HookId` bigint NULL,
+        `ProgId` bigint NULL,
+        `HookRevision` int NULL,
+        `DefinitionFingerprint` varchar(64) CHARACTER SET utf8mb4 NOT NULL,
+        `Status` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+        `ResultText` mediumtext CHARACTER SET utf8mb4 NOT NULL,
+        `ConfirmationId` varchar(36) CHARACTER SET utf8mb4 NULL,
+        `CreatedUtc` datetime(6) NOT NULL,
+        `UpdatedUtc` datetime(6) NOT NULL,
+        `ExpiresUtc` datetime(6) NULL,
+        CONSTRAINT `PK_DiscordRemoteInvocations` PRIMARY KEY (`Id`)
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE UNIQUE INDEX `IX_DiscordAccountLinks_AccountId` ON `discordaccountlinks` (`AccountId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE UNIQUE INDEX `IX_DiscordHooks_Key` ON `discordhooks` (`Key`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE INDEX `IX_DiscordHooks_ProgId` ON `discordhooks` (`ProgId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE INDEX `IX_DiscordRemoteInvocations_CreatedUtc` ON `discordremoteinvocations` (`CreatedUtc`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE INDEX `IX_DiscordRemoteInvocations_DiscordUserId_CreatedUtc` ON `discordremoteinvocations` (`DiscordUserId`, `CreatedUtc`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    CREATE INDEX `IX_DiscordRemoteInvocations_HookId_CreatedUtc` ON `discordremoteinvocations` (`HookId`, `CreatedUtc`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109235037_DiscordRemoteOperations') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261109235037_DiscordRemoteOperations', '9.0.21');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

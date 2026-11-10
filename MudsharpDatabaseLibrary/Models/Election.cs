@@ -20,6 +20,7 @@ namespace MudSharp.Models
         public string ResultsInEffectDate { get; set; }
         public bool IsFinalised { get; set; }
         public bool IsConfirmed { get; set; }
+        public string RecallLiegeApprovals { get; set; }
         public int NumberOfAppointments { get; set; }
         public bool IsByElection { get; set; }
         public bool IsRecall { get; set; }

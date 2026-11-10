@@ -266,6 +266,11 @@ public class Appointment : SaveableItem, IAppointment
     public void Delete()
     {
         Gameworld.SaveManager.Abort(this);
+        foreach (IElection election in Elections.ToList())
+        {
+            election.CancelElection();
+        }
+
         if (_id != 0)
         {
             using (new FMDB())
@@ -274,15 +279,12 @@ public class Appointment : SaveableItem, IAppointment
                 Models.Appointment dbitem = FMDB.Context.Appointments.Find(Id);
                 if (dbitem != null)
                 {
+                    FMDB.Context.ChargenRolesClanMembershipsAppointments.RemoveRange(
+                        FMDB.Context.ChargenRolesClanMembershipsAppointments.Where(x => x.AppointmentId == Id));
                     FMDB.Context.Appointments.Remove(dbitem);
                     FMDB.Context.SaveChanges();
                 }
             }
-        }
-
-        foreach (IElection election in Elections.ToList())
-        {
-            election.CancelElection();
         }
     }
 

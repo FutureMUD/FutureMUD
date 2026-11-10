@@ -32,6 +32,16 @@ public class ClanRecallModelTests
 	}
 
 	[TestMethod]
+	public void LiegeApprovalUpgrade_ExistingBallotsStartWithoutAnyExternalApproval()
+	{
+		var operation = new MudSharp.Migrations.ClanRecallLiegeApproval().UpOperations.OfType<AddColumnOperation>().Single();
+		Assert.AreEqual("Elections", operation.Table);
+		Assert.AreEqual("RecallLiegeApprovals", operation.Name);
+		Assert.IsTrue(operation.IsNullable);
+		Assert.IsNull(operation.DefaultValue);
+	}
+
+	[TestMethod]
 	public void RecallThreshold_ExplicitZeroIsSentOnInsertInsteadOfReceivingCompatibilityDefault()
 	{
 		using var context = new FuturemudDatabaseContextFactory().CreateDbContext([]);

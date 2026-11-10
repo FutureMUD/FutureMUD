@@ -97,7 +97,7 @@ The initiation prog returns a boolean for one character; the voting prog returns
 
 A recall targets one current holder of one appointment. There can be only one open recall for that holder and office, but recalls of different holders may coexist. The holder retains office throughout voting and pending confirmation. Ballots start voting immediately, use the existing voting period and secret-ballot setting, and accept a replacement vote until voting closes. YES means remove; NO means retain. Removal must strictly exceed the configured percentage of weighted votes cast, defaulting to more than 50%. Exactly reaching the threshold and no votes fail. The threshold accepts percentages from 0 inclusive to 100 exclusive; it cannot change while a recall is open. There is no quorum. No nomination period or installation lead time applies to a recall.
 
-A successful ballot uses the same confirmation authority and `clan election confirm|veto <id>` commands as an election. Confirmation removes only the named holder; a veto retains them and records the veto without automatically starting another recall. Failed ballots also leave them in office. Removal withdraws their outstanding candidacy for that office and runs normal vacancy/by-election handling, preserving other holders and the regular election cycle. Indefinite offices work the same way. Recall never counts as an election win or term for term limits.
+A successful ballot uses the same confirmation authority and `clan election confirm|veto <id>` commands as an election. If the named holder occupies an externally controlled seat, approval from that liege is also required, even when no ordinary election confirmation office is configured. An active liege member with `CanManageClanVassals`, or a holder/controller of the configured liege office, can approve or veto that recall. With several controlling relationships, each must approve. Each approval is saved independently, and the holder remains in office until every required authority approves. Changing the liege or controlling office invalidates its previous approval. Administrators can approve all required authorities. Liege recall authority grants no ordinary appointment, dismissal, nomination or voting privileges. Confirmation removes only the named holder; a veto retains them and records the veto without automatically starting another recall. Failed ballots also leave them in office. Removal withdraws their outstanding candidacy for that office and runs normal vacancy/by-election handling, preserving other holders and the regular election cycle. Indefinite offices work the same way. Recall never counts as an election win or term for term limits.
 
 Holders whose office comes from employment cannot be recalled. An open recall is cancelled if its target leaves the office, leaves the clan, or holds the office through employment before resolution. A cancelled or vetoed ballot remains in history with its votes. Resolve open recalls before disabling recall; disabling elections cancels open ballots and clears the policy.
 
@@ -182,6 +182,7 @@ Election victors are determined from recorded votes at or after `Preinstallation
 Important behaviours:
 
 - nominees with no votes are not elected;
+- newly installed victors below the appointment's minimum holding rank are promoted to that rank; higher ranks are retained, and no promotion occurs while confirmation or installation is pending;
 - if fewer victors exist than positions, the runtime schedules a by-election;
 - if no nominees exist at voting start, the runtime finalises the empty election and creates a by-election;
 - by-elections remain separate from the regular term cycle.
@@ -288,3 +289,7 @@ to bind the relationship to a new liege appointment if appointment-scoped author
 - Multi-word appointment names should be quoted when ambiguity is possible.
 - Multi-liege ambiguity should be resolved by supplying the liege clan explicitly.
 - The builder/editor surface for authoring clans is still partly module-owned, but runtime external-control behaviour is now documented and command-addressable.
+
+## Appointment deletion
+
+Removing an appointment deletes it from the clan collection and persistence, cancels its elections and listeners, removes holders, budgets and chargen role grants, clears child-office parent links, and removes affected external controls from both clans. This applies whether the deleted office is the controlled or controlling office. Offices referenced as election confirmation authorities must have those references cleared before deletion; the runtime lifecycle and builder command both enforce this protection. Job listing references must also be cleared before deletion, including archived listings. Completed recall records retain the liege authorities who governed the ballot so they can still inspect its history after removal.

@@ -145,24 +145,8 @@ public partial class Clan
 	private bool CanManageExternalControl(ICharacter actor, IExternalClanControl control, IClan liegeClan,
 		out IClanMembership? actorMembership)
 	{
-		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
-		actorMembership = liegeClan.Memberships.FirstOrDefault(x => x.MemberId == actorIdentityId);
-		if (actor.IsAdministrator(PermissionLevel.Admin))
-		{
-			return true;
-		}
-
-		if (actorMembership is null)
-		{
-			return false;
-		}
-
-		if (actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals))
-		{
-			return true;
-		}
-
-		return ClanCommandUtilities.HoldsOrControlsAppointment(actorMembership, control.ControllingAppointment);
+		actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == liegeClan && !x.IsArchivedMembership);
+		return ClanCommandUtilities.CanManageExternalControl(actor, control);
 	}
 
 	private bool TryResolveElection(string electionOrAppointmentText, out IElection? election, out string error)
@@ -421,13 +405,13 @@ public partial class Clan
 	{
 		var actorMembership = ActorMembership(actor);
 		if (!CanViewOfficeHolders(actor, actorMembership) &&
-            !Appointments.Any(x => ClanCommandUtilities.CanConfirmElection(actor, x)))
+            !Appointments.Any(x => ClanCommandUtilities.CanViewElections(actor, x)))
 		{
 			return $"You do not have sufficient privileges in {FullName.ColourName()} to view elections.";
 		}
 
 		var appointmentsWithElections = Appointments.Where(x => x.IsAppointedByElection &&
-            (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanConfirmElection(actor, x))).ToList();
+            (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanViewElections(actor, x))).ToList();
 		if (!appointmentsWithElections.Any())
 		{
 			return string.Empty;
@@ -469,7 +453,8 @@ public partial class Clan
             {
                 sb.AppendLine($"You {(actorMembership is { IsArchivedMembership: false } && appointment.CanInitiateRecallProg?.ExecuteBool(actor) == true ? "can" : "cannot")} initiate a recall and have {(actorMembership is { IsArchivedMembership: false } ? Math.Max(0, appointment.RecallVotesProg?.ExecuteInt(actor) ?? 0) : 0).ToString("N0", actor).ColourValue()} recall votes.");
             }
-            foreach (var recall in appointment.Elections.Where(x => x.IsRecall && !x.IsFinalised))
+            foreach (var recall in appointment.Elections.Where(x => x.IsRecall && !x.IsFinalised &&
+                (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanConfirmElection(actor, x))))
             {
                 sb.AppendLine($"Recall #{recall.Id.ToString("N0", actor)} for {recall.RecallTarget?.Name.ColourName()}: {recall.ElectionStage.DescribeEnum().ColourValue()}; voting ends {recall.VotingEndDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}. Use CLAN ELECTION VIEW for details.");
             }
@@ -483,6 +468,8 @@ public partial class Clan
 			var votes = canParticipate ? appointment.NumberOfVotes(actor) : 0;
 			sb.AppendLine(
 				$"You {(canParticipate && appointment.CanNominate(actor).Truth ? "are" : "are not")} eligible to nominate and {(votes <= 0 ? "cannot vote" : $"have {votes.ToString("N0", actor).ColourValue()} vote{(votes == 1 ? "" : "s")}")} in elections for this position.");
+
+			if (!CanViewOfficeHolders(actor, actorMembership) && !ClanCommandUtilities.CanConfirmElection(actor, appointment)) continue;
 
 			var primaryElection = ClanCommandUtilities.GetPrimaryOpenElection(appointment);
 			var byElections = ClanCommandUtilities.GetOpenByElections(appointment).ToList();
@@ -553,7 +540,7 @@ public partial class Clan
 	{
 		var actorMembership = ActorMembership(actor);
 		if (!CanViewOfficeHolders(actor, actorMembership) &&
-            !Appointments.Any(x => ClanCommandUtilities.CanConfirmElection(actor, x)))
+            !Appointments.Any(x => ClanCommandUtilities.CanViewElections(actor, x)))
 		{
 			actor.OutputHandler.Send($"You are not authorised to view elections in {FullName.ColourName()}.");
 			return;
@@ -566,7 +553,7 @@ public partial class Clan
 		}
 
 		var appointments = Appointments.Where(x => x.IsAppointedByElection &&
-            (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanConfirmElection(actor, x))).ToList();
+            (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanViewElections(actor, x))).ToList();
 		if (!command.IsFinished)
 		{
 			var appointment = Appointments.GetByIdOrName(command.SafeRemainingArgument);
@@ -576,7 +563,7 @@ public partial class Clan
 				return;
 			}
 
-			if (!CanViewOfficeHolders(actor, actorMembership) && !ClanCommandUtilities.CanConfirmElection(actor, appointment))
+			if (!CanViewOfficeHolders(actor, actorMembership) && !ClanCommandUtilities.CanViewElections(actor, appointment))
             {
                 actor.OutputHandler.Send("You are not authorised to view elections for that appointment.");
                 return;
@@ -600,7 +587,8 @@ public partial class Clan
 
 			sb.AppendLine($"Election history for the {appointment.Name.ColourName()} position in {FullName.ColourName()}:");
 			sb.AppendLine();
-			foreach (var election in appointment.Elections.OrderByDescending(x => x.ResultsInEffectDate))
+			foreach (var election in appointment.Elections.Where(x => CanViewOfficeHolders(actor, actorMembership) ||
+				ClanCommandUtilities.CanConfirmElection(actor, x)).OrderByDescending(x => x.ResultsInEffectDate))
 			{
 				if (election.IsRecall)
 				{
@@ -994,6 +982,19 @@ public partial class Clan
 		if (!targetMembership.Appointments.Contains(appointment))
 		{
 			actor.OutputHandler.Send("They have not been appointed to that position.");
+			return;
+		}
+
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && targetMembership.MemberId == CharacterInstanceIdentityComparer.IdentityId(actor))
+		{
+			actor.OutputHandler.Send("Use CLAN RESIGN to leave an appointment you hold; its resignation rules apply.");
+			return;
+		}
+
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && ExternalControls.Any(x =>
+			x.VassalClan == this && x.ControlledAppointment == appointment && x.Appointees.Contains(targetMembership)))
+		{
+			actor.OutputHandler.Send("That holder was appointed by a liege clan. Use CLAN VASSAL DISMISS with the liege's authority.");
 			return;
 		}
 
@@ -1521,6 +1522,12 @@ public partial class Clan
 		if (targetMembership is null || !control!.Appointees.Contains(targetMembership))
 		{
 			actor.OutputHandler.Send("There is no such member for you to dismiss that falls within your remit.");
+			return;
+		}
+
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && targetMembership.MemberId == CharacterInstanceIdentityComparer.IdentityId(actor))
+		{
+			actor.OutputHandler.Send("Use CLAN RESIGN to leave an appointment you hold; its resignation rules apply.");
 			return;
 		}
 

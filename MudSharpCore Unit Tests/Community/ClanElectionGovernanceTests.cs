@@ -311,6 +311,7 @@ public partial class ClanElectionGovernanceTests
 			World.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
 			World.SetupGet(x => x.FutureProgs).Returns(new All<IFutureProg>());
 			World.SetupGet(x => x.ActiveJobs).Returns(new All<IActiveJob>());
+			World.SetupGet(x => x.Roles).Returns(new All<MudSharp.CharacterCreation.Roles.IChargenRole>());
 			Actor.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Player.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Player.SetupGet(x => x.ClanMemberships).Returns([]);

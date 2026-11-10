@@ -149,6 +149,8 @@ The following clan sub-commands are used to interact with clans:
 	#3clan appoint <person> <clan> <appointment>#0 - appoints a person to a clan appointment
 	#3clan dismiss <person> <clan> <appointment>#0 - dismisses a person from a clan appointment
 	#3clan resign <clan> <appointment>#0 - resigns one of your appointments
+	#3clan recall <person> <clan> <appointment>#0 - starts a recall ballot for an elected holder
+	#3clan vote <recall id> yes|no#0 - votes to remove or retain a holder
 	#3clan reportdead <clan> <person>#0 - reports a person as dead or long-term missing
 	#3clan pay <person> <clan> <how much>#0 - manually adds backpay owing to a person
 	#3clan budget <clan> <...>#0 - manages appointment budgets for a clan
@@ -299,6 +301,10 @@ All of the following commands must happen with an edited clan selected:
                 return;
             case "dismiss":
                 ClanDismiss(actor, ss);
+                return;
+            case "recall":
+            case "unseat":
+                ClanRecall(actor, ss);
                 return;
             case "transfer":
                 ClanTransfer(actor, ss);
@@ -3215,6 +3221,8 @@ Your next payday is {3}.
                 ? office.ElectionTerm == TimeSpan.Zero ? "elected indefinitely" : $"elected for {office.ElectionTerm.Describe(actor)}"
                 : "appointed";
             sb.AppendLine($"{office.Name.ColourName()}: {tenure}; resignation {(office.CanResign ? "permitted" : "forbidden")}.");
+            if (office.IsAppointedByElection)
+                sb.AppendLine($"  Parent dismissal: {office.CanParentDismiss.ToColouredString()}; recall ballots: {office.CanBeRecalled.ToColouredString()}.");
             if (office.ElectionConfirmationAppointment is { } authority)
                 sb.AppendLine($"  Confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}; direct appointment and dismissal: {office.CanDirectlyAppoint.ToColouredString()}.");
         }
@@ -3533,6 +3541,9 @@ Your next payday is {3}.
         if (appointment.IsAppointedByElection)
         {
             sb.AppendLine();
+            sb.AppendLine($"Parent dismissal: {appointment.CanParentDismiss.ToColouredString()}; recall ballots: {appointment.CanBeRecalled.ToColouredString()}; removal threshold: >{appointment.RecallThreshold.ToString("P2", actor).ColourValue()}");
+            sb.AppendLine($"Recall initiation prog: {appointment.CanInitiateRecallProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
+            sb.AppendLine($"Recall voting prog: {appointment.RecallVotesProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
             sb.AppendLine($"Elections ({(appointment.IsSecretBallot ? "by secret ballot" : "by open voting")}):");
             sb.AppendLine();
             sb.Append(new[]
@@ -3924,6 +3935,11 @@ Your next payday is {3}.
                 dbappointment.IsAppointedByElection = appointment.IsAppointedByElection;
                 dbappointment.CanResign = appointment.CanResign;
                 dbappointment.CanDirectlyAppoint = appointment.CanDirectlyAppoint;
+                dbappointment.CanParentDismiss = appointment.CanParentDismiss;
+                dbappointment.CanBeRecalled = appointment.CanBeRecalled;
+                dbappointment.RecallThreshold = appointment.RecallThreshold;
+                dbappointment.CanInitiateRecallProgId = appointment.CanInitiateRecallProg?.Id;
+                dbappointment.RecallVotesProgId = appointment.RecallVotesProg?.Id;
                 dbappointment.ElectionTermMinutes =
                     appointment.IsAppointedByElection ? appointment.ElectionTerm.TotalMinutes : null;
                 dbappointment.ElectionLeadTimeMinutes =
@@ -4103,6 +4119,10 @@ Your next payday is {3}.
             dbAppointment.CanNominateProgId = canNominateProg.Id;
             dbAppointment.WhyCantNominateProgId = whyCantNominateProg.Id;
             dbAppointment.NumberOfVotesProgId = numberOfVotesProg.Id;
+            if (sourceAppointment.CanInitiateRecallProg is not null && sourceAppointment.CanInitiateRecallProg == sourceAppointment.CanNominateProg)
+                dbAppointment.CanInitiateRecallProgId = canNominateProg.Id;
+            if (sourceAppointment.RecallVotesProg is not null && sourceAppointment.RecallVotesProg == sourceAppointment.NumberOfVotesProg)
+                dbAppointment.RecallVotesProgId = numberOfVotesProg.Id;
         }
     }
 
@@ -6338,6 +6358,7 @@ return 0",
     {
         string helpText =
             "You may use the following options:\n\tenable - enables elections\n\tnone - removes elections\n\tsecret - toggles secret voting\n\tterm <days|none> - sets term length or indefinite tenure\n\tconfirmation <clan> <appointment>|none - sets the confirmation office\n\tdirect - toggles direct appointment and dismissal by that office\n\tlead <days> - sets the number of days after votes closed that appointments happen\n\tnomination <days> - sets the length of the nomination period\n\tvoting <days> - sets the length of the voting period\n\tterms <consecutive no|0> <total no|0> - sets term limits\n\tnominate <prog> <why> - sets the nomination eligablity prog and \"why\" fail message prog\n\tvote <prog> - sets the vote count prog";
+        helpText += "\n\tparentdismiss - toggles dismissal by the parent office\n\trecall enable|none - enables or disables recall\n\trecall initiate <prog|none> - sets recall initiation eligibility\n\trecall vote <prog|none> - sets recall vote weight\n\trecall threshold <percentage> - sets the percentage removal votes must exceed (default 50)";
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(helpText);
@@ -6386,6 +6407,10 @@ return 0",
         {
             case "none":
                 appointment.IsAppointedByElection = false;
+                appointment.CanParentDismiss = false;
+                appointment.CanBeRecalled = false;
+                appointment.CanInitiateRecallProg = null;
+                appointment.RecallVotesProg = null;
                 appointment.ElectionTerm = TimeSpan.Zero;
                 appointment.ElectionLeadTime = TimeSpan.Zero;
                 appointment.NominationPeriod = TimeSpan.Zero;
@@ -6442,6 +6467,63 @@ return 0",
                 appointment.Changed = true;
                 actor.OutputHandler.Send($"Direct appointment and dismissal by the confirmation office is now {appointment.CanDirectlyAppoint.ToColouredString()}.");
                 return;
+            case "parentdismiss":
+                if (appointment.ParentPosition is null)
+                {
+                    actor.OutputHandler.Send("Set a parent appointment first.");
+                    return;
+                }
+                appointment.CanParentDismiss = !appointment.CanParentDismiss;
+                appointment.Changed = true;
+                actor.OutputHandler.Send($"Dismissal by holders of the parent appointment is now {appointment.CanParentDismiss.ToColouredString()}.");
+                return;
+            case "recall":
+            {
+                var option = command.PopSpeech().ToLowerInvariant();
+                if (option is "enable" or "none")
+                {
+                    if (option == "none" && appointment.Elections.Any(x => x.IsRecall && !x.IsFinalised))
+                    {
+                        actor.OutputHandler.Send("Resolve the open recall ballots before disabling recall.");
+                        return;
+                    }
+                    appointment.CanBeRecalled = option == "enable";
+                }
+                else if (option == "threshold")
+                {
+                    if (appointment.Elections.Any(x => x.IsRecall && !x.IsFinalised))
+                    {
+                        actor.OutputHandler.Send("Resolve the open recall ballots before changing the threshold.");
+                        return;
+                    }
+                    if (!double.TryParse(command.SafeRemainingArgument.TrimEnd('%'), out var percentage) ||
+                        !double.IsFinite(percentage) || percentage < 0 || percentage >= 100)
+                    {
+                        actor.OutputHandler.Send("Enter a percentage from 0 inclusive to 100 exclusive. Removal must strictly exceed it.");
+                        return;
+                    }
+                    appointment.RecallThreshold = percentage / 100.0;
+                }
+                else if (option is "initiate" or "vote")
+                {
+                    var progText = command.SafeRemainingArgument;
+                    var recallProg = progText.EqualTo("none") ? null :
+                        new MudSharp.FutureProg.ProgLookupFromBuilderInput(actor, progText,
+                            option == "initiate" ? ProgVariableTypes.Boolean : ProgVariableTypes.Number,
+                            new[] { ProgVariableTypes.Character }).LookupProg();
+                    if (recallProg is null && !progText.EqualTo("none")) return;
+                    if (option == "initiate") appointment.CanInitiateRecallProg = recallProg;
+                    else appointment.RecallVotesProg = recallProg;
+                }
+                else
+                {
+                    actor.OutputHandler.Send("Use RECALL ENABLE|NONE, RECALL THRESHOLD <percentage>, RECALL INITIATE <boolean prog|none>, or RECALL VOTE <number prog|none>. Progs take one character; missing progs grant no eligibility.");
+                    return;
+                }
+                appointment.Changed = true;
+                actor.OutputHandler.Send($"The appointment's recall policy has been updated. Removal requires more than {appointment.RecallThreshold.ToString("P2", actor).ColourValue()} of votes cast.");
+                return;
+            }
             case "secret":
                 appointment.IsSecretBallot = !appointment.IsSecretBallot;
                 appointment.Changed = true;
@@ -6715,6 +6797,11 @@ return 0",
 	#3resignation#0 - toggles whether holders may resign
 	#3election confirmation <clan> <appointment>|none#0 - sets the confirmation office
 	#3election direct#0 - toggles direct appointment and dismissal by that office
+	#3election parentdismiss#0 - toggles dismissal by holders of the parent office
+	#3election recall enable|none#0 - enables or disables recall ballots
+	#3election recall initiate <prog|none>#0 - sets separate recall initiation eligibility (boolean, character)
+	#3election recall vote <prog|none>#0 - sets separate recall vote weight (number, character)
+	#3election recall threshold <percentage>#0 - sets the percentage removal votes must exceed (default 50)
 	#3election term <days|none>#0 - sets term length or indefinite tenure
 	#3election lead <days>#0 - sets the number of days after votes closed that appointments happen
 	#3election nomination <days>#0 - sets the length of the nomination period
@@ -7284,6 +7371,19 @@ return 0",
         }
 
         clan.Dismiss(actor, new StringStack($"\"{targetText}\" {command.RemainingArgument}"));
+    }
+
+    private static void ClanRecall(ICharacter actor, StringStack command)
+    {
+        var targetText = command.PopSpeech();
+        var clanText = command.PopSpeech();
+        var clan = GetTargetClan(actor, clanText);
+        if (clan is null || command.IsFinished || string.IsNullOrEmpty(targetText))
+        {
+            actor.OutputHandler.Send("Use CLAN RECALL <person> <clan> <appointment> in a clan you belong to.");
+            return;
+        }
+        clan.Recall(actor, new StringStack($"\"{targetText}\" {command.RemainingArgument}"));
     }
 
     private static void ClanTransfer(ICharacter actor, StringStack command)

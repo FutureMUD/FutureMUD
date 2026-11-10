@@ -61,6 +61,40 @@ A veto preserves the rejected ballot and votes in history with no victors, insta
 
 `election confirmation none` clears the authority and disables its direct-appointment power. Resolve pending results before changing the confirmation office. Referenced confirmation offices (or their clans) cannot be deleted/disbanded until their confirmation references are cleared. Disabling elections cancels open ballots and clears confirmation settings.
 
+### Parent dismissal and recall
+
+Elected offices can independently allow their parent office to dismiss holders:
+
+```text
+clan set appointment <appointment> election parentdismiss
+clan dismiss <person> <clan> <appointment>
+```
+
+Set a parent before enabling this switch. It defaults to off. Active holders of that exact parent office may dismiss elected holders without a general `CanDismiss` privilege, including holders serving indefinitely. This does not grant appointment or election-confirmation authority. Employment restrictions still apply. Dismissal immediately vacates the office and runs the ordinary vacancy checks; it does not require a separate confirmation vote.
+
+Recall is separately opt-in and applies only to elected appointments:
+
+```text
+clan set appointment <appointment> election recall initiate <prog|none>
+clan set appointment <appointment> election recall vote <prog|none>
+clan set appointment <appointment> election recall threshold <percentage>
+clan set appointment <appointment> election recall enable
+clan recall <person> <clan> <appointment>
+clan vote <recall id> yes
+clan vote <recall id> no
+clan election view <recall id>
+```
+
+The initiation prog returns a boolean for one character; the voting prog returns that character's number of recall votes, with zero or negative values denying voting. Both fields are separate from ordinary nomination and voting eligibility. Only active clan members can initiate or vote, even when an administrator or external confirmer can view the ballot. Clearing a prog with `none` grants no eligibility. Configure a recall voting prog and a positive voting period before starting a ballot.
+
+A recall targets one current holder of one appointment. There can be only one open recall for that holder and office, but recalls of different holders may coexist. The holder retains office throughout voting and pending confirmation. Ballots start voting immediately, use the existing voting period and secret-ballot setting, and accept a replacement vote until voting closes. YES means remove; NO means retain. Removal must strictly exceed the configured percentage of weighted votes cast, defaulting to more than 50%. Exactly reaching the threshold and no votes fail. The threshold accepts percentages from 0 inclusive to 100 exclusive; it cannot change while a recall is open. There is no quorum. No nomination period or installation lead time applies to a recall.
+
+A successful ballot uses the same confirmation authority and `clan election confirm|veto <id>` commands as an election. Confirmation removes only the named holder; a veto retains them and records the veto without automatically starting another recall. Failed ballots also leave them in office. Removal withdraws their outstanding candidacy for that office and runs normal vacancy/by-election handling, preserving other holders and the regular election cycle. Indefinite offices work the same way. Recall never counts as an election win or term for term limits.
+
+Holders whose office comes from employment cannot be recalled. An open recall is cancelled if its target leaves the office, leaves the clan, or holds the office through employment before resolution. A cancelled or vetoed ballot remains in history with its votes. Resolve open recalls before disabling recall; disabling elections cancels open ballots and clears the policy.
+
+Appointment detail, clan governance displays, election overview/history and login reminders show recall policy or pending ballots. `Appointments` stores `CanParentDismiss`, `CanBeRecalled`, `RecallThreshold`, `CanInitiateRecallProgId` and `RecallVotesProgId`; new permissions default off and the threshold defaults to 0.5. `Elections.IsRecall` distinguishes recalls from installation ballots, and `Elections.RecallThreshold` preserves the ballot's original threshold even after later policy changes. The target is stored in the existing nominee record; existing vote records store positive weights for removal and negative weights for retention. `Cancelled` is appended to the persisted stage enum. Template clones retain the policy and prog references, rebinding stock electorate progs when shared with the ordinary election rules. The migration and blank bootstrap snapshot carry the same compatible defaults.
+
 ### Resignation
 
 All appointments permit resignation by default, including existing appointments upgraded from older worlds:

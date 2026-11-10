@@ -1444,13 +1444,26 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<ulong>("CanBeRecalled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
                     b.Property<ulong>("CanDirectlyAppoint")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
                         .HasDefaultValue(0ul);
 
+                    b.Property<long?>("CanInitiateRecallProgId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long?>("CanNominateProgId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("CanParentDismiss")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
 
                     b.Property<ulong>("CanResign")
                         .ValueGeneratedOnAdd()
@@ -1527,6 +1540,14 @@ namespace MudSharp.Migrations
                     b.Property<long>("Privileges")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<double>("RecallThreshold")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.5);
+
+                    b.Property<long?>("RecallVotesProgId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<double?>("VotingPeriodMinutes")
                         .HasColumnType("double");
 
@@ -1534,6 +1555,8 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CanInitiateRecallProgId");
 
                     b.HasIndex("CanNominateProgId")
                         .HasDatabaseName("FK_Appointments_CanNominateProg_idx");
@@ -1557,6 +1580,8 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("PaygradeId")
                         .HasDatabaseName("FK_Appointments_Paygrades");
+
+                    b.HasIndex("RecallVotesProgId");
 
                     b.HasIndex("WhyCantNominateProgId")
                         .HasDatabaseName("FK_Appointments_WhyCantNominateProg_idx");
@@ -9928,11 +9953,21 @@ namespace MudSharp.Migrations
                     b.Property<ulong>("IsFinalised")
                         .HasColumnType("bit(1)");
 
+                    b.Property<ulong>("IsRecall")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
                     b.Property<string>("NominationStartDate")
                         .HasColumnType("varchar(100)");
 
                     b.Property<int>("NumberOfAppointments")
                         .HasColumnType("int(11)");
+
+                    b.Property<double>("RecallThreshold")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.5);
 
                     b.Property<string>("ResultsInEffectDate")
                         .HasColumnType("varchar(100)");
@@ -27868,6 +27903,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Appointment", b =>
                 {
+                    b.HasOne("MudSharp.Models.FutureProg", "CanInitiateRecallProg")
+                        .WithMany()
+                        .HasForeignKey("CanInitiateRecallProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Appointments_CanInitiateRecallProg");
+
                     b.HasOne("MudSharp.Models.FutureProg", "CanNominateProg")
                         .WithMany()
                         .HasForeignKey("CanNominateProgId")
@@ -27913,6 +27954,12 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Appointments_Paygrades");
 
+                    b.HasOne("MudSharp.Models.FutureProg", "RecallVotesProg")
+                        .WithMany()
+                        .HasForeignKey("RecallVotesProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Appointments_RecallVotesProg");
+
                     b.HasOne("MudSharp.Models.FutureProg", "WhyCantNominateProg")
                         .WithMany()
                         .HasForeignKey("WhyCantNominateProgId")
@@ -27922,6 +27969,8 @@ namespace MudSharp.Migrations
                         .WithMany("Appointments")
                         .HasForeignKey("InsigniaGameItemId", "InsigniaGameItemRevnum")
                         .HasConstraintName("FK_Appointments_GameItemProtos");
+
+                    b.Navigation("CanInitiateRecallProg");
 
                     b.Navigation("CanNominateProg");
 
@@ -27940,6 +27989,8 @@ namespace MudSharp.Migrations
                     b.Navigation("ParentAppointment");
 
                     b.Navigation("Paygrade");
+
+                    b.Navigation("RecallVotesProg");
 
                     b.Navigation("WhyCantNominateProg");
                 });

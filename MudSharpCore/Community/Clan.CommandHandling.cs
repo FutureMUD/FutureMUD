@@ -457,6 +457,15 @@ public partial class Clan
 			}
 
             sb.AppendLine($"Resignation permitted: {appointment.CanResign.ToColouredString()}.");
+            sb.AppendLine($"Parent dismissal: {appointment.CanParentDismiss.ToColouredString()}; recall ballots: {appointment.CanBeRecalled.ToColouredString()}; removal threshold: >{appointment.RecallThreshold.ToString("P2", actor).ColourValue()}.");
+            if (appointment.CanBeRecalled)
+            {
+                sb.AppendLine($"You {(actorMembership is { IsArchivedMembership: false } && appointment.CanInitiateRecallProg?.ExecuteBool(actor) == true ? "can" : "cannot")} initiate a recall and have {(actorMembership is { IsArchivedMembership: false } ? Math.Max(0, appointment.RecallVotesProg?.ExecuteInt(actor) ?? 0) : 0).ToString("N0", actor).ColourValue()} recall votes.");
+            }
+            foreach (var recall in appointment.Elections.Where(x => x.IsRecall && !x.IsFinalised))
+            {
+                sb.AppendLine($"Recall #{recall.Id.ToString("N0", actor)} for {recall.RecallTarget?.Name.ColourName()}: {recall.ElectionStage.DescribeEnum().ColourValue()}; voting ends {recall.VotingEndDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}. Use CLAN ELECTION VIEW for details.");
+            }
             if (appointment.ElectionConfirmationAppointment is { } authority)
             {
                 sb.AppendLine($"Election results require confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}. Direct appointment and dismissal by that office: {appointment.CanDirectlyAppoint.ToColouredString()}.");
@@ -586,6 +595,11 @@ public partial class Clan
 			sb.AppendLine();
 			foreach (var election in appointment.Elections.OrderByDescending(x => x.ResultsInEffectDate))
 			{
+				if (election.IsRecall)
+				{
+					sb.AppendLine($"#{election.Id.ToString("N0", actor)}) Recall of {election.RecallTarget?.Name.ColourName()}: {election.ElectionStage.DescribeEnum().ColourValue()}{(election.ElectionStage == ElectionStage.Finalised ? election.RecallPassed ? " (removed)" : " (retained)" : "")}");
+					continue;
+				}
 				sb.Append($"#{election.Id.ToString("N0", actor)}) {(election.IsByElection ? "By-Election" : "Primary election")} of {election.NumberOfAppointments.ToString("N0", actor)} positions");
 				switch (election.ElectionStage)
 				{
@@ -744,6 +758,11 @@ public partial class Clan
 		}
 
 		var nomineeText = command.SafeRemainingArgument;
+		if (election!.IsRecall)
+		{
+			VoteRecall(actor, election, nomineeText);
+			return;
+		}
 
 		switch (election!.ElectionStage)
 		{
@@ -917,10 +936,12 @@ public partial class Clan
 
 		var appointmentText = command.SafeRemainingArgument;
 		var appointment = Appointments.GetByIdOrName(appointmentText);
+		var parentDismisser = appointment is not null &&
+			ClanCommandUtilities.CanParentDismiss(ActorMembership(actor), appointment);
 		var confirmingAppointer = appointment is not null && appointment.CanDirectlyAppoint &&
 			appointment.ElectionConfirmationAppointment is not null &&
 			ClanCommandUtilities.CanConfirmElection(actor, appointment);
-		if (!HasPrivilege(actor, ClanPrivilegeType.CanDismiss, out var actorMembership) && !confirmingAppointer)
+		if (!HasPrivilege(actor, ClanPrivilegeType.CanDismiss, out var actorMembership) && !confirmingAppointer && !parentDismisser)
 		{
 			actor.OutputHandler.Send("You are not allowed to dismiss people from positions in that clan.");
 			return;
@@ -939,7 +960,7 @@ public partial class Clan
 			return;
 		}
 
-		if (appointment.IsAppointedByElection && !confirmingAppointer && !actor.IsAdministrator(PermissionLevel.Admin))
+		if (appointment.IsAppointedByElection && !confirmingAppointer && !parentDismisser && !actor.IsAdministrator(PermissionLevel.Admin))
 		{
 			actor.OutputHandler.Send(
 				$"The position of {appointment.Name.TitleCase().ColourName()} is controlled by elections rather than direct appointments.");
@@ -1634,6 +1655,8 @@ public partial class Clan
                 ? office.ElectionTerm == TimeSpan.Zero ? "elected indefinitely" : $"elected for {office.ElectionTerm.Describe(actor)}"
                 : "appointed";
             sb.AppendLine($"{office.Name.ColourName()}: {tenure}; resignation {(office.CanResign ? "permitted" : "forbidden")}.");
+            if (office.IsAppointedByElection)
+                sb.AppendLine($"  Parent dismissal: {office.CanParentDismiss.ToColouredString()}; recall ballots: {office.CanBeRecalled.ToColouredString()}.");
             if (office.ElectionConfirmationAppointment is { } authority)
                 sb.AppendLine($"  Confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}; direct appointment and dismissal: {office.CanDirectlyAppoint.ToColouredString()}.");
         }

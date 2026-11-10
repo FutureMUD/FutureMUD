@@ -9,15 +9,17 @@ using MudSharp.TimeAndDate.Listeners;
 
 namespace MudSharp.Community;
 #nullable enable
-public class Election : SaveableItem, IElection
+public partial class Election : SaveableItem, IElection
 {
     public override string FrameworkItemType => "Election";
 
     public Election(IAppointment appointment, bool isByElection, int numberOfAppointments,
-        MudDateTime? endOfCurrentTerm)
+        MudDateTime? endOfCurrentTerm, IClanMembership? recallTarget = null)
     {
         Gameworld = appointment.Gameworld;
         Appointment = appointment;
+        IsRecall = recallTarget is not null;
+        RecallThreshold = appointment.RecallThreshold;
         IsByElection = isByElection;
         IsFinalised = false;
         NumberOfAppointments = numberOfAppointments;
@@ -38,12 +40,22 @@ public class Election : SaveableItem, IElection
             NominationStartDate = VotingStartDate - appointment.NominationPeriod;
         }
 
+        if (recallTarget is not null)
+        {
+            _nominees.Add(recallTarget);
+            NominationStartDate = VotingStartDate = appointment.Clan.Calendar.CurrentDateTime;
+            ResultsInEffectDate = VotingEndDate = VotingStartDate + appointment.VotingPeriod;
+            ElectionStage = ElectionStage.Voting;
+        }
+
         using (new FMDB())
         {
             Models.Election dbitem = new()
             {
                 AppointmentId = appointment.Id,
                 IsByElection = IsByElection,
+                IsRecall = IsRecall,
+                RecallThreshold = RecallThreshold,
                 IsFinalised = IsFinalised,
                 NumberOfAppointments = NumberOfAppointments,
                 NominationStartDate = NominationStartDate.GetDateTimeString(),
@@ -52,13 +64,18 @@ public class Election : SaveableItem, IElection
                 ResultsInEffectDate = ResultsInEffectDate.GetDateTimeString(),
                 ElectionStage = (int)ElectionStage
             };
+            if (recallTarget is not null)
+            {
+                dbitem.ElectionNominees.Add(new ElectionNominee
+                { NomineeId = recallTarget.MemberId, NomineeClanId = appointment.Clan.Id });
+            }
             FMDB.Context.Elections.Add(dbitem);
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
         }
 
         Gameworld.Add(this);
-        SetupListeners(ElectionStage.Preelection);
+        SetupListeners(ElectionStage);
     }
 
     public Election(Models.Election election, IAppointment appointment)
@@ -66,6 +83,8 @@ public class Election : SaveableItem, IElection
         Gameworld = appointment.Gameworld;
         Appointment = appointment;
         IsByElection = election.IsByElection;
+        IsRecall = election.IsRecall;
+        RecallThreshold = election.RecallThreshold;
         IsFinalised = election.IsFinalised;
         IsConfirmed = election.IsConfirmed;
         NumberOfAppointments = election.NumberOfAppointments;
@@ -144,6 +163,10 @@ public class Election : SaveableItem, IElection
 
     public bool CheckElectionStage()
     {
+        if (IsRecall)
+        {
+            return CheckRecallStage();
+        }
         if (IsFinalised || ElectionStage == ElectionStage.AwaitingConfirmation)
         {
             return IsFinalised;
@@ -235,6 +258,10 @@ public class Election : SaveableItem, IElection
                     ch?.OutputHandler.Send(
                         $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has ended.");
                     member.Appointments.Remove(Appointment);
+                    foreach (var recall in Appointment.Elections.Where(x => x.IsRecall && !x.IsFinalised).ToList())
+                    {
+                        recall.WithdrawNomination(member);
+                    }
                     member.Changed = true;
                 }
 
@@ -435,7 +462,7 @@ public class Election : SaveableItem, IElection
         _activeListener = null;
         Changed = true;
         AnnounceDecision(actor, "vetoed");
-        if (!IsByElection && Appointment.ElectionTerm > TimeSpan.Zero)
+        if (!IsRecall && !IsByElection && Appointment.ElectionTerm > TimeSpan.Zero)
         {
             Appointment.AddElection(new Election(Appointment, false, NumberOfAppointments, null));
         }
@@ -459,6 +486,7 @@ public class Election : SaveableItem, IElection
 
     public void Nominate(IClanMembership nominee)
     {
+        if (IsRecall) return;
         if (!_nominees.Contains(nominee))
         {
             _nominees.Add(nominee);
@@ -470,6 +498,12 @@ public class Election : SaveableItem, IElection
     {
         if (IsFinalised)
         {
+            return;
+        }
+
+        if (IsRecall)
+        {
+            if (nominee == RecallTarget) CancelRecall();
             return;
         }
 
@@ -494,6 +528,10 @@ public class Election : SaveableItem, IElection
 
     public void Vote(IClanMembership voter, IClanMembership nominee, int votes)
     {
+        // Recall ballots use positive weights for removal and negative weights for retention.
+        if (IsRecall && (ElectionStage != ElectionStage.Voting || IsFinalised ||
+            Appointment.Clan.Calendar.CurrentDateTime >= VotingEndDate || nominee != RecallTarget ||
+            voter.IsArchivedMembership || voter.Clan != Appointment.Clan || votes == 0)) return;
         _votes.RemoveAll(x => x.Voter == voter);
         _votes.Add((voter, nominee, votes));
         Changed = true;
@@ -549,6 +587,7 @@ public class Election : SaveableItem, IElection
 
     public string Show(ICharacter actor)
     {
+        if (IsRecall) return ShowRecall(actor);
         StringBuilder sb = new();
         sb.AppendLine(
             $"Election #{Id.ToString("N0", actor)} - {(IsByElection ? "By-Election" : "Election")} for {Appointment.Name.ColourName()} in {Appointment.Clan.FullName.ColourName()}");
@@ -744,7 +783,7 @@ public class Election : SaveableItem, IElection
     {
         get
         {
-            if (ElectionStage < ElectionStage.Preinstallation || ElectionStage == ElectionStage.Vetoed)
+            if (IsRecall || ElectionStage < ElectionStage.Preinstallation || ElectionStage == ElectionStage.Vetoed)
             {
                 return Enumerable.Empty<IClanMembership>();
             }

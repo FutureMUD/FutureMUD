@@ -33,6 +33,13 @@ namespace MudSharp.Models
         public bool IsAppointedByElection { get; set; }
         public long? ElectionConfirmationAppointmentId { get; set; }
         public bool CanDirectlyAppoint { get; set; }
+        public bool CanParentDismiss { get; set; }
+        public bool CanBeRecalled { get; set; }
+        public double RecallThreshold { get; set; } = 0.5;
+        public long? CanInitiateRecallProgId { get; set; }
+        public long? RecallVotesProgId { get; set; }
+        public virtual FutureProg CanInitiateRecallProg { get; set; }
+        public virtual FutureProg RecallVotesProg { get; set; }
         public bool CanResign { get; set; } = true;
         public virtual Appointment ElectionConfirmationAppointment { get; set; }
         public double? ElectionTermMinutes { get; set; }

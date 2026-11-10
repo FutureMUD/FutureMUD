@@ -14,13 +14,17 @@ namespace MudSharp.Community
         Preinstallation,
         Finalised,
         AwaitingConfirmation,
-        Vetoed
+        Vetoed,
+        Cancelled
     }
 
     public interface IElection : IFrameworkItem, ISaveable
     {
         IAppointment Appointment { get; }
         bool IsByElection { get; }
+        bool IsRecall { get; }
+        IClanMembership RecallTarget { get; }
+        bool RecallPassed { get; }
         bool IsFinalised { get; }
         MudDateTime NominationStartDate { get; set; }
         IEnumerable<IClanMembership> Nominees { get; }

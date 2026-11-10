@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261109235037_DiscordRemoteOperations",
-  "GeneratedUtc": "2026-11-10T00:09:57.4931292Z"
+  "LatestMigrationId": "20261110040045_ClanAppointmentRecall",
+  "GeneratedUtc": "2026-11-10T04:08:18.645622Z"
 }

@@ -27,6 +27,7 @@
       "MigrationModels\\Batch0018\\Batch0018.csproj",
       "MigrationModels\\Batch0019\\Batch0019.csproj",
       "MigrationModels\\Batch0020\\Batch0020.csproj",
+      "MigrationModels\\Batch0021\\Batch0021.csproj",
       "MudSharpCore\\MudSharpCore.csproj",
       "MudsharpDatabaseLibrary\\MudsharpDatabaseLibrary.csproj",
       "SeederFoundations\\SeederFoundations.csproj",

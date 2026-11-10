@@ -4,6 +4,13 @@ namespace MudSharp.Community;
 
 public static class ClanCommandUtilities
 {
+	public static bool CanParentDismiss(IClanMembership? membership, IAppointment appointment)
+	{
+		return appointment.IsAppointedByElection && appointment.CanParentDismiss &&
+		       appointment.ParentPosition is { } parent && membership is { IsArchivedMembership: false } &&
+		       membership.Clan == appointment.Clan && membership.Appointments.Contains(parent);
+	}
+
 	public static bool CanConfirmElection(ICharacter actor, IAppointment appointment)
 	{
 		var authority = appointment.ElectionConfirmationAppointment;
@@ -42,7 +49,7 @@ public static class ClanCommandUtilities
 		}
 
 		var pastElections = elections
-			.Where(x => x.IsFinalised && !x.IsByElection && x.ElectionStage != ElectionStage.Vetoed)
+			.Where(x => x.IsFinalised && !x.IsByElection && !x.IsRecall && x.ElectionStage != ElectionStage.Vetoed)
 			.OrderByDescending(x => x.ResultsInEffectDate)
 			.Take(maximumConsecutiveTerms)
 			.ToList();
@@ -59,7 +66,7 @@ public static class ClanCommandUtilities
 		}
 
 		return elections
-			.Where(x => x.IsFinalised && !x.IsByElection)
+			.Where(x => x.IsFinalised && !x.IsByElection && !x.IsRecall)
 			.Count(x => x.Victors.Any(y => y.MemberId == characterId)) >= maximumTotalTerms;
 	}
 
@@ -100,7 +107,7 @@ public static class ClanCommandUtilities
 	public static int GetOpenByElectionAppointmentSlots(IAppointment appointment, IElection? excludingElection = null)
 	{
 		return appointment.Elections
-			.Where(x => x != excludingElection && !x.IsFinalised && x.IsByElection)
+			.Where(x => x != excludingElection && !x.IsFinalised && x.IsByElection && !x.IsRecall)
 			.Sum(x => x.NumberOfAppointments);
 	}
 
@@ -116,7 +123,7 @@ public static class ClanCommandUtilities
 	public static IElection? GetPrimaryOpenElection(IAppointment appointment)
 	{
 		return appointment.Elections
-			.Where(x => !x.IsFinalised && !x.IsByElection)
+			.Where(x => !x.IsFinalised && !x.IsByElection && !x.IsRecall)
 			.OrderBy(x => x.ResultsInEffectDate)
 			.FirstOrDefault();
 	}
@@ -130,7 +137,7 @@ public static class ClanCommandUtilities
 	public static IEnumerable<IElection> GetOpenByElections(IAppointment appointment)
 	{
 		return appointment.Elections
-			.Where(x => !x.IsFinalised && x.IsByElection)
+			.Where(x => !x.IsFinalised && x.IsByElection && !x.IsRecall)
 			.OrderBy(x => x.ResultsInEffectDate)
 			.ToList();
 	}
@@ -138,7 +145,7 @@ public static class ClanCommandUtilities
 	public static IElection? GetNextOpenElection(IAppointment appointment)
 	{
 		return appointment.Elections
-			.Where(x => !x.IsFinalised)
+			.Where(x => !x.IsFinalised && !x.IsRecall)
 			.OrderBy(x => x.ResultsInEffectDate)
 			.FirstOrDefault();
 	}

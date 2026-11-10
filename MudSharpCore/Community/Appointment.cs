@@ -52,6 +52,11 @@ public class Appointment : SaveableItem, IAppointment
         IsAppointedByElection = appointment.IsAppointedByElection;
         _electionConfirmationAppointmentId = appointment.ElectionConfirmationAppointmentId;
         CanDirectlyAppoint = appointment.CanDirectlyAppoint;
+        CanParentDismiss = appointment.CanParentDismiss;
+        CanBeRecalled = appointment.CanBeRecalled;
+        RecallThreshold = appointment.RecallThreshold;
+        CanInitiateRecallProg = Gameworld.FutureProgs.Get(appointment.CanInitiateRecallProgId ?? 0L);
+        RecallVotesProg = Gameworld.FutureProgs.Get(appointment.RecallVotesProgId ?? 0L);
         CanResign = appointment.CanResign;
         ElectionTerm = TimeSpan.FromMinutes(appointment.ElectionTermMinutes ?? 0);
         ElectionLeadTime = TimeSpan.FromMinutes(appointment.ElectionLeadTimeMinutes ?? 0);
@@ -80,7 +85,7 @@ public class Appointment : SaveableItem, IAppointment
                 return;
             }
 
-            if (_elections.All(x => x.IsFinalised || x.IsByElection))
+            if (_elections.All(x => x.IsFinalised || x.IsByElection || x.IsRecall))
             {
                 IElection byElection = _elections.FirstOrDefault(x => x.IsByElection && !x.IsFinalised);
                 if (MaximumSimultaneousHolders >
@@ -115,6 +120,11 @@ public class Appointment : SaveableItem, IAppointment
             dbitem.FameType = (int)FameType;
             dbitem.CanResign = CanResign;
             dbitem.CanDirectlyAppoint = CanDirectlyAppoint;
+            dbitem.CanParentDismiss = IsAppointedByElection && CanParentDismiss;
+            dbitem.CanBeRecalled = IsAppointedByElection && CanBeRecalled;
+            dbitem.RecallThreshold = RecallThreshold;
+            dbitem.CanInitiateRecallProgId = IsAppointedByElection ? CanInitiateRecallProg?.Id : null;
+            dbitem.RecallVotesProgId = IsAppointedByElection ? RecallVotesProg?.Id : null;
             dbitem.ElectionConfirmationAppointmentId = _electionConfirmationAppointmentId;
 
             if (InsigniaGameItem != null)
@@ -281,6 +291,11 @@ public class Appointment : SaveableItem, IAppointment
         set => _electionConfirmationAppointmentId = value?.Id;
     }
     public bool CanDirectlyAppoint { get; set; }
+    public bool CanParentDismiss { get; set; }
+    public bool CanBeRecalled { get; set; }
+    public double RecallThreshold { get; set; } = 0.5;
+    public IFutureProg CanInitiateRecallProg { get; set; }
+    public IFutureProg RecallVotesProg { get; set; }
     public bool CanResign { get; set; } = true;
     public TimeSpan ElectionTerm { get; set; }
     public TimeSpan ElectionLeadTime { get; set; }

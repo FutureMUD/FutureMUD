@@ -167,6 +167,13 @@ public partial class Clan
 
 	private bool TryResolveElection(string electionOrAppointmentText, out IElection? election, out string error)
 	{
+		if (IsTemplate)
+		{
+			election = null;
+			error = "Template clans do not run elections.";
+			return false;
+		}
+
 		if (long.TryParse(electionOrAppointmentText, out var value))
 		{
 			election = Gameworld.Elections.Get(value);

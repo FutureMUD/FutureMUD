@@ -4042,7 +4042,7 @@ Your next payday is {3}.
             RebindTemplateElectionPlaceholderProgs(actor, clan, dbclan, clonedAppointments);
             FMDB.Context.SaveChanges();
             Community.Clan newClan = new(dbclan, actor.Gameworld);
-            newClan.FinaliseLoad(dbclan, Enumerable.Empty<Models.ClanMembership>());
+            newClan.FinaliseLoad(dbclan, Enumerable.Empty<Models.ClanMembership>(), loadElections: false);
             actor.Gameworld.Add(newClan);
 
             Models.ClanMembership dbMembership = new();
@@ -4073,6 +4073,7 @@ Your next payday is {3}.
             newClan.Memberships.Add(newMembership);
             actor.AddMembership(newMembership);
             Community.Clan.CreatedClan(actor, newClan);
+            newClan.LoadElections();
 
             actor.Send("You create the clan {0}, alias {1} from template clan {2}.",
                 newClan.FullName.TitleCase().Colour(Telnet.Cyan), newClan.Alias.Colour(Telnet.Green),
@@ -4902,7 +4903,7 @@ return 0",
             return;
         }
 
-        clan.IsTemplate ^= clan.IsTemplate;
+        clan.IsTemplate = !clan.IsTemplate;
         clan.Changed = true;
         actor.Send(clan.IsTemplate ? "{0} will now be a template clan." : "{0} will no longer be a template clan.",
             clan.FullName.TitleCase().Colour(Telnet.Green));
@@ -6396,6 +6397,11 @@ return 0",
             appointment.Changed = true;
             actor.OutputHandler.Send(
                 $"The {appointment.Name.ColourName()} appointment is now controlled by elections.");
+            if (clan.IsTemplate)
+            {
+                return;
+            }
+
             appointment.CheckForByElections();
             var byElection = ClanCommandUtilities.GetFirstOpenByElection(appointment);
             appointment.AddElection(new Community.Election(appointment, false, appointment.MaximumSimultaneousHolders,
@@ -6432,7 +6438,7 @@ return 0",
 
                 return;
             case "confirmation":
-                if (appointment.Elections.Any(x => !x.IsFinalised && x.ElectionStage is ElectionStage.AwaitingConfirmation or ElectionStage.Preinstallation))
+                if (!clan.IsTemplate && appointment.Elections.Any(x => !x.IsFinalised && x.ElectionStage is ElectionStage.AwaitingConfirmation or ElectionStage.Preinstallation))
                 {
                     actor.OutputHandler.Send("Confirm or veto the pending result before changing its confirmation authority.");
                     return;
@@ -6544,7 +6550,7 @@ return 0",
                     actor.OutputHandler.Send("Enter a positive number of days, or NONE for indefinite tenure.");
                     return;
                 }
-                var primary = ClanCommandUtilities.GetPrimaryOpenElection(appointment);
+                var primary = clan.IsTemplate ? null : ClanCommandUtilities.GetPrimaryOpenElection(appointment);
                 if (primary is not null && primary.ElectionStage != ElectionStage.Preelection)
                 {
                     actor.OutputHandler.Send("Wait until the active primary election is resolved before changing tenure.");
@@ -6552,7 +6558,7 @@ return 0",
                 }
                 primary?.CancelElection();
                 appointment.ElectionTerm = TimeSpan.FromDays(value);
-                if (value > 0)
+                if (value > 0 && !clan.IsTemplate)
                 {
                     appointment.AddElection(new Community.Election(appointment, false, appointment.MaximumSimultaneousHolders,
                         clan.Calendar.CurrentDateTime + appointment.ElectionTerm));

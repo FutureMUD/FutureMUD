@@ -48,6 +48,11 @@ public partial class Election : SaveableItem, IElection
             ElectionStage = ElectionStage.Voting;
         }
 
+        if (Appointment.Clan.IsTemplate)
+        {
+            return;
+        }
+
         using (new FMDB())
         {
             Models.Election dbitem = new()
@@ -163,6 +168,13 @@ public partial class Election : SaveableItem, IElection
 
     public bool CheckElectionStage()
     {
+        if (Appointment.Clan.IsTemplate)
+        {
+            _activeListener?.CancelListener();
+            _activeListener = null;
+            return false;
+        }
+
         if (IsRecall)
         {
             return CheckRecallStage();
@@ -426,7 +438,7 @@ public partial class Election : SaveableItem, IElection
 
     public bool Confirm(ICharacter actor)
     {
-        if (IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
+        if (Appointment.Clan.IsTemplate || IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
             !ClanCommandUtilities.CanConfirmElection(actor, Appointment))
         {
             return false;
@@ -450,7 +462,7 @@ public partial class Election : SaveableItem, IElection
 
     public bool Veto(ICharacter actor)
     {
-        if (IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
+        if (Appointment.Clan.IsTemplate || IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
             !ClanCommandUtilities.CanConfirmElection(actor, Appointment))
         {
             return false;
@@ -486,7 +498,7 @@ public partial class Election : SaveableItem, IElection
 
     public void Nominate(IClanMembership nominee)
     {
-        if (IsRecall) return;
+        if (Appointment.Clan.IsTemplate || IsRecall) return;
         if (!_nominees.Contains(nominee))
         {
             _nominees.Add(nominee);
@@ -496,7 +508,7 @@ public partial class Election : SaveableItem, IElection
 
     public void WithdrawNomination(IClanMembership nominee)
     {
-        if (IsFinalised)
+        if (Appointment.Clan.IsTemplate || IsFinalised)
         {
             return;
         }
@@ -528,6 +540,7 @@ public partial class Election : SaveableItem, IElection
 
     public void Vote(IClanMembership voter, IClanMembership nominee, int votes)
     {
+        if (Appointment.Clan.IsTemplate) return;
         // Recall ballots use positive weights for removal and negative weights for retention.
         if (IsRecall && (ElectionStage != ElectionStage.Voting || IsFinalised ||
             Appointment.Clan.Calendar.CurrentDateTime >= VotingEndDate || nominee != RecallTarget ||
@@ -560,29 +573,36 @@ public partial class Election : SaveableItem, IElection
 
     public void SetupListeners(ElectionStage stage)
     {
-        switch (stage)
+        _activeListener?.CancelListener();
+        _activeListener = null;
+        if (Appointment.Clan.IsTemplate)
         {
-            case ElectionStage.Preelection:
-                _activeListener = ListenerFactory.CreateDateTimeListener(NominationStartDate,
-                    objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Nomination Start Date");
-                break;
-            case ElectionStage.Nomination:
-                _activeListener = ListenerFactory.CreateDateTimeListener(VotingStartDate,
-                    objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Voting Start Date");
-                break;
-            case ElectionStage.Voting:
-                _activeListener = ListenerFactory.CreateDateTimeListener(VotingEndDate,
-                    objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Voting End Date");
-                break;
-            case ElectionStage.Preinstallation:
-                _activeListener = ListenerFactory.CreateDateTimeListener(ResultsInEffectDate,
-                    objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Results In Effect Date");
-                break;
-            case ElectionStage.Finalised:
-            case ElectionStage.AwaitingConfirmation:
-            case ElectionStage.Vetoed:
-                break;
+            return;
         }
+
+        (MudDateTime? transitionDate, string transitionName) = stage switch
+        {
+            ElectionStage.Preelection => (NominationStartDate, "Nomination Start Date"),
+            ElectionStage.Nomination => (VotingStartDate, "Voting Start Date"),
+            ElectionStage.Voting => (VotingEndDate, "Voting End Date"),
+            ElectionStage.Preinstallation => (ResultsInEffectDate, "Results In Effect Date"),
+            _ => (null, string.Empty)
+        };
+        if (transitionDate is null)
+        {
+            return;
+        }
+
+        // The factory invokes overdue transitions synchronously. Do not overwrite the
+        // next stage's listener with the null returned by that immediate callback.
+        if (transitionDate <= Appointment.Clan.Calendar.CurrentDateTime)
+        {
+            CheckElectionStage();
+            return;
+        }
+
+        _activeListener = ListenerFactory.CreateDateTimeListener(transitionDate,
+            objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} {transitionName}");
     }
 
     public string Show(ICharacter actor)

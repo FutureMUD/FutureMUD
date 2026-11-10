@@ -8,6 +8,12 @@ public partial class Clan
 {
 	public void Recall(ICharacter actor, StringStack command)
 	{
+		if (IsTemplate)
+		{
+			actor.OutputHandler.Send("Template clans cannot hold recall ballots.");
+			return;
+		}
+
 		var targetText = command.PopSpeech();
 		var appointment = Appointments.GetByIdOrName(command.SafeRemainingArgument);
 		var membership = ActorMembership(actor);

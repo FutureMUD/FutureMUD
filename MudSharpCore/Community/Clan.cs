@@ -276,7 +276,29 @@ public partial class Clan : SaveableItem, IClan
 
     #region IClan Members
 
-    public bool IsTemplate { get; set; }
+    private bool _isTemplate;
+    public bool IsTemplate
+    {
+        get => _isTemplate;
+        set
+        {
+            if (_isTemplate == value)
+            {
+                return;
+            }
+
+            _isTemplate = value;
+            foreach (var election in Appointments.SelectMany(x => x.Elections).ToList())
+            {
+                election.SetupListeners(election.ElectionStage);
+            }
+
+            if (!value)
+            {
+                LoadElections();
+            }
+        }
+    }
 
     public bool ShowClanMembersInWho { get; set; }
 

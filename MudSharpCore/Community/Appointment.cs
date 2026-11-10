@@ -72,9 +72,17 @@ public class Appointment : SaveableItem, IAppointment
 
     public void LoadElections(IEnumerable<Models.Election> elections)
     {
+        if (Clan.IsTemplate)
+        {
+            return;
+        }
+
         foreach (Models.Election election in elections)
         {
-            _elections.Add(new Election(election, this));
+            if (_elections.All(x => x.Id != election.Id))
+            {
+                _elections.Add(new Election(election, this));
+            }
         }
 
         if (IsAppointedByElection)
@@ -208,6 +216,11 @@ public class Appointment : SaveableItem, IAppointment
 
     public void AddElection(IElection election)
     {
+        if (Clan.IsTemplate)
+        {
+            return;
+        }
+
         _elections.Add(election);
     }
 
@@ -218,7 +231,7 @@ public class Appointment : SaveableItem, IAppointment
 
     public void CheckForByElections()
     {
-        if (!IsAppointedByElection)
+        if (Clan.IsTemplate || !IsAppointedByElection)
         {
             return;
         }

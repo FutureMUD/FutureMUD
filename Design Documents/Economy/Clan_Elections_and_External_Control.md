@@ -22,6 +22,14 @@ Shared election-selection helpers live in:
 
 ## Election Lifecycle
 
+### Template clans
+
+Template clans retain election configuration as part of their appointments, but do not run elections or recalls. Loading a template, enabling elections in its editor, changing tenure, or checking vacancies creates no ballots, election listeners, office changes, or election notifications.
+
+Creating a clan from a template copies the appointment election rules (including tenure, nomination/voting periods, eligibility progs, term limits, secret ballots, confirmation, and recall settings). After the founding membership and creation hook are applied, the new live clan initializes fresh elections using its current calendar and office vacancies. Template ballots, dates, nominees, votes, and history are not copied. Finite offices start a regular election cycle; indefinite offices start by-elections only for uncovered vacancies. Confirmation offices within the template are rebound to the corresponding new offices.
+
+Marking an existing clan as a template immediately suspends its election listeners and participation without deleting its stored history. Returning it to a live clan resumes stored ballots and initializes missing election cycles. The template flag is toggled with `clan set template` while editing the clan.
+
 The election lifecycle is:
 
 1. `Preelection`

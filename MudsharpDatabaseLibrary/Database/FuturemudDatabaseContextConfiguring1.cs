@@ -643,6 +643,14 @@ namespace MudSharp.Database
                 entity.Property(e => e.FameType).HasColumnType("int(11)").HasDefaultValueSql("0");
 
                 entity.Property(e => e.IsAppointedByElection).HasColumnType("bit(1)").HasDefaultValue(false);
+                entity.Property(e => e.CanResign).HasColumnType("bit(1)").HasDefaultValue(true);
+                entity.Property(e => e.CanDirectlyAppoint).HasColumnType("bit(1)").HasDefaultValue(false);
+                entity.Property(e => e.ElectionConfirmationAppointmentId).HasColumnType("bigint(20)");
+                entity.HasOne(e => e.ElectionConfirmationAppointment)
+                    .WithMany()
+                    .HasForeignKey(e => e.ElectionConfirmationAppointmentId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_Appointments_ElectionConfirmation");
                 entity.Property(e => e.ElectionTermMinutes).HasColumnType("double");
                 entity.Property(e => e.ElectionLeadTimeMinutes).HasColumnType("double");
                 entity.Property(e => e.NominationPeriodMinutes).HasColumnType("double");

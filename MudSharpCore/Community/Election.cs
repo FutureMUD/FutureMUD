@@ -67,6 +67,7 @@ public class Election : SaveableItem, IElection
         Appointment = appointment;
         IsByElection = election.IsByElection;
         IsFinalised = election.IsFinalised;
+        IsConfirmed = election.IsConfirmed;
         NumberOfAppointments = election.NumberOfAppointments;
         NominationStartDate = MudDateTime.FromStoredStringOrFallback(election.NominationStartDate, Gameworld,
             StoredMudDateTimeFallback.CurrentDateTime, "Election", election.Id, null, "NominationStartDate");
@@ -97,6 +98,7 @@ public class Election : SaveableItem, IElection
     {
         Models.Election dbitem = FMDB.Context.Elections.Find(Id)!;
         dbitem.IsFinalised = IsFinalised;
+        dbitem.IsConfirmed = IsConfirmed;
         dbitem.ElectionStage = (int)ElectionStage;
         FMDB.Context.ElectionNominees.RemoveRange(dbitem.ElectionNominees);
         foreach (IClanMembership nominee in _nominees)
@@ -126,6 +128,7 @@ public class Election : SaveableItem, IElection
 
     public bool IsByElection { get; protected set; }
     public bool IsFinalised { get; protected set; }
+    public bool IsConfirmed { get; protected set; }
     public int NumberOfAppointments { get; protected set; }
     public MudDateTime NominationStartDate { get; set; }
     public MudDateTime VotingStartDate { get; set; }
@@ -141,7 +144,16 @@ public class Election : SaveableItem, IElection
 
     public bool CheckElectionStage()
     {
+        if (IsFinalised || ElectionStage == ElectionStage.AwaitingConfirmation)
+        {
+            return IsFinalised;
+        }
+
         MudDateTime now = Appointment.Clan.Calendar.CurrentDateTime;
+        if (ElectionStage == ElectionStage.Preinstallation && now < ResultsInEffectDate)
+        {
+            return false;
+        }
         if (now >= VotingEndDate && ElectionStage < ElectionStage.Preinstallation)
         {
             ElectionStage = ElectionStage.Preinstallation;
@@ -167,10 +179,16 @@ public class Election : SaveableItem, IElection
 
             string echo =
                 $"The election for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()} has concluded, and {victorsText}";
+            if (victors.Count > 0 && Appointment.RequiresElectionConfirmation && !IsConfirmed)
+            {
+                echo += Appointment.ElectionConfirmationAppointment is { } authority
+                    ? $" The result requires confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()} before anyone takes office."
+                    : " The result requires confirmation by its designated office before anyone takes office.";
+            }
             Gameworld.SystemMessage(echo,
-                ch => ch.ClanMemberships.Any(x =>
+                ch => ClanCommandUtilities.CanConfirmElection(ch, Appointment) || ch.ClanMemberships.Any(x =>
                     x.Clan == Appointment.Clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)));
-            Gameworld.DiscordConnection.NotifyAdmins(echo.RawText());
+            Gameworld.DiscordConnection?.NotifyAdmins(echo.RawText());
             if (Appointment.Clan.DiscordChannelId is not null)
             {
                 Gameworld.DiscordConnection?.NotifyCustomChannel(Appointment.Clan.DiscordChannelId.Value,
@@ -178,6 +196,14 @@ public class Election : SaveableItem, IElection
             }
 
             Changed = true;
+            if (victors.Count > 0 && Appointment.RequiresElectionConfirmation && !IsConfirmed)
+            {
+                ElectionStage = ElectionStage.AwaitingConfirmation;
+                _activeListener?.CancelListener();
+                _activeListener = null;
+                return false;
+            }
+
             if (now < ResultsInEffectDate && Appointment.ElectionLeadTime > TimeSpan.Zero)
             {
                 SetupListeners(ElectionStage);
@@ -189,11 +215,15 @@ public class Election : SaveableItem, IElection
         {
             ElectionStage = ElectionStage.Finalised;
 
-            List<IClanMembership> victors = Victors.ToList();
-            if (!IsByElection)
+            List<IClanMembership> victors = Victors.Where(x => !x.IsArchivedMembership &&
+                x.MemberCharacter?.State.IsAlive() != false).ToList();
+            if (!IsByElection && Appointment.ElectionTerm > TimeSpan.Zero)
             {
                 foreach (IClanMembership? member in Appointment.Clan.Memberships
-                                                  .Where(x => x.Appointments.Contains(Appointment))
+                                                  .Where(x => x.Appointments.Contains(Appointment) &&
+                                                      !Appointment.Clan.ExternalControls.Any(y =>
+                                                          y.VassalClan == Appointment.Clan &&
+                                                          y.ControlledAppointment == Appointment && y.Appointees.Contains(x)))
                                                   .ToList())
                 {
                     if (victors.Contains(member))
@@ -208,11 +238,18 @@ public class Election : SaveableItem, IElection
                     member.Changed = true;
                 }
 
+                var vacancies = ClanCommandUtilities.GetVacantAppointmentSlots(Appointment, Appointment.Clan.Memberships,
+                    Appointment.Clan.ExternalControls);
                 foreach (IClanMembership? victor in victors)
                 {
                     if (victor.Appointments.Contains(Appointment))
                     {
                         continue;
+                    }
+
+                    if (vacancies-- <= 0)
+                    {
+                        break;
                     }
 
                     victor.Appointments.Add(Appointment);
@@ -249,10 +286,10 @@ public class Election : SaveableItem, IElection
 
             IsFinalised = true;
             Appointment.CheckForByElections();
-            if (!IsByElection)
+            if (!IsByElection && Appointment.ElectionTerm > TimeSpan.Zero)
             {
                 Election next = new(Appointment, false, Appointment.MaximumSimultaneousHolders,
-                    ResultsInEffectDate + Appointment.ElectionTerm);
+                    (now > ResultsInEffectDate ? now : ResultsInEffectDate) + Appointment.ElectionTerm);
                 Appointment.AddElection(next);
             }
 
@@ -360,6 +397,66 @@ public class Election : SaveableItem, IElection
         return false;
     }
 
+    public bool Confirm(ICharacter actor)
+    {
+        if (IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
+            !ClanCommandUtilities.CanConfirmElection(actor, Appointment))
+        {
+            return false;
+        }
+
+        IsConfirmed = true;
+        ElectionStage = ElectionStage.Preinstallation;
+        Changed = true;
+        AnnounceDecision(actor, "confirmed");
+        if (Appointment.Clan.Calendar.CurrentDateTime >= ResultsInEffectDate)
+        {
+            CheckElectionStage();
+        }
+        else
+        {
+            SetupListeners(ElectionStage);
+        }
+
+        return true;
+    }
+
+    public bool Veto(ICharacter actor)
+    {
+        if (IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
+            !ClanCommandUtilities.CanConfirmElection(actor, Appointment))
+        {
+            return false;
+        }
+
+        ElectionStage = ElectionStage.Vetoed;
+        IsFinalised = true;
+        _activeListener?.CancelListener();
+        _activeListener = null;
+        Changed = true;
+        AnnounceDecision(actor, "vetoed");
+        if (!IsByElection && Appointment.ElectionTerm > TimeSpan.Zero)
+        {
+            Appointment.AddElection(new Election(Appointment, false, NumberOfAppointments, null));
+        }
+
+        Appointment.CheckForByElections();
+        return true;
+    }
+
+    private void AnnounceDecision(ICharacter actor, string decision)
+    {
+        var echo = $"{actor.PersonalName.GetName(NameStyle.FullName).ColourName()} has {decision} election #{Id} for {Appointment.Name.ColourName()} in {Appointment.Clan.FullName.ColourName()}.";
+        Gameworld.SystemMessage(echo, ch => ClanCommandUtilities.CanConfirmElection(ch, Appointment) ||
+            ch.ClanMemberships.Any(x => !x.IsArchivedMembership && x.Clan == Appointment.Clan &&
+                x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)));
+        Gameworld.DiscordConnection?.NotifyAdmins(echo.RawText());
+        if (Appointment.Clan.DiscordChannelId is { } channel)
+        {
+            Gameworld.DiscordConnection?.NotifyCustomChannel(channel, "Election Confirmation", echo.RawText());
+        }
+    }
+
     public void Nominate(IClanMembership nominee)
     {
         if (!_nominees.Contains(nominee))
@@ -371,8 +468,27 @@ public class Election : SaveableItem, IElection
 
     public void WithdrawNomination(IClanMembership nominee)
     {
+        if (IsFinalised)
+        {
+            return;
+        }
+
+        var approvedVictors = IsConfirmed ? Victors.ToList() : null;
         _nominees.Remove(nominee);
         _votes.RemoveAll(x => x.Nominee == nominee);
+        if (approvedVictors is not null && Appointment.RequiresElectionConfirmation &&
+            !approvedVictors.SequenceEqual(Victors))
+        {
+            IsConfirmed = false;
+            ElectionStage = ElectionStage.AwaitingConfirmation;
+            _activeListener?.CancelListener();
+            _activeListener = null;
+            var echo = $"The result of election #{Id} for {Appointment.Name.ColourName()} in {Appointment.Clan.FullName.ColourName()} has changed and requires confirmation again.";
+            Gameworld.SystemMessage(echo, ch => ClanCommandUtilities.CanConfirmElection(ch, Appointment) ||
+                ch.ClanMemberships.Any(x => !x.IsArchivedMembership && x.Clan == Appointment.Clan &&
+                    x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)));
+            Gameworld.DiscordConnection?.NotifyAdmins(echo.RawText());
+        }
         Changed = true;
     }
 
@@ -425,6 +541,8 @@ public class Election : SaveableItem, IElection
                     objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Results In Effect Date");
                 break;
             case ElectionStage.Finalised:
+            case ElectionStage.AwaitingConfirmation:
+            case ElectionStage.Vetoed:
                 break;
         }
     }
@@ -435,6 +553,18 @@ public class Election : SaveableItem, IElection
         sb.AppendLine(
             $"Election #{Id.ToString("N0", actor)} - {(IsByElection ? "By-Election" : "Election")} for {Appointment.Name.ColourName()} in {Appointment.Clan.FullName.ColourName()}");
         sb.AppendLine($"Status: {ElectionStage.DescribeEnum().ColourValue()}");
+        if (Appointment.ElectionConfirmationAppointment is { } authority)
+        {
+            sb.AppendLine($"Confirmation authority: {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}");
+        }
+        if (ElectionStage == ElectionStage.AwaitingConfirmation)
+        {
+            sb.AppendLine($"The result awaits confirmation. Use {($"clan election confirm {Id}").ColourCommand()} or {($"clan election veto {Id}").ColourCommand()}. No elected nominee takes office until confirmed.");
+        }
+        if (ElectionStage == ElectionStage.Vetoed)
+        {
+            sb.AppendLine("This election was vetoed. Its nominees did not take office through this election.");
+        }
         sb.AppendLine($"No. Positions: {NumberOfAppointments.ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
             $"Nominations Open: {NominationStartDate.ToString(CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}");
@@ -545,6 +675,8 @@ public class Election : SaveableItem, IElection
                 break;
             case ElectionStage.Preinstallation:
             case ElectionStage.Finalised:
+            case ElectionStage.AwaitingConfirmation:
+            case ElectionStage.Vetoed:
                 if (!_nominees.Any())
                 {
                     sb.AppendLine($"There were no valid nominations.");
@@ -612,12 +744,13 @@ public class Election : SaveableItem, IElection
     {
         get
         {
-            if (ElectionStage < ElectionStage.Preinstallation)
+            if (ElectionStage < ElectionStage.Preinstallation || ElectionStage == ElectionStage.Vetoed)
             {
                 return Enumerable.Empty<IClanMembership>();
             }
 
             return VotesByNominee
+                   .Where(x => x.Value > 0)
                    .OrderByDescending(x => x.Value)
                    .ThenBy(x => x.Key.JoinDate)
                    .Select(x => x.Key)

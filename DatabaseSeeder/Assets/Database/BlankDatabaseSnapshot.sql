@@ -16600,3 +16600,106 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 
 COMMIT;
+
+-- EF-generated idempotent delta: clan election confirmation, resignation and tenure
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    ALTER TABLE `elections` ADD `IsConfirmed` bit(1) NOT NULL DEFAULT 0;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    ALTER TABLE `appointments` ADD `CanDirectlyAppoint` bit(1) NOT NULL DEFAULT 0;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    ALTER TABLE `appointments` ADD `CanResign` bit(1) NOT NULL DEFAULT 1;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    ALTER TABLE `appointments` ADD `ElectionConfirmationAppointmentId` bigint(20) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    CREATE INDEX `IX_Appointments_ElectionConfirmationAppointmentId` ON `appointments` (`ElectionConfirmationAppointmentId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    ALTER TABLE `appointments` ADD CONSTRAINT `FK_Appointments_ElectionConfirmation` FOREIGN KEY (`ElectionConfirmationAppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE RESTRICT;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261109234003_ClanElectionGovernance') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261109234003_ClanElectionGovernance', '9.0.21');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

@@ -169,6 +169,10 @@ public partial class Clan : SaveableItem, IClan
         membership.IsArchivedMembership = true;
         List<IAppointment> oldAppointments = membership.Appointments.ToList();
         membership.Appointments.Clear();
+        foreach (var control in ExternalControls.Where(x => x.VassalClan == this && x.Appointees.Remove(membership)))
+        {
+            control.Changed = true;
+        }
         foreach (IAppointment appointment in oldAppointments)
         {
             appointment.CheckForByElections();
@@ -182,6 +186,11 @@ public partial class Clan : SaveableItem, IClan
     public void DismissAppointment(IClanMembership membership, IAppointment appointment)
     {
         membership.Appointments.Remove(appointment);
+        foreach (var control in ExternalControls.Where(x => x.VassalClan == this &&
+                     x.ControlledAppointment == appointment && x.Appointees.Remove(membership)))
+        {
+            control.Changed = true;
+        }
         membership.Changed = true;
         appointment.CheckForByElections();
     }
@@ -489,7 +498,7 @@ public partial class Clan : SaveableItem, IClan
         }
     }
 
-    public virtual void FinaliseLoad(MudSharp.Models.Clan clan, IEnumerable<Models.ClanMembership> memberships)
+    public virtual void FinaliseLoad(MudSharp.Models.Clan clan, IEnumerable<Models.ClanMembership> memberships, bool loadElections = true)
     {
 #if DEBUG
         Stopwatch sw = new();
@@ -548,20 +557,33 @@ public partial class Clan : SaveableItem, IClan
 #if DEBUG
         ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading elections [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
-        if (!IsTemplate)
+        if (loadElections)
         {
-            foreach (IAppointment item in Appointments)
-            {
-                IEnumerable<Models.Election> elections = FMDB.Context.Elections.Where(x => x.AppointmentId == item.Id)
-                                    .Include(x => x.ElectionNominees).Include(x => x.ElectionVotes).AsEnumerable();
-                item.LoadElections(elections);
-            }
+            LoadElections();
         }
 
 #if DEBUG
         ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Setting up listener [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
         _paydayListener = CreatePaydayListener();
+    }
+
+    public void LoadElections()
+    {
+        if (IsTemplate)
+        {
+            return;
+        }
+
+        using (new FMDB())
+        {
+            foreach (var appointment in Appointments)
+            {
+                var elections = FMDB.Context.Elections.Where(x => x.AppointmentId == appointment.Id)
+                    .Include(x => x.ElectionNominees).Include(x => x.ElectionVotes).ToList();
+                appointment.LoadElections(elections);
+            }
+        }
     }
 
     private ITemporalListener CreatePaydayListener()
@@ -571,6 +593,12 @@ public partial class Clan : SaveableItem, IClan
 
     public void Disband(ICharacter disbander)
     {
+        if (Gameworld.Clans.SelectMany(x => x.Appointments).Any(x =>
+                x.ElectionConfirmationAppointment?.Clan == this))
+        {
+            disbander.OutputHandler.Send("Clear the election confirmation settings that reference this clan's offices before disbanding it.");
+            return;
+        }
         Gameworld.SaveManager.Abort(this);
         using (new FMDB())
         {

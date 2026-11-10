@@ -31,6 +31,10 @@ namespace MudSharp.Models
         public int FameType { get; set; }
 
         public bool IsAppointedByElection { get; set; }
+        public long? ElectionConfirmationAppointmentId { get; set; }
+        public bool CanDirectlyAppoint { get; set; }
+        public bool CanResign { get; set; } = true;
+        public virtual Appointment ElectionConfirmationAppointment { get; set; }
         public double? ElectionTermMinutes { get; set; }
         public double? ElectionLeadTimeMinutes { get; set; }
         public double? NominationPeriodMinutes { get; set; }

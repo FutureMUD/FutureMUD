@@ -110,6 +110,21 @@ public partial class Character
         }
 
         State = CharacterState.Dead;
+        if (IsPrimaryInstance)
+        {
+            foreach (var membership in ClanMemberships.Where(x => !x.IsArchivedMembership).ToList())
+            {
+                foreach (var appointment in membership.Appointments.Where(x =>
+                             x.IsAppointedByElection && x.ElectionTerm == TimeSpan.Zero).ToList())
+                {
+                    foreach (var election in appointment.Elections.Where(x => !x.IsFinalised).ToList())
+                    {
+                        election.WithdrawNomination(membership);
+                    }
+                    membership.Clan.DismissAppointment(membership, appointment);
+                }
+            }
+        }
         foreach (var companion in Gameworld.NPCs.OfType<MudSharp.NPC.INPC>().Where(x =>
                      IsPrimaryInstance && x.BodyguardingCharacterID == CharacterInstanceIdentityComparer.IdentityId(this) &&
                      MudSharp.NPC.NpcCompanionLifecycle.FollowsHandler(x)).ToList())

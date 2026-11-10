@@ -1,5 +1,5 @@
 {
-  "ProductVersion": "3.8.1.0",
-  "LatestMigrationId": "20261106083212_RangedWeaponSecondaryDamage",
-  "GeneratedUtc": "2026-11-06T08:38:47Z"
+  "ProductVersion": "3.9.0.0",
+  "LatestMigrationId": "20261109234003_ClanElectionGovernance",
+  "GeneratedUtc": "2026-11-09T23:50:50.908870Z"
 }

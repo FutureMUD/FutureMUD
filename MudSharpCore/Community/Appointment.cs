@@ -50,6 +50,9 @@ public class Appointment : SaveableItem, IAppointment
         }
 
         IsAppointedByElection = appointment.IsAppointedByElection;
+        _electionConfirmationAppointmentId = appointment.ElectionConfirmationAppointmentId;
+        CanDirectlyAppoint = appointment.CanDirectlyAppoint;
+        CanResign = appointment.CanResign;
         ElectionTerm = TimeSpan.FromMinutes(appointment.ElectionTermMinutes ?? 0);
         ElectionLeadTime = TimeSpan.FromMinutes(appointment.ElectionLeadTimeMinutes ?? 0);
         NominationPeriod = TimeSpan.FromMinutes(appointment.NominationPeriodMinutes ?? 0);
@@ -71,6 +74,12 @@ public class Appointment : SaveableItem, IAppointment
 
         if (IsAppointedByElection)
         {
+            if (ElectionTerm == TimeSpan.Zero)
+            {
+                CheckForByElections();
+                return;
+            }
+
             if (_elections.All(x => x.IsFinalised || x.IsByElection))
             {
                 IElection byElection = _elections.FirstOrDefault(x => x.IsByElection && !x.IsFinalised);
@@ -104,6 +113,9 @@ public class Appointment : SaveableItem, IAppointment
             dbitem.MinimumRankToAppointId = MinimumRankToAppoint?.Id;
             dbitem.ParentAppointmentId = ParentPosition?.Id;
             dbitem.FameType = (int)FameType;
+            dbitem.CanResign = CanResign;
+            dbitem.CanDirectlyAppoint = CanDirectlyAppoint;
+            dbitem.ElectionConfirmationAppointmentId = _electionConfirmationAppointmentId;
 
             if (InsigniaGameItem != null)
             {
@@ -259,6 +271,17 @@ public class Appointment : SaveableItem, IAppointment
     }
 
     public bool IsAppointedByElection { get; set; }
+    private long? _electionConfirmationAppointmentId;
+    public bool RequiresElectionConfirmation => _electionConfirmationAppointmentId.HasValue;
+    public IAppointment ElectionConfirmationAppointment
+    {
+        get => _electionConfirmationAppointmentId is { } id
+            ? Gameworld.Clans.SelectMany(x => x.Appointments).FirstOrDefault(x => x.Id == id)
+            : null;
+        set => _electionConfirmationAppointmentId = value?.Id;
+    }
+    public bool CanDirectlyAppoint { get; set; }
+    public bool CanResign { get; set; } = true;
     public TimeSpan ElectionTerm { get; set; }
     public TimeSpan ElectionLeadTime { get; set; }
     public TimeSpan NominationPeriod { get; set; }
@@ -272,7 +295,7 @@ public class Appointment : SaveableItem, IAppointment
 
     public (bool Truth, string Error) CanNominate(ICharacter character)
     {
-        if (CanNominateProg?.Execute<bool?>(character) != true)
+        if (CanNominateProg is not null && CanNominateProg.Execute<bool?>(character) != true)
         {
             return (false,
                 WhyCantNominateProg?.Execute(character)?.ToString() ??

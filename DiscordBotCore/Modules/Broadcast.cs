@@ -28,6 +28,6 @@ public class Broadcast : BaseCommandModule
         }
 
         await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-        await DiscordBot.Instance.AskMudToBroadcast(message);
+        await DiscordBot.Instance.AskMudToBroadcast(registration.MudAccountId, message);
     }
 }

@@ -90,6 +90,12 @@ public class RacePickerScreenStoryboard : ChargenScreenStoryboard
         return new RacePickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        return Gameworld.Races.Where(x => x.ChargenAvailable(chargen))
+            .OrderBy(x => x.Name).Select(x => x.Name).Take(100).ToList();
+    }
+
     #endregion IChargenScreenStoryboard Members
 
     public override string Show(ICharacter voyeur)

@@ -53,6 +53,12 @@ public class GenderPickerScreenStoryboard : ChargenScreenStoryboard
         return new GenderPickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        return chargen.SelectedRace?.AllowedGenders
+            .Select(x => Gendering.Get(x).Name.Proper()).Take(100).ToList() ?? [];
+    }
+
     public override string Show(ICharacter voyeur)
     {
         StringBuilder sb = new();

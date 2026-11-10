@@ -24,14 +24,17 @@ using System.Reflection;
 
 namespace MudSharp.Discord;
 
-public sealed class DiscordConnection : IDiscordConnection
+public sealed partial class DiscordConnection : IDiscordConnection
 {
-    private static readonly byte[] ByteSeparators = { (byte)'\n' };
     private TcpClient _client;
     private NetworkStream _stream;
     private string _serverAuth;
     private DateTime _lastConnectionAttempt = DateTime.MinValue;
-    private readonly List<byte> _incomingBytes = new();
+    private DiscordBridgeFrameDecoder _frameDecoder = new((byte)'\n');
+    private bool _authenticated;
+    private bool _hasAuthenticated;
+    private DiscordRemoteService? _remote;
+    internal DiscordRemoteService Remote => _remote ??= new DiscordRemoteService(Gameworld);
 
     public IFuturemud Gameworld { get; private set; }
 
@@ -98,6 +101,7 @@ public sealed class DiscordConnection : IDiscordConnection
         try
         {
             SendClientMessage($"chargen_approved \"{account}\" \"{approver}\" {name}");
+            if (_authenticated) { NotifyLinkedAccount(account, $"Your application {name} was approved by {approver}."); }
         }
         catch (SocketException)
         {
@@ -111,6 +115,7 @@ public sealed class DiscordConnection : IDiscordConnection
         try
         {
             SendClientMessage($"chargen_rejected \"{account}\" \"{reviewer}\" {name}");
+            if (_authenticated) { NotifyLinkedAccount(account, $"Your application {name} was returned for revision by {reviewer}."); }
         }
         catch (SocketException)
         {
@@ -218,8 +223,17 @@ public sealed class DiscordConnection : IDiscordConnection
 
     private void SendClientMessage(string message)
     {
-        IEnumerable<byte> bytes = Encoding.Unicode.GetBytes(message).Concat(new byte[] { 1 });
-        _client?.Client.Send(bytes.ToArray());
+        if (_stream is null) { return; }
+        if (!message.StartsWith("remote ", StringComparison.Ordinal) && message.Length > 18000)
+        {
+            message = message[..18000] + "\n[Output truncated]";
+        }
+        var bytes = DiscordBridgeProtocol.EncodeFrame(message);
+        if (!TryWriteBridgeFrame(_stream, bytes))
+        {
+            // Notifications are optional; a failed bridge must never abort the originating gameplay action.
+            CloseTcpConnection();
+        }
     }
 
     public bool OpenTcpConnection()
@@ -231,10 +245,13 @@ public sealed class DiscordConnection : IDiscordConnection
                 Gameworld.GetStaticInt("DiscordBotPort"));
             _serverAuth = Gameworld.GetStaticConfiguration("DiscordAuthToken");
             _stream = _client.GetStream();
+            _client.SendTimeout = 1000;
+            _frameDecoder = new DiscordBridgeFrameDecoder((byte)'\n');
+            _authenticated = false;
             Version version = Assembly.GetCallingAssembly().GetName().Version;
             string versionString = $"v{version.Major}.{version.Minor}.{version.Build}.{version.Revision:0000}";
             SendClientMessage($"login {_serverAuth} {versionString}");
-            return true;
+            return _client is not null;
         }
         catch (SocketException)
         {
@@ -256,7 +273,8 @@ public sealed class DiscordConnection : IDiscordConnection
 
         _client = null;
         _stream = null;
-        _incomingBytes.Clear();
+        _frameDecoder = new DiscordBridgeFrameDecoder((byte)'\n');
+        _authenticated = false;
     }
 
     public void HandleMessages()
@@ -265,7 +283,7 @@ public sealed class DiscordConnection : IDiscordConnection
         {
 #if DEBUG
             // We usually don't want to connect to the discord bot on debug - abort if we've tried once and failed
-            if (_lastConnectionAttempt > DateTime.MinValue)
+            if (_lastConnectionAttempt > DateTime.MinValue && !_hasAuthenticated)
             {
                 return;
             }
@@ -283,57 +301,60 @@ public sealed class DiscordConnection : IDiscordConnection
 
         try
         {
-            if (!_stream.DataAvailable)
-            {
-                return;
-            }
-
-            byte[] inputBuffer = new byte[4096];
-            int bytes = _stream.Read(inputBuffer, 0, 4096);
-            if (bytes == 0)
+            if (_client.Client.Poll(0, SelectMode.SelectRead) && _client.Client.Available == 0)
             {
                 CloseTcpConnection();
-                OpenTcpConnection();
                 return;
             }
-
-            _incomingBytes.AddRange(inputBuffer.Take(bytes));
-            while (TryReadIncomingCommand(out byte[] command))
+            if (!_authenticated && DateTime.UtcNow - _lastConnectionAttempt > TimeSpan.FromSeconds(15))
+            {
+                CloseTcpConnection();
+                return;
+            }
+            if (_stream.DataAvailable)
+            {
+                byte[] inputBuffer = new byte[4096];
+                int bytes = _stream.Read(inputBuffer, 0, inputBuffer.Length);
+                if (bytes == 0)
+                {
+                    CloseTcpConnection();
+                    return;
+                }
+                _frameDecoder.Append(inputBuffer.AsSpan(0, bytes));
+            }
+            // A bounded batch leaves gameplay time even when Discord has many requests.
+            var handled = 0;
+            while (handled++ < 8 && _frameDecoder.TryRead(out var command))
             {
                 if (command.Length == 0)
                 {
                     continue;
                 }
-
-                HandleTcpCommand(Encoding.Unicode.GetString(command));
+                try { HandleTcpCommand(command); }
+                catch (Exception error) when (error is FormatException or ArgumentException or OverflowException or
+                    System.Text.Json.JsonException)
+                {
+                    Console.WriteLine($"Rejected malformed Discord command ({error.GetType().Name}).");
+                }
             }
         }
-        catch (SocketException)
+        catch (Exception error) when (error is SocketException or IOException or DecoderFallbackException)
         {
             CloseTcpConnection();
-            OpenTcpConnection();
         }
-    }
-
-    private bool TryReadIncomingCommand(out byte[] command)
-    {
-        int delimiterIndex = _incomingBytes.IndexOf(ByteSeparators[0]);
-        if (delimiterIndex == -1)
-        {
-            command = Array.Empty<byte>();
-            return false;
-        }
-
-        command = _incomingBytes.GetRange(0, delimiterIndex).ToArray();
-        _incomingBytes.RemoveRange(0, delimiterIndex + 1);
-        return true;
     }
 
     private void HandleTcpCommand(string getString)
     {
         StringStack ss = new(getString);
-        switch (ss.PopSpeech())
+        var commandName = ss.PopSpeech();
+        if (!_authenticated && commandName is not ("authsuccess" or "authfailure")) { return; }
+        switch (commandName)
         {
+            case "remote":
+                if (!_frameDecoder.IsVersion2) { return; }
+                HandleRemoteCommand(ss);
+                return;
             case "help":
                 Console.WriteLine("Discord asked for HELP.");
                 HandleHelpTcpCommand(ss);
@@ -343,14 +364,19 @@ public sealed class DiscordConnection : IDiscordConnection
                 HandleProgHelpTcpCommand(ss);
                 return;
             case "adminhelp":
-                Console.WriteLine("Discord asked for ADMINHELP.");
-                HandleHelpTcpCommand(ss, true);
+                if (ulong.TryParse(ss.PopSpeech(), out var helpRequest))
+                {
+                    SendClientMessage($"request {helpRequest} Administrator help requires the authenticated administration interface.");
+                }
                 return;
             case "authsuccess":
+                _authenticated = true;
+                _hasAuthenticated = true;
                 Console.WriteLine("DiscordConnection successfully authenticated.");
                 return;
             case "authfailure":
                 Console.WriteLine("DiscordConnection did not successfully authenticate.");
+                CloseTcpConnection();
                 return;
             case "who":
                 Console.WriteLine("Discord asked for WHO.");
@@ -408,6 +434,7 @@ public sealed class DiscordConnection : IDiscordConnection
         string channel = ss.PopSpeech();
         string message = ss.RemainingArgument.ParseSpecialCharacters();
         IAccount account = Gameworld.Accounts.FirstOrDefault(x => x.Name.EqualTo(from));
+        if (account is not null) { account = VerifiedLegacyAccount(account.Id, PermissionLevel.Player); }
         if (account is null)
         {
             SendClientMessage($"request {request} sendfailedaccount");
@@ -438,8 +465,8 @@ public sealed class DiscordConnection : IDiscordConnection
         IAccount account;
         using (new FMDB())
         {
-            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
-            if (account.Authority.Level < PermissionLevel.SeniorAdmin)
+            account = VerifiedLegacyAccount(requesterid, PermissionLevel.SeniorAdmin);
+            if (account is null)
             {
                 return;
             }
@@ -495,7 +522,15 @@ public sealed class DiscordConnection : IDiscordConnection
             }
 
             chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
-            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+            account = VerifiedLegacyAccount(requesterid, PermissionLevel.Guide);
+        }
+
+        if (account is null || chargen.MinimumApprovalAuthority > account.Authority.Level ||
+            account.Authority.Level < PermissionLevel.HighAdmin && chargen.SelectedRoles.Any(x =>
+                x.RequiredApprovers.Any() && x.RequiredApprovers.All(y => !y.EqualTo(account.Name))))
+        {
+            SendClientMessage($"request {request} chargenapprovalerror {which} You are not authorised to review this application.");
+            return;
         }
 
         if (chargen.State != ChargenState.Submitted)
@@ -505,8 +540,8 @@ public sealed class DiscordConnection : IDiscordConnection
             return;
         }
 
-        SendClientMessage($"request {request} success");
         chargen.RejectApplication(null, account, message, null);
+        SendClientMessage($"request {request} success");
     }
 
     private void HandleApproveChargenTcpCommand(StringStack ss)
@@ -528,7 +563,13 @@ public sealed class DiscordConnection : IDiscordConnection
             }
 
             chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
-            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+            account = VerifiedLegacyAccount(requesterid, PermissionLevel.Guide);
+        }
+
+        if (account is null)
+        {
+            SendClientMessage($"request {request} chargenapprovalerror {which} You are not authorised to review this application.");
+            return;
         }
 
         if (chargen.State != ChargenState.Submitted)
@@ -571,8 +612,8 @@ public sealed class DiscordConnection : IDiscordConnection
             return;
         }
 
-        SendClientMessage($"request {request} success");
         chargen.ApproveApplication(null, account, message, null);
+        SendClientMessage($"request {request} success");
     }
 
     private void HandleShowChargenTcpCommand(StringStack ss)
@@ -593,7 +634,13 @@ public sealed class DiscordConnection : IDiscordConnection
             }
 
             chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
-            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+            account = VerifiedLegacyAccount(requesterid, PermissionLevel.Guide);
+        }
+
+        if (account is null || chargen.MinimumApprovalAuthority > account.Authority.Level)
+        {
+            SendClientMessage($"request {request} chargenapprovalerror {id} You are not authorised to review this application.");
+            return;
         }
 
         SendClientMessage(
@@ -625,11 +672,23 @@ public sealed class DiscordConnection : IDiscordConnection
         $"You accept the proposal to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
     try
     {
+        if (account.AccountStatus != AccountStatus.Normal)
+        {
+            SendClientMessage($"request {request} rejected");
+            return;
+        }
+        Remote.LinkVerifiedAccount(discorduserid, account.Id);
         SendClientMessage($"request {request} registeracknowledge {account.Name} {account.Id}");
     }
     catch (SocketException)
     {
         CloseTcpConnection();
+    }
+    catch (Exception error)
+    {
+        character.OutputHandler.Send("The Discord binding could not be saved. An existing binding may need to be revoked first.");
+        SendClientMessage($"request {request} rejected");
+        Console.WriteLine($"Discord account binding failed ({error.GetType().Name}).");
     }
 },
             RejectAction = text =>
@@ -657,7 +716,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 		using (new FMDB())
 		{
-			IAccount viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+			IAccount viewer = VerifiedLegacyAccount(requesterId, PermissionLevel.JuniorAdmin);
 			if (!DiscordRequesterCanUseShowCommands(viewer))
 			{
 				SendClientMessage($"request {request} notauthorised");
@@ -695,7 +754,7 @@ public sealed class DiscordConnection : IDiscordConnection
 		IAccount viewer;
 		using (new FMDB())
 		{
-			viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+			viewer = VerifiedLegacyAccount(requesterId, PermissionLevel.JuniorAdmin);
 		}
 
 		if (!DiscordRequesterCanUseShowCommands(viewer))
@@ -717,7 +776,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	internal static bool DiscordRequesterCanUseShowCommands(IAccount account)
 	{
-		return account?.Authority?.Level >= PermissionLevel.JuniorAdmin;
+		return account?.AccountStatus == AccountStatus.Normal && account.Authority?.Level >= PermissionLevel.JuniorAdmin;
 	}
 
 	internal static bool TryParseShowRequest(
@@ -748,7 +807,7 @@ public sealed class DiscordConnection : IDiscordConnection
         IAccount account;
         using (new FMDB())
         {
-            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(accountId));
+            account = VerifiedLegacyAccount(accountId, PermissionLevel.JuniorAdmin);
         }
 
         if (account == null || account.Authority.Level < PermissionLevel.JuniorAdmin)
@@ -909,7 +968,14 @@ public sealed class DiscordConnection : IDiscordConnection
     private void HandleSendTcpCommand(StringStack ss)
     {
         ulong request = ulong.Parse(ss.PopSpeech());
+        if (!long.TryParse(ss.PopSpeech(), NumberStyles.None, CultureInfo.InvariantCulture, out var requesterId) ||
+            VerifiedLegacyAccount(requesterId, PermissionLevel.JuniorAdmin) is not { } sender)
+        {
+            SendClientMessage($"request {request} sendfailed unauthorised");
+            return;
+        }
         string from = ss.PopSpeech();
+        from = sender.Name;
         string to = ss.PopSpeech();
         string message = ss.RemainingArgument.ParseSpecialCharacters();
         IPlayerConnection user = Gameworld.Connections.FirstOrDefault(x =>
@@ -922,11 +988,14 @@ public sealed class DiscordConnection : IDiscordConnection
 
         user.ControlPuppet.OutputHandler?.Send(
             $"{$"[From {from}]".Colour(Telnet.Green)} {message.SubstituteANSIColour().ProperSentences()}");
+        NotifyAccountMessage(to, $"[From {from}] {message.RawText()}");
         SendClientMessage($"request {request} sendacknowledge {from} {to} {message}");
     }
 
     private void HandleBroadcastTcpCommand(StringStack ss)
     {
+        if (!long.TryParse(ss.PopSpeech(), NumberStyles.None, CultureInfo.InvariantCulture, out var requesterId) ||
+            VerifiedLegacyAccount(requesterId, PermissionLevel.Admin) is null) { return; }
         if (ss.IsFinished)
         {
             return;
@@ -1214,6 +1283,12 @@ public sealed class DiscordConnection : IDiscordConnection
     private void HandleWhereTcpCommand(StringStack ss)
     {
         ulong request = ulong.Parse(ss.PopSpeech());
+        if (!long.TryParse(ss.PopSpeech(), NumberStyles.None, CultureInfo.InvariantCulture, out var requesterId) ||
+            VerifiedLegacyAccount(requesterId, PermissionLevel.JuniorAdmin) is null)
+        {
+            SendClientMessage($"request {request} You are not authorised to view player locations.");
+            return;
+        }
         SendClientMessage($"request {request} " + StringUtilities.GetTextTable(
             from character in Gameworld.Characters.Where(x => !x.State.HasFlag(CharacterState.Dead))
                                        .OrderBy(x => x.Location.Id).ToList()

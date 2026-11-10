@@ -12,6 +12,9 @@ It is written for a mixed audience:
 
 Where guidance is based directly on current command and runtime behavior, it is presented as verified current state. Where guidance describes the safest extension path for future work, it is presented as inferred implementation guidance.
 
+## Discord administration
+
+The Discord economy command group calls IEconomyAnalyticsService without creating or controlling a character. Reports and manual captures require a verified Admin account; configuration changes require HighAdmin and an expiring confirmation. Reports preserve coverage dates, native currencies, configured global conversion, and real versus economic-zone MUD windows. Detailed holdings remain private and explicitly requested. See [Discord Remote Operations](../Core/Discord_Remote_Operations.md) for deployment, account binding and execution recovery.
 ## Working With the Economy Today
 Currency piles used as authored system defaults can carry both `DefaultCurrency` and `DefaultAmount` attributes in their prototype `<Definition>`. Seed only an exactly representable positive amount. Omitting both attributes preserves the generic empty pile; supplying only one or invalid configuration fails prototype loading. Persisted piles are never replenished during load or copy, and normal pile factories add only their explicitly requested coins.
 

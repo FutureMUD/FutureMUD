@@ -158,6 +158,26 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
         return new RolePickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+		foreach (var type in TypeOrder)
+		{
+			if (chargen.SelectedRoles.Any(x => x.RoleType == type))
+			{
+				continue;
+			}
+
+			var roles = Gameworld.Roles.Where(x => x.RoleType == type && x.ChargenAvailable(chargen))
+				.OrderBy(x => x.Name).Select(x => $"{TypeNames[type]}: {x.Name}").Take(100).ToList();
+			if (roles.Count > 0)
+			{
+				return roles;
+			}
+		}
+
+		return [];
+    }
+
     public override string Show(ICharacter voyeur)
     {
         StringBuilder sb = new();

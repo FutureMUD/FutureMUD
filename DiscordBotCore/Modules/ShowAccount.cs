@@ -37,7 +37,7 @@ public class ShowAccount : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"showaccount {request.RequestId} {registration.MudAccountId} {which}");
     }
 
@@ -48,16 +48,16 @@ public class ShowAccount : BaseCommandModule
 		switch (type)
 		{
 			case "notauthorised":
-				await context.RespondAsync($"{context.User.Mention} - your linked MUD account is not authorised to use that command.");
+				await DiscordBot.SendPrivateCommandResponseAsync(context, "Your linked MUD account is not authorised to use that command.");
 				return;
 			case "nosuchaccount":
-				await context.RespondAsync($"{context.User.Mention} - There is no account with the name or id **{ss.RemainingArgument}**.");
+				await DiscordBot.SendPrivateCommandResponseAsync(context, $"There is no account with the name or id **{ss.RemainingArgument}**.");
 				return;
             case "accountinfo":
                 string message = ss.RemainingArgument;
                 foreach (string part in message.SplitStringsForDiscord())
                 {
-                    await context.RespondAsync($"```{part}```");
+					await DiscordBot.SendPrivateCommandResponseAsync(context, $"```{part}```");
                 }
                 return;
         }

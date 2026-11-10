@@ -108,6 +108,28 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
         return new KnowledgePickerBySkillScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+		var selected = FreeKnowledgesProg?.ExecuteCollection<IKnowledge>(chargen).ToHashSet() ?? [];
+		foreach (var skill in chargen.SelectedSkills)
+		{
+			var choices = Gameworld.Knowledges.Where(x => x.Learnable.HasFlag(LearnableType.LearnableAtChargen) &&
+				!selected.Contains(x) && (x.CanPickChargenProg?.ExecuteBool(chargen, skill) ?? false))
+				.OrderBy(x => x.Name).ToList();
+			if (choices.Count == 1 && !choices[0].HasResourceCosts)
+			{
+				selected.Add(choices[0]);
+				continue;
+			}
+			if (choices.Count > 0)
+			{
+				return choices.Select(x => $"{skill.Name}: {x.Name}").Take(100).ToList();
+			}
+
+		}
+		return [];
+    }
+
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
         List<IKnowledge> freeKnowledges = ((IList<IProgVariable>)FreeKnowledgesProg.Execute(chargen)).OfType<IKnowledge>()

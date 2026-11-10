@@ -8890,6 +8890,195 @@ namespace MudSharp.Migrations
                     b.ToTable("DefaultHooks");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.DiscordAccountLink", b =>
+                {
+                    b.Property<string>("DiscordUserId")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .UseCollation("ascii_bin");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DiscordUserId"), "ascii");
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("NotificationsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("DiscordUserId");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique();
+
+                    b.ToTable("DiscordAccountLinks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.DiscordHook", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AllowedAccountIds")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AllowedChannelIds")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AllowedGuildIds")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("CooldownSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("MinimumAuthority")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<bool>("RequireConfirmation")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Revision")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Usage")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.HasIndex("ProgId");
+
+                    b.ToTable("DiscordHooks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.DiscordIntegrationSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("DiscordIntegrationSettings", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.DiscordRemoteInvocation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("ascii_bin");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Id"), "ascii");
+
+                    b.Property<long?>("AccountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Arguments")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConfirmationId")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DefinitionFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("DiscordUserId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .UseCollation("ascii_bin");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DiscordUserId"), "ascii");
+
+                    b.Property<DateTime?>("ExpiresUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<long?>("HookId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("HookRevision")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<long?>("ProgId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ResultText")
+                        .IsRequired()
+                        .HasColumnType("mediumtext");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<DateTime>("UpdatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedUtc");
+
+                    b.HasIndex("DiscordUserId", "CreatedUtc");
+
+                    b.HasIndex("HookId", "CreatedUtc");
+
+                    b.ToTable("DiscordRemoteInvocations", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.DisfigurementTemplate", b =>
                 {
                     b.Property<long>("Id")
@@ -31186,6 +31375,28 @@ namespace MudSharp.Migrations
                     b.Navigation("FutureProg");
 
                     b.Navigation("Hook");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.DiscordAccountLink", b =>
+                {
+                    b.HasOne("MudSharp.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.DiscordHook", b =>
+                {
+                    b.HasOne("MudSharp.Models.FutureProg", "Prog")
+                        .WithMany()
+                        .HasForeignKey("ProgId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Prog");
                 });
 
             modelBuilder.Entity("MudSharp.Models.DisfigurementTemplate", b =>

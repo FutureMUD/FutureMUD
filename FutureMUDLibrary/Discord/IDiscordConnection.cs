@@ -23,5 +23,7 @@ namespace MudSharp.Discord
         void HandleBroadcast(string message);
         void NotifyEnforcement(string subtype, ulong discordChannel, string otherText);
         void NotifyProgError(long progId, string progName, string errorMessage);
+        /// <summary>Optionally forwards applicant/staff-facing text to an opted-in, verified account link.</summary>
+        void NotifyAccountMessage(string account, string message) { }
     }
 }

@@ -179,6 +179,8 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 
     public abstract IChargenScreen GetScreen(IChargen chargen);
 
+    public virtual IEnumerable<string> GetDiscordOptions(IChargen chargen) => null;
+
     public virtual IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
         return Enumerable.Empty<(IChargenResource Resource, int Cost)>();

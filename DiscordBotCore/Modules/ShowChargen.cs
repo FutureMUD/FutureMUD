@@ -45,7 +45,7 @@ public class ShowChargen : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"showchargen {request.RequestId} {DiscordBot.Instance.DetailedUserSettings.First(x => x.DiscordUserId == context.User.Id).MudAccountId} {which}");
     }
 
@@ -56,15 +56,15 @@ public class ShowChargen : BaseCommandModule
         {
             case "nosuchchargen":
                 long id = long.Parse(ss.Pop());
-                await context.RespondAsync($"{context.User.Mention} - There is no character application with an ID of **{id}**.");
+				await DiscordBot.SendPrivateCommandResponseAsync(context, $"There is no character application with an ID of **{id}**.");
                 return;
             case "chargeninfo":
                 id = long.Parse(ss.Pop());
                 string message = ss.RemainingArgument;
-                await context.RespondAsync($"{context.User.Mention} - Character Application #{id}");
+				await DiscordBot.SendPrivateCommandResponseAsync(context, $"Character Application #{id}");
                 foreach (string split in message.SplitStringsForDiscord())
                 {
-                    await context.RespondAsync($"```{split}```");
+					await DiscordBot.SendPrivateCommandResponseAsync(context, $"```{split}```");
                 }
                 return;
         }

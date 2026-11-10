@@ -15,15 +15,18 @@ public class Register : BaseCommandModule
     [Command("register")]
     public async Task RegisterAsync(CommandContext context, string account)
     {
-        if (DiscordBot.Instance.DetailedUserSettings.Any(x => x.MudAccountName.Equals(account, StringComparison.InvariantCultureIgnoreCase)))
+        var existingDiscordLink = DiscordBot.Instance.DetailedUserSettings.FirstOrDefault(x => x.DiscordUserId == context.User.Id);
+        if (existingDiscordLink is not null && !existingDiscordLink.MudAccountName.Equals(account, StringComparison.InvariantCultureIgnoreCase))
         {
-            await context.RespondAsync("There is already a registration for an account with that name.");
+            await context.RespondAsync("Your Discord account is already linked to a different MUD account.");
             return;
         }
 
-        if (DiscordBot.Instance.DetailedUserSettings.Any(x => x.DiscordUserId == context.User.Id))
+        if (DiscordBot.Instance.DetailedUserSettings.Any(x =>
+                x.MudAccountName.Equals(account, StringComparison.InvariantCultureIgnoreCase) &&
+                x.DiscordUserId != context.User.Id))
         {
-            await context.RespondAsync("There is already a registration for your discord account.");
+            await context.RespondAsync("There is already a registration for an account with that name.");
             return;
         }
 
@@ -36,10 +39,12 @@ public class Register : BaseCommandModule
         await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
         CachedDiscordRequest request = new()
         {
+			// The in-game ownership proposal remains valid for two minutes.
+			Timeout = TimeSpan.FromMinutes(3),
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"register {request.RequestId} {context.User.Id} \"{context.User.Username}\" {account}");
     }
 
@@ -51,19 +56,20 @@ public class Register : BaseCommandModule
             case "registeracknowledge":
                 string name = ss.PopSpeech();
                 long id = long.Parse(ss.PopSpeech());
-                DiscordBot.Instance.DetailedUserSettings.RemoveAll(x => x.MudAccountId == id || x.DiscordUserId == context.User.Id);
-                DiscordBot.Instance.DetailedUserSettings.Add(new DetailedUserSetting(context.User.Id, name, id));
-                await context.RespondAsync($"{context.User.Mention} - You have successfully linked your discord account to MUD account **{name}**.");
-                await DiscordBot.Instance.SaveRegistrationConfig();
+				var persisted = await DiscordBot.Instance.ReplaceAccountLinkAsync(new DetailedUserSetting(context.User.Id, name, id));
+				var message = persisted
+					? $"You have successfully linked your discord account to MUD account **{name}**."
+					: $"The game approved the link to **{name}**, but the bot could not persist its local mirror. The engine link is authoritative; contact a bot owner before using legacy bot commands.";
+				await DiscordBot.SendPrivateCommandResponseAsync(context, message);
                 return;
             case "notfound":
-                await context.RespondAsync($"{context.User.Mention} - Unable to find any accounts with that name currently logged into the MUD.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, "Unable to find any accounts with that name currently logged into the MUD.");
                 return;
             case "timeout":
-                await context.RespondAsync($"{context.User.Mention} - Your request to link your discord and MUD account timed out.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, "Your request to link your discord and MUD account timed out.");
                 return;
             case "rejected":
-                await context.RespondAsync($"{context.User.Mention} - Your request to link your discord and MUD account was rejected by the in-game user.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, "Your request to link your discord and MUD account was rejected by the in-game user.");
                 return;
         }
     }

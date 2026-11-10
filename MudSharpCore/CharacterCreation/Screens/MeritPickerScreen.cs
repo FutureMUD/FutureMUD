@@ -90,6 +90,13 @@ public class MeritPickerScreenStoryboard : ChargenScreenStoryboard
         return new MeritPickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        return Gameworld.Merits.OfType<ICharacterMerit>()
+            .Where(x => x.MeritType == MeritType.Merit && x.ChargenAvailable(chargen))
+            .OrderBy(x => x.Name).Select(x => x.Name).Take(100).ToList();
+    }
+
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
         foreach (IChargenResource resource in Gameworld.ChargenResources)

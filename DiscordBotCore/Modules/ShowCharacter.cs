@@ -37,7 +37,7 @@ public class ShowCharacter : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"showcharacter {request.RequestId} {registration.MudAccountId} {which}");
     }
 
@@ -48,16 +48,16 @@ public class ShowCharacter : BaseCommandModule
 		switch (type)
 		{
 			case "notauthorised":
-				await context.RespondAsync($"{context.User.Mention} - your linked MUD account is not authorised to use that command.");
+				await DiscordBot.SendPrivateCommandResponseAsync(context, "Your linked MUD account is not authorised to use that command.");
 				return;
 			case "nosuchcharacter":
-				await context.RespondAsync($"{context.User.Mention} - There is no character with that ID.");
+				await DiscordBot.SendPrivateCommandResponseAsync(context, "There is no character with that ID.");
 				return;
             case "characterinfo":
                 string message = ss.RemainingArgument;
                 foreach (string part in message.SplitStringsForDiscord())
                 {
-                    await context.RespondAsync($"```{part}```");
+					await DiscordBot.SendPrivateCommandResponseAsync(context, $"```{part}```");
                 }
                 return;
         }

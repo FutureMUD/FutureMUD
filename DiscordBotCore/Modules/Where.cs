@@ -17,6 +17,14 @@ public class Where : BaseCommandModule
         if (!DiscordBot.Instance.IsAuthorisedUser(context.User))
         {
             await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
+            return;
+        }
+
+        var registration = DiscordBot.Instance.DetailedUserSettings.FirstOrDefault(x => x.DiscordUserId == context.User.Id);
+        if (registration is null)
+        {
+            await context.RespondAsync("You must link your MUD account before using this command.");
+            return;
         }
 
         if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
@@ -31,12 +39,12 @@ public class Where : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await connection.SendTcpCommand($"where {request.RequestId}");
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
+        await connection.SendTcpCommand($"where {request.RequestId} {registration.MudAccountId}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)
     {
-        await context.RespondAsync($"{context.User.Mention}\n```{text}```");
+        await DiscordBot.SendPrivateCommandResponseAsync(context, $"```{text}```");
     }
 }

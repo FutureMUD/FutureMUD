@@ -37,7 +37,7 @@ public class Map : BaseCommandModule
             Context = context,
             OnResponseAction = HandleMudResponse
         };
-        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        if (!await DiscordBot.Instance.TryCacheDiscordRequestAsync(request)) return;
         await connection.SendTcpCommand($"map {request.RequestId} {registration.MudAccountId} {cellId}");
     }
 
@@ -47,16 +47,16 @@ public class Map : BaseCommandModule
         switch (ss.Pop())
         {
             case "notauthorised":
-                await context.RespondAsync($"{context.User.Mention} - Your linked MUD account is not authorised to view maps.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, "Your linked MUD account is not authorised to view maps.");
                 return;
             case "nosuchcell":
-                await context.RespondAsync($"{context.User.Mention} - There is no room with an ID of **{ss.RemainingArgument}**.");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"There is no room with an ID of **{ss.RemainingArgument}**.");
                 return;
             case "map":
-                await context.RespondAsync($"{context.User.Mention}\n```{ss.RemainingArgument}```");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"```{ss.RemainingArgument}```");
                 return;
             default:
-                await context.RespondAsync($"{context.User.Mention}\n```{text}```");
+                await DiscordBot.SendPrivateCommandResponseAsync(context, $"```{text}```");
                 return;
         }
     }

@@ -80,6 +80,12 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
         return new StartingLocationPickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        return Locations?.Where(x => x.FutureProg?.ExecuteBool(chargen) ?? true)
+			.OrderBy(x => x.Name).Select(x => x.Name).Take(100).ToList() ?? [];
+    }
+
     public override string Show(ICharacter voyeur)
     {
         StringBuilder sb = new();

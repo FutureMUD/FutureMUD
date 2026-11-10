@@ -61,6 +61,12 @@ public class EthnicityPickerScreenStoryboard : ChargenScreenStoryboard
         return new EthnicityPickerScreen(chargen, this);
     }
 
+    public override IEnumerable<string> GetDiscordOptions(IChargen chargen)
+    {
+        return Gameworld.Ethnicities.Where(x => x.ParentRace == chargen.SelectedRace && x.ChargenAvailable(chargen))
+            .OrderBy(x => x.Name).Select(x => x.Name).Take(100).ToList();
+    }
+
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
         foreach (IChargenResource resource in Gameworld.ChargenResources)

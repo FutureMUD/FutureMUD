@@ -71,6 +71,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [NuGet Dependency Maintenance](./Core/NuGet_Dependencies.md)
 - [Database Upgrade Coordination](./Core/Database_Upgrade_Coordination.md)
 - [Discord Bot Protocol and Settings](./Core/Discord_Bot_Protocol_and_Settings.md)
+- [Discord Bot Expansion Review and Discord Hooks Proposal](./Core/Discord_Bot_Expansion_Review.md)
+- [Discord Remote Operations and Hook Authoring](./Core/Discord_Remote_Operations.md)
 - [FutureMUD Website and Publishing](./Core/FutureMUD_Website_and_Publishing.md)
 - [FutureMUD Release Process](./Core/FutureMUD_Release_Process.md)
 - [Game Loop, Scheduling, and TCP Runtime](./Core/Game_Loop_and_Scheduling_Runtime.md)

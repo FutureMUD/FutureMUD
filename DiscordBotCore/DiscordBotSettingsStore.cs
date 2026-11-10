@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Newtonsoft.Json;
 
 namespace Discord_Bot;
@@ -25,6 +26,7 @@ internal static class DiscordBotSettingsStore
 			var loaded = JsonConvert.DeserializeObject<DiscordBot.DiscordBotSetttings>(json);
 			if (loaded is null ||
 			    loaded.Port <= 0 ||
+			    !IPAddress.TryParse(loaded.ListenAddress, out _) ||
 			    string.IsNullOrWhiteSpace(loaded.Token) ||
 			    string.IsNullOrWhiteSpace(loaded.ServerAuth) ||
 			    string.IsNullOrWhiteSpace(loaded.GameName) ||

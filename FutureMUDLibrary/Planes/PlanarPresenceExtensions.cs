@@ -4,6 +4,7 @@ using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,10 @@ namespace MudSharp.Planes;
 
 public static class PlanarPresenceExtensions
 {
-	public static PlanarPresence GetPlanarPresence(this IPerceivable perceivable)
+	public static PlanarPresence GetPlanarPresence(this IPerceivable perceivable, IEffect? excludingOverlayEffect = null)
 	{
 		var baseDefinition = BaseDefinitionFor(perceivable);
-		var overlays = OverlayEffectsFor(perceivable)
+		var overlays = OverlayEffectsFor(perceivable).Where(x => !ReferenceEquals(x, excludingOverlayEffect))
 			.Select(x => (Definition: x.PlanarPresenceDefinition, x.PlanarPriority, x.OverridesBasePlanarPresence))
 			.Concat(OverlayMeritsFor(perceivable)
 				.Select(x => (Definition: x.PlanarPresenceDefinition, x.PlanarPriority, x.OverridesBasePlanarPresence)));
@@ -23,6 +24,23 @@ public static class PlanarPresenceExtensions
 			.OrderBy(x => x.PlanarPriority)
 			.Aggregate(baseDefinition, (current, overlay) =>
 				overlay.OverridesBasePlanarPresence ? overlay.Definition : current.Merge(overlay.Definition));
+		if (perceivable is IGameItem item)
+		{
+			var etherealVisibility = item.Effects.OfType<IPlaneSpecificInventoryRetention>()
+				.Where(x => x.IsVisibleToThatPlane).Select(x => x.PlaneId).ToHashSet();
+			if (etherealVisibility.Count > 0)
+			{
+				var interactions = Enum.GetValues<PlanarInteractionKind>()
+					.ToDictionary(x => x, x => (IEnumerable<long>)definition.InteractionPlaneIds(x));
+				definition = new PlanarPresenceDefinition(definition.PresencePlaneIds,
+					definition.VisibleToPlaneIds.Concat(etherealVisibility), definition.PerceivesPlaneIds, interactions,
+					definition.SuspendsPhysicalContact, definition.PropagatesInventory,
+					definition.CanCrossClosedDoors, definition.CanCrossMagicalBarriers,
+					true, definition.PlayerCanManifest,
+					definition.PlayerCanDissipate, definition.TransitionProfile,
+					definition.RetainPlaneSpecificInventory);
+			}
+		}
 		return new PlanarPresence(definition);
 	}
 

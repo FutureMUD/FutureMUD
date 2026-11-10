@@ -22,7 +22,8 @@ public class PlanarPresenceDefinition
 		bool visibleToEtherealPerception,
 		bool playerCanManifest,
 		bool playerCanDissipate,
-		string transitionProfile)
+		string transitionProfile,
+		bool retainPlaneSpecificInventory = false)
 	{
 		PresencePlaneIds = presencePlanes.Where(x => x > 0).ToHashSet();
 		VisibleToPlaneIds = visibleToPlanes.Where(x => x > 0).ToHashSet();
@@ -42,6 +43,7 @@ public class PlanarPresenceDefinition
 		PlayerCanManifest = playerCanManifest;
 		PlayerCanDissipate = playerCanDissipate;
 		TransitionProfile = transitionProfile ?? string.Empty;
+		RetainPlaneSpecificInventory = retainPlaneSpecificInventory;
 	}
 
 	public IReadOnlyCollection<long> PresencePlaneIds { get; }
@@ -55,6 +57,7 @@ public class PlanarPresenceDefinition
 	public bool PlayerCanManifest { get; }
 	public bool PlayerCanDissipate { get; }
 	public string TransitionProfile { get; }
+	public bool RetainPlaneSpecificInventory { get; }
 
 	public IReadOnlyCollection<long> InteractionPlaneIds(PlanarInteractionKind kind)
 	{
@@ -255,7 +258,8 @@ public class PlanarPresenceDefinition
 			ReadFlag("visibleToEtherealPerception", false),
 			ReadFlag("playerCanManifest", false),
 			ReadFlag("playerCanDissipate", false),
-			root.Element("Transition")?.Attribute("profile")?.Value ?? string.Empty);
+			root.Element("Transition")?.Attribute("profile")?.Value ?? string.Empty,
+			ReadFlag("retainPlaneSpecificInventory", false));
 	}
 
 	public XElement SaveToXml()
@@ -275,7 +279,8 @@ public class PlanarPresenceDefinition
 				new XAttribute("canCrossMagicalBarriers", CanCrossMagicalBarriers),
 				new XAttribute("visibleToEtherealPerception", VisibleToEtherealPerception),
 				new XAttribute("playerCanManifest", PlayerCanManifest),
-				new XAttribute("playerCanDissipate", PlayerCanDissipate)),
+				new XAttribute("playerCanDissipate", PlayerCanDissipate),
+				new XAttribute("retainPlaneSpecificInventory", RetainPlaneSpecificInventory)),
 			new XElement("Transition", new XAttribute("profile", TransitionProfile))
 		);
 	}
@@ -298,7 +303,8 @@ public class PlanarPresenceDefinition
 			VisibleToEtherealPerception || overlay.VisibleToEtherealPerception,
 			PlayerCanManifest || overlay.PlayerCanManifest,
 			PlayerCanDissipate || overlay.PlayerCanDissipate,
-			string.IsNullOrWhiteSpace(overlay.TransitionProfile) ? TransitionProfile : overlay.TransitionProfile);
+			string.IsNullOrWhiteSpace(overlay.TransitionProfile) ? TransitionProfile : overlay.TransitionProfile,
+			RetainPlaneSpecificInventory || overlay.RetainPlaneSpecificInventory);
 	}
 
 	public string Describe(IFuturemud gameworld)

@@ -243,7 +243,7 @@ internal class ApplyPlanarStateFunction : PlanarFunctionBase
 				definition.PropagatesInventory, (bool)ParameterFunctions[3].Result.GetObject,
 				definition.CanCrossMagicalBarriers, definition.VisibleToEtherealPerception,
 				(bool)ParameterFunctions[4].Result.GetObject, (bool)ParameterFunctions[5].Result.GetObject,
-				definition.TransitionProfile);
+				definition.TransitionProfile, definition.RetainPlaneSpecificInventory);
 		}
 
 		target.RemoveAllEffects<PlanarStateEffect>(x => true, true);

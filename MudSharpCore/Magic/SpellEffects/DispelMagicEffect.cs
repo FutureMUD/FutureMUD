@@ -112,6 +112,7 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 		IllusionKey = root.Element("IllusionKey")?.Value ?? string.Empty;
 		Contest = bool.Parse(root.Element("Contest")?.Value ?? "false");
 		ContestBonus = int.Parse(root.Element("ContestBonus")?.Value ?? "0");
+		IncludeIntrinsicItemEffects = (bool?)root.Element("IncludeIntrinsicItemEffects") ?? false;
 	}
 
 	public IMagicSpell Spell { get; }
@@ -130,6 +131,7 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	public string IllusionKey { get; private set; }
 	public bool Contest { get; private set; }
 	public int ContestBonus { get; private set; }
+	public bool IncludeIntrinsicItemEffects { get; private set; }
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
@@ -150,7 +152,8 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 			new XElement("EffectKey", new XCData(EffectKey)),
 			new XElement("IllusionKey", new XCData(IllusionKey)),
 			new XElement("Contest", Contest),
-			new XElement("ContestBonus", ContestBonus)
+			new XElement("ContestBonus", ContestBonus),
+			IncludeIntrinsicItemEffects ? new XElement("IncludeIntrinsicItemEffects", true) : null
 		);
 	}
 
@@ -166,6 +169,13 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	}
 
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		ApplyIntrinsicItemEffects(target, power);
+		return ApplySpellOwnedEffects(caster, target, outcome, power, parent, additionalParameters);
+	}
+
+	private IMagicSpellEffect? ApplySpellOwnedEffects(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is null)
@@ -304,6 +314,7 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 
 	public const string HelpText = @"You can use the following options with this effect:
 
+	#3intrinsic#0 - toggles permanent item magic removal for unrestricted dispels (grade requirements apply)
 	#3mode remove|shorten#0 - removes matching spells or shortens their duration
 	#3shorten <seconds>#0 - sets the duration removed by shorten mode
 	#3caster own|any|others#0 - sets caster matching policy
@@ -322,6 +333,11 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "intrinsic":
+				IncludeIntrinsicItemEffects = !IncludeIntrinsicItemEffects;
+				Spell.Changed = true;
+				actor.Send($"Intrinsic item magic removal: {IncludeIntrinsicItemEffects.ToColouredString()}.");
+				return true;
 			case "mode":
 				return BuildingCommandMode(actor, command);
 			case "shorten":
@@ -523,6 +539,7 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 	{
 		return SpellEffectPresentation.Describe(actor, "Dispel Magic",
 			("Mode", Mode.DescribeEnum().ColourValue()),
+			("Intrinsic Item Magic", IncludeIntrinsicItemEffects.ToColouredString()),
 			("Caster Policy", CasterPolicy.DescribeEnum().ColourValue()),
 			("Allow Hostile", AllowHostile.ToColouredString()),
 			("School", $"#{SchoolId.ToString("N0", actor).ColourValue()}"),

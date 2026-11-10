@@ -99,12 +99,12 @@ public abstract class CharacterSpellEffectTemplateBase : IMagicSpellEffectTempla
 		return SpellEffectPresentation.Describe(actor, ShowText);
 	}
 
-	public bool IsCompatibleWithTrigger(IMagicTrigger trigger)
+	public virtual bool IsCompatibleWithTrigger(IMagicTrigger trigger)
 	{
 		return StandaloneSpellEffectTemplateHelper.IsCharacterTarget(trigger.TargetTypes);
 	}
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+	public virtual IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not ICharacter character)
@@ -559,21 +559,27 @@ public class CurseEffect : CharacterSpellEffectTemplateBase
 	public override IMagicSpellEffectTemplate Clone() => new CurseEffect(SaveToXml(), Spell);
 }
 
-public class RemoveCurseEffect : CharacterSpellEffectRemovalTemplateBase
+public partial class RemoveCurseEffect : CharacterSpellEffectRemovalTemplateBase
 {
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("removecurse", (root, spell) => new RemoveCurseEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("removecurse", BuilderFactory,
-			"Removes magical curses from the target",
-			"",
+			"Removes magical curses from characters, optionally cleansing designated item curses",
+			"Use items to enable or disable cleansing of designated item curses. Existing definitions default to character-only removal.",
 			true,
 			true,
-			StandaloneSpellEffectTemplateHelper.CharacterTriggerTypes);
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => CompatibleTargetTypes(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands, IMagicSpell spell)
-		=> (new RemoveCurseEffect(new XElement("Effect", new XAttribute("type", "removecurse")), spell), string.Empty);
+	{
+		var includeItems = !commands.IsFinished;
+		if (includeItems && (!commands.PopSpeech().EqualTo("items") || !commands.IsFinished))
+			return (null!, "Specify items to include item curses, or no argument for character curses only.");
+		return (new RemoveCurseEffect(new XElement("Effect", new XAttribute("type", "removecurse"),
+			new XElement("IncludeItems", includeItems)), spell), string.Empty);
+	}
 
 	protected override string BuilderEffectType => "removecurse";
 	protected override string ShowText => "Remove Curse";

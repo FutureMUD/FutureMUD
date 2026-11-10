@@ -48,6 +48,14 @@ public class PlanarStateSpellEffect : IMagicSpellEffectTemplate
 		{
 			return (null, "The state must be corporeal or noncorporeal.");
 		}
+		if (!commands.IsFinished)
+		{
+			if (!commands.PopSpeech().EqualTo("retainitems") || !commands.IsFinished)
+				return (null, "Optional setting: retainitems keeps ready plane-attuned inventory items during a non-propagating transition.");
+			var xml = definition.SaveToXml();
+			xml.Element("Flags")?.SetAttributeValue("retainPlaneSpecificInventory", true);
+			definition = PlanarPresenceDefinition.FromXml(xml, spell.Gameworld);
+		}
 
 		return (new PlanarStateSpellEffect(new XElement("Effect",
 			new XAttribute("type", type),
@@ -66,7 +74,7 @@ public class PlanarStateSpellEffect : IMagicSpellEffectTemplate
 	public PlanarPresenceDefinition Definition { get; private set; }
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
-	public const string HelpText = @"You can use #3effect set <plane> <corporeal|noncorporeal>#0 to set this effect's plane and state.";
+	public const string HelpText = @"You can use #3effect set <plane> <corporeal|noncorporeal> [retainitems]#0. retainitems keeps ready plane-attuned inventory items during non-propagating transitions.";
 
 	public XElement SaveToXml()
 	{
@@ -94,6 +102,17 @@ public class PlanarStateSpellEffect : IMagicSpellEffectTemplate
 		{
 			actor.OutputHandler.Send("The state must be corporeal or noncorporeal.");
 			return false;
+		}
+		if (!command.IsFinished)
+		{
+			if (!command.PopSpeech().EqualTo("retainitems") || !command.IsFinished)
+			{
+				actor.OutputHandler.Send(HelpText);
+				return false;
+			}
+			var xml = Definition.SaveToXml();
+			xml.Element("Flags")?.SetAttributeValue("retainPlaneSpecificInventory", true);
+			Definition = PlanarPresenceDefinition.FromXml(xml, actor.Gameworld);
 		}
 
 		Spell.Changed = true;
@@ -155,25 +174,37 @@ public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate, IMagicSpe
 	private RemovePlanarStateSpellEffect(XElement root, IMagicSpell spell) : this(spell)
 	{
 		OnlySpellOwnedEthereal = (bool?)root.Element("OnlySpellOwnedEthereal") ?? false;
+		ClearItemEtherealVisibility = (bool?)root.Element("ClearItemEtherealVisibility") ?? false;
 	}
 
 	public IMagicSpell Spell { get; }
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 	public bool OnlySpellOwnedEthereal { get; private set; }
+	public bool ClearItemEtherealVisibility { get; private set; }
 
 	public XElement SaveToXml()
 	{
 		return new XElement("Effect", new XAttribute("type", "removeplanarstate"),
-			OnlySpellOwnedEthereal ? new XElement("OnlySpellOwnedEthereal", true) : null);
+			OnlySpellOwnedEthereal ? new XElement("OnlySpellOwnedEthereal", true) : null,
+			ClearItemEtherealVisibility ? new XElement("ClearItemEtherealVisibility", true) : null);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		if (!command.PopSpeech().EqualTo("ethereal") || !bool.TryParse(command.PopSpeech(), out var enabled) || !command.IsFinished)
+		var field = command.PopSpeech();
+		if (!bool.TryParse(command.PopSpeech(), out var enabled) || !command.IsFinished ||
+			(!field.EqualTo("ethereal") && !field.EqualTo("itemvisibility")))
 		{
-			actor.OutputHandler.Send("Use #3effect set ethereal <true|false>#0 to limit removal to one spell-owned ethereal overlay.".SubstituteANSIColour());
+			actor.OutputHandler.Send("Use #3effect set ethereal <true|false>#0 or #3effect set itemvisibility <true|false>#0.".SubstituteANSIColour());
 			return false;
+		}
+		if (field.EqualTo("itemvisibility"))
+		{
+			ClearItemEtherealVisibility = enabled;
+			Spell.Changed = true;
+			actor.Send($"Item ethereal visibility removal: {enabled.ToColouredString()}.");
+			return true;
 		}
 		OnlySpellOwnedEthereal = enabled;
 		Spell.Changed = true;
@@ -183,7 +214,8 @@ public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate, IMagicSpe
 
 	public string Show(ICharacter actor)
 	{
-		return SpellEffectPresentation.Describe(actor, OnlySpellOwnedEthereal ? "Remove One Spell-Owned Ethereal State" : "Remove Planar State");
+		return SpellEffectPresentation.Describe(actor, OnlySpellOwnedEthereal ? "Remove One Spell-Owned Ethereal State" : "Remove Planar State",
+			("Clear Item Ethereal Visibility", ClearItemEtherealVisibility.ToColouredString()));
 	}
 
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
@@ -200,6 +232,13 @@ public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate, IMagicSpe
 	private MagicEffectOperationStatus Remove(IPerceivable target)
 	{
 		if (target is null) return MagicEffectOperationStatus.Rejected;
+		if (ClearItemEtherealVisibility && target is MudSharp.GameItems.IGameItem item)
+		{
+			var changed = false;
+			foreach (var affinity in item.EffectsOfType<EtherealItemAffinityEffect>().ToArray())
+				changed |= affinity.ClearEtherealVisibility();
+			return changed ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange;
+		}
 		if (OnlySpellOwnedEthereal)
 		{
 			if (target is not ICharacter) return MagicEffectOperationStatus.Rejected;

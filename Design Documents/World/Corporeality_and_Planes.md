@@ -67,6 +67,8 @@ Item prototypes expose a builder command:
 - `item set planar noncorporeal [plane] [visible]`
 - `item set planar xml <xml>`
 
+`PlanarData/Flags/@retainPlaneSpecificInventory` is an opt-in transition setting for non-propagating planar states. It preserves only ready items carrying an `IPlaneSpecificInventoryRetention` affinity for a destination plane. Ordinary states default to the existing full ejection behavior. The native planar spell builder accepts `retainitems` after its plane and state to set this flag.
+
 Body prototype XML is loaded through the same shared parser and is intended for stock race/body definitions, permanent spirits, or builder-authored forms.
 
 ### Overlay Effects
@@ -170,6 +172,8 @@ This is the default for fully noncorporeal profiles.
 
 ### Inventory And Implants
 If a transition does not propagate inventory, the body gently ejects direct held, wielded, worn, implanted, and prosthetic items into the current cell/layer. This is intentionally non-traumatic by default; more violent transitions should be expressed by a specific transition profile or additional effects.
+
+When `retainPlaneSpecificInventory` is enabled, ready plane-attuned direct held, wielded, and worn roots remain with the body. Their container trees are walked with cycle and custody checks: non-ready children are detached and dropped in the origin room; ready children stay in their immediate parent, including a parent dropped by the transition. Unrelated room containers are never traversed. Implants and prosthetics continue to eject. On a later transition away from an item's affinity plane, its plane visibility flag clears while travel readiness remains. The flag adds visibility on the affinity plane without changing item presence or physical interaction permissions.
 
 ## User Stories
 - A builder creates an `Ethereal Plane` and makes a ghost body prototype present there, visible to Prime Material observers, but unable to be touched or fought.

@@ -1831,7 +1831,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		}
 
 		OpposedOutcome baseOutcome = new(result[CastingDifficulty].Outcome, Outcome.NotTested);
-		bool allowReflection = Trigger.TargetTypes == "character";
+		bool allowReflection = Trigger.TargetTypes == "character" || Trigger is SpellTriggers.CastingTriggerCharacter { CanTargetItems: true };
 
 		using var capacityChanges = new SpellCapacityBatch();
 		var rejuvenatedRooms = new HashSet<long>();

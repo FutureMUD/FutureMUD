@@ -1444,10 +1444,23 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<ulong>("CanDirectlyAppoint")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
                     b.Property<long?>("CanNominateProgId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<ulong>("CanResign")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
                     b.Property<long>("ClanId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ElectionConfirmationAppointmentId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<double?>("ElectionLeadTimeMinutes")
@@ -1527,6 +1540,8 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ClanId")
                         .HasDatabaseName("FK_Appointments_Clans");
+
+                    b.HasIndex("ElectionConfirmationAppointmentId");
 
                     b.HasIndex("MinimumRankId")
                         .HasDatabaseName("FK_Appointments_Ranks");
@@ -9715,6 +9730,11 @@ namespace MudSharp.Migrations
 
                     b.Property<ulong>("IsByElection")
                         .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("IsConfirmed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
 
                     b.Property<ulong>("IsFinalised")
                         .HasColumnType("bit(1)");
@@ -27671,6 +27691,12 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Appointments_Clans");
 
+                    b.HasOne("MudSharp.Models.Appointment", "ElectionConfirmationAppointment")
+                        .WithMany()
+                        .HasForeignKey("ElectionConfirmationAppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Appointments_ElectionConfirmation");
+
                     b.HasOne("MudSharp.Models.Rank", "MinimumRank")
                         .WithMany("AppointmentsMinimumRank")
                         .HasForeignKey("MinimumRankId")
@@ -27711,6 +27737,8 @@ namespace MudSharp.Migrations
                     b.Navigation("CanNominateProg");
 
                     b.Navigation("Clan");
+
+                    b.Navigation("ElectionConfirmationAppointment");
 
                     b.Navigation("InsigniaGameItem");
 

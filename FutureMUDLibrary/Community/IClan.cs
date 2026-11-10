@@ -66,7 +66,8 @@ namespace MudSharp.Community
 
         ICalendar Calendar { get; set; }
 
-        void FinaliseLoad(MudSharp.Models.Clan clan, IEnumerable<Models.ClanMembership> memberships);
+        void FinaliseLoad(MudSharp.Models.Clan clan, IEnumerable<Models.ClanMembership> memberships, bool loadElections = true);
+        void LoadElections();
         void SetRank(IClanMembership membership, IRank newRank);
         void SetPaygrade(IClanMembership membership, IPaygrade newPaygrade);
         void RemoveMembership(IClanMembership membership);
@@ -80,6 +81,8 @@ namespace MudSharp.Community
         void Vote(ICharacter actor, StringStack command);
         void Appoint(ICharacter actor, StringStack command);
         void Dismiss(ICharacter actor, StringStack command);
+        void Resign(ICharacter actor, StringStack command);
+        void ConfirmElection(ICharacter actor, StringStack command, bool veto);
         void SubmitControl(ICharacter actor, StringStack command);
         void ReleaseControl(ICharacter actor, StringStack command);
         void TransferControl(ICharacter actor, StringStack command);

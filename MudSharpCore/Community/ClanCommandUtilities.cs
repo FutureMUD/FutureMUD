@@ -4,6 +4,14 @@ namespace MudSharp.Community;
 
 public static class ClanCommandUtilities
 {
+	public static bool CanConfirmElection(ICharacter actor, IAppointment appointment)
+	{
+		var authority = appointment.ElectionConfirmationAppointment;
+		return actor.IsAdministrator(MudSharp.Accounts.PermissionLevel.Admin) ||
+		       authority is not null && actor.ClanMemberships.Any(x =>
+			       !x.IsArchivedMembership && x.Clan == authority.Clan && x.Appointments.Contains(authority));
+	}
+
 	public static bool HoldsOrControlsAppointment(IClanMembership? membership, IAppointment? appointment)
 	{
 		if (membership is null || appointment is null)
@@ -34,7 +42,7 @@ public static class ClanCommandUtilities
 		}
 
 		var pastElections = elections
-			.Where(x => x.IsFinalised && !x.IsByElection)
+			.Where(x => x.IsFinalised && !x.IsByElection && x.ElectionStage != ElectionStage.Vetoed)
 			.OrderByDescending(x => x.ResultsInEffectDate)
 			.Take(maximumConsecutiveTerms)
 			.ToList();

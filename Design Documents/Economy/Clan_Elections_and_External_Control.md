@@ -30,6 +30,64 @@ The election lifecycle is:
 4. `Preinstallation`
 5. `Finalised`
 
+Offices that require confirmation pause at `AwaitingConfirmation` after voting closes. Approval returns them to `Preinstallation` until the scheduled installation date (or installs immediately if that date has passed). A veto ends the ballot in the terminal `Vetoed` stage. Existing persisted stage numbers remain unchanged.
+
+### Confirmation and discretionary appointment
+
+Use the appointment editor after selecting a clan:
+
+```text
+clan edit parish
+clan set appointment "parish priest" election confirmation diocese bishop
+clan set appointment "parish priest" election direct
+```
+
+`election confirmation <clan> <appointment>` names one specific office, in the same clan or another clan. No external-control relationship or reserved appointment slot is needed. Active holders of that exact office may confirm or veto the **whole election result**, including a multi-seat result. Parent-office authority and general clan privileges do not confer this power. Administrators retain an override. The confirming office cannot be the elected office itself, and live clans cannot depend on a template office.
+
+```text
+clan elections
+clan election view <id>
+clan election confirm <id>
+clan election veto <id>
+```
+
+Confirming officeholders can discover and view the elections they oversee even without membership in the elected clan. This access does not grant nomination, voting, unrelated election visibility, or general access to that clan's structure. Login reminders identify outstanding confirmations. Secret ballots retain their usual restrictions on individual votes.
+
+Election winners do not hold the office while confirmation is pending. Existing holders remain until a confirmed primary result replaces them. If withdrawal or resignation changes a result that was already approved during the lead time, that approval is revoked, its installation listener is cancelled, and the new result requires confirmation again. Confirmation does not shorten the configured lead time. If it arrives late, installation happens immediately and the next finite term is measured from the late installation rather than scheduling a term in the past.
+
+A veto preserves the rejected ballot and votes in history with no victors, installs nobody, and leaves existing holders in place. A vetoed regular election starts a replacement regular ballot; a vetoed by-election rechecks vacancies and starts a replacement only for uncovered seats.
+
+`election direct` toggles whether the confirming office also has direct appointment **and dismissal** authority. It defaults to off. When enabled, holders use ordinary `clan appoint <person> <clan> <appointment>` and `clan dismiss ...`, including across clans. Rank-to-hold restrictions, job restrictions and capacity still apply. A direct appointment fills a vacancy; dismiss an existing holder first when the office is full. Direct appointment does not itself veto a pending result: veto it explicitly if the chosen replacement should supersede that ballot. Finite directly appointed holders remain subject to the regular election cycle.
+
+`election confirmation none` clears the authority and disables its direct-appointment power. Resolve pending results before changing the confirmation office. Referenced confirmation offices (or their clans) cannot be deleted/disbanded until their confirmation references are cleared. Disabling elections cancels open ballots and clears confirmation settings.
+
+### Resignation
+
+All appointments permit resignation by default, including existing appointments upgraded from older worlds:
+
+```text
+clan resign <clan> <appointment>
+clan set appointment <appointment> resignation
+```
+
+The editor command toggles the permission. Resignation removes only the actor's office, retains clan membership/rank and other appointments, withdraws outstanding candidacy for that office, and runs the existing vacancy/by-election logic. Non-elected offices simply become vacant. Officeholders whose appointment comes from a current job must leave that job first. Resignation and membership removal also remove the holder from applicable external-control appointee lists; reserved external slots remain reserved rather than becoming electable seats.
+
+### Indefinite elected tenure
+
+```text
+clan set appointment <appointment> election term none
+```
+
+`term 0` is equivalent. A zero `ElectionTerm` denotes indefinite tenure; it is distinct from the limits on the number of terms a person can win. Holders continue until death, resignation or another authorised removal. No recurring primary election is created on installation or reload. Vacancies trigger by-elections while preserving other holders. Death of the primary character vacates these offices; death/retirement of secondary bodies does not remove the original character's offices. Resurrection does not restore a vacated office.
+
+Changing tenure cancels a scheduled, unstarted primary election and checks vacancies; an active primary ballot must finish first. Setting a positive term restores a regular cycle. Existing by-elections remain intact and installation always honours free capacity.
+
+### Persistence and presentation
+
+`Appointments` stores the optional confirming-office foreign key, `CanDirectlyAppoint` (default false), and `CanResign` (default true). `Elections.IsConfirmed` persists approvals, while the election stage records pending/vetoed outcomes. A pending result survives restart without installing anyone. Startup loads all clan offices and external-control reservations before resuming elections, so load order cannot bypass confirmation or start ballots for reserved seats. The migration and blank bootstrap snapshot carry compatible defaults for existing worlds.
+
+Template copying retains resignation, tenure and discretionary-appointment settings. An authority inside the source template is rebound to the cloned office; references to offices in other clans retain their identity. Clan overview, appointment detail, election lists/history, personal clan output, score and login reminders expose the relevant policy or pending state.
+
 The stage transitions are time-driven from the appointment configuration:
 
 - nomination period;

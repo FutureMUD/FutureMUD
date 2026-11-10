@@ -45,6 +45,8 @@ The following runtime actions are now owned by `IClan` / `Clan`:
 - `Vote`
 - `Appoint`
 - `Dismiss`
+- `Resign`
+- `ConfirmElection`
 - `SubmitControl`
 - `ReleaseControl`
 - `TransferControl`
@@ -228,3 +230,9 @@ That is intentional for now. The priority of this pass was:
 - permission consistency;
 - election and external-control reliability; and
 - reducing the amount of duplicated runtime rule logic in `ClanModule`.
+
+## Election confirmation and resignation
+
+`clan election confirm|veto <id>` routes the decision to the election's owning clan. Only an active holder of the configured confirming appointment (which may belong to another clan), or an administrator, can decide the whole result. External confirmation visibility is restricted to the offices that actor oversees. This does not grant ordinary clan privileges or electoral participation.
+
+`clan resign <clan> <appointment>` routes to the clan and enforces the appointment's resignation flag and employment restriction, then uses the shared dismissal/vacancy path. `clan appoint` and `clan dismiss` also accept the configured confirmation authority across clans when discretionary appointment is enabled. Builder settings, indefinite tenure and the pending/veto lifecycle are detailed in [Clan Elections and External Control](Clan_Elections_and_External_Control.md).

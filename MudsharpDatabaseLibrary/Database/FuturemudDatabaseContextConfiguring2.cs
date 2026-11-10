@@ -2204,6 +2204,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.VotingEndDate).HasColumnType("varchar(100)");
                 entity.Property(e => e.ResultsInEffectDate).HasColumnType("varchar(100)");
                 entity.Property(e => e.ElectionStage).HasColumnType("int(11)");
+                entity.Property(e => e.IsConfirmed).HasColumnType("bit(1)").HasDefaultValue(false);
 
                 entity.HasIndex(e => e.AppointmentId).HasDatabaseName("FK_Elections_Appointments_idx");
                 entity

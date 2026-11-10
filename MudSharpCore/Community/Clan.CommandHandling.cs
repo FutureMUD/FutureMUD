@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy;
@@ -413,12 +413,14 @@ public partial class Clan
 	public string DescribeElections(ICharacter actor)
 	{
 		var actorMembership = ActorMembership(actor);
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && !CanViewOfficeHolders(actor, actorMembership))
+		if (!CanViewOfficeHolders(actor, actorMembership) &&
+            !Appointments.Any(x => ClanCommandUtilities.CanConfirmElection(actor, x)))
 		{
 			return $"You do not have sufficient privileges in {FullName.ColourName()} to view elections.";
 		}
 
-		var appointmentsWithElections = Appointments.Where(x => x.IsAppointedByElection).ToList();
+		var appointmentsWithElections = Appointments.Where(x => x.IsAppointedByElection &&
+            (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanConfirmElection(actor, x))).ToList();
 		if (!appointmentsWithElections.Any())
 		{
 			return string.Empty;
@@ -431,7 +433,9 @@ public partial class Clan
 		{
 			sb.AppendLine();
 			sb.AppendLine(
-				$"The {appointment.Name.ColourName()} position elects {appointment.MaximumSimultaneousHolders.ToString("N0", actor).ColourValue()} positions every {appointment.ElectionTerm.Describe(actor).ColourValue()}.");
+				appointment.ElectionTerm == TimeSpan.Zero
+                    ? $"The {appointment.Name.ColourName()} position elects holders indefinitely, with elections only for vacancies."
+                    : $"The {appointment.Name.ColourName()} position elects {appointment.MaximumSimultaneousHolders.ToString("N0", actor).ColourValue()} positions every {appointment.ElectionTerm.Describe(actor).ColourValue()}.");
 			if (appointment.MaximumConsecutiveTerms <= 0 && appointment.MaximumTotalTerms <= 0)
 			{
 				sb.AppendLine("There are no term limits for electors.");
@@ -452,11 +456,17 @@ public partial class Clan
 					$"There is a life-time term limit of {appointment.MaximumTotalTerms.ToString("N0", actor).ColourValue()} term{(appointment.MaximumTotalTerms == 1 ? "" : "s")} and/or {appointment.MaximumConsecutiveTerms.ToString("N0", actor).ColourValue()} consecutive {(appointment.MaximumConsecutiveTerms == 1 ? "term" : "terms")}.");
 			}
 
+            sb.AppendLine($"Resignation permitted: {appointment.CanResign.ToColouredString()}.");
+            if (appointment.ElectionConfirmationAppointment is { } authority)
+            {
+                sb.AppendLine($"Election results require confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}. Direct appointment and dismissal by that office: {appointment.CanDirectlyAppoint.ToColouredString()}.");
+            }
 			sb.AppendLine(appointment.IsSecretBallot ? "This is a secret ballot." : "This is an open ballot and all votes cast are public.");
 
-			var votes = appointment.NumberOfVotes(actor);
+			var canParticipate = actorMembership is { IsArchivedMembership: false };
+			var votes = canParticipate ? appointment.NumberOfVotes(actor) : 0;
 			sb.AppendLine(
-				$"You {(appointment.CanNominate(actor).Truth ? "are" : "are not")} eligible to nominate and {(votes <= 0 ? "cannot vote" : $"have {votes.ToString("N0", actor).ColourValue()} vote{(votes == 1 ? "" : "s")}")} in elections for this position.");
+				$"You {(canParticipate && appointment.CanNominate(actor).Truth ? "are" : "are not")} eligible to nominate and {(votes <= 0 ? "cannot vote" : $"have {votes.ToString("N0", actor).ColourValue()} vote{(votes == 1 ? "" : "s")}")} in elections for this position.");
 
 			var primaryElection = ClanCommandUtilities.GetPrimaryOpenElection(appointment);
 			var byElections = ClanCommandUtilities.GetOpenByElections(appointment).ToList();
@@ -476,7 +486,10 @@ public partial class Clan
 						sb.AppendLine(
 							$"By-election #{byElection.Id.ToString("N0", actor)} for {byElection.NumberOfAppointments.ToString("N0", actor).ColourValue()} {(byElection.NumberOfAppointments == 1 ? "position" : "positions")} is open for voting, with votes closing on {byElection.VotingEndDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 						break;
-					case ElectionStage.Preinstallation:
+                    case ElectionStage.AwaitingConfirmation:
+                        sb.AppendLine($"By-election #{byElection.Id.ToString("N0", actor)} awaits confirmation. Use CLAN ELECTION VIEW for the result.");
+                        break;
+				case ElectionStage.Preinstallation:
 						sb.AppendLine(
 							$"By-election #{byElection.Id.ToString("N0", actor)} for {byElection.NumberOfAppointments.ToString("N0", actor).ColourValue()} {(byElection.NumberOfAppointments == 1 ? "position" : "positions")} has finished and the elected will commence their terms on {byElection.ResultsInEffectDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 						break;
@@ -507,7 +520,10 @@ public partial class Clan
 					sb.AppendLine(
 						$"Election #{primaryElection.Id.ToString("N0", actor)} is open for voting, with votes closing on {primaryElection.VotingEndDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 					break;
-				case ElectionStage.Preinstallation:
+				case ElectionStage.AwaitingConfirmation:
+                    sb.AppendLine($"Election #{primaryElection.Id.ToString("N0", actor)} awaits confirmation. Use CLAN ELECTION VIEW for the result.");
+                    break;
+                case ElectionStage.Preinstallation:
 					sb.AppendLine(
 						$"Election #{primaryElection.Id.ToString("N0", actor)} has finished and the elected will commence their terms on {primaryElection.ResultsInEffectDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 					break;
@@ -520,7 +536,8 @@ public partial class Clan
 	public void ShowElectionHistory(ICharacter actor, StringStack command)
 	{
 		var actorMembership = ActorMembership(actor);
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && !CanViewOfficeHolders(actor, actorMembership))
+		if (!CanViewOfficeHolders(actor, actorMembership) &&
+            !Appointments.Any(x => ClanCommandUtilities.CanConfirmElection(actor, x)))
 		{
 			actor.OutputHandler.Send($"You are not authorised to view elections in {FullName.ColourName()}.");
 			return;
@@ -532,7 +549,8 @@ public partial class Clan
 			return;
 		}
 
-		var appointments = Appointments.Where(x => x.IsAppointedByElection).ToList();
+		var appointments = Appointments.Where(x => x.IsAppointedByElection &&
+            (CanViewOfficeHolders(actor, actorMembership) || ClanCommandUtilities.CanConfirmElection(actor, x))).ToList();
 		if (!command.IsFinished)
 		{
 			var appointment = Appointments.GetByIdOrName(command.SafeRemainingArgument);
@@ -542,7 +560,12 @@ public partial class Clan
 				return;
 			}
 
-			if (!appointment.IsAppointedByElection)
+			if (!CanViewOfficeHolders(actor, actorMembership) && !ClanCommandUtilities.CanConfirmElection(actor, appointment))
+            {
+                actor.OutputHandler.Send("You are not authorised to view elections for that appointment.");
+                return;
+            }
+            if (!appointment.IsAppointedByElection)
 			{
 				actor.OutputHandler.Send($"The position {appointment.Name.ColourName()} is not controlled by elections.");
 				return;
@@ -575,6 +598,12 @@ public partial class Clan
 					case ElectionStage.Voting:
 						sb.AppendLine($" open for voting until {election.VotingEndDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
 						break;
+                    case ElectionStage.AwaitingConfirmation:
+                        sb.AppendLine(" awaiting confirmation");
+                        break;
+                    case ElectionStage.Vetoed:
+                        sb.AppendLine(" vetoed; no appointments made");
+                        break;
 					case ElectionStage.Preinstallation:
 						sb.AppendLine($" closed, with electors taking office on {election.ResultsInEffectDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
 						break;
@@ -785,7 +814,11 @@ public partial class Clan
 		}
 
 		var appointmentText = command.SafeRemainingArgument;
-		if (!HasPrivilege(actor, ClanPrivilegeType.CanAppoint, out var actorMembership))
+		var appointment = Appointments.GetByIdOrName(appointmentText);
+		var confirmingAppointer = appointment is not null && appointment.CanDirectlyAppoint &&
+			appointment.ElectionConfirmationAppointment is not null &&
+			ClanCommandUtilities.CanConfirmElection(actor, appointment);
+		if (!HasPrivilege(actor, ClanPrivilegeType.CanAppoint, out var actorMembership) && !confirmingAppointer)
 		{
 			actor.OutputHandler.Send("You are not allowed to appoint people to positions in that clan.");
 			return;
@@ -798,21 +831,20 @@ public partial class Clan
 			return;
 		}
 
-		var appointment = Appointments.GetByIdOrName(appointmentText);
 		if (appointment is null)
 		{
 			actor.OutputHandler.Send("There is no such appointment in that clan.");
 			return;
 		}
 
-		if (appointment.IsAppointedByElection)
+		if (appointment.IsAppointedByElection && !confirmingAppointer && !actor.IsAdministrator(PermissionLevel.Admin))
 		{
 			actor.OutputHandler.Send(
 				$"The position of {appointment.Name.TitleCase().ColourName()} is controlled by elections rather than direct appointments.");
 			return;
 		}
 
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && appointment.ParentPosition is not null &&
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && !confirmingAppointer && appointment.ParentPosition is not null &&
 		    !IsVisibleThroughAppointmentChain(actorMembership, appointment.ParentPosition))
 		{
 			actor.OutputHandler.Send(
@@ -820,7 +852,7 @@ public partial class Clan
 			return;
 		}
 
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && appointment.MinimumRankToAppoint is not null &&
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && !confirmingAppointer && appointment.MinimumRankToAppoint is not null &&
 		    (actorMembership is null || appointment.MinimumRankToAppoint.RankNumber > actorMembership.Rank.RankNumber) &&
 		    !IsVisibleThroughAppointmentChain(actorMembership, appointment.ParentPosition))
 		{
@@ -884,7 +916,11 @@ public partial class Clan
 		}
 
 		var appointmentText = command.SafeRemainingArgument;
-		if (!HasPrivilege(actor, ClanPrivilegeType.CanDismiss, out var actorMembership))
+		var appointment = Appointments.GetByIdOrName(appointmentText);
+		var confirmingAppointer = appointment is not null && appointment.CanDirectlyAppoint &&
+			appointment.ElectionConfirmationAppointment is not null &&
+			ClanCommandUtilities.CanConfirmElection(actor, appointment);
+		if (!HasPrivilege(actor, ClanPrivilegeType.CanDismiss, out var actorMembership) && !confirmingAppointer)
 		{
 			actor.OutputHandler.Send("You are not allowed to dismiss people from positions in that clan.");
 			return;
@@ -897,21 +933,20 @@ public partial class Clan
 			return;
 		}
 
-		var appointment = Appointments.GetByIdOrName(appointmentText);
 		if (appointment is null)
 		{
 			actor.OutputHandler.Send("There is no such appointment in that clan.");
 			return;
 		}
 
-		if (appointment.IsAppointedByElection)
+		if (appointment.IsAppointedByElection && !confirmingAppointer && !actor.IsAdministrator(PermissionLevel.Admin))
 		{
 			actor.OutputHandler.Send(
 				$"The position of {appointment.Name.TitleCase().ColourName()} is controlled by elections rather than direct appointments.");
 			return;
 		}
 
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && appointment.ParentPosition is not null &&
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && !confirmingAppointer && appointment.ParentPosition is not null &&
 		    !IsVisibleThroughAppointmentChain(actorMembership, appointment.ParentPosition))
 		{
 			actor.OutputHandler.Send(
@@ -919,7 +954,7 @@ public partial class Clan
 			return;
 		}
 
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && appointment.MinimumRankToAppoint is not null &&
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && !confirmingAppointer && appointment.MinimumRankToAppoint is not null &&
 		    (actorMembership is null || appointment.MinimumRankToAppoint.RankNumber > actorMembership.Rank.RankNumber) &&
 		    !IsVisibleThroughAppointmentChain(actorMembership, appointment.ParentPosition))
 		{
@@ -936,7 +971,7 @@ public partial class Clan
 
 		var jobs = actor.Gameworld.ActiveJobs
 			.Where(x => !x.IsJobComplete &&
-			            x.Character.Id != targetMembership.MemberId &&
+			            x.Character.Id == targetMembership.MemberId &&
 			            x.Listing.ClanMembership == this &&
 			            x.Listing.ClanAppointment == appointment)
 			.ToList();
@@ -1592,7 +1627,18 @@ public partial class Clan
 					new[] { "Name", "Min Rank", "Appointer", "Max No.", "Paygrade", "Parent", "Elected?" },
 					actor.Account.LineFormatLength, colour: Telnet.Green, unicodeTable: actor.Account.UseUnicode));
 
-		var paygrades = (canViewAboveOwnRank
+		// Keep policy details outside the table for narrow clients.
+        foreach (var office in appointments)
+        {
+            var tenure = office.IsAppointedByElection
+                ? office.ElectionTerm == TimeSpan.Zero ? "elected indefinitely" : $"elected for {office.ElectionTerm.Describe(actor)}"
+                : "appointed";
+            sb.AppendLine($"{office.Name.ColourName()}: {tenure}; resignation {(office.CanResign ? "permitted" : "forbidden")}.");
+            if (office.ElectionConfirmationAppointment is { } authority)
+                sb.AppendLine($"  Confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}; direct appointment and dismissal: {office.CanDirectlyAppoint.ToColouredString()}.");
+        }
+
+        var paygrades = (canViewAboveOwnRank
 			? Paygrades
 			: Paygrades.Where(x =>
 				Ranks.Any(y => y.Paygrades.Contains(x) && y.RankNumber <= (actorMembership?.Rank.RankNumber ?? 0)) ||
@@ -1837,6 +1883,12 @@ public partial class Clan
 			$"Max Holders: {appointment.MaximumSimultaneousHolders.ToString("N0", actor).Colour(Telnet.Green)}"
 		}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
 		sb.AppendLine();
+        sb.AppendLine($"Resignation permitted: {appointment.CanResign.ToColouredString()}");
+        if (appointment.ElectionConfirmationAppointment is { } authority)
+        {
+            sb.AppendLine($"Confirmation: {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}");
+            sb.AppendLine($"Authority may directly appoint and dismiss: {appointment.CanDirectlyAppoint.ToColouredString()}");
+        }
 		if (appointment.IsAppointedByElection)
 		{
 			sb.AppendLine();
@@ -1844,7 +1896,7 @@ public partial class Clan
 			sb.AppendLine();
 			sb.Append(new[]
 			{
-				$"Term: {appointment.ElectionTerm.Describe(actor).ColourValue()}",
+				$"Term: {(appointment.ElectionTerm == TimeSpan.Zero ? "Indefinite" : appointment.ElectionTerm.Describe(actor)).ColourValue()}",
 				$"Lead Time: {appointment.ElectionLeadTime.Describe(actor).ColourValue()}"
 			}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
 			sb.AppendLine();

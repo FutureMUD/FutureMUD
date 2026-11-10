@@ -4097,7 +4097,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         foreach (KeyValuePair<IClan, Clan> clan in staging)
         {
-            clan.Key.FinaliseLoad(clan.Value, memberships);
+            clan.Key.FinaliseLoad(clan.Value, memberships, loadElections: false);
         }
 
 #if DEBUG
@@ -4112,6 +4112,12 @@ For information on the syntax to use in emotes (such as those included in bracke
         foreach (Models.ExternalClanControl external in externals)
         {
             new ExternalClanControl(external, this);
+        }
+        // Resuming an overdue election may immediately install holders or start a vacancy ballot.
+        // All confirming offices and reserved external slots must exist before that can happen.
+        foreach (var clan in staging.Keys)
+        {
+            clan.LoadElections();
         }
 #if DEBUG
         sw.Stop();

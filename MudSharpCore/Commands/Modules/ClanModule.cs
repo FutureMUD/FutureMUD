@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using Microsoft.EntityFrameworkCore.Internal;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
@@ -105,6 +105,8 @@ public class ClanModule : Module<ICharacter>
                     .Concat(
                         actor.ClanMemberships.SelectMany(
                             x => x.Clan.ExternalControls.Where(y => y.LiegeClan == x.Clan).Select(y => y.VassalClan)))
+                    .Concat(actor.Gameworld.Clans.Where(x => x.Appointments.Any(y =>
+                        y.ElectionConfirmationAppointment is not null && ClanCommandUtilities.CanConfirmElection(actor, y))))
                     .Distinct()
                     .ToList();
     }
@@ -112,6 +114,10 @@ public class ClanModule : Module<ICharacter>
     private static IClan? GetTargetExternallyAccessibleClan(ICharacter actor, string targetText)
     {
         var clans = GetExternallyAccessibleClans(actor).ToList();
+        if (actor.IsAdministrator(PermissionLevel.Admin) && long.TryParse(targetText, out var id))
+        {
+            return clans.FirstOrDefault(x => x.Id == id);
+        }
         return clans.FirstOrDefault(x => x.FullName.EqualTo(targetText)) ??
                clans.FirstOrDefault(x => x.Alias.EqualTo(targetText)) ??
                clans.FirstOrDefault(x => x.Alias.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase)) ??
@@ -142,6 +148,7 @@ The following clan sub-commands are used to interact with clans:
 	#3clan paygrade demote <person> <clan>#0 - demotes a person 1 paygrade rank
 	#3clan appoint <person> <clan> <appointment>#0 - appoints a person to a clan appointment
 	#3clan dismiss <person> <clan> <appointment>#0 - dismisses a person from a clan appointment
+	#3clan resign <clan> <appointment>#0 - resigns one of your appointments
 	#3clan reportdead <clan> <person>#0 - reports a person as dead or long-term missing
 	#3clan pay <person> <clan> <how much>#0 - manually adds backpay owing to a person
 	#3clan budget <clan> <...>#0 - manages appointment budgets for a clan
@@ -177,6 +184,7 @@ The following clan sub-commands are used to interact with clans:
 The following clan sub-commands pertain to elections and voting:
 
 	#3clan elections [<clan>]#0 - views all elections
+	#3clan election confirm|veto <election id>#0 - confirms or vetoes an election result
 	#3clan election view <election id> | <clan> <appointment>#0 - views a specific election
 	#3clan election history <election id> | <clan> <appointment>#0 - views the history of elections for a particular clan or position
 	#3clan nominate <election id> | <clan> <appointment>#0 - nominates yourself as a candidate in an election
@@ -285,6 +293,9 @@ All of the following commands must happen with an edited clan selected:
                 return;
             case "appoint":
                 ClanAppoint(actor, ss);
+                return;
+            case "resign":
+                ClanResign(actor, ss);
                 return;
             case "dismiss":
                 ClanDismiss(actor, ss);
@@ -539,6 +550,11 @@ All of the following commands must happen with an edited clan selected:
                     return;
                 }
 
+                if (actor.Gameworld.Clans.SelectMany(x => x.Appointments).Any(x => x.ElectionConfirmationAppointment == appointment))
+                {
+                    actor.OutputHandler.Send("Clear the election confirmation settings that reference this office before deleting it.");
+                    return;
+                }
                 clan.DeleteAppointment(appointment);
                 actor.OutputHandler.Send($"You delete the appointment {appointment.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
                 return;
@@ -1656,7 +1672,7 @@ All of the following commands must happen with an edited clan selected:
     private static void ClanElections(ICharacter actor, StringStack ss)
     {
         List<IClan> clans =
-            (actor.IsAdministrator() ? actor.Gameworld.Clans : actor.ClanMemberships.Select(x => x.Clan)).ToList();
+            GetExternallyAccessibleClans(actor).ToList();
         if (!ss.IsFinished)
         {
             string text = ss.SafeRemainingArgument;
@@ -1682,8 +1698,9 @@ All of the following commands must happen with an edited clan selected:
         if (!actor.IsAdministrator())
         {
             clans = clans.Where(x =>
-                actor.ClanMemberships.First(y => y.Clan == x).NetPrivileges
-                     .HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)).ToList();
+                actor.ClanMemberships.Any(y => !y.IsArchivedMembership && y.Clan == x &&
+                    y.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)) ||
+                x.Appointments.Any(y => ClanCommandUtilities.CanConfirmElection(actor, y))).ToList();
         }
 
         StringBuilder sb = new();
@@ -1713,13 +1730,42 @@ All of the following commands must happen with an edited clan selected:
             case "view":
                 ClanElectionView(actor, ss);
                 return;
+            case "confirm":
+                ClanElectionDecision(actor, ss, false);
+                return;
+            case "veto":
+                ClanElectionDecision(actor, ss, true);
+                return;
             case "history":
                 ClanElectionHistory(actor, ss);
                 return;
         }
 
         actor.OutputHandler.Send(
-            $"The valid syntaxes for this command are {"clan election view <id>".ColourCommand()}, {"clan election history <id>".ColourCommand()}, and {"clan election history <clan> [<position>]".ColourCommand()}.");
+            $"The valid syntaxes for this command are {"clan election view <id>".ColourCommand()}, {"clan election history <id>".ColourCommand()}, {"clan election confirm|veto <id>".ColourCommand()}, and {"clan election history <clan> [<position>]".ColourCommand()}.");
+    }
+
+    private static void ClanElectionDecision(ICharacter actor, StringStack ss, bool veto)
+    {
+        if (!long.TryParse(ss.SafeRemainingArgument, out var id) || actor.Gameworld.Elections.Get(id) is not { } election)
+        {
+            actor.OutputHandler.Send("Specify a valid election ID. Use CLAN ELECTIONS to find pending results.");
+            return;
+        }
+
+        election.Appointment.Clan.ConfirmElection(actor, new StringStack(id.ToString()), veto);
+    }
+
+    private static void ClanResign(ICharacter actor, StringStack command)
+    {
+        var clan = GetTargetClan(actor, command.PopSpeech());
+        if (clan is null || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Use clan resign <clan> <appointment> to resign an appointment you hold.");
+            return;
+        }
+
+        clan.Resign(actor, command);
     }
 
     private static void ClanElectionView(ICharacter actor, StringStack ss)
@@ -1737,7 +1783,7 @@ All of the following commands must happen with an edited clan selected:
         }
 
         IElection election = actor.Gameworld.Elections.Get(value);
-        if (election == null || (!actor.IsAdministrator() && !actor.ClanMemberships.Any(x =>
+        if (election == null || (!ClanCommandUtilities.CanConfirmElection(actor, election.Appointment) && !actor.ClanMemberships.Any(x =>
                 x.Clan == election.Appointment.Clan &&
                 x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))))
         {
@@ -1760,7 +1806,7 @@ All of the following commands must happen with an edited clan selected:
         if (long.TryParse(targetText, out var value))
         {
             var election = actor.Gameworld.Elections.Get(value);
-            if (election == null || (!actor.IsAdministrator() && !actor.ClanMemberships.Any(x =>
+            if (election == null || (!ClanCommandUtilities.CanConfirmElection(actor, election.Appointment) && !actor.ClanMemberships.Any(x =>
                     x.Clan == election.Appointment.Clan &&
                     x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))))
             {
@@ -1772,7 +1818,7 @@ All of the following commands must happen with an edited clan selected:
             return;
         }
 
-        IClan clan = GetTargetClan(actor, targetText);
+        IClan clan = GetTargetExternallyAccessibleClan(actor, targetText);
         if (clan == null)
         {
             actor.OutputHandler.Send(actor.IsAdministrator()
@@ -1825,6 +1871,15 @@ The syntax is:
             {
                 sb.AppendLine(
                     $"You have been appointed to the position of {appointment.Title(actor).TitleCase().Colour(Telnet.Green)}{(appointment.Paygrade != null ? $", which is paid {appointment.Paygrade.PayCurrency.Describe(appointment.Paygrade.PayAmount, CurrencyDescriptionPatternType.Short).Colour(Telnet.Green)} extra" : "")}.");
+            }
+
+            foreach (var office in clan.Appointments)
+            {
+                if (office.IsAppointedByElection && office.ElectionTerm == TimeSpan.Zero)
+                    sb.AppendLine($"Your {office.Title(actor).ColourName()} office has indefinite elected tenure.");
+                sb.AppendLine(office.CanResign
+                    ? $"You may resign {office.Title(actor).ColourName()} with {($"clan resign {clan.Clan.Alias} \"{office.Name}\"").ColourCommand()}."
+                    : $"Your {office.Title(actor).ColourName()} office does not permit resignation.");
             }
 
             if (clan.ManagerId != null)
@@ -3153,6 +3208,17 @@ Your next payday is {3}.
             );
         }
 
+        // Keep policy details outside the table for narrow clients.
+        foreach (var office in appointments)
+        {
+            var tenure = office.IsAppointedByElection
+                ? office.ElectionTerm == TimeSpan.Zero ? "elected indefinitely" : $"elected for {office.ElectionTerm.Describe(actor)}"
+                : "appointed";
+            sb.AppendLine($"{office.Name.ColourName()}: {tenure}; resignation {(office.CanResign ? "permitted" : "forbidden")}.");
+            if (office.ElectionConfirmationAppointment is { } authority)
+                sb.AppendLine($"  Confirmation by {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}; direct appointment and dismissal: {office.CanDirectlyAppoint.ToColouredString()}.");
+        }
+
         List<IPaygrade> paygrades = (canViewAboveOwnRank
             ? clan.Paygrades
             : clan.Paygrades.Where(x =>
@@ -3458,6 +3524,12 @@ Your next payday is {3}.
                 appointment.MaximumSimultaneousHolders.ToString("N0", actor).Colour(Telnet.Green))
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.AppendLine();
+        sb.AppendLine($"Resignation permitted: {appointment.CanResign.ToColouredString()}");
+        if (appointment.ElectionConfirmationAppointment is { } authority)
+        {
+            sb.AppendLine($"Confirmation: {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}");
+            sb.AppendLine($"Authority may directly appoint and dismiss: {appointment.CanDirectlyAppoint.ToColouredString()}");
+        }
         if (appointment.IsAppointedByElection)
         {
             sb.AppendLine();
@@ -3465,7 +3537,7 @@ Your next payday is {3}.
             sb.AppendLine();
             sb.Append(new[]
             {
-                $"Term: {appointment.ElectionTerm.Describe(actor).ColourValue()}",
+                $"Term: {(appointment.ElectionTerm == TimeSpan.Zero ? "Indefinite" : appointment.ElectionTerm.Describe(actor)).ColourValue()}",
                 $"Lead Time: {appointment.ElectionLeadTime.Describe(actor).ColourValue()}"
             }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
             sb.AppendLine();
@@ -3850,6 +3922,8 @@ Your next payday is {3}.
                 dbappointment.FameType = (int)appointment.FameType;
                 dbappointment.MaximumSimultaneousHolders = appointment.MaximumSimultaneousHolders;
                 dbappointment.IsAppointedByElection = appointment.IsAppointedByElection;
+                dbappointment.CanResign = appointment.CanResign;
+                dbappointment.CanDirectlyAppoint = appointment.CanDirectlyAppoint;
                 dbappointment.ElectionTermMinutes =
                     appointment.IsAppointedByElection ? appointment.ElectionTerm.TotalMinutes : null;
                 dbappointment.ElectionLeadTimeMinutes =
@@ -3933,6 +4007,19 @@ Your next payday is {3}.
                 appointment.Item1.ParentAppointment =
                     dbclan.Appointments.First(
                         x => x.Name == appointment.Item2);
+            }
+
+            foreach (var (source, target) in clonedAppointments)
+            {
+                if (source.ElectionConfirmationAppointment is not { } authority) continue;
+                if (authority.Clan == clan)
+                {
+                    target.ElectionConfirmationAppointment = clonedAppointments.First(x => x.SourceAppointment == authority).DbAppointment;
+                }
+                else
+                {
+                    target.ElectionConfirmationAppointmentId = authority.Id;
+                }
             }
 
             FMDB.Context.SaveChanges();
@@ -6250,7 +6337,7 @@ return 0",
         IAppointment appointment)
     {
         string helpText =
-            "You may use the following options:\n\tenable - enables elections\n\tnone - removes elections\n\tsecret - toggles secret voting\n\tterm <days> - sets the term length\n\tlead <days> - sets the number of days after votes closed that appointments happen\n\tnomination <days> - sets the length of the nomination period\n\tvoting <days> - sets the length of the voting period\n\tterms <consecutive no|0> <total no|0> - sets term limits\n\tnominate <prog> <why> - sets the nomination eligablity prog and \"why\" fail message prog\n\tvote <prog> - sets the vote count prog";
+            "You may use the following options:\n\tenable - enables elections\n\tnone - removes elections\n\tsecret - toggles secret voting\n\tterm <days|none> - sets term length or indefinite tenure\n\tconfirmation <clan> <appointment>|none - sets the confirmation office\n\tdirect - toggles direct appointment and dismissal by that office\n\tlead <days> - sets the number of days after votes closed that appointments happen\n\tnomination <days> - sets the length of the nomination period\n\tvoting <days> - sets the length of the voting period\n\tterms <consecutive no|0> <total no|0> - sets term limits\n\tnominate <prog> <why> - sets the nomination eligablity prog and \"why\" fail message prog\n\tvote <prog> - sets the vote count prog";
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(helpText);
@@ -6288,11 +6375,10 @@ return 0",
             appointment.Changed = true;
             actor.OutputHandler.Send(
                 $"The {appointment.Name.ColourName()} appointment is now controlled by elections.");
-            Community.Election byElection =
-                new(appointment, true, appointment.MaximumSimultaneousHolders, null);
-            appointment.AddElection(byElection);
+            appointment.CheckForByElections();
+            var byElection = ClanCommandUtilities.GetFirstOpenByElection(appointment);
             appointment.AddElection(new Community.Election(appointment, false, appointment.MaximumSimultaneousHolders,
-                byElection.ResultsInEffectDate + appointment.ElectionTerm));
+                (byElection?.ResultsInEffectDate ?? clan.Calendar.CurrentDateTime) + appointment.ElectionTerm));
             return;
         }
 
@@ -6309,6 +6395,8 @@ return 0",
                 appointment.MaximumConsecutiveTerms = 0;
                 appointment.MaximumTotalTerms = 0;
                 appointment.IsSecretBallot = false;
+                appointment.ElectionConfirmationAppointment = null;
+                appointment.CanDirectlyAppoint = false;
                 appointment.Changed = true;
                 actor.OutputHandler.Send(
                     $"The {appointment.Name.ColourName()} appointment is no longer controlled by elections.");
@@ -6317,6 +6405,42 @@ return 0",
                     election.CancelElection();
                 }
 
+                return;
+            case "confirmation":
+                if (appointment.Elections.Any(x => !x.IsFinalised && x.ElectionStage is ElectionStage.AwaitingConfirmation or ElectionStage.Preinstallation))
+                {
+                    actor.OutputHandler.Send("Confirm or veto the pending result before changing its confirmation authority.");
+                    return;
+                }
+                var authorityClanText = command.PopSpeech();
+                if (authorityClanText.EqualTo("none"))
+                {
+                    appointment.ElectionConfirmationAppointment = null;
+                    appointment.CanDirectlyAppoint = false;
+                }
+                else
+                {
+                    var authorityClan = actor.Gameworld.Clans.GetClan(authorityClanText);
+                    var authority = authorityClan?.Appointments.GetByIdOrName(command.SafeRemainingArgument);
+                    if (authority is null || authority == appointment || authorityClan.IsTemplate && !clan.IsTemplate)
+                    {
+                        actor.OutputHandler.Send("Specify a valid clan and confirming appointment. An office cannot confirm itself, and a live clan cannot use a template office.");
+                        return;
+                    }
+                    appointment.ElectionConfirmationAppointment = authority;
+                }
+                appointment.Changed = true;
+                actor.OutputHandler.Send("The election confirmation authority has been updated.");
+                return;
+            case "direct":
+                if (appointment.ElectionConfirmationAppointment is null)
+                {
+                    actor.OutputHandler.Send("Set a confirmation appointment first.");
+                    return;
+                }
+                appointment.CanDirectlyAppoint = !appointment.CanDirectlyAppoint;
+                appointment.Changed = true;
+                actor.OutputHandler.Send($"Direct appointment and dismissal by the confirmation office is now {appointment.CanDirectlyAppoint.ToColouredString()}.");
                 return;
             case "secret":
                 appointment.IsSecretBallot = !appointment.IsSecretBallot;
@@ -6331,15 +6455,30 @@ return 0",
                     return;
                 }
 
-                if (!int.TryParse(command.PopSpeech(), out int value) || value <= 0)
+                var termText = command.PopSpeech();
+                int value = 0;
+                if (!termText.EqualTo("none") && (!int.TryParse(termText, out value) || value < 0))
                 {
-                    actor.OutputHandler.Send("That is not a valid number of days.");
+                    actor.OutputHandler.Send("Enter a positive number of days, or NONE for indefinite tenure.");
                     return;
                 }
-
+                var primary = ClanCommandUtilities.GetPrimaryOpenElection(appointment);
+                if (primary is not null && primary.ElectionStage != ElectionStage.Preelection)
+                {
+                    actor.OutputHandler.Send("Wait until the active primary election is resolved before changing tenure.");
+                    return;
+                }
+                primary?.CancelElection();
                 appointment.ElectionTerm = TimeSpan.FromDays(value);
+                if (value > 0)
+                {
+                    appointment.AddElection(new Community.Election(appointment, false, appointment.MaximumSimultaneousHolders,
+                        clan.Calendar.CurrentDateTime + appointment.ElectionTerm));
+                }
+                appointment.CheckForByElections();
                 appointment.Changed = true;
                 actor.OutputHandler.Send(
+                    value == 0 ? $"The {appointment.Name.ColourName()} appointment now has indefinite elected tenure." :
                     $"The {appointment.Name.ColourName()} appointment election is now for a term of {$"{value.ToString("N0", actor)} day{(value == 1 ? "" : "s")}".ColourValue()}.");
                 return;
             case "lead":
@@ -6573,7 +6712,10 @@ return 0",
 	#3election enable#0 - enables elections
 	#3election none#0 - removes elections
 	#3election secret#0 - toggles secret voting
-	#3election term <days>#0 - sets the term length
+	#3resignation#0 - toggles whether holders may resign
+	#3election confirmation <clan> <appointment>|none#0 - sets the confirmation office
+	#3election direct#0 - toggles direct appointment and dismissal by that office
+	#3election term <days|none>#0 - sets term length or indefinite tenure
 	#3election lead <days>#0 - sets the number of days after votes closed that appointments happen
 	#3election nomination <days>#0 - sets the length of the nomination period
 	#3election voting <days>#0 - sets the length of the voting period
@@ -6656,6 +6798,12 @@ return 0",
             case "privileges":
                 ClanEditAppointmentPrivileges(actor, command, clan, appointment);
                 break;
+            case "resign":
+            case "resignation":
+                appointment.CanResign = !appointment.CanResign;
+                appointment.Changed = true;
+                actor.OutputHandler.Send($"Resignation from {appointment.Name.ColourName()} is now {(appointment.CanResign ? "permitted" : "forbidden")}.");
+                return;
             case "elections":
             case "election":
                 ClanEditAppointmentElections(actor, command, clan, appointment);
@@ -7013,7 +7161,7 @@ return 0",
             return;
         }
 
-        IClan clan = GetTargetClan(actor, clanText);
+        IClan clan = GetTargetExternallyAccessibleClan(actor, clanText);
         if (clan == null)
         {
             actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
@@ -7126,7 +7274,7 @@ return 0",
             return;
         }
 
-        IClan clan = GetTargetClan(actor, clanText);
+        IClan clan = GetTargetExternallyAccessibleClan(actor, clanText);
         if (clan == null)
         {
             actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)

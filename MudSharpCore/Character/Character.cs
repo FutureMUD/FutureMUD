@@ -1338,6 +1338,13 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             {
                 sb.AppendLine(
                     $"\tYou are {clan.Rank.Title(this).TitleCase().A_An(colour: Telnet.Green)} of {clan.Clan.FullName.TitleCase().Colour(Telnet.Green)}{(clan.Appointments.Any() ? $", and are {clan.Appointments.Select(x => x.Title(this).Colour(Telnet.Green)).ListToString()}" : "")}.");
+                foreach (var office in clan.Appointments)
+                {
+                    if (office.IsAppointedByElection && office.ElectionTerm == TimeSpan.Zero)
+                        sb.AppendLine($"\tYour {office.Title(this).ColourName()} office has indefinite elected tenure.");
+                    if (!office.CanResign)
+                        sb.AppendLine($"\tYour {office.Title(this).ColourName()} office does not permit resignation.");
+                }
             }
         }
 
@@ -2632,6 +2639,14 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                                  !x.Votes.Any(y => y.Voter.MemberId == Id))
                             )
                             .ToList();
+            var pendingConfirmations = Gameworld.Clans.SelectMany(x => x.Appointments)
+                .Where(x => x.ElectionConfirmationAppointment is not null && ClanCommandUtilities.CanConfirmElection(this, x))
+                .SelectMany(x => x.Elections)
+                .Where(x => x.ElectionStage == ElectionStage.AwaitingConfirmation).ToList();
+            if (pendingConfirmations.Count > 0)
+            {
+                OutputHandler.Send($"\nYou have {pendingConfirmations.Count.ToString("N0", this).ColourValue()} election results awaiting your confirmation. See CLAN ELECTIONS.\n");
+            }
             if (elections.Any())
             {
                 OutputHandler.Send(

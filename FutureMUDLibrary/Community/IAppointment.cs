@@ -32,6 +32,12 @@ namespace MudSharp.Community
         IGameItemProto InsigniaGameItem { get; set; }
 
         bool IsAppointedByElection { get; set; }
+        /// <summary>The office whose active holders confirm election results, including offices in other clans.</summary>
+        IAppointment ElectionConfirmationAppointment { get; set; }
+        bool RequiresElectionConfirmation { get; }
+        bool CanDirectlyAppoint { get; set; }
+        bool CanResign { get; set; }
+        /// <summary>Zero means elected holders serve indefinitely, with elections only for vacancies.</summary>
         TimeSpan ElectionTerm { get; set; }
         TimeSpan ElectionLeadTime { get; set; }
         TimeSpan NominationPeriod { get; set; }

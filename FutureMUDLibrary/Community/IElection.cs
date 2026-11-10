@@ -12,7 +12,9 @@ namespace MudSharp.Community
         Nomination,
         Voting,
         Preinstallation,
-        Finalised
+        Finalised,
+        AwaitingConfirmation,
+        Vetoed
     }
 
     public interface IElection : IFrameworkItem, ISaveable
@@ -32,6 +34,8 @@ namespace MudSharp.Community
         IEnumerable<IClanMembership> Victors { get; }
 
         bool CheckElectionStage();
+        bool Confirm(ICharacter actor);
+        bool Veto(ICharacter actor);
         void Nominate(IClanMembership nominee);
         void WithdrawNomination(IClanMembership nominee);
         void Vote(IClanMembership voter, IClanMembership nominee, int votes);

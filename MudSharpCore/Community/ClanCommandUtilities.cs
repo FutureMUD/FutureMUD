@@ -4,6 +4,26 @@ namespace MudSharp.Community;
 
 public static class ClanCommandUtilities
 {
+	public static IEnumerable<IExternalClanControl> RecallControls(IElection election) => election.IsRecall
+		? election.Appointment.Clan.ExternalControls.Where(x => x.VassalClan == election.Appointment.Clan &&
+			x.ControlledAppointment == election.Appointment && election.RecallTarget is { } target && x.Appointees.Contains(target))
+		: [];
+
+	public static bool CanManageExternalControl(ICharacter actor, IExternalClanControl control) =>
+		actor.IsAdministrator(MudSharp.Accounts.PermissionLevel.Admin) || actor.ClanMemberships.Any(x =>
+			!x.IsArchivedMembership && x.Clan == control.LiegeClan &&
+			(x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals) ||
+			 HoldsOrControlsAppointment(x, control.ControllingAppointment)));
+
+	public static bool CanConfirmElection(ICharacter actor, IElection election) =>
+		CanConfirmElection(actor, election.Appointment) || election.IsRecall && election.RecallConfirmationAuthorities.Any(authority =>
+			actor.ClanMemberships.Any(x => !x.IsArchivedMembership && x.Clan.Id == authority.ClanId &&
+				(x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals) ||
+				 HoldsOrControlsAppointment(x, x.Clan.Appointments.FirstOrDefault(y => y.Id == authority.AppointmentId)))));
+
+	public static bool CanViewElections(ICharacter actor, IAppointment appointment) =>
+		CanConfirmElection(actor, appointment) || appointment.Elections.Any(x => CanConfirmElection(actor, x));
+
 	public static bool CanParentDismiss(IClanMembership? membership, IAppointment appointment)
 	{
 		return appointment.IsAppointedByElection && appointment.CanParentDismiss &&

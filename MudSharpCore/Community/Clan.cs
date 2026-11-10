@@ -694,7 +694,27 @@ public partial class Clan : SaveableItem, IClan
 
     public void DeleteAppointment(IAppointment appointment)
     {
+        if (Gameworld.Clans.SelectMany(x => x.Appointments).Any(x => x.ElectionConfirmationAppointment == appointment))
+        {
+            throw new InvalidOperationException("Clear election confirmation references before deleting this appointment.");
+        }
+
         Gameworld.SaveManager.Flush();
+        using (new FMDB())
+        {
+            if (FMDB.Context.JobListings.Any(x => x.AppointmentId == appointment.Id))
+            {
+                throw new InvalidOperationException("Clear job listing references before deleting this appointment.");
+            }
+        }
+
+        foreach (var role in Gameworld.Roles)
+        {
+            foreach (var membership in role.ClanMemberships.Where(x => x.Clan == this))
+            {
+                if (membership.Appointments.Remove(appointment)) role.Changed = true;
+            }
+        }
         foreach (IClanMembership member in Memberships)
         {
             if (member.Appointments.Contains(appointment))
@@ -715,16 +735,11 @@ public partial class Clan : SaveableItem, IClan
 
         foreach (IExternalClanControl item in ExternalControls.ToList())
         {
-            if (item.ControlledAppointment == appointment)
+            if (item.ControlledAppointment == appointment || item.ControllingAppointment == appointment)
             {
                 item.Delete();
-                ExternalControls.Remove(item);
-            }
-
-            if (item.ControllingAppointment == appointment)
-            {
-                item.Delete();
-                ExternalControls.Remove(item);
+                item.VassalClan.ExternalControls.Remove(item);
+                item.LiegeClan.ExternalControls.Remove(item);
             }
         }
 
@@ -733,6 +748,9 @@ public partial class Clan : SaveableItem, IClan
             budget.Delete();
             Budgets.Remove(budget);
         }
+
+        Appointments.Remove(appointment);
+        appointment.Delete();
     }
 
     public void DeletePaygrade(IPaygrade paygrade)

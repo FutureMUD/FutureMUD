@@ -43,7 +43,25 @@ public class ExternalClanControl : SaveableItem, IExternalClanControl
     /// <summary>
     ///     The optional Appointment from the Liege Clan exerting the control
     /// </summary>
-    public IAppointment ControllingAppointment { get; set; }
+    private IAppointment _controllingAppointment;
+    public IAppointment ControllingAppointment
+    {
+        get => _controllingAppointment;
+        set
+        {
+            if (_controllingAppointment == value) return;
+            InvalidateRecallConfirmations();
+            _controllingAppointment = value;
+        }
+    }
+
+    private void InvalidateRecallConfirmations()
+    {
+        foreach (var election in ControlledAppointment.Elections.Where(x => x.IsRecall && !x.IsFinalised))
+        {
+            election.InvalidateRecallConfirmation(this);
+        }
+    }
 
     /// <summary>
     ///     The maximum number of appointments available to the liege clan
@@ -81,6 +99,7 @@ public class ExternalClanControl : SaveableItem, IExternalClanControl
 
     public void Delete()
     {
+        InvalidateRecallConfirmations();
         Gameworld.SaveManager.Abort(this);
         using (new FMDB())
         {

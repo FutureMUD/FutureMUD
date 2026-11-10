@@ -561,6 +561,11 @@ All of the following commands must happen with an edited clan selected:
                     actor.OutputHandler.Send("Clear the election confirmation settings that reference this office before deleting it.");
                     return;
                 }
+                if (actor.Gameworld.JobListings.Any(x => x.ClanAppointment == appointment))
+                {
+                    actor.OutputHandler.Send("Clear job listing references to this office before deleting it.");
+                    return;
+                }
                 clan.DeleteAppointment(appointment);
                 actor.OutputHandler.Send($"You delete the appointment {appointment.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
                 return;
@@ -1706,7 +1711,7 @@ All of the following commands must happen with an edited clan selected:
             clans = clans.Where(x =>
                 actor.ClanMemberships.Any(y => !y.IsArchivedMembership && y.Clan == x &&
                     y.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)) ||
-                x.Appointments.Any(y => ClanCommandUtilities.CanConfirmElection(actor, y))).ToList();
+                x.Appointments.Any(y => ClanCommandUtilities.CanViewElections(actor, y))).ToList();
         }
 
         StringBuilder sb = new();
@@ -1789,7 +1794,7 @@ All of the following commands must happen with an edited clan selected:
         }
 
         IElection election = actor.Gameworld.Elections.Get(value);
-        if (election == null || (!ClanCommandUtilities.CanConfirmElection(actor, election.Appointment) && !actor.ClanMemberships.Any(x =>
+        if (election == null || (!ClanCommandUtilities.CanConfirmElection(actor, election) && !actor.ClanMemberships.Any(x =>
                 x.Clan == election.Appointment.Clan &&
                 x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))))
         {
@@ -1812,7 +1817,7 @@ All of the following commands must happen with an edited clan selected:
         if (long.TryParse(targetText, out var value))
         {
             var election = actor.Gameworld.Elections.Get(value);
-            if (election == null || (!ClanCommandUtilities.CanConfirmElection(actor, election.Appointment) && !actor.ClanMemberships.Any(x =>
+            if (election == null || (!ClanCommandUtilities.CanConfirmElection(actor, election) && !actor.ClanMemberships.Any(x =>
                     x.Clan == election.Appointment.Clan &&
                     x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))))
             {

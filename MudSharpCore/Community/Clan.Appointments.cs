@@ -94,7 +94,7 @@ public partial class Clan
 			return;
 		}
 
-		if (!ClanCommandUtilities.CanConfirmElection(actor, election!.Appointment))
+		if (!ClanCommandUtilities.CanConfirmElection(actor, election!))
 		{
 			actor.OutputHandler.Send("You do not hold the appointment required to confirm or veto that election.");
 			return;

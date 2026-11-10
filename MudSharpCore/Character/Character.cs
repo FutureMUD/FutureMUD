@@ -2641,9 +2641,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                             )
                             .ToList();
             var pendingConfirmations = Gameworld.Clans.Where(x => !x.IsTemplate).SelectMany(x => x.Appointments)
-                .Where(x => x.ElectionConfirmationAppointment is not null && ClanCommandUtilities.CanConfirmElection(this, x))
                 .SelectMany(x => x.Elections)
-                .Where(x => x.ElectionStage == ElectionStage.AwaitingConfirmation).ToList();
+                .Where(x => x.ElectionStage == ElectionStage.AwaitingConfirmation && ClanCommandUtilities.CanConfirmElection(this, x)).ToList();
             if (pendingConfirmations.Count > 0)
             {
                 OutputHandler.Send($"\nYou have {pendingConfirmations.Count.ToString("N0", this).ColourValue()} election results awaiting your confirmation. See CLAN ELECTIONS.\n");

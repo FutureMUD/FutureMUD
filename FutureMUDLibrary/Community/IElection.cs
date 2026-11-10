@@ -25,6 +25,8 @@ namespace MudSharp.Community
         bool IsRecall { get; }
         IClanMembership RecallTarget { get; }
         bool RecallPassed { get; }
+        /// <summary>Liege authorities for this recall; completed ballots retain their decision-time authorities.</summary>
+        IEnumerable<(long ClanId, long? AppointmentId)> RecallConfirmationAuthorities { get; }
         bool IsFinalised { get; }
         MudDateTime NominationStartDate { get; set; }
         IEnumerable<IClanMembership> Nominees { get; }
@@ -42,6 +44,8 @@ namespace MudSharp.Community
         void SetupListeners(ElectionStage stage);
         bool Confirm(ICharacter actor);
         bool Veto(ICharacter actor);
+        /// <summary>Revokes this control's pending recall approval when its authority changes or is released.</summary>
+        void InvalidateRecallConfirmation(IExternalClanControl control);
         void Nominate(IClanMembership nominee);
         void WithdrawNomination(IClanMembership nominee);
         void Vote(IClanMembership voter, IClanMembership nominee, int votes);

@@ -6,6 +6,7 @@ using MudSharp.Models;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
+using System.Text.Json;
 
 namespace MudSharp.Community;
 #nullable enable
@@ -53,6 +54,7 @@ public partial class Election : SaveableItem, IElection
             return;
         }
 
+        RefreshRecallAuthorities();
         using (new FMDB())
         {
             Models.Election dbitem = new()
@@ -61,6 +63,7 @@ public partial class Election : SaveableItem, IElection
                 IsByElection = IsByElection,
                 IsRecall = IsRecall,
                 RecallThreshold = RecallThreshold,
+                RecallLiegeApprovals = JsonSerializer.Serialize(_recallLiegeApprovals),
                 IsFinalised = IsFinalised,
                 NumberOfAppointments = NumberOfAppointments,
                 NominationStartDate = NominationStartDate.GetDateTimeString(),
@@ -92,6 +95,10 @@ public partial class Election : SaveableItem, IElection
         RecallThreshold = election.RecallThreshold;
         IsFinalised = election.IsFinalised;
         IsConfirmed = election.IsConfirmed;
+        foreach (var approval in JsonSerializer.Deserialize<Dictionary<string, bool>>(election.RecallLiegeApprovals ?? "{}")!)
+        {
+            _recallLiegeApprovals.Add(approval.Key, approval.Value);
+        }
         NumberOfAppointments = election.NumberOfAppointments;
         NominationStartDate = MudDateTime.FromStoredStringOrFallback(election.NominationStartDate, Gameworld,
             StoredMudDateTimeFallback.CurrentDateTime, "Election", election.Id, null, "NominationStartDate");
@@ -123,6 +130,7 @@ public partial class Election : SaveableItem, IElection
         Models.Election dbitem = FMDB.Context.Elections.Find(Id)!;
         dbitem.IsFinalised = IsFinalised;
         dbitem.IsConfirmed = IsConfirmed;
+        dbitem.RecallLiegeApprovals = JsonSerializer.Serialize(_recallLiegeApprovals);
         dbitem.ElectionStage = (int)ElectionStage;
         FMDB.Context.ElectionNominees.RemoveRange(dbitem.ElectionNominees);
         foreach (IClanMembership nominee in _nominees)
@@ -291,6 +299,7 @@ public partial class Election : SaveableItem, IElection
                         break;
                     }
 
+                    PromoteVictor(victor);
                     victor.Appointments.Add(Appointment);
                     victor.Changed = true;
                     ICharacter? ch = Gameworld.Actors.Get(victor.MemberId);
@@ -314,6 +323,7 @@ public partial class Election : SaveableItem, IElection
                         continue;
                     }
 
+                    PromoteVictor(victor);
                     victor.Appointments.Add(Appointment);
                     victor.Changed = true;
                     vacancies--;
@@ -436,12 +446,25 @@ public partial class Election : SaveableItem, IElection
         return false;
     }
 
+	private void PromoteVictor(IClanMembership victor)
+	{
+		if (Appointment.MinimumRankToHold is { } minimum && victor.Rank.RankNumber < minimum.RankNumber)
+		{
+			victor.SetRank(minimum);
+		}
+	}
+
     public bool Confirm(ICharacter actor)
     {
         if (Appointment.Clan.IsTemplate || IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
-            !ClanCommandUtilities.CanConfirmElection(actor, Appointment))
+            !ClanCommandUtilities.CanConfirmElection(actor, this))
         {
             return false;
+        }
+
+        if (IsRecall)
+        {
+            return ConfirmRecall(actor);
         }
 
         IsConfirmed = true;
@@ -463,11 +486,12 @@ public partial class Election : SaveableItem, IElection
     public bool Veto(ICharacter actor)
     {
         if (Appointment.Clan.IsTemplate || IsFinalised || ElectionStage != ElectionStage.AwaitingConfirmation ||
-            !ClanCommandUtilities.CanConfirmElection(actor, Appointment))
+            !ClanCommandUtilities.CanConfirmElection(actor, this))
         {
             return false;
         }
 
+        RefreshRecallAuthorities();
         ElectionStage = ElectionStage.Vetoed;
         IsFinalised = true;
         _activeListener?.CancelListener();
@@ -486,7 +510,7 @@ public partial class Election : SaveableItem, IElection
     private void AnnounceDecision(ICharacter actor, string decision)
     {
         var echo = $"{actor.PersonalName.GetName(NameStyle.FullName).ColourName()} has {decision} election #{Id} for {Appointment.Name.ColourName()} in {Appointment.Clan.FullName.ColourName()}.";
-        Gameworld.SystemMessage(echo, ch => ClanCommandUtilities.CanConfirmElection(ch, Appointment) ||
+        Gameworld.SystemMessage(echo, ch => ClanCommandUtilities.CanConfirmElection(ch, this) ||
             ch.ClanMemberships.Any(x => !x.IsArchivedMembership && x.Clan == Appointment.Clan &&
                 x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)));
         Gameworld.DiscordConnection?.NotifyAdmins(echo.RawText());

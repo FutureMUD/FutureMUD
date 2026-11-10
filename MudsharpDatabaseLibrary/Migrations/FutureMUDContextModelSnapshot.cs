@@ -9964,6 +9964,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("NumberOfAppointments")
                         .HasColumnType("int(11)");
 
+                    b.Property<string>("RecallLiegeApprovals")
+                        .HasColumnType("text");
+
                     b.Property<double>("RecallThreshold")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double")

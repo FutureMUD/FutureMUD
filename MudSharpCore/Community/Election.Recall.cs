@@ -8,6 +8,62 @@ namespace MudSharp.Community;
 
 public partial class Election
 {
+	private readonly Dictionary<string, bool> _recallLiegeApprovals = new();
+	private static string RecallControlKey(IExternalClanControl control) =>
+		FormattableString.Invariant($"{control.LiegeClan.Id}:{control.ControllingAppointment?.Id ?? 0}");
+
+	public IEnumerable<(long ClanId, long? AppointmentId)> RecallConfirmationAuthorities => IsFinalised
+		? _recallLiegeApprovals.Keys.Select(key =>
+		{
+			var parts = key.Split(':');
+			var office = long.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+			return (long.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture), office == 0 ? (long?)null : office);
+		})
+		: ClanCommandUtilities.RecallControls(this).Select(x => (x.LiegeClan.Id, x.ControllingAppointment?.Id));
+
+	private void RefreshRecallAuthorities()
+	{
+		if (!IsRecall || IsFinalised) return;
+		var current = ClanCommandUtilities.RecallControls(this).Select(RecallControlKey).ToHashSet();
+		foreach (var old in _recallLiegeApprovals.Keys.Where(x => !current.Contains(x)).ToList())
+		{
+			_recallLiegeApprovals.Remove(old);
+			Changed = true;
+		}
+		foreach (var key in current)
+			if (_recallLiegeApprovals.TryAdd(key, false)) Changed = true;
+	}
+
+	public void InvalidateRecallConfirmation(IExternalClanControl control)
+	{
+		if (!IsRecall || IsFinalised) return;
+		var key = RecallControlKey(control);
+		if (_recallLiegeApprovals.GetValueOrDefault(key))
+		{
+			_recallLiegeApprovals[key] = false;
+			Changed = true;
+		}
+	}
+
+	private bool RecallNeedsConfirmation =>
+		(Appointment.RequiresElectionConfirmation && !IsConfirmed) ||
+		_recallLiegeApprovals.Values.Any(x => !x);
+
+	private bool ConfirmRecall(ICharacter actor)
+	{
+		RefreshRecallAuthorities();
+		if (ClanCommandUtilities.CanConfirmElection(actor, Appointment)) IsConfirmed = true;
+		foreach (var control in ClanCommandUtilities.RecallControls(this).Where(x => ClanCommandUtilities.CanManageExternalControl(actor, x)))
+		{
+			_recallLiegeApprovals[RecallControlKey(control)] = true;
+		}
+		Changed = true;
+		AnnounceDecision(actor, RecallNeedsConfirmation ? "partially confirmed" : "confirmed");
+		ElectionStage = ElectionStage.Preinstallation;
+		CheckRecallStage();
+		return true;
+	}
+
 	public bool IsRecall { get; protected set; }
 	private double RecallThreshold { get; }
 	public IClanMembership? RecallTarget => IsRecall ? _nominees.FirstOrDefault() : null;
@@ -18,6 +74,7 @@ public partial class Election
 	private bool CheckRecallStage()
 	{
 		if (IsFinalised) return true;
+		RefreshRecallAuthorities();
 		var target = RecallTarget;
 		if (target is null || target.IsArchivedMembership || !target.Appointments.Contains(Appointment) ||
 			Gameworld.ActiveJobs.Any(x => !x.IsJobComplete && x.Character.Id == target.MemberId &&
@@ -27,10 +84,10 @@ public partial class Election
 			return true;
 		}
 
-		if (ElectionStage == ElectionStage.AwaitingConfirmation ||
+		if (ElectionStage == ElectionStage.AwaitingConfirmation && RecallNeedsConfirmation ||
 			Appointment.Clan.Calendar.CurrentDateTime < VotingEndDate) return false;
 
-		if (RecallPassed && Appointment.RequiresElectionConfirmation && !IsConfirmed)
+		if (RecallPassed && RecallNeedsConfirmation)
 		{
 			ElectionStage = ElectionStage.AwaitingConfirmation;
 			_activeListener?.CancelListener();
@@ -73,7 +130,7 @@ public partial class Election
 	private void AnnounceRecall(string result)
 	{
 		var echo = $"Recall #{Id} of {RecallTarget?.PersonalName.GetName(NameStyle.FullName).ColourName() ?? "the former holder"} as {Appointment.Name.ColourName()} in {Appointment.Clan.FullName.ColourName()} {result}.";
-		Gameworld.SystemMessage(echo, ch => ClanCommandUtilities.CanConfirmElection(ch, Appointment) ||
+		Gameworld.SystemMessage(echo, ch => ClanCommandUtilities.CanConfirmElection(ch, this) ||
 			ch.ClanMemberships.Any(x => !x.IsArchivedMembership && x.Clan == Appointment.Clan &&
 				x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)));
 		Gameworld.DiscordConnection?.NotifyAdmins(echo.RawText());
@@ -90,6 +147,11 @@ public partial class Election
 		sb.AppendLine($"Removal requires more than {RecallThreshold.ToString("P2", actor).ColourValue()} of votes cast. Exactly reaching the threshold and no votes fail.");
 		if (Appointment.ElectionConfirmationAppointment is { } authority)
 			sb.AppendLine($"Confirmation authority: {authority.Name.ColourName()} in {authority.Clan.FullName.ColourName()}");
+		foreach (var authorityEntry in RecallConfirmationAuthorities)
+		{
+			var key = FormattableString.Invariant($"{authorityEntry.ClanId}:{authorityEntry.AppointmentId ?? 0}");
+			sb.AppendLine($"Liege confirmation: {Gameworld.Clans.Get(authorityEntry.ClanId)?.FullName.ColourName() ?? authorityEntry.ClanId.ToString(actor)} ({(_recallLiegeApprovals.GetValueOrDefault(key) ? "approved" : "pending")})");
+		}
 		if (ElectionStage == ElectionStage.AwaitingConfirmation)
 			sb.AppendLine($"The holder remains in office pending {($"clan election confirm {Id}").ColourCommand()} or {($"clan election veto {Id}").ColourCommand()}.");
 		else if (ElectionStage == ElectionStage.Vetoed)

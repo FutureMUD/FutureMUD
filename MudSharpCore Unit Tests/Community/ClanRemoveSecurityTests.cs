@@ -63,6 +63,16 @@ public class ClanRemoveSecurityTests
 		clan.Verify(x => x.DeleteAppointment(It.IsAny<IAppointment>()), Times.Never);
 	}
 
+	[TestMethod]
+	public void ClanRemove_JobListingReference_RejectsDeletion()
+	{
+		var (actor, clan) = Fixture("active", false);
+		var listing = Mock.Of<MudSharp.Economy.IJobListing>(x => x.Id == 2 && x.ClanAppointment == clan.Object.Appointments[0]);
+		Mock.Get(actor.Object.Gameworld).SetupGet(x => x.JobListings).Returns(new All<MudSharp.Economy.IJobListing> { listing });
+		Invoke(actor.Object, "appointment");
+		clan.Verify(x => x.DeleteAppointment(It.IsAny<IAppointment>()), Times.Never);
+	}
+
 	private static void Invoke(ICharacter actor, string kind) =>
 		typeof(ClanModule).GetMethod("ClanRemove", BindingFlags.NonPublic | BindingFlags.Static)!
 			.Invoke(null, [actor, new StringStack($"{kind} 13")]);
@@ -76,7 +86,7 @@ public class ClanRemoveSecurityTests
 		clan.SetupGet(x => x.Paygrades).Returns([Mock.Of<IPaygrade>(x => x.Id == 13 && x.Name == "Target")]);
 		clan.SetupGet(x => x.Appointments).Returns([Mock.Of<IAppointment>(x => x.Id == 13 && x.Name == "Target")]);
 		var actor = new Mock<ICharacter>();
-		actor.SetupGet(x => x.Gameworld).Returns(Mock.Of<IFuturemud>(x => x.Clans == new All<IClan> { clan.Object }));
+		actor.SetupGet(x => x.Gameworld).Returns(Mock.Of<IFuturemud>(x => x.Clans == new All<IClan> { clan.Object } && x.JobListings == new All<MudSharp.Economy.IJobListing>()));
 		actor.Setup(x => x.IsAdministrator(PermissionLevel.Admin)).Returns(administrator);
 		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
 		actor.Setup(x => x.CombinedEffectsOfType<BuilderEditingEffect<IClan>>())

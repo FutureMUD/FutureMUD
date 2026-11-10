@@ -878,9 +878,10 @@ public partial class Body
 		}
 	}
 
-	private void ClearDirectInventoryState()
+	private void ClearDirectInventoryState(ISet<IGameItem>? retainedItems = null)
 	{
-		foreach (var item in _heldItems.Select(x => x.Item1).Distinct().ToList())
+		bool Retained(IGameItem item) => retainedItems?.Contains(item) == true;
+		foreach (var item in _heldItems.Select(x => x.Item1).Where(x => !Retained(x)).Distinct().ToList())
 		{
 			var holdable = item.GetItemType<IHoldable>();
 			if (holdable is not null)
@@ -889,7 +890,7 @@ public partial class Body
 			}
 		}
 
-		foreach (var item in _wieldedItems.Select(x => x.Item1).Distinct().ToList())
+		foreach (var item in _wieldedItems.Select(x => x.Item1).Where(x => !Retained(x)).Distinct().ToList())
 		{
 			var holdable = item.GetItemType<IHoldable>();
 			if (holdable is not null)
@@ -904,7 +905,7 @@ public partial class Body
 			}
 		}
 
-		foreach (var item in _wornItems.Select(x => x.Item).Distinct().ToList())
+		foreach (var item in _wornItems.Select(x => x.Item).Where(x => !Retained(x)).Distinct().ToList())
 		{
 			var holdable = item.GetItemType<IHoldable>();
 			if (holdable is not null)
@@ -915,10 +916,10 @@ public partial class Body
 			item.GetItemType<IWearable>()?.UpdateWear(null, null);
 		}
 
-		_heldItems.Clear();
-		_wieldedItems.Clear();
-		_wornItems.Clear();
-		_carriedItems.Clear();
+		_heldItems.RemoveAll(x => !Retained(x.Item1));
+		_wieldedItems.RemoveAll(x => !Retained(x.Item1));
+		_wornItems.RemoveAll(x => !Retained(x.Item));
+		_carriedItems.RemoveAll(x => !Retained(x));
 		InventoryChanged = true;
 		RecalculateItemHelpers();
 	}

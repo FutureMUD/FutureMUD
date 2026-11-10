@@ -1,5 +1,11 @@
 # Configurable casting (ARM-02)
 
+## Optional local item targeting and curse cleansing
+
+The native `character` casting trigger has an optional `CanTargetItems` XML flag, default false. Its `items` builder command permits visible local/carried item targeting alongside characters, with characters taking precedence for ambiguous keywords. Native target parsing, capture and invocation safety remain in use. In this mode an optional target-filter prog must accept Perceivable, optionally followed by Character; incompatible/missing filters fail closed. Existing character-only definitions and substance delivery retain their defaults. The trigger reports `perceivable` when item selection is enabled so character-only effects cannot be attached accidentally. Single-character recipients retain native reflection and captured ward-use consumption; item recipients do not become reflectable.
+
+The `removecurse` effect optionally enables `IncludeItems` (builder argument/command `items`). It then cleanses components implementing `ICurseRemovableItem` without altering other item components/effects. Existing definitions still remove character curse status only. Native Armageddon Lift Hex enables both options: character curse removal remains unchanged and item cleansing releases only source curse-designated restrictions.
+
 ## Conditional materials and named summons — 8 November 2026
 
 Inventory plans accept `state="retained"` with the same quantity, carried scope and grade/rank selection as consumed materials. It requires presence without moving, splitting or deleting the item. Retained items participate in casting input receipts and quarantine checks. Use `plan add retained <tag> <quantity>`; existing carried/grade/rank commands also apply.
@@ -777,3 +783,14 @@ The source-traced stock Kindle options, grade tables and bounded adaptation are 
 [the Kindle source decision](Armageddon_Kindle_Source_Trace_20261015.md). The installed
 minimum remains33, with60*grade seconds and explicit native pool options. Its owned old
 weapon-filter program and spell identities reconcile in place; builder edits remain protected.
+
+
+## Permanent item magic and intrinsic dispelling
+
+`pickuphazard` is an optional instantaneous, permanent item enchantment. Builders configure `dice <count per grade> <HP sides> <stun sides>`, `immunity <boolean(character,item) prog|none>`, `dispel <minimum grade>`, and `echo <text>`. It has no legal-owner exemption. Preparation captures local reach, custody, selected grade and configuration before payment; actual pickup consumes the saved hazard before HP/stun damage and aborts that pickup. A true immunity prog permits pickup without spending it. Failed immunity evaluation refuses pickup without spending it. Damage uses native HP strategies; complex-health harm is not provided by this template. `addpickuphazard` provides the same saved state to content; its spent marker prevents onload rearming. Explicit later spellcasting can replace a spent glyph.
+
+`dispelmagic` adds an optional `intrinsic` toggle (`IncludeIntrinsicItemEffects`, default false). Only unrestricted Remove/AnyCaster/AllowHostile/effect-key-any dispels can remove permanent item magic; school, spell, tag and illusion filters exclude it. Contest settings continue to govern spell-owned parents. Intrinsic item effects expose their priority and minimum grade through `IIntrinsicItemMagicEffect`; a protected effect can stop lower-priority cleanup. These effects are independent of character curses and permission components.
+
+`etherealitemattunement` is an optional permanent two-stage item effect. Configure `plane`, `stage auto|ready|reveal`, `mass <base units per grade>` and `risk <percent per grade>`. Weight must be strictly below grade times configured mass. Auto advances ready then ethereal detection visibility, refuses already ethereal items, and rolls destruction only for an eligible stage. Saved affinity is independent of a timed spell parent. `characterstate <plane> <corporeal|noncorporeal>|none` configures an optional character route for mixed targets; its overlay uses the ordinary spell lifetime. XML represents this route as `CharacterPlanarData/PlanarData`.
+
+`removeplanarstate` optionally enables `itemvisibility true` (`ClearItemEtherealVisibility`): items lose ethereal visibility while retaining readiness. Its separate `ethereal true` setting continues to remove one spell-owned character overlay. Other planar removal defaults are unchanged.

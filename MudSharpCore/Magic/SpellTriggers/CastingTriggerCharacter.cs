@@ -27,11 +27,13 @@ public partial class CastingTriggerCharacter : CastingTriggerBase
 
     public IFutureProg TargetFilterProg => TargetFilterProgId == 0 ? null : Spell.Gameworld.FutureProgs.Get(TargetFilterProgId);
     public bool CanTargetSelf { get; private set; }
+	public bool CanTargetItems { get; private set; }
 
     protected CastingTriggerCharacter(XElement root, IMagicSpell spell) : base(root, spell)
     {
         TargetFilterProgId = long.Parse(root.Element("TargetFilterProg").Value);
         CanTargetSelf = bool.Parse(root.Element("CanTargetSelf").Value);
+		CanTargetItems = (bool?)root.Element("CanTargetItems") ?? false;
     }
 
     protected CastingTriggerCharacter()
@@ -47,7 +49,8 @@ public partial class CastingTriggerCharacter : CastingTriggerBase
             new XElement("MinimumPower", (int)MinimumPower),
             new XElement("MaximumPower", (int)MaximumPower),
             new XElement("TargetFilterProg", TargetFilterProgId),
-            new XElement("CanTargetSelf", CanTargetSelf)
+            new XElement("CanTargetSelf", CanTargetSelf),
+			new XElement("CanTargetItems", CanTargetItems)
         );
     }
 
@@ -60,12 +63,18 @@ public partial class CastingTriggerCharacter : CastingTriggerBase
         @"
 	#3filterprog <prog>#0 - sets the optional prog to filter targets by
 	#3filterprog clear#0 - clears the filter prog
-	#3self#0 - toggles whether the self is a valid target";
+	#3self#0 - toggles whether the self is a valid target
+	#3items#0 - toggles also targeting local or carried items";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
         {
+			case "items":
+				CanTargetItems = !CanTargetItems;
+				Spell.Changed = true;
+				actor.OutputHandler.Send($"Local item targets: {CanTargetItems.ToColouredString()}.");
+				return true;
             case "filter":
             case "filterprog":
             case "prog":
@@ -120,11 +129,11 @@ public partial class CastingTriggerCharacter : CastingTriggerBase
         }
 
         if (!prog.MatchesParameters(new List<ProgVariableTypes>
-                { ProgVariableTypes.Character, ProgVariableTypes.Character }) &&
-            !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
+                { TargetVariableType, ProgVariableTypes.Character }) &&
+            !prog.MatchesParameters(new List<ProgVariableTypes> { TargetVariableType }))
         {
             actor.OutputHandler.Send(
-                $"You must specify a prog that accepts either a single character (the target), or two characters (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");
+                $"You must specify a prog that accepts a {TargetVariableType.Describe().ColourName()} target, optionally followed by the caster, whereas {prog.MXPClickableFunctionName()} does not.");
             return false;
         }
 
@@ -149,18 +158,20 @@ public partial class CastingTriggerCharacter : CastingTriggerBase
 
         if (additionalArguments.IsFinished)
         {
-            actor.OutputHandler.Send("That spell requires a target character. You must specify a character to target.");
+            actor.OutputHandler.Send(CanTargetItems ? "Specify a character or local item to target." : "That spell requires a target character. You must specify a character to target.");
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(additionalArguments.SafeRemainingArgument);
+		var targetText = additionalArguments.SafeRemainingArgument;
+		IPerceivable target = actor.TargetActorOrCorpse(targetText);
+		if (target is null && CanTargetItems) target = actor.TargetItem(targetText);
         if (target == null)
         {
-            actor.OutputHandler.Send("You don't see anyone like that to target.");
+            actor.OutputHandler.Send(CanTargetItems ? "You do not see a character or item like that to target." : "You don't see anyone like that to target.");
             return;
         }
 
-        if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target) && !CanTargetSelf)
+        if (target is ICharacter character && CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, character) && !CanTargetSelf)
         {
             actor.OutputHandler.Send("That spell cannot be used to target yourself.");
             return;
@@ -179,18 +190,18 @@ public partial class CastingTriggerCharacter : CastingTriggerBase
     public override bool TriggerYieldsTarget => true;
 
     /// <inheritdoc />
-    public override string TargetTypes => "character";
+    public override string TargetTypes => CanTargetItems ? "perceivable" : "character";
 
     public override string Show(ICharacter actor)
     {
         return
-            $"{"Cast@Character".ColourName()}{(CanTargetSelf ? "" : " [noself]".ColourName())} - {base.Show(actor)}{TargetFilterDescription}";
+            $"{(CanTargetItems ? "Cast@CharacterOrItem" : "Cast@Character").ColourName()}{(CanTargetSelf ? "" : " [noself]".ColourName())} - {base.Show(actor)}{TargetFilterDescription}";
     }
 
     public override string ShowPlayer(ICharacter actor)
     {
         return
-            $"Cast Command - {Spell.School.SchoolVerb} cast {(Spell.Name.Contains(' ') ? Spell.Name.ToLowerInvariant().DoubleQuotes() : Spell.Name.ToLowerInvariant())} <power> <target character>";
+            $"Cast Command - {Spell.School.SchoolVerb} cast {(Spell.Name.Contains(' ') ? Spell.Name.ToLowerInvariant().DoubleQuotes() : Spell.Name.ToLowerInvariant())} <power> <target {(CanTargetItems ? "character or item" : "character")}>";
     }
 
     #endregion

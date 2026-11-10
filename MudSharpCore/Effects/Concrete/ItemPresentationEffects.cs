@@ -12,13 +12,20 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Effects.Concrete;
 
 /// <summary>Visibility gated by a detection sense, without changing physical interaction.</summary>
-public sealed class DetectionVisibility : Effect
+public sealed class DetectionVisibility : Effect, IIntrinsicItemMagicEffect
 {
 	public DetectionVisibility(IPerceivable owner, PerceptionTypes senses, long visiblePlane = 0) : base(owner)
 	{ Senses = senses; VisiblePlane = visiblePlane; }
 	private DetectionVisibility(XElement xml, IPerceivable owner) : base(xml, owner)
 	{ Senses = (PerceptionTypes)(long)xml.Element("Visibility")!.Attribute("senses")!; VisiblePlane = (long?)xml.Element("Visibility")!.Attribute("plane") ?? 0; }
 	public PerceptionTypes Senses { get; }
+	public int DispelPriority => Senses == PerceptionTypes.VisualMagical ? 10 : 30;
+	public int MinimumDispelGrade => 1;
+	public bool TryDispel(int grade)
+	{
+		if (grade < MinimumDispelGrade || Owner is not IGameItem || !Owner.Effects.Contains(this)) return false;
+		Owner.RemoveEffect(this); return true;
+	}
 	public long VisiblePlane { get; }
 	public bool RevealedTo(IPerceiver voyeur) =>
 		(voyeur.GetPerception(voyeur.NaturalPerceptionTypes) & Senses) != 0 ||
@@ -31,15 +38,25 @@ public sealed class DetectionVisibility : Effect
 	protected override string SpecificEffectType => "DetectionVisibility";
 	protected override XElement SaveDefinition() => new("Visibility", new XAttribute("senses", (long)Senses), new XAttribute("plane", VisiblePlane));
 	public override string Describe(IPerceiver voyeur) => $"Visibility requires {Senses.DescribeEnum()} detection or presence on plane #{VisiblePlane}.";
+	public override bool PreventsItemFromMerging(IGameItem item, IGameItem otherItem) =>
+		!otherItem.Effects.OfType<DetectionVisibility>().Any(x => x.Senses == Senses && x.VisiblePlane == VisiblePlane);
+	public override IEffect NewEffectOnItemMorph(IGameItem oldItem, IGameItem newItem) => new DetectionVisibility(newItem, Senses, VisiblePlane);
 	public static void InitialiseEffectType() => RegisterFactory("DetectionVisibility", (xml, owner) => new DetectionVisibility(xml, owner));
 }
 
 /// <summary>A descriptive glow or local audible hum; neither emits light or propagates between rooms.</summary>
-public sealed class ItemPresentation : Effect, ISDescAdditionEffect, IDescriptionAdditionEffect
+public sealed class ItemPresentation : Effect, ISDescAdditionEffect, IDescriptionAdditionEffect, IIntrinsicItemMagicEffect
 {
 	public ItemPresentation(IGameItem owner, bool humming) : base(owner) => Humming = humming;
 	private ItemPresentation(XElement xml, IPerceivable owner) : base(xml, owner) => Humming = (bool)xml.Element("Humming")!;
 	public bool Humming { get; }
+	public int DispelPriority => 30;
+	public int MinimumDispelGrade => 1;
+	public bool TryDispel(int grade)
+	{
+		if (grade < MinimumDispelGrade || Owner is not IGameItem || !Owner.Effects.Contains(this)) return false;
+		Owner.RemoveEffect(this); return true;
+	}
 	public static string DescribeCarriedHum(ICharacter source, IPerceiver voyeur)
 	{
 		if (voyeur is not ICharacter listener || source.Location is null || source.Location != listener.Location) return "";
@@ -64,19 +81,32 @@ public sealed class ItemPresentation : Effect, ISDescAdditionEffect, IDescriptio
 	protected override string SpecificEffectType => "ItemPresentation";
 	protected override XElement SaveDefinition() => new("Humming", Humming);
 	public override string Describe(IPerceiver voyeur) => Humming ? "Emits a local audible hum." : "A descriptive glow without illumination.";
+	public override bool PreventsItemFromMerging(IGameItem item, IGameItem otherItem) =>
+		!otherItem.Effects.OfType<ItemPresentation>().Any(x => x.Humming == Humming);
+	public override IEffect NewEffectOnItemMorph(IGameItem oldItem, IGameItem newItem) => new ItemPresentation(newItem, Humming);
 	public static void InitialiseEffectType() => RegisterFactory("ItemPresentation", (xml, owner) => new ItemPresentation(xml, owner));
 }
 
 /// <summary>Spell-independent magic classification for objects with no sustained spell owner.</summary>
-public sealed class ItemMagicAura : Effect, IMagicEffect
+public sealed class ItemMagicAura : Effect, IMagicEffect, IIntrinsicItemMagicEffect
 {
 	public ItemMagicAura(IGameItem owner) : base(owner) { }
 	private ItemMagicAura(XElement xml, IPerceivable owner) : base(xml, owner) { }
 	public IMagicSchool School => null!;
+	public int DispelPriority => 40;
+	public int MinimumDispelGrade => 1;
+	public bool TryDispel(int grade)
+	{
+		if (grade < MinimumDispelGrade || Owner is not IGameItem || !Owner.Effects.Contains(this)) return false;
+		Owner.RemoveEffect(this); return true;
+	}
 	public IMagicPower PowerOrigin => null!;
 	public Difficulty DetectMagicDifficulty => Difficulty.Normal;
 	public override bool SavingEffect => true;
 	protected override string SpecificEffectType => "ItemMagicAura";
 	public override string Describe(IPerceiver voyeur) => "An intrinsic magical aura.";
+	public override bool PreventsItemFromMerging(IGameItem item, IGameItem otherItem) =>
+		!otherItem.Effects.OfType<ItemMagicAura>().Any();
+	public override IEffect NewEffectOnItemMorph(IGameItem oldItem, IGameItem newItem) => new ItemMagicAura(newItem);
 	public static void InitialiseEffectType() => RegisterFactory("ItemMagicAura", (xml, owner) => new ItemMagicAura(xml, owner));
 }

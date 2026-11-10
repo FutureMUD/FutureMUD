@@ -19,8 +19,9 @@ public partial class DispelMagicEffect
 		var before = targets.SelectMany(owner => owner.EffectsOfType<MagicSpellParent>()
 			.Where(parent => MatchesParent(caster, parent) && MatchesContest(power, outcome, parent))
 			.Select(parent => (Owner: owner, Parent: parent, Boundary: Boundary(parent)))).ToArray();
-		GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
-		if (before.Any(x => !x.Owner.EffectsOfType<MagicSpellParent>().Contains(x.Parent) ||
+		var intrinsicChanged = ApplyIntrinsicItemEffects(target, power);
+		ApplySpellOwnedEffects(caster, target, outcome, power, parent, additionalParameters);
+		if (intrinsicChanged || before.Any(x => !x.Owner.EffectsOfType<MagicSpellParent>().Contains(x.Parent) ||
 			Mode == DispelMagicMode.Shorten && x.Boundary is {} original && Boundary(x.Parent) is {} current && current < original))
 			return new(MagicEffectOperationStatus.Applied, null);
 		// A real observed removal/expiry reduction wins even if another scheduler target

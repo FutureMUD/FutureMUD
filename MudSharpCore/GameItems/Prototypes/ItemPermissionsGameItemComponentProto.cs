@@ -14,6 +14,8 @@ public sealed class ItemPermissionsGameItemComponentProto : GameItemComponentPro
 	public ItemInteractionRestriction Restrictions { get; private set; }
 	public long PickupAttemptProgId { get; private set; }
 	public bool PickupAttemptOnceOnly { get; private set; }
+	public bool Cursed { get; private set; }
+	public ItemInteractionRestriction CurseRemovableRestrictions { get; private set; }
 	private ItemPermissionsGameItemComponentProto(IFuturemud world, IAccount account) : base(world, account, "Item Permissions") { }
 	private ItemPermissionsGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud world) : base(proto, world) { }
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -22,25 +24,40 @@ public sealed class ItemPermissionsGameItemComponentProto : GameItemComponentPro
 		manager.AddDatabaseLoader("Item Permissions", (proto, world) => new ItemPermissionsGameItemComponentProto(proto, world));
 		manager.AddTypeHelpInfo("ItemPermissions", "Restricts pickup, dropping, giving, putting, sheathing or ordinary room listings.", Help);
 	}
-	private const string Help = "Use restrict <pickup|drop|give|put|sheathe|roomlisting|onehandedwield> to toggle a restriction. Use attemptprog <boolean(character,item) prog|none> for actual pickup attempts and attemptonce for a saved one-shot callback. True continues pickup; false aborts. Holdable and forced/scripted placement are unaffected.";
+	private const string Help = "Use restrict <pickup|drop|give|put|sheathe|roomlisting|onehandedwield> to toggle a restriction. Use curse to toggle a cleansable curse, and curserestrict <interaction> to designate which configured restrictions its removal releases. Use attemptprog <boolean(character,item) prog|none> for actual pickup attempts and attemptonce for a saved one-shot callback. True continues pickup; false aborts. Holdable and forced/scripted placement are unaffected.";
 	public override string ShowBuildingHelp => Help;
 	protected override void LoadFromXml(XElement root)
 	{
 		Restrictions = (ItemInteractionRestriction)((int?)root.Element("Restrictions") ?? 0);
 		PickupAttemptProgId = (long?)root.Element("PickupAttemptProg") ?? 0;
 		PickupAttemptOnceOnly = (bool?)root.Element("PickupAttemptOnceOnly") ?? false;
+		Cursed = (bool?)root.Element("Cursed") ?? false;
+		CurseRemovableRestrictions = (ItemInteractionRestriction)((int?)root.Element("CurseRemovableRestrictions") ?? 0);
 		if ((Restrictions & ~AllRestrictions) != 0) throw new FormatException("Unknown item interaction restriction.");
+		if ((CurseRemovableRestrictions & ~AllRestrictions) != 0) throw new FormatException("Unknown curse-removable item restriction.");
 	}
 	internal const ItemInteractionRestriction AllRestrictions = ItemInteractionRestriction.Pickup | ItemInteractionRestriction.Drop |
 		ItemInteractionRestriction.Give | ItemInteractionRestriction.Put | ItemInteractionRestriction.Sheathe | ItemInteractionRestriction.RoomListing | ItemInteractionRestriction.OneHandedWield;
 	protected override string SaveToXml() => new XElement("Definition", new XElement("Restrictions", (int)Restrictions),
-		new XElement("PickupAttemptProg", PickupAttemptProgId), new XElement("PickupAttemptOnceOnly", PickupAttemptOnceOnly)).ToString();
+		new XElement("PickupAttemptProg", PickupAttemptProgId), new XElement("PickupAttemptOnceOnly", PickupAttemptOnceOnly),
+		new XElement("Cursed", Cursed), new XElement("CurseRemovableRestrictions", (int)CurseRemovableRestrictions)).ToString();
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false) => new ItemPermissionsGameItemComponent(this, parent, temporary);
 	public override IGameItemComponent LoadComponent(MudSharp.Models.GameItemComponent component, IGameItem parent) => new ItemPermissionsGameItemComponent(component, this, parent);
 	public override IEditableRevisableItem CreateNewRevision(ICharacter initiator) => CreateNewRevision(initiator, (proto, world) => new ItemPermissionsGameItemComponentProto(proto, world));
-	public override string ComponentDescriptionOLC(ICharacter actor) => $"Item permissions #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}\nRestricted: {Restrictions.DescribeEnum().ColourValue()}.";
+	public override string ComponentDescriptionOLC(ICharacter actor) => $"Item permissions #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}\nRestricted: {Restrictions.DescribeEnum().ColourValue()}.\nCursed: {Cursed.ToColouredString()}. Curse-removable restrictions: {CurseRemovableRestrictions.DescribeEnum().ColourValue()}.";
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.PeekSpeech().EqualTo("curse"))
+		{ command.PopSpeech(); Cursed = !Cursed; Changed = true; actor.Send($"Cleansable curse: {Cursed.ToColouredString()}."); return true; }
+		if (command.PeekSpeech().EqualTo("curserestrict"))
+		{
+			command.PopSpeech();
+			if (!Enum.TryParse<ItemInteractionRestriction>(command.PopSpeech(), true, out var restriction) ||
+				restriction == ItemInteractionRestriction.None || !Enum.IsDefined(restriction) || !command.IsFinished)
+			{ actor.Send(Help); return false; }
+			CurseRemovableRestrictions ^= restriction; Changed = true;
+			actor.Send($"Curse-removable restrictions: {CurseRemovableRestrictions.DescribeEnum().ColourValue()}."); return true;
+		}
 		if (command.PeekSpeech().EqualTo("attemptonce"))
 		{ command.PopSpeech(); PickupAttemptOnceOnly = !PickupAttemptOnceOnly; Changed = true; actor.Send($"One-shot pickup callback: {PickupAttemptOnceOnly.ToColouredString()}."); return true; }
 		if (command.PeekSpeech().EqualTo("attemptprog"))

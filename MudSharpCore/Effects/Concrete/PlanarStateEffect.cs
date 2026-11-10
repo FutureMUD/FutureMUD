@@ -54,21 +54,19 @@ public class PlanarStateEffect : Effect, IPlanarOverlayEffect
 
 	public override void InitialEffect()
 	{
-		if (PlanarPresenceDefinition.PropagatesInventory)
-		{
-			return;
-		}
-
 		switch (Owner)
 		{
 			case ICharacter character when character.Body is ConcreteBody body:
-				body.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
+				body.EjectInventoryForPlanarTransition(Owner.GetPlanarPresence().PresencePlaneIds,
+					PlanarPresenceDefinition.RetainPlaneSpecificInventory, !PlanarPresenceDefinition.PropagatesInventory);
 				break;
 			case ConcreteBody body:
-				body.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
+				body.EjectInventoryForPlanarTransition(Owner.GetPlanarPresence().PresencePlaneIds,
+					PlanarPresenceDefinition.RetainPlaneSpecificInventory, !PlanarPresenceDefinition.PropagatesInventory);
 				break;
 			case IBody body when body is ConcreteBody concrete:
-				concrete.EjectInventoryForPlanarTransition(PlanarPresenceDefinition.PresencePlaneIds);
+				concrete.EjectInventoryForPlanarTransition(Owner.GetPlanarPresence().PresencePlaneIds,
+					PlanarPresenceDefinition.RetainPlaneSpecificInventory, !PlanarPresenceDefinition.PropagatesInventory);
 				break;
 		}
 	}
@@ -76,8 +74,20 @@ public class PlanarStateEffect : Effect, IPlanarOverlayEffect
 	public override void ExpireEffect()
 	{
 		var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(Owner);
+		ClearRetainedItemVisibilityAfterRemoval();
 		Owner.RemoveEffect(this);
 		PlanarVisibilityEchoHelper.EchoVisibilityChanges(Owner, before);
+	}
+
+	public override void RemovalEffect() => ClearRetainedItemVisibilityAfterRemoval();
+
+	private void ClearRetainedItemVisibilityAfterRemoval()
+	{
+		var remainingPlanes = Owner.GetPlanarPresence(this).PresencePlaneIds;
+		if (Owner is ICharacter character && character.Body is ConcreteBody body)
+			body.EjectInventoryForPlanarTransition(remainingPlanes, ejectInventory: false);
+		else if (Owner is IBody bodyInterface && bodyInterface is ConcreteBody concrete)
+			concrete.EjectInventoryForPlanarTransition(remainingPlanes, ejectInventory: false);
 	}
 
 	public override IEffect NewEffectOnItemMorph(IGameItem oldItem, IGameItem newItem)

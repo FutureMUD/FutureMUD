@@ -74,8 +74,9 @@ public static partial class ArmageddonPrimitiveSpellContent
 				"Apply native magical blindness for 60 seconds per grade."),
 			Removal("shadow", "clear_eyes", "Clear Eyes", "removeblindness", 30,
 				"Remove spell-induced blindness from the selected recipient. Unrelated effects remain."),
-			Removal("shadow", "lift_hex", "Lift Hex", "removecurse", 30,
-				"Remove the selected recipient's native magical curse status. Unrelated effects remain."),
+			Character("shadow", "lift_hex", "Lift Hex", 7, 30, "0",
+				"Lift a character's native curse or cleanse a selected item's designated curse and handling restrictions. Unrelated effects and restrictions remain.",
+				new XElement("Effect", new XAttribute("type", "removecurse"), new XElement("IncludeItems", true)), includeItems: true),
 			Status("shadow", "dread_presence", "Dread Presence", "fear", 7, 30,
 				"Apply native magical fear for 60 seconds per grade."),
 			Status("shadow", "night_eyes", "Night Eyes", "infravision", 7, 30,
@@ -117,7 +118,7 @@ public static partial class ArmageddonPrimitiveSpellContent
 
 	private static ArmageddonCanonicalSpellContribution Character(string school, string suffix, string name,
 		double minimum, int opening, string duration, string description, XElement effect,
-		string? scalarFormula = null, long? resistingTrait = null, Difficulty? resistingDifficulty = null)
+		string? scalarFormula = null, long? resistingTrait = null, Difficulty? resistingDifficulty = null, bool includeItems = false)
 	{
 		var key = "arm.spell." + suffix;
 		var content = new ArmageddonUtilitySpellContent(key, name, description, duration, minimum,
@@ -128,6 +129,7 @@ public static partial class ArmageddonPrimitiveSpellContent
 				if (filter < 0) throw new ArgumentOutOfRangeException(nameof(filter), filter, "Use zero for no eligibility filter or a positive resolved prog identity.");
 				var definition = ArmageddonUtilitySpellContent.Definition(key, "character", resource, cost, filter,
 					opening, minimum, new XElement(effect));
+				if (includeItems) definition.Element("Trigger")!.Add(new XElement("CanTargetItems", true));
 				if (scalarFormula is not null)
 					definition.Element("ControlledPower")!.Element("ScalarBindings")!.Add(new XElement("Binding",
 						new XAttribute("list", "target"), new XAttribute("index", 0), new XAttribute("effect", "boost"),

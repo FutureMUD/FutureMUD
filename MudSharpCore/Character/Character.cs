@@ -2629,7 +2629,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         if (IsPlayerCharacter)
         {
             List<IElection> elections = ClanMemberships
-                            .Where(x => x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))
+                            .Where(x => !x.Clan.IsTemplate && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))
                             .SelectMany(x => x.Clan.Appointments.Where(y => y.IsAppointedByElection)
                                               .SelectMany(y => y.Elections))
                             .Where(x =>
@@ -2640,7 +2640,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                                  !x.Votes.Any(y => y.Voter.MemberId == Id))
                             )
                             .ToList();
-            var pendingConfirmations = Gameworld.Clans.SelectMany(x => x.Appointments)
+            var pendingConfirmations = Gameworld.Clans.Where(x => !x.IsTemplate).SelectMany(x => x.Appointments)
                 .Where(x => x.ElectionConfirmationAppointment is not null && ClanCommandUtilities.CanConfirmElection(this, x))
                 .SelectMany(x => x.Elections)
                 .Where(x => x.ElectionStage == ElectionStage.AwaitingConfirmation).ToList();

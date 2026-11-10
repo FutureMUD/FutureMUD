@@ -38,6 +38,8 @@ namespace MudSharp.Community
         IEnumerable<IClanMembership> Victors { get; }
 
         bool CheckElectionStage();
+        /// <summary>Refreshes the scheduled transition, cancelling it when the clan is a template.</summary>
+        void SetupListeners(ElectionStage stage);
         bool Confirm(ICharacter actor);
         bool Veto(ICharacter actor);
         void Nominate(IClanMembership nominee);

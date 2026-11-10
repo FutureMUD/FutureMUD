@@ -22,6 +22,8 @@ namespace MudSharp.Models
         public bool IsConfirmed { get; set; }
         public int NumberOfAppointments { get; set; }
         public bool IsByElection { get; set; }
+        public bool IsRecall { get; set; }
+        public double RecallThreshold { get; set; } = 0.5;
         public int ElectionStage { get; set; }
 
         public virtual Appointment Appointment { get; set; }

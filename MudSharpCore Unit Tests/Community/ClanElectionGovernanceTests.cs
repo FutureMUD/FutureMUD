@@ -27,7 +27,7 @@ namespace MudSharp_Unit_Tests.Community;
 
 [TestClass]
 [DoNotParallelize]
-public class ClanElectionGovernanceTests
+public partial class ClanElectionGovernanceTests
 {
 	[TestMethod]
 	public void Confirmation_RequiresExactActiveOfficeIncludingOtherClans()

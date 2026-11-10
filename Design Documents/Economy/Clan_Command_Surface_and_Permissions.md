@@ -46,6 +46,7 @@ The following runtime actions are now owned by `IClan` / `Clan`:
 - `Appoint`
 - `Dismiss`
 - `Resign`
+- `Recall`
 - `ConfirmElection`
 - `SubmitControl`
 - `ReleaseControl`
@@ -109,6 +110,10 @@ The view logic now consistently uses those distinctions so that:
 Budget creation and closure use `CanCreateBudgets`. Reviewing budgets, budget audit rows, balance sheets, and payroll history uses `CanViewTreasury`, which is the clan-level financial-information privilege. Budget drawdown also allows the holder of the budgeted appointment, or a superior appointment in that appointment chain, to draw from that appointment's active budget without granting broad treasury visibility.
 
 ### Appointment-chain authority
+
+Elected appointments may opt into dismissal by their exact parent office with `election parentdismiss`. An active holder of that parent office gains dismissal authority without `CanDismiss`, but gains no appointment or confirmation power. Normal elected offices remain protected from general dismissal privileges. See [clan elections](Clan_Elections_and_External_Control.md#parent-dismissal-and-recall).
+
+`clan recall <person> <clan> <appointment>` starts an opt-in removal ballot. Active clan membership and a separate boolean initiation prog are required. `clan vote <recall id> yes|no` uses a separate numeric recall-vote prog; ordinary election vote eligibility and administrator overrides do not confer recall participation. A successful recall still requires any configured election confirmation before removing the holder.
 
 Some clan actions are intentionally not pure privilege-flag checks.
 

@@ -645,6 +645,17 @@ namespace MudSharp.Database
                 entity.Property(e => e.IsAppointedByElection).HasColumnType("bit(1)").HasDefaultValue(false);
                 entity.Property(e => e.CanResign).HasColumnType("bit(1)").HasDefaultValue(true);
                 entity.Property(e => e.CanDirectlyAppoint).HasColumnType("bit(1)").HasDefaultValue(false);
+                entity.Property(e => e.CanParentDismiss).HasColumnType("bit(1)").HasDefaultValue(false);
+                entity.Property(e => e.CanBeRecalled).HasColumnType("bit(1)").HasDefaultValue(false);
+                entity.Property(e => e.RecallThreshold).HasDefaultValue(0.5).HasSentinel(0.5);
+                entity.Property(e => e.CanInitiateRecallProgId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RecallVotesProgId).HasColumnType("bigint(20)");
+                entity.HasOne(e => e.CanInitiateRecallProg).WithMany()
+                    .HasForeignKey(e => e.CanInitiateRecallProgId)
+                    .OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_Appointments_CanInitiateRecallProg");
+                entity.HasOne(e => e.RecallVotesProg).WithMany()
+                    .HasForeignKey(e => e.RecallVotesProgId)
+                    .OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_Appointments_RecallVotesProg");
                 entity.Property(e => e.ElectionConfirmationAppointmentId).HasColumnType("bigint(20)");
                 entity.HasOne(e => e.ElectionConfirmationAppointment)
                     .WithMany()

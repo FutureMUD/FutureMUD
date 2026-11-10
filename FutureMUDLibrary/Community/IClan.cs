@@ -82,6 +82,7 @@ namespace MudSharp.Community
         void Appoint(ICharacter actor, StringStack command);
         void Dismiss(ICharacter actor, StringStack command);
         void Resign(ICharacter actor, StringStack command);
+        void Recall(ICharacter actor, StringStack command);
         void ConfirmElection(ICharacter actor, StringStack command, bool veto);
         void SubmitControl(ICharacter actor, StringStack command);
         void ReleaseControl(ICharacter actor, StringStack command);

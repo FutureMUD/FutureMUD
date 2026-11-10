@@ -169,6 +169,10 @@ public partial class Clan : SaveableItem, IClan
         membership.IsArchivedMembership = true;
         List<IAppointment> oldAppointments = membership.Appointments.ToList();
         membership.Appointments.Clear();
+        foreach (var recall in Appointments.SelectMany(x => x.Elections).Where(x => x.IsRecall && !x.IsFinalised).ToList())
+        {
+            recall.WithdrawNomination(membership);
+        }
         foreach (var control in ExternalControls.Where(x => x.VassalClan == this && x.Appointees.Remove(membership)))
         {
             control.Changed = true;
@@ -186,6 +190,10 @@ public partial class Clan : SaveableItem, IClan
     public void DismissAppointment(IClanMembership membership, IAppointment appointment)
     {
         membership.Appointments.Remove(appointment);
+        foreach (var recall in appointment.Elections.Where(x => x.IsRecall && !x.IsFinalised).ToList())
+        {
+            recall.WithdrawNomination(membership);
+        }
         foreach (var control in ExternalControls.Where(x => x.VassalClan == this &&
                      x.ControlledAppointment == appointment && x.Appointees.Remove(membership)))
         {

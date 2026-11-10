@@ -2635,7 +2635,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                             .Where(x =>
                                 (x.ElectionStage == ElectionStage.Nomination && x.Appointment.CanNominate(this).Truth &&
                                  !x.Nominees.Any(y => y.MemberId == Id)) ||
-                                (x.ElectionStage == ElectionStage.Voting && x.Appointment.NumberOfVotes(this) > 0 &&
+                                (x.ElectionStage == ElectionStage.Voting &&
+                                 (x.IsRecall ? x.Appointment.RecallVotesProg?.ExecuteInt(this) ?? 0 : x.Appointment.NumberOfVotes(this)) > 0 &&
                                  !x.Votes.Any(y => y.Voter.MemberId == Id))
                             )
                             .ToList();

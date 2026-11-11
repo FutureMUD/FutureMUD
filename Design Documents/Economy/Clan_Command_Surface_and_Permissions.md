@@ -245,3 +245,11 @@ That is intentional for now. The priority of this pass was:
 Local `clan dismiss` cannot remove an externally appointed holder; an authorised liege must use `clan vassal dismiss`. Non-administrators cannot dismiss themselves through either route: use `clan resign`, which enforces `CanResign` and employment restrictions. Administrators retain their dismissal override.
 
 A successful recall of an externally appointed holder requires liege approval as well as any configured election confirmation office. Use `clan election confirm|veto <id>`; partial approvals survive save/reload. Liege authorities can discover their recall ballots through `clan elections` and login reminders, and inspect pending approvals with `clan election view <id>`. This grants no electoral participation or direct dismissal authority.
+
+## Optional forms of address
+
+Rank and appointment editing include `address` rules, with the same creation/editing permissions and parent-office restrictions as their existing fields. Empty rules permit fallback; `address none` explicitly suppresses it. `address list` describes rule order, relations, public/member audience, predicate IDs and stable rule IDs. Appointments additionally support `address priority <integer>`; this is presentation precedence and grants no authority.
+
+`clan set addresslook` requires clan-detail editing permission and toggles that clan's shared-clan look hint. `clan address <clan> <speaker|none> <subject> [hidden]` is an administrator-only local-character resolution preview; `hidden` is an explicit diagnostic disclosure override. NPC-facing text getters have no such override. The global wording is edited through `editstaticstring ClanFormOfAddressLookFormat`.
+
+See [Clan forms of address](Clan_Forms_of_Address_Design.md) for commands, nullable-speaker behavior, conditional signatures and template-copy semantics.

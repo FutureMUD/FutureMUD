@@ -32,7 +32,7 @@ using ClanMembership = MudSharp.Community.ClanMembership;
 
 namespace MudSharp.Commands.Modules;
 
-public class ClanModule : Module<ICharacter>
+public partial class ClanModule : Module<ICharacter>
 {
     private const string TemplateCloneElectorateAllMembersCanNominateProgName =
         "TemplateCloneElectorate_AllMembers_CanNominate";
@@ -197,7 +197,9 @@ The command to create a new clan is as follows:
 
 	#3clan create new <alias> <name>#0 - creates an empty clan
 	#3clan create template <template> <alias> <name>#0 - creates a clan from a clan template
+	#3clan address <clan> <speaker|none> <subject> [hidden]#0 - previews an address and its resolution (admin only)
 	#3clan templates#0 - shows a list of clan templates
+	#3clan create staged <template> <alias> <name>#0 - copies a template without founder membership and keeps it inactive (admin only)
 
 In order to edit properties, positions, ranks etc of a clan one must:
 
@@ -222,6 +224,7 @@ All of the following commands must happen with an edited clan selected:
 	#3clan set notable#0 - toggles this clan appearing in WHO (admin only)
 	#3clan set notablemembers#0 - toggles the famous members of this clan appearing in NOTABLES (admin only)
 	#3clan set bankaccount <account>|none#0 - sets or clears a bank account for this clan
+	#3clan set addresslook#0 - toggles this clan's forms of address in look
 	#3clan set calendar <which>#0 - changes the calendar that the clan uses";
 
     [PlayerCommand("Clan", "clan")]
@@ -389,6 +392,9 @@ All of the following commands must happen with an edited clan selected:
             case "divestownership":
                 ClanDivestOwnership(actor, ss);
                 return;
+			case "address":
+				ClanAddressPreview(actor, ss);
+				return;
             case "templates":
                 ClanTemplates(actor, ss);
                 return;
@@ -3491,6 +3497,7 @@ Your next payday is {3}.
         sb.AppendLine();
         sb.AppendLine("Privileges:");
         sb.AppendLine("\t" + rank.Privileges);
+		sb.AppendLine(ClanAddressBuilding.Describe(rank.FormsOfAddress, actor));
         actor.OutputHandler.Send(sb.ToString());
     }
 
@@ -3616,6 +3623,8 @@ Your next payday is {3}.
         sb.AppendLine();
         sb.AppendLine("Privileges:");
         sb.AppendLine("\t" + appointment.Privileges);
+		sb.AppendLine(ClanAddressBuilding.Describe(appointment.FormsOfAddress, actor));
+		sb.AppendLine($"Address priority: {appointment.AddressPriority.ToString("N0", actor)}");
         actor.OutputHandler.Send(sb.ToString());
     }
 
@@ -3786,7 +3795,11 @@ Your next payday is {3}.
         }
     }
 
-    private static void ClanCreateTemplate(ICharacter actor, StringStack command)
+    private static void ClanCreateTemplate(ICharacter actor, StringStack command) => CloneTemplate(actor, command, false);
+
+    private static void ClanCreateStagedTemplate(ICharacter actor, StringStack command) => CloneTemplate(actor, command, true);
+
+    private static void CloneTemplate(ICharacter actor, StringStack command, bool stagedCopy)
     {
         if (!actor.IsAdministrator() && !Community.Clan.CanCreateClan(actor))
         {
@@ -3800,6 +3813,11 @@ Your next payday is {3}.
             return;
         }
 
+        if (stagedCopy && !actor.IsAdministrator())
+        {
+            actor.OutputHandler.Send("Only administrators may create staged template copies without founder membership.");
+            return;
+        }
         string clanText = command.PopSpeech();
 
         if (command.IsFinished)
@@ -3840,10 +3858,30 @@ Your next payday is {3}.
             return;
         }
 
+        var profileDefinition = ClanTemplateProfile.Source(actor.Gameworld, clan);
+        if (profileDefinition is not null && ClanTemplateProfile.SourceError(actor.Gameworld, clan, profileDefinition) is { } sourceError)
+        {
+            actor.OutputHandler.Send(sourceError.ColourError());
+            return;
+        }
+
+        if (ClanTemplateProvisioning.AddressCloneError(actor.Gameworld, clan, profileDefinition) is { } addressError)
+		{
+			actor.OutputHandler.Send(addressError.ColourError());
+			return;
+		}
+
+        if (profileDefinition is not null && !stagedCopy)
+        {
+            actor.OutputHandler.Send("This template requires the admin-only staged copy mode: clan create staged <template> <alias> <name>.");
+            return;
+        }
+
         using (new FMDB())
         {
             Models.Clan dbclan = new()
             {
+                IsTemplate = stagedCopy,
                 Alias = aliasText,
                 Name = nameText,
                 FullName = nameText,
@@ -3857,6 +3895,7 @@ Your next payday is {3}.
                 PayIntervalReferenceDate = clan.Calendar.CurrentDate.GetDateString(),
                 PayIntervalReferenceTime = clan.NextPay.Time.GetTimeString(),
                 ShowClanMembersInWho = clan.ShowClanMembersInWho,
+				ShowFormsOfAddressInLook = clan.ShowFormsOfAddressInLook,
                 ShowFamousMembersInNotables = clan.ShowFamousMembersInNotables,
                 Sphere = clan.Sphere,
                 MaximumPeriodsOfUncollectedBackPay = clan.MaximumPeriodsOfUncollectedBackPay,
@@ -3891,6 +3930,8 @@ Your next payday is {3}.
                     dbrank.InsigniaGameItemRevnum = rank.InsigniaGameItem.RevisionNumber;
                 }
 
+				foreach (var rule in rank.FormsOfAddress.Select((x, i) => ClanAddressPersistence.RankRow(x.Copy(), i)))
+					dbrank.FormsOfAddress.Add(rule);
                 dbrank.Privileges = (long)rank.Privileges;
                 int order = 0;
                 foreach (Tuple<IFutureProg, string> address in rank.TitlesAndProgs)
@@ -3992,6 +4033,9 @@ Your next payday is {3}.
                                 x.Name == appointment.Paygrade.Name);
                 }
 
+				dbappointment.AddressPriority = appointment.AddressPriority;
+				foreach (var rule in appointment.FormsOfAddress.Select((x, i) => ClanAddressPersistence.AppointmentRow(x.Copy(), i)))
+					dbappointment.FormsOfAddress.Add(rule);
                 FMDB.Context.Appointments.Add(dbappointment);
                 int order = 0;
                 foreach (Tuple<IFutureProg, string> abbreviation in appointment.AbbreviationsAndProgs)
@@ -4050,35 +4094,45 @@ Your next payday is {3}.
             newClan.FinaliseLoad(dbclan, Enumerable.Empty<Models.ClanMembership>(), loadElections: false);
             actor.Gameworld.Add(newClan);
 
-            Models.ClanMembership dbMembership = new();
-            FMDB.Context.ClanMemberships.Add(dbMembership);
-            dbMembership.CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
-            dbMembership.Clan = dbclan;
-
-            IAppointment targetAppointment = newClan.Appointments.FirstOrDefault(x => x.Privileges == ClanPrivilegeType.All);
-            if (targetAppointment != null)
+            if (stagedCopy)
             {
-                dbMembership.ClanMembershipsAppointments.Add(new ClanMembershipsAppointments
-                { ClanMembership = dbMembership, AppointmentId = targetAppointment.Id });
+                if (profileDefinition is not null)
+                    ClanTemplateProvisioning.StageClone(actor.Gameworld, clan, newClan, profileDefinition);
             }
-
-            Models.Rank targetRank = dbclan.Ranks.AsEnumerable().FirstMax(x => x.RankNumber);
-            dbMembership.RankId = targetRank.Id;
-
-            RanksPaygrade targetpaygrade = targetRank.RanksPaygrades.OrderBy(x => x.Order).LastOrDefault();
-            if (targetpaygrade != null)
+            else
             {
-                dbMembership.PaygradeId = targetpaygrade.PaygradeId;
-            }
+                Models.ClanMembership dbMembership = new();
+                FMDB.Context.ClanMemberships.Add(dbMembership);
+                dbMembership.CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
+                dbMembership.Clan = dbclan;
 
-            dbMembership.PersonalName = actor.CurrentName.SaveToXml().ToString();
-            dbMembership.JoinDate = actor.Culture.PrimaryCalendar.CurrentDate.GetDateString();
-            FMDB.Context.SaveChanges();
-            ClanMembership newMembership = new(dbMembership, newClan, actor.Gameworld);
-            newClan.Memberships.Add(newMembership);
-            actor.AddMembership(newMembership);
+                IAppointment targetAppointment = newClan.Appointments.FirstOrDefault(x => x.Privileges == ClanPrivilegeType.All);
+                if (targetAppointment != null)
+                {
+                    dbMembership.ClanMembershipsAppointments.Add(new ClanMembershipsAppointments
+                    { ClanMembership = dbMembership, AppointmentId = targetAppointment.Id });
+                }
+
+                Models.Rank targetRank = dbclan.Ranks.AsEnumerable().FirstMax(x => x.RankNumber);
+                dbMembership.RankId = targetRank.Id;
+
+                RanksPaygrade targetpaygrade = targetRank.RanksPaygrades.OrderBy(x => x.Order).LastOrDefault();
+                if (targetpaygrade != null)
+                {
+                    dbMembership.PaygradeId = targetpaygrade.PaygradeId;
+                }
+
+                dbMembership.PersonalName = actor.CurrentName.SaveToXml().ToString();
+                dbMembership.JoinDate = actor.Culture.PrimaryCalendar.CurrentDate.GetDateString();
+                FMDB.Context.SaveChanges();
+                ClanMembership newMembership = new(dbMembership, newClan, actor.Gameworld);
+                newClan.Memberships.Add(newMembership);
+                actor.AddMembership(newMembership);
+            }
             Community.Clan.CreatedClan(actor, newClan);
             newClan.LoadElections();
+            if (stagedCopy)
+                actor.OutputHandler.Send("This copy is staged as a template with no founder membership. Configure it before activating it.");
 
             actor.Send("You create the clan {0}, alias {1} from template clan {2}.",
                 newClan.FullName.TitleCase().Colour(Telnet.Cyan), newClan.Alias.Colour(Telnet.Green),
@@ -4630,6 +4684,9 @@ return 0",
             case "template":
                 ClanCreateTemplate(actor, command);
                 break;
+            case "staged":
+                ClanCreateStagedTemplate(actor, command);
+                break;
             case "new":
                 ClanCreateNew(actor, command);
                 break;
@@ -4701,6 +4758,14 @@ return 0",
             case "discord":
                 ClanEditDiscord(actor, command, clan);
                 return;
+            case "addresslook":
+				var addressMember = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan && !x.IsArchivedMembership);
+				if (!actor.IsAdministrator() && addressMember?.NetPrivileges.HasFlag(ClanPrivilegeType.CanEditClanDetails) != true)
+				{ actor.OutputHandler.Send("You do not have permission to edit this clan's details."); return; }
+				clan.ShowFormsOfAddressInLook = !clan.ShowFormsOfAddressInLook;
+				clan.Changed = true;
+				actor.OutputHandler.Send($"Forms of address in look: {clan.ShowFormsOfAddressInLook.ToColouredString()}.");
+				return;
             case "calendar":
                 ClanEditCalendar(actor, command, clan);
                 return;
@@ -5542,6 +5607,7 @@ return 0",
 	#3privileges remove <which>#0 - removes privileges from this rank
 	#3paygrade add <which>#0 - adds a paygrade for this rank
 	#3paygrade remove <which>#0 - removes a paygrade from this rank
+	#3address ...#0 - edits optional direct addresses; use address list for options
 	#3title add <prog> <title>#0 - adds a new title with a specified prog
 	#3title remove <title>#0 - removes a title
 	#3title swap <one> <two>#0 - swaps the evaluation order of two titles
@@ -5553,9 +5619,9 @@ return 0",
 
     private static void ClanEditRank(ICharacter actor, StringStack command, IClan clan)
     {
-        IClanMembership actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
-        if (!actor.IsAdministrator() && actorMembership != null &&
-            !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateRanks))
+        IClanMembership actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan && !x.IsArchivedMembership);
+        if (!actor.IsAdministrator() && (actorMembership == null ||
+            !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateRanks)))
         {
             actor.OutputHandler.Send("You do not have permission to edit ranks in that clan.");
             return;
@@ -5601,6 +5667,9 @@ return 0",
             case "abbreviation":
                 ClanEditRankAbbreviation(actor, command, clan, rank);
                 break;
+			case "address":
+				ClanAddressBuilding.Edit(actor, command, rank: rank);
+				break;
             case "title":
                 ClanEditRankTitle(actor, command, clan, rank);
                 break;
@@ -6792,6 +6861,7 @@ return 0",
 	#3maxholders <amount>|0#0 - sets the maximum number of people who can hold an abbreviation (use 0 for unlimited)
 	#3privileges add <which>#0 - adds a privilege to the appointment
 	#3privileges remove <which>#0 - removes a privilege to the appointment
+	#3address ...#0 - edits optional direct addresses; use address list for options
 	#3title add <prog> <title>#0 - adds a new title with a specified prog
 	#3title remove <title>#0 - removes a title
 	#3title swap <one> <two>#0 - swaps the evaluation order of two titles
@@ -6823,10 +6893,10 @@ return 0",
 
     private static void ClanEditAppointment(ICharacter actor, StringStack command, IClan clan)
     {
-        IClanMembership actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
-        if (!actor.IsAdministrator() && actorMembership != null &&
+        IClanMembership actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan && !x.IsArchivedMembership);
+        if (!actor.IsAdministrator() && (actorMembership == null ||
             !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointments) &&
-            !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointmentsUnderOwn))
+            !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointmentsUnderOwn)))
         {
             actor.OutputHandler.Send("You do not have permission to edit appointments in that clan.");
             return;
@@ -6848,9 +6918,9 @@ return 0",
             return;
         }
 
-        if (!actor.IsAdministrator() && actorMembership != null &&
+        if (!actor.IsAdministrator() && (actorMembership == null ||
             !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointments) &&
-            !ClanCommandUtilities.HoldsOrControlsAppointment(actorMembership, appointment.ParentPosition))
+            !ClanCommandUtilities.HoldsOrControlsAppointment(actorMembership, appointment.ParentPosition)))
         {
             actor.OutputHandler.Send(
                 "You do not have permission to edit appointments other than those that fall under your own positions in that clan.");
@@ -6871,6 +6941,9 @@ return 0",
             case "abbreviation":
                 ClanEditAppointmentAbbreviation(actor, command, clan, appointment);
                 break;
+			case "address":
+				ClanAddressBuilding.Edit(actor, command, appointment: appointment);
+				break;
             case "title":
                 ClanEditAppointmentTitle(actor, command, clan, appointment);
                 break;
@@ -7152,6 +7225,7 @@ return 0",
             case "bankaccount":
             case "discord":
             case "calendar":
+			case "addresslook":
                 ClanEditProperty(actor, command, text);
                 return;
         }
@@ -7170,6 +7244,7 @@ return 0",
 	#3notablemembers#0 - toggles the famous members of this clan appearing in NOTABLES (admin only)
 	#3bankaccount <account>#0 - sets a bank account for this clan
 	#3discord <none>|<id>#0 - sets a discord channel for the clan
+	#3addresslook#0 - toggles this clan's forms of address in look
 	#3calendar <which>#0 - changes the calendar that the clan uses".SubstituteANSIColour());
     }
 

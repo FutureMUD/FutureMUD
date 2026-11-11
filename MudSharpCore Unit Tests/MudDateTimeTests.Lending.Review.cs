@@ -26,6 +26,16 @@ namespace MudSharp_Unit_Tests;
 public partial class MudDateTimeTests
 {
 	[TestMethod]
+	public void LendingEstateLookup_UnusedLending_DoesNotReadBorrowerOrOpenDatabase()
+	{
+		var world = Mock.Of<IFuturemud>();
+		var estate = new Mock<IEstate>(MockBehavior.Strict);
+		estate.SetupGet(x => x.Gameworld).Returns(world);
+		Assert.IsNull(LoanService.EstateLoanId(estate.Object));
+		estate.VerifyGet(x => x.Character, Times.Never);
+	}
+
+	[TestMethod]
 	[DoNotParallelize]
 	public void LendingShopCash_RejectedAdvanceRestoresPhysicalRegisterAndRetriesOnce()
 	{

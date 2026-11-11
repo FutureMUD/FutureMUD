@@ -10,6 +10,7 @@ internal static partial class LoanService
 {
 	internal static long? EstateLoanId(IEstate estate)
 	{
+		if (!HasPortfolio(estate.Gameworld)) return null;
 		using var handle = new FMDB();
 		var borrower = CharacterInstanceIdentityComparer.IdentityId(estate.Character);
 		return FMDB.Context.LendingContracts.Where(x => x.BorrowerId == borrower && x.EconomicZoneId == estate.EconomicZone.Id)

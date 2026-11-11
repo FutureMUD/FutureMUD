@@ -56,7 +56,9 @@ DrugSymptoms
 CombatFrenzy
 TimedMaximumHitPoints
 Empathy
+EmploymentStasis
 Enforcer
+EtherealItemAffinity
 ExecutionPatrolNoQuit
 ExitHidden
 FixedInPlace
@@ -83,8 +85,10 @@ InsignificantBodypartExcessivelyDamaged
 Internal Bleeding
 Invis
 ItemHidden
+ItemInitialisation
 ItemMagicAura
 ItemOnDisplayInShop
+ItemPickupHazard
 ItemPresentation
 KeywordDescriptions
 ListeningAwarenessStatus

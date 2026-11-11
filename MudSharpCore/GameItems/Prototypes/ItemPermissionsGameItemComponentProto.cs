@@ -8,7 +8,8 @@ using MudSharp.GameItems.Interfaces;
 namespace MudSharp.GameItems.Prototypes;
 
 /// <summary>Opt-in ordinary interaction restrictions without changing holdability or scripted creation.</summary>
-public sealed class ItemPermissionsGameItemComponentProto : GameItemComponentProto, IItemInteractionPermissionsPrototype
+public sealed class ItemPermissionsGameItemComponentProto : GameItemComponentProto, IItemInteractionPermissionsPrototype,
+	ICurseRemovableItemPrototype
 {
 	public override string TypeDescription => "Item Permissions";
 	public ItemInteractionRestriction Restrictions { get; private set; }

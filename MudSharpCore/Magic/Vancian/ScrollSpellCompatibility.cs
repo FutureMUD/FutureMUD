@@ -30,6 +30,8 @@ public static class ScrollSpellCompatibility
 		void Add(string types, string reason) { foreach (var type in types.Split(' ', StringSplitOptions.RemoveEmptyEntries)) entries.Add(type, reason); }
 		Add("damagingexitbarrier", "Physical exit contact and its prepared traversal route require a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("boundeditemcondition", "Exact local item custody, material gate and selected-grade wound budget require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("etherealitemattunement", "The selected plane, target and grade-dependent attunement require a stored-delivery adapter.");
+		Add("pickuphazard", "The selected item, custody and grade-dependent pickup damage require a stored-delivery adapter.");
 		Add("owneditemmark", "The exact legal owner, item identity and live custody require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("arcanemark", "The directly carried item, frozen caster room, selected-grade uses and later travel authority require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("thresholdalarm", "Live room-entry events and owner notification require a dedicated stored-delivery adapter; stock carriers remain disabled.");

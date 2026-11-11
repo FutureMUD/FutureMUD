@@ -2886,6 +2886,89 @@ namespace MudSharp.Database
                     .HasForeignKey(e => e.CharacterId)
                     .HasConstraintName("FK_BankManagerAuditLogs_Characters");
             });
+
+            modelBuilder.Entity<LendingProduct>(entity =>
+            {
+                entity.ToTable("LendingProducts");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.LenderId).HasColumnType("bigint(20)");
+                entity.Property(e => e.LenderType).IsRequired().HasColumnType("varchar(50)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("longtext")
+                    .HasCharSet("utf8mb4").UseCollation("utf8mb4_general_ci");
+                entity.Property(e => e.Enabled).HasColumnType("tinyint(1)");
+                entity.HasIndex(e => new { e.LenderId, e.LenderType, e.Name }).IsUnique();
+                entity.HasIndex(e => e.EconomicZoneId);
+                entity.HasOne<EconomicZone>().WithMany().HasForeignKey(e => e.EconomicZoneId)
+                    .OnDelete(DeleteBehavior.Restrict).HasConstraintName("FK_LendingProducts_EconomicZones");
+            });
+
+            modelBuilder.Entity<LendingContract>(entity =>
+            {
+                entity.ToTable("LendingContracts");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.ProductId).HasColumnType("bigint(20)");
+                entity.Property(e => e.LenderId).HasColumnType("bigint(20)");
+                entity.Property(e => e.LenderType).IsRequired().HasColumnType("varchar(50)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.BorrowerId).HasColumnType("bigint(20)");
+                entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Status).IsRequired().HasColumnType("varchar(30)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("longtext")
+                    .HasCharSet("utf8mb4").UseCollation("utf8mb4_general_ci");
+                entity.Property(e => e.SecurityKey).HasColumnType("varchar(200)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.EstateId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Principal).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.Interest).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.Surplus).HasColumnType("decimal(58,29)");
+                entity.HasIndex(e => e.ProductId);
+                entity.HasIndex(e => new { e.BorrowerId, e.EconomicZoneId, e.Status });
+                entity.HasIndex(e => new { e.LenderId, e.LenderType, e.Status });
+                entity.HasIndex(e => e.EstateId);
+                entity.HasIndex(e => e.SecurityKey).IsUnique();
+                entity.HasOne<LendingProduct>().WithMany().HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict).HasConstraintName("FK_LendingContracts_LendingProducts");
+                entity.HasOne<EconomicZone>().WithMany().HasForeignKey(e => e.EconomicZoneId)
+                    .OnDelete(DeleteBehavior.Restrict).HasConstraintName("FK_LendingContracts_EconomicZones");
+                entity.HasOne<Currency>().WithMany().HasForeignKey(e => e.CurrencyId)
+                    .OnDelete(DeleteBehavior.Restrict).HasConstraintName("FK_LendingContracts_Currencies");
+                entity.HasOne<Estate>().WithMany().HasForeignKey(e => e.EstateId)
+                    .OnDelete(DeleteBehavior.Restrict).HasConstraintName("FK_LendingContracts_Estates");
+            });
+
+            modelBuilder.Entity<LendingPosting>(entity =>
+            {
+                entity.ToTable("LendingPostings");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.ContractId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ActorId).HasColumnType("bigint(20)");
+                entity.Property(e => e.OperationKey).IsRequired().HasColumnType("varchar(200)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Kind).IsRequired().HasColumnType("varchar(40)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.MudDate).IsRequired().HasColumnType("varchar(255)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Detail).IsRequired().HasColumnType("varchar(1000)")
+                    .HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.RealDate).HasColumnType("datetime(6)");
+                entity.Property(e => e.Principal).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.Interest).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+                entity.HasIndex(e => new { e.ContractId, e.RealDate });
+                entity.HasIndex(e => new { e.ContractId, e.OperationKey }).IsUnique();
+                entity.HasIndex(e => e.ActorId);
+                entity.HasOne<LendingContract>().WithMany().HasForeignKey(e => e.ContractId)
+                    .OnDelete(DeleteBehavior.Restrict).HasConstraintName("FK_LendingPostings_LendingContracts");
+            });
         }
 
     }

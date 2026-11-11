@@ -156,6 +156,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Clan Command Surface and Permissions](./Economy/Clan_Command_Surface_and_Permissions.md)
 - [Clan Elections and External Control](./Economy/Clan_Elections_and_External_Control.md)
 - [Estate Probate and Item Ownership](./Economy/Estate_Probate_and_Item_Ownership.md)
+- [Loans, Mortgages and Pawnbroking (design proposal)](./Economy/Loans_and_Secured_Lending_Design.md)
 - [Law System Runtime](./Economy/Law_System_Runtime.md)
 
 ## Health

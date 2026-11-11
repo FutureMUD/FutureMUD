@@ -59,6 +59,7 @@ public abstract class CharacterLoginMenu : Menu
 
         _nextContext = Character;
         Character.Body.Look(false);
+        Economy.Lending.LoanService.NotifyBorrower(Character);
     }
 
     public override int Timeout => 3600000;

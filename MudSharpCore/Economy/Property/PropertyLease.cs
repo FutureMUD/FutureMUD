@@ -1,4 +1,4 @@
-﻿using MudSharp.Community;
+using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -350,6 +350,13 @@ public class PropertyLease : SaveableItem, IPropertyLease
 
     public void MakePayment(decimal paymentAmount)
     {
+        if (Lending.LoanService.PayRecoveryRent(_property, paymentAmount, () =>
+        {
+            var prior = PaymentBalance;
+            Lending.LoanService.OnRollback(() => PaymentBalance = prior);
+            PaymentBalance += paymentAmount;
+        })) return;
+        PaymentBalance += paymentAmount;
         foreach (IPropertyOwner owner in _property.PropertyOwners)
         {
             owner.CreditRevenue(_property.EconomicZone.Currency, paymentAmount * owner.ShareOfOwnership, null, _property,
@@ -357,7 +364,6 @@ public class PropertyLease : SaveableItem, IPropertyLease
                 _property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
-        PaymentBalance += paymentAmount;
     }
 
     private void EnsureLoadTenants()

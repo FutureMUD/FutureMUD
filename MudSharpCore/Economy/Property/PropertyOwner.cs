@@ -3,6 +3,7 @@ using MudSharp.Character.Name;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Lending;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
 
@@ -30,12 +31,20 @@ public class PropertyOwner : SaveableItem, IPropertyOwner, ILazyLoadDuringIdleTi
         {
             using (new FMDB())
             {
-                Gameworld.SaveManager.Flush();
+                bool transactional = LoanService.GuardingSettlement && FMDB.Context.Database.CurrentTransaction is not null;
+                if (!transactional)
+                {
+                    Gameworld.SaveManager.Flush();
+                }
+
                 Models.PropertyOwner dbitem = FMDB.Context.PropertyOwners.Find(Id);
                 if (dbitem != null)
                 {
                     FMDB.Context.PropertyOwners.Remove(dbitem);
-                    FMDB.Context.SaveChanges();
+                    if (!transactional)
+                    {
+                        FMDB.Context.SaveChanges();
+                    }
                 }
             }
         }

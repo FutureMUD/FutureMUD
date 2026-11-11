@@ -15153,6 +15153,205 @@ namespace MudSharp.Migrations
                     b.ToTable("LegalClasses");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.LendingContract", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BorrowerId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8mb4_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<long>("EconomicZoneId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("EstateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("Interest")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long>("LenderId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("LenderType")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LenderType"), "utf8");
+
+                    b.Property<decimal>("Principal")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("SecurityKey")
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SecurityKey"), "utf8");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Status"), "utf8");
+
+                    b.Property<decimal>("Surplus")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("EconomicZoneId");
+
+                    b.HasIndex("EstateId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SecurityKey")
+                        .IsUnique();
+
+                    b.HasIndex("BorrowerId", "EconomicZoneId", "Status");
+
+                    b.HasIndex("LenderId", "LenderType", "Status");
+
+                    b.ToTable("LendingContracts", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LendingPosting", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ActorId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long>("ContractId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasColumnType("varchar(1000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Detail"), "utf8");
+
+                    b.Property<decimal>("Interest")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("varchar(40)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Kind"), "utf8");
+
+                    b.Property<string>("MudDate")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("MudDate"), "utf8");
+
+                    b.Property<string>("OperationKey")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OperationKey"), "utf8");
+
+                    b.Property<decimal>("Principal")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<DateTime>("RealDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("ContractId", "OperationKey")
+                        .IsUnique();
+
+                    b.HasIndex("ContractId", "RealDate");
+
+                    b.ToTable("LendingPostings", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LendingProduct", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8mb4_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<long>("EconomicZoneId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<long>("LenderId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("LenderType")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LenderType"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EconomicZoneId");
+
+                    b.HasIndex("LenderId", "LenderType", "Name")
+                        .IsUnique();
+
+                    b.ToTable("LendingProducts", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.Limb", b =>
                 {
                     b.Property<long>("Id")
@@ -33820,6 +34019,56 @@ namespace MudSharp.Migrations
                     b.Navigation("LegalAuthority");
 
                     b.Navigation("MembershipProg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LendingContract", b =>
+                {
+                    b.HasOne("MudSharp.Models.Currency", null)
+                        .WithMany()
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_LendingContracts_Currencies");
+
+                    b.HasOne("MudSharp.Models.EconomicZone", null)
+                        .WithMany()
+                        .HasForeignKey("EconomicZoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_LendingContracts_EconomicZones");
+
+                    b.HasOne("MudSharp.Models.Estate", null)
+                        .WithMany()
+                        .HasForeignKey("EstateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_LendingContracts_Estates");
+
+                    b.HasOne("MudSharp.Models.LendingProduct", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_LendingContracts_LendingProducts");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LendingPosting", b =>
+                {
+                    b.HasOne("MudSharp.Models.LendingContract", null)
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_LendingPostings_LendingContracts");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LendingProduct", b =>
+                {
+                    b.HasOne("MudSharp.Models.EconomicZone", null)
+                        .WithMany()
+                        .HasForeignKey("EconomicZoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_LendingProducts_EconomicZones");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Limb", b =>

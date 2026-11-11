@@ -37,7 +37,7 @@ namespace MudSharp.Economy
             init => BidderId = CharacterInstanceIdentityComparer.IdentityId(value);
         }
         public decimal Bid { get; init; }
-        public MudDateTime BidDateTime { get; init; } = null!;
+        public MudDateTime BidDateTime { get; init => field = new MudDateTime(value); } = null!;
 
         public XElement SaveToXml()
         {
@@ -57,8 +57,9 @@ namespace MudSharp.Economy
         public decimal PropertyShare { get; init; } = 1.0M;
         public decimal MinimumPrice { get; init; }
         public decimal? BuyoutPrice { get; init; }
-        public MudDateTime ListingDateTime { get; init; } = null!;
-        public MudDateTime FinishingDateTime { get; init; } = null!;
+        public long? RecoveryContractId { get; init; }
+        public MudDateTime ListingDateTime { get; init => field = new MudDateTime(value); } = null!;
+        public MudDateTime FinishingDateTime { get; init => field = new MudDateTime(value); } = null!;
 
         public AuctionLotType LotType => Asset switch
         {
@@ -92,6 +93,7 @@ namespace MudSharp.Economy
                 new XAttribute("share", PropertyShare),
                 new XAttribute("price", MinimumPrice),
                 new XAttribute("buyout", BuyoutPrice.HasValue ? BuyoutPrice.Value : "none"),
+                new XAttribute("recovery", RecoveryContractId ?? 0L),
                 new XAttribute("list", ListingDateTime.GetDateTimeString()),
                 new XAttribute("finish", FinishingDateTime.GetDateTimeString()),
                 new XAttribute("account", PayoutTarget is IBankAccount account ? account.Id : 0L),
@@ -210,6 +212,7 @@ namespace MudSharp.Economy
         IReadOnlyCollection<AuctionItem> SettleFinishedAuctions();
         bool ClaimRefund(ICharacter actor);
         decimal CurrentBid(AuctionItem item);
+        bool OwesSeller(IFrameworkItem seller);
         void CancelItem(AuctionItem item);
     }
 }

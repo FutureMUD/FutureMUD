@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261111024432_ClanFormsOfAddress",
-  "GeneratedUtc": "2026-11-11T02:59:36.854685Z"
+  "LatestMigrationId": "20261111103628_AddLendingContracts",
+  "GeneratedUtc": "2026-11-11T10:45:22.7069657Z"
 }

@@ -491,7 +491,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
             return false;
         }
 
-        DepositFeeFlat = amount;
+        WithdrawalFleeFlat = amount;
         Changed = true;
         actor.OutputHandler.Send(
             $"This bank account type will now charge a flat fee of {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per withdrawal transaction.");
@@ -1028,6 +1028,13 @@ public class BankAccountType : SaveableItem, IBankAccountType
     }
 
     public string CustomerDescription { get; set; }
+
+    public decimal QuoteTransactionWithdrawalFees(IBankAccount account, decimal amount)
+    {
+        var overdrawnBalance = account.CurrentBalance - amount;
+        return amount * WithdrawalFleeRate + WithdrawalFleeFlat +
+               (overdrawnBalance < 0 ? overdrawnBalance * OverdrawFeeRate + OverdrawFeeFlat : 0M);
+    }
 
     public void DoTransactionFeesWithdrawal(IBankAccount account, decimal amount)
     {

@@ -15,6 +15,8 @@ public static class EmploymentCandidateMatcher
 			{
 				EmploymentAICapability.CanManageEmploymentHost
 			},
+			EmploymentRole.MedicalWorker => new HashSet<EmploymentAICapability> { EmploymentAICapability.CanPerformMedicalServices },
+			EmploymentRole.HospitalOrderly => new HashSet<EmploymentAICapability> { EmploymentAICapability.CanPrepareHospitalSupplies },
 			EmploymentRole.Chef => new HashSet<EmploymentAICapability>
 			{
 				EmploymentAICapability.CanCraft

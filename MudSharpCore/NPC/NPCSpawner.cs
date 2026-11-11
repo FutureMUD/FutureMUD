@@ -699,9 +699,11 @@ Note that the #6Multi#0 strategy has additional building commands:
 
     public int CountCurrentNPCs(INPCTemplate npcTemplate)
     {
-        return MonitoredZones
-               .SelectMany(x => x.Characters)
+        var zones = MonitoredZones.ToHashSet();
+        return zones.SelectMany(x => x.Characters)
                .OfType<INPC>()
+               .Concat(MudSharp.Economy.Employment.EmploymentHiringPass.DormantWorkers(Gameworld)
+                   .Where(x => x.Location is not null && zones.Contains(x.Location.Zone)))
                .Where(x => x.Template.Id == npcTemplate.Id)
                .Count(x => CountAsNPCProg?.Execute<bool?>(x) ?? true);
     }

@@ -64,6 +64,7 @@ public class EmploymentWorkerAI : PathingAIBase
 	public IReadOnlySet<EmploymentAICapability> Capabilities => _capabilities;
 	public EmploymentHostType? HostTypeFilter { get; private set; }
 	public uint MaxPathRange { get; private set; }
+	public bool UnemployedStasis { get; private set; }
 	public bool SearchEnabled { get; private set; }
 	public bool TaskingEnabled { get; private set; }
 	public TimeSpan SearchCadence { get; private set; }
@@ -95,6 +96,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		MaxPathRange = uint.TryParse(root.Element("MaxPathRange")?.Value, out var range) && range > 0
 			? range
 			: 50;
+		UnemployedStasis = bool.TryParse(root.Element("UnemployedStasis")?.Value, out var stasis) && stasis;
 		SearchEnabled = bool.TryParse(root.Element("SearchEnabled")?.Value, out var searchEnabled)
 			? searchEnabled
 			: true;
@@ -151,6 +153,7 @@ public class EmploymentWorkerAI : PathingAIBase
 			new XElement("Currency", Currency?.Id ?? 0L),
 			new XElement("ReservationWage", ReservationWage),
 			new XElement("MaxPathRange", MaxPathRange),
+			new XElement("UnemployedStasis", UnemployedStasis),
 			new XElement("SearchEnabled", SearchEnabled),
 			new XElement("TaskingEnabled", TaskingEnabled),
 			new XElement("SearchCadenceMinutes", SearchCadence.TotalMinutes),
@@ -179,6 +182,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		sb.AppendLine($"Capabilities: {_capabilities.Select(x => x.DescribeEnum().ColourName()).ListToString()}");
 		sb.AppendLine($"Host Filter: {(HostTypeFilter?.DescribeEnum().ColourName() ?? "any".ColourValue())}");
 		sb.AppendLine($"Max Path Range: {MaxPathRange.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Stasis While Unemployed: {UnemployedStasis.ToColouredString()}");
 		sb.AppendLine($"Search Enabled: {SearchEnabled.ToColouredString()}");
 		sb.AppendLine($"Tasking Enabled: {TaskingEnabled.ToColouredString()}");
 		sb.AppendLine($"Search Cadence: {SearchCadence.Describe(actor).ColourValue()}");
@@ -193,9 +197,10 @@ public class EmploymentWorkerAI : PathingAIBase
 	#3capability <capability>#0 - toggles an AI task capability; manager, doctor/medical and orderly/nurse/supplies are shortcuts
 	#3host <any|type>#0 - restricts this worker to a host type, including hospital/clinic/infirmary
 	#3range <exits>#0 - sets maximum job/task path range
+	#3stasis#0 - toggles logging out idle, unemployed NPCs until hired
 	#3search#0 - toggles autonomous job searching
 	#3tasking#0 - toggles autonomous task claiming/execution
-	#3cadence <minutes>#0 - sets job-search scan cadence
+	#3cadence <minutes>#0 - sets the minimum interval between searches on the five-minute hiring pass
 	#3arrears <days>#0 - sets how many overdue unpaid days this worker tolerates";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -222,6 +227,11 @@ public class EmploymentWorkerAI : PathingAIBase
 			case "path":
 			case "pathrange":
 				return BuildingCommandRange(actor, command);
+			case "stasis":
+				UnemployedStasis = !UnemployedStasis;
+				Changed = true;
+				actor.OutputHandler.Send($"Idle NPCs with this AI will {UnemployedStasis.NowNoLonger()} enter stasis while unemployed.");
+				return true;
 			case "search":
 				SearchEnabled = !SearchEnabled;
 				Changed = true;
@@ -516,7 +526,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		var host = ActiveEmploymentHost(character);
 		if (host is null)
 		{
-			return SearchEnabled && TryApplyForEmployment(character);
+			return false;
 		}
 
 		if (TryHandlePayroll(character, host))
@@ -568,60 +578,6 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		return (target, ch.PathBetween(target, MaxPathRange, GetSuitabilityFunction(ch)).ToList());
-	}
-
-	private bool TryApplyForEmployment(ICharacter candidate)
-	{
-		if (candidate.AffectedBy<EmploymentWorkerSearchCooldownEffect>())
-		{
-			DebugWorker(candidate, "skipped employment search because its search cooldown is still active.");
-			return false;
-		}
-
-		if (HasPendingEmploymentApplication(candidate))
-		{
-			DebugWorker(candidate, "skipped employment search because it already has a pending employment application.");
-			return false;
-		}
-
-		var profile = BuildCandidateProfile(candidate);
-		DebugWorker(candidate,
-			$"searching for employment openings with reservation wage {ReservationWage:N2}, payment methods {_acceptedPaymentMethods.Select(x => x.DescribeEnum()).ListToString()}, capabilities {_capabilities.Select(x => x.DescribeEnum()).ListToString()}, host filter {HostTypeFilter?.DescribeEnum() ?? "any"}.");
-		var opening = EmploymentHosts(candidate.Gameworld)
-		              .Where(HostMatchesFilter)
-		              .SelectMany(host => host.JobOpenings.Select(job => (Host: host, Opening: job)))
-		              .Where(x => x.Opening.Status == JobOpeningStatus.Open && x.Opening.AcceptsApplications)
-		              .Where(x => !HasCurrentApplication(candidate, x.Host, x.Opening))
-		              .Where(x => !HasRecentRejectedApplication(candidate, x.Host, x.Opening))
-		              .Where(x => EmploymentCandidateMatcher.IsMatch(x.Opening, profile, out _))
-		              .Where(x => HostReputationAcceptable(candidate, x.Host))
-		              .Select(x => (x.Host, x.Opening, WorkRoom: PrimaryWorkRoom(x.Host)))
-		              .Select(x => (
-			              x.Host,
-			              x.Opening,
-			              EffectivePay: EmploymentCompensationEvaluator.EffectiveHourlyGlobalAmount(x.Opening.Compensation),
-			              OverdueDays: EmployerOverdueDays(x.Host),
-			              CommuteDistance: CommuteDistance(candidate, x.WorkRoom)))
-		              .Where(x => x.CommuteDistance != int.MaxValue)
-		              .OrderByDescending(x => x.EffectivePay)
-		              .ThenBy(x => x.OverdueDays)
-		              .ThenBy(x => x.CommuteDistance)
-		              .ThenBy(x => x.Host.EmploymentHostName)
-		              .FirstOrDefault();
-
-		AddSearchCooldown(candidate);
-		if (opening.Host is null)
-		{
-			DebugWorker(candidate, "found no matching reachable employment opening.");
-			return false;
-		}
-
-		DebugWorker(candidate,
-			$"applying to {opening.Host.EmploymentHostType.DescribeEnum()} #{opening.Host.Id:N0} {opening.Host.EmploymentHostName} opening #{opening.Opening.Id:N0} ({opening.Opening.Role.DescribeEnum()}).");
-		var application = opening.Host.Employment.Apply(opening.Opening, profile);
-		DebugWorker(candidate,
-			$"created application #{application.Id:N0} with status {application.Status.DescribeEnum()} for {opening.Host.EmploymentHostName}.");
-		return true;
 	}
 
 	private void EvaluateHostWork(ICharacter worker, IEmploymentHost host)
@@ -679,7 +635,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		var contracts = host.ActiveEmploymentContracts()
-		                    .Where(x => x.Employee.Id == worker.Id)
+		                    .Where(x => x.Employee.Id == worker.Id && x.Duration.DurationType != EmploymentDurationType.Permanent)
 		                    .ToList();
 		if (!contracts.Any())
 		{
@@ -866,6 +822,11 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private IEmploymentHost? ActiveEmploymentHost(ICharacter worker)
 	{
+		if (EmploymentHiringPass.IsKnownUnemployed(worker))
+		{
+			return null;
+		}
+
 		IEmploymentHost? bestHost = null;
 		IEmploymentActiveTask? bestPending = null;
 		var bestHasAssignedWork = false;
@@ -977,7 +938,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		return candidate.Id.CompareTo(current.Id) < 0;
 	}
 
-	private EmploymentCandidateProfile BuildCandidateProfile(ICharacter candidate)
+	internal EmploymentCandidateProfile BuildCandidateProfile(ICharacter candidate)
 	{
 		var skills = (candidate.CharacterTraits ?? Array.Empty<ITrait>())
 		             .Where(x => x.Definition is not null)
@@ -1167,93 +1128,12 @@ public class EmploymentWorkerAI : PathingAIBase
 		           .FirstOrDefault();
 	}
 
-	private bool HasPendingEmploymentApplication(ICharacter candidate)
-	{
-		return EmploymentHosts(candidate.Gameworld).Any(host =>
-			host.Employment.Applications.Any(x =>
-				x.Candidate.Id == candidate.Id &&
-				x.Status == JobApplicationStatus.Pending));
-	}
-
-	private bool HasCurrentApplication(ICharacter candidate, IEmploymentHost host, IJobOpening opening)
-	{
-		return host.Employment.Applications.Any(x =>
-			x.Candidate.Id == candidate.Id &&
-			x.Opening.Id == opening.Id &&
-			x.Status is JobApplicationStatus.Pending or JobApplicationStatus.Accepted);
-	}
-
-	private bool HasRecentRejectedApplication(ICharacter candidate, IEmploymentHost host, IJobOpening opening)
-	{
-		var rejected = host.Employment.Applications
-		                   .Where(x => x.Candidate.Id == candidate.Id)
-		                   .Where(x => x.Opening.Id == opening.Id)
-		                   .Where(x => x.Status == JobApplicationStatus.Rejected)
-		                   .OrderByDescending(x => x.AppliedAt)
-		                   .FirstOrDefault();
-		if (rejected is null)
-		{
-			return false;
-		}
-
-		var memoryWindow = SearchCadence * 6.0;
-		var age = EmploymentClock.CurrentInstant(host) - rejected.AppliedAt;
-		if (age >= memoryWindow)
-		{
-			return false;
-		}
-
-		var existing = candidate.EffectsOfType<EmploymentWorkerRejectedOpeningEffect>()
-		                        .Any(x => x.Matches(host, opening));
-		if (!existing)
-		{
-			candidate.AddEffect(new EmploymentWorkerRejectedOpeningEffect(candidate, host, opening), memoryWindow - age);
-		}
-
-		return true;
-	}
-
-	private void AddSearchCooldown(ICharacter candidate)
-	{
-		if (SearchCadence <= TimeSpan.Zero)
-		{
-			return;
-		}
-
-		candidate.AddEffect(new EmploymentWorkerSearchCooldownEffect(candidate), SearchCadence);
-	}
-
-	private bool HostMatchesFilter(IEmploymentHost host)
+	internal bool HostMatchesFilter(IEmploymentHost host)
 	{
 		return HostTypeFilter is null || host.EmploymentHostType == HostTypeFilter.Value;
 	}
 
-	private bool HostReputationAcceptable(ICharacter worker, IEmploymentHost host)
-	{
-		if (!host.Payroll.OutstandingLiabilities.Any())
-		{
-			return true;
-		}
-
-		var overdueDays = host.Payroll.MaximumOverdueDays();
-		if (overdueDays < MaximumUnpaidOverdueDays)
-		{
-			return true;
-		}
-
-		DebugWorker(worker,
-			$"skipped {host.EmploymentHostName} because its payroll has {overdueDays:N0} overdue unpaid day(s).");
-		return false;
-	}
-
-	private static int EmployerOverdueDays(IEmploymentHost host)
-	{
-		return host.Payroll.OutstandingLiabilities.Any()
-			? host.Payroll.MaximumOverdueDays()
-			: 0;
-	}
-
-	private int CommuteDistance(ICharacter worker, IRoom? room)
+	internal int CommuteDistance(ICharacter worker, IRoom? room)
 	{
 		if (room is null || SameRoom(worker.Location, room))
 		{
@@ -1274,7 +1154,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		return worker.PathBetween(room, MaxPathRange, GetSuitabilityFunction(worker))?.Any() == true;
 	}
 
-	private static IRoom? PrimaryWorkRoom(IEmploymentHost host)
+	internal static IRoom? PrimaryWorkRoom(IEmploymentHost host)
 	{
 		return host switch
 		{

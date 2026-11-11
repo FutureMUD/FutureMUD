@@ -851,6 +851,10 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
         }
 #endif
         DateTime oldLoginTime = loginCharacter.LoginDateTime;
+        if (loginCharacter.RemoveAllEffects<EmploymentStasisEffect>())
+        {
+            MudSharp.Economy.Employment.EmploymentHiringPass.ForgetDormant(loginCharacter);
+        }
         loginCharacter.State &= ~CharacterState.Stasis;
         loginCharacter.LastMinutesUpdate = System.DateTime.UtcNow;
         loginCharacter.LoginDateTime = System.DateTime.UtcNow;

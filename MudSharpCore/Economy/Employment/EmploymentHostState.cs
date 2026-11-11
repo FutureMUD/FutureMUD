@@ -103,6 +103,11 @@ public sealed class EmploymentHostState : IEmploymentHostState
 
 	public IEmploymentContract Hire(ICharacter candidate, EmploymentOffer offer, ICharacter? authorisedBy)
 	{
+		if (offer.Duration.DurationType == EmploymentDurationType.Permanent && authorisedBy?.IsAdministrator() != true)
+		{
+			throw new InvalidOperationException("Only an administrator can assign permanent employees.");
+		}
+
 		if (!CanEmploy(candidate, offer.Role, out var reason))
 		{
 			throw new InvalidOperationException(reason);
@@ -140,6 +145,7 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			null);
 		_contracts.Add(contract);
 		_persistence?.SaveContract(contract);
+		EmploymentHiringPass.EmployeeHired(candidate);
 		EmploymentRegister.Record(
 			EmploymentRegisterEntryType.ContractHired,
 			authorisedBy,
@@ -155,6 +161,11 @@ public sealed class EmploymentHostState : IEmploymentHostState
 		if (contract is not EmploymentContract concrete || !ReferenceEquals(concrete.Employer, Host))
 		{
 			throw new InvalidOperationException("That employment contract does not belong to this host.");
+		}
+
+		if (concrete.Duration.DurationType == EmploymentDurationType.Permanent && authorisedBy?.IsAdministrator() != true)
+		{
+			throw new InvalidOperationException("Only an administrator can end a permanent assignment.");
 		}
 
 		if (authorisedBy is not null && !HasAuthority(authorisedBy, EmploymentAuthority.FireEmployees))

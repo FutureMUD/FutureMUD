@@ -619,7 +619,7 @@ public partial class Property : SaveableItem, IProperty
         foreach (var hospital in PropertyHospitals)
         {
             foreach (var contract in hospital.EmploymentContracts
-                                         .Where(x => x.Role == EmploymentRole.Proprietor)
+                                         .Where(x => x.Role == EmploymentRole.Proprietor && x.Duration.DurationType != EmploymentDurationType.Permanent)
                                          .Where(x => x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended)
                                          .Where(x => x.Employee.Id != whoId)
                                          .ToList())
@@ -632,7 +632,7 @@ public partial class Property : SaveableItem, IProperty
                                        x.Role == EmploymentRole.Proprietor &&
                                        x.Employee.Id == whoId &&
                                        x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended);
-            if (existing?.Status == EmploymentStatus.Active)
+            if (existing?.Status == EmploymentStatus.Active || existing?.Duration.DurationType == EmploymentDurationType.Permanent)
             {
                 continue;
             }
@@ -657,7 +657,7 @@ public partial class Property : SaveableItem, IProperty
         foreach (var hospital in PropertyHospitals)
         {
             foreach (var contract in hospital.EmploymentContracts
-                                         .Where(x => x.Role == EmploymentRole.Proprietor)
+                                         .Where(x => x.Role == EmploymentRole.Proprietor && x.Duration.DurationType != EmploymentDurationType.Permanent)
                                          .Where(x => x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended)
                                          .ToList())
             {

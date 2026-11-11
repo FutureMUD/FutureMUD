@@ -469,6 +469,8 @@ Current operational boundaries:
 - worker AI does not autonomously retry active tasks once they enter `Blocked`; blocked logistics tasks preserve any task-item custody for manager review instead of producing repeated delivery attempts
 - proprietor contracts cannot be terminated by non-admin managers, and manager goals must require the combined authority of the declared goal, its conditions, and its action plan
 - durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables; hospitals persist their own service, room-role, request, and patient-debt tables
+- a world hiring pass runs every five real minutes. It ranks vacancies by currency-normalised hourly pay, payroll arrears and commute distance, and counts pending applications against the available places for automatic matching. Manager approval activates the contract. Workers in employment stasis retain their room and remain eligible for hiring while ordinary NPC simulation is stopped.
+- permanent assignments use the existing stored contract duration. They retain payroll liabilities and delegated role authority until an administrator terminates them. Medical workers and hospital orderlies require their respective treatment and supplies AI capabilities during automatic matching and permanent assignment.
 - central scheduled-rule evaluation runs once per minute and worker AI can also evaluate its current host before claiming work
 - legacy shop/stable employee XML, bank/arena manager lists, and the PC-facing job system are not migrated into the new contracts by default
 

@@ -782,6 +782,12 @@ internal sealed class EmploymentCommandService
 			return false;
 		}
 
+		if (contracts.Any(x => x.Duration.DurationType == EmploymentDurationType.Permanent))
+		{
+			message = "An administrator must end your permanent assignment.";
+			return false;
+		}
+
 		foreach (var contract in contracts)
 		{
 			host.Employment.Fire(contract, EmploymentTerminationReason.Resigned, null);
@@ -821,7 +827,7 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Employment contracts for {host.EmploymentHostName.ColourName()}:");
 		foreach (var contract in host.EmploymentContracts.OrderBy(x => x.Employee.Name).ThenBy(x => x.Role))
 		{
-			sb.AppendLine($"\t#{contract.Id.ToString("N0", actor)} - {contract.Employee.HowSeen(actor, colour: false).ColourName()} - {contract.Role.DescribeEnum().ColourName()} - {contract.Status.DescribeEnum().ColourValue()} - {contract.Authority.Authorities.DescribeEnum()}");
+			sb.AppendLine($"\t#{contract.Id.ToString("N0", actor)} - {contract.Employee.HowSeen(actor, colour: false).ColourName()} - {contract.Role.DescribeEnum().ColourName()} - {contract.Status.DescribeEnum().ColourValue()}{(contract.Duration.DurationType == EmploymentDurationType.Permanent ? " (permanent)" : "")} - {contract.Authority.Authorities.DescribeEnum()}");
 		}
 
 		return sb.ToString();
@@ -1247,6 +1253,9 @@ internal sealed class EmploymentCommandService
 			case "show":
 				SendOperationalView(actor, host, RenderContracts);
 				return;
+			case "assign":
+				AssignPermanentEmployee(actor, host, input);
+				return;
 			case "fire":
 			case "terminate":
 			case "end":
@@ -1282,6 +1291,74 @@ internal sealed class EmploymentCommandService
 		}
 
 		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private static void AssignPermanentEmployee(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		if (!actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send("Only administrators can assign permanent employees.");
+			return;
+		}
+
+		var targetText = input.PopSpeech();
+		var roleText = input.PopSpeech();
+		if (targetText.Length == 0 || !roleText.TryParseEnum(out EmploymentRole role))
+		{
+			actor.OutputHandler.Send($"Use {"contracts assign <npc or #id> <role> [hourly pay]".ColourCommand()}. Roles include {Enum.GetValues<EmploymentRole>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return;
+		}
+
+		var world = actor.Gameworld;
+		var target = long.TryParse(targetText.TrimStart('#'), out var id)
+			? world.NPCs.Get(id) ?? EmploymentHiringPass.DormantWorkers(world).FirstOrDefault(x => x.Id == id)
+			: actor.TargetActor(targetText);
+		if (target is not INPC npc || !npc.IsPrimaryInstance || npc.State.IsDead())
+		{
+			actor.OutputHandler.Send("Specify a living employee NPC nearby, or use its character ID.");
+			return;
+		}
+
+		var required = EmploymentCandidateMatcher.ImplicitCapabilitiesForRole(role);
+		if (!npc.AIs.OfType<EmploymentWorkerAI>().Any(x => x.HostMatchesFilter(host) && required.All(x.Capabilities.Contains)))
+		{
+			actor.OutputHandler.Send($"The NPC needs an EmploymentWorker AI configured for this host and role. Required capabilities: {required.Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return;
+		}
+
+		var pay = UnpaidCompensation();
+		if (!input.IsFinished)
+		{
+			var currency = ResolveHostCurrency(host);
+			if (currency is null || !currency.TryGetBaseCurrency(input.SafeRemainingArgument, out var rate) || rate <= 0)
+			{
+				actor.OutputHandler.Send("Specify a positive hourly wage in the host's currency, or omit it for unpaid service.");
+				return;
+			}
+			var amount = new MoneyAmount(currency, rate);
+			pay = new CompensationTerms(amount, null, PayCadence.Hourly, amount, PaymentSource.HostCash);
+		}
+
+		var offer = new EmploymentOffer(role, pay, WorkSchedule.AnyTime,
+			new EmploymentDuration(EmploymentDurationType.Permanent), new PaymentMethod(PaymentMethodKind.Cash),
+			DefaultDirectHireAuthority(role));
+		try
+		{
+			var contract = host.Hire(npc, offer, actor);
+			foreach (var employer in EmploymentHostDiscovery.LoadedHosts(world))
+			{
+				foreach (var pending in employer.Employment.Applications
+				         .Where(x => x.Candidate.Id == npc.Id && x.Status == JobApplicationStatus.Pending).ToList())
+				{
+					employer.Employment.RejectApplication(pending, actor, "Candidate received a permanent assignment.");
+				}
+			}
+			actor.OutputHandler.Send($"You permanently assign {npc.HowSeen(actor)} to {host.EmploymentHostName.ColourName()} as {role.DescribeEnum().ColourName()} (contract #{contract.Id.ToString("N0", actor)}).");
+		}
+		catch (InvalidOperationException ex)
+		{
+			actor.OutputHandler.Send(ex.Message);
+		}
 	}
 
 	private void HandleContractAuthority(ICharacter actor, IEmploymentHost host, StringStack input)
@@ -2481,6 +2558,12 @@ internal sealed class EmploymentCommandService
 			return false;
 		}
 
+		if (!actor.IsAdministrator() && contracts.Any(x => x.Duration.DurationType == EmploymentDurationType.Permanent))
+		{
+			message = "An administrator must terminate the permanent assignment. Other contracts can be ended individually.";
+			return false;
+		}
+
 		try
 		{
 			foreach (var contract in contracts)
@@ -2911,6 +2994,7 @@ Employment records:
 
 	#3employment <host type> <host> status#0 - shows employment status
 	#3employment <host type> <host> contracts#0 - lists employment contracts
+	#3employment <host type> <host> contracts assign <npc or ##id> <role> [hourly pay]#0 - admin assigns a permanent employee directly
 	#3employment <host type> <host> contracts fire <##>#0 - terminates an active employment contract
 	#3employment <host type> <host> contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3employment <host type> <host> openings#0 - lists visible job openings

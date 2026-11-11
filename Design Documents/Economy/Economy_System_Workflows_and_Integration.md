@@ -413,6 +413,10 @@ Unified employment builders additionally need:
 - task item selectors using prototype id by default, `*<id>` for live item id, `&<id|name>` for verified tags, and visible keywords for room-targeted items
 - enough physical world layout for worker pathing, inventory plans, stockrooms, shopfronts, tills, containers, workstations, delivery cells, and for clan hosts either clan-owned property cells or admin-managed clan hall cells
 
+To keep unemployed NPCs out of the world while they await work, edit their EmploymentWorker AI and use `ai set stasis`. This toggle applies to every NPC using the definition and defaults to off. With search enabled, the hiring pass still submits applications on their behalf. Managers can accept these through the usual applications command.
+
+For build-time staff, use `employment <host type> <host> contracts assign <npc or #character-id> <role> [hourly pay]`. For example, `employment hospital 3 contracts assign #420 MedicalWorker` assigns an unpaid doctor. Give the AI `capability doctor` first. Use `HospitalOrderly` with `capability orderly`, or `Manager` with `capability manager`. A character ID also selects a worker in employment stasis. Omit the wage for an unpaid role or enter a positive amount in the host currency. Administrators can release staff with `contracts fire <contract-id>`.
+
 Paid project builders additionally need:
 
 - live local projects with current-phase labour or material requirements, not just approved catalogue definitions

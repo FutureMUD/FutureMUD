@@ -280,7 +280,13 @@ An employment opening should not be allowed to offer a non-positive wage unless 
 
 ## 11. NPC employment-seeking AI
 
-Create an AI behaviour that periodically searches for employment openings. The behaviour should:
+A single five-minute world pass handles marketplace searches for all NPCs with EmploymentWorker AI, including managers, doctors and orderlies. It reads vacancies, applications and contracts once per pass. Each ready candidate applies to a reachable opening with the highest qualifying global hourly rate, breaking ties by fewer overdue payroll days and then shorter travel. Pending applications for the current opening revision reserve places in this automatic allocation. Managers still decide each application. The worker's configured search cadence can defer it to a later pass.
+
+Builders can enable unemployed stasis on an AI definition. An idle worker then logs out while waiting and remains available to the hiring pass from the last room. A pending application alone keeps the worker asleep. A contract or disabling the flag returns the NPC to its room on the next pass. The saved employment stasis effect distinguishes these workers from offline companions and stabled mounts.
+
+Administrators can also assign a permanent role directly to a particular NPC. This creates a regular host contract with role authority, optional hourly pay, and a permanent duration. Outstanding wages remain payable and the worker stays employed. An administrator can end the assignment through the contract command.
+
+The broader candidate-selection design includes the following considerations:
 
 1. Find visible employment openings in the relevant market, region, or reachable world area.
 2. Filter openings by requirements: skills, knowledges, capabilities, tags, availability, and pathing.

@@ -27,10 +27,12 @@ internal static partial class LoanService
 		    amount <= 0 || amount > balance) return $"Enter a positive withdrawal up to {Money(zone.Currency, balance)}.";
 		var coins = zone.Currency.FindCoinsForAmount(amount, out var exact);
 		if (!exact) return "Choose an amount that can be paid in exact coins.";
+		var reason = $"Proceeds withdrawn at the conveyancer {Guid.NewGuid():N}";
+		_settlement!.ProceedsReceipt = reason;
 		if (!VirtualCashLedger.Debit(payee, zone.Currency, amount, actor, actor, "PropertyProceeds",
-			    "Proceeds withdrawn at the conveyancer", null, zone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
+			    reason, null, zone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
 			return error;
 		GiveCash(actor, zone.Currency, coins);
 		return $"You collect {Money(zone.Currency, amount)}.";
-	});
+	}, guard: true);
 }

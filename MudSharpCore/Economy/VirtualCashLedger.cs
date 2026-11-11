@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
@@ -454,8 +454,7 @@ public static class VirtualCashLedger
 		{
 			bankAccount.WithdrawFromTransaction(bankAmount, reason);
 		}
-		bankAccount.Bank.CurrencyReserves[currency] -= bankAmount;
-		bankAccount.Bank.Changed = true;
+		Lending.LoanService.AdjustReserves(bankAccount.Bank, currency, -bankAmount);
 		return true;
 	}
 

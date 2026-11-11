@@ -20,6 +20,7 @@ internal static partial class LoanService
 		internal Stack<Action> Undo { get; } = new();
 		internal List<Action> Committed { get; } = new();
 		internal (long ContractId, string OperationKey)? Receipt { get; set; }
+		internal string? ProceedsReceipt { get; set; }
 	}
 
 	[ThreadStatic] private static Settlement? _settlement;
@@ -33,15 +34,24 @@ internal static partial class LoanService
 
 	private static string GuardedSettlement(IFuturemud world, Func<string> action)
 	{
+		try { return GuardedTransaction(world, action); }
+		catch (Exception failure) when (IsDatabaseFailure(failure))
+		{
+			return "The settlement could not be completed. Your payment was not taken. You can try again.";
+		}
+	}
+
+	private static T GuardedTransaction<T>(IFuturemud world, Func<T> action)
+	{
 		using var caller = new FMDB();
 		var relational = FMDB.Context.Database.IsRelational();
 		if (relational && FMDB.Context.Database.CurrentTransaction != null)
-			return "Finish the current transaction before attempting this settlement.";
+			throw new InvalidOperationException("Finish the current transaction before attempting this settlement.");
 
 		world.SaveManager.Flush();
 		var settlement = new Settlement();
 		var commitSent = false;
-		string result = string.Empty;
+		T result = default!;
 		_settlement = settlement;
 		try
 		{
@@ -68,12 +78,11 @@ internal static partial class LoanService
 		catch (Exception failure)
 		{
 			_settlement = null;
-			if (!commitSent || settlement.Receipt is not { } receipt || !ReceiptCommitted(receipt))
+			if (!commitSent || !SettlementCommitted(settlement))
 			{
 				foreach (var undo in settlement.Undo) undo();
-				if (!IsDatabaseFailure(failure)) throw;
 				ExceptionReporter.WriteFallback(null, ExceptionReporter.Format(failure, "Lending settlement rolled back", false));
-				return "The settlement could not be completed. Your payment was not taken. You can try again.";
+				throw;
 			}
 		}
 		finally { _settlement = null; }
@@ -91,11 +100,25 @@ internal static partial class LoanService
 		return result;
 	}
 
-	private static bool IsDatabaseFailure(Exception failure)
+	internal static bool IsDatabaseFailure(Exception failure)
 	{
 		for (Exception? cause = failure; cause != null; cause = cause.InnerException)
 			if (cause is DbException or DbUpdateException or TimeoutException or System.IO.IOException or System.Net.Sockets.SocketException) return true;
 		return false;
+	}
+
+	private static bool SettlementCommitted(Settlement settlement)
+	{
+		if (settlement.Receipt is { } receipt) return ReceiptCommitted(receipt);
+		if (settlement.ProceedsReceipt is not { } reason) return false;
+		return VerifyCommit(() =>
+		{
+			using var scope = FMDB.BeginIndependentScope(requireWrites: true);
+			using var handle = new FMDB();
+			var db = FMDB.Context;
+			using var tx = db.Database.BeginTransaction(IsolationLevel.Serializable);
+			return db.Database.SqlQuery<long>($"SELECT Id FROM VirtualCashLedgerEntries WHERE Reason = {reason} FOR UPDATE").ToList().Count != 0;
+		}, () => System.Threading.Thread.Sleep(TimeSpan.FromSeconds(2)));
 	}
 
 	private static bool ReceiptCommitted((long ContractId, string OperationKey) receipt)
@@ -140,6 +163,43 @@ internal static partial class LoanService
 		if (GuardingSettlement) OnRollback(() => bank.CurrencyReserves[currency] = previous);
 		bank.CurrencyReserves[currency] = previous + amount;
 		bank.Changed = true;
+	}
+
+	private static void TakeSettlementCoins(ICurrency currency, List<ICurrencyPile> piles, decimal amount)
+	{
+		var selection = currency.FindCurrency(piles, amount);
+		var value = selection.Sum(x => x.Value.Sum(c => c.Key.Value * c.Value));
+		var change = currency.FindCoinsForAmount(value - amount, out var exact);
+		if (value < amount || value > amount && !exact || selection.Keys.Any(x => SpellOwnedItemValuePolicy.ContainsTemporaryValue(x.Parent)))
+			throw new InvalidOperationException("The shop cannot tender the advance and its change.");
+		var first = selection.Keys.First();
+		foreach (var (source, debit) in selection)
+		{
+			var pile = (CurrencyGameItemComponent)source;
+			var before = pile.Coins.ToDictionary(x => x.Item1, x => x.Item2);
+			var after = new Dictionary<ICoin, int>(before);
+			foreach (var (coin, count) in debit) { after[coin] -= count; if (after[coin] == 0) after.Remove(coin); }
+			if (source == first) foreach (var (coin, count) in change) after[coin] = after.GetValueOrDefault(coin) + count;
+			OnRollback(() => pile.ReplacePreparedCoins(before));
+			pile.ReplacePreparedCoins(after);
+			pile.MarkPreparedCoinsChanged();
+			AfterCommit(() => { if (!pile.Coins.Any()) pile.Parent.Delete(); else pile.NotifyCurrencyTransferDebit(); });
+		}
+	}
+
+	private static void PrepareItemCollection(ICharacter actor, GameItem item)
+	{
+		var point = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		var room = (Room)point.Room;
+		OnRollback(() => room.SetPreparedCurrencyRoomMembership(item, false));
+		item.SetLendingPosition(point);
+		room.SetPreparedCurrencyRoomMembership(item, true);
+		room.ContentsChanged = true;
+		AfterCommit(() =>
+		{
+			if (actor.Location == room && actor.Body.CanGet(item, 0)) actor.Body.GetWithoutMerge(item);
+			else actor.OutputHandler.Send("Your pledged item is beside you at the counter.");
+		});
 	}
 
 	private static void TakeSettlementCash(ICharacter actor, ICurrency currency, decimal amount)

@@ -6,6 +6,22 @@ namespace MudSharp.Economy.Lending;
 
 internal static partial class LoanService
 {
+	internal static bool PayRecoveryRent(IProperty property, decimal rent, Action updateLease)
+	{
+		if (rent <= 0 || !HasPortfolio(property.Gameworld)) return false;
+		using var handle = new FMDB();
+		var security = $"Property:{property.Id}";
+		var loan = FMDB.Context.LendingContracts.SingleOrDefault(x => x.SecurityKey == security && x.Status == "Recovery");
+		if (loan == null) return false;
+		return InTransaction(property.Gameworld, () =>
+		{
+			RecordSettlement(property.Gameworld, loan.Id, "Recovery rent");
+			updateLease();
+			if (!CreditRecoveryRent(property, rent)) throw new InvalidOperationException("Recovery rent authority changed.");
+			return true;
+		});
+	}
+
 	internal static bool CreditRecoveryRent(IProperty property, decimal rent)
 	{
 		var zone = property.EconomicZone;

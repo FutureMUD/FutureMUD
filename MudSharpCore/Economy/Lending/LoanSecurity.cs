@@ -36,11 +36,14 @@ internal static partial class LoanService
 		       zone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 	}
 
+	private static bool HasBusiness(IProperty property) =>
+		property.PropertyLocations.Any(x => x.Shop != null) || property.ExistingHotel != null ||
+		property.PropertyHospitals.Any() || property.EconomicZone.Gameworld.Stables.Any(x => property.PropertyLocations.Contains(x.Location));
+
 	private static bool CanPledgeProperty(IProperty property, bool purchase, out string error)
 	{
 		error = "";
-		if (property.PropertyLocations.Any(x => x.Shop != null) || property.ExistingHotel != null ||
-		    property.PropertyHospitals.Any() || property.EconomicZone.Gameworld.Stables.Any(x => property.PropertyLocations.Contains(x.Location)))
+		if (HasBusiness(property))
 			error = "This property hosts a business and cannot be pledged.";
 		else if ((!purchase && property.SaleOrder != null) || property.EconomicZone.Gameworld.AuctionHouses
 		         .SelectMany(x => x.ActiveAuctionItems).Any(x => x.Asset == property))
@@ -278,11 +281,18 @@ internal static partial class LoanService
 		{
 			var item = actor.Gameworld.TryGetItem(terms.AssetId, true) ??
 			           throw new InvalidOperationException("The pledged item no longer exists.");
-			actor.Body.Take(item);
-			item.ContainedIn?.Take(item);
-			item.Location?.Extract(item);
-			item.SetOwner(lender);
-			item.Login();
+			if (GuardingSettlement && item is MudSharp.GameItems.GameItem native && actor.Body is MudSharp.Body.Implementations.Body body)
+			{
+				body.TakePledgedItem(native);
+				native.SetLendingPosition(null);
+				native.SetLendingOwner(lender);
+			}
+			else
+			{
+				actor.Body.Take(item);
+				item.SetOwner(lender);
+			}
+
 			return;
 		}
 
@@ -394,8 +404,7 @@ internal static partial class LoanService
 			if (destination != null)
 			{
 				destination.DoAccountCredit(amount, $"Surplus on loan #{contract.Id}");
-				destination.Bank.CurrencyReserves[currency] += amount;
-				destination.Bank.Changed = true;
+				AdjustReserves(destination.Bank, currency, amount);
 			}
 			else GiveCash(actor, currency, coins);
 			Post(contract, "SurplusDistribution", 0, 0, amount, destination?.AccountReference ?? "Cash",
@@ -420,18 +429,18 @@ internal static partial class LoanService
 			return "The pledged item is not available for collection. Ask the lender to review the loan.";
 		}
 
-		item.SetOwner(actor);
-		if (actor.Body.CanGet(item, 0))
+		if (GuardingSettlement && item is MudSharp.GameItems.GameItem native)
 		{
-			actor.Body.Get(item, silent: true);
+			native.SetLendingOwner(actor);
+			PrepareItemCollection(actor, native);
 			terms.CustodyStatus = "Returned";
 		}
 		else
 		{
-			item.InsertAtSource(actor, true);
+			item.SetOwner(actor);
+			if (actor.Body.CanGet(item, 0)) actor.Body.Get(item, silent: true);
+			else item.InsertAtSource(actor, true);
 			terms.CustodyStatus = "Returned";
-			contract.Status = "Closed";
-			return "Your pledged item is ready beside you because you could not carry it.";
 		}
 
 		contract.Status = "Closed";
@@ -453,6 +462,8 @@ internal static partial class LoanService
 			return "Only a manager of the lending establishment can recover collateral.";
 		}
 
+		if (terms.Kind is "Property" or "Mortgage" && actor.Gameworld.Properties.Get(terms.AssetId) is { } pledged && HasBusiness(pledged))
+			return "This property now hosts a business. Resolve its business use before foreclosure.";
 		if (terms.Kind is "Pawn" or "Property" or "Mortgage")
 		{
 			if (terms.AuctionHouseId <= 0)
@@ -551,8 +562,11 @@ internal static partial class LoanService
 				$"retention:{contract.Id}");
 			if (terms.Kind == "Pawn")
 			{
-				RegisterRetainedPawn(actor.Gameworld, contract, terms, interest);
-				actor.Body.Get(actor.Gameworld.TryGetItem(terms.AssetId, true), silent: true);
+				AfterCommit(() =>
+				{
+					RegisterRetainedPawn(actor.Gameworld, contract, terms, interest);
+					actor.Body.Get(actor.Gameworld.TryGetItem(terms.AssetId, true), silent: true);
+				});
 			}
 		}
 		contract.SecurityKey = null;
@@ -673,18 +687,23 @@ internal static partial class LoanService
 		}
 	}
 
-	internal static void CreateEstateClaims(ICharacter character, Func<IEconomicZone, Estate> getEstate)
+	internal static void CreateEstateClaims(ICharacter character, Func<IEconomicZone, Estate> getEstate, long? zoneId = null)
 	{
 		if (!HasPortfolio(character.Gameworld)) return;
 		var borrowerId = CharacterInstanceIdentityComparer.IdentityId(character);
 		using (new FMDB())
 		{
 			var loans = FMDB.Context.LendingContracts
-				.Where(x => x.BorrowerId == borrowerId && (x.Status == "Active" || x.Status == "Recovery") && !x.EstateId.HasValue)
+				.Where(x => (!zoneId.HasValue || x.EconomicZoneId == zoneId.Value) && x.BorrowerId == borrowerId && (x.Status == "Active" || x.Status == "Recovery") && !x.EstateId.HasValue)
 				.ToList();
 			foreach (var loan in loans)
 			{
-				if (loan.Status == "Recovery" && HasRecoveryAuction(character.Gameworld, loan)) continue;
+				if (loan.Status == "Recovery" && HasRecoveryAuction(character.Gameworld, loan))
+				{
+					var recoveryZone = character.Gameworld.EconomicZones.Get(loan.EconomicZoneId);
+					if (recoveryZone != null) getEstate(recoveryZone);
+					continue;
+				}
 				var zone = character.Gameworld.EconomicZones.Get(loan.EconomicZoneId);
 				if (zone is null) continue;
 				var accrualTerms = Terms(loan);
@@ -744,7 +763,7 @@ internal static partial class LoanService
 			FMDB.Context.SaveChanges();
 
 			var returnedPawns = FMDB.Context.LendingContracts
-				.Where(x => x.BorrowerId == borrowerId && !x.EstateId.HasValue &&
+				.Where(x => (!zoneId.HasValue || x.EconomicZoneId == zoneId.Value) && x.BorrowerId == borrowerId && !x.EstateId.HasValue &&
 					(x.Status == "Paid" || x.Status == "Closed"))
 				.ToList();
 			foreach (var loan in returnedPawns)
@@ -763,7 +782,7 @@ internal static partial class LoanService
 				Store(loan, terms);
 			}
 			var surplusLoans = FMDB.Context.LendingContracts
-				.Where(x => x.BorrowerId == borrowerId && !x.EstateId.HasValue && x.Surplus > 0)
+				.Where(x => (!zoneId.HasValue || x.EconomicZoneId == zoneId.Value) && x.BorrowerId == borrowerId && !x.EstateId.HasValue && x.Surplus > 0)
 				.ToList();
 			foreach (var loan in surplusLoans)
 			{

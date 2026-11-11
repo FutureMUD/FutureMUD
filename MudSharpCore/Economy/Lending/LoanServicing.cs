@@ -246,8 +246,9 @@ internal static partial class LoanService
 			if (!destination.IsAccountOwner(actor) || destination.Currency.Id != loan.CurrencyId)
 				return "Choose your own active account in the loan currency.";
 		}
+		if (loan.Surplus > 0 || terms.CustodyStatus == "Ready") RecordSettlement(actor.Gameworld, loan.Id, "Pledge or surplus collection");
 		var result = Collect(actor, loan, terms, destination);
 		Store(loan, terms);
 		return result;
-	});
+	}, guard: true);
 }

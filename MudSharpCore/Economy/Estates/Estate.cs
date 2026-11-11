@@ -1,4 +1,4 @@
-﻿using MudSharp.Community;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Banking;
@@ -10,7 +10,7 @@ using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy.Estates;
 
-public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
+public partial class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 {
     private readonly record struct EstateAssetSnapshot(
         IEconomicZone Zone,
@@ -549,6 +549,13 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     public bool StartLiquidation()
     {
+        if (!LoanService.GuardingSettlement) return LoanService.EstateTransaction(this, () => StartLiquidationCore());
+        return StartLiquidationCore();
+    }
+
+    private bool StartLiquidationCore()
+    {
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureLendingRollback());
         EstateStatus = EstateStatus.Liquidating;
         FinalisationDate = null;
         Changed = true;
@@ -563,8 +570,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                         if (value > 0.0M)
                         {
                             account.WithdrawFromTransaction(value, $"Estate liquidation for character {Character.Id}");
-                            account.Bank.CurrencyReserves[account.Currency] -= value;
-                            account.Bank.Changed = true;
+                            LoanService.AdjustReserves(account.Bank, account.Currency, -value);
                         }
 
                         account.SetStatus(BankAccountStatus.Closed);
@@ -602,6 +608,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
     public bool TryCreateAuctionListing(IAuctionHouse auctionHouse, IEstateAsset asset, decimal reservePrice,
         decimal? buyoutPrice)
     {
+        if (!LoanService.GuardingSettlement && LoanService.EstateLoanId(this).HasValue)
+            return LoanService.EstateTransaction(this, () => TryCreateAuctionListing(auctionHouse, asset, reservePrice, buyoutPrice));
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureLendingRollback());
         if (EstateStatus != EstateStatus.Liquidating || auctionHouse == null || reservePrice <= 0.0M)
         {
             return false;
@@ -615,6 +624,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         switch (asset.Asset)
         {
             case IGameItem item:
+                if (LoanService.GuardingSettlement && item is MudSharp.GameItems.GameItem native) native.EnlistLendingCustody();
                 item.SetOwner(this);
                 item.ContainedIn?.Take(item);
                 item.InInventoryOf?.Take(item);
@@ -654,6 +664,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     public void RecordAuctionCompletion(AuctionItem item, AuctionBid winningBid, decimal sellerProceeds)
     {
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureAuctionCompletionRollback(item));
         IEstateAsset asset = FindAsset(item.Asset);
         if (asset == null)
         {
@@ -681,39 +692,18 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     public void Finalise()
     {
-        if (LoanService.HasPortfolio(Gameworld))
-        {
-            LoanService.InTransaction(Gameworld, () =>
-            {
-                FinaliseCore();
-                return 0;
-            });
-            return;
-        }
-
-        FinaliseCore();
+        LoanService.EstateTransaction(this, () => { FinaliseCore(); return 0; });
     }
 
     private void FinaliseCore()
     {
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureLendingRollback());
         if (LoanService.HasPendingRecoveryAuctions(this))
         {
             return;
         }
 
-        LoanService.CreateEstateClaims(Character, zone =>
-        {
-            Estate existing = Gameworld.Estates.OfType<Estate>()
-                .FirstOrDefault(x => x.Character == Character && x.EconomicZone == zone &&
-                                     x.EstateStatus != EstateStatus.Finalised &&
-                                     x.EstateStatus != EstateStatus.Cancelled);
-            if (existing != null)
-            {
-                return existing;
-            }
-
-            return zone.EstatesEnabled ? new Estate(zone, Character, Character.EstateHeir) : null;
-        });
+        LoanService.CreateEstateClaims(Character, zone => this, EconomicZone.Id);
 
         IFrameworkItem inheritor = ResolveInheritor();
         List<IEstateClaim> approvedClaims = Claims.Where(x => x.Status == ClaimStatus.Approved).ToList();
@@ -1047,6 +1037,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             {
                 case IBankAccount account when account.CurrentBalance > 0.0M:
                     var value = account.CurrentBalance;
+                    if (LoanService.GuardingSettlement) { var before = EconomicZone.TotalRevenueHeld; LoanService.OnRollback(() => EconomicZone.TotalRevenueHeld = before); }
                     EconomicZone.TotalRevenueHeld += value;
                     VirtualCashLedger.Credit(EconomicZone, EconomicZone.Currency, value, null, this, "EstateFinalisation",
                         $"Estate finalisation for {Character.Id}",
@@ -1080,8 +1071,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 lineOfCredit.PayoffAccount(amount);
                 return;
             case IBank bank:
-                bank.CurrencyReserves[bank.PrimaryCurrency] += amount;
-                bank.Changed = true;
+                LoanService.AdjustReserves(bank, bank.PrimaryCurrency, amount);
                 return;
             case IFrameworkItem frameworkItem:
                 {
@@ -1105,6 +1095,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 }
         }
 
+        if (LoanService.GuardingSettlement) { var before = EconomicZone.TotalRevenueHeld; LoanService.OnRollback(() => EconomicZone.TotalRevenueHeld = before); }
         EconomicZone.TotalRevenueHeld += amount;
         VirtualCashLedger.Credit(EconomicZone, EconomicZone.Currency, amount, null, this, "EstateResidual",
             reference, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, this);

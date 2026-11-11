@@ -12,7 +12,7 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    [Migration("20261111064635_AddLendingContracts")]
+    [Migration("20261111103628_AddLendingContracts")]
     partial class AddLendingContracts
     {
         /// <inheritdoc />
@@ -1447,6 +1447,11 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("AddressPriority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<ulong>("CanBeRecalled")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
@@ -1593,6 +1598,43 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_Appointments_GameItemProtos");
 
                     b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AppointmentFormOfAddress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("AppointmentId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("FutureProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Relations")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TemplateKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FutureProgId");
+
+                    b.HasIndex("AppointmentId", "Order");
+
+                    b.ToTable("AppointmentFormsOfAddress", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AppointmentsAbbreviations", b =>
@@ -6902,6 +6944,11 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
+
+                    b.Property<bool>("ShowFormsOfAddressInLook")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Sphere")
                         .HasColumnType("varchar(100)")
@@ -20606,6 +20653,43 @@ namespace MudSharp.Migrations
                     b.ToTable("Ranks");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RankFormOfAddress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long?>("FutureProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RankId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Relations")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TemplateKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FutureProgId");
+
+                    b.HasIndex("RankId", "Order");
+
+                    b.ToTable("RankFormsOfAddress", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.RanksAbbreviations", b =>
                 {
                     b.Property<long>("RankId")
@@ -28198,6 +28282,24 @@ namespace MudSharp.Migrations
                     b.Navigation("RecallVotesProg");
 
                     b.Navigation("WhyCantNominateProg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AppointmentFormOfAddress", b =>
+                {
+                    b.HasOne("MudSharp.Models.Appointment", "Appointment")
+                        .WithMany("FormsOfAddress")
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MudSharp.Models.FutureProg", "FutureProg")
+                        .WithMany()
+                        .HasForeignKey("FutureProgId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("FutureProg");
                 });
 
             modelBuilder.Entity("MudSharp.Models.AppointmentsAbbreviations", b =>
@@ -35938,6 +36040,24 @@ namespace MudSharp.Migrations
                     b.Navigation("InsigniaGameItem");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RankFormOfAddress", b =>
+                {
+                    b.HasOne("MudSharp.Models.FutureProg", "FutureProg")
+                        .WithMany()
+                        .HasForeignKey("FutureProgId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MudSharp.Models.Rank", "Rank")
+                        .WithMany("FormsOfAddress")
+                        .HasForeignKey("RankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FutureProg");
+
+                    b.Navigation("Rank");
+                });
+
             modelBuilder.Entity("MudSharp.Models.RanksAbbreviations", b =>
                 {
                     b.HasOne("MudSharp.Models.FutureProg", "FutureProg")
@@ -38971,6 +39091,8 @@ namespace MudSharp.Migrations
 
                     b.Navigation("ExternalClanControlsControllingAppointment");
 
+                    b.Navigation("FormsOfAddress");
+
                     b.Navigation("InverseParentAppointment");
                 });
 
@@ -40553,6 +40675,8 @@ namespace MudSharp.Migrations
                     b.Navigation("AppointmentsMinimumRank");
 
                     b.Navigation("AppointmentsMinimumRankToAppoint");
+
+                    b.Navigation("FormsOfAddress");
 
                     b.Navigation("RanksAbbreviations");
 

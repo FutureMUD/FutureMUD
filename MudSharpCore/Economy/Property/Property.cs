@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Trees;
 using MudSharp.Community;
@@ -1146,7 +1146,7 @@ public partial class Property : SaveableItem, IProperty
         LeaseOrder?.ChangeConsentDueToSale(_propertyOwners[0]);
         if (Lease is null)
         {
-            TransferPropertyShopsToController();
+            LoanService.AfterCommit(TransferPropertyShopsToController);
         }
     }
 
@@ -1206,6 +1206,12 @@ public partial class Property : SaveableItem, IProperty
 
     public void DivestOwnership(IPropertyOwner owner, decimal percentage, IFrameworkItem newOwnerItem)
     {
+        if (LoanService.GuardingSettlement)
+        {
+            LoanService.OnRollback(CaptureOwnershipTransferState());
+            var shares = _propertyOwners.ToDictionary(x => x, x => x.ShareOfOwnership);
+            LoanService.OnRollback(() => { foreach (var entry in shares) entry.Key.ShareOfOwnership = entry.Value; });
+        }
         if (LoanService.HasActivePropertyLien(this) && !LoanService.IsSecurityTransferAuthorised(Id))
         {
             throw new InvalidOperationException(

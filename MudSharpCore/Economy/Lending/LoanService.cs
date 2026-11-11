@@ -31,7 +31,7 @@ internal static partial class LoanService
 		IBank bank => Math.Max(0M, bank.CurrencyReserves[bank.EconomicZone.Currency] -
 			bank.BankAccounts.Where(x => x.Currency == bank.EconomicZone.Currency)
 				.Sum(x => Math.Max(0M, x.CurrentBalance + x.CurrentMonthInterest - x.CurrentMonthFees))),
-		IShop shop when shop.Currency == shop.EconomicZone.Currency => Math.Max(0M, shop.CashBalance),
+		IShop shop when shop.Currency == shop.EconomicZone.Currency => Math.Max(0M, shop.CashBalance + shop.GetCurrencyPilesForShop().Where(x => x.Currency == shop.Currency && !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x.Parent)).Sum(x => x.TotalValue)),
 		_ => 0M
 	};
 
@@ -43,6 +43,12 @@ internal static partial class LoanService
 				AdjustReserves(bank, bank.EconomicZone.Currency, amount);
 				break;
 			case IShop shop:
+				if (amount < 0 && shop.CashBalance < -amount)
+				{
+					var physical = -amount - Math.Max(0M, shop.CashBalance);
+					TakeSettlementCoins(shop.Currency, shop.GetCurrencyPilesForShop().Where(x => x.Currency == shop.Currency).ToList(), physical);
+					amount += physical;
+				}
 				if (GuardingSettlement)
 				{
 					var cash = shop.CashBalance;
@@ -62,7 +68,7 @@ internal static partial class LoanService
 		string detail, MudDateTime now, long? actorId = null, string? operationKey = null)
 	{
 		operationKey ??= Guid.NewGuid().ToString("N");
-		if (_settlement != null && kind is "Payment" or "Advance" or "Autopay") _settlement.Receipt = (loan.Id, operationKey);
+		if (_settlement != null) _settlement.Receipt ??= (loan.Id, operationKey);
 		FMDB.Context.LendingPostings.Add(new LendingPosting
 		{
 			ContractId = loan.Id, Kind = kind, Principal = principal, Interest = interest, Amount = amount,
@@ -86,21 +92,8 @@ internal static partial class LoanService
 		finally { _settling = false; }
 	}
 
-	internal static T InTransaction<T>(IFuturemud world, Func<T> action)
-	{
-		using (new FMDB())
-		{
-			var db = FMDB.Context;
-			if (db.Database.IsRelational() && db.Database.CurrentTransaction != null) return action();
-			world.SaveManager.Flush();
-			using var tx = db.Database.IsRelational() ? db.Database.BeginTransaction(System.Data.IsolationLevel.Serializable) : null;
-			var result = action();
-			world.SaveManager.Flush();
-			db.SaveChanges();
-			tx?.Commit();
-			return result;
-		}
-	}
+	internal static T InTransaction<T>(IFuturemud world, Func<T> action) =>
+		GuardingSettlement ? action() : GuardedTransaction(world, action);
 
 	private static decimal Exposure(IFrameworkItem lender, long borrower) =>
 		FMDB.Context.LendingContracts.Where(x => x.LenderId == lender.Id && x.LenderType == lender.FrameworkItemType &&
@@ -184,6 +177,9 @@ internal static partial class LoanService
 			return "The approving manager no longer represents the lender. Request a fresh offer.";
 		var appraisal = terms.Kind == "Mortgage" ? Math.Min(terms.Price, terms.Appraisal) : terms.Appraisal;
 		if (!Underwrite(actor, lender, product, terms.Advance, appraisal, Exposure(lender, borrower), out error)) return error;
+		if (loan.Status != "Offered" || !product.Enabled || !world.GetStaticBool("LoansEnabled") ||
+		    terms.ApprovedBy is { } recheckManager && (world.TryGetCharacter(recheckManager, true) is not { } approved || !IsManager(approved, lender)))
+			return "This offer or the lender's approval changed. Request a fresh offer.";
 		// A configurable prog can execute game actions. Revalidate custody, location and funds after it returns.
 		if (!AtClosing(actor, lender, terms, conveyancing) || !CanSecure(actor, lender, terms, out error)) return error.Length > 0 ? error : "The closing location changed.";
 		if (liveTerms.UseShopAccount != terms.UseShopAccount || AvailableForAdvance(lender, liveTerms, terms.Advance) < terms.Advance)
@@ -258,7 +254,7 @@ internal static partial class LoanService
 		Store(loan, terms);
 		Post(loan, "Advance", terms.Advance, 0, terms.Advance, product.Name, now, borrower);
 		return $"Loan #{id} is active.\n{Summary(actor, loan, terms)}";
-	}, guard: conveyancing);
+	}, guard: true);
 
 	private static bool AtClosing(ICharacter actor, IFrameworkItem lender, LoanTerms terms, bool conveyancing) =>
 		conveyancing ? terms.Kind == "Mortgage" && ZoneOf(lender).ConveyancingRooms.Contains(actor.Location)
@@ -280,6 +276,7 @@ internal static partial class LoanService
 
 	private static void GiveCash(ICharacter actor, ICurrency currency, Dictionary<ICoin, int> coins)
 	{
+		if (GuardingSettlement) { PrepareBorrowerChange(actor, currency, coins); return; }
 		var pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency, coins);
 		pile.SetOwner(actor);
 		if (actor.Body.CanGet(pile, 0)) actor.Body.Get(pile, silent: true);

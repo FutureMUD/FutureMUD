@@ -130,7 +130,7 @@ internal static partial class LoanService
 			default:
 				return "Use APPROVE, DENY, PLAN, PAUSE, REFINANCE, ENFORCE, RELIST or WRITEOFF.";
 		}
-	});
+	}, guard: true);
 
 	private static string AmendmentDescription(LoanAmendment a, ICurrency currency) => a.Kind == "pause"
 		? $"{a.Periods} days with {(a.ChargeInterest ? "continuing" : "no")} interest and all dues deferred"
@@ -204,7 +204,7 @@ internal static partial class LoanService
 		}
 		terms.Amendment = null;
 		Store(destination, terms);
-		TrackAutopay(actor.Gameworld, destination);
+		AfterCommit(() => TrackAutopay(actor.Gameworld, destination));
 		Post(destination, proposal.Kind, 0, 0, 0, $"Agreed by borrower. Manager #{proposal.ManagerId}. {proposal.Reason}. {AmendmentDescription(proposal, currency)}. Prior loan #{loan.Id}.", now, actorId);
 		return $"Agreed. {Summary(actor, destination, terms)}";
 	}

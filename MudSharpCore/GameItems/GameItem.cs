@@ -323,6 +323,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void SetOwner(IFrameworkItem owner)
     {
+		if (Economy.Lending.LoanService.GuardingSettlement)
+		{
+			SetLendingOwner(owner);
+			return;
+		}
         var oldReference = OwnershipReference;
         _owner = owner;
         _ownerReference = owner == null

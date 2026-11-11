@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
@@ -154,6 +154,12 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void SetAccountOwner(IFrameworkItem owner)
     {
+        if (LoanService.GuardingSettlement)
+        {
+            var prior = _accountOwner; var reference = _accountOwnerReference;
+            var character = _characterOwnerId; var clan = _clanOwnerId; var shop = _shopOwnerId;
+            LoanService.OnRollback(() => { _accountOwner = prior; _accountOwnerReference = reference; _characterOwnerId = character; _clanOwnerId = clan; _shopOwnerId = shop; Changed = true; });
+        }
         _accountOwner = owner;
         _accountOwnerReference = owner == null
             ? null
@@ -692,6 +698,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void SetStatus(BankAccountStatus status)
     {
+        if (LoanService.GuardingSettlement) { var prior = AccountStatus; LoanService.OnRollback(() => { AccountStatus = prior; Changed = true; }); }
         AccountStatus = status;
         Changed = true;
     }

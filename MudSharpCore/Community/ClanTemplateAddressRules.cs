@@ -16,6 +16,11 @@ public static partial class ClanTemplateProvisioning
 	public static string? AddressCloneError(IFuturemud world, IClan source, ClanTemplateDefinition? definition)
 	{
 		var profile = ClanTemplateProfile.Read(world, source.Id);
+		if (definition is not null)
+		{
+			try { ValidateSharedAddressProgs(world, source, profile, definition); }
+			catch (InvalidOperationException ex) { return $"{ex.Message} No clone was created."; }
+		}
 		var supported = new HashSet<Guid>();
 		if (definition is not null && profile is not null)
 		{
@@ -39,6 +44,7 @@ public static partial class ClanTemplateProvisioning
 
 	private static void GenerateAddressProgs(IFuturemud world, IClan clan, ClanTemplateProfile profile)
 	{
+		ValidateSharedAddressProgs(world, clan, profile, profile.Definition);
 		foreach (var source in profile.Definition.Ranks)
 		{
 			var rank = clan.Ranks.Single(x => x.Id == profile.Ranks[source.Key]);
@@ -72,15 +78,51 @@ public static partial class ClanTemplateProvisioning
 				}
 				else if (definition.ProgName is { } progName)
 				{
-					var prog = world.FutureProgs.GetByName(progName)
-						?? throw new InvalidOperationException($"Missing shared address predicate {progName}.");
-					if (prog.ReturnType != ProgVariableTypes.Boolean || prog.AcceptsAnyParameters ||
-					    !(prog.MatchesParameters([ProgVariableTypes.Character]) || prog.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Character])))
-						throw new InvalidOperationException($"Invalid shared address predicate {progName}.");
-					rule.FutureProgId = prog.Id;
+					rule.FutureProgId = SharedAddressProg(world, progName).Id;
 				}
 			}
 		}
+	}
+
+	private static void ValidateSharedAddressProgs(IFuturemud world, IClan clan, ClanTemplateProfile? profile,
+		ClanTemplateDefinition definition, ClanTemplateDefinition? before = null)
+	{
+		foreach (var owner in definition.Ranks)
+		{
+			var rank = profile is null ? clan.Ranks.SingleOrDefault(x => x.Name == owner.Name) :
+				clan.Ranks.SingleOrDefault(x => x.Id == profile.Ranks.GetValueOrDefault(owner.Key));
+			Validate(rank?.FormsOfAddress ?? [], before?.Ranks.SingleOrDefault(x => x.Key == owner.Key)?.FormsOfAddress ?? [],
+				owner.FormsOfAddress, "rank", owner.Key);
+		}
+		foreach (var owner in definition.Appointments)
+		{
+			var office = profile is null ? clan.Appointments.SingleOrDefault(x => x.Name == owner.Name) :
+				clan.Appointments.SingleOrDefault(x => x.Id == profile.Appointments.GetValueOrDefault(owner.Key));
+			Validate(office?.FormsOfAddress ?? [], before?.Appointments.SingleOrDefault(x => x.Key == owner.Key)?.FormsOfAddress ?? [],
+				owner.FormsOfAddress, "office", owner.Key);
+		}
+
+		void Validate(List<ClanAddressRule> live, List<ClanTemplateAddressRule> previous,
+			List<ClanTemplateAddressRule> proposed, string kind, string owner)
+		{
+			// Preview the same keyed updates without changing live rows or restoring builder-cleared rules.
+			var effective = live.ToList();
+			if (before is not null) UpdateAddressRules(effective, previous, proposed, kind, owner);
+			foreach (var rule in proposed)
+				if (rule.ProgName is { } name && effective.Any(x => x.TemplateKey == AddressKey(kind, owner, rule.Key)))
+					_ = SharedAddressProg(world, name);
+		}
+	}
+
+	private static IFutureProg SharedAddressProg(IFuturemud world, string name)
+	{
+		var prog = world.FutureProgs.GetByName(name)
+			?? throw new InvalidOperationException($"Missing shared address predicate {name}.");
+		if (prog.ReturnType != ProgVariableTypes.Boolean || prog.AcceptsAnyParameters ||
+		    !(prog.MatchesParameters([ProgVariableTypes.Character]) ||
+		      prog.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Character])))
+			throw new InvalidOperationException($"Invalid shared address predicate {name}.");
+		return prog;
 	}
 
 	/// <summary>Applies deliberate keyed recipe changes while retaining unrelated builder rows.</summary>

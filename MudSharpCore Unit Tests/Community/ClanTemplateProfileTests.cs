@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -21,6 +22,136 @@ namespace MudSharp_Unit_Tests.Community;
 
 public partial class ClanElectionGovernanceTests
 {
+	[TestMethod]
+	[DataRow("missing")]
+	[DataRow("return-type")]
+	[DataRow("parameters")]
+	[DataRow("any-parameters")]
+	public void TemplateVariant_InvalidAddressDependency_PreservesStateAndAllowsRetry(string failure)
+	{
+		using var f = new Fixture();
+		var profile = SetUpAddressDependencyProfile(f, dependencyInVariant: true);
+		var original = profile.ToComment();
+		var predicate = SharedAddressPredicate(failure);
+		if (failure != "missing") f.World.Object.Add(predicate.Object);
+		var error = Assert.ThrowsExactly<InvalidOperationException>(() =>
+			ClanTemplateProvisioning.ApplyVariant(f.World.Object, f.Clan, profile, "courtesy"));
+		StringAssert.Contains(error.Message, failure == "missing" ? "Missing shared address predicate" : "Invalid shared address predicate");
+		Assert.AreEqual(original, profile.ToComment());
+		Assert.AreEqual(original, ClanTemplateProfile.Read(f.World.Object, f.Clan.Id)!.ToComment());
+		Assert.AreEqual(original, f.Database.Context.FutureProgs.Single().FunctionComment);
+		Assert.AreEqual("Member", f.Clan.Ranks.Single().TitlesAndProgs.Single().Item2);
+		Assert.AreEqual("Member", f.Database.Context.Ranks.Single().RanksTitles.Single().Title);
+		Assert.AreEqual(1, f.Office.MaximumSimultaneousHolders);
+		Assert.AreEqual(1, f.Database.Context.Appointments.Single().MaximumSimultaneousHolders);
+		Assert.IsEmpty(f.Office.FormsOfAddress);
+		Assert.IsEmpty(f.Database.Context.AppointmentFormsOfAddress);
+		if (failure == "missing") f.World.Object.Add(predicate.Object);
+		predicate.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		predicate.SetupGet(x => x.AcceptsAnyParameters).Returns(false);
+		predicate.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+		ClanTemplateProvisioning.ApplyVariant(f.World.Object, f.Clan, profile, "courtesy");
+		Assert.Contains("courtesy", profile.Variants);
+		Assert.AreEqual(3, f.Office.MaximumSimultaneousHolders);
+		Assert.AreEqual(predicate.Object.Id, f.Office.FormsOfAddress.Single().FutureProgId);
+	}
+
+	[TestMethod]
+	[DataRow("missing")]
+	[DataRow("return-type")]
+	[DataRow("parameters")]
+	[DataRow("any-parameters")]
+	public void StagedClone_InvalidAddressDependency_RejectsBeforeCreatingRows(string failure)
+	{
+		using var f = new Fixture();
+		var profile = SetUpAddressDependencyProfile(f, dependencyInVariant: false);
+		if (failure != "missing") f.World.Object.Add(SharedAddressPredicate(failure).Object);
+		var ids = f.World.Object.Clans.Select(x => x.Id).ToList();
+		var metadata = profile.ToComment();
+		typeof(ClanModule).GetMethod("ClanCreateStagedTemplate", BindingFlags.NonPublic | BindingFlags.Static)!
+			.Invoke(null, [f.Actor.Object, new StringStack("parish invalidaddress Invalid Address Copy")]);
+		Assert.IsEmpty(f.Database.Context.Clans);
+		CollectionAssert.AreEquivalent(ids, f.World.Object.Clans.Select(x => x.Id).ToList());
+		Assert.HasCount(1, f.Database.Context.Ranks.ToList());
+		Assert.HasCount(1, f.Database.Context.Appointments.ToList());
+		Assert.HasCount(1, f.Database.Context.FutureProgs.ToList());
+		Assert.AreEqual(metadata, ClanTemplateProfile.Read(f.World.Object, f.Clan.Id)!.ToComment());
+	}
+
+	private static Mock<IFutureProg> SharedAddressPredicate(string failure)
+	{
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.Id).Returns(900);
+		prog.SetupGet(x => x.FunctionName).Returns("SharedCourtesy");
+		prog.SetupGet(x => x.Name).Returns("SharedCourtesy");
+		prog.SetupGet(x => x.ReturnType).Returns(failure == "return-type" ? ProgVariableTypes.Text : ProgVariableTypes.Boolean);
+		prog.SetupGet(x => x.AcceptsAnyParameters).Returns(failure == "any-parameters");
+		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(failure != "parameters");
+		return prog;
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void TemplateAddressDependency_ClearedOrReplacedRule_DoesNotRequireObsoleteProg(bool replacement)
+	{
+		using var f = new Fixture();
+		var profile = SetUpAddressDependencyProfile(f, dependencyInVariant: false);
+		var rank = f.Clan.Ranks.Single();
+		rank.FormsOfAddress.Clear();
+		if (replacement) rank.FormsOfAddress.Add(new ClanAddressRule { Text = "Custom courtesy" });
+		rank.Save();
+		Assert.IsNull(ClanTemplateProvisioning.AddressCloneError(f.World.Object, f.Clan, profile.Definition));
+		profile.Definition.AvailableVariants = [new() { Key = "retitle",
+			RankOverrides = new() { ["member"] = new JsonObject { ["Title"] = "Fellow" } } }];
+		ClanTemplateProvisioning.ApplyVariant(f.World.Object, f.Clan, profile, "retitle");
+		Assert.AreEqual(replacement ? "Custom courtesy" : null, rank.FormsOfAddress.SingleOrDefault()?.Text);
+		Assert.AreEqual(replacement ? "Custom courtesy" : null,
+			f.Database.Context.RankFormsOfAddress.SingleOrDefault()?.Text);
+	}
+
+	private static ClanTemplateProfile SetUpAddressDependencyProfile(Fixture f, bool dependencyInVariant)
+	{
+		MudSharp.FutureProg.FutureProg.Initialise();
+		f.Actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(true);
+		f.Clan.IsTemplate = true;
+		f.Office.ElectionConfirmationAppointment = null;
+		f.World.SetupGet(x => x.Clans).Returns(new All<IClan> { f.Clan });
+		var row = new MudSharp.Models.Rank { Id = 1, ClanId = f.Clan.Id, Name = "Member", RankPath = "General" };
+		row.RanksTitles.Add(new MudSharp.Models.RanksTitle { Title = "Member", Order = 0 });
+		f.Database.Context.Ranks.Add(row);
+		f.Clan.Ranks.Add(new Rank(row, f.Clan));
+		f.Database.Context.SaveChanges();
+		var progs = new All<IFutureProg>();
+		f.World.SetupGet(x => x.FutureProgs).Returns(progs);
+		f.World.Setup(x => x.Add(It.IsAny<IFutureProg>())).Callback<IFutureProg>(x => progs.Add(x));
+		var rule = new ClanTemplateAddressRule { Key = "courtesy", Text = "Friend", ProgName = "SharedCourtesy" };
+		var profile = new ClanTemplateProfile
+		{
+			ClanId = f.Clan.Id, TemplateKey = "example.club", Ranks = new() { ["member"] = 1 },
+			Appointments = new() { ["head"] = f.Office.Id }, Definition = new()
+			{
+				Key = "example.club", Ranks = [new() { Key = "member", Name = "Member", Title = "Member", RankPath = "General" }],
+				Appointments = [new() { Key = "head", Name = "Priest", MinimumRankKey = "member", MaximumSimultaneousHolders = 1,
+					IsAppointedByElection = true, NominationPeriodMinutes = 1440, VotingPeriodMinutes = 1440 }],
+				AvailableVariants = [new() { Key = "courtesy",
+					RankOverrides = new() { ["member"] = new JsonObject { ["Title"] = "Fellow" } },
+					AppointmentOverrides = new() { ["head"] = new JsonObject { ["MaximumSimultaneousHolders"] = 3,
+						["FormsOfAddress"] = JsonSerializer.SerializeToNode(new[] { rule }) } } }]
+			}
+		};
+		if (!dependencyInVariant)
+		{
+			profile.Definition.Ranks.Single().FormsOfAddress.Add(rule);
+			var rank = f.Clan.Ranks.Single();
+			rank.FormsOfAddress.Add(new ClanAddressRule { Text = rule.Text, FutureProgId = 900,
+				TemplateKey = ClanTemplateProvisioning.AddressKey("rank", "member", rule.Key) });
+			rank.Save();
+		}
+		ClanTemplateProvisioning.SaveProfile(f.World.Object, profile);
+		return profile;
+	}
+
 	[TestMethod]
 	[DataRow(false)]
 	[DataRow(true)]

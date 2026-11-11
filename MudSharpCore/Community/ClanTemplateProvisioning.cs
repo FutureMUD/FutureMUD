@@ -193,6 +193,7 @@ public static partial class ClanTemplateProvisioning
 		var before = profile.Definition;
 		var selected = profile.Variants.Append(variant).ToList();
 		var after = ClanTemplateDefinitions.WithVariant(before, variant);
+		ValidateSharedAddressProgs(world, clan, profile, after, before);
 		var addsRanks = after.Ranks.Any(x => !profile.Ranks.ContainsKey(x.Key));
 		var reordersRanks = addsRanks || before.Ranks.Any(x => after.Ranks.Single(y => y.Key == x.Key).RankNumber != x.RankNumber);
 		if (reordersRanks && clan.Ranks.Any(x => !profile.Ranks.ContainsValue(x.Id)))

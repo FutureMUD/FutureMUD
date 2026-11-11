@@ -22,6 +22,7 @@ public interface IBankAccountType : IFrameworkItem, IEditableItem, ISaveable, IP
     IBank Bank { get; }
     string ShowToCustomer(ICharacter actor);
     string CustomerDescription { get; }
+    decimal QuoteTransactionWithdrawalFees(IBankAccount account, decimal amount);
     void DoTransactionFeesWithdrawal(IBankAccount account, decimal amount);
     void DoOverdrawFees(IBankAccount account, decimal amount);
     void DoTransactionFeesDeposit(IBankAccount account, decimal amount);

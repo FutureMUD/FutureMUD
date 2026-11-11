@@ -1,6 +1,9 @@
 # FutureMUD Economy System: Seeder State and Gaps
 
 ## Scope
+
+Lending starts disabled. The `AddLendingContracts` migration and installer blank snapshot create empty product, contract and posting tables. Builders publish products at individual shops and banks. Fixed caps, collateral coverage and manual approval work in worlds with no lending FutureProgs.
+
 System currency pile prototypes can optionally seed a fixed positive, exactly representable starting amount through paired `DefaultCurrency` and `DefaultAmount` definition attributes. This supports authored worldfile cash containers without changing generic pile creation or persisted item reloads; it is prototype configuration, not a builder editing surface.
 
 Haggle is generic runtime support with opt-in static defaults. SkillPackageSeeder creates the dedicated improving `HaggleCheck` using a variable trait; operators or later content seeders select `HaggleTraitId`. No setting-specific Haggle trait, shopkeeper, retail shop, merchandise exclusions or employee grants are installed automatically. Shop configuration is nullable XML in a dedicated column, preserving existing shop behaviour until whole-game enablement. The accompanying code-first migration and refreshed installer blank snapshot must ship together.

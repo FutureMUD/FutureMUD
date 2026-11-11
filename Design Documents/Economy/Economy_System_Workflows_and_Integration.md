@@ -12,6 +12,36 @@ It is written for a mixed audience:
 
 Where guidance is based directly on current command and runtime behavior, it is presented as verified current state. Where guidance describes the safest extension path for future work, it is presented as inferred implementation guidance.
 
+## Offering and using loans
+
+An administrator sets `LoansEnabled` to true with `editstaticconfig LoansEnabled`. At a branch or shop counter, its manager creates a draft product, sets its policy, then publishes it. At a shared counter, qualify the creditor with `loan manage bank <id>` or `loan manage shop <id>` before the action. Substitute the ID returned by the creation command in the following example.
+
+```text
+loan manage product new "Pawn ticket" pawn
+loan manage product edit 1 set interval every 1 week
+loan manage product edit 1 set periods 4
+loan manage product edit 1 set rate 5%
+loan manage product edit 1 set minimum none
+loan manage product edit 1 set recourse false
+loan manage product edit 1 set coverage 1.25
+loan manage product edit 1 set securedeligibility PawnbrokerAccepts
+loan manage product edit 1 set securedmaximum PawnbrokerLimit
+loan manage product edit 1 set automatic true
+loan manage product enable 1
+```
+
+The two FutureProgs are optional. Each receives a Character followed by three Numbers in the zone's base currency units. They represent the requested advance, collateral appraisal and the borrower's existing principal with that institution, in that order. Eligibility returns Boolean. The maximum returns Number. Use `none` to clear either prog. The unsecured equivalents are `unsecuredeligibility` and `unsecuredmaximum`. Offering and accepting both require the current checks to pass, including a manager-issued offer. A missing or failing configured prog declines the application.
+
+`maxsecured` and `maxunsecured` set each advance limit. `exposuresecured` and `exposureunsecured` set the total principal the borrower may owe the lender after taking that product. `mincollateral` sets a minimum appraised value worth accepting. Coverage of 1.25 requires collateral worth 125 for each 100 advanced. A 200 appraisal supports up to 160 before the other limits apply. On mortgages the lower of the appraisal and purchase price counts. Set `auctionhouse <id>` to recover by sale, or `auctionhouse none` to retain at the agreed appraisal. A shop can choose `funding account` for a shop-owned bank account.
+
+Players can type `loan offers` at the counter, `loan pawn ring`, or `loan ask <product> <amount>`. A purchase mortgage begins with `loan buy "South Warehouse" with 200 crowns`. The buyer closes the approved mortgage with `property buy "South Warehouse" loan 28` at the conveyancer. `loans` lists personal references anywhere. `loan 28` shows the terms and payoff, and `loan pay 28 all` quotes a payment for confirmation. Staff issue a named offer with `loan manage offer <borrower> <product> <amount>`.
+
+If a payment fails to save, repeat the payment quote and confirm it. If a mortgage closing fails to save, the approved offer and sale listing remain available for another attempt. A successful retry pays the sellers and registers the lien once.
+
+A character selling without an active revenue account can collect financed sale proceeds at a conveyancer with `property proceeds withdraw <amount>`. A clan finance manager uses `property proceeds clan <name> withdraw <amount>`. A bank selling for its own account receives the proceeds in its currency reserves. A shop selling in its own currency receives them in its cash balance. Existing tenants keep their keys. The new owner of an unleased property can claim returned keys through the existing property command.
+
+Managers can select public underwriting progs. Administrators can also assign private progs. For example, an eligibility prog can check the borrower's clan standing, while a maximum-amount prog can cap a qualifying member at 50 crowns. If that member pledges collateral worth 40 crowns under 125% coverage, the most the lender can offer is 32 crowns.
+
 ## Discord administration
 
 The Discord economy command group calls IEconomyAnalyticsService without creating or controlling a character. Reports and manual captures require a verified Admin account; configuration changes require HighAdmin and an expiring confirmation. Reports preserve coverage dates, native currencies, configured global conversion, and real versus economic-zone MUD windows. Detailed holdings remain private and explicitly requested. See [Discord Remote Operations](../Core/Discord_Remote_Operations.md) for deployment, account binding and execution recovery.
@@ -645,3 +675,11 @@ Use `purchasenpc` for an explicitly priced approved simple NPC template and insp
 ## Prog-authored wagon depots
 
 Wagon depots can use ordinary unconnected rooms, persistent item registers and physical bearer tickets. The Armageddon import records the exact wagon and depot on its chit and the exact chit on the wagon; it checks both references and the stored location on collection. `purchasevehicletransfer` joins native held-cash settlement to empty-vehicle relocation. The imported fee is 50 bits on collection, with no fee on lodging, daily charge or repair service. Occupants, including offline compartment residents, block storage; draft animals are unhitched and remain at the frontage.
+
+### Automatic loan payments
+
+Players enable automatic repayment with `loan autopay <loan id> from <account>`, inspect it with `loan autopay <loan id>`, stop it with `loan autopay <loan id> off`, and request an immediate attempt with `loan autopay <loan id> retry`. The account must be active, use the loan currency and permit the borrower to withdraw. Enabling the mandate authorises future amounts due and applicable bank withdrawal fees, including while the borrower is offline. Balloon loans pay automatically at maturity. Existing loans have autopay off until the borrower enables it.
+
+The game checks enabled mandates approximately once per real minute against the zone calendar. It attempts the full amount currently due, including arrears, through the same guarded settlement as a manual repayment. Failed attempts make no withdrawal and leave the loan due. Automatic retries occur on the next game day or when a new instalment becomes due. A borrower can pay manually, refill or replace the account, or use RETRY sooner. Account authority, currency, fees, balance and bank reserves are checked again on every attempt.
+
+An unresolved failure appears on the statement, when the failure reason changes for an online borrower, and on login while a payment remains due. Paying all arrears clears the failure. Death, probate and collateral recovery stop automatic withdrawals. An accepted refinance carries the mandate onto the replacement loan. Mandates, retry dates and failure reasons are stored with the loan's signed terms and survive restart.

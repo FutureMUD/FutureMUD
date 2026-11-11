@@ -8,12 +8,13 @@ The implementation is intentionally zone-local. A deceased character may generat
 
 ## Probate Lifecycle
 
-- When a character dies, the death path only creates estates for economic zones that have estates enabled and that actually receive captured assets.
+- At death, a zone with probate enabled can open an estate for captured assets, an outstanding loan claim, a released pledge or a recovery surplus.
 - Player characters are always eligible to create estates when assets are captured, but guests never do.
 - NPCs only create estates when the game-wide `NpcEstateProg` static configuration resolves to a valid boolean prog and that prog returns true for the NPC. Invalid or missing configuration falls back to the stock `AlwaysFalse` behavior.
 - A separate estate is created for each economic zone that receives captured assets.
 - If the same character dies again before an earlier estate in that zone is finalised or cancelled, the existing open estate is reused instead of creating a duplicate probate case.
-- If a death produces no captured assets in a zone, no estate is created for that zone.
+- An eligible borrower's lender can register a claim in the loan's zone even when the character has no other assets there. The contract records the estate and claim IDs. The debt freezes at death. Probate accounts for the pledged asset's realised proceeds before distributing the remaining estate.
+- An outstanding pawn ticket brings the original item from lender custody into the estate as the target of that claim. After sale, collateral proceeds pay the lender up to the debt. A recourse shortfall competes with other claims against the general estate. A non-recourse shortfall is written off. Final distribution waits for deferred auction payments to clear.
 - Living characters may also create an `EstateWill` in advance with `estate create`, which captures the current asset snapshot for that zone and can hold pre-approved bequests.
 - Estates begin in `Undiscovered`.
 - After the owning economic zone's `EstateDefaultDiscoverTime` expires, the estate moves to `ClaimPhase`.

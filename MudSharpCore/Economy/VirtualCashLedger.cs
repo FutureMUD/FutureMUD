@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
@@ -454,8 +454,7 @@ public static class VirtualCashLedger
 		{
 			bankAccount.WithdrawFromTransaction(bankAmount, reason);
 		}
-		bankAccount.Bank.CurrencyReserves[currency] -= bankAmount;
-		bankAccount.Bank.Changed = true;
+		Lending.LoanService.AdjustReserves(bankAccount.Bank, currency, -bankAmount);
 		return true;
 	}
 
@@ -480,8 +479,7 @@ public static class VirtualCashLedger
 		if (bankAccount?.Currency == currency)
 		{
 			bankAccount.DepositFromTransaction(amount, reason);
-			bankAccount.Bank.CurrencyReserves[currency] += amount;
-			bankAccount.Bank.Changed = true;
+			Lending.LoanService.AdjustReserves(bankAccount.Bank, currency, amount);
 			Record(owner, currency, amount, Balance(owner, currency), actor, counterparty, sourceKind, "Bank", reason,
 				mudDateTime, bankAccount, reference, referenceText);
 			return;

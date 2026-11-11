@@ -691,6 +691,7 @@ internal class LoggedInMenu : Menu
         }
 
         loginCharacter.RemoveAllEffects(x => x.IsEffectType<LinkdeadLogout>());
+        Economy.Lending.LoanService.NotifyBorrower(loginCharacter);
         _nextContext = loginCharacter;
     }
 

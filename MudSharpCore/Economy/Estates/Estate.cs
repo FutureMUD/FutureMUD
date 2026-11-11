@@ -1,7 +1,8 @@
-﻿using MudSharp.Community;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Banking;
+using MudSharp.Economy.Lending;
 using MudSharp.Economy.Property;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -9,7 +10,7 @@ using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy.Estates;
 
-public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
+public partial class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 {
     private readonly record struct EstateAssetSnapshot(
         IEconomicZone Zone,
@@ -21,6 +22,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
     {
         if (!ShouldProduceEstate(character))
         {
+            LoanService.RecordDeath(character, false);
             return Enumerable.Empty<IEstate>();
         }
 
@@ -42,7 +44,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 return null;
             }
 
-            if (!estates.TryGetValue(zone.Id, out Estate estate) && zone.EstatesEnabled)
+            if ((!estates.TryGetValue(zone.Id, out Estate estate) || estate.EstateStatus == EstateStatus.Cancelled) && zone.EstatesEnabled)
             {
                 estate = new Estate(zone, character, character.EstateHeir);
                 estates[zone.Id] = estate;
@@ -147,6 +149,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                     $"Outstanding line of credit debt for {loc.AccountName}", true);
             }
         }
+
+        LoanService.CreateEstateClaims(character, GetEstate);
+        LoanService.RecordDeath(character, true);
 
         return estates.Values;
     }
@@ -468,6 +473,8 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         List<EstateAsset> staleAssets = Assets
             .OfType<EstateAsset>()
             .Where(x => !x.IsTransferred && !x.IsLiquidated)
+            .Where(x => x.Asset is not IGameItem item || item.Owner != this)
+            .Where(x => x.Asset is not IProperty property || !property.PropertyOwners.Any(owner => owner.Owner == this))
             .Where(x => snapshots.All(y => !x.Asset.FrameworkItemEquals(y.Asset.Id, y.Asset.FrameworkItemType)))
             .ToList();
         foreach (EstateAsset asset in staleAssets)
@@ -542,6 +549,13 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     public bool StartLiquidation()
     {
+        if (!LoanService.GuardingSettlement) return LoanService.EstateTransaction(this, () => StartLiquidationCore());
+        return StartLiquidationCore();
+    }
+
+    private bool StartLiquidationCore()
+    {
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureLendingRollback());
         EstateStatus = EstateStatus.Liquidating;
         FinalisationDate = null;
         Changed = true;
@@ -556,8 +570,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                         if (value > 0.0M)
                         {
                             account.WithdrawFromTransaction(value, $"Estate liquidation for character {Character.Id}");
-                            account.Bank.CurrencyReserves[account.Currency] -= value;
-                            account.Bank.Changed = true;
+                            LoanService.AdjustReserves(account.Bank, account.Currency, -value);
                         }
 
                         account.SetStatus(BankAccountStatus.Closed);
@@ -571,7 +584,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 case IProperty property:
                     if (asset.OwnershipShare >= 1.0M && !property.PropertyOwners.Any(x => x.Owner == this))
                     {
-                        property.TransferProperty(this);
+                        LoanService.TransferPropertyIntoEstate(this, property);
                     }
 
                     break;
@@ -595,6 +608,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
     public bool TryCreateAuctionListing(IAuctionHouse auctionHouse, IEstateAsset asset, decimal reservePrice,
         decimal? buyoutPrice)
     {
+        if (!LoanService.GuardingSettlement && LoanService.EstateLoanId(this).HasValue)
+            return LoanService.EstateTransaction(this, () => TryCreateAuctionListing(auctionHouse, asset, reservePrice, buyoutPrice));
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureLendingRollback());
         if (EstateStatus != EstateStatus.Liquidating || auctionHouse == null || reservePrice <= 0.0M)
         {
             return false;
@@ -608,6 +624,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         switch (asset.Asset)
         {
             case IGameItem item:
+                if (LoanService.GuardingSettlement && item is MudSharp.GameItems.GameItem native) native.EnlistLendingCustody();
                 item.SetOwner(this);
                 item.ContainedIn?.Take(item);
                 item.InInventoryOf?.Take(item);
@@ -621,7 +638,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
                 if (!property.PropertyOwners.Any(x => x.Owner == this))
                 {
-                    property.TransferProperty(this);
+                    LoanService.TransferPropertyIntoEstate(this, property);
                 }
 
                 break;
@@ -647,6 +664,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     public void RecordAuctionCompletion(AuctionItem item, AuctionBid winningBid, decimal sellerProceeds)
     {
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureAuctionCompletionRollback(item));
         IEstateAsset asset = FindAsset(item.Asset);
         if (asset == null)
         {
@@ -674,14 +692,29 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     public void Finalise()
     {
+        LoanService.EstateTransaction(this, () => { FinaliseCore(); return 0; });
+    }
+
+    private void FinaliseCore()
+    {
+        if (LoanService.GuardingSettlement) LoanService.OnRollback(CaptureLendingRollback());
+        if (LoanService.HasPendingRecoveryAuctions(this))
+        {
+            return;
+        }
+
+        LoanService.CreateEstateClaims(Character, zone => this, EconomicZone.Id);
+
         IFrameworkItem inheritor = ResolveInheritor();
         List<IEstateClaim> approvedClaims = Claims.Where(x => x.Status == ClaimStatus.Approved).ToList();
         if (!approvedClaims.Any() && EstateStatus != EstateStatus.Liquidating)
         {
+            if (!LoanService.TryCollectEstateSurplus(this, out var surplusCash)) return;
             foreach (IEstateAsset asset in Assets.Where(x => !x.IsTransferred && !x.IsLiquidated))
             {
                 TransferAsset(asset, inheritor);
             }
+            RouteResidual(surplusCash, inheritor);
         }
         else
         {
@@ -700,22 +733,50 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                     return;
                 }
 
+                if (!LoanService.TryCollectEstateSurplus(this, out var surplusCash)) return;
+
                 decimal distributableCash = Assets.OfType<EstateAsset>()
                     .Where(x => x.IsLiquidated && x.LiquidatedValue.HasValue)
-                    .Sum(x => x.LiquidatedValue.Value);
+                    .Sum(x => x.LiquidatedValue.Value) + surplusCash;
 
                 decimal paidClaims = 0.0M;
-                foreach (IEstateClaim claim in approvedClaims
-                             .OrderByDescending(x => x.IsSecured)
-                             .ThenBy(x => x.ClaimDate))
+                foreach (IEstateClaim claim in approvedClaims.Where(LoanService.IsSecuredEstateLoanClaim)
+                             .OrderBy(x => x.ClaimDate))
                 {
                     decimal payout = Math.Min(distributableCash - paidClaims, LiquidationPayoutCap(claim));
                     if (payout <= 0.0M)
                     {
-                        break;
+                        continue;
                     }
 
-                    RouteFunds(payout, ResolveClaimRecipient(claim), $"Estate claim #{claim.Id} for character {Character.Id}");
+                    if (LoanService.IsEstateLoanClaim(claim))
+                    {
+                        payout = LoanService.SettleEstateClaim(this, claim, payout, "secured");
+                    }
+                    else
+                    {
+                        RouteFunds(payout, ResolveClaimRecipient(claim), $"Estate claim #{claim.Id} for character {Character.Id}");
+                    }
+                    paidClaims += payout;
+                }
+
+                foreach (IEstateClaim claim in approvedClaims
+                             .Where(x => !LoanService.IsSecuredEstateLoanClaim(x) || x.Amount > 0.0M)
+                             .Where(LoanService.CanSettleEstateClaimFromGeneralPool)
+                             .OrderByDescending(x => x.IsSecured && !LoanService.IsEstateLoanClaim(x))
+                             .ThenBy(x => x.ClaimDate))
+                {
+                    decimal payout = Math.Min(distributableCash - paidClaims, LiquidationPayoutCap(claim, true));
+                    if (payout <= 0.0M) continue;
+                    if (LoanService.IsEstateLoanClaim(claim))
+                    {
+                        payout = LoanService.SettleEstateClaim(this, claim, payout, "general");
+                    }
+                    else
+                    {
+                        RouteFunds(payout, ResolveClaimRecipient(claim), $"Estate claim #{claim.Id} for character {Character.Id}");
+                    }
+
                     paidClaims += payout;
                 }
 
@@ -732,6 +793,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             }
             else
             {
+                if (!LoanService.TryCollectEstateSurplus(this, out var surplusCash)) return;
                 foreach (IEstateClaim claim in approvedClaims
                              .Where(ClaimTransfersSpecificAsset)
                              .OrderByDescending(x => x.IsSecured)
@@ -750,9 +812,12 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 {
                     TransferAsset(asset, inheritor);
                 }
+
+                RouteResidual(surplusCash, inheritor);
             }
         }
 
+        LoanService.FinaliseEstateClaims(this);
         EstateStatus = EstateStatus.Finalised;
         FinalisationDate = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
         Changed = true;
@@ -777,7 +842,8 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                      x.TargetItem != null &&
                      x.TargetItem.FrameworkItemEquals(targetItem.Id, targetItem.FrameworkItemType)))
         {
-            claim.Amount = Math.Max(0.0M, amount);
+            if (!LoanService.IsEstateLoanClaim(claim))
+                claim.Amount = Math.Max(0.0M, amount);
         }
     }
 
@@ -807,7 +873,8 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 continue;
             }
 
-            claim.Amount = Math.Max(0.0M, asset.AssumedValue);
+            if (!LoanService.IsEstateLoanClaim(claim))
+                claim.Amount = Math.Max(0.0M, asset.AssumedValue);
         }
     }
 
@@ -907,7 +974,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
     private bool CanFinaliseLiquidation()
     {
-        if (HasPendingLiquidationLots)
+        if (HasPendingLiquidationLots || Gameworld.AuctionHouses.Any(x => x.OwesSeller(this)))
         {
             return false;
         }
@@ -930,8 +997,14 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         return !ClaimTransfersSpecificAsset(claim);
     }
 
-    private decimal LiquidationPayoutCap(IEstateClaim claim)
+    private decimal LiquidationPayoutCap(IEstateClaim claim, bool generalPool = false)
     {
+        if (!generalPool && LoanService.IsSecuredEstateLoanClaim(claim))
+        {
+            IEstateAsset securedAsset = FindAsset(claim.TargetItem);
+            return Math.Min(claim.Amount, Math.Max(0.0M, securedAsset?.LiquidatedValue ?? 0.0M));
+        }
+
         if (!ClaimTransfersSpecificAsset(claim))
         {
             return claim.Amount;
@@ -964,6 +1037,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             {
                 case IBankAccount account when account.CurrentBalance > 0.0M:
                     var value = account.CurrentBalance;
+                    if (LoanService.GuardingSettlement) { var before = EconomicZone.TotalRevenueHeld; LoanService.OnRollback(() => EconomicZone.TotalRevenueHeld = before); }
                     EconomicZone.TotalRevenueHeld += value;
                     VirtualCashLedger.Credit(EconomicZone, EconomicZone.Currency, value, null, this, "EstateFinalisation",
                         $"Estate finalisation for {Character.Id}",
@@ -997,8 +1071,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 lineOfCredit.PayoffAccount(amount);
                 return;
             case IBank bank:
-                bank.CurrencyReserves[bank.PrimaryCurrency] += amount;
-                bank.Changed = true;
+                LoanService.AdjustReserves(bank, bank.PrimaryCurrency, amount);
                 return;
             case IFrameworkItem frameworkItem:
                 {
@@ -1022,6 +1095,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
                 }
         }
 
+        if (LoanService.GuardingSettlement) { var before = EconomicZone.TotalRevenueHeld; LoanService.OnRollback(() => EconomicZone.TotalRevenueHeld = before); }
         EconomicZone.TotalRevenueHeld += amount;
         VirtualCashLedger.Credit(EconomicZone, EconomicZone.Currency, amount, null, this, "EstateResidual",
             reference, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, this);

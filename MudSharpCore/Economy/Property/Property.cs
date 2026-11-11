@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Trees;
 using MudSharp.Community;
@@ -7,6 +7,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Lending;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
@@ -349,6 +350,11 @@ public partial class Property : SaveableItem, IProperty
 
     private bool BuildingCommandEconomicZone(ICharacter actor, StringStack command)
     {
+        if (LoanService.HasActivePropertyLien(this))
+        {
+            actor.OutputHandler.Send("Settle this property's loan before changing its economic zone.");
+            return false;
+        }
         if (command.IsFinished)
         {
             actor.OutputHandler.Send("Which economic zone do you want to change this property to be a part of?");
@@ -911,6 +917,8 @@ public partial class Property : SaveableItem, IProperty
         sb.AppendLine(Name.GetLineWithTitle(voyeur.LineFormatLength, voyeur.Account.UseUnicode, Telnet.Cyan,
             Telnet.BoldWhite));
         sb.AppendLine();
+        if (LoanService.HasActivePropertyLien(this))
+            sb.AppendLine("An outstanding loan is secured against this title.");
         if (!string.IsNullOrEmpty(DetailedDescription))
         {
             sb.AppendLine(DetailedDescription);
@@ -1102,11 +1110,22 @@ public partial class Property : SaveableItem, IProperty
 
     private void TransferPropertyInternal(IFrameworkItem newOwner, decimal? transferValue, bool requireSaleOrder)
     {
+        if (LoanService.HasActivePropertyLien(this) && !LoanService.IsSecurityTransferAuthorised(Id))
+        {
+            throw new InvalidOperationException(
+                $"Property {Name} secures an outstanding loan and cannot be transferred until the lien is cleared.");
+        }
+
         IPropertySaleOrder saleOrder = SaleOrder;
         if (requireSaleOrder && saleOrder == null)
         {
             throw new InvalidOperationException(
                 $"Attempted to sell property #{Id:N0} without an active sale order.");
+        }
+
+        if (LoanService.GuardingSettlement)
+        {
+            LoanService.OnRollback(CaptureOwnershipTransferState());
         }
 
         SaleOrder = null;
@@ -1127,12 +1146,78 @@ public partial class Property : SaveableItem, IProperty
         LeaseOrder?.ChangeConsentDueToSale(_propertyOwners[0]);
         if (Lease is null)
         {
-            TransferPropertyShopsToController();
+            LoanService.AfterCommit(TransferPropertyShopsToController);
         }
+    }
+
+    private Action CaptureOwnershipTransferState()
+    {
+        var owners = _propertyOwners.ToList();
+        var ownerSaveStates = owners
+            .OfType<SaveableItem>()
+            .Select(x => (Item: x, Changed: x.Changed))
+            .ToList();
+        var saleOrder = _saleOrder;
+        var saleOrderChanged = (saleOrder as SaveableItem)?.Changed;
+        var leaseOrder = _leaseOrder;
+        var leaseOrderState = (leaseOrder as PropertyLeaseOrder)?.CaptureTransferState();
+        var lastChangeOfOwnership = _lastChangeOfOwnership;
+        var lastSaleValue = _lastSaleValue;
+        var propertyChanged = Changed;
+
+        return () =>
+        {
+            foreach (var addedOwner in _propertyOwners.Except(owners).OfType<SaveableItem>())
+            {
+                Gameworld.SaveManager.Abort(addedOwner);
+            }
+
+            _propertyOwners.Clear();
+            _propertyOwners.AddRange(owners);
+            _saleOrder = saleOrder;
+            _leaseOrder = leaseOrder;
+            _lastChangeOfOwnership = lastChangeOfOwnership;
+            _lastSaleValue = lastSaleValue;
+
+            foreach (var state in ownerSaveStates)
+            {
+                Gameworld.SaveManager.Abort(state.Item);
+                state.Item.Changed = false;
+                state.Item.Changed = state.Changed;
+            }
+
+            if (saleOrder is SaveableItem saleOrderItem && saleOrderChanged.HasValue)
+            {
+                Gameworld.SaveManager.Abort(saleOrderItem);
+                saleOrderItem.Changed = false;
+                saleOrderItem.Changed = saleOrderChanged.Value;
+            }
+
+            if (leaseOrder is PropertyLeaseOrder concreteLeaseOrder && leaseOrderState is not null)
+            {
+                concreteLeaseOrder.RestoreTransferState(leaseOrderState.Value);
+            }
+
+            Gameworld.SaveManager.Abort(this);
+            Changed = false;
+            Changed = propertyChanged;
+        };
     }
 
     public void DivestOwnership(IPropertyOwner owner, decimal percentage, IFrameworkItem newOwnerItem)
     {
+        if (LoanService.GuardingSettlement)
+        {
+            LoanService.OnRollback(CaptureOwnershipTransferState());
+            var shares = _propertyOwners.ToDictionary(x => x, x => x.ShareOfOwnership);
+            LoanService.OnRollback(() => { foreach (var entry in shares) entry.Key.ShareOfOwnership = entry.Value; });
+        }
+        if (LoanService.HasActivePropertyLien(this) && !LoanService.IsSecurityTransferAuthorised(Id))
+        {
+            throw new InvalidOperationException(
+                $"Property {Name} secures an outstanding loan and cannot be divided or transferred until the lien is cleared.");
+        }
+
         IPropertyOwner newPropertyOwner = _propertyOwners.FirstOrDefault(x => x.Owner == newOwnerItem);
 
         if (newPropertyOwner == null)

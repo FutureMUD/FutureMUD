@@ -1,7 +1,8 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Lending;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
@@ -153,6 +154,12 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void SetAccountOwner(IFrameworkItem owner)
     {
+        if (LoanService.GuardingSettlement)
+        {
+            var prior = _accountOwner; var reference = _accountOwnerReference;
+            var character = _characterOwnerId; var clan = _clanOwnerId; var shop = _shopOwnerId;
+            LoanService.OnRollback(() => { _accountOwner = prior; _accountOwnerReference = reference; _characterOwnerId = character; _clanOwnerId = clan; _shopOwnerId = shop; Changed = true; });
+        }
         _accountOwner = owner;
         _accountOwnerReference = owner == null
             ? null
@@ -374,6 +381,25 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
     }
 
     private void RecordTransaction(BankAccountTransaction transaction)
+    {
+        if (LoanService.GuardingSettlement)
+        {
+            var balance = CurrentBalance;
+            var fees = CurrentMonthFees;
+            LoanService.OnRollback(() =>
+            {
+                CurrentBalance = balance;
+                CurrentMonthFees = fees;
+                Gameworld.SaveManager.Abort(transaction);
+            });
+            LoanService.AfterCommit(() => PublishTransaction(transaction));
+            return;
+        }
+
+        PublishTransaction(transaction);
+    }
+
+    private void PublishTransaction(BankAccountTransaction transaction)
     {
         _recentTransactions.Add(transaction);
         if (_recentTransactions.Count > BankAccountTransactionHistory.MaximumTransactionHistoryEntries)
@@ -672,6 +698,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public void SetStatus(BankAccountStatus status)
     {
+        if (LoanService.GuardingSettlement) { var prior = AccountStatus; LoanService.OnRollback(() => { AccountStatus = prior; Changed = true; }); }
         AccountStatus = status;
         Changed = true;
     }

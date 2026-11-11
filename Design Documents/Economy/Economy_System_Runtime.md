@@ -16,6 +16,21 @@ It focuses on the code centred on `MudSharp.Economy`, but also includes the adja
 This document is intentionally current-state focused. Where it includes forward-looking guidance, that guidance is called out as inferred rather than presented as existing behavior.
 
 ## Layered Shape
+
+### Institutional lending
+
+A bank or shop lends its own available funds through a published product. Each contract records borrower identity, creditor, currency, dated instalments, signed terms and collateral. An application keeps its number through acceptance, repayment and recovery. Refinancing records the replacement number. A unique security key prevents a second pledge. Postings retain each payment's principal and interest allocation.
+
+Loan advances, confirmed repayments, surplus and sale-proceeds withdrawals, purchase mortgage closings, recovery auction completion and loan-related probate servicing settle in a private database transaction. A rejected posting restores the live coin piles, balances, title, pledged-item custody, auction state and participating estate records before the game resumes. Bank history and item notifications become visible after commit. If MySQL loses the reply to COMMIT, the game thread waits for the database and checks the unique posting for that operation before it resumes commands and saves. A server restart loads the outcome recorded by MySQL.
+
+The zone calendar drives simple interest and due dates. A balloon has no interim minimum. Other products can require interest alone or interest plus a fixed principal amount. Each missed instalment keeps its due date and grace deadline. The borrower must accept a proposed pause or replacement schedule.
+
+The bank balance sheet includes loan principal and interest receivable. Economy holdings distinguish receivables, debt and surplus. Advances and repayments are transfer activity. Realised shop interest enters net profit at financial close. A zone can configure the `bankinterest` profit tax to withhold a percentage of realised bank interest. See the [lending design and worked examples](Loans_and_Secured_Lending_Design.md).
+
+Cash-funded shops can use their virtual float and physical register coins. Account-funded products use the shop's nominated bank account. A foreclosure is held if a pledged property has acquired a hosted business. An estate is created for a deceased borrower whose only remaining asset is collateral already at recovery auction, and finalisation waits for that auction.
+
+Retained goods enter bank assets and economic holdings at their settlement appraisal while the lender owns the item. A shop stocking a retained pawn uses the principal recovered plus funded borrower equity as its cost. This recognises the remaining margin through ordinary sale accounting. Pawn counters accept individually identifiable durable goods. Currency piles, bulk commodities, stacks and filled containers cannot be pledged.
+
 ### Currency pile prototypes
 
 The generic currency pile prototype remains an empty, system-created pile. A system-only currency pile prototype may instead store both `DefaultCurrency` (currency ID) and `DefaultAmount` (invariant-culture decimal) in its component definition. These values are validated on load, including exact positive coin representation. Only newly created instances receive the configured coins; loading persisted coin XML and copying an existing item retain their existing contents. Explicit currency pile creation and previews use only their supplied coin counts.
@@ -789,3 +804,11 @@ Prepared purchase participants also support empty-vehicle relocation. Native can
 `purchasehelditemcustody(buyer, seller, parcel, storage, currency, price)` joins a directly held portable parcel to the existing prepared cash transfer. It preserves the actual item and its contained objects. Loose currency must be enclosed, so the parcel itself cannot also be selected as postage. Worn, wielded, attached and vehicle/dwelling items are refused. Preflight checks physical custody and ordinary rooms; payment and storage membership publish before inventory callbacks. Failure before commit retains both cash and parcel.
 
 The six-argument `purchaseitemdelivery(buyer, seller, item, storage, currency, price)` delivers ordinary stored items without modifying fit; its seven-argument text form additionally applies a concrete wearable fit. Both deliver at the buyer's current room layer, and zero-price delivery retains the same custody checks. The seven-argument boolean overload accepts `requireInventory`: when true, native hand and carrying eligibility must permit direct receipt, otherwise the item remains in storage. This lets postal couriers decline parcels they cannot carry without exposing them on the floor. Caller progs own service authorization and receipts.
+
+### Automatic loan payments
+
+Players enable automatic repayment with `loan autopay <loan id> from <account>`, inspect it with `loan autopay <loan id>`, stop it with `loan autopay <loan id> off`, and request an immediate attempt with `loan autopay <loan id> retry`. The account must be active, use the loan currency and permit the borrower to withdraw. Enabling the mandate authorises future amounts due and applicable bank withdrawal fees, including while the borrower is offline. Balloon loans pay automatically at maturity. Existing loans have autopay off until the borrower enables it.
+
+The game checks enabled mandates approximately once per real minute against the zone calendar. It attempts the full amount currently due, including arrears, through the same guarded settlement as a manual repayment. Failed attempts make no withdrawal and leave the loan due. Automatic retries occur on the next game day or when a new instalment becomes due. A borrower can pay manually, refill or replace the account, or use RETRY sooner. Account authority, currency, fees, balance and bank reserves are checked again on every attempt.
+
+An unresolved failure appears on the statement, when the failure reason changes for an online borrower, and on login while a payment remains due. Paying all arrears clears the failure. Death, probate and collateral recovery stop automatic withdrawals. An accepted refinance carries the mandate onto the replacement loan. Mandates, retry dates and failure reasons are stored with the loan's signed terms and survive restart.

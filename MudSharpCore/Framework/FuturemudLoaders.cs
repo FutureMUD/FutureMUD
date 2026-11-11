@@ -1079,6 +1079,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 
     void IFuturemudLoader.LoadEconomy()
     {
+        Economy.Lending.LoanService.LoadPortfolio(this);
         ConsoleUtilities.WriteLine("\nLoading #5Economic Zones#0...");
 #if DEBUG
         Stopwatch sw = new();

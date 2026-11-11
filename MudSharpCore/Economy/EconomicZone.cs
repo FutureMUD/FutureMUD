@@ -345,6 +345,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
     private void ReferenceCalendarOnDaysUpdated()
     {
+        Lending.LoanService.DailyUpdate(this);
         foreach (IBank bank in Gameworld.Banks.Where(x => x.EconomicZone == this))
         {
             bank.ReferenceDateOnDateChanged();
@@ -653,11 +654,13 @@ public class EconomicZone : SaveableItem, IEconomicZone
         CurrentFinancialPeriod = newPeriod;
 
         decimal totalPeriodTax = 0.0M;
+        var lendingProfit = Lending.LoanService.ShopProfit(this, oldPeriodRealStart, oldPeriodRealEnd, PermitTaxableLosses);
         foreach (IShop shop in Gameworld.Shops.Where(x => x.EconomicZone == this))
         {
             List<ITransactionRecord> transactions = shop.TransactionRecords.Where(x => x.RealDateTime >= oldPeriodRealStart).ToList();
             (decimal salesTax, decimal grossRevenue, decimal netRevenue) = transactions.Sum3(x => x.Tax,
                 x => x.TransactionType == ShopTransactionType.Sale ? x.PretaxValue : 0.0M, x => x.NetValue);
+            netRevenue += lendingProfit.GetValueOrDefault(shop.Id);
             totalPeriodTax += salesTax;
             _shopsOutstandingSalesTaxes[shop.Id] += salesTax;
             decimal profitTax = 0.0M;
@@ -704,7 +707,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
         }
 
         OutstandingTaxesOwed += totalPeriodTax;
-        _historicalRevenues.Add((newPeriod, totalPeriodTax));
+        // Bank lending tax is withheld at receipt and already included in held revenue.
+        _historicalRevenues.Add((newPeriod, totalPeriodTax + Lending.LoanService.BankTaxWithheld(this, oldPeriodRealStart, oldPeriodRealEnd)));
 		Gameworld.EconomyAnalytics?.NotifyFinancialPeriodClosed(Id, oldPeriod.Id);
 
         if (PreviousFinancialPeriodsToKeep < _financialPeriods.Count)
@@ -1445,6 +1449,11 @@ public class EconomicZone : SaveableItem, IEconomicZone
             DescriptionString = "Changing the calendar for an economic zone",
             AcceptAction = text =>
             {
+                if (Lending.LoanService.NeedsServicing(this))
+                {
+                    actor.OutputHandler.Send("Outstanding loans still use this calendar for their payment dates.");
+                    return;
+                }
                 FinancialPeriodReferenceCalendar.DaysUpdated -= ReferenceCalendarOnDaysUpdated;
                 FinancialPeriodReferenceCalendar = calendar;
                 calendar.DaysUpdated += ReferenceCalendarOnDaysUpdated;
@@ -1542,6 +1551,11 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
     private bool BuildingCommandCurrency(ICharacter actor, StringStack command)
     {
+        if (Lending.LoanService.NeedsServicing(this))
+        {
+            actor.OutputHandler.Send("Settle outstanding lending business before changing the zone currency.");
+            return false;
+        }
         if (command.IsFinished)
         {
             actor.OutputHandler.Send("What currency do you want to set as the currency for this economic zone?");

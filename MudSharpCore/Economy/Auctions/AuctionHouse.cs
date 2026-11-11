@@ -1,7 +1,8 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Economy.Lending;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Estates;
@@ -119,6 +120,9 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
                 item.Attribute("buyout").Value.Equals("none", StringComparison.InvariantCultureIgnoreCase)
                     ? null
                     : decimal.Parse(item.Attribute("buyout").Value),
+            RecoveryContractId = long.TryParse(item.Attribute("recovery")?.Value, out var recoveryId) && recoveryId > 0
+                ? recoveryId
+                : null,
             ListingDateTime = MudDateTime.FromStoredStringOrFallback(item.Attribute("list").Value, Gameworld,
                 StoredMudDateTimeFallback.CurrentDateTime, "AuctionItem", Id, Name, "ListingDateTime"),
             FinishingDateTime = MudDateTime.FromStoredStringOrFallback(item.Attribute("finish").Value, Gameworld,
@@ -401,25 +405,64 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     private void CompleteAuction(AuctionItem item, AuctionBid? winningBid, MudDateTime now)
     {
+        if (item.RecoveryContractId.HasValue || item.Seller is IEstate estateOwner && LoanService.EstateLoanId(estateOwner).HasValue)
+        {
+            try
+            {
+                LoanService.InTransaction(Gameworld, () =>
+                {
+                    var loanId = item.RecoveryContractId ?? (item.Seller is IEstate estate ? LoanService.EstateLoanId(estate) : null);
+                    if (loanId.HasValue) LoanService.RecordSettlement(Gameworld, loanId.Value, "Auction completion");
+                    EnlistLendingRollback();
+                    CompleteAuctionCore(item, winningBid, now);
+                    return true;
+                });
+            }
+            catch (Exception failure) when (LoanService.IsDatabaseFailure(failure))
+            {
+                MudSharp.Server.ExceptionReporter.WriteFallback(null,
+                    MudSharp.Server.ExceptionReporter.Format(failure, "Auction settlement deferred after rollback", false));
+            }
+            return;
+        }
+        CompleteAuctionCore(item, winningBid, now);
+    }
+
+    private void CompleteAuctionCore(AuctionItem item, AuctionBid? winningBid, MudDateTime now)
+    {
         bool propertyShareUnavailable = winningBid != null &&
                                       item.Asset is IProperty &&
                                       !CanTransferPropertyShare(item);
+        if (!propertyShareUnavailable && winningBid != null && item.Asset is IProperty estateProperty &&
+            item.Seller is IEstate estateSeller && LoanService.HasActivePropertyLien(estateProperty))
+        {
+            try
+            {
+                using (LoanService.AuthorizeEstatePropertyAuctionTransfer(estateSeller, item, winningBid.Bidder))
+                {
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                propertyShareUnavailable = true;
+            }
+        }
         if (propertyShareUnavailable)
         {
             BidderRefundsOwed[winningBid.BidderId] += winningBid.Bid;
             Changed = true;
-            AuctionHouseRoom.Handle(
+            AnnounceSettlement(
                 $"The auctioneers announce that the auction for {DescribeLotPlain(item)} cannot be completed because the listed ownership share is no longer available, and the winning bid has been refunded.");
             winningBid = null;
         }
         else if (winningBid == null)
         {
-            AuctionHouseRoom.Handle(
+            AnnounceSettlement(
                 $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended without any bids.");
         }
         else
         {
-            AuctionHouseRoom.Handle(
+            AnnounceSettlement(
                 $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended with a winning bid of {EconomicZone.Currency.Describe(winningBid.Bid, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
         }
 
@@ -430,28 +473,55 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         if (winningBid != null)
         {
             sellerProceeds = SellerProceedsFor(winningBid.Bid);
-            paid = TryPaySeller(item, winningBid.Bid);
+            paid = item.RecoveryContractId is { } recoveryContractId
+                ? LoanService.SettleRecoveryAuction(this, item, recoveryContractId, winningBid, sellerProceeds, now)
+                : TryPaySeller(item, winningBid.Bid);
             if (!paid)
             {
-                QueueSellerPayment(item, winningBid.Bid);
+                if (item.RecoveryContractId.HasValue)
+                {
+                    BidderRefundsOwed[winningBid.BidderId] += winningBid.Bid;
+                    winningBid = null;
+                }
+                else
+                {
+                    QueueSellerPayment(item, winningBid.Bid);
+                }
             }
 			var seller = item.PayoutTarget ?? item.Seller;
-			Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
+			if (paid && winningBid is not null) Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
 				EconomicActivityType.Auction, EconomicVolumeClassification.Exchange,
 				EconomicZone.Currency.Id, winningBid.Bid, EconomicZone.Id,
 				winningBid.BidderId, "Character", CharacterInstanceIdentityComparer.FrameworkItemId(seller),
 				seller.FrameworkItemType, item.Asset.Id, item.Asset.FrameworkItemType, DescribeLotPlain(item)));
         }
 
-        if (item.Seller is IEstate estateSeller)
+        if (item.Seller is IEstate sellerEstate)
         {
-            estateSeller.RecordAuctionCompletion(item, winningBid, sellerProceeds);
+            sellerEstate.RecordAuctionCompletion(item, winningBid, sellerProceeds);
         }
 
         switch (item.Asset)
         {
             case IProperty when winningBid != null:
-                TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
+                if (item.RecoveryContractId.HasValue)
+                {
+                    using (LoanService.AuthorizeSecurityTransfer(item.Asset.Id))
+                    {
+                        TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
+                    }
+                }
+                else if (item.Seller is IEstate estate && LoanService.HasActivePropertyLien((IProperty)item.Asset))
+                {
+                    using (LoanService.AuthorizeEstatePropertyAuctionTransfer(estate, item, winningBid.Bidder))
+                    {
+                        TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
+                    }
+                }
+                else
+                {
+                    TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
+                }
                 break;
             case IGameItem when winningBid != null:
                 _unclaimedItems.Add(new UnclaimedAuctionItem
@@ -461,11 +531,14 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
                 });
                 break;
             case IGameItem when winningBid == null && item.Seller is not IEstate:
-                _unclaimedItems.Add(new UnclaimedAuctionItem
+                if (!item.RecoveryContractId.HasValue)
                 {
-                    AuctionItem = item,
-                    WinningBid = null
-                });
+                    _unclaimedItems.Add(new UnclaimedAuctionItem
+                    {
+                        AuctionItem = item,
+                        WinningBid = null
+                    });
+                }
                 break;
         }
 
@@ -662,12 +735,42 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
     public IEnumerable<AuctionItem> ActiveAuctionItems => _activeAuctionItems;
     private readonly List<PendingAuctionItemLoad> _pendingAuctionItemLoads = new();
 
-    public CollectionDictionary<AuctionItem, AuctionBid> AuctionBids { get; } = new();
+    public CollectionDictionary<AuctionItem, AuctionBid> AuctionBids { get; } = new(ReferenceEqualityComparer.Instance);
     public DecimalCounter<long> BidderRefundsOwed { get; } = new();
     private readonly DecimalCounter<(long Id, string Type)> _sellerPaymentsOwed = new();
 
+    public bool OwesSeller(IFrameworkItem seller) => _sellerPaymentsOwed.AsReadOnlyDictionary().TryGetValue(
+        (CharacterInstanceIdentityComparer.FrameworkItemId(seller), seller.FrameworkItemType), out var amount) && amount > 0M;
+
+    private void AnnounceSettlement(string message) => LoanService.AfterCommit(() => AuctionHouseRoom.Handle(message));
+
+    private void EnlistLendingRollback()
+    {
+        if (!LoanService.GuardingSettlement) return;
+        var active = _activeAuctionItems.ToArray();
+        var results = _auctionResults.ToArray();
+        var unclaimed = _unclaimedItems.ToArray();
+        var refunds = BidderRefundsOwed.ToArray();
+        var owed = _sellerPaymentsOwed.ToArray();
+        var bids = AuctionBids.Keys.ToDictionary(x => x, x => AuctionBids[x].ToArray(), ReferenceEqualityComparer.Instance);
+        LoanService.OnRollback(() =>
+        {
+            _activeAuctionItems.Clear(); _activeAuctionItems.AddRange(active);
+            _auctionResults.Clear(); _auctionResults.AddRange(results);
+            _unclaimedItems.Clear(); _unclaimedItems.AddRange(unclaimed);
+            BidderRefundsOwed.Clear();
+            foreach (var entry in refunds) BidderRefundsOwed[entry.Key] = entry.Value;
+            _sellerPaymentsOwed.Clear();
+            foreach (var entry in owed) _sellerPaymentsOwed[entry.Key] = entry.Value;
+            AuctionBids.Clear();
+            foreach (var entry in bids) foreach (var bid in entry.Value) AuctionBids.Add((AuctionItem)entry.Key, bid);
+            Changed = true;
+        });
+    }
+
     public void AddAuctionItem(AuctionItem item)
     {
+        EnlistLendingRollback();
 		if (item.Item is { } goods) SpellOwnedItemValuePolicy.RequireOrdinaryValue(goods, "auction listing");
         _activeAuctionItems.Add(item);
         Changed = true;
@@ -756,6 +859,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     public void CancelItem(AuctionItem item)
     {
+        EnlistLendingRollback();
         _activeAuctionItems.Remove(item);
         Changed = true;
         AuctionBid highestExistingBid = AuctionBids[item].FirstMax(x => x.Bid);

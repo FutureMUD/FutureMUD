@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Primitives;
 using MudSharp.Character.Name;
 using MudSharp.Database;
@@ -212,6 +212,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
 
     public void PayoffAccount(decimal amount)
     {
+        if (MudSharp.Economy.Lending.LoanService.GuardingSettlement) { var prior = OutstandingBalance; MudSharp.Economy.Lending.LoanService.OnRollback(() => OutstandingBalance = prior); }
         OutstandingBalance -= amount;
         Changed = true;
     }

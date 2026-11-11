@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Community;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
+using MudSharp.Economy.Lending;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
@@ -47,6 +48,8 @@ The options you can use with this command are as follows:
 	#3property preview <name>#0 - previews a property that you own, are leasing, or is for sale/lease
 	#3property buy <name>#0 - buys a property that is for sale
 	#3property buy <name> <bankcode>:<accn>#0 - buys a property that is for sale, paying with a bank account
+	#3property buy <name> loan <offer id> [from <account>]#0 - closes your mortgage and pays your contribution
+	#3property proceeds [clan <name>] [withdraw <amount>]#0 - collects sale proceeds held for a seller without an account
 	#3property lease <name>#0 - leases a property that is available for lease
 	#3property lease <name> <bankcode>:<accn>#0 - leases a property that is available for lease, paying with a bank account
 	#3property tenant <name> add <target>#0 - adds someone as a listed tenant on your lease
@@ -273,6 +276,9 @@ The following commands are specific to those who own a property (or who are mana
             case "revenue":
                 PropertyRevenue(actor, ss);
                 return;
+            case "proceeds":
+                actor.OutputHandler.Send(LoanService.PropertyProceeds(actor, ss));
+                return;
             default:
                 actor.OutputHandler.Send((actor.IsAdministrator() ? PropertyHelpAdmins : PropertyHelpPlayers)
                     .SubstituteANSIColour());
@@ -472,6 +478,12 @@ The following commands are specific to those who own a property (or who are mana
         {
             actor.OutputHandler.Send(
                 $"You do not personally own {property.Name.ColourName()}. If you want to divest ownership of a clan property, use the CLAN DIVEST command instead.");
+            return;
+        }
+
+        if (LoanService.HasActivePropertyLien(property))
+        {
+            actor.OutputHandler.Send("Settle this property's loan before giving away a share.");
             return;
         }
 
@@ -895,12 +907,12 @@ The following commands are specific to those who own a property (or who are mana
             account.Bank.CurrencyReserves[property.EconomicZone.Currency] -= amount;
         }
 
-        foreach (IPropertyOwner owner in property.PropertyOwners)
-        {
-            owner.CreditRevenue(property.EconomicZone.Currency, amount * owner.ShareOfOwnership, actor, property,
-                $"Rent payment from {property.Name}",
-                property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
-        }
+        if (!LoanService.CreditRecoveryRent(property, amount))
+            foreach (IPropertyOwner owner in property.PropertyOwners)
+            {
+                owner.CreditRevenue(property.EconomicZone.Currency, amount * owner.ShareOfOwnership, actor, property,
+                    $"Rent payment from {property.Name}", property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
+            }
 
         property.Lease!.PaymentBalance += amount;
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
@@ -1777,6 +1789,11 @@ The following commands are specific to those who own a property (or who are mana
             actor.OutputHandler.Send("There is no such property currently available for lease.");
             return;
         }
+        if (LoanService.HasActivePropertyLien(property))
+        {
+            actor.OutputHandler.Send("This property is pledged and cannot take a new lease.");
+            return;
+        }
 
         if (property.Lease is not null)
         {
@@ -2013,6 +2030,24 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
+        if (LoanService.HasActivePropertyLien(property))
+        {
+            actor.OutputHandler.Send("This property is pledged. Its loan must be settled before it can be sold.");
+            return;
+        }
+        if (ss.PeekSpeech().EqualTo("loan"))
+        {
+            ss.PopSpeech();
+            if (!long.TryParse(ss.PopSpeech(), out var offerId) ||
+                !ss.IsFinished && (!ss.PopSpeech().EqualTo("from") || ss.IsFinished))
+            {
+                actor.OutputHandler.Send("Use PROPERTY BUY <property> LOAN <offer id> [FROM <account>].");
+                return;
+            }
+            actor.OutputHandler.Send(LoanService.Accept(actor, offerId, true, null, property.Id, ss.SafeRemainingArgument));
+            return;
+        }
+
         decimal amount = Math.Truncate(property.SaleOrder!.ReservePrice);
         // Cash payment
         if (ss.IsFinished)
@@ -2126,6 +2161,11 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
+        if (LoanService.HasActivePropertyLien(property))
+        {
+            actor.OutputHandler.Send("Settle this property's loan before listing it for sale.");
+            return;
+        }
         if (property.SaleOrder != null)
         {
             actor.OutputHandler.Send(
@@ -2263,6 +2303,11 @@ The following commands are specific to those who own a property (or who are mana
         {
             actor.OutputHandler.Send(
                 $"The property {property.Name.ColourName()} is already the subject of a lease order. Please cancel the existing lease order first.");
+            return;
+        }
+        if (LoanService.HasActivePropertyLien(property))
+        {
+            actor.OutputHandler.Send("Settle the mortgage before offering new leases.");
             return;
         }
 

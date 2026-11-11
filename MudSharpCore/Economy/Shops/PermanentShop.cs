@@ -123,6 +123,11 @@ public class PermanentShop : Shop, IPermanentShop
 
     private void Room_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
+        if (_shopfrontRooms.Count == 1 && _shopfrontRooms.Contains(room) && Lending.LoanService.NeedsServicing(EconomicZone, this))
+        {
+            response.RejectWithReason($"Borrowers still need the last shopfront of {Name.ColourName()}.");
+            return;
+        }
         if (room == WorkshopRoom)
         {
             response.RejectWithReason($"That room is a workshop room for shop #{Id:N0} ({Name.ColourName()})");

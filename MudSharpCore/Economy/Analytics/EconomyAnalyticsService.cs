@@ -6,6 +6,7 @@ using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Lending;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -180,12 +181,25 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		};
 		var pending = new EconomicActivityRecordItem(_gameworld, dbRecord);
 		pending.IdRegistered += PendingActivityIdRegistered;
+		var previousCoverageStartUtc = ActivityCoverageStartUtc;
 		lock (_pendingActivityLock)
 		{
 			_pendingActivities.Add(pending);
 		}
-
 		ActivityCoverageStartUtc ??= now;
+		if (LoanService.GuardingSettlement)
+		{
+			LoanService.OnRollback(() =>
+			{
+				_gameworld.SaveManager.Abort(pending);
+				lock (_pendingActivityLock)
+				{
+					_pendingActivities.Remove(pending);
+				}
+
+				ActivityCoverageStartUtc = previousCoverageStartUtc;
+			});
+		}
 	}
 
 	private void PendingActivityIdRegistered(MudSharp.Framework.Save.ILateInitialisingItem item)
@@ -387,6 +401,31 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 			            x.AccountOwnerFrameworkItemType.EqualTo("ICharacter"))
 			.Select(x => x.AccountOwnerId), characterControlCache);
 		AddPhysicalCashHoldings(holdings, characterControlCache);
+		var loans = Lending.LoanService.Balances(_gameworld, economicZoneId, currencyId);
+		foreach (var pawn in Lending.LoanService.RetainedPawns(_gameworld, economicZoneId, currencyId))
+		{
+			holdings.Add(CreateHolding(pawn.ZoneId, _gameworld.Currencies.Get(pawn.CurrencyId), EconomyHoldingMetric.RetainedGoods,
+				ResolveControl(pawn.LenderType, pawn.LenderId, characterControlCache), pawn.Value, pawn.LenderId,
+				pawn.LenderType, $"Retained item #{pawn.ItemId}"));
+		}
+		PreloadCharacterControls(loans.Select(x => x.BorrowerId).Distinct(), characterControlCache);
+		foreach (var loan in loans)
+		{
+			var currency = _gameworld.Currencies.Get(loan.CurrencyId);
+			var borrower = ResolveControl("Character", loan.BorrowerId, characterControlCache);
+			var receivable = loan.Principal + loan.Interest;
+			if (receivable > 0)
+			{
+				holdings.Add(CreateHolding(loan.EconomicZoneId, currency, EconomyHoldingMetric.LoanDebt,
+					borrower, receivable, loan.BorrowerId, "Character", $"Loan #{loan.Id}"));
+				holdings.Add(CreateHolding(loan.EconomicZoneId, currency, EconomyHoldingMetric.LoanReceivable,
+					ResolveControl(loan.LenderType, loan.LenderId, characterControlCache), receivable, loan.LenderId,
+					loan.LenderType, $"Loan #{loan.Id}"));
+			}
+			if (loan.Surplus > 0)
+				holdings.Add(CreateHolding(loan.EconomicZoneId, currency, EconomyHoldingMetric.LoanSurplus,
+					borrower, loan.Surplus, loan.BorrowerId, "Character", $"Loan #{loan.Id} surplus payable"));
+		}
 
 		foreach (var account in bankAccounts)
 		{
@@ -445,6 +484,8 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 			}
 		}
 
+		var recoveries = loans.Where(x => x.Status == "Recovery" && x.SecurityKey != null)
+			.ToDictionary(x => x.SecurityKey, x => x.BorrowerId);
 		foreach (var property in _gameworld.Properties
 		         .Where(x => !economicZoneId.HasValue || x.EconomicZone.Id == economicZoneId)
 		         .Where(x => !currencyId.HasValue || x.EconomicZone.Currency.Id == currencyId))
@@ -457,6 +498,12 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				continue;
 			}
 
+			if (recoveries.TryGetValue($"Property:{property.Id}", out var borrowerId))
+			{
+				holdings.Add(CreateHolding(property.EconomicZone.Id, property.EconomicZone.Currency, EconomyHoldingMetric.PropertyEquity,
+					ResolveControl("Character", borrowerId, characterControlCache), value, borrowerId, "Character", property.Name));
+				continue;
+			}
 			foreach (var owner in property.PropertyOwners)
 			{
 				var amount = value * owner.ShareOfOwnership;
@@ -1174,7 +1221,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 						.Sum(x => x.GlobalBaseValue);
 					var pcWealth = holdings
 						.Where(x => IsPcControlled(x.ControlBucket) &&
-						            x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves)
+						            x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves and not EconomyHoldingMetric.LoanDebt)
 						.Sum(x => x.GlobalBaseValue);
 					var deposits = holdings.Where(x => x.Metric == EconomyHoldingMetric.BankDeposits)
 						.Sum(x => x.GlobalBaseValue);
@@ -1184,6 +1231,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 					         {
 						         (EconomyHoldingMetric.BroadMoneySupply, broadSupply),
 						         (EconomyHoldingMetric.PcControlledWealth, pcWealth),
+					         (EconomyHoldingMetric.PcNetWealth, holdings.Where(x => IsPcControlled(x.ControlBucket)).Sum(x => x.NetWealthValue)),
 						         (EconomyHoldingMetric.ReserveCoverage, deposits <= 0.0M ? 1.0M : reserves / deposits)
 					         })
 					{

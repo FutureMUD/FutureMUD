@@ -20,6 +20,8 @@ namespace MudSharp.Community
 
         List<Tuple<IFutureProg, string>> TitlesAndProgs { get; }
 
+		List<ClanAddressRule> FormsOfAddress { get; }
+
         List<IPaygrade> Paygrades { get; }
 
         ClanPrivilegeType Privileges { get; set; }
@@ -36,14 +38,14 @@ namespace MudSharp.Community
         string RankPath { get; set; }
 
         /// <summary>
-        ///     Formal Abbreviation when used as a form of address, e.g. Cpt. for Captain
+        ///     Displayed abbreviation of the rank, e.g. Cpt. for Captain.
         /// </summary>
         /// <param name="character">The character in question. If null, returns only default values</param>
         /// <returns>An abbreviation for the rank</returns>
         string Abbreviation(ICharacter character);
 
         /// <summary>
-        ///     Formal name of rank when used as a form of address, e.g. Major General
+        ///     Displayed title of the rank, e.g. Major General. Direct address uses FormsOfAddress.
         /// </summary>
         string Title(ICharacter character);
 

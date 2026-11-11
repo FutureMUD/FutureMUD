@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Community;
+using MudSharp.Community.Templates;
 using MudSharp.Database;
 using MudSharp.Models;
 using System;
@@ -19,7 +20,7 @@ using RankModel = MudSharp.Models.Rank;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ClanSeederPrivilegeTests
+public partial class ClanSeederPrivilegeTests
 {
 
     [TestMethod]
@@ -30,7 +31,7 @@ public class ClanSeederPrivilegeTests
 
         string result = new ClanSeeder().SeedData(context, new System.Collections.Generic.Dictionary<string, string>());
 
-        Assert.AreEqual("Created 50 new clans.", result);
+        Assert.IsTrue(context.Clans.Any(), "First installation must create templates.");
 
         List<MudSharp.Models.Rank> propertyRanks = context.Ranks
             .Where(x => HasAnyPropertyPrivilege((ClanPrivilegeType)x.Privileges))
@@ -57,12 +58,95 @@ public class ClanSeederPrivilegeTests
 		ClanSeeder seeder = new();
 
 		string firstResult = seeder.SeedData(context, new Dictionary<string, string>());
-		string secondResult = seeder.SeedData(context, new Dictionary<string, string>());
 
-		Assert.AreEqual("Created 50 new clans.", firstResult);
+		var installedIds = context.Clans.Select(x => x.Id).ToList();
+		Assert.IsTrue(installedIds.Count > 0, "First installation must create templates.");
+		var customised = context.Appointments.First();
+		customised.CanResign = false;
+		customised.MaximumSimultaneousHolders = 17;
+		context.SaveChanges();
+		var secondResult = seeder.SeedData(context, new Dictionary<string, string>());
 		Assert.AreEqual("Created 0 new clans.", secondResult);
-		Assert.AreEqual(50, context.Clans.Count());
+		CollectionAssert.AreEquivalent(installedIds, context.Clans.Select(x => x.Id).ToList());
+		Assert.IsFalse(context.Appointments.Find(customised.Id)!.CanResign);
+		Assert.AreEqual(17, context.Appointments.Find(customised.Id)!.MaximumSimultaneousHolders);
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+	}
+
+	[TestMethod]
+	[TestCategory("Integration")]
+	public void CatholicInstall_MissingTemplateAndLegacyClan_PreservesExistingContent()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var legacy = new ClanModel { Name = "The Catholic Church", Alias = "legacychurch", FullName = "Builder Church", Description = "Keep me", PayIntervalReferenceDate = "1-1-1", PayIntervalReferenceTime = "UTC 0:0:0" };
+		context.Clans.Add(legacy);
+		context.SaveChanges();
+		var seeder = new ClanSeeder();
+		seeder.SeedData(context, new Dictionary<string, string>());
+		var definition = CatholicTemplateCatalogue.Get(CatholicTemplateCatalogue.Keys.First());
+		var template = context.Clans.Single(x => x.Name == definition.Name);
+		Assert.IsTrue(context.Appointments.Any(x => x.ClanId == template.Id));
+		var office = context.Appointments.First(x => x.ClanId == template.Id);
+		office.MaximumSimultaneousHolders = 23;
+		office.CanDirectlyAppoint = true;
+		context.SaveChanges();
+		var untouched = context.Clans.Where(x => x.Id != template.Id).Select(x => x.Id).ToList();
+		var missing = context.Clans.Single(x => x.Name == CatholicTemplateCatalogue.Get(CatholicTemplateCatalogue.Keys.Last()).Name);
+		untouched.Remove(missing.Id);
+		context.Clans.Remove(missing);
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, seeder.ShouldSeedData(context));
+		seeder.SeedData(context, new Dictionary<string, string>());
+		Assert.IsTrue(context.Clans.Any(x => x.Name == missing.Name));
+		Assert.IsTrue(untouched.All(id => context.Clans.Any(x => x.Id == id)));
+		Assert.AreEqual(23, context.Appointments.Find(office.Id)!.MaximumSimultaneousHolders);
+		Assert.IsTrue(context.Appointments.Find(office.Id)!.CanDirectlyAppoint);
+		Assert.AreEqual("Keep me", context.Clans.Find(legacy.Id)!.Description);
+		Assert.IsFalse(context.ClanMemberships.Any());
+		Assert.IsFalse(context.Elections.Any());
+		Assert.IsFalse(context.ExternalClanControls.Any());
+		var statusProg = context.FutureProgs.Single(x => x.FunctionName == "CatholicClanStatus");
+		statusProg.FunctionText = "return \"Builder wording\"";
+		context.FutureProgs.Remove(context.FutureProgs.Single(x => x.FunctionName == "CatholicClanExport"));
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, seeder.ShouldSeedData(context));
+		seeder.SeedData(context, new Dictionary<string, string>());
+		Assert.IsTrue(context.FutureProgs.Any(x => x.FunctionName == "CatholicClanExport"));
+		Assert.AreEqual("return \"Builder wording\"", context.FutureProgs.Find(statusProg.Id)!.FunctionText);
+	}
+
+	[TestMethod]
+	public void CatholicInstall_IdentityConflict_RejectsBeforeAnyWrites()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var definition = CatholicTemplateCatalogue.Get(CatholicTemplateCatalogue.Keys.First());
+		context.Clans.Add(new ClanModel { Name = "Independent", Alias = definition.Alias, PayIntervalReferenceDate = "1-1-1", PayIntervalReferenceTime = "UTC 0:0:0" });
+		context.SaveChanges();
+		var ids = context.Clans.Select(x => x.Id).ToList();
+		Assert.ThrowsExactly<InvalidOperationException>(() => new ClanSeeder().SeedData(context, new Dictionary<string, string>()));
+		CollectionAssert.AreEquivalent(ids, context.Clans.Select(x => x.Id).ToList());
+		Assert.IsFalse(context.Ranks.Any());
+		Assert.IsFalse(context.FutureProgs.Any());
+	}
+
+	[TestMethod]
+	[TestCategory("Integration")]
+	public void CatholicInstall_PartialIdentity_ReportsWithoutRepairingOrInstallingOtherMissingTemplates()
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var seeder = new ClanSeeder();
+		seeder.SeedData(context, new Dictionary<string, string>());
+		var definition = CatholicTemplateCatalogue.Get(CatholicTemplateCatalogue.Keys.First());
+		var template = context.Clans.Single(x => x.Name == definition.Name);
+		context.Appointments.Remove(context.Appointments.First(x => x.ClanId == template.Id));
+		context.Clans.Remove(context.Clans.Single(x => x.Name == CatholicTemplateCatalogue.Get(CatholicTemplateCatalogue.Keys.Last()).Name));
+		context.SaveChanges();
+		var remainingIds = context.Clans.Select(x => x.Id).ToList();
+		Assert.ThrowsExactly<InvalidOperationException>(() => seeder.SeedData(context, new Dictionary<string, string>()));
+		CollectionAssert.AreEquivalent(remainingIds, context.Clans.Select(x => x.Id).ToList());
 	}
 
     private static bool HasAnyPropertyPrivilege(ClanPrivilegeType privileges)

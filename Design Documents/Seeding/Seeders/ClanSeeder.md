@@ -46,3 +46,17 @@ Related source tests and design references:
 - [Clan_Seeder_Template_Catalogue.md](../../../Design%20Documents/Seeding/Clan_Seeder_Template_Catalogue.md)
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).
+
+## Catholic templates
+
+The catalogue now includes 32 Catholic church, diocesan, parish, generic religious, military-order and named religious-family templates (82 templates overall). `ClanSeeder.Catholic.cs` validates installation identities and installs missing templates through the shared helpers, preserving explicit privileges and election/recall configuration. Source progs fail closed. Foreign confirmation offices and external-control reservations are deferred to live provisioning. Existing canonical names and the legacy `The Catholic Church` are preserved. An incomplete existing identity or an alias/prog conflict requires manual review; the installer does not reconcile it.
+
+Catholic cloning suppresses automatic founder membership and creates a staged template copy. Use the generic admin-only `clan create staged` mode and the seeded `CatholicClan*` prog suite through `prog execute` to select live authorities, apply deliberate variants, export the provisioning record, and activate once ready. The engine has no Catholic-specific command or builtin. See [Catholic clan template provisioning](../Catholic_Clan_Template_Provisioning.md). No schema migration or replay/question change is involved.
+
+## Non-Catholic direct-address content
+
+`ClanSeeder.Addresses.cs` applies explicit address mappings only to template clans newly created by the current `SeedData` invocation. Existing IDs are captured before setup begins, so reruns preserve custom wording, cleared rules and priorities and do not adopt unowned stock-name collisions. Global `IsFemale` predicates are reused where the template already has gendered titles. Modern military officers additionally use Lower-only `IsFemale`/`IsMale` rules for Ma'am/Sir, followed by rank defaults for other relationships. Their signatures accept character-compatible unions. Conditional rows precede the default and native clone copying retains their shared references.
+
+Roman templates use explicit Latin vocatives for selected military, civic and priestly roles. British-inspired peerage grades use their clear noble/royal styles; untitled gentility and collective/status labels remain unset. Fresh Roman legion templates also correct the two Beneficiarius staff-rank names, titles and abbreviations; the spelling correction restores their existing dedicated paygrade links. Installed templates are not repaired on rerun.
+
+This preserves `Additive / InstallMissing` without new questions, replay metadata or migrations. See [the complete review](../Clan_Seeder_Forms_of_Address_Review.md) for the selected styles and the cultural and historical choices intentionally left to builders.

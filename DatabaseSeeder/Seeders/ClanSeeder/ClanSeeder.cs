@@ -66,7 +66,8 @@ public partial class ClanSeeder : IFoundationSeeder
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
-        context.Database.BeginTransaction();
+        ValidateCatholicInstall(context);
+        using var transaction = context.Database.BeginTransaction();
 
         EnsureCoreUtilityProg(
             context,
@@ -129,7 +130,8 @@ public partial class ClanSeeder : IFoundationSeeder
 
         EnsureTemplateElectionPlaceholderProgs(context);
 
-        int count = context.Clans.Count();
+		var existingClanIds = context.Clans.Select(x => x.Id).ToHashSet();
+        int count = existingClanIds.Count;
         SetupRomanCity(context, questionAnswers);
         SetupRomanMilitary(context, questionAnswers);
         SetupMilitaryClan(context, questionAnswers);
@@ -150,6 +152,8 @@ public partial class ClanSeeder : IFoundationSeeder
         SetupPeerage(context, questionAnswers);
         SetupFeudalism(context, questionAnswers);
         SetupAdditionalTemplateClans(context);
+        SetupCatholicTemplates(context);
+		SeedNewTemplateAddresses(context, existingClanIds);
         int difference = context.Clans.Count() - count;
         context.Database.CommitTransaction();
         return $"Created {difference} new clans.";
@@ -164,8 +168,11 @@ public partial class ClanSeeder : IFoundationSeeder
 
         if (context.Clans.Any())
         {
+			if (NeedsCatholicAddresses(context) || CatholicProvisioningProgNames.Any(name => !context.FutureProgs.Any(x => x.FunctionName == name)))
+				return ShouldSeedResult.ExtraPackagesAvailable;
             if (LegacyTemplateClanNames
                 .Concat(AdditionalClanTemplateSpecifications.Select(x => x.Name))
+                .Concat(CatholicDefinitions.Select(x => x.Name))
                 .Any(name => context.Clans.All(x => x.Name != name)))
             {
                 return ShouldSeedResult.ExtraPackagesAvailable;
@@ -2154,7 +2161,7 @@ This package can be run multiple times as I add more options.";
         rank = new Rank
         {
             Clan = clan,
-            Name = "Beneficarius Cohortis",
+            Name = "Beneficiarius Cohortis",
             RankNumber = rankNumber++,
             Privileges = (long)(ClanPrivilegeType.CanViewClanStructure | ClanPrivilegeType.CanViewClanOfficeHolders |
                                 ClanPrivilegeType.CanViewMembers | ClanPrivilegeType.CanViewTreasury |
@@ -2163,15 +2170,15 @@ This package can be run multiple times as I add more options.";
                                 ClanPrivilegeType.CanAppoint | ClanPrivilegeType.CanDismiss),
             RankPath = "Auxiliary Infantry"
         };
-        rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "CntrCh" });
-        rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Centurio" });
+        rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Bnf" });
+        rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Beneficiarius" });
         context.Ranks.Add(rank);
         context.SaveChanges();
 
         rank = new Rank
         {
             Clan = clan,
-            Name = "Beneficarius Alae",
+            Name = "Beneficiarius Alae",
             RankNumber = rankNumber++,
             Privileges = (long)(ClanPrivilegeType.CanViewClanStructure | ClanPrivilegeType.CanViewClanOfficeHolders |
                                 ClanPrivilegeType.CanViewMembers | ClanPrivilegeType.CanViewTreasury |
@@ -2180,8 +2187,8 @@ This package can be run multiple times as I add more options.";
                                 ClanPrivilegeType.CanAppoint | ClanPrivilegeType.CanDismiss),
             RankPath = "Auxiliary Cavalry"
         };
-        rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Cntr" });
-        rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Centurio" });
+        rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Bnf" });
+        rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Beneficiarius" });
         context.Ranks.Add(rank);
         context.SaveChanges();
 

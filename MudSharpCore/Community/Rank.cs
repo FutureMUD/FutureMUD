@@ -32,6 +32,8 @@ public class Rank : SaveableItem, IRank
             Paygrades.Add(clan.Paygrades.First(x => x.Id == item.PaygradeId));
         }
 
+		FormsOfAddress.AddRange(rank.FormsOfAddress.OrderBy(x => x.Order).Select(ClanAddressPersistence.Load));
+
         foreach (RanksTitle item in rank.RanksTitles.OrderBy(x => x.Order))
         {
             TitlesAndProgs.Add(Tuple.Create(Gameworld.FutureProgs.Get(item.FutureProgId ?? 0), item.Title));
@@ -50,6 +52,7 @@ public class Rank : SaveableItem, IRank
         {
             Models.Rank dbitem = FMDB.Context.Ranks.Find(Id);
             dbitem.Name = Name;
+			ClanAddressPersistence.Save(dbitem, FormsOfAddress);
             dbitem.Privileges = (long)Privileges;
             dbitem.RankPath = string.IsNullOrEmpty(RankPath) ? null : RankPath;
             dbitem.RankNumber = RankNumber;
@@ -108,6 +111,8 @@ public class Rank : SaveableItem, IRank
 
         Changed = false;
     }
+
+	public List<ClanAddressRule> FormsOfAddress { get; } = new();
 
     public override string FrameworkItemType => "Rank";
 

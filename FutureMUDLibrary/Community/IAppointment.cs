@@ -18,6 +18,9 @@ namespace MudSharp.Community
         List<Tuple<IFutureProg, string>> AbbreviationsAndProgs { get; }
         List<Tuple<IFutureProg, string>> TitlesAndProgs { get; }
 
+		List<ClanAddressRule> FormsOfAddress { get; }
+		int AddressPriority { get; set; }
+
         IClan Clan { get; set; }
 
         IPaygrade Paygrade { get; set; }
@@ -60,7 +63,7 @@ namespace MudSharp.Community
         string Abbreviation(ICharacter character);
 
         /// <summary>
-        ///     Formal name of appointment when used as a form of address, e.g. Master of the Stables
+        ///     Displayed title of the appointment, e.g. Master of the Stables. Direct address uses FormsOfAddress.
         /// </summary>
         string Title(ICharacter character);
 

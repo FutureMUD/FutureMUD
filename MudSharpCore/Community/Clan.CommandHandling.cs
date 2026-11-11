@@ -1881,6 +1881,7 @@ public partial class Clan
 		sb.AppendLine();
 		sb.AppendLine("Privileges:");
 		sb.AppendLine("\t" + rank.Privileges);
+		sb.AppendLine(ClanAddressBuilding.Describe(rank.FormsOfAddress, actor));
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
@@ -1978,6 +1979,8 @@ public partial class Clan
 		sb.AppendLine();
 		sb.AppendLine("Privileges:");
 		sb.AppendLine("\t" + appointment.Privileges);
+		sb.AppendLine(ClanAddressBuilding.Describe(appointment.FormsOfAddress, actor));
+		sb.AppendLine($"Address priority: {appointment.AddressPriority.ToString("N0", actor)}");
 		actor.OutputHandler.Send(sb.ToString());
 	}
 

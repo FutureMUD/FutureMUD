@@ -17114,6 +17114,163 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 
 COMMIT;
+
+
+-- Reviewed EF-generated delta: optional clan forms of address.
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    ALTER TABLE `clans` ADD `ShowFormsOfAddressInLook` tinyint(1) NOT NULL DEFAULT TRUE;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    ALTER TABLE `appointments` ADD `AddressPriority` int NOT NULL DEFAULT 0;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    CREATE TABLE `appointmentformsofaddress` (
+        `Id` char(36) COLLATE ascii_general_ci NOT NULL,
+        `AppointmentId` bigint(20) NOT NULL,
+        `Order` int NOT NULL,
+        `Text` varchar(200) CHARACTER SET utf8mb4 NULL,
+        `Relations` int NOT NULL,
+        `IsPublic` tinyint(1) NOT NULL,
+        `FutureProgId` bigint(20) NULL,
+        `TemplateKey` varchar(100) CHARACTER SET utf8mb4 NULL,
+        CONSTRAINT `PK_AppointmentFormsOfAddress` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_AppointmentFormsOfAddress_Appointments_AppointmentId` FOREIGN KEY (`AppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE CASCADE,
+        CONSTRAINT `FK_AppointmentFormsOfAddress_FutureProgs_FutureProgId` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    CREATE TABLE `rankformsofaddress` (
+        `Id` char(36) COLLATE ascii_general_ci NOT NULL,
+        `RankId` bigint(20) NOT NULL,
+        `Order` int NOT NULL,
+        `Text` varchar(200) CHARACTER SET utf8mb4 NULL,
+        `Relations` int NOT NULL,
+        `IsPublic` tinyint(1) NOT NULL,
+        `FutureProgId` bigint(20) NULL,
+        `TemplateKey` varchar(100) CHARACTER SET utf8mb4 NULL,
+        CONSTRAINT `PK_RankFormsOfAddress` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_RankFormsOfAddress_FutureProgs_FutureProgId` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_RankFormsOfAddress_Ranks_RankId` FOREIGN KEY (`RankId`) REFERENCES `ranks` (`Id`) ON DELETE CASCADE
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    CREATE INDEX `IX_AppointmentFormsOfAddress_AppointmentId_Order` ON `appointmentformsofaddress` (`AppointmentId`, `Order`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    CREATE INDEX `IX_AppointmentFormsOfAddress_FutureProgId` ON `appointmentformsofaddress` (`FutureProgId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    CREATE INDEX `IX_RankFormsOfAddress_FutureProgId` ON `rankformsofaddress` (`FutureProgId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    CREATE INDEX `IX_RankFormsOfAddress_RankId_Order` ON `rankformsofaddress` (`RankId`, `Order`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111024432_ClanFormsOfAddress') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261111024432_ClanFormsOfAddress', '9.0.21');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;
+
 -- EF-generated idempotent delta: AddLendingContracts
 START TRANSACTION;
 DROP PROCEDURE IF EXISTS MigrationsScript;

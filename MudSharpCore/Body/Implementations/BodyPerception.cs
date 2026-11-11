@@ -1077,16 +1077,17 @@ public partial class Body
 
             if (fromLookCommand)
             {
-                if (Gameworld.GetStaticBool("ClanSimilaritiesShowInLook"))
+                if (Gameworld.GetStaticBool("ClanSimilaritiesShowInLook") && !actor.IdentityIsObscuredTo(Actor) &&
+				    !CharacterInstanceIdentityComparer.SameIdentity(Actor, actor))
                 {
-                    foreach (IClanMembership clan in Actor.ClanMemberships)
+                    foreach (IClanMembership clan in Actor.ClanMemberships.Where(x => !x.IsArchivedMembership))
                     {
                         if (!clan.NetPrivileges.HasFlag(Community.ClanPrivilegeType.CanViewMembers))
                         {
                             continue;
                         }
 
-                        IClanMembership membership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan.Clan);
+                        IClanMembership membership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan.Clan && !x.IsArchivedMembership);
                         if (membership == null)
                         {
                             continue;
@@ -1102,6 +1103,9 @@ public partial class Body
                             sb.AppendLine(
                                 $"{gender.Subjective(true)} is {membership.Rank.Title(actor).A_An(false, Telnet.Green)} in {membership.Clan.Name.ColourName()}");
                         }
+
+						var addressHint = Community.ClanAddressResolver.LookHint(Actor, actor, membership.Clan);
+						if (!string.IsNullOrEmpty(addressHint)) sb.AppendLine(addressHint.Wrap(InnerLineFormatLength));
                     }
                 }
 

@@ -1083,6 +1083,7 @@ public static class DefaultStaticSettings
 
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>
     {
+		{ "ClanFormOfAddressLookFormat", "Within {clan}, you would normally address {objective} as \"{address}\"." },
 		{"EnvironmentalExposureWarning", "Contact with {0} can cause injury."},
 		{"EnvironmentalExposureContinuing", "You suffer from {0} exposure on your {1}."},
 		{"EnvironmentalExposureItemDeterioration", "{0} deteriorates from {1} exposure."},

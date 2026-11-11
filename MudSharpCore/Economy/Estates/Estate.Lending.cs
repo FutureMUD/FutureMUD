@@ -20,7 +20,7 @@ public partial class Estate
 			.ToDictionary(x => x, x => (x.Amount, x.Reason, x.Status, x.StatusReason, x.Changed));
 		var payoutStates = oldPayouts.OfType<EstatePayout>()
 			.ToDictionary(x => x, x => (x.CollectedDate, x.Changed));
-	
+
 		return () =>
 		{
 			// SQL rollback discards new rows. Remove their runtime save-queue entries.
@@ -32,11 +32,11 @@ public partial class Estate
 					saveable.Changed = false;
 				}
 			}
-	
+
 			_assets.Clear(); _assets.AddRange(oldAssets);
 			_claims.Clear(); _claims.AddRange(oldClaims);
 			_payouts.Clear(); _payouts.AddRange(oldPayouts);
-	
+
 			foreach (var (item, state) in assetStates)
 			{
 				Gameworld.SaveManager.Abort(item);
@@ -67,7 +67,7 @@ public partial class Estate
 				item.Changed = false;
 				if (state.Changed) item.Changed = true;
 			}
-	
+
 			Gameworld.SaveManager.Abort(this);
 			Changed = false;
 			EstateStatus = oldEstateStatus;
@@ -75,7 +75,7 @@ public partial class Estate
 			if (estateChanged) Changed = true;
 		};
 	}
-	
+
 	internal Action CaptureAuctionCompletionRollback(AuctionItem auctionItem)
 	{
 		var asset = FindAsset(auctionItem.Asset) as EstateAsset;

@@ -38,6 +38,9 @@ public class Appointment : SaveableItem, IAppointment
             ? clan.Ranks.FirstOrDefault(x => x.Id == appointment.MinimumRankToAppointId.Value)
             : null;
 
+		FormsOfAddress.AddRange(appointment.FormsOfAddress.OrderBy(x => x.Order).Select(ClanAddressPersistence.Load));
+		AddressPriority = appointment.AddressPriority;
+
         foreach (AppointmentsTitles item in appointment.AppointmentsTitles.OrderBy(x => x.Order))
         {
             TitlesAndProgs.Add(Tuple.Create(Gameworld.FutureProgs.Get(item.FutureProgId ?? 0), item.Title));
@@ -119,6 +122,8 @@ public class Appointment : SaveableItem, IAppointment
         {
             Models.Appointment dbitem = FMDB.Context.Appointments.Find(Id);
             dbitem.Name = Name;
+			ClanAddressPersistence.Save(dbitem, FormsOfAddress);
+			dbitem.AddressPriority = AddressPriority;
             dbitem.Privileges = (long)Privileges;
             dbitem.MaximumSimultaneousHolders = MaximumSimultaneousHolders;
             dbitem.PaygradeId = Paygrade?.Id;
@@ -206,6 +211,9 @@ public class Appointment : SaveableItem, IAppointment
 
         Changed = false;
     }
+
+	public List<ClanAddressRule> FormsOfAddress { get; } = new();
+	public int AddressPriority { get; set; }
 
     public override string FrameworkItemType => "Appointment";
 

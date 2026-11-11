@@ -22,6 +22,7 @@ namespace MudSharp.Community
         string FullName { get; set; }
         string Description { get; set; }
         bool ShowClanMembersInWho { get; set; }
+		bool ShowFormsOfAddressInLook { get; set; }
         string Sphere { get; set; }
         bool ShowFamousMembersInNotables { get; set; }
         ulong? DiscordChannelId { get; set; }

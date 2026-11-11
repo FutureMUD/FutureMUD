@@ -33,6 +33,7 @@ namespace MudSharp.Database
 			ConfigureRegionalGathering(modelBuilder);
 			ConfigureRacialMerits(modelBuilder);
 			ConfigureAgeDescriptions(modelBuilder);
+			ConfigureClanAddresses(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
 			ConfigureRoomSpatialOwnership(modelBuilder);
         }

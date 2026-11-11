@@ -31,6 +31,7 @@ public partial class Clan : SaveableItem, IClan
         Description = clan.Description;
         _calendar = Gameworld.Calendars.Get(clan.CalendarId);
         ShowClanMembersInWho = clan.ShowClanMembersInWho;
+		ShowFormsOfAddressInLook = clan.ShowFormsOfAddressInLook;
         ShowFamousMembersInNotables = clan.ShowFamousMembersInNotables;
         Sphere = clan.Sphere;
         IsTemplate = clan.IsTemplate;
@@ -110,6 +111,7 @@ public partial class Clan : SaveableItem, IClan
             clan.CalendarId = Calendar.Id;
             clan.Description = Description;
             clan.ShowClanMembersInWho = ShowClanMembersInWho;
+			clan.ShowFormsOfAddressInLook = ShowFormsOfAddressInLook;
             clan.ShowFamousMembersInNotables = ShowFamousMembersInNotables;
             clan.Sphere = Sphere;
             clan.IsTemplate = IsTemplate;
@@ -301,6 +303,7 @@ public partial class Clan : SaveableItem, IClan
     }
 
     public bool ShowClanMembersInWho { get; set; }
+	public bool ShowFormsOfAddressInLook { get; set; } = true;
 
     public string Sphere { get; set; }
     public bool ShowFamousMembersInNotables { get; set; }

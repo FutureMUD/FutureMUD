@@ -363,12 +363,14 @@ public class ForagingRuntimeTests
 	}
 
 	[TestMethod]
-	[DataRow(0.3, 0.1, 3)]
-	[DataRow(1.0, 0.1, 10)]
+	[DataRow(0.3, 0.1, 3, false)]
+	[DataRow(1.0, 0.1, 10, false)]
+	[DataRow(0.3, 0.1, 3, true)]
+	[DataRow(1.0, 0.1, 10, true)]
 	[TestCategory("Y-T05")]
 	[TestCategory("Y-T14")]
 	public void Room_NativeForageDebit_DecimalSplitsConsumeTheExactLogicalTotal(double openingStock,
-		double debit, int count)
+		double debit, int count, bool batch)
 	{
 		var profile = CreateProfileMock(951L, ("food", openingStock));
 		var profiles = new RevisableAll<IForagableProfile>();
@@ -383,11 +385,15 @@ public class ForagingRuntimeTests
 		for (var i = 0; i < count; i++)
 		{
 			Assert.IsTrue(room.TryPeekForagableYield("food", out NativeForageYieldSnapshot snapshot));
-			Assert.IsTrue(room.TryConsumeYield(snapshot, debit, out var reason), reason);
+			string reason;
+			var consumed = batch
+				? room.TryConsumeYieldBatch([new(snapshot, debit)], out reason)
+				: room.TryConsumeYield(snapshot, debit, out reason);
+			Assert.IsTrue(consumed, reason);
 		}
 
 		Assert.IsTrue(room.TryPeekForagableYield("food", out NativeForageYieldSnapshot exhausted));
-		Assert.AreEqual(0.0, exhausted.Stock, 1e-12);
+		Assert.AreEqual(0.0, exhausted.Stock);
 	}
 
 	[TestMethod]

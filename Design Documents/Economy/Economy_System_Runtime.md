@@ -593,6 +593,8 @@ Output path:
 This design is why FutureMUD can support very different notation schemes without rewriting higher-level systems.
 
 ### Shop Pricing, Taxes, and Transactions
+Commodity quotes convert the weight ratio to 15 significant decimal digits before multiplying by the decimal unit price and tax. Market pricing uses the same precision when a formula returns a `double` or when summed flat price pressure enters the decimal multiplier.
+
 The current shop price flow is:
 
 - merchandise provides an effective pre-tax price

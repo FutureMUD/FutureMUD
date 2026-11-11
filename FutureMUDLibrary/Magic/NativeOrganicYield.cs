@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using MudSharp.Framework;
 using MudSharp.Work.Agriculture;
 
 namespace MudSharp.Magic.Environment;
@@ -196,7 +197,7 @@ public static class NativeOrganicAccountingMath
 
 		try
 		{
-			amount = (decimal)value;
+			amount = value.ToAccountingDecimal();
 		}
 		catch (OverflowException)
 		{

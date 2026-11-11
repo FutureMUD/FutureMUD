@@ -95,6 +95,8 @@ These plans are deliberately not idempotent, reservations, receipts, or transact
 
 ## Fractional integer-source accounting
 
+Native stock accounting converts double quantities to 15 significant decimal digits. A forage source with `0.3` units therefore supports three `0.1` debits through either the single or grouped debit operation. Each operation checks that the closing balance can round-trip through native stock storage before committing it.
+
 For crop, woodland and pasture, `Q` is the integer stock, `C` is the saved prepaid source fraction, and `d` is a positive logical source-unit debit. Amounts use bounded decimal arithmetic: the accepted inclusive debit range is `0.000000001` through `1000000000000` source units. Planning and apply both calculate:
 
 ```text

@@ -11,6 +11,18 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NumberTests
 {
+	[TestMethod]
+	public void AccountingDecimal_PreservesFractionalAmountsAndRejectsOverflow()
+	{
+		Assert.AreEqual(0.000000001m, 1e-9.ToAccountingDecimal());
+		Assert.AreEqual(-0.15m, (-0.15).ToAccountingDecimal());
+		Assert.AreEqual(0.3m, (0.1 + 0.2).ToAccountingDecimal());
+		Assert.AreEqual(0m, double.Epsilon.ToAccountingDecimal());
+		Assert.ThrowsExactly<OverflowException>(() => double.NaN.ToAccountingDecimal());
+		Assert.ThrowsExactly<OverflowException>(() => ((double)decimal.MaxValue).ToAccountingDecimal());
+		Assert.ThrowsExactly<OverflowException>(() => ((double)decimal.MinValue).ToAccountingDecimal());
+	}
+
     [TestMethod]
     public void TestModulus()
     {

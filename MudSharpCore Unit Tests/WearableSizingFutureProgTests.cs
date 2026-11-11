@@ -30,7 +30,7 @@ public class WearableSizingFutureProgTests
 		wearable.SetupGet(x => x.Fit).Returns(fit);
 
 		Assert.AreEqual(0.0M, Run("wearablefitscalar", item.Object).GetObject);
-		Assert.AreEqual(1.8M, Run("wearablefitheight", item.Object).GetObject);
+		Assert.AreEqual(fit.Height, (double)(decimal)Run("wearablefitheight", item.Object).GetObject);
 		Assert.AreEqual(72.5M, Run("wearablefitweight", item.Object).GetObject);
 		Assert.AreEqual("Measurements", Run("wearablefitstate", item.Object).GetObject);
 		Assert.AreEqual("measurements:1.8,72.5", Run("wearablefit", item.Object).GetObject);

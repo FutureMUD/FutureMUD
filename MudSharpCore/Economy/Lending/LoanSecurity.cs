@@ -32,7 +32,7 @@ internal static partial class LoanService
 		    item.Quantity > 1 ||
 		    SpellOwnedItemValuePolicy.ContainsTemporaryValue(item) || zone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion <= 0)
 			return 0M;
-		return item.Prototype.CostInBaseCurrency * (decimal)Math.Clamp(item.Condition, 0.0, 1.0) /
+		return item.Prototype.CostInBaseCurrency * Math.Clamp(item.Condition, 0.0, 1.0).ToAccountingDecimal() /
 		       zone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 	}
 

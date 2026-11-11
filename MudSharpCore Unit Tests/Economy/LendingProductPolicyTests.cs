@@ -5,7 +5,9 @@ using MudSharp.Database;
 using MudSharp.GameItems;
 using MudSharp.Economy.Lending;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Models;
@@ -21,6 +23,47 @@ namespace MudSharp_Unit_Tests.Economy;
 [TestClass]
 public class LendingProductPolicyTests
 {
+	[TestMethod]
+	[DoNotParallelize]
+	public void PawnAppraisal_ExistingOfferAcceptsUnchangedConditionAndRejectsDamage()
+	{
+		var room = Mock.Of<IRoom>();
+		var currency = Mock.Of<ICurrency>(x => x.BaseCurrencyToGlobalBaseCurrencyConversion == 1M);
+		var zone = Mock.Of<IEconomicZone>(x => x.Currency == currency);
+		var bank = Mock.Of<IBank>(x => x.EconomicZone == zone && x.BranchLocations == new[] { room });
+		var world = new Mock<IFuturemud>();
+		var borrower = Mock.Of<ICharacter>(x => x.Gameworld == world.Object && x.Location == room);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(23L);
+		item.SetupGet(x => x.Owner).Returns(borrower);
+		item.SetupGet(x => x.Prototype).Returns(Mock.Of<IGameItemProto>(x => x.CostInBaseCurrency == 100M));
+		item.SetupProperty(x => x.Condition, 0.95);
+		Mock.Get(borrower).SetupGet(x => x.Body.HeldItems).Returns(new[] { item.Object });
+		world.Setup(x => x.TryGetItem(23L, false)).Returns(item.Object);
+
+		var terms = new LoanTerms { Kind = "Pawn" };
+		Assert.IsTrue(LoanService.TrySecurity(borrower, bank, terms, "23", out var error), error);
+		Assert.AreEqual(95M, terms.Appraisal);
+
+		using var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+		var context = typeof(FMDB).GetProperty(nameof(FMDB.Context), BindingFlags.Public | BindingFlags.Static)!;
+		var original = context.GetValue(null);
+		context.SetValue(null, db);
+		try
+		{
+			using var scope = new FMDB();
+			Assert.IsTrue(LoanService.CanSecure(borrower, bank, terms, out error), error);
+			item.Object.Condition = 0.9499999999;
+			Assert.IsFalse(LoanService.CanSecure(borrower, bank, terms, out error));
+			StringAssert.Contains(error, "condition");
+		}
+		finally
+		{
+			context.SetValue(null, original);
+		}
+	}
+
 	[TestMethod]
 	[DoNotParallelize]
 	public void LendingRecovery_RetainedGoodsCarrySettlementValueAndLoseTheirBasisOnDisposal()

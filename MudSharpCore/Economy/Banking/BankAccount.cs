@@ -2,6 +2,7 @@
 using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Lending;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
@@ -374,6 +375,25 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
     }
 
     private void RecordTransaction(BankAccountTransaction transaction)
+    {
+        if (LoanService.GuardingSettlement)
+        {
+            var balance = CurrentBalance;
+            var fees = CurrentMonthFees;
+            LoanService.OnRollback(() =>
+            {
+                CurrentBalance = balance;
+                CurrentMonthFees = fees;
+                Gameworld.SaveManager.Abort(transaction);
+            });
+            LoanService.AfterCommit(() => PublishTransaction(transaction));
+            return;
+        }
+
+        PublishTransaction(transaction);
+    }
+
+    private void PublishTransaction(BankAccountTransaction transaction)
     {
         _recentTransactions.Add(transaction);
         if (_recentTransactions.Count > BankAccountTransactionHistory.MaximumTransactionHistoryEntries)

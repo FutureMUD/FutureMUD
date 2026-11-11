@@ -36,7 +36,8 @@ public enum EconomicActivityType
 	LegalPayment = 11,
 	BankTransfer = 12,
 	CashGift = 13,
-	Refund = 14
+	Refund = 14,
+	Loan = 15
 }
 
 public enum EconomyHoldingMetric
@@ -47,11 +48,16 @@ public enum EconomyHoldingMetric
 	VirtualBalance = 3,
 	BankReserves = 4,
 	PropertyEquity = 5,
+	LoanReceivable = 6,
+	LoanDebt = 7,
+	LoanSurplus = 8,
+	RetainedGoods = 9,
 	ExchangeVolume = 100,
 	GrossMovement = 101,
 	PcControlledWealth = 102,
 	ReserveCoverage = 103,
 	BroadMoneySupply = 104,
+	PcNetWealth = 105,
 	PcJobIncome = 110,
 	PcProjectIncome = 111,
 	PcClanIncome = 112,
@@ -119,7 +125,15 @@ public sealed record EconomyHolding(
 	decimal GlobalBaseValue,
 	long? ControllerId = null,
 	string? ControllerType = null,
-	string? Description = null);
+	string? Description = null)
+{
+	public decimal NetWealthValue => Metric switch
+	{
+		EconomyHoldingMetric.BankReserves => 0M,
+		EconomyHoldingMetric.BankDebt or EconomyHoldingMetric.LoanDebt => -GlobalBaseValue,
+		_ => GlobalBaseValue
+	};
+}
 
 public sealed record EconomyVolumeResult(
 	DateTime CoverageStartUtc,

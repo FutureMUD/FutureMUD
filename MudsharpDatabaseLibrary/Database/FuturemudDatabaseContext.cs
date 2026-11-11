@@ -96,6 +96,9 @@ namespace MudSharp.Database
         public virtual DbSet<BankAccountTransaction> BankAccountTransactions { get; set; }
         public virtual DbSet<BankManager> BankManagers { get; set; }
         public virtual DbSet<BankManagerAuditLog> BankManagerAuditLogs { get; set; }
+        public virtual DbSet<LendingProduct> LendingProducts { get; set; }
+        public virtual DbSet<LendingContract> LendingContracts { get; set; }
+        public virtual DbSet<LendingPosting> LendingPostings { get; set; }
         public virtual DbSet<BloodModel> BloodModels { get; set; }
         public virtual DbSet<BloodModelsBloodtypes> BloodModelsBloodtypes { get; set; }
         public virtual DbSet<BloodtypeAntigen> BloodtypeAntigens { get; set; }

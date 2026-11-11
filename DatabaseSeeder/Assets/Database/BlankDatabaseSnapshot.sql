@@ -17114,3 +17114,275 @@ CALL MigrationsScript();
 DROP PROCEDURE MigrationsScript;
 
 COMMIT;
+-- EF-generated idempotent delta: AddLendingContracts
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE TABLE `lendingproducts` (
+        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `LenderId` bigint(20) NOT NULL,
+        `LenderType` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `EconomicZoneId` bigint(20) NOT NULL,
+        `Name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `Definition` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+        `Enabled` tinyint(1) NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_LendingProducts_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE TABLE `lendingcontracts` (
+        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `ProductId` bigint(20) NOT NULL,
+        `LenderId` bigint(20) NOT NULL,
+        `LenderType` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `BorrowerId` bigint(20) NOT NULL,
+        `EconomicZoneId` bigint(20) NOT NULL,
+        `CurrencyId` bigint(20) NOT NULL,
+        `Status` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `Definition` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+        `SecurityKey` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
+        `EstateId` bigint(20) NULL,
+        `Principal` decimal(58,29) NOT NULL,
+        `Interest` decimal(58,29) NOT NULL,
+        `Surplus` decimal(58,29) NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_LendingContracts_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_LendingContracts_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_LendingContracts_Estates` FOREIGN KEY (`EstateId`) REFERENCES `estates` (`Id`) ON DELETE RESTRICT,
+        CONSTRAINT `FK_LendingContracts_LendingProducts` FOREIGN KEY (`ProductId`) REFERENCES `lendingproducts` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE TABLE `lendingpostings` (
+        `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+        `ContractId` bigint(20) NOT NULL,
+        `ActorId` bigint(20) NULL,
+        `OperationKey` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `Kind` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `MudDate` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `Detail` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+        `RealDate` datetime(6) NOT NULL,
+        `Principal` decimal(58,29) NOT NULL,
+        `Interest` decimal(58,29) NOT NULL,
+        `Amount` decimal(58,29) NOT NULL,
+        CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+        CONSTRAINT `FK_LendingPostings_LendingContracts` FOREIGN KEY (`ContractId`) REFERENCES `lendingcontracts` (`Id`) ON DELETE RESTRICT
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingContracts_BorrowerId_EconomicZoneId_Status` ON `lendingcontracts` (`BorrowerId`, `EconomicZoneId`, `Status`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingContracts_CurrencyId` ON `lendingcontracts` (`CurrencyId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingContracts_EconomicZoneId` ON `lendingcontracts` (`EconomicZoneId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingContracts_EstateId` ON `lendingcontracts` (`EstateId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingContracts_LenderId_LenderType_Status` ON `lendingcontracts` (`LenderId`, `LenderType`, `Status`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingContracts_ProductId` ON `lendingcontracts` (`ProductId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE UNIQUE INDEX `IX_LendingContracts_SecurityKey` ON `lendingcontracts` (`SecurityKey`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingPostings_ActorId` ON `lendingpostings` (`ActorId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE UNIQUE INDEX `IX_LendingPostings_ContractId_OperationKey` ON `lendingpostings` (`ContractId`, `OperationKey`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingPostings_ContractId_RealDate` ON `lendingpostings` (`ContractId`, `RealDate`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE INDEX `IX_LendingProducts_EconomicZoneId` ON `lendingproducts` (`EconomicZoneId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    CREATE UNIQUE INDEX `IX_LendingProducts_LenderId_LenderType_Name` ON `lendingproducts` (`LenderId`, `LenderType`, `Name`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261111064635_AddLendingContracts') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261111064635_AddLendingContracts', '9.0.21');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

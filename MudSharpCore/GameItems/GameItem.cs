@@ -328,6 +328,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _ownerReference = owner == null
             ? null
             : new FrameworkItemReference(CharacterInstanceIdentityComparer.FrameworkItemId(owner), owner.FrameworkItemType, Gameworld);
+        if (oldReference.HasValue && oldReference != OwnershipReference) Economy.Lending.LoanService.EndRetainedPawnOwnership(this);
         Changed = true;
         HandleEvent(EventType.ItemOwnershipChanged, this,
             oldReference?.FrameworkItemType ?? string.Empty, oldReference?.Id ?? 0L,
@@ -339,6 +340,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         var oldReference = OwnershipReference;
         _owner = null;
         _ownerReference = null;
+        if (oldReference != null) Economy.Lending.LoanService.EndRetainedPawnOwnership(this);
         Changed = true;
         HandleEvent(EventType.ItemOwnershipChanged, this,
             oldReference?.FrameworkItemType ?? string.Empty, oldReference?.Id ?? 0L,
@@ -357,6 +359,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         _owner = source.Owner;
         _ownerReference = new FrameworkItemReference(reference.Id, reference.FrameworkItemType, Gameworld);
+        if (oldReference.HasValue && oldReference != OwnershipReference) Economy.Lending.LoanService.EndRetainedPawnOwnership(this);
         Changed = true;
         HandleEvent(EventType.ItemOwnershipChanged, this,
             oldReference?.FrameworkItemType ?? string.Empty, oldReference?.Id ?? 0L,
@@ -1099,6 +1102,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		GetItemType<HoldableGameItemComponent>().HeldBy = holder;
 		_containedIn = null;
 		SetPreparedSpatialState(null);
+	}
+
+	internal void SetCurrencyPreviewOwner(ICharacter owner)
+	{
+		if (!_currencyPreview) throw new InvalidOperationException("Only an unpublished currency preview can set an owner silently.");
+		_owner = owner;
+		_ownerReference = new FrameworkItemReference(CharacterInstanceIdentityComparer.IdentityId(owner), owner.FrameworkItemType, Gameworld);
 	}
 
 	internal void CopyCurrencyPreviewOwner(IGameItem source)
@@ -2450,6 +2460,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     public bool CanMerge(IGameItem otherItem)
     {
 		if (SpellCreationOrigin?.IsTemporary == true || otherItem.SpellCreationOrigin?.IsTemporary == true) return false;
+		if (Economy.Lending.LoanService.IsRetainedPawn(this) || Economy.Lending.LoanService.IsRetainedPawn(otherItem)) return false;
         if (Deleted || Destroyed || otherItem.Deleted || otherItem.Destroyed ||
 			GetItemType<IStackable>() is { Quantity: <= 0 } || otherItem.GetItemType<IStackable>() is { Quantity: <= 0 })
         {

@@ -108,7 +108,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			.Sum(x => x.GlobalBaseValue);
 		var pcWealth = holdings
 			.Where(x => (x.ControlBucket is EconomicControlBucket.DirectPc or EconomicControlBucket.SharedPcControlled) &&
-			            x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves)
+			            x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves and not EconomyHoldingMetric.LoanDebt)
 			.Sum(x => x.GlobalBaseValue);
 		var pcControlledLiquid = holdings
 			.Where(x => (x.ControlBucket is EconomicControlBucket.DirectPc or EconomicControlBucket.SharedPcControlled) &&
@@ -129,6 +129,8 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		sb.AppendLine($"Broad liquid supply: {DescribeGlobalValue(globalDisplayCurrency, supply).ColourValue()}");
 		sb.AppendLine($"PC-controlled liquid share: {(supply > 0.0M ? pcControlledLiquid / supply : 0.0M).ToString("P1", actor).ColourValue()}");
 		sb.AppendLine($"PC-controlled wealth including property: {DescribeGlobalValue(globalDisplayCurrency, pcWealth).ColourValue()}");
+		var net = holdings.Where(x => x.ControlBucket is EconomicControlBucket.DirectPc or EconomicControlBucket.SharedPcControlled).Sum(x => x.NetWealthValue);
+		sb.AppendLine($"PC-controlled wealth after debt: {DescribeGlobalValue(globalDisplayCurrency, net).ColourValue()}");
 		sb.AppendLine($"Bank reserve coverage: {(deposits > 0.0M ? reserves / deposits : 1.0M).ToString("P1", actor).ColourValue()}");
 		sb.AppendLine($"Last 24h exchange: {DescribeGlobalValue(globalDisplayCurrency, volume.ExchangeGlobalBaseValue).ColourValue()}");
 		sb.AppendLine($"Last 24h gross movement: {DescribeGlobalValue(globalDisplayCurrency, volume.MovementGlobalBaseValue).ColourValue()}");
@@ -316,6 +318,8 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 			"exchange" => EconomyHoldingMetric.ExchangeVolume,
 			"movement" => EconomyHoldingMetric.GrossMovement,
 			"pcwealth" => EconomyHoldingMetric.PcControlledWealth,
+			"pcnetwealth" => EconomyHoldingMetric.PcNetWealth,
+			"loans" => EconomyHoldingMetric.LoanReceivable,
 			"reserves" => EconomyHoldingMetric.BankReserves,
 			"jobincome" => EconomyHoldingMetric.PcJobIncome,
 			"projectincome" => EconomyHoldingMetric.PcProjectIncome,
@@ -442,7 +446,7 @@ Running #3economy#0 without a subcommand only displays this help. Live census re
 		var service = actor.Gameworld.EconomyAnalytics;
 		var globalDisplayCurrency = service.GlobalDisplayCurrency;
 		var holdings = service.GetCurrentHoldings(zoneId, currencyId)
-			.Where(x => x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves)
+			.Where(x => x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves and not EconomyHoldingMetric.LoanDebt)
 			.ToList();
 		var direct = holdings
 			.Where(x => x.ControlBucket == EconomicControlBucket.DirectPc && x.ControllerId.HasValue)

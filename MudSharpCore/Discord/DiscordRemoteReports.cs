@@ -667,7 +667,7 @@ internal sealed partial class DiscordRemoteService
 		var volume = service.GetVolume(EconomyQueryWindowKind.RealDay, zoneId);
 		var employment = service.GetEmploymentMarket(zoneId);
 		var liquid = holdings.Where(x => x.Metric is EconomyHoldingMetric.PhysicalCash or EconomyHoldingMetric.BankDeposits or EconomyHoldingMetric.VirtualBalance).Sum(x => x.GlobalBaseValue);
-		var pcWealth = holdings.Where(x => x.ControlBucket is EconomicControlBucket.DirectPc or EconomicControlBucket.SharedPcControlled && x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves).Sum(x => x.GlobalBaseValue);
+		var pcWealth = holdings.Where(x => x.ControlBucket is EconomicControlBucket.DirectPc or EconomicControlBucket.SharedPcControlled && x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves and not EconomyHoldingMetric.LoanDebt).Sum(x => x.GlobalBaseValue);
 		var deposits = holdings.Where(x => x.Metric == EconomyHoldingMetric.BankDeposits).Sum(x => x.GlobalBaseValue);
 		var reserves = holdings.Where(x => x.Metric == EconomyHoldingMetric.BankReserves).Sum(x => x.GlobalBaseValue);
 		var trend = service.GetTrends(EconomyHoldingMetric.BroadMoneySupply, null, zoneId, count: 2);
@@ -790,7 +790,7 @@ internal sealed partial class DiscordRemoteService
 		var displayCurrency = _world.EconomyAnalytics.GlobalDisplayCurrency;
 		var top = _world.EconomyAnalytics.GetCurrentHoldings(zoneId, currencyId)
 			.Where(x => x.ControlBucket is EconomicControlBucket.DirectPc or EconomicControlBucket.SharedPcControlled)
-			.Where(x => x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves)
+			.Where(x => x.Metric is not EconomyHoldingMetric.BankDebt and not EconomyHoldingMetric.BankReserves and not EconomyHoldingMetric.LoanDebt)
 			.GroupBy(x => new { x.ControllerType, x.ControllerId, x.ControlBucket })
 			.Select(x => new
 			{

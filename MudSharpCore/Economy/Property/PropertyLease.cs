@@ -350,6 +350,8 @@ public class PropertyLease : SaveableItem, IPropertyLease
 
     public void MakePayment(decimal paymentAmount)
     {
+        PaymentBalance += paymentAmount;
+        if (Lending.LoanService.CreditRecoveryRent(_property, paymentAmount)) return;
         foreach (IPropertyOwner owner in _property.PropertyOwners)
         {
             owner.CreditRevenue(_property.EconomicZone.Currency, paymentAmount * owner.ShareOfOwnership, null, _property,
@@ -357,7 +359,6 @@ public class PropertyLease : SaveableItem, IPropertyLease
                 _property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
-        PaymentBalance += paymentAmount;
     }
 
     private void EnsureLoadTenants()

@@ -1,5 +1,6 @@
 ﻿using MoreLinq;
 using MudSharp.Database;
+using MudSharp.Economy.Lending;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
@@ -160,13 +161,21 @@ public class PropertySaleOrder : SaveableItem, IPropertySaleOrder
         {
             using (new FMDB())
             {
-                Gameworld.SaveManager.Flush();
+                bool transactional = LoanService.GuardingSettlement && FMDB.Context.Database.CurrentTransaction is not null;
+                if (!transactional)
+                {
+                    Gameworld.SaveManager.Flush();
+                }
+
                 Models.PropertySaleOrder dbitem = FMDB.Context.PropertySaleOrders.Find(Id);
                 if (dbitem != null)
                 {
                     dbitem.Property.SaleOrderId = null;
                     FMDB.Context.PropertySaleOrders.Remove(dbitem);
-                    FMDB.Context.SaveChanges();
+                    if (!transactional)
+                    {
+                        FMDB.Context.SaveChanges();
+                    }
                 }
             }
         }

@@ -236,9 +236,15 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
     {
         if (BranchLocations.Contains(actor.Location))
         {
+            if (_branchLocations.Count == 1 && Lending.LoanService.NeedsServicing(EconomicZone, this))
+            {
+                actor.OutputHandler.Send("Open another branch first so borrowers can continue servicing their loans.");
+                return false;
+            }
             _branchLocations.Remove(actor.Location);
             _branchIds.Remove(actor.Location.Id);
             actor.Location.RoomRequestsDeletion -= Branch_RoomRequestsDeletion;
+            actor.Location.RoomProposedForDeletion -= BranchDeletionProposed;
             Changed = true;
             actor.OutputHandler.Send($"Your current location is no longer a branch for {Name.ColourName()}.");
             return true;
@@ -248,6 +254,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
         _branchIds.Add(actor.Location.Id);
         actor.Location.RoomRequestsDeletion -= Branch_RoomRequestsDeletion;
         actor.Location.RoomRequestsDeletion += Branch_RoomRequestsDeletion;
+        actor.Location.RoomProposedForDeletion += BranchDeletionProposed;
         Changed = true;
         actor.OutputHandler.Send($"Your current location is now a branch for {Name.ColourName()}.");
         return true;
@@ -406,6 +413,11 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
             return false;
         }
 
+        if (Lending.LoanService.NeedsServicing(EconomicZone, this))
+        {
+            actor.OutputHandler.Send("Settle outstanding lending business before changing the bank's economic zone.");
+            return false;
+        }
         EconomicZone = zone;
         PrimaryCurrency = zone.Currency;
         actor.OutputHandler.Send(
@@ -999,6 +1011,24 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
     {
         StringBuilder sb = new();
         sb.AppendLine($"Balance Sheet for {Name.ColourName()}");
+        var loanBook = Lending.LoanService.Balances(Gameworld, EconomicZone.Id, null)
+            .Where(x => x.LenderType == FrameworkItemType && x.LenderId == Id).ToList();
+        var loanAssets = loanBook.Where(x => x.CurrencyId == PrimaryCurrency.Id).Sum(x => x.Principal + x.Interest);
+        var retainedGoods = Lending.LoanService.RetainedPawns(Gameworld, EconomicZone.Id, PrimaryCurrency.Id, this)
+            .Sum(x => x.Value);
+        if (retainedGoods > 0)
+            sb.AppendLine($"Retained goods at settlement value: {PrimaryCurrency.Describe(retainedGoods, CurrencyDescriptionPatternType.ShortDecimal)}.");
+        var ownedProperty = Gameworld.Properties.Where(x => x.EconomicZone == EconomicZone &&
+                x.PropertyOwners.Any(y => y.OwnerId == Id && y.OwnerFrameworkItemType == FrameworkItemType))
+            .Where(x => !loanBook.Any(y => y.SecurityKey == $"Property:{x.Id}"))
+            .Sum(x => x.LastSaleValue * x.PropertyOwners.Where(y => y.OwnerId == Id && y.OwnerFrameworkItemType == FrameworkItemType).Sum(y => y.ShareOfOwnership));
+        foreach (var book in loanBook.GroupBy(x => x.CurrencyId))
+        {
+            var currency = Gameworld.Currencies.Get(book.Key);
+            sb.AppendLine($"Loan principal: {currency.Describe(book.Sum(x => x.Principal), CurrencyDescriptionPatternType.ShortDecimal)}. Interest receivable: {currency.Describe(book.Sum(x => x.Interest), CurrencyDescriptionPatternType.ShortDecimal)}. Surplus owed: {currency.Describe(book.Sum(x => x.Surplus), CurrencyDescriptionPatternType.ShortDecimal)}.");
+        }
+        if (ownedProperty != 0)
+            sb.AppendLine($"Owned property at last transfer value: {EconomicZone.Currency.Describe(ownedProperty, CurrencyDescriptionPatternType.ShortDecimal)}.");
         sb.AppendLine();
         sb.AppendLine(
             $"Total Account Balance: {PrimaryCurrency.Describe(_bankAccounts.Sum(x => x.CurrentBalance), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
@@ -1015,7 +1045,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
         sb.AppendLine();
         sb.AppendLine(
-            $"Net Position: {PrimaryCurrency.Describe(CurrencyReserves[PrimaryCurrency] - _bankAccounts.Sum(x => x.CurrentBalance + x.CurrentMonthInterest - x.CurrentMonthFees), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+            $"Net Position: {PrimaryCurrency.Describe(CurrencyReserves[PrimaryCurrency] + loanAssets + retainedGoods + (EconomicZone.Currency == PrimaryCurrency ? ownedProperty : 0M) - _bankAccounts.Where(x => x.Currency == PrimaryCurrency).Sum(x => x.CurrentBalance + x.CurrentMonthInterest - x.CurrentMonthFees), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         actor.OutputHandler.Send(sb.ToString());
     }
 
@@ -1199,11 +1229,19 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
                 {
                     branch.RoomRequestsDeletion -= Branch_RoomRequestsDeletion;
                     branch.RoomRequestsDeletion += Branch_RoomRequestsDeletion;
+                    branch.RoomProposedForDeletion -= BranchDeletionProposed;
+                    branch.RoomProposedForDeletion += BranchDeletionProposed;
                 }
             }
 
             return _branchLocations;
         }
+    }
+
+    private void BranchDeletionProposed(IRoom room, ProposalRejectionResponse response)
+    {
+        if (_branchLocations.Count == 1 && Lending.LoanService.NeedsServicing(EconomicZone, this))
+            response.RejectWithReason($"Borrowers still need the last branch of {Name.ColourName()}.");
     }
 
     private void Branch_RoomRequestsDeletion(object sender, EventArgs e)

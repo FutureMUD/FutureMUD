@@ -38,6 +38,7 @@ public static class DefaultStaticSettings
 			{ "DirectionSenseMinimumSightDifficulty", "VeryHard" },
 			{ "DirectionSenseMaximumObscuringWeatherLightMultiplier", "0.3" },
 			{ "HagglingEnabled", "false" },
+			{ "LoansEnabled", "false" },
 			{ "HaggleNegotiationScope", "Shared" },
 			{ "HaggleWindowDurationHours", "6" },
 			{ "HaggleActionDurationSeconds", "20" },

@@ -1915,6 +1915,10 @@ The syntax for this command is as follows:
             case "account":
                 ShopAccount(actor, ss);
                 return;
+            case "loans":
+            case "loan":
+                Loan(actor, ss.IsFinished ? "loan offers" : "loan " + ss.RemainingArgument);
+                return;
             case "payaccount":
                 ShopPayAccount(actor, ss);
                 return;
@@ -2292,6 +2296,11 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
+        if (MudSharp.Economy.Lending.LoanService.NeedsServicing(shop.EconomicZone, shop))
+        {
+            actor.OutputHandler.Send("Settle this shop's outstanding lending business before changing its economic zone.");
+            return;
+        }
         actor.OutputHandler.Send($"You move the {shop.Name.TitleCase().ColourName()} shop from the {shop.EconomicZone.Name.ColourValue()} economic zone to the {zone.Name.ColourValue()} economic zone.");
         shop.EconomicZone = zone;
     }
@@ -3555,6 +3564,11 @@ Additionally, you can use the following shop admin subcommands:
         {
             AcceptAction = text =>
             {
+                if (MudSharp.Economy.Lending.LoanService.NeedsServicing(shop.EconomicZone, shop))
+                {
+                    actor.OutputHandler.Send("Settle outstanding lending business before deleting this shop.");
+                    return;
+                }
                 actor.OutputHandler.Send($"You delete the shop {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
                 shop.Delete();
                 actor.Location.Shop = null;
@@ -5198,6 +5212,10 @@ Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and
             case "accounts":
                 BuildingCommandBankAccounts(actor, ss);
                 return;
+            case "loans":
+            case "loan":
+                Loan(actor, ss.IsFinished ? "loan offers" : "loan " + ss.RemainingArgument);
+                return;
             case "manager":
                 BankManager(actor, ss);
                 return;
@@ -6601,6 +6619,11 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             {
                 if (propertySale)
                 {
+                    if (MudSharp.Economy.Lending.LoanService.HasActivePropertyLien(property))
+                    {
+                        actor.OutputHandler.Send("Settle the loan secured against this property before listing it for auction.");
+                        return;
+                    }
                     decimal currentPropertyShare = property.PropertyOwners
                         .Where(x => x.Owner == actor)
                         .Sum(x => x.ShareOfOwnership);

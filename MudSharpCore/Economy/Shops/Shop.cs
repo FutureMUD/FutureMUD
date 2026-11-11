@@ -477,6 +477,7 @@ public abstract partial class Shop : SaveableItem, IShop
         var stockValue = merch.MerchandiseType == MerchandiseType.Commodity && item.GetItemType<ICommodity>() is { } commodity
             ? merch.EffectivePriceForWeight(commodity.Weight)
             : merch.EffectivePrice * item.Quantity;
+        stockValue = Lending.LoanService.RetainedStockCost(this, item) ?? stockValue;
         AddTransaction(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
             EconomicZone.ZoneForTimePurposes.DateTime(), actor,
             stockValue * -1, 0.0M, merch));
@@ -554,6 +555,7 @@ public abstract partial class Shop : SaveableItem, IShop
         decimal value = merch?.MerchandiseType == MerchandiseType.Commodity && item.GetItemType<ICommodity>() is { } commodity
             ? merch.EffectivePriceForWeight(commodity.Weight)
             : (merch?.EffectivePrice ?? 0.0M) * item.Quantity;
+        value = Lending.LoanService.RetainedStockCost(this, item) ?? value;
         AddTransaction(new TransactionRecord(transactionType, Currency, this,
             EconomicZone.ZoneForTimePurposes.DateTime(), actor, value, 0.0M, merch));
         if (merch is null)

@@ -11,6 +11,25 @@ namespace MudSharp.Economy.Property;
 
 public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 {
+    internal (Dictionary<IPropertyOwner, bool> Consent, bool ListedForLease, bool Changed) CaptureTransferState()
+    {
+        return (_propertyOwnerConsent.ToDictionary(), _listedForLease, Changed);
+    }
+
+    internal void RestoreTransferState((Dictionary<IPropertyOwner, bool> Consent, bool ListedForLease, bool Changed) state)
+    {
+        _propertyOwnerConsent.Clear();
+        foreach (var consent in state.Consent)
+        {
+            _propertyOwnerConsent[consent.Key] = consent.Value;
+        }
+
+        _listedForLease = state.ListedForLease;
+        Gameworld.SaveManager.Abort(this);
+        Changed = false;
+        Changed = state.Changed;
+    }
+
     public PropertyLeaseOrder(Models.PropertyLeaseOrder dbitem, IProperty property)
     {
         Gameworld = property.Gameworld;

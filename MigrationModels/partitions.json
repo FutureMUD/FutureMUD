@@ -288,6 +288,7 @@
     "20261109234003_ClanElectionGovernance.Designer.cs": "Batch0020",
     "20261109235037_DiscordRemoteOperations.Designer.cs": "Batch0020",
     "20261110040045_ClanAppointmentRecall.Designer.cs": "Batch0021",
-    "20261110064351_ClanRecallLiegeApproval.Designer.cs": "Batch0021"
+    "20261110064351_ClanRecallLiegeApproval.Designer.cs": "Batch0021",
+    "20261111064635_AddLendingContracts.Designer.cs": "Batch0021"
   }
 }

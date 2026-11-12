@@ -45,7 +45,7 @@ public class CellSpatialRegexFailureInterceptorTests
 		var original = (MySqlException)Activator.CreateInstance(typeof(MySqlException),
 			BindingFlags.Instance | BindingFlags.NonPublic, null,
 			[(MySqlErrorCode)3699, "Timeout exceeded in regular expression match."], null)!;
-		var eventData = new CommandErrorEventData(null!, (_, _) => "", connection, command, null,
+		var eventData = new CommandErrorEventData(null!, (_, _) => "", connection, command, command.CommandText, null,
 			DbCommandMethod.ExecuteNonQuery, Guid.NewGuid(), Guid.NewGuid(), original, false, false,
 			DateTimeOffset.UtcNow, TimeSpan.Zero, CommandSource.Migrations);
 

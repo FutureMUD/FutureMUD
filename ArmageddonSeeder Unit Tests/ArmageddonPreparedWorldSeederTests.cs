@@ -8,7 +8,6 @@ using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
@@ -24,15 +23,16 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonPreparedWorldSeederTests
 {
 	private static readonly InMemoryDatabaseRoot PreparedStores = new();
-	private static (FuturemudDatabaseContext Db, ArmageddonPreparedWorldBindings Bindings) Fixture()
+	private static DbContextOptions<FuturemudDatabaseContext> PreparedOptions() =>
+		new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), PreparedStores, x => x.EnableNullChecks(false))
+			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options;
+
+	private static (FuturemudDatabaseContext Db, ArmageddonPreparedWorldBindings Bindings) Fixture(DbContextOptions<FuturemudDatabaseContext>? options = null)
 	{
 		var (source, traditions) = ArmageddonTraditionInstallerTests.Fixture();
 		using var dependencies = source;
-		// Proxy settings intentionally create separate EF service providers. Share their root,
-		// while each unique database name isolates a fixture and avoids one provider per case.
-		var db = new OwnedInMemorySeederContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString(), PreparedStores, x => x.EnableNullChecks(false))
-			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
+		var db = new OwnedInMemorySeederContext(options ?? PreparedOptions());
 		db.MagicSchools.AddRange(source.MagicSchools.AsNoTracking());
 		db.MagicResources.AddRange(source.MagicResources.AsNoTracking());
 		db.TraitDecorators.AddRange(source.TraitDecorators.AsNoTracking());
@@ -66,11 +66,9 @@ public partial class ArmageddonPreparedWorldSeederTests
 		return (db, new(new(true, 1, 1, skills, 1, 3, 1, 1, 0, 1, 0, 1, 1), 1, 1, 2, 1, traditions.SupportSkills, 100, 100, "raw",
 			ArmageddonTraditionInstaller.Variants.ToDictionary(x => x, _ => (IReadOnlyList<MagicGatheringMethodKind>)new[] { MagicGatheringMethodKind.Self })));
 	}
-	private static Func<FuturemudDatabaseContext> Factory(FuturemudDatabaseContext db)
-	{
-		var options = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
-		return () => new FuturemudDatabaseContext(options);
-	}
+	private static Func<FuturemudDatabaseContext> Factory(FuturemudDatabaseContext db) =>
+		ArmageddonInstallationSettingsTests.Factory(db);
+
 	private static void Completed(ArmageddonPreparedWorldInstallResult result) => Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, result.Describe());
 	private static Dictionary<string, string> Answers(ArmageddonPreparedWorldBindings bindings) => new()
 	{
@@ -153,11 +151,15 @@ public partial class ArmageddonPreparedWorldSeederTests
 	}
 	[TestMethod] public void InteractiveLazyProxyCallerUsesIndependentPlainModelContextsOnRerun()
 	{
-		var (db, bindings) = Fixture(); using (db)
+		var store = PreparedOptions();
+		var callerOptions = new DbContextOptionsBuilder<FuturemudDatabaseContext>(store).UseLazyLoadingProxies().Options;
+		using var interactive = new FuturemudDatabaseContext(callerOptions);
+		// Seed composite keys with the same model as the plain contexts that update them.
+		var writerOptions = new DbContextOptionsBuilder<FuturemudDatabaseContext>(callerOptions).UseLazyLoadingProxies(false);
+		using var writer = new FuturemudDatabaseContext(writerOptions.Options);
+		var (db, bindings) = Fixture(writerOptions.UseModel(writer.Model).Options); using (db)
 		{
-			var original = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
-			var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>(original).UseLazyLoadingProxies();
-			using var interactive = new FuturemudDatabaseContext(options.Options);
+			Assert.AreNotEqual(typeof(MudSharp.Models.Account), interactive.Accounts.AsNoTracking().Single().GetType());
 			var seeder = new ArmageddonSettingSeeder();
 			var answers = Answers(bindings);
 			for (var i = 0; i < 2; i++)

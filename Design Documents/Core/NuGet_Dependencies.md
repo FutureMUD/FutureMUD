@@ -8,7 +8,7 @@ Select the newest **listed stable** NuGet release that supports the consuming fr
 
 ## Compatibility decisions
 
-- **Entity Framework:** Pomelo.EntityFrameworkCore.MySql 9.0.0 is the latest stable provider and constrains EF Core Relational to 9.0.x. All EF runtime, tooling, migration-helper and in-memory test dependencies use 9.0.21. EF Core 10 requires a compatible stable provider first. The obsolete Pomelo.EntityFrameworkCore.MySql.Design 1.1.2 reference was removed; current tooling uses Microsoft.EntityFrameworkCore.Design. No database schema change is intended.
+- **Entity Framework.** The engine, its migration helpers, EF tooling and in-memory tests use EF Core 10.0.15 on .NET 10. Microting.EntityFrameworkCore.MySql 10.0.14 supplies the MySQL provider and requires MySqlConnector 2.6.2 or later. Use dotnet-ef 10.0.15 when working with engine migrations.
 - **MSTest:** Adapter and framework use 4.5.1 with Microsoft.NET.Test.Sdk and the existing VSTest/TRX reporting flow. Removed `ThrowsException` assertions become `ThrowsExactly`, including asynchronous assertions, retaining exact exception-type semantics. Attribute-based expected exceptions are asserted around the operation itself. Obsolete `DataTestMethod` attributes become `TestMethod`, retaining their data rows.
 - **NCalc:** Custom functions evaluate arguments through `FunctionData.Evaluate(index)` in NCalc 7, preserving evaluation context and nested custom functions. Public FutureMUD expression APIs and error-handling behavior remain unchanged.
 - **Roslyn/Visual Studio:** Roslyn packages use 5.9.0. The verified compiler host is .NET SDK 10.0.401 (Roslyn 5.9), and the installed Visual Studio 2026 18.10 host supplies Roslyn 5.10. The optional VSIX declares 18.10 as its supported baseline instead of claiming compatibility with VS 2015/2017; its managed payload declares both AMD64 and ARM64 installation targets. Older compiler hosts and ARM64 installation have not been verified. This does not change the engine's target framework.
@@ -36,13 +36,13 @@ The classic VSIX project needs Visual Studio's MSBuild and installed VSSDK targe
 - The full ten-project fast test run exposed seven mock-identity failures, 32 sandbox temporary-directory failures, and one stale manifest fingerprint. After the assertion/fingerprint fixes and using a writable workspace-local `TEMP`/`TMP`, the four affected suites passed all 9,272 cases and the focused manifest/replay check passed all 20 cases. Combined with the unaffected full-run results, all 11,937 executed cases passed; three Unix filesystem-permission cases were skipped on Windows. The full run and both focused reruns each recorded stable source. Original failure evidence is retained locally.
 - The DatabaseSeeder Release build passed with zero errors; existing compiler warnings remain.
 - EF's pending-model check reported no model changes. The local Swagger endpoint returned OpenAPI 3.0 with the OAuth2 definition and all three required scopes intact.
-- The final direct/transitive vulnerability audit covered 124 SDK projects and reported zero known vulnerable packages and no audit errors. The direct-package currency check offered only EF Core 10 updates, excluded by the provider constraint above.
+- The final direct/transitive vulnerability audit covered 124 SDK projects and reported zero known vulnerable packages and no audit errors. At the time of the October audit, the Pomelo dependency limited EF Core to 9.0.x.
 
 This verification used Windows and native Visual Studio MSBuild, not an interactive IDE session. Live MySQL replay, external provider API calls, VSIX installation, Unix-only behavior, and hosted CI were not exercised.
 
 ## Sources
 
-- [Pomelo supported EF Core versions](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql)
+- [Microting MySQL provider dependencies](https://www.nuget.org/packages/Microting.EntityFrameworkCore.MySql/10.0.14)
 - [MSTest v4 migration](https://learn.microsoft.com/dotnet/core/testing/unit-testing-mstest-migration-v3-v4)
 - [NCalc v7 migration](https://github.com/ncalc/ncalc/blob/master/docs/articles/project/migrate_v6_to_v7.md)
 - [Swashbuckle v10 migration](https://github.com/domaindrivendev/Swashbuckle.AspNetCore/blob/master/docs/migrating-to-v10.md)

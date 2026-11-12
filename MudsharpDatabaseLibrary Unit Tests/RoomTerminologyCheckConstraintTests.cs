@@ -35,7 +35,7 @@ public class RoomTerminologyCheckConstraintTests
 			"20260227120000_ArenaPhaseProgAppearancePayouts") > 0 &&
 			string.CompareOrdinal(x.Key, "20261007043900_RoomTerminology") < 0))
 		{
-			var migration = assembly.CreateMigration(pair.Value, "Pomelo.EntityFrameworkCore.MySql");
+			var migration = assembly.CreateMigration(pair.Value, context.Database.ProviderName!);
 			foreach (var operation in migration.UpOperations)
 			{
 				switch (operation)

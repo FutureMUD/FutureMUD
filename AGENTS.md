@@ -12,7 +12,7 @@ Use the SDK, target frameworks, language version, and package versions declared 
 | --- | --- |
 | `FutureMUDLibrary/` | Shared interfaces, extensions, helpers, and value objects; mirrors runtime domain namespaces. |
 | `MudSharpCore/` | Console game server, networking, concrete runtime/gameplay implementations, command modules. |
-| `MudsharpDatabaseLibrary/` | EF Core context, models, mappings, and migrations for MySQL/Pomelo. |
+| `MudsharpDatabaseLibrary/` | EF Core context, models, mappings, and migrations for MySQL using the Microting provider. |
 | `ExpressionEngine/` | `IExpression` / NCalc-based formula evaluation and custom functions. |
 | `DatabaseSeeder/` | Schema/bootstrap executable and foundational source consumed by SeederFoundations. |
 | `SeederFoundations/` | Shared reusable setup packages and optional setting integration contracts. |

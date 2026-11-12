@@ -13,7 +13,7 @@
 		<ProjectReference Include="../SeederFramework/SeederFramework.csproj" />
 		<ProjectReference Include="../SeederFoundations/SeederFoundations.csproj" />
 		<ProjectReference Include="../MudSharpCore/MudSharpCore.csproj" Aliases="EngineCompiler" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.21" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
 		<EmbeddedResource Include="Assets/Manifests/Armageddon_Reviewed_Content.json" LogicalName="ArmageddonReviewedContentManifest" />
 		<EmbeddedResource Include="../Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json" LogicalName="ArmageddonSorcererSourceTree" />
 		<EmbeddedResource Include="../Design Documents/Magic/Armageddon_Seeder_Completeness_Design_20261011.json" LogicalName="ArmageddonStockDesign" />

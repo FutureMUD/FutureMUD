@@ -39,7 +39,7 @@ if ($Mode -eq 'setting-full-replay' -and (([bool]$BaseFixture -ne [bool]$BaseFix
 if ($Mode -eq 'setting-debug-runtime' -and ($EarlierClasses -ne 'On' -or -not $BaseFixture -or -not $BaseFixtureSha256)) { throw 'Debug runtime requires explicit sealed checkpoint/digest and classes-on; final acceptance uses setting-foundations.' }
 
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net10.0\GatheringNativePersistenceHarness.dll'
+$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net11.0\GatheringNativePersistenceHarness.dll'
 $mysqld = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe'
 $mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
 $mysqladmin = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqladmin.exe'
@@ -222,7 +222,7 @@ function Write-SourceEvidence {
 
 function Write-AssemblyEvidence {
 	param([string]$Configuration = "Debug", [string]$FileName = "assemblies.json")
-	$assemblyDirectory = Join-Path $PSScriptRoot "bin\$Configuration\net10.0"
+	$assemblyDirectory = Join-Path $PSScriptRoot "bin\$Configuration\net11.0"
 	$records = @('GatheringNativePersistenceHarness.dll', 'GatheringNativePersistenceHarness.deps.json', 'GatheringNativePersistenceHarness.runtimeconfig.json',
 		'MudSharp.dll', 'FutureMUDLibrary.dll', 'MudsharpDatabaseLibrary.dll', 'ExpressionEngine.dll', 'DatabaseSeeder.dll') | ForEach-Object {
 		$assemblyPath = Join-Path $assemblyDirectory $_

@@ -20,6 +20,6 @@ dotnet test "ArmageddonSeeder Unit Tests/ArmageddonSeeder Unit Tests.csproj" -c 
 pwsh -File scripts/Publish-ArmageddonSeeder.ps1 -Runtime win-x64
 ```
 
-The packaging script supports win-x64, linux-x64 and linux-arm64. It creates a framework-dependent, single-file Release archive and SHA-256 file locally; .NET 10 is required. It never copies the private packet, promotes website downloads, uploads public release assets or sends announcements. Match the seeder with the engine/database schema from the same implementation. No production release is performed by changing this project.
+The packaging script supports win-x64, linux-x64 and linux-arm64. It creates a framework-dependent, single-file Release archive and SHA-256 file locally; .NET 11 is required. It never copies the private packet, promotes website downloads, uploads public release assets or sends announcements. Match the seeder with the engine/database schema from the same implementation. No production release is performed by changing this project.
 
 Original ArmSolo source, worldfiles and generated private packets remain external to the repository and executable. Public CI can build/run synthetic and native-configuration checks; corpus-dependent tests explicitly skip when the packet is unavailable. Opt-in local tests can use that environment variable. Do not upload the packet as a CI artifact.

@@ -19,7 +19,7 @@ public class TrxTests
 		doc.Save(path);
 		return path;
 	}
-	private static ParsedTrx Parse(string path) => Trx.Parse(path, "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj", "net10.0", DateTimeOffset.UtcNow.AddMinutes(-1));
+	private static ParsedTrx Parse(string path) => Trx.Parse(path, "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj", "net11.0", DateTimeOffset.UtcNow.AddMinutes(-1));
 
 	[TestMethod]
 	public void RealMstestReportCountsDataRowsOnce()
@@ -135,7 +135,7 @@ public class TrxTests
 		var path = TempFixture();
 		try
 		{
-			var result = Trx.Parse(path, "Other.Tests.csproj", "net10.0", DateTimeOffset.UtcNow.AddMinutes(-1), "Other.Tests.dll");
+			var result = Trx.Parse(path, "Other.Tests.csproj", "net11.0", DateTimeOffset.UtcNow.AddMinutes(-1), "Other.Tests.dll");
 			StringAssert.Contains(result.Problem!, "another assembly");
 		}
 		finally { File.Delete(path); }

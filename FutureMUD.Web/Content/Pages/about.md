@@ -12,7 +12,7 @@ Its systems cover characters and bodies, combat, crafting, economy, law, weather
 
 ## Current technology
 
-The engine and its supporting products are written in C# and target **.NET 10**. The game server is a console application that accepts traditional MUD client connections over TCP. Persistent game data uses MySQL through Entity Framework Core 10 and the Microting MySQL provider. The public website is an ASP.NET Core Razor Pages application and does not connect to a game database. It also has a Discord bot that can be used to relay messages between the game and a Discord server, and a web-hosted mud client for playing the game in a browser.
+The engine and its supporting products are written in C# and target **.NET 11**. The game server is a console application that accepts traditional MUD client connections over TCP. Persistent game data uses MySQL through Entity Framework Core 10 and the Microting MySQL provider. The public website is an ASP.NET Core Razor Pages application and does not connect to a game database. It also has a Discord bot that can be used to relay messages between the game and a Discord server, and a web-hosted mud client for playing the game in a browser.
 
 ## Built for world builders
 

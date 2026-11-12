@@ -119,8 +119,12 @@ public class AutobuilderTerrainStackTests
 		Assert.AreEqual(0, fixture.Created.Count);
 		fixture.Invoke("5 7 editor");
 		var editorOutput = new Mock<IOutputHandler>();
-		fixture.Submit!("FMS1:bad", editorOutput.Object, []);
+		fixture.Submit!("FMS1:YQ", editorOutput.Object, []); // Canonical Base64url for one byte, shorter than the checksum.
 		editorOutput.Verify(handler => handler.Send(It.Is<string>(text => text.Contains("Truncated terrain stack")), true, false), Times.Once);
+		Assert.AreEqual(0, fixture.Created.Count);
+		fixture.Invoke("5 7 editor");
+		fixture.Submit!("FMS1:bad", editorOutput.Object, []); // Nonzero padding bits.
+		editorOutput.Verify(handler => handler.Send(It.Is<string>(text => text.Contains("Invalid terrain stack encoding")), true, false), Times.Once);
 		Assert.AreEqual(0, fixture.Created.Count);
 		fixture.Invoke("5 7 editor");
 		fixture.Package.SetupGet(package => package.Status).Returns(RevisionStatus.Current);

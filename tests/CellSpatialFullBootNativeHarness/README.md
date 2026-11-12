@@ -1,6 +1,6 @@
 # Cell spatial full normal-boot acceptance
 
-This Windows-only native acceptance host is for an explicitly authorized disposable rehearsal. It creates its own fresh loopback MySQL instance and uniquely named owned database. Do not substitute an existing world connection. It requires MySQL binaries, .NET 10, the repository's pinned packages, a private historical source archive and Debug-built helper assemblies.
+This Windows-only native acceptance host is for an explicitly authorized disposable rehearsal. It creates its own fresh loopback MySQL instance and uniquely named owned database. Do not substitute an existing world connection. It requires MySQL binaries, .NET 11 for the current build, .NET 10 for the historical build, the repository's pinned packages, a private historical source archive and Debug-built helper assemblies.
 
 The historical fixture is source commit `ba05f5309af9d304fe91b5d5eb821ffea6651578`: Cell identifiers exist and Rooms still own zone/XYZ. Build its unchanged `DatabaseSeeder` and `MudSharpCore`. Build `HistoricalSeeder` with `BaselineRoot` pointing to that private archive; build `StartupHook` against the archive with `Legacy=true`; build `StartupHook` again against the current checkout with `Legacy=false`; then build `CellSpatialFullBootNativeHarness.csproj`. Use serial `-m:1` builds and the repository's restore/verification guidance. The stock replay helpers require Debug builds.
 

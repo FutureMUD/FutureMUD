@@ -21,7 +21,7 @@ spec.loader.exec_module(s)
 s.deadline = time.monotonic() + 1500
 s.report.update(scope='bounded N21 builder-installed Flame Knife timed and paid permanent tiers', milestoneQualified=False)
 for path in [pathlib.Path(__file__), s.repo / 'scripts/FuryCalmSmokeWorld/FlameKnifeFixtures.cs',
-             s.repo / 'MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll',
+             s.repo / 'MudSharpCore/bin/Debug/net11.0/FutureMUDLibrary.dll',
              s.repo / 'MudSharpCore/Magic/ArmageddonFlameKnifeStock.cs',
              s.repo / 'MudSharpCore/GameItems/SpellOwnedItemValuePolicy.cs',
              *sorted((s.repo / 'MudSharpCore/Magic/SpellEffects').glob('CreateItemEffect*.cs'))]:

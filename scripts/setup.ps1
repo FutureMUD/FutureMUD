@@ -7,5 +7,5 @@ $installScript = Join-Path $bootstrapRoot 'dotnet-install.ps1'
 
 New-Item -ItemType Directory -Path $bootstrapRoot -Force | Out-Null
 Invoke-WebRequest -UseBasicParsing -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile $installScript
-& powershell.exe -ExecutionPolicy Bypass -File $installScript -Channel 10.0 -InstallDir $installRoot
+& powershell.exe -ExecutionPolicy Bypass -File $installScript -Channel 11.0 -InstallDir $installRoot
 & (Join-Path $installRoot 'dotnet.exe') --info

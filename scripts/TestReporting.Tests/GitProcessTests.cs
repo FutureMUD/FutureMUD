@@ -19,7 +19,7 @@ public class GitProcessTests
 		}
 	}
 	internal static string Fake => Path.Combine(TestRoot, "FakeGit", "bin", new DirectoryInfo(AppContext.BaseDirectory).Parent!.Name,
-		"net10.0", OperatingSystem.IsWindows() ? "FakeGit.exe" : "FakeGit");
+		"net11.0", OperatingSystem.IsWindows() ? "FakeGit.exe" : "FakeGit");
 	private const string Tail = "alpha\0omega\nno-final-newline";
 
 	private sealed class Control : IDisposable

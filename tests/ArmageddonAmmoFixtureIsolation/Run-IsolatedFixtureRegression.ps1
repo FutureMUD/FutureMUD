@@ -4,7 +4,7 @@ param([string]$EvidenceRoot)
 $ErrorActionPreference = 'Stop'
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $wrapper = Join-Path $workspaceRoot 'Temporary Scratch App\GatheringNativePersistenceHarness\Run-IsolatedAcceptance.ps1'
-$harnessDll = Join-Path $workspaceRoot 'Temporary Scratch App\GatheringNativePersistenceHarness\bin\Debug\net10.0\GatheringNativePersistenceHarness.dll'
+$harnessDll = Join-Path $workspaceRoot 'Temporary Scratch App\GatheringNativePersistenceHarness\bin\Debug\net11.0\GatheringNativePersistenceHarness.dll'
 if (-not (Test-Path -LiteralPath $harnessDll)) { throw 'Build the current Debug native harness before running fixture isolation.' }
 $evidenceParent = if ($EvidenceRoot) { [IO.Path]::GetFullPath($EvidenceRoot) } else { Join-Path $workspaceRoot '.artifacts\ammo-fixture-isolation' }
 $evidenceDirectory = Join-Path $evidenceParent ([DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '_' + [guid]::NewGuid().ToString('N'))

@@ -8,5 +8,5 @@ INSTALL_SCRIPT="$BOOTSTRAP_ROOT/dotnet-install.sh"
 
 mkdir -p "$BOOTSTRAP_ROOT"
 curl -sSL https://dot.net/v1/dotnet-install.sh -o "$INSTALL_SCRIPT"
-bash "$INSTALL_SCRIPT" --channel 10.0 --install-dir "$INSTALL_ROOT"
+bash "$INSTALL_SCRIPT" --channel 11.0 --install-dir "$INSTALL_ROOT"
 "$INSTALL_ROOT/dotnet" --info

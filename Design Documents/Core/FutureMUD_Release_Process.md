@@ -72,7 +72,7 @@ Microsoft provides free signing for **MSIX packages submitted through the Micros
 
 SignPath Foundation offers free signing to qualifying projects using an OSI-approved licence. FutureMUD's current CC BY-NC-ND licence does not meet that requirement. Public source visibility alone is insufficient; do not change licensing merely to enable a signing integration. See [SignPath's conditions](https://signpath.org/terms) and the [FutureMUD licensing page](../../FutureMUD.Web/Content/Pages/license.md).
 
-For local development, the ordinary unbundled build can be run with `dotnet DatabaseSeeder/bin/Release/net10.0/DatabaseSeeder.dll` from the repository root after building. This is separate from the one-executable release qualification. No paid signing provider, signing credentials, certificate trust changes or Store submission is configured by the catalogue migration.
+For local development, the ordinary unbundled build can be run with `dotnet DatabaseSeeder/bin/Release/net11.0/DatabaseSeeder.dll` from the repository root after building. This is separate from the one-executable release qualification. No paid signing provider, signing credentials, certificate trust changes or Store submission is configured by the catalogue migration.
 
 ## Publish with Codex
 

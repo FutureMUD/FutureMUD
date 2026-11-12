@@ -118,7 +118,11 @@ public static class TerrainStackCodec
 			Validate(payload);
 			return payload;
 		}
-		catch (Exception exception) when (exception is FormatException or JsonException or IOException)
+		catch (FormatException exception)
+		{
+			throw new InvalidDataException("Invalid terrain stack encoding.", exception);
+		}
+		catch (Exception exception) when (exception is JsonException or IOException)
 		{
 			throw new InvalidDataException($"Invalid terrain stack: {exception.Message}", exception);
 		}

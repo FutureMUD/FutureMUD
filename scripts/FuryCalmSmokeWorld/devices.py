@@ -20,7 +20,7 @@ s = importlib.util.module_from_spec(spec); spec.loader.exec_module(s)
 s.deadline = time.monotonic() + 1800
 s.report.update(scope='N22 full-server charged wand/staff activation and explicit paid focus', milestoneQualified=False)
 for path in [pathlib.Path(__file__), s.repo / 'scripts/FuryCalmSmokeWorld/DeviceFixtures.cs',
-             s.repo / 'MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll',
+             s.repo / 'MudSharpCore/bin/Debug/net11.0/FutureMUDLibrary.dll',
              s.repo / 'MudSharpCore/Magic/Casting/MagicCastingService.Devices.cs',
              s.repo / 'MudSharpCore/Commands/Modules/MagicModule.Devices.cs',
              s.repo / 'MudSharpCore/Commands/Modules/InventoryModule.Devices.cs',

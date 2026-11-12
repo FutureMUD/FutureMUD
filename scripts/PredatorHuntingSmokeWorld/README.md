@@ -22,7 +22,7 @@ This automated scenario verifies installation, builder editing and persistence. 
 
 ```powershell
 dotnet build scripts/PredatorHuntingSmokeWorld/PredatorHuntingSmokeWorld.csproj -c Debug -m:1
-dotnet scripts/PredatorHuntingSmokeWorld/bin/Debug/net10.0/PredatorHuntingSmokeWorld.dll <verified-owned-data-directory> <receipt-path>
+dotnet scripts/PredatorHuntingSmokeWorld/bin/Debug/net11.0/PredatorHuntingSmokeWorld.dll <verified-owned-data-directory> <receipt-path>
 ```
 
 Run this only while the owned smoke MySQL instance is running and its MUD is stopped. Supply its connection through `PREDATOR_SMOKE_CONNECTION`. The executable accepts only loopback, the disposable `authored_celestial_smoke` database and its passwordless fixture account, and verifies `@@datadir` against the supplied directory before changing content. A nonzero exit or missing PASS receipt is a failed check.

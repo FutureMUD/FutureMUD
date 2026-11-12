@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 REPO = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_REPOSITORY']).resolve()
 ROOT = REPO.parent
 RELEASE_STOCK = os.environ.get('FUTUREMUD_RELEASE_STOCK_SMOKE') == '1'
-SERVER_DIRECTORY = REPO/'MudSharpCore/bin'/('Release' if RELEASE_STOCK else 'Debug')/'net10.0'
+SERVER_DIRECTORY = REPO/'MudSharpCore/bin'/('Release' if RELEASE_STOCK else 'Debug')/'net11.0'
 OUTPUT = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT']).resolve()
 CONNECTION = os.environ['FUTUREMUD_PREPARED_REPLAY_BOOT_CONNECTION']
 PASSWORD = os.environ['FUTUREMUD_PREPARED_REPLAY_LOGIN_PASSWORD']

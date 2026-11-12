@@ -95,7 +95,7 @@ internal static partial class GNHProgram
 		RequireBaseDumpTargets(File.ReadAllText(sql), database.Name);
 		var input = Path.Combine(folder, "focus-device-input.json"); File.Copy(suppliedInput, input);
 		var assemblies = new[] { "MudSharp.dll", "FutureMUDLibrary.dll", "MudsharpDatabaseLibrary.dll", "ExpressionEngine.dll" }
-			.ToDictionary(x => x, x => BaseHash(Path.Combine(CatalogueRepository, "MudSharpCore", "bin", "Debug", "net10.0", x)));
+			.ToDictionary(x => x, x => BaseHash(Path.Combine(CatalogueRepository, "MudSharpCore", "bin", "Debug", "net11.0", x)));
 		var descriptor = new FocusDeviceFixture("FutureMUD-S4-focus-device-prepared-v1", database.Name,
 			Path.GetFileName(sql), BaseHash(sql), Path.GetFileName(input), BaseHash(input),
 			Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_FIXTURE_SHA256")!, CatalogueContentSourceHash(), assemblies);

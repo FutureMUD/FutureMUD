@@ -381,7 +381,7 @@ def boot(phase):
         env.pop(key,None)
     previous_mode = helper.windows_error_mode()
     try:
-        process = subprocess.Popen(['dotnet',str(REPO/'MudSharpCore/bin/Debug/net10.0/MudSharp.dll'),'MySql.Data.MySqlClient',CONNECTION],
+        process = subprocess.Popen(['dotnet',str(REPO/'MudSharpCore/bin/Debug/net11.0/MudSharp.dll'),'MySql.Data.MySqlClient',CONNECTION],
                                    cwd=runtime,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace',
                                    creationflags=subprocess.CREATE_NO_WINDOW)
     finally: helper.restore_windows_error_mode(previous_mode)
@@ -566,7 +566,7 @@ try:
         assertions.append('Owned database only: disabled email and reserved non-listening loopback Discord bridge')
         receipt['script_sha256'] = sha(__file__)
         receipt['helper_source'] = {'path':str(spec.origin),'sha256':sha(spec.origin)}
-        receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
+        receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net11.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net11.0'/name)}
                                 for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
         boot('first')
         boot('cold')

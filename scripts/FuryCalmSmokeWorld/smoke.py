@@ -52,10 +52,10 @@ report['revision'] = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=repo, capt
 report['inputs'] = {str(path.relative_to(repo)): hashlib.sha256(path.read_bytes()).hexdigest() for path in [
     pathlib.Path(__file__), repo / 'scripts/FuryCalmSmokeWorld/Program.cs',
     repo / 'scripts/AuthoredCelestialSmokeWorld/native.py',
-    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/FuryCalmSmokeWorld.dll',
-    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/ArmageddonSeeder.dll',
-    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/SeederFoundations.dll',
-    repo / 'MudSharpCore/bin/Debug/net10.0/MudSharp.dll',
+    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net11.0/FuryCalmSmokeWorld.dll',
+    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net11.0/ArmageddonSeeder.dll',
+    repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net11.0/SeederFoundations.dll',
+    repo / 'MudSharpCore/bin/Debug/net11.0/MudSharp.dll',
     repo / 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql',
     repo / 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json']}
 process = session = None
@@ -84,7 +84,7 @@ def fixture(mode):
     env = os.environ.copy()
     env['FURY_CALM_SMOKE_CONNECTION'] = connection
     receipt = runtime / ('fixture-' + mode + '.json')
-    result = subprocess.run(['dotnet', str(repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/FuryCalmSmokeWorld.dll'), instance['data'], str(receipt), mode],
+    result = subprocess.run(['dotnet', str(repo / 'scripts/FuryCalmSmokeWorld/bin/Debug/net11.0/FuryCalmSmokeWorld.dll'), instance['data'], str(receipt), mode],
                             cwd=repo, env=env, capture_output=True, text=True, encoding='utf-8', creationflags=subprocess.CREATE_NO_WINDOW,
                             timeout=600 if mode == 'failure-cases' else 240)
     (runtime / (mode + '.log')).write_text(helper.redact(result.stdout + result.stderr, [connection, password]), encoding='utf-8')

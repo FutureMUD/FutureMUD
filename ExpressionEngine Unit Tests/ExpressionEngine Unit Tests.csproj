@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<RootNamespace>MudSharp_Unit_Tests</RootNamespace>
 	</PropertyGroup>
 
@@ -15,7 +15,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\ExpressionEngine\ExpressionEngine.csproj" />
 		<Reference Include="FutureMUDLibrary">
-			<HintPath>..\FutureMUDLibrary\bin\$(Configuration)\net10.0\FutureMUDLibrary.dll</HintPath>
+			<HintPath>..\FutureMUDLibrary\bin\$(Configuration)\net11.0\FutureMUDLibrary.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

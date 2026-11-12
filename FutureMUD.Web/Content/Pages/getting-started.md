@@ -4,7 +4,7 @@ summary: From a release archive to your first local FutureMUD world.
 ---
 ## Minimum requirements
 
-- **.NET 10 runtime.** Follow the Microsoft Learn installation guides for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows) or [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux).
+- **.NET runtime.** Install the runtime major listed for your download. Builds from current source require .NET 11. Follow the Microsoft Learn installation guides for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows) or [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux).
 - **MySQL Server 8.0.** Use a dedicated database and account for the game.
 - **An email server.** FutureMUD needs access to an email server through which it can send account and system email.
 - **Approximately 1 GB of disk space.** SSD or server-grade storage is preferred.

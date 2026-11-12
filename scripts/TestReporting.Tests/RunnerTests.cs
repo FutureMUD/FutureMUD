@@ -22,8 +22,8 @@ public class RunnerTests
 	}
 	private static string Fixture => Path.Combine(TestRoot, "Fixtures", "expression-engine.trx");
 	private static string Configuration => new DirectoryInfo(AppContext.BaseDirectory).Parent!.Name;
-	private static string Fake => Path.Combine(TestRoot, "FakeDotnet", "bin", Configuration, "net10.0", OperatingSystem.IsWindows() ? "FakeDotnet.exe" : "FakeDotnet");
-	private static string Reporter => Path.Combine(TestRoot, "..", "TestReporting", "bin", Configuration, "net10.0", "TestReporting.dll");
+	private static string Fake => Path.Combine(TestRoot, "FakeDotnet", "bin", Configuration, "net11.0", OperatingSystem.IsWindows() ? "FakeDotnet.exe" : "FakeDotnet");
+	private static string Reporter => Path.Combine(TestRoot, "..", "TestReporting", "bin", Configuration, "net11.0", "TestReporting.dll");
 
 	private sealed class Repo : IDisposable
 	{
@@ -31,7 +31,7 @@ public class RunnerTests
 		public Repo()
 		{
 			Directory.CreateDirectory(Path.Combine(PathValue, "Sample Tests"));
-			File.WriteAllText(Path.Combine(PathValue, "Sample Tests", "Sample Tests.csproj"), "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.9.0\" /></ItemGroup></Project>");
+			File.WriteAllText(Path.Combine(PathValue, "Sample Tests", "Sample Tests.csproj"), "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net11.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include=\"Microsoft.NET.Test.Sdk\" Version=\"17.9.0\" /></ItemGroup></Project>");
 			File.WriteAllText(Path.Combine(PathValue, "input.txt"), "initial");
 			File.WriteAllText(Path.Combine(PathValue, ".gitignore"), ".artifacts/\n**/bin/\n**/obj/\n");
 			Command("git", "init", "-q");

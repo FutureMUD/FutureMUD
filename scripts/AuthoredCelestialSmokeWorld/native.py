@@ -244,7 +244,7 @@ def main() -> int:
             env['AUTHORED_SMOKE_PASSWORD'] = password
             env['AUTHORED_SMOKE_SNAPSHOT'] = str(repo / 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql')
             with (root / 'native-replay.log').open('w', encoding='utf-8') as output:
-                replay = run(['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net10.0/AuthoredCelestialSmokeWorld.dll'),
+                replay = run(['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net11.0/AuthoredCelestialSmokeWorld.dll'),
                               instance['data'], str(root / 'native-replay.json')] +
                              (['--armageddon-time-sky'] if args.armageddon_time_sky_only else []), env=env, timeout=1800,
                              stdout=output, stderr=subprocess.STDOUT)

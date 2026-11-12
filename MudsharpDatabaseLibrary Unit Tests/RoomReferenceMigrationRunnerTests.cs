@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests;
 public class RoomReferenceMigrationRunnerTests
 {
 	private static CommandEventData Event(DbCommand command, bool async = false, CommandSource source = CommandSource.Migrations) =>
-		new(null!, (_, _) => "", command.Connection!, command, null, DbCommandMethod.ExecuteNonQuery,
+		new(null!, (_, _) => "", command.Connection!, command, command.CommandText, null, DbCommandMethod.ExecuteNonQuery,
 			Guid.NewGuid(), Guid.NewGuid(), async, false, DateTimeOffset.UtcNow, source);
 
 	[TestMethod]

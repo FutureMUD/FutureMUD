@@ -82,7 +82,9 @@ public class ArmageddonInstallationSettingsTests
 	internal static Func<FuturemudDatabaseContext> Factory(FuturemudDatabaseContext db)
 	{
 		var options = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
-		return () => new FuturemudDatabaseContext(options);
+		// EF's in-memory tables retain the owner's property metadata for composite keys.
+		var shared = new DbContextOptionsBuilder<FuturemudDatabaseContext>(options).UseModel(db.Model).Options;
+		return () => new FuturemudDatabaseContext(shared);
 	}
 
 	[TestMethod]

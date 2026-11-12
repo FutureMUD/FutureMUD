@@ -843,7 +843,7 @@ public partial class AgricultureField
 				return evaluation.IsConfigured ? 0 : Math.Min(capacity - currentValue - sameOperationLoss, baseline);
 			}
 
-			var progress = GetNativeRecoveryRemainder(state, component) + baseline * (decimal)evaluation.Factor;
+			var progress = GetNativeRecoveryRemainder(state, component) + baseline * evaluation.Factor.ToAccountingDecimal();
 			var whole = (int)decimal.Floor(progress);
 			var applied = Math.Min(capacity - currentValue - sameOperationLoss, whole);
 			var remainder = currentValue + sameOperationLoss + applied >= capacity || applied < whole ? 0m : progress - whole;

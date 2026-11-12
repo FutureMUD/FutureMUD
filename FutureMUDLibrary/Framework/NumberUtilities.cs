@@ -10,6 +10,20 @@ namespace MudSharp.Framework
 {
     public static class NumberUtilities
     {
+		/// <summary>Converts a measured quantity to the 15 significant decimal digits used for pricing and stock accounting.</summary>
+		public static decimal ToAccountingDecimal(this double value)
+		{
+			// A double at either limit represents 2^96 in magnitude, just outside decimal's range.
+			if (!double.IsFinite(value) || value >= (double)decimal.MaxValue || value <= (double)decimal.MinValue)
+			{
+				throw new OverflowException("The quantity is outside the decimal accounting range.");
+			}
+
+			Span<char> digits = stackalloc char[32];
+			value.TryFormat(digits, out var length, "G15", CultureInfo.InvariantCulture);
+			return decimal.Parse(digits[..length], NumberStyles.Float, CultureInfo.InvariantCulture);
+		}
+
         private static readonly Regex OrdinalRegex =
             new(@"^(?<number>\d+)(?:(?<=1)st|(?<=2)nd|(?<=3)rd|(?<!1|2|3)th)$", RegexOptions.IgnoreCase);
 

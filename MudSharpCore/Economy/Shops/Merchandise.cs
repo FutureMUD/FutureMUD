@@ -1115,7 +1115,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
             return EffectivePrice;
         }
 
-        return EffectivePrice * (decimal)(weight / CommodityPricingWeight);
+        return EffectivePrice * (weight / CommodityPricingWeight).ToAccountingDecimal();
     }
 
     public decimal MarketPriceMultiplier => Shop.MarketForPricingPurposes?.PriceMultiplierForItem(Item) ?? 1.0M;

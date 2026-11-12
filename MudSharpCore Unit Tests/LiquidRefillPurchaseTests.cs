@@ -30,6 +30,8 @@ public class LiquidRefillPurchaseTests
 	[TestMethod]
 	[DataRow(0.0, 60)]
 	[DataRow(0.95, 3)]
+	[DataRow(0.9499999999, 4)]
+	[DataRow(0.9500000001, 3)]
 	[DataRow(0.975, 2)]
 	[DataRow(0.999, 1)]
 	[DataRow(1.0, 0)]

@@ -1599,7 +1599,7 @@ public abstract partial class Shop : SaveableItem, IShop
         var totalAdjustment = selectedDeals.Sum(x => x.PriceAdjustmentPercentage);
         var adjustedWeightPrice = Math.Max(0.0M, baseWeightPrice * (1.0M + totalAdjustment));
 		adjustedWeightPrice = ApplyHagglePrice(negotiatingCustomer ?? actor, merchandise, applicability, adjustedWeightPrice);
-        var weightMultiplier = (decimal)(weight / pricingWeight);
+        var weightMultiplier = (weight / pricingWeight).ToAccountingDecimal();
         var unitTax = applicability == ShopDealApplicability.Buy
             ? 0.0M
             : EconomicZone.SalesTaxes

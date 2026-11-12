@@ -31,6 +31,8 @@ Cash-funded shops can use their virtual float and physical register coins. Accou
 
 Retained goods enter bank assets and economic holdings at their settlement appraisal while the lender owns the item. A shop stocking a retained pawn uses the principal recovered plus funded borrower equity as its cost. This recognises the remaining margin through ordinary sale accounting. Pawn counters accept individually identifiable durable goods. Currency piles, bulk commodities, stacks and filled containers cannot be pledged.
 
+Pawn appraisals convert item condition to 15 significant decimal digits before applying it to the prototype value. For example, a prototype worth 100 base units at 95% condition appraises at exactly 95 when the currency conversion is 1. The same valuation is used when the borrower accepts the offer.
+
 ### Currency pile prototypes
 
 The generic currency pile prototype remains an empty, system-created pile. A system-only currency pile prototype may instead store both `DefaultCurrency` (currency ID) and `DefaultAmount` (invariant-culture decimal) in its component definition. These values are validated on load, including exact positive coin representation. Only newly created instances receive the configured coins; loading persisted coin XML and copying an existing item retain their existing contents. Explicit currency pile creation and previews use only their supplied coin counts.
@@ -595,6 +597,8 @@ Output path:
 This design is why FutureMUD can support very different notation schemes without rewriting higher-level systems.
 
 ### Shop Pricing, Taxes, and Transactions
+Commodity quotes convert the weight ratio to 15 significant decimal digits before multiplying by the decimal unit price and tax. Market pricing uses the same precision when a formula returns a `double` or when summed flat price pressure enters the decimal multiplier.
+
 The current shop price flow is:
 
 - merchandise provides an effective pre-tax price

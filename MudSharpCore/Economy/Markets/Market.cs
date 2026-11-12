@@ -532,12 +532,13 @@ In the market price formula, you can use the following variables:
 		double supply = impacts.Sum(x => x.SupplyImpact) + 1.0;
 		double demand = impacts.Sum(x => x.DemandImpact) + 1.0;
 		double elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
-		decimal formulaMultiplier = MarketPriceFormula.EvaluateDecimalWith(
+		var formulaResult = MarketPriceFormula.EvaluateWith(
 			("supply", supply),
 			("demand", demand),
 			("elasticity", elasticity)
 		);
-		decimal flatPrice = (decimal)impacts.Sum(x => x.FlatPriceImpact);
+		decimal formulaMultiplier = formulaResult is double value ? value.ToAccountingDecimal() : Convert.ToDecimal(formulaResult);
+		decimal flatPrice = impacts.Sum(x => x.FlatPriceImpact).ToAccountingDecimal();
 		return new CategoryPricingSnapshot(
 			supply,
 			demand,

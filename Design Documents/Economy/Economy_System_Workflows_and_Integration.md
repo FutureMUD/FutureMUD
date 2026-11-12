@@ -668,6 +668,8 @@ The [shared argument resolver](../Core/FutureProg_Type_System.md#shared-manual-a
 
 ## Prog-authored liquid and animal vendors
 
+For a container with capacity 1 and volume 0.95, a refill priced at 3 per 0.05 volume costs 3. A volume of 0.9499999999 needs slightly more liquid and costs 4.
+
 Use `liquidrefillcost` to display a full-refill quote and `purchaseliquidrefill` to repeat validation and settle the same purchase through native held cash. Prices use native currency base units; choose the source unit volume explicitly. Refill prices round the final prorated amount up to a whole base unit. The seller supplies unlimited configured liquid through this helper, so finite-stock content needs a different supply workflow.
 
 Use `purchasenpc` for an explicitly priced approved simple NPC template and inspect its returned character before further actions. It delivers an animal beside the buyer; native mounting, permissions and size rules remain separate. It creates no ownership record or replenishing population spawner. These prog interactions supplement ordinary permanent shops without creating NPC-owned shops.

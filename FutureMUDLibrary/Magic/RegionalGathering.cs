@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Construction;
+using MudSharp.Framework;
 
 namespace MudSharp.Magic.Environment;
 
@@ -266,8 +267,8 @@ public sealed class RegionalGatheringRegistry
 		// Preserve the full double range for profiles whose values cannot round-trip through decimal.
 		try
 		{
-			var exactStock = (decimal)stock;
-			var exactRecovery = (decimal)recovery;
+			var exactStock = stock.ToAccountingDecimal();
+			var exactRecovery = recovery.ToAccountingDecimal();
 			if ((double)exactStock == stock && (double)exactRecovery == recovery)
 				return (double)(exactStock + exactRecovery);
 		}

@@ -115,7 +115,7 @@ internal sealed class LiquidRefillPurchase : ICurrencyTransferParticipant
 			container.LiquidMixture?.Instances.Any(x => x.OriginLiquid.Id != liquid.Id) == true) return -1m;
 		var missing = container.LiquidCapacity - container.LiquidVolume;
 		if (missing == 0) return 0m;
-		try { return Math.Max(1m, decimal.Ceiling((decimal)missing / (decimal)unitVolume * unitPrice)); }
+		try { return Math.Max(1m, decimal.Ceiling(missing.ToAccountingDecimal() / unitVolume.ToAccountingDecimal() * unitPrice)); }
 		catch (Exception error) when (error is OverflowException or DivideByZeroException) { return -1m; }
 	}
 }

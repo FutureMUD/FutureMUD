@@ -2623,7 +2623,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 			decimal currentAmount;
 			try
 			{
-				currentAmount = (decimal)current.Stock;
+				currentAmount = current.Stock.ToAccountingDecimal();
 			}
 			catch (OverflowException)
 			{
@@ -2642,7 +2642,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 			decimal roundTrippedRemaining;
 			try
 			{
-				roundTrippedRemaining = (decimal)remaining;
+				roundTrippedRemaining = remaining.ToAccountingDecimal();
 			}
 			catch (OverflowException)
 			{
@@ -2696,7 +2696,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 				decimal remaining;
 				try
 				{
-					remaining = (decimal)current.Stock - debit;
+					remaining = current.Stock.ToAccountingDecimal() - debit;
 				}
 				catch (OverflowException)
 				{
@@ -2704,7 +2704,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 					return false;
 				}
 				double output = (double)remaining;
-				if (remaining < 0m || !double.IsFinite(output) || (decimal)output != remaining ||
+				if (remaining < 0m || !double.IsFinite(output) || output.ToAccountingDecimal() != remaining ||
 				    output == current.Stock)
 				{
 					reason = "A forage group debit exceeds or cannot change its exact native stock.";

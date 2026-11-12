@@ -102,6 +102,7 @@ public class S4FamilyIntegrationTests
 		var holdable = new Mock<IHoldable>();
 		holdable.SetupProperty(x => x.HeldBy, body);
 		item.Setup(x => x.GetItemType<IHoldable>()).Returns(holdable.Object);
+		item.SetupGet(x => x.InInventoryOf).Returns(() => holdable.Object.HeldBy);
 		Field(body, "_heldItems").SetValue(body, new List<Tuple<IGameItem, IGrab>> { Tuple.Create(item.Object, Mock.Of<IGrab>()) });
 		body.RecalculateItemHelpers();
 		var key = manifested ? ArmageddonPlanarSpellContent.CrossTheVeilKey : ArmageddonPlanarSpellContent.ShadowPassageKey;

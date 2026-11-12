@@ -291,7 +291,8 @@ public enum EmploymentDurationType
 	Indefinite,
 	FixedTerm,
 	Seasonal,
-	TaskLimited
+	TaskLimited,
+	Permanent
 }
 
 public sealed record EmploymentDuration(EmploymentDurationType DurationType, TimeSpan? Length = null)

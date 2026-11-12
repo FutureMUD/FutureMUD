@@ -35,6 +35,10 @@ public interface IItemInteractionPermissionsPrototype : IAggregateGameItemCompon
 {
 }
 
+public interface ICurseRemovableItemPrototype : IAggregateGameItemComponentPrototype<ICurseRemovableItem>
+{
+}
+
 public interface ITransientItemPolicyPrototype : IAggregateGameItemComponentPrototype<ITransientItemPolicy>
 {
 }

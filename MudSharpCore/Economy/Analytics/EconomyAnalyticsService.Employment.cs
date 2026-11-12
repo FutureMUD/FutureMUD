@@ -14,7 +14,7 @@ public sealed partial class EconomyAnalyticsService
 	public EconomyEmploymentMarket GetEmploymentMarket(long? economicZoneId = null)
 	{
 		return BuildEmploymentMarket(EmploymentHostDiscovery.LoadedHosts(_gameworld), _gameworld.JobListings,
-			_gameworld.NPCs, economicZoneId, character => character.Location is null
+			_gameworld.NPCs.Concat(EmploymentHiringPass.DormantWorkers(_gameworld)), economicZoneId, character => character.Location is null
 				? null : ResolveRoomZone(character.Location.Id));
 	}
 

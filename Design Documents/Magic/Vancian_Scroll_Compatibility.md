@@ -58,6 +58,7 @@ These are per-invocation expression wrappers. Neither scroll release nor an over
 | `dispelinvisibility` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `dispelmagic` | Unsupported | Active interception/dispelling policies require a dedicated compatibility adapter. |
 | `dispeltrap` | Unsupported | Nested prepared-payload and trap ownership require a dedicated adapter. |
+| `etherealitemattunement` | Unsupported | The selected plane, target and grade-dependent attunement require a stored-delivery adapter. |
 | `executeprog` | Unsupported | Arbitrary script/command effects have no typed numerical snapshot adapter. |
 | `exitbarrier` | Unsupported | Retained topology/attachment lifecycle requires a dedicated snapshot adapter. |
 | `fear` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
@@ -85,6 +86,7 @@ These are per-invocation expression wrappers. Neither scroll release nor an over
 | `needdelta` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `needrate` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `pacifism` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
+| `pickuphazard` | Unsupported | The selected item, custody and grade-dependent pickup damage require a stored-delivery adapter. |
 | `paralysis` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `personaltagward` | Unsupported | Active interception/dispelling policies require a dedicated compatibility adapter. |
 | `personalward` | Unsupported | Active interception/dispelling policies require a dedicated compatibility adapter. |

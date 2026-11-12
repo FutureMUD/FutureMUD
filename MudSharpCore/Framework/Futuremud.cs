@@ -1790,7 +1790,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
             {
                 ForgetArchivedCharacter(cached);
             }
-            else if (useCachedValues || _characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Disallowed)
+            else if (useCachedValues || cached.AffectedBy<EmploymentStasisEffect>() || _characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Disallowed)
             {
                 return _cachedActors.Get(id);
             }

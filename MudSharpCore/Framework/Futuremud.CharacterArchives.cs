@@ -16,6 +16,7 @@ public partial class Futuremud
 			throw new InvalidOperationException("Only a durably archived runtime character can be forgotten.");
 		}
 		MudSharp.Form.Material.EnvironmentalExposureService.ForgetExisting(this, character);
+		MudSharp.Economy.Employment.EmploymentHiringPass.ForgetDormant(character);
 		_actors.RemoveAll(x => x.Id == character.Id);
 		_characters.RemoveAll(x => x.Id == character.Id);
 		_NPCs.RemoveAll(x => x.Id == character.Id);

@@ -615,6 +615,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 
         // Boot-finished hooks can populate a large world. Begin the live heartbeat
         // after those callbacks so their runtime is not replayed as overdue ticks.
+        HeartbeatManager.FuzzyFiveMinuteHeartbeat += () => EmploymentHiringPass.For(this).Run(this);
         HeartbeatManager.StartHeartbeatTick();
         ConsoleUtilities.WriteLine("\n#ECreating listening server thread...#0");
     }
@@ -3020,6 +3021,13 @@ For information on the syntax to use in emotes (such as those included in bracke
                 {
                     CachedBodyguards[npc.BodyguardCharacterId.Value].Add(newNpc);
                 }
+                continue;
+            }
+
+            if (newNpc.AffectedBy<EmploymentStasisEffect>())
+            {
+                // Already in the offline character cache. The hiring pass owns re-entry.
+                EmploymentHiringPass.TrackDormant((INPC)newNpc);
                 continue;
             }
 

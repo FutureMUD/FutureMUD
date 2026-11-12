@@ -33,6 +33,7 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(IConnectable),
 		typeof(IEquippedItemBonusProvider),
 		typeof(IItemInteractionPermissions),
+		typeof(ICurseRemovableItem),
 		typeof(ITransientItemPolicy),
 		typeof(IMediaEndpoint),
 		typeof(IMediaSource),
@@ -132,6 +133,7 @@ public class GameItemComponentPrototypeExclusivityTests
 		var retirement = CreateDatabasePrototype<TransientItemGameItemComponentProto>("<Definition />");
 
 		CollectionAssert.Contains(permissions.ComponentTypes().ToList(), typeof(IItemInteractionPermissions));
+		CollectionAssert.Contains(permissions.ComponentTypes().ToList(), typeof(ICurseRemovableItem));
 		CollectionAssert.Contains(retirement.ComponentTypes().ToList(), typeof(ITransientItemPolicy));
 		Assert.IsFalse(GameItemComponentPrototypeExclusivity.FindConflicts(
 			[permissions, permissions, retirement, retirement]).Any());

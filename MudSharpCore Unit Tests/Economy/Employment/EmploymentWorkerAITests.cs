@@ -29,6 +29,8 @@ using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.Movement;
 using MudSharp.NPC.AI;
+using MudSharp.NPC;
+using MudSharp.Commands.Helpers;
 using MudSharp.PerceptionEngine;
 
 #nullable enable
@@ -52,6 +54,7 @@ public class EmploymentWorkerAITests
 		                                    <ReservationWage>12.5</ReservationWage>
 		                                    <MaxPathRange>25</MaxPathRange>
 		                                    <SearchEnabled>false</SearchEnabled>
+		                                    <UnemployedStasis>true</UnemployedStasis>
 		                                    <TaskingEnabled>true</TaskingEnabled>
 		                                    <SearchCadenceMinutes>3</SearchCadenceMinutes>
 		                                    <MaximumUnpaidOverdueDays>5</MaximumUnpaidOverdueDays>
@@ -71,6 +74,7 @@ public class EmploymentWorkerAITests
 		Assert.AreSame(currency.Object, ai.Currency);
 		Assert.AreEqual(25u, ai.MaxPathRange);
 		Assert.IsFalse(ai.SearchEnabled);
+		Assert.IsTrue(ai.UnemployedStasis);
 		Assert.IsTrue(ai.TaskingEnabled);
 		Assert.AreEqual(TimeSpan.FromMinutes(3), ai.SearchCadence);
 		Assert.AreEqual(5, ai.MaximumUnpaidOverdueDays);
@@ -81,6 +85,7 @@ public class EmploymentWorkerAITests
 		var xml = SaveXml(ai);
 
 		StringAssert.Contains(xml, "<Currency>1</Currency>");
+		StringAssert.Contains(xml, "<UnemployedStasis>true</UnemployedStasis>");
 		StringAssert.Contains(xml, "EmployeeBankAccount");
 		StringAssert.Contains(xml, "CanUseBankAccount");
 		StringAssert.Contains(xml, "<MaximumUnpaidOverdueDays>5</MaximumUnpaidOverdueDays>");
@@ -216,16 +221,13 @@ public class EmploymentWorkerAITests
 		                                  </Definition>
 		                                  """);
 
-		var acted = ai.HandleMinuteTick(worker);
+		RegisterWorkers(gameworld, (worker, ai));
+		EmploymentHiringPass.For(gameworld.Object).Run(gameworld.Object);
 
-		Assert.IsTrue(acted);
 		Assert.AreEqual(0, lowHost.State.Applications.Count);
 		Assert.AreEqual(1, highHost.State.Applications.Count);
 		Assert.AreEqual(JobApplicationStatus.Pending, highHost.State.Applications.Single().Status);
-		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("searching for employment openings"))),
-			Times.AtLeastOnce);
-		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("applying to"))),
-			Times.AtLeastOnce);
+
 	}
 
 	[TestMethod]
@@ -247,9 +249,9 @@ public class EmploymentWorkerAITests
 		                                  </Definition>
 		                                  """);
 
-		var acted = ai.HandleMinuteTick(worker);
+		RegisterWorkers(gameworld, (worker, ai));
+		EmploymentHiringPass.For(gameworld.Object).Run(gameworld.Object);
 
-		Assert.IsTrue(acted);
 		Assert.AreEqual(1, host.State.Applications.Count);
 		Assert.AreEqual(JobApplicationStatus.Pending, host.State.Applications.Single().Status);
 	}
@@ -278,9 +280,9 @@ public class EmploymentWorkerAITests
 		                                  </Definition>
 		                                  """);
 
-		var acted = ai.HandleMinuteTick(worker.Object);
+		RegisterWorkers(gameworld, (worker.Object, ai));
+		EmploymentHiringPass.For(gameworld.Object).Run(gameworld.Object);
 
-		Assert.IsTrue(acted);
 		var application = host.State.Applications.Single();
 		Assert.AreEqual(JobApplicationStatus.Pending, application.Status);
 	}
@@ -304,9 +306,9 @@ public class EmploymentWorkerAITests
 		                                  </Definition>
 		                                  """);
 
-		var acted = ai.HandleMinuteTick(worker);
+		RegisterWorkers(gameworld, (worker, ai));
+		EmploymentHiringPass.For(gameworld.Object).Run(gameworld.Object);
 
-		Assert.IsTrue(acted);
 		Assert.AreEqual(1, hourlyHost.State.Applications.Count);
 		Assert.AreEqual(0, weeklyHost.State.Applications.Count);
 	}
@@ -365,9 +367,9 @@ public class EmploymentWorkerAITests
 		host.State.RejectApplication(rejectedApplication, manager, "Rejected by a manager.");
 		var ai = LoadAI(gameworld.Object);
 
-		var acted = ai.HandleMinuteTick(worker);
+		RegisterWorkers(gameworld, (worker, ai));
+		EmploymentHiringPass.For(gameworld.Object).Run(gameworld.Object);
 
-		Assert.IsTrue(acted);
 		Assert.IsFalse(firstOpening.AcceptsApplications);
 		Assert.IsTrue(secondOpening.AcceptsApplications);
 		Assert.IsTrue(host.State.Applications.Any(x =>
@@ -390,10 +392,107 @@ public class EmploymentWorkerAITests
 		var worker = Character(25, "Worker", gameworld.Object, location.Object).Object;
 		var ai = LoadAI(gameworld.Object);
 
-		var acted = ai.HandleMinuteTick(worker);
+		RegisterWorkers(gameworld, (worker, ai));
+		EmploymentHiringPass.For(gameworld.Object).Run(gameworld.Object);
 
-		Assert.IsFalse(acted);
 		property.VerifyGet(x => x.Hotel, Times.Never);
+	}
+
+	[TestMethod]
+	public void HiringPass_DistributesPendingApplicationsAndRespectsMedicalQualifications()
+	{
+		var currency = Currency();
+		var room = Room(10, "workplace").Object;
+		var host = Shop(1, "employer", currency.Object, room);
+		var world = Gameworld(shops: [host.Shop.Object]);
+		var medical = host.State.CreateJobOpening(Opening(currency.Object, 30, role: EmploymentRole.MedicalWorker), null);
+		var higher = host.State.CreateJobOpening(Opening(currency.Object, 20), null);
+		var lower = host.State.CreateJobOpening(Opening(currency.Object, 10), null);
+		var ai = LoadAI(world.Object);
+		var doctorAi = LoadAI(world.Object);
+		var first = Character(1, "first", world.Object, room).Object;
+		var second = Character(2, "second", world.Object, room).Object;
+		var doctor = Character(3, "doctor", world.Object, room).Object;
+		doctorAi.BuildingCommand(doctor, new StringStack("capability doctor"));
+		RegisterWorkers(world, (first, ai), (second, ai), (doctor, doctorAi));
+		Assert.IsFalse(ai.HandleMinuteTick(first));
+		Assert.AreEqual(0, host.State.Applications.Count);
+
+		var pass = EmploymentHiringPass.For(world.Object);
+		pass.Run(world.Object);
+		pass.Run(world.Object);
+		Assert.AreEqual(3, host.State.Applications.Count);
+		Assert.IsTrue(host.State.Applications.All(x => x.Status == JobApplicationStatus.Pending));
+		Assert.AreSame(doctor, host.State.Applications.Single(x => x.Opening == medical).Candidate);
+		Assert.IsTrue(host.State.Applications.Any(x => x.Opening == higher));
+		Assert.IsTrue(host.State.Applications.Any(x => x.Opening == lower));
+		Assert.AreEqual(0, host.State.EmploymentContracts.Count);
+	}
+
+	[TestMethod]
+	public void HiringPass_DormantNpcCanApplyAndWakesOnlyAfterApproval()
+	{
+		var currency = Currency();
+		var room = Room(10, "yard");
+		var host = Shop(1, "employer", currency.Object, room.Object);
+		var world = Gameworld(shops: [host.Shop.Object]);
+		var ai = LoadAI(world.Object);
+		var worker = Character(2, "worker", world.Object, room.Object);
+		var manager = Character(3, "admin", world.Object, room.Object, administrator: true).Object;
+		Assert.IsFalse(ai.UnemployedStasis);
+		Assert.IsTrue(ai.BuildingCommand(manager, new StringStack("stasis")));
+		RegisterWorkers(world, (worker.Object, ai));
+		worker.SetupGet(x => x.CharacterController).Returns(new NPCController());
+		worker.Setup(x => x.Quit(true)).Callback(() =>
+		{
+			world.SetupGet(x => x.NPCs).Returns(new All<ICharacter>());
+			worker.SetupGet(x => x.State).Returns(CharacterState.Awake | CharacterState.Stasis);
+		}).Returns(true);
+		var pass = EmploymentHiringPass.For(world.Object);
+		pass.Run(world.Object);
+		worker.Verify(x => x.Quit(true), Times.Once);
+		Assert.IsTrue(worker.Object.AffectedBy<EmploymentStasisEffect>());
+		host.State.CreateJobOpening(Opening(currency.Object, 20), null);
+		pass.Run(world.Object);
+		var application = host.State.Applications.Single();
+		Assert.AreEqual(JobApplicationStatus.Pending, application.Status);
+		room.Verify(x => x.Login(worker.Object), Times.Never);
+		host.State.AcceptApplication(application, manager);
+		pass.Run(world.Object);
+		worker.Verify(x => x.SilentAssumeControl(worker.Object.CharacterController), Times.Once);
+		world.Verify(x => x.Add(worker.Object, true), Times.Once);
+		room.Verify(x => x.Login(worker.Object), Times.Once);
+	}
+
+	[TestMethod]
+	public void ContractsAssign_RequiresAdminAndProtectsPaidPermanentWorkerFromArrears()
+	{
+		var currency = Currency();
+		var room = Room(10, "workplace").Object;
+		var host = Shop(1, "employer", currency.Object, room);
+		var world = Gameworld(shops: [host.Shop.Object]);
+		var worker = Character(2, "worker", world.Object, room).Object;
+		var admin = Character(3, "admin", world.Object, room, administrator: true).Object;
+		var ai = LoadAI(world.Object);
+		ai.BuildingCommand(admin, new StringStack("capability doctor"));
+		RegisterWorkers(world, (worker, ai));
+		host.Shop.Setup(x => x.Hire(It.IsAny<ICharacter>(), It.IsAny<EmploymentOffer>(), It.IsAny<ICharacter?>()))
+			.Returns((ICharacter employee, EmploymentOffer offer, ICharacter? issuer) => host.State.Hire(employee, offer, issuer));
+		var service = new EmploymentCommandService();
+		service.ExecuteForHost(worker, host.Shop.Object, new StringStack("contracts assign #2 MedicalWorker 10"));
+		Assert.AreEqual(0, host.State.EmploymentContracts.Count);
+		service.ExecuteForHost(admin, host.Shop.Object, new StringStack("contracts assign #2 MedicalWorker 10"));
+		var contract = host.State.EmploymentContracts.Single();
+		Assert.AreEqual(EmploymentDurationType.Permanent, contract.Duration.DurationType);
+		Assert.AreEqual(PayCadence.Hourly, contract.Compensation.Cadence);
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.PerformMedicalServices));
+		Assert.AreEqual(0, host.State.Applications.Count);
+		AddPayable(host.State, contract, currency.Object, DateTimeOffset.UtcNow.AddDays(-8));
+		ai.HandleMinuteTick(worker);
+		Assert.AreEqual(EmploymentStatus.Active, contract.Status);
+		Assert.IsTrue(host.State.Payroll.OutstandingLiabilitiesFor(worker).Any());
+		host.State.Fire(contract, EmploymentTerminationReason.Fired, admin);
+		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
 	}
 
 	[TestMethod]
@@ -911,6 +1010,17 @@ public class EmploymentWorkerAITests
 		}
 	}
 
+	private static void RegisterWorkers(Mock<IFuturemud> world, params (ICharacter Worker, EmploymentWorkerAI Ai)[] workers)
+	{
+		var npcs = new All<ICharacter>();
+		foreach (var (worker, ai) in workers)
+		{
+			Mock.Get(worker).As<INPC>().SetupGet(x => x.AIs).Returns([ai]);
+			npcs.Add(worker);
+		}
+		world.SetupGet(x => x.NPCs).Returns(npcs);
+	}
+
 	private static EmploymentWorkerAI LoadAI(IFuturemud gameworld, string? xml = null)
 	{
 		var model = new MudSharp.Models.ArtificialIntelligence
@@ -1256,6 +1366,8 @@ public class EmploymentWorkerAITests
 		account.SetupGet(x => x.Culture).Returns(CultureInfo.InvariantCulture);
 		var effects = new List<IEffect>();
 		var character = new Mock<ICharacter>();
+		character.As<INPC>();
+		character.SetupGet(x => x.IsPrimaryInstance).Returns(true);
 		character.SetupGet(x => x.Id).Returns(id);
 		character.SetupGet(x => x.Name).Returns(name);
 		character.SetupGet(x => x.Gameworld).Returns(gameworld);
@@ -1269,12 +1381,11 @@ public class EmploymentWorkerAITests
 		character.SetupGet(x => x.State).Returns(CharacterState.Awake);
 		character.Setup(x => x.CanMove(It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		character.SetupGet(x => x.Effects).Returns(effects);
+		character.Setup(x => x.AffectedBy<EmploymentStasisEffect>()).Returns(() => effects.OfType<EmploymentStasisEffect>().Any());
 		character.Setup(x => x.AddEffect(It.IsAny<IEffect>()))
 		         .Callback<IEffect>(effect => effects.Add(effect));
 		character.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
 		         .Callback<IEffect, TimeSpan>((effect, _) => effects.Add(effect));
-		character.Setup(x => x.AffectedBy<EmploymentWorkerSearchCooldownEffect>())
-		         .Returns(() => effects.OfType<EmploymentWorkerSearchCooldownEffect>().Any());
 		character.Setup(x => x.EffectsOfType<EmploymentWorkerTaskContextEffect>(
 					It.IsAny<Predicate<EmploymentWorkerTaskContextEffect>?>()))
 		         .Returns((Predicate<EmploymentWorkerTaskContextEffect>? predicate) =>
@@ -1287,12 +1398,6 @@ public class EmploymentWorkerAITests
 			         predicate is null
 				         ? effects.OfType<EmploymentWorkerHostEvaluationEffect>()
 				         : effects.OfType<EmploymentWorkerHostEvaluationEffect>().Where(x => predicate(x)));
-		character.Setup(x => x.EffectsOfType<EmploymentWorkerRejectedOpeningEffect>(
-					It.IsAny<Predicate<EmploymentWorkerRejectedOpeningEffect>?>()))
-		         .Returns((Predicate<EmploymentWorkerRejectedOpeningEffect>? predicate) =>
-			         predicate is null
-				         ? effects.OfType<EmploymentWorkerRejectedOpeningEffect>()
-				         : effects.OfType<EmploymentWorkerRejectedOpeningEffect>().Where(x => predicate(x)));
 		character.Setup(x => x.RemoveAllEffects<EmploymentWorkerTaskContextEffect>(
 					It.IsAny<Predicate<EmploymentWorkerTaskContextEffect>?>(),
 					It.IsAny<bool>()))

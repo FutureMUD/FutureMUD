@@ -11,7 +11,7 @@ if ($ProductionRestartOnly) { $OrderedNpcCallbacksOnly = $true }
 if ($SelectedMeleeCheckOnly -or $FirearmAuthorityOnly -or $CountershotAuthorityOnly -or $LoadOutputOnly -or $AmmoConservationOnly -or $AmmoDetachRecoveryOnly -or $NativeBoardingOnly) { $OrderedNpcCallbacksOnly = $true }
 
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net10.0\GatheringNativePersistenceHarness.dll'
+$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net11.0\GatheringNativePersistenceHarness.dll'
 $mysqld = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe'
 $mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
 $mysqladmin = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqladmin.exe'
@@ -151,7 +151,7 @@ try {
 			$env:TEMP = $taskRoot
 			$env:TMP = $taskRoot
 			Require-OwnedServer -Boundary 'process-snapshot-helper'
-			& dotnet (Join-Path $workspaceRoot 'DatabaseSeeder\bin\Debug\net10.0\DatabaseSeeder.dll') --refresh-blank-snapshot
+			& dotnet (Join-Path $workspaceRoot 'DatabaseSeeder\bin\Debug\net11.0\DatabaseSeeder.dll') --refresh-blank-snapshot
 			if ($LASTEXITCODE -ne 0) { throw 'The owned blank-snapshot refresh failed.' }
 		}
 		finally { $env:TEMP = $previousTemporaryDirectory; $env:TMP = $previousTmpDirectory }

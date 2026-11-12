@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parent.parent
-COMPILER = ROOT / "BuildTools/MigrationModelCompiler/bin/Debug/net10.0/MigrationModelCompiler.dll"
+COMPILER = ROOT / "BuildTools/MigrationModelCompiler/bin/Debug/net11.0/MigrationModelCompiler.dll"
 
 
 class MigrationBuildTests(unittest.TestCase):

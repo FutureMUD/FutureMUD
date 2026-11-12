@@ -3,7 +3,7 @@ param([ValidateSet('profile-preflight', 'paid-native')][string]$Mode = 'profile-
 
 $ErrorActionPreference = 'Stop'
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net10.0\FuryCalmStockNativeHarness.dll'
+$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net11.0\FuryCalmStockNativeHarness.dll'
 if (-not (Test-Path -LiteralPath $harnessDll)) { throw 'Build this dedicated harness before running preparation.' }
 $runRoot = Join-Path $workspaceRoot ('.artifacts\test-runs\fury-calm-stock-preparation_' + [guid]::NewGuid().ToString('N'))
 $resolvedRun = [IO.Path]::GetFullPath($runRoot)

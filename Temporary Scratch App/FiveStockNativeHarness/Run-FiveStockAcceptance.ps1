@@ -4,7 +4,7 @@ param([ValidateSet('five-stock','regressions','created-consumables','practice')]
 $ErrorActionPreference = 'Stop'
 
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net10.0\GatheringNativePersistenceHarness.dll'
+$harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net11.0\GatheringNativePersistenceHarness.dll'
 $mysqld = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe'
 $mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
 $mysqladmin = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqladmin.exe'

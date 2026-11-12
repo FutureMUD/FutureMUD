@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<MigrationRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</MigrationRepositoryRoot>
 		<MigrationCompilerProject>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj</MigrationCompilerProject>
-		<MigrationCompilerDll>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/bin/$(Configuration)/net10.0/MigrationModelCompiler.dll</MigrationCompilerDll>
+		<MigrationCompilerDll>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/bin/$(Configuration)/net11.0/MigrationModelCompiler.dll</MigrationCompilerDll>
 		<!-- Inputs live outside the helper projects and Compile items are produced by a
 		     target. Always let MSBuild validate the projection cache on a real IDE build. -->
 		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>

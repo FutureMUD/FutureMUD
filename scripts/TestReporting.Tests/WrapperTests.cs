@@ -16,7 +16,7 @@ public class WrapperTests
 			var directory = new DirectoryInfo(AppContext.BaseDirectory);
 			while (directory.Name != "TestReporting.Tests") directory = directory.Parent ?? throw new InvalidOperationException("Test root absent");
 			var configuration = new DirectoryInfo(AppContext.BaseDirectory).Parent!.Name;
-			return Path.Combine(directory.FullName, "FakeDotnet", "bin", configuration, "net10.0", OperatingSystem.IsWindows() ? "FakeDotnet.exe" : "FakeDotnet");
+			return Path.Combine(directory.FullName, "FakeDotnet", "bin", configuration, "net11.0", OperatingSystem.IsWindows() ? "FakeDotnet.exe" : "FakeDotnet");
 		}
 	}
 

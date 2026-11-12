@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<AssemblyName>MudSharpCore.ClimateTests</AssemblyName>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<RootNamespace>MudSharp_Climate_Tests</RootNamespace>
 	</PropertyGroup>
 

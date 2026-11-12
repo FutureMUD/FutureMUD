@@ -90,7 +90,7 @@ try:
     if not args.resume_smoke:
         env['FUTUREMUD_SNAPSHOT_CONNECTION_STRING'] = connection.replace('database=authored_celestial_smoke', 'database=weather_snapshot')
         if not args.use_existing_snapshot:
-            logged(['dotnet', str(repo / 'DatabaseSeeder/bin/Debug/net10.0/DatabaseSeeder.dll'), '--refresh-blank-snapshot'], 'snapshot-refresh.log', 900, env)
+            logged(['dotnet', str(repo / 'DatabaseSeeder/bin/Debug/net11.0/DatabaseSeeder.dll'), '--refresh-blank-snapshot'], 'snapshot-refresh.log', 900, env)
             report['snapshot'] = 'REFRESHED'
         identity()
         query('CREATE DATABASE authored_celestial_smoke')
@@ -103,7 +103,7 @@ try:
         report['snapshot'] = 'EXISTING_SNAPSHOT_IMPORTED' if args.use_existing_snapshot else 'REFRESHED_AND_IMPORTED'
         report['forecastColumns'] = columns
         try:
-            logged(['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net10.0/AuthoredCelestialSmokeWorld.dll'),
+            logged(['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net11.0/AuthoredCelestialSmokeWorld.dll'),
                     str(data), str(root / 'native-replay.json')], 'native-replay.log', 1800, env)
         finally:
             log = root / 'native-replay.log'

@@ -23,7 +23,7 @@ for path in [pathlib.Path(__file__), s.repo / 'scripts/FuryCalmSmokeWorld/WardBa
              *sorted((s.repo / 'MudSharpCore/Magic/Lifecycle').glob('SpellOwnedShelterService*.cs')),
              s.repo / 'MudSharpCore/Effects/Concrete/SpellShelterWard.cs',
              s.repo / 'MudSharpCore/Magic/ArmageddonBaneStock.cs',
-             s.repo / 'MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll',
+             s.repo / 'MudSharpCore/bin/Debug/net11.0/FutureMUDLibrary.dll',
              s.repo / 'FutureMUDLibrary/Magic/SpellShelterWardConfiguration.cs',
              s.repo / 'FutureMUDLibrary/Magic/Stock/ArmageddonBaneContent.cs']:
     s.report['inputs'][str(path.relative_to(s.repo))] = hashlib.sha256(path.read_bytes()).hexdigest()

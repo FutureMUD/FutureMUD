@@ -20,7 +20,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - name: Restore climate test dependencies
         run: dotnet restore "MudSharpCore Climate Tests/MudSharpCore Climate Tests.csproj" -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
       - name: Run climate regression gate

@@ -113,7 +113,7 @@ def main():
             if imported.returncode:
                 raise RuntimeError('Backup import into fresh owned instance failed.')
             result['restoredBackup'] = str(backup.relative_to(base))
-        harness = ['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net10.0/AuthoredCelestialSmokeWorld.dll')]
+        harness = ['dotnet', str(repo / 'scripts/AuthoredCelestialSmokeWorld/bin/Debug/net11.0/AuthoredCelestialSmokeWorld.dll')]
         receipt = str(root / 'upgrade.json')
         env = os.environ.copy()
         env['AUTHORED_SMOKE_CONNECTION'] = connection('authored_celestial_smoke')

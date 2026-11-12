@@ -40,6 +40,7 @@ jobs:
       single_file: ${{ steps.release.outputs.single_file }}
       include_native_libraries: ${{ steps.release.outputs.include_native_libraries }}
       source_revision: ${{ steps.release.outputs.source_revision }}
+      source_sdk: ${{ steps.release.outputs.source_sdk }}
       publisher_revision: ${{ steps.release.outputs.publisher_revision }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,7 +50,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - id: release
         name: Validate release tag and manifest
         shell: pwsh
@@ -257,6 +258,11 @@ jobs:
             throw "Tag version $version must exactly match project Version $projectVersion."
           }
 
+          $framework = dotnet msbuild $definition.projectPath -getProperty:TargetFramework -nologo
+          if ($LASTEXITCODE -ne 0 -or $framework -cnotmatch '^net([1-9][0-9]*)\.0$') {
+            throw "Could not determine the release SDK from target framework '$framework'."
+          }
+          $sourceSdk = "$($Matches[1]).0.x"
           $matrixEntries = @($definition.runtimes | ForEach-Object {
             @{
               runtime = [string]$_
@@ -277,6 +283,7 @@ jobs:
             "single_file=$([bool]$definition.singleFile)"
             "include_native_libraries=$([bool]$definition.includeNativeLibrariesForSelfExtract)"
             "source_revision=$tagCommit"
+            "source_sdk=$sourceSdk"
             "publisher_revision=$publisherCommit"
           )
           foreach ($line in $outputLines) {
@@ -299,9 +306,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ needs.prepare.outputs.source_sdk }}
+          global-json-file: ${{ needs.prepare.outputs.package_kind == 'mudclient' && 'MudClient/global.json' || '' }}
       - name: Install WebAssembly build tools
         if: needs.prepare.outputs.package_kind == 'mudclient' || needs.prepare.outputs.package_kind == 'terrainplanner'
+        working-directory: ${{ needs.prepare.outputs.package_kind == 'mudclient' && 'MudClient' || '.' }}
         shell: pwsh
         run: dotnet workload install wasm-tools
       - name: Audit Web MUD Client dependencies
@@ -400,7 +409,7 @@ jobs:
           merge-multiple: true
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ needs.prepare.outputs.source_sdk }}
       - name: End-to-end publishing test against temporary host
         shell: pwsh
         env:
@@ -467,7 +476,7 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         if: needs.prepare.outputs.package_kind == 'mudclient' || needs.prepare.outputs.package_kind == 'terrainplanner'
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - name: Sign MudClient update manifest
         if: needs.prepare.outputs.package_kind == 'mudclient'
         shell: pwsh

@@ -20,7 +20,7 @@ internal static partial class GNHProgram
 		Require(Environment.GetEnvironmentVariable("FUTUREMUD_BASE_PACKAGE_MODE") == "Simple" &&
 			Environment.GetEnvironmentVariable("FUTUREMUD_BASE_EARLIER_CLASSES") == "On" && !S6Integration,
 			"Release stock smoke requires its separate Simple/classes-on lane.");
-		var path = Path.Combine(CatalogueRepository, "tests", "ArmageddonPreparedSeederNativeHarness", "bin", "Release", "net10.0", "GatheringNativePersistenceHarness.dll");
+		var path = Path.Combine(CatalogueRepository, "tests", "ArmageddonPreparedSeederNativeHarness", "bin", "Release", "net11.0", "GatheringNativePersistenceHarness.dll");
 		Require(File.Exists(path), "Build the Release harness before the native acceptance lane.");
 		var credential = typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetField("DebugPassword", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!.GetRawConstantValue() as string;

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Launch/connect to a local FutureMUD server and run in-game commands."""
 
 from __future__ import annotations
@@ -366,7 +366,7 @@ def main() -> int:
         if args.account is None:
             raise SystemExit("Pass --account when testing a database other than demo_dbo or labmud_dbo.")
     secrets = [connection_string, args.password]
-    runtime_dir = repo / "MudSharpCore" / "bin" / "Debug" / "net10.0"
+    runtime_dir = repo / "MudSharpCore" / "bin" / "Debug" / "net11.0"
     commands = load_commands(args)
 
     proc: subprocess.Popen[str] | None = None

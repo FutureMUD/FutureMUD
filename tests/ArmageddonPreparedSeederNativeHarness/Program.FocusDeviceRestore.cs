@@ -18,7 +18,7 @@ internal static partial class GNHProgram
 			fixture.SqlFile == Path.GetFileName(fixture.SqlFile) && fixture.InputFile == "focus-device-input.json", "Focus/device source, base or file identity differs.");
 		var expectedAssemblies = new[] { "MudSharp.dll", "FutureMUDLibrary.dll", "MudsharpDatabaseLibrary.dll", "ExpressionEngine.dll" };
 		Require(fixture.RuntimeAssemblies.Keys.Order().SequenceEqual(expectedAssemblies.Order()) && fixture.RuntimeAssemblies.All(x =>
-			BaseHash(Path.Combine(CatalogueRepository, "MudSharpCore", "bin", "Debug", "net10.0", x.Key)) == x.Value), "Prepared fixture runtime assembly identity differs.");
+			BaseHash(Path.Combine(CatalogueRepository, "MudSharpCore", "bin", "Debug", "net11.0", x.Key)) == x.Value), "Prepared fixture runtime assembly identity differs.");
 		var folder = Path.GetDirectoryName(manifest)!;
 		var sql = Path.Combine(folder, fixture.SqlFile); var savedInput = Path.Combine(folder, fixture.InputFile);
 		RequireBasePath(sql, FocusDeviceFixtureRoot); RequireBasePath(savedInput, FocusDeviceFixtureRoot);

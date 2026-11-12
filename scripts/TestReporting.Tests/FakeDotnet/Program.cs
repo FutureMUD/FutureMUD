@@ -13,7 +13,7 @@ if (operation == "build")
 	var configAt = Array.IndexOf(args, "-c");
 	var configuration = configAt < 0 ? "Debug" : args[configAt + 1];
 	var project = args[1];
-	var binary = Path.Combine(Path.GetDirectoryName(project)!, "bin", configuration, "net10.0", Path.GetFileNameWithoutExtension(project) + ".dll");
+	var binary = Path.Combine(Path.GetDirectoryName(project)!, "bin", configuration, "net11.0", Path.GetFileNameWithoutExtension(project) + ".dll");
 	Directory.CreateDirectory(Path.GetDirectoryName(binary)!);
 	File.WriteAllText(binary, "fake binary identity");
 	Console.WriteLine("Build succeeded.");

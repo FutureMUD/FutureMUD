@@ -205,9 +205,9 @@ internal static partial class GNHProgram
 			File.WriteAllText(Path.Combine(output, "migration-postflight.json"), JsonSerializer.Serialize(new { Status = "PASS", OriginalSchema = schema, OriginalValues = values, OriginalHistory = history, RetainedRooms = retainedRooms, RetainedValues = CaptureSpatialValues(after, retainedSchema), CurrentSchema = CaptureSpatialSchema(after), CurrentHistory = CaptureSpatialValues(after, historySchema) }, new JsonSerializerOptions { WriteIndented = true }));
 		}
 		Console.WriteLine("CellFullBoot-migration-postflight=PASS retained old-world rows unequal identities duplicate XYZ areas defaults custody hosted magic preserved");
-		var hook = Path.Combine(native, "StartupHook", "bin", "Debug", "net10.0", "CellSpatialFullBootStartupHook.dll");
-		Child("operate", Path.Combine(repository, "MudSharpCore", "bin", "Debug", "net10.0", "MudSharp.dll"), hook);
-		Child("cold", Path.Combine(repository, "MudSharpCore", "bin", "Debug", "net10.0", "MudSharp.dll"), hook);
+		var hook = Path.Combine(native, "StartupHook", "bin", "Debug", "net11.0", "CellSpatialFullBootStartupHook.dll");
+		Child("operate", Path.Combine(repository, "MudSharpCore", "bin", "Debug", "net11.0", "MudSharp.dll"), hook);
+		Child("cold", Path.Combine(repository, "MudSharpCore", "bin", "Debug", "net11.0", "MudSharp.dll"), hook);
 		File.WriteAllText(Path.Combine(output, "fullboot-receipt.json"), JsonSerializer.Serialize(new { Status = "PASS", database.Name, Processes = processes, Backup = backup, BackupSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(backup))), WorldTables = schema.Count, NormalEntrypoint = true, RoomFinalization = true, ConfigurationSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(runtime, "Connection.config")))), WritersFrozenDuringMigration = true }, new JsonSerializerOptions { WriteIndented = true }));
 		Console.WriteLine("CellFullBoot-completion=PASS genuine historical normal boot -> full restore -> frozen migration -> normal full boot lifecycle -> graceful flush/stop -> normal cold boot; exact owned cleanup follows");
 		return 0;

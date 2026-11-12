@@ -20,7 +20,7 @@ spec.loader.exec_module(s)
 s.deadline = time.monotonic() + 1500
 s.report.update(scope='bounded N20 builder-installed finite pocket native custody', milestoneQualified=False)
 for path in [pathlib.Path(__file__), s.repo / 'scripts/FuryCalmSmokeWorld/PocketFixtures.cs',
-             s.repo / 'MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll',
+             s.repo / 'MudSharpCore/bin/Debug/net11.0/FutureMUDLibrary.dll',
              *sorted((s.repo / 'MudSharpCore/Magic/Lifecycle').glob('SpellOwnedPocket*.cs')),
              s.repo / 'MudSharpCore/GameItems/Components/FoldedPocketGameItemComponent.cs',
              s.repo / 'MudSharpCore/GameItems/SpellPocketContainment.cs']:

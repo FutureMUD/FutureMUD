@@ -1,6 +1,8 @@
 using MudSharp.Body.Traits;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Magic.Resources;
 using MudSharp.PerceptionEngine.Lists;
 
@@ -9,6 +11,28 @@ namespace MudSharp.Magic.Casting;
 
 public sealed partial class MagicCastingService
 {
+	/// <summary>Consumptive payment must not alter a frozen item recipient or its containment tree.</summary>
+	private static void ValidatePreparedItemMaterialTargets(IInventoryPlan plan, IReadOnlySet<IGameItem> targets)
+	{
+		if (targets.Count == 0 || plan is not InventoryPlan native) return;
+		HashSet<IGameItem> Ancestors(IGameItem item)
+		{
+			var ancestors = new HashSet<IGameItem>(ReferenceEqualityComparer.Instance);
+			for (IGameItem? current = item; current is not null; current = current.ContainedIn)
+				if (!ancestors.Add(current))
+					throw new InvalidOperationException("The component plan has cyclic item containment.");
+			return ancestors;
+		}
+		var targetAncestors = targets.Select(Ancestors).ToArray();
+		foreach (var (action, item, _) in native.Phases.Values.SelectMany(x => x.ScoutedItems))
+		{
+			if (item is null || action.DesiredState is not (DesiredItemState.Consumed or
+				DesiredItemState.ConsumeLiquid or DesiredItemState.ConsumeCommodity)) continue;
+			if (Ancestors(item).Any(targets.Contains) || targetAncestors.Any(ancestors => ancestors.Contains(item)))
+				throw new InvalidOperationException("The component plan would alter or consume its prepared item target or containing inventory before the spell could affect it.");
+		}
+	}
+
 	private sealed record SelectionAdmission((IMagicSpellEffectPreparedSelection Effect, IPerceivable Recipient)[] Selections,
 		Func<bool>[] StructuralChecks);
 
@@ -52,6 +76,10 @@ public sealed partial class MagicCastingService
 			Reference(() => item.Location); Value(() => item.RoomLayer); Reference(() => item.InInventoryOf); Reference(() => item.ContainedIn);
 			Reference(() => item.Prototype); Value(() => item.Deleted); Value(() => item.Destroyed); Value(() => item.Quantity);
 			Sequence(() => item.Components);
+			if (item.GetItemType<ICommodity>() is { } commodity) {
+				Reference(() => item.GetItemType<ICommodity>()); Value(() => commodity.Weight);
+				Reference(() => commodity.Material); Reference(() => commodity.Tag);
+			}
 			if (item.GetItemType<ILiquidContainer>() is { } container) {
 				Reference(() => item.GetItemType<ILiquidContainer>()); Value(() => container.OwnsLiquidMixture); Value(() => container.IsOpen);
 				Value(() => container.LiquidCapacity); Value(() => container.LiquidMixture?.SaveToXml().ToString(SaveOptions.DisableFormatting));

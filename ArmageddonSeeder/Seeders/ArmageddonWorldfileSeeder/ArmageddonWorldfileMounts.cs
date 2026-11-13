@@ -68,12 +68,22 @@ internal sealed partial class ArmageddonWorldfileWriter
 			_db.VariableDefaults.Add(new VariableDefault { OwnerTypeDefinition = owner, Property = name, DefaultValue = defaultValue });
 	}
 
+	private TraitDefinition? FindMountRidingSkill()
+	{
+		if (OwnedBehaviourId("arm.skill.ride", nameof(TraitDefinition)) is { } ownedId)
+			return _db.TraitDefinitions.SingleOrDefault(x => x.Id == ownedId && x.Type == 0)
+				?? throw new InvalidOperationException("The owned Ride binding does not reference a native skill.");
+		var skills = _db.TraitDefinitions.Where(x => x.Type == 0).AsEnumerable().ToArray();
+		return skills.SingleOrDefault(x => x.Name.Equals("Riding", StringComparison.OrdinalIgnoreCase))
+			?? skills.SingleOrDefault(x => x.Name.Equals("Ride", StringComparison.OrdinalIgnoreCase));
+	}
+
 	private void InstallArmageddonMountPolicies(ArtificialIntelligence mountAi, long mountAiId)
 	{
 		EnsureMountRegisters();
 		var rangerRole = OwnedBehaviourId("arm.class.ranger", nameof(ChargenRole))
 			?? throw new InvalidOperationException("Armageddon mount taming requires the installed Ranger role.");
-		var riding = _db.TraitDefinitions.SingleOrDefault(x => x.Name.Equals("Riding", StringComparison.OrdinalIgnoreCase) && x.Type == 0)
+		var riding = FindMountRidingSkill()
 			?? throw new InvalidOperationException("Armageddon mount taming requires the installed Riding skill.");
 		var standing = EngineCompiler::MudSharp.Body.Position.PositionStates.PositionStanding.Instance.Id;
 		Prog("ArmageddonWorldfileMountCurrentHandler", """
@@ -338,7 +348,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 		const int vnum = 64129;
 		var source = _source.Items.SingleOrDefault(x => x.Vnum == vnum && x.Programs.Contains("C whistle mount_whistle"));
 		if (source is null || !_items.TryGetValue(vnum, out var prototype)) return;
-		var riding = _db.TraitDefinitions.SingleOrDefault(x => x.Name.Equals("Riding", StringComparison.OrdinalIgnoreCase) && x.Type == 0);
+		var riding = FindMountRidingSkill();
 		if (riding is null) throw new InvalidOperationException("The mount whistle requires the installed Riding skill.");
 		var body = $$"""
 			if (not(@actor.isawake))

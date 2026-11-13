@@ -186,8 +186,8 @@ public class Track : LateInitialisingItem, ITrack
         dbitem.MudDateTime = MudDateTime.GetDateTimeString();
         dbitem.FromMoveSpeedId = FromSpeed?.Id;
         dbitem.ToMoveSpeedId = ToSpeed?.Id;
-        dbitem.FromDirectionExitId = FromExit?.Id;
-        dbitem.ToDirectionExitId = ToExit?.Id;
+        dbitem.FromDirectionExitId = PersistentExitId(FromExit);
+        dbitem.ToDirectionExitId = PersistentExitId(ToExit);
 		dbitem.BodyPrototypeId = _bodyProtoTypeId ?? BodyProtoType?.Id;
 		dbitem.RoutePosition = RoutePositionMetres.HasValue
 			? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)
@@ -213,8 +213,8 @@ public class Track : LateInitialisingItem, ITrack
             MudDateTime = MudDateTime.GetDateTimeString(),
             FromMoveSpeedId = FromSpeed?.Id,
             ToMoveSpeedId = ToSpeed?.Id,
-            FromDirectionExitId = FromExit?.Id,
-            ToDirectionExitId = ToExit?.Id,
+            FromDirectionExitId = PersistentExitId(FromExit),
+            ToDirectionExitId = PersistentExitId(ToExit),
 			BodyPrototypeId = _bodyProtoTypeId ?? BodyProtoType?.Id,
 			RoutePosition = RoutePositionMetres.HasValue
 				? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)
@@ -224,6 +224,8 @@ public class Track : LateInitialisingItem, ITrack
         FMDB.Context.Tracks.Add(dbitem);
         return dbitem;
     }
+
+	private static long? PersistentExitId(IExit? exit) => exit is ITransientExit ? null : exit?.Id;
 
     /// <inheritdoc />
     public override void SetIDFromDatabase(object dbitem)

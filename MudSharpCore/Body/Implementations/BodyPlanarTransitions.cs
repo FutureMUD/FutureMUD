@@ -32,6 +32,9 @@ public partial class Body
 		}
 		bool ActorCurrent() => ReferenceEquals(Actor, executor) && ReferenceEquals(executor.Body, originalActiveBody) &&
 			ReferenceEquals(executor.Location, origin) && executor.RoomLayer == originLayer;
+		bool RootCurrent(IGameItem item) => ActorCurrent() && !item.Deleted && !item.Destroyed &&
+			item.ContainedIn is null && ReferenceEquals(item.InInventoryOf, this) &&
+			DirectItems.Any(x => ReferenceEquals(x, item));
 		var roots = _heldItems.Select(x => x.Item1)
 			.Concat(_wieldedItems.Select(x => x.Item1))
 			.Concat(_wornItems.Select(x => x.Item))
@@ -45,12 +48,14 @@ public partial class Body
 		foreach (var item in roots)
 		{
 			if (!ActorCurrent()) return;
-			foreach (var affinity in item.EffectsOfType<EtherealItemAffinityEffect>())
+			if (!RootCurrent(item)) continue;
+			foreach (var affinity in item.EffectsOfType<EtherealItemAffinityEffect>().ToArray())
 			{
+				bool CanChange() => RootCurrent(item) && item.Effects.Any(x => ReferenceEquals(x, affinity));
 				if (!destinationPlanes.Contains(affinity.PlaneId) || ejectInventory && !retained.Contains(item))
-					affinity.ClearEtherealVisibility();
+					affinity.SetEtherealVisibility(false, CanChange);
 				else if (retained.Contains(item))
-					affinity.SetEtherealVisibility(true);
+					affinity.SetEtherealVisibility(true, CanChange);
 			}
 		}
 		if (!ejectInventory) return;
@@ -101,10 +106,10 @@ public partial class Body
 			}
 		}
 
-		foreach (var item in DirectItems.Where(x => !WornItems.Any(y => ReferenceEquals(y, x)) && !WieldedItems.Any(y => ReferenceEquals(y, x))).ToArray())
+		foreach (var item in roots)
 		{
 			if (!ActorCurrent()) return;
-			if (item.Deleted || !ReferenceEquals(item.InInventoryOf, this) || item.ContainedIn is not null ||
+			if (item.Deleted || item.Destroyed || !ReferenceEquals(item.InInventoryOf, this) || item.ContainedIn is not null ||
 				!DirectItems.Any(x => ReferenceEquals(x, item)) || WornItems.Any(x => ReferenceEquals(x, item)) || WieldedItems.Any(x => ReferenceEquals(x, item))) continue;
 			if (item.GetItemTypes<ITransientItemPolicy>().Any(x => x.Triggers.HasFlag(ItemRetirementTrigger.EtherealTransition) &&
 				(x.RetirementPlaneId == 0 || destinationPlanes.Contains(x.RetirementPlaneId))))
@@ -124,8 +129,7 @@ public partial class Body
 			OutputHandler.Handle(new EmoteOutput(new Emote("@ shimmer|shimmers faintly as &0's physical belongings slip free and fall away.", Actor, Actor)));
 		if (!ActorCurrent()) return;
 		// Callback-acquired or transferred items are outside this transition's captured roots.
-		var preserve = DirectItems.Where(x => !toDrop.Any(y => ReferenceEquals(y, x))).ToHashSet<IGameItem>(ReferenceEqualityComparer.Instance);
-		ClearDirectInventoryState(preserve);
+		ClearCapturedDirectInventoryState(toDrop.ToHashSet<IGameItem>(ReferenceEqualityComparer.Instance));
 		ClearImplantsAndProsthetics();
 		foreach (var item in toDrop)
 		{

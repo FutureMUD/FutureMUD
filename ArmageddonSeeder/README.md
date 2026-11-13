@@ -14,6 +14,8 @@ Debug offers the maintained `armageddon-native` replay on a freshly migrated, un
 
 ## Build and package
 
+For the private combined 1.0 candidate, use `scripts/Prepare-ArmageddonCandidate.ps1` from a clean committed checkout. It packages matching Engine, Database Seeder and Armageddon Seeder builds with checksums and a source manifest. See [candidate scope and UAT](../Design%20Documents/Seeding/Armageddon_Release_Candidate_1.0.md); this does not publish any product.
+
 ```
 dotnet build ArmageddonSeeder.sln -c Debug -m:1
 dotnet test "ArmageddonSeeder Unit Tests/ArmageddonSeeder Unit Tests.csproj" -c Debug -m:1

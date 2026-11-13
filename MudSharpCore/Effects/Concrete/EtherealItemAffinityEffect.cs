@@ -37,9 +37,16 @@ public sealed class EtherealItemAffinityEffect : Effect, IPlaneSpecificInventory
 		=> SetEtherealVisibility(false);
 
 	public bool SetEtherealVisibility(bool visible)
+		=> SetEtherealVisibility(visible, null);
+
+	internal bool SetEtherealVisibility(bool visible, Func<bool>? canChange)
 	{
-		if (IsVisibleToThatPlane == visible) return false;
+		if (IsVisibleToThatPlane == visible || canChange?.Invoke() == false) return false;
+		var wasReady = IsReadyForTransition;
+		var wasVisible = IsVisibleToThatPlane;
 		var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(Owner);
+		// Observer callbacks may transfer the item, remove this effect, or dispel its readiness.
+		if (canChange?.Invoke() == false || IsReadyForTransition != wasReady || IsVisibleToThatPlane != wasVisible) return false;
 		IsVisibleToThatPlane = visible;
 		Changed = true;
 		PlanarVisibilityEchoHelper.EchoVisibilityChanges(Owner, before);

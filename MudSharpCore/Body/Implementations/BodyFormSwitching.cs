@@ -878,6 +878,39 @@ public partial class Body
 		}
 	}
 
+	private void ClearCapturedDirectInventoryState(ISet<IGameItem> capturedItems)
+	{
+		var held = _heldItems.Select(x => x.Item1).Where(capturedItems.Contains).Distinct().ToArray();
+		var wielded = _wieldedItems.Select(x => x.Item1).Where(capturedItems.Contains).Distinct().ToArray();
+		var worn = _wornItems.Select(x => x.Item).Where(capturedItems.Contains).Distinct().ToArray();
+		// Remove captured slots before component callbacks can recalculate inventory. In particular,
+		// a worn slot must never outlive the wear profile cleared by UpdateWear.
+		_heldItems.RemoveAll(x => capturedItems.Contains(x.Item1));
+		_wieldedItems.RemoveAll(x => capturedItems.Contains(x.Item1));
+		_wornItems.RemoveAll(x => capturedItems.Contains(x.Item));
+		_carriedItems.RemoveAll(capturedItems.Contains);
+		InventoryChanged = true;
+
+		bool CanClear(IGameItem item) => !item.Deleted && !item.Destroyed && item.ContainedIn is null &&
+			(item.InInventoryOf is { } owner ? ReferenceEquals(owner, this) : item.Location is null) &&
+			!DirectItems.Any(x => ReferenceEquals(x, item));
+		foreach (var item in held.Concat(wielded).Concat(worn).Distinct())
+		{
+			if (!CanClear(item)) continue;
+			if (item.GetItemType<IHoldable>() is { } holdable) holdable.HeldBy = null;
+		}
+		foreach (var item in wielded)
+		{
+			if (!CanClear(item)) continue;
+			if (item.GetItemType<IWieldable>() is { } wieldable) wieldable.PrimaryWieldedLocation = null;
+		}
+		foreach (var item in worn)
+		{
+			if (!CanClear(item)) continue;
+			item.GetItemType<IWearable>()?.UpdateWear(null, null);
+		}
+	}
+
 	private void ClearDirectInventoryState(ISet<IGameItem>? retainedItems = null)
 	{
 		bool Retained(IGameItem item) => retainedItems?.Contains(item) == true;

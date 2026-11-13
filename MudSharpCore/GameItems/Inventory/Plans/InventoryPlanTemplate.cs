@@ -689,6 +689,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x =>
                          x.Action.DesiredState == DesiredItemState.Retained ||
                          x.Action.DesiredState == DesiredItemState.Consumed ||
+                         x.Action.DesiredState == DesiredItemState.ConsumeCommodity ||
                          x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
         {
             results.Add(new InventoryPlanActionResult
@@ -925,6 +926,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x =>
                          x.Action.DesiredState == DesiredItemState.Retained ||
                          x.Action.DesiredState == DesiredItemState.Consumed ||
+                         x.Action.DesiredState == DesiredItemState.ConsumeCommodity ||
                          x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
         {
             if (!CommandExecutionScope.TryContinue(actor)) return results;
@@ -940,6 +942,8 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         List<(IInventoryPlanAction Action, InventoryPlanFeasibility Reason)> actions = new();
         List<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets = phase.ScoutedItems;
+		actions.AddRange(UnderfundedCommodityActions(targets)
+			.Select(action => (action, InventoryPlanFeasibility.NotFeasibleMissingItems)));
 
         List<IWield> wieldingLocs =
             actor.Body.WieldLocs.Where(
@@ -1057,6 +1061,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     {
         using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         List<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets = phase.ScoutedItems;
+		if (UnderfundedCommodityActions(targets).Any()) return InventoryPlanFeasibility.NotFeasibleMissingItems;
 
         if (targets.Any(x => x.Primary == null))
         {
@@ -1796,14 +1801,35 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         };
     }
 
+	internal static IEnumerable<IInventoryPlanAction> UnderfundedCommodityActions(
+		IEnumerable<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets)
+	{
+		foreach (var group in targets
+			.Where(x => x.Action is InventoryPlanActionConsumeCommodity)
+			.GroupBy(x => x.Primary, ReferenceEqualityComparer.Instance))
+		{
+			var item = group.First().Primary;
+			var commodity = item?.GetItemType<ICommodity>();
+			var amounts = group.Select(x => ((InventoryPlanActionConsumeCommodity)x.Action).Weight).ToArray();
+			var total = amounts.Sum();
+			if (item is not null && !item.Deleted && commodity is not null &&
+				amounts.All(amount => double.IsFinite(amount) && amount > 0) &&
+				InventoryPlanActionConsumeCommodity.HasSufficientMass(commodity.Weight, total)) continue;
+			foreach (var target in group) yield return target.Action;
+		}
+	}
+
     private InventoryPlanActionResult ConsumeCommodity(ICharacter actor, IGameItem item, double weight, object originalReference)
     {
 		if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
         IGameItem container = item.ContainedIn;
         ICommodity commodity = item.GetItemType<ICommodity>();
+		var available = commodity?.Weight ?? double.NaN;
+		if (item.Deleted || !InventoryPlanActionConsumeCommodity.HasSufficientMass(available, weight))
+			throw new InvalidOperationException("The scouted commodity no longer supplies the required material mass; consumption did not complete.");
 		if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
 		CommandExecutionScope.MarkCommitted(actor);
-        if (commodity.Weight <= weight)
+        if (InventoryPlanActionConsumeCommodity.HasSufficientMass(weight, available))
         {
             item.ContainedIn?.Take(item);
             item.InInventoryOf?.Take(item);
@@ -1811,7 +1837,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         }
         else
         {
-            item.Weight -= weight;
+            commodity.Weight = available - weight;
         }
 
         return new InventoryPlanActionResult

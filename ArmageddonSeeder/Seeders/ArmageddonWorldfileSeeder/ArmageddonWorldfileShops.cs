@@ -338,7 +338,7 @@ internal sealed partial class ArmageddonWorldfileWriter
 				case "Prog Light": state.Add(new XElement("Lit", (values[5] & 1) != 0)); break;
 				case "Torch": state.Add(new XElement("RemainingFuel", (int?)template.Element("SecondsOfFuel") ?? 0), new XElement("Lit", (values[5] & 1) != 0)); break;
 				case "Bow": state.Add(new XElement("Wielded", 0), new XElement("Loaded", 0)); break;
-				case "ThrownWeapon": state.Add(new XElement("Wielded", 0)); break;
+				case "ThrownWeapon": case "Shield": state.Add(new XElement("Wielded", 0)); break;
 				case "Crossbow": state.Add(new XElement("Wielded", 0), new XElement("Loaded", 0), new XElement("Magazine"), new XElement("IsReadied", false), new XElement("IsEmplaced", false)); break;
 				case "Sling": case "Blowgun": state.Add(new XElement("Loaded", 0)); break;
 				case "Table": state.Add(new XElement("Flipped", false)); break;

@@ -35,9 +35,13 @@ public class EtherealItemMagicTests
 		{
 			typeof(MagicSpell).GetProperty("InvocationGrade", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(Base.Spell, 1);
 			Base.Actor.SetupGet(x => x.Location).Returns(Room.Object);
+			Base.Actor.Setup(x => x.CanSee(Item.Object, It.IsAny<MudSharp.Framework.PerceiveIgnoreFlags>())).Returns(true);
+			Room.Setup(x => x.CanGetAccess(Item.Object, Base.Actor.Object)).Returns(true);
 			Item.SetupGet(x => x.Id).Returns(902);
 			Item.SetupGet(x => x.Gameworld).Returns(Base.World.Object);
+			Item.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
 			Item.SetupGet(x => x.TrueLocations).Returns([Room.Object]);
+			Item.SetupGet(x => x.Location).Returns(Room.Object);
 			Item.SetupGet(x => x.Weight).Returns(() => Weight);
 			Item.SetupGet(x => x.Deleted).Returns(() => Deleted);
 			Item.Setup(x => x.Delete()).Callback(() => Deleted = true);

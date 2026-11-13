@@ -20,6 +20,15 @@ namespace MudSharp_Unit_Tests;
 public class StableStayRegistrationTests
 {
 	[TestMethod]
+	public void LedgerOpeningBalance_WithoutAnActor_UsesANullIdentity()
+	{
+		var entry = new StableLedgerEntry(Mock.Of<IStableStay>(), StableLedgerEntryType.OpeningBalance,
+			null!, null, 5m, "Opening debt fixture");
+		Assert.IsNull(entry.ActorId);
+		Assert.IsNull(entry.ActorName);
+	}
+
+	[TestMethod]
 	public void QuoteDailyFee_UnknownOwnerUsesFixedFeeWithoutEvaluatingOwnerProg()
 	{
 		var fixture = CreateStable(dailyFee: 12.5m);

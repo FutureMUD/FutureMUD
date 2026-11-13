@@ -8,6 +8,8 @@ The `removecurse` effect optionally enables `IncludeItems` (builder argument/com
 
 ## Conditional materials and named summons — 8 November 2026
 
+Commodity materials participate in native preview and execution, including combined mass across phases and fractional plan persistence. Prepared-selection admission pins the commodity component, material, tag and mass. A material that becomes insufficient after payment raises a consumption failure, so the configured operation enters `NeedsReview` without applying its spell effect; it does not report successful free casting or automatically refund uncertain payment.
+
 Inventory plans accept `state="retained"` with the same quantity, carried scope and grade/rank selection as consumed materials. It requires presence without moving, splitting or deleting the item. Retained items participate in casting input receipts and quarantine checks. Use `plan add retained <tag> <quantity>`; existing carried/grade/rank commands also apply.
 
 A material's `castrequiredprog` is a boolean(character) prog: true requires payment, false waives it. Missing/incompatible progs refuse. `plan required <number> <prog>|none` configures it; `none` restores unconditional payment. `castoptional="true"`, configured with `plan optional <number> on|off`, omits unavailable materials. Combining the policies requires an optional focus's presence for its benefit while retaining it for exempt casters. These attributes affect spell invocation copies; other inventory-plan consumers retain their existing semantics. Defaults preserve older definitions and shared plans are never caster-bound.
@@ -140,6 +142,11 @@ saved mark use before publishing its portal; uncertain commit enters NeedsReview
 without retry. Native traversal checks the portal's current attachment, endpoints,
 expiry and wards. Closure unregisters the exit and leaves occupants and goods in
 their existing real rooms. Existing general builder portals retain their behavior.
+
+Movement tracks retain their transient exit references while running. Track saves
+omit runtime-only `ITransientExit` identities from the nullable directional exit
+foreign keys; the track survives restart without a reference to an unpersisted
+portal. Ordinary persistent exit references remain saved.
 
 This is the implementation guide for [ARM-02](ARM02_Configurable_Casting_Implementation_Brief.md).
 The broader [ARM-01 contract](Armageddon_Casting_Design.md) includes later features; this slice
@@ -792,5 +799,9 @@ weapon-filter program and spell identities reconcile in place; builder edits rem
 `dispelmagic` adds an optional `intrinsic` toggle (`IncludeIntrinsicItemEffects`, default false). Only unrestricted Remove/AnyCaster/AllowHostile/effect-key-any dispels can remove permanent item magic; school, spell, tag and illusion filters exclude it. Contest settings continue to govern spell-owned parents. Intrinsic item effects expose their priority and minimum grade through `IIntrinsicItemMagicEffect`; a protected effect can stop lower-priority cleanup. These effects are independent of character curses and permission components.
 
 `etherealitemattunement` is an optional permanent two-stage item effect. Configure `plane`, `stage auto|ready|reveal`, `mass <base units per grade>` and `risk <percent per grade>`. Weight must be strictly below grade times configured mass. Auto advances ready then ethereal detection visibility, refuses already ethereal items, and rolls destruction only for an eligible stage. Saved affinity is independent of a timed spell parent. `characterstate <plane> <corporeal|noncorporeal>|none` configures an optional character route for mixed targets; its overlay uses the ordinary spell lifetime. XML represents this route as `CharacterPlanarData/PlanarData`.
+
+Item attunement independently checks native sight and physical reach during preparation, selection reuse and final admission before payment. Resolving a keyword alone is insufficient: an unseen child of an open container, closed containing objects, room access restrictions and an out-of-reach inventory owner can all prevent attunement. Like the permanent pickup hazard, this check does not require the inventory owner's consent. Containment, open state and custody are frozen around live admission callbacks; the final raw selection fence evaluates no sight or reach policy. Other effects applied earlier in the same cast, such as Glow, do not invalidate this structural snapshot.
+
+Configured casting also checks that native consumptive component payment will not alter a selected item recipient with a non-null prepared selection. Item, liquid and commodity consumption cannot use the selected item, an item containing it, or an item inside it. This includes partial stack consumption: changing quantity, contents or mass can invalidate the prepared recipient even when it survives. Retained material requirements and unrelated sibling materials remain permitted. The check runs before resource debit, material consumption and operation journaling. Paid native casting failures still spend their admitted resources/materials, and only an eligible successful attunement stage samples destruction risk. Explicit later Glyph casting may replace an expended glyph; an already revealed item refuses another attunement without payment or a new risk roll.
 
 `removeplanarstate` optionally enables `itemvisibility true` (`ClearItemEtherealVisibility`): items lose ethereal visibility while retaining readiness. Its separate `ethereal true` setting continues to remove one spell-owned character overlay. Other planar removal defaults are unchanged.

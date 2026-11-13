@@ -28,6 +28,48 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonInstallationSettingsTests
 {
+	[TestMethod]
+	public void ContextFactory_InteractiveProxyCaller_MaterialisesPlainModuleRows()
+	{
+		var plain = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), Stores, x => x.EnableNullChecks(false))
+			.UseLazyLoadingProxies(false).Options;
+		using var writer = new FuturemudDatabaseContext(plain);
+		try
+		{
+			writer.GameItemProtos.Add(new GameItemProto { Id = 900003, RevisionNumber = 0, Name = "Proxy boundary fixture" });
+			writer.SaveChanges();
+			using var caller = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>(plain)
+				.UseLazyLoadingProxies().Options);
+			Assert.AreNotEqual(typeof(GameItemProto), caller.GameItemProtos.AsNoTracking().Single().GetType());
+			var factory = (Func<FuturemudDatabaseContext>)typeof(ArmageddonSettingSeeder)
+				.GetMethod("ContextFactory", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+				.Invoke(null, [caller])!;
+			using var module = factory();
+			Assert.AreEqual(typeof(GameItemProto), module.GameItemProtos.AsNoTracking().Single().GetType(),
+				"Module ownership serialization requires mapped CLR rows rather than interactive lazy proxies.");
+		}
+		finally { writer.Database.EnsureDeleted(); }
+	}
+
+	[TestMethod]
+	public void ContextFactory_DerivedOwner_PreservesCompositeKeyWritesAcrossBorrowedContexts()
+	{
+		using var owner = Fixture();
+		owner.GameItemProtos.Add(new GameItemProto { Id = 900001, RevisionNumber = 0, Name = "Owner prototype" });
+		owner.SaveChanges();
+		owner.ChangeTracker.Clear();
+		var factory = (Func<FuturemudDatabaseContext>)typeof(ArmageddonSettingSeeder)
+			.GetMethod("ContextFactory", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+			.Invoke(null, [owner])!;
+		using (var module = factory())
+		{
+			module.GameItemProtos.Add(new GameItemProto { Id = 900002, RevisionNumber = 0, Name = "Module prototype" });
+			module.SaveChanges();
+		}
+		Assert.AreEqual("Module prototype", owner.GameItemProtos.Single(x => x.Id == 900002 && x.RevisionNumber == 0).Name);
+	}
+
 	private static readonly InMemoryDatabaseRoot Stores = new();
 	internal static FuturemudDatabaseContext Fixture(bool classes = true, FuturemudDatabaseContext? legacy = null)
 	{

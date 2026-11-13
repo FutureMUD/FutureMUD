@@ -555,6 +555,8 @@ Luke selected native shield conversion for plausibly shield-like objects, rather
 
 Base, reset-effective and shop variants share the installed shield components; source descriptions, material/weight conversion, price and source identities remain. These objects use native shield protection, blocking, shield-bash and condition rules instead of a passive worn Armour component. Source AP is not reinterpreted as block probability. Existing wear/carry profiles remain available for stowing shields; only wielded native shields block.
 
+Opening shop-stock shields serialize the native component's unwielded state (`Wielded = 0`), alongside their ordinary holdable state. This is required for a full installation containing merchant shield stock; the stock serializer retains its rejection of unknown component types.
+
 An E reset in either hand or the two-handed slot readies any actual Shield component with native Wielded outfit placement. Carried/container resets and non-hand worn placements retain their original meaning. The pinned package has 65 qualifying hand resets across 23 NPC definitions and 12 distinct shield items; the three cloud references remain on the existing inventory path. Shields count as native melee-capable equipment for ordinary automatic tactical selection, preserving their readiness without forcing Shielder's block-first policy. No saved Shield Use training is invented. Native untrained-blocking behaviour and native defence choice replace the source's sequential shield/parry and grip-specific rules. Preflight requires approved installed shield components for every selected stock type.
 
 #### 6e NPC memory and disposition — 8 November 2026
@@ -562,6 +564,10 @@ An E reset in either hand or the two-handed slot readies any actual Shield compo
 The [source audit and mapping](Armageddon_Worldfile_Npc_Memory.md) documents the actual hate/fear/like producers and consumers. Luke selected session-only memories with no timed expiry and safe cleanup when either character logs out, dies or is removed. Source Unique actors do not acquire these generic memories. Ordinary tribal harm retains militia/tribe-8 exclusions, while the evidenced hostile spell callbacks use raw hate. Jakhal mount targeting, summoned-guardian liking and fear toward visible characters left behind on actual room escape are wired through native progs, effects and hooks. No historical targets are fabricated.
 
 AggressorAI consumes hate through source target progs and can opt into fear/like suppression and native escape. Reactive non-aggressors retain non-aggressive ambient classification. Luke approved ordinary one-room acquisition/native combat approach plus bounded native TrackingAggressor pursuit for Hunt-trained actors within `max(5, Hunt / 10)` rooms. Pursuit-only mode leaves attack delay and openers with Aggressor; native visibility, combat admission, doors, movement and source sentinel/merchant/race exclusions remain. The existing native Champion Blade item adaptation is retained; no sword NPC is invented. Native route-coordinate retreat does not count as a room escape. Existing private-package exclusions and one-shot import semantics remain unchanged.
+
+#### 6f Mount skill identity — 13 November 2026
+
+Mount taming and the source whistle resolve the setting-owned `arm.skill.ride` identity, preserving a builder-renamed skill and using the same native Ride skill as the setting's mounted checks. Older prepared worlds without this owned binding retain case-insensitive `Riding`, then `Ride`, name lookup. Only native skill traits qualify; a same-name attribute is ignored. Name matching runs after the SQL skill-type filter so the MySQL provider does not need to translate `StringComparison` overloads.
 
 #### 7 Single phase crafts and eligibility confirmed
 

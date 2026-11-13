@@ -14,7 +14,7 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
     public InventoryPlanActionConsumeCommodity(XElement root, IFuturemud gameworld)
         : base(root, gameworld, DesiredItemState.ConsumeCommodity)
     {
-        Weight = int.Parse(root.Attribute("weight").Value);
+        Weight = (double)root.Attribute("weight");
         Material = Gameworld.Materials.Get(long.Parse(root.Attribute("material").Value));
     }
 
@@ -68,7 +68,9 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
         item =
             executor.Body.HeldItems
                     .SelectNotNull(x => x.GetItemType<ICommodity>())
-                    .FirstOrDefault(x => x.Material == Material && (DesiredTag is null && x.Tag is null) || (x.Tag?.IsA(DesiredTag) == true) && x.Weight >= Weight)
+                    .FirstOrDefault(x => x.Material == Material &&
+                                        ((DesiredTag is null && x.Tag is null) || x.Tag?.IsA(DesiredTag) == true) &&
+                                        HasSufficientMass(x.Weight, Weight))
                     ?.Parent;
         if (item != null)
         {
@@ -91,8 +93,8 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
                     .SelectNotNull(x => x.GetItemType<ICommodity>())
                     .FirstOrDefault(x =>
                         x.Material == Material &&
-                        (DesiredTag is null && x.Tag is null) || (x.Tag?.IsA(DesiredTag) == true) &&
-                        x.Weight >= Weight)
+                        ((DesiredTag is null && x.Tag is null) || x.Tag?.IsA(DesiredTag) == true) &&
+                        HasSufficientMass(x.Weight, Weight))
                     ?.Parent;
         if (item != null)
         {
@@ -103,7 +105,9 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
         item =
             executor.Location.GameItemsInImmediateVicinity(executor)
                     .SelectNotNull(x => x.GetItemType<ICommodity>())
-                    .FirstOrDefault(x => x.Material == Material && (DesiredTag is null && x.Tag is null) || (x.Tag?.IsA(DesiredTag) == true) && x.Weight >= Weight)
+                    .FirstOrDefault(x => x.Material == Material &&
+                                        ((DesiredTag is null && x.Tag is null) || x.Tag?.IsA(DesiredTag) == true) &&
+                                        HasSufficientMass(x.Weight, Weight))
                     ?.Parent;
         if (item != null)
         {
@@ -117,8 +121,17 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
                     .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
                     .SelectMany(x => x.Contents)
                     .SelectNotNull(x => x.GetItemType<ICommodity>())
-                    .FirstOrDefault(x => x.Material == Material && (DesiredTag is null && x.Tag is null) || (x.Tag?.IsA(DesiredTag) == true) && x.Weight >= Weight)
+                    .FirstOrDefault(x => x.Material == Material &&
+                                        ((DesiredTag is null && x.Tag is null) || x.Tag?.IsA(DesiredTag) == true) &&
+                                        HasSufficientMass(x.Weight, Weight))
                     ?.Parent;
         return item;
     }
+
+	internal static bool HasSufficientMass(double available, double required)
+	{
+		// Relative roundoff only: do not give tiny requirements an absolute free-mass allowance.
+		return double.IsFinite(available) && available > 0 && double.IsFinite(required) && required > 0 &&
+			(available >= required || required - available <= Math.Max(available, required) * 1e-12);
+	}
 }

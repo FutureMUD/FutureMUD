@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems;
 using MudSharp.Magic.Vancian;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.Planes;
@@ -159,6 +160,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var controlledGrade = RouteAcquisition(actor, capability, spell.Id, spell.GradeProfile!.Version)!.ControlledGrade;
 		// Practice never clones/binds effect templates or invokes their target/caster application paths.
 		var copy = intent.Mode == MagicCastingMode.Practice ? spell : spell.CastingCopy(actor, trait, intent.Grade, power, difficulty, controlledGrade);
+		var preparedItemTargets = new HashSet<IGameItem>(ReferenceEqualityComparer.Instance);
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
 		if (intent.Mode != MagicCastingMode.Practice)
 		{
@@ -175,7 +177,9 @@ public sealed partial class MagicCastingService : IMagicCastingService
 						throw new InvalidOperationException(liquidError);
 					if (effect is MudSharp.Magic.SpellEffects.AnimateCorpseSpellEffect animation && !animation.ValidateInvocation(actor, recipient, out var animationError))
 						throw new InvalidOperationException(animationError);
-					if (effect is IMagicSpellEffectPreparedSelection selection) selection.CapturePreparedSelection(actor, recipient);
+					if (effect is IMagicSpellEffectPreparedSelection selection &&
+						selection.CapturePreparedSelection(actor, recipient) is not null && recipient is IGameItem selectedItem)
+						preparedItemTargets.Add(selectedItem);
 				}
 			if (target.Target is ICharacter && !targets.Contains(actor)) copy.ValidateLifetimeInvocation(actor, actor);
 		}
@@ -212,6 +216,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var plan = (intent.Mode == MagicCastingMode.Practice ? spell.PracticeInventoryPlanTemplate! : copy.InventoryPlanTemplate).CreatePlan(actor);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible) throw new InvalidOperationException("The actual component plan is infeasible; check materials and free manipulators.");
 		var items = ValidateDeviceFocus(intent, plan, PlanItems(plan), target);
+		ValidatePreparedItemMaterialTargets(plan, preparedItemTargets);
 		if (items.Length > 512) throw new InvalidOperationException("This component plan exceeds the 512 input receipt bound.");
 		if (QuarantineReason(actor, itemIds: items) is { } inputError) throw new InvalidOperationException(inputError);
 		var invocation = new ResolvedMagicCastingInvocation(intent.OriginId ?? Guid.NewGuid(), actor.InstanceId, actor.Body.Id, Owner(actor).Id,

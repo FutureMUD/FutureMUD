@@ -27,6 +27,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Autobuilder System Implementation](./Building/Autobuilder_System_Implementation.md)
 - [Generic Editable Item Builder Workflows](./Building/Generic_Editable_Item_Builder_Workflows.md)
 - [Room Building Builder Guide](./Building/Room_Building_Builder_Guide.md)
+- [Building and staging a performance](./Building/Staged_Performance_Builder_Guide.md)
 - [Terrain Planner and Engine API](./Building/Terrain_Planner_and_Engine_API.md)
 
 ## Characters
@@ -67,6 +68,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Natural Ranged Attacks Implementation Plan](./Combat/Natural_Ranged_Attacks_Implementation_Plan.md)
 
 ## Core
+
+- [Staged Performances and Rites](./Core/Staged_Performances_and_Rites.md)
 - [Framework Extension Contracts and Performance](./Core/Framework_Extensions.md)
 - [NuGet Dependency Maintenance](./Core/NuGet_Dependencies.md)
 - [Database Upgrade Coordination](./Core/Database_Upgrade_Coordination.md)
@@ -252,6 +255,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Database seeder source and authoring guides](./Seeding/Seeders/README.md) — complete concrete inventory, dependency map and reviewed source evidence.
 - [Attribute Describer Ranges](./Seeding/Attribute_Describer_Ranges.md)
 - [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
+- [Seeding staged performances and their help topics](./Seeding/Staged_Performance_Seeder_Guide.md)
 - [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
 - [Stock Terrain Catalogue](./Seeding/Stock_Terrain_Catalogue.md)
 - [Item Content Engine Dependency Ledger](./Seeding/FutureMUD_Item_Content_Engine_Dependency_Ledger.md)

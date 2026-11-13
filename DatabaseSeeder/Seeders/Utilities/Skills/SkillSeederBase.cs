@@ -416,22 +416,7 @@ public abstract class SkillSeederBase : IFoundationSeeder
     protected static Helpfile EnsureHelpfile(
         FuturemudDatabaseContext context,
         string name,
-        Action<Helpfile> update)
-    {
-        Helpfile helpfile = SeederRepeatabilityHelper.EnsureNamedEntity(
-            context.Helpfiles,
-            name,
-            x => x.Name,
-            () =>
-            {
-                Helpfile created = new();
-                context.Helpfiles.Add(created);
-                return created;
-            });
-        helpfile.Name = name;
-        update(helpfile);
-        return helpfile;
-    }
+        Action<Helpfile> update) => Utilities.HelpfileSeederHelper.EnsureHelpfile(context, name, update);
 
     private static TraitDecorator EnsureDecorator(
         FuturemudDatabaseContext context,

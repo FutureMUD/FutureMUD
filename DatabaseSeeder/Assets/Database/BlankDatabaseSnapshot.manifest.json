@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261111103628_AddLendingContracts",
-  "GeneratedUtc": "2026-11-11T10:45:22.7069657Z"
+  "LatestMigrationId": "20261113003430_AddStagedPerformanceRecords",
+  "GeneratedUtc": "2026-11-13T00:57:01.922648Z"
 }

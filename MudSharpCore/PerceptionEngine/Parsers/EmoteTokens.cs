@@ -1289,6 +1289,11 @@ public partial class Emote
                 return _languageInfo.ParseFor(_languagePerceiver);
             }
 
+            if (!perceiver.CanHear(_languageInfo.Proxy ?? _languageInfo.Origin))
+            {
+                return "*** inaudible speech ***".ColourBold(Telnet.Cyan);
+            }
+
             switch (_permitLanguageOptions)
             {
                 case PermitLanguageOptions.IgnoreLanguage:

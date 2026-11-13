@@ -33,6 +33,7 @@ namespace MudSharp.Database
 
         public string ConnectionString { get; set; } = "server=localhost;port=3306;database=dbo;uid=futuremud;password=rpiengine2020";
 
+		public virtual DbSet<StagedPerformanceRecord> StagedPerformanceRecords { get; set; }
         public virtual DbSet<Accent> Accents { get; set; }
         public virtual DbSet<AccountNote> AccountNotes { get; set; }
         public virtual DbSet<Models.Account> Accounts { get; set; }

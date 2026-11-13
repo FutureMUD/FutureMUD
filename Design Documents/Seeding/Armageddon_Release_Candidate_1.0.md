@@ -2,6 +2,8 @@
 
 Candidate label: **1.0.0-rc.1**, private/local distribution. Prepared from the source revision in `candidate.json`, with matching Release builds of Engine 2.17.0, Database Seeder 3.9.0 and Armageddon Seeder 1.0.0. This is an Armageddon content/package candidate, not a public stable Engine release. Project assembly versions retain their independent three-part product versions; the candidate manifest identifies the combined build.
 
+The [13 November qualification receipt](Armageddon_Release_Candidate_1.0_Qualification_20261113.md) records the qualified binary source, actual native checks, startup times and local UAT handoff. Documentation follow-ups do not change the source pin of the issued archives.
+
 ## Scope
 
 The candidate contains the optional Armageddon Setting and one-shot Worldfile import, including the completed item-magic admission/payment, curse cleansing, Glyph, two-stage item Shadow Passage and selective planar inventory work. Existing implemented world services, NPC/combat adaptations, spell components, summons, tools, brewing, traps, travel and mount/stable systems are available for representative UAT. Implementation does not imply that every imported mechanic has passed live acceptance.
@@ -26,7 +28,7 @@ Record the candidate source/hash, character/class/grade, starting and ending res
 | ID | Representative acceptance |
 | --- | --- |
 | UAT-01 | Fresh chargen, class admission, starting grants, earned funding, ordinary paid casting/practice and relog/restart conserve progress. |
-| UAT-02 | Glyph charges the shown cost, applies to the selected accessible item, discharges once with nonzero damage/stun at a nonzero grade, aborts that pickup and permits a later pickup. Cleaning/dispel and recasting use the new state. |
+| UAT-02 | Custodian Glyph (Glyph) charges the shown cost, applies to the selected accessible item, discharges once with nonzero damage/stun at a nonzero grade, aborts that pickup and permits a later pickup. Cleaning/dispel and recasting use the new state. |
 | UAT-03 | Both Shadow Passage item stages enforce grade/rank/mass limits and pay once. Missing/invalid components, inaccessible targets and a third stage refuse without payment. The selected target and its containment tree cannot fund their own consumptive payment. |
 | UAT-04 | Real held, one/two-handed wielded, worn and nested-container equipment behaves correctly on Shadow entry/return. Ready children and dropped parents preserve custody; removed curse/magic stays removed after restart. |
 | UAT-05 | Representative imported NPC aggression, pursuit/memory, melee, ranged, shields, armour, health and recovery work through ordinary encounters without a crash or unusable core loop. |

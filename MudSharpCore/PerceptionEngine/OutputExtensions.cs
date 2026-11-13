@@ -400,7 +400,7 @@ public static class OutputExtensions
 
         foreach (IRemoteObservationEffect effect in RemoteObservationEffectsFor(location))
         {
-            effect.HandleOutput(text, location);
+            effect.HandleOutput(text, location, layer);
         }
 
         location.HandleRoomEcho(text, layer);
@@ -438,7 +438,7 @@ public static class OutputExtensions
             foreach (IRemoteObservationEffect effect in RemoteObservationEffectsFor(location))
             // TODO - layer awareness for watching?
             {
-                effect.HandleOutput(output, location);
+                effect.HandleOutput(output, location, layer);
             }
         }
 

@@ -34,6 +34,13 @@ namespace MudSharp.Database
 			ConfigureRacialMerits(modelBuilder);
 			ConfigureAgeDescriptions(modelBuilder);
 			ConfigureClanAddresses(modelBuilder);
+			modelBuilder.Entity<StagedPerformanceRecord>(entity =>
+			{
+				entity.ToTable("StagedPerformanceRecords");
+				entity.HasKey(x => x.Id);
+				entity.Property(x => x.Kind).HasMaxLength(16).IsRequired();
+				entity.Property(x => x.Definition).HasColumnType("longtext").IsRequired();
+			});
             OnModelCreatingPartial(modelBuilder);
 			ConfigureRoomSpatialOwnership(modelBuilder);
         }

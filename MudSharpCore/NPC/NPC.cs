@@ -4,6 +4,7 @@ using MudSharp.Body.Needs;
 using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.GameItems;
 using MudSharp.Models;
@@ -240,7 +241,8 @@ public class NPC : Character.Character, INPC
         }
 
         // Observers do not consume events; ordinary AIs retain priority. Regular hooks still fire.
-        bool AIEvents = AIEventDispatcher.HandleEvent(_AIs, type, arguments);
+		bool suppressVoluntaryAI = EffectsOfType<PerformanceClaimEffect>().Any() && State.IsAble() && Combat is null;
+		bool AIEvents = AIEventDispatcher.HandleEvent(_AIs, type, suppressVoluntaryAI, arguments);
         return base.HandleEvent(type, arguments) || AIEvents;
     }
 

@@ -99,6 +99,8 @@ PoisonSenseStatus
 RoomPolicy
 RoomExitPolicy
 RoomObservation
+StageObservation
+PerformanceClaim
 RoomTemplateInstance
 Landmark
 Lawyering

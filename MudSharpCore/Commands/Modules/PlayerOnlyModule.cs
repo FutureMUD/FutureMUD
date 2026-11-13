@@ -10,7 +10,7 @@ using MudSharp.TimeAndDate;
 
 namespace MudSharp.Commands.Modules;
 
-internal class PlayerOnlyModule : Module<ICharacter>
+internal partial class PlayerOnlyModule : Module<ICharacter>
 {
     private PlayerOnlyModule()
         : base("Player Only")

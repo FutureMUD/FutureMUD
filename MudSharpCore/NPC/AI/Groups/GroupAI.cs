@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Needs;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 using MudSharp.NPC.AI.Groups.GroupTypes;
@@ -71,12 +72,13 @@ public class GroupAI : LateInitialisingItem, IGroupAI
 
     private XElement SaveToXml()
     {
+		InitialiseGroupMembers();
         return new XElement("Group",
             new XElement("Action", (int)CurrentAction),
             new XElement("Alertness", (int)Alertness),
             new XElement("Members",
-                from ch in GroupMembers
-                select SaveMemberReference(ch, RoleFor(ch))
+                from ch in _groupMembers
+                select SaveMemberReference(ch, _groupRoles.GetValueOrDefault(ch,GroupRole.Adult))
             )
         );
     }
@@ -160,13 +162,37 @@ public class GroupAI : LateInitialisingItem, IGroupAI
 
     public void TenSecondTick()
     {
-        GroupAIType.HandleTenSecondTick(this);
+		TickAvailableMembers(GroupAIType.HandleTenSecondTick);
     }
 
     public void MinuteTick()
     {
-        GroupAIType.HandleMinuteTick(this);
+		TickAvailableMembers(GroupAIType.HandleMinuteTick);
     }
+
+	private List<ICharacter> _tickMembers;
+	private Dictionary<ICharacter,GroupRole> _tickRoles;
+
+	private void TickAvailableMembers(Action<IGroupAI> behaviour)
+	{
+		InitialiseGroupMembers();
+		if (Alertness >= GroupAlertness.Agitated || !_groupMembers.Any(x => x.EffectsOfType<PerformanceClaimEffect>().Any()))
+		{
+			behaviour(this);
+			return;
+		}
+
+		// Group behaviours can move several members directly. Give the tick a temporary
+		// roster, including temporary leadership, without altering saved membership.
+		var available = _groupMembers.Where(x => !x.EffectsOfType<PerformanceClaimEffect>().Any()).ToList();
+		if (available.Count == 0) return;
+		var roles = available.ToDictionary(x => x,RoleFor,CharacterPhysicalInstanceEqualityComparer.Instance);
+		if (!roles.ContainsValue(GroupRole.Leader)) roles[available[0]] = GroupRole.Leader;
+		_tickMembers = available;
+		_tickRoles = roles;
+		try { behaviour(this); }
+		finally { _tickMembers = null; _tickRoles = null; }
+	}
 
     public IGroupTypeData Data
     {
@@ -218,7 +244,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         get
         {
             InitialiseGroupMembers();
-            return _groupMembers;
+            return _tickMembers ?? _groupMembers;
         }
     }
 
@@ -357,7 +383,8 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         return Template.ConsidersThreat(ch, alertness) || GroupAIType.ConsidersThreat(ch, this, alertness);
     }
 
-    public Dictionary<ICharacter, GroupRole> GroupRoles { get; } = new(CharacterPhysicalInstanceEqualityComparer.Instance);
+	private readonly Dictionary<ICharacter,GroupRole> _groupRoles = new(CharacterPhysicalInstanceEqualityComparer.Instance);
+	public Dictionary<ICharacter,GroupRole> GroupRoles => _tickRoles ?? _groupRoles;
 
     public IEnumerable<IGroupEmote> GroupEmotes => Template.GroupEmotes;
 }

@@ -1,4 +1,5 @@
-﻿using MudSharp.Construction.Boundary;
+using MudSharp.Construction.Boundary;
+using System;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -6,11 +7,12 @@ public class GuardingExit : Effect, IGuardExitEffect
 {
     public ICharacter CharacterOwner { get; set; }
 
-    public GuardingExit(ICharacter owner, IRoomExit exit, bool permitAllies) : base(owner)
+    public GuardingExit(ICharacter owner, IRoomExit exit, bool permitAllies, Guid? performanceRunId = null) : base(owner)
     {
         CharacterOwner = owner;
         Exit = exit;
         PermitAllies = permitAllies;
+        PerformanceRunId = performanceRunId;
     }
 
     protected GuardingExit(XElement effect, IPerceivable owner) : base(effect, owner)
@@ -20,6 +22,7 @@ public class GuardingExit : Effect, IGuardExitEffect
         long exitId = long.Parse(root.Element("Exit").Value);
         Exit = CharacterOwner.Location.ExitsFor(CharacterOwner).FirstOrDefault(x => x.Exit.Id == exitId);
         PermitAllies = bool.Parse(root.Element("PermitAllies").Value);
+        PerformanceRunId = Guid.TryParse(root.Element("PerformanceRunId")?.Value, out var runId) ? runId : null;
         foreach (XElement item in root.Element("Exemptions").Elements())
         {
             _permittedExemptionCharacterIds.Add(long.Parse(item.Attribute("id").Value));
@@ -32,6 +35,7 @@ public class GuardingExit : Effect, IGuardExitEffect
         return new XElement("Element",
             new XElement("Exit", Exit?.Exit.Id ?? 0),
             new XElement("PermitAllies", PermitAllies),
+            PerformanceRunId.HasValue ? new XElement("PerformanceRunId", PerformanceRunId.Value) : null,
             new XElement("Exemptions",
                 from item in _permittedExemptionCharacterLastDescs
                 select new XElement("Exemption",
@@ -101,6 +105,7 @@ public class GuardingExit : Effect, IGuardExitEffect
     private readonly Dictionary<long, string> _permittedExemptionCharacterLastDescs = new();
 
     public IRoomExit Exit { get; set; }
+    public Guid? PerformanceRunId { get; }
     private bool _permitAllies;
 
     public bool PermitAllies

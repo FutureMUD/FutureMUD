@@ -631,9 +631,10 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		return template.CreatePlan(ch);
 	}
 
-    public bool PathTowardsLayer(RoomLayer targetLayer)
+    public bool PathTowardsLayer(RoomLayer targetLayer) => PathTowardsLayer((ICharacter)Owner, targetLayer);
+
+    internal static bool PathTowardsLayer(ICharacter ch, RoomLayer targetLayer)
     {
-        ICharacter ch = (ICharacter)Owner;
         if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
             !ZeroGravityMovementHelper.HasIndependentPropulsion(ch))
         {

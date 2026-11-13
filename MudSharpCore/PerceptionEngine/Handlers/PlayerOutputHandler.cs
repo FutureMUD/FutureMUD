@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using MudSharp.RPG.Performances;
+
 namespace MudSharp.PerceptionEngine.Handlers;
 
 public class PlayerOutputHandler : IOutputHandler
@@ -87,6 +89,7 @@ public class PlayerOutputHandler : IOutputHandler
             return false;
         }
 
+        if (output is AudioOutput && StageEmissionContext.AlreadyHeard(CharacterPerceiver)) return false;
         return output.ShouldSee(Perceiver) && Send(output.ParseFor(Perceiver), newline, nopage);
     }
 

@@ -4,6 +4,7 @@ namespace MudSharp.PerceptionEngine.Outputs;
 public abstract class AppendableEmoteOutput : EmoteOutput
 {
     protected IEmote EmoteToAppend;
+    internal IEmote AppendedEmote => EmoteToAppend;
 
     protected AppendableEmoteOutput(string defaultEmote, IPerceiver defaultSource, bool forceSourceInclusion = false,
         OutputVisibility visibility = OutputVisibility.Normal, OutputStyle style = OutputStyle.Normal,

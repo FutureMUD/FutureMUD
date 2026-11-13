@@ -757,7 +757,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 
         var speechOrigin = body.Location;
         body.OutputHandler.Handle(new LanguageOutput(new Emote($"@ {actionText}", body.Actor, target), langinfo,
-            emote));
+            emote) { AudiblePreamble = "A voice sings" });
         HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent, speechEmission);
 		PassiveSpeechRelay.Relay(body, langinfo, speechOrigin);
     }

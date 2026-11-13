@@ -511,6 +511,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         ClockManager.Initialise();
         EconomyAnalytics.Initialise();
         ArenaLifecycleService.RebootRecovery();
+		MudSharp.RPG.Performances.PerformanceService.For(this).Initialise();
         // Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => fm.SaveManager.Flush(), ScheduleType.System, new TimeSpan(0, 0, 10), "Main Save Loop"));
         //Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => new Monitoring.DuplicationMonitor(this).AuditCharacters(), ScheduleType.System, TimeSpan.FromHours(1)));
         Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm =>

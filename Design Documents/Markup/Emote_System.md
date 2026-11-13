@@ -180,6 +180,7 @@ Ordinary speech commands pass their message through `LanguageOutput` separately 
 Current behaviour:
 
 - If language output is permitted, the speech is rendered through the source's current language and accent.
+- A viewer who cannot hear the source sees an inaudible-speech marker in place of an embedded spoken token. The surrounding visible action still renders.
 - If the caller uses `PermitLanguageOptions.IgnoreLanguage`, the raw quoted text is left alone.
 - If the caller uses one of the restrictive language modes, the speech becomes the relevant replacement such as muffled, choking, gasping, or clicking output.
 - If speech is forbidden with `PermitLanguageOptions.LanguageIsError`, parsing fails.

@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
@@ -7,6 +8,7 @@ using MudSharp.Form.Audio;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Performances;
 
 namespace MudSharp.GameItems.Components;
 
@@ -17,6 +19,7 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 	private string? _currentStyle;
 	private Outcome _currentOutcome = Outcome.NotTested;
 	private bool _stopping;
+	private Guid? _currentPerformanceRunId;
 
 	public InstrumentGameItemComponent(InstrumentGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false) : base(parent, proto, temporary)
@@ -51,6 +54,7 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 	public string? CurrentStyle => _currentStyle;
 	public Outcome CurrentOutcome => _currentOutcome;
 	public bool IsBeingPlayed => _currentPerformer is not null;
+	internal Guid? CurrentPerformanceRunId => _currentPerformanceRunId;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -142,8 +146,17 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 
 		return string.Empty;
 	}
-
 	public virtual bool Play(ICharacter actor, string style, IEmote? playerEmote = null)
+	{
+		return Play(actor, style, playerEmote, null);
+	}
+
+	internal bool PlayForPerformance(ICharacter actor, string style, Guid runId)
+	{
+		return Play(actor, style, null, runId);
+	}
+
+	private bool Play(ICharacter actor, string style, IEmote? playerEmote, Guid? performanceRunId)
 	{
 		var why = WhyCannotPlay(actor, style);
 		if (!string.IsNullOrEmpty(why))
@@ -163,6 +176,7 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 		_currentPerformer = actor;
 		_currentStyle = style;
 		_currentOutcome = outcome;
+		_currentPerformanceRunId = performanceRunId;
 		EmitPerformance(actor, _prototype.LocalPlayEmote, playerEmote);
 		_prototype.OnPlayProg?.Execute(actor, Parent, style, (int)outcome);
 		actor.AddEffect(new PlayingInstrument(actor, this), TickInterval);
@@ -189,7 +203,10 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 
 	protected void EmitPerformance(ICharacter actor, string emote, IEmote? playerEmote = null)
 	{
-		EmitLocal(actor, emote, playerEmote);
+		using var emission = StageEmissionContext.BeginEmission();
+		var sound = new Emote(string.Format(_prototype.DistantPlayEmote, "on stage"), Parent);
+		actor.OutputHandler.Handle(new InstrumentPerformanceOutput(new Emote(emote, actor, actor, Parent), sound, Volume)
+			.Append(playerEmote));
 		actor.Location?.HandleAudioEcho(
 			string.Format(_prototype.DistantPlayEmote, "{0}"),
 			Volume,
@@ -270,6 +287,7 @@ public class InstrumentGameItemComponent : GameItemComponent, IInstrument
 		_currentPerformer = null;
 		_currentStyle = null;
 		_currentOutcome = Outcome.NotTested;
+		_currentPerformanceRunId = null;
 		actor.RemoveAllEffects<PlayingInstrument>(x => ReferenceEquals(x.Instrument, this), true);
 		_prototype.OnStopProg?.Execute(actor, Parent, style);
 		_stopping = false;

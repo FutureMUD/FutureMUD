@@ -23,5 +23,7 @@ namespace MudSharp.Effects.Interfaces
 
         void HandleOutput(IOutput output, ILocation location);
         void HandleOutput(string text, ILocation location);
+		void HandleOutput(IOutput output, ILocation location, RoomLayer? layer) => HandleOutput(output, location);
+		void HandleOutput(string text, ILocation location, RoomLayer? layer) => HandleOutput(text, location);
     }
 }

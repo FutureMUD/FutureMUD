@@ -141,7 +141,7 @@ public class EmoteOutput : Output, IEmoteOutput
             : returnText.Wrap(perceiver?.InnerLineFormatLength ?? 80);
     }
 
-    protected IEmote GetEmoteFor(IPerceiver perceiver)
+    protected internal IEmote GetEmoteFor(IPerceiver perceiver)
     {
         return perceiver != null && _assignedEmotes.IsValueCreated &&
                _assignedEmotes.Value.TryGetValue(perceiver, out var emote)

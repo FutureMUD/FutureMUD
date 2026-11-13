@@ -25,6 +25,7 @@ public class LanguageOutput : Output, IRecordableLanguageOutput
     }
 
 	public IPerceivable DefaultSource { get; protected set; }
+	internal string AudiblePreamble { get; init; } = "A voice speaks";
 	public LanguageInfo LanguageInfo => _languageText;
 	public IEmote PreLanguageEmote => _preLanguageEmote;
 	public IEmote OptionalEmote => _optionalEmote;

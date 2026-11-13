@@ -5,6 +5,7 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Events;
+using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC;
@@ -146,7 +147,8 @@ public sealed class NpcCharacterInstance : Character, INPC
 			return base.HandleEvent(type, arguments);
 		}
 
-		var aiEvents = AIEventDispatcher.HandleEvent(_AIs, type, arguments);
+		bool suppressVoluntaryAI = EffectsOfType<PerformanceClaimEffect>().Any() && State.IsAble() && Combat is null;
+		var aiEvents = AIEventDispatcher.HandleEvent(_AIs, type, suppressVoluntaryAI, arguments);
 		return base.HandleEvent(type, arguments) || aiEvents;
 	}
 

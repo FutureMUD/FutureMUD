@@ -166,7 +166,7 @@ public class StableStay : SaveableItem, IStableStay
 				StableStayId = Id,
 				EntryType = (int)entryType,
 				MudDateTime = entry.MudDateTime.GetDateTimeString(),
-				ActorId = CharacterInstanceIdentityComparer.IdentityId(actor),
+				ActorId = entry.ActorId,
 				ActorName = actor?.PersonalName.GetName(NameStyle.FullName),
 				Amount = amount,
 				Note = note

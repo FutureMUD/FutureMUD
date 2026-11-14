@@ -36,5 +36,6 @@
     <Compile Include="../DatabaseSeeder Unit Tests/OwnedInMemorySeederContext.cs" Link="Fixtures/OwnedInMemorySeederContext.cs" />
     <Compile Include="../DatabaseSeeder Unit Tests/InMemorySeederSnapshot.cs" Link="Fixtures/InMemorySeederSnapshot.cs" />
     <Compile Include="../MudSharpCore Unit Tests/MagicCastingFixture.cs" Link="Fixtures/MagicCastingFixture.cs" />
+    <Compile Include="../MudSharpCore Unit Tests/ItemMagicCastingFixture.cs" Link="Fixtures/ItemMagicCastingFixture.cs" />
   </ItemGroup>
 </Project>

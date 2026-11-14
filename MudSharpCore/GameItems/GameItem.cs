@@ -123,6 +123,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             {
                 IGameItemComponent newComp = component.CreateNew(this);
                 _components.Add(newComp);
+                (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
             }
 
             // Delete components that no longer exist
@@ -135,6 +136,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 if (myComponent != null)
                 {
                     _components.Remove(myComponent);
+                    (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
                     myComponent.Delete();
                     Models.GameItemComponent dbcomp = FMDB.Context.GameItemComponents.Find(myComponent.Id);
                     if (dbcomp is not null)
@@ -153,15 +155,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
             Prototype = newProto;
             _overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
+            (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
             return true;
         }
 
         bool result = false;
-        foreach (IGameItemComponent component in Components)
+        foreach (IGameItemComponent component in Components.ToList())
         {
             if (Prototype.Components.All(x => x.Id != component.Prototype.Id))
             {
                 _components.Remove(component);
+                (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
                 component.Delete();
                 if (component.Id != 0)
                 {
@@ -183,6 +187,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             {
                 IGameItemComponent newComponent = component.CreateNew(this);
                 _components.Add(newComponent);
+                (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
                 result = true;
             }
         }
@@ -193,6 +198,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             result = result || compResult;
         }
 
+        if (result) (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
         return result;
     }
 

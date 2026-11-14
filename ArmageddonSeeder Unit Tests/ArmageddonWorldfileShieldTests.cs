@@ -4,18 +4,53 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using GameItemProto = MudSharp.Models.GameItemProto;
+using GameItemComponentProto = MudSharp.Models.GameItemComponentProto;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class ArmageddonWorldfileShieldTests
 {
+	[TestMethod]
+	public void OpeningShopStock_Shield_SerializesAnUnwieldedNativeComponent()
+	{
+		using var db = ArmageddonInstallationSettingsTests.Fixture();
+		ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db));
+		var source = new ArmWorldItem(new("fixture", 1), 7, -1, "shield", "a shield", "", "",
+			[9, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0], [1, 1, 0], [], [], [], []);
+		var writer = new ArmageddonWorldfileWriter(db, new ArmageddonWorldfilePackage { Items = [source] });
+		var shield = new GameItemComponentProto { Id = 8001, Type = "Shield", Definition = "<Definition><ShieldType>1</ShieldType></Definition>" };
+		var holdable = new GameItemComponentProto { Id = 8002, Type = "Holdable", Definition = "<Definition/>" };
+		db.GameItemComponentProtos.AddRange(shield, holdable);
+		var proto = new GameItemProto { Id = 8003, Name = "fixture shield", RevisionNumber = 0, MaterialId = 1 };
+		foreach (var component in new[] { shield, holdable })
+			proto.GameItemProtosGameItemComponentProtos.Add(new()
+			{
+				GameItemProto = proto, GameItemProtoId = proto.Id,
+				GameItemComponent = component, GameItemComponentProtoId = component.Id
+			});
+		db.GameItemProtos.Add(proto);
+		ArmageddonGuardVendorSeederTests.Field<Dictionary<long, (ArmWorldItem Source, int[] Values)>>(writer, "_effectiveItems")
+			.Add(proto.Id, (source, source.Values));
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		var planType = typeof(ArmageddonWorldfileWriter).GetNestedType("ShopStockPlan", BindingFlags.NonPublic)!;
+		var children = Activator.CreateInstance(typeof(List<>).MakeGenericType(planType));
+		var plan = Activator.CreateInstance(planType, proto, source.Vnum, children);
+		var stock = (MudSharp.Models.GameItem)typeof(ArmageddonWorldfileWriter).GetMethod("SeedShopStockItem", flags)!
+			.Invoke(writer, [plan, new Room { Id = 8004 }, new Shop { Id = 8005 }, null])!;
+		var state = stock.GameItemComponents.Single(x => x.GameItemComponentProtoId == shield.Id);
+		Assert.AreEqual("Definition", XElement.Parse(state.Definition).Name.LocalName);
+		Assert.AreEqual(0L, (long?)XElement.Parse(state.Definition).Element("Wielded"));
+		Assert.AreEqual(2, stock.GameItemComponents.Count);
+	}
+
 	[TestMethod]
 	public void ShieldClassification_UsesAuthoredObjectsRatherThanArmourPointsOrIncidentalWords()
 	{

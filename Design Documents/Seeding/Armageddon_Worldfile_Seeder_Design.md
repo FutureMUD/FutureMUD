@@ -14,6 +14,16 @@ This is a world-content package layered on the Armageddon setting foundations. I
 
 ## Source package and fidelity
 
+### Shared generated programs
+
+Fresh one-shot imports consolidate exact generated program payloads after every source-specific mutation and before native compilation. Only private, dynamic programs created by that import participate; existing builder/foundation programs, named call targets and static-result-cache identities are retained. No executable function-call text is rewritten. Programs with numeric poison callbacks retain their referenced IDs; an unrecognized dynamic callback prevents pooling rather than guessing its target.
+
+The linker updates tracked relational references, typed numeric prog fields even without EF foreign keys (including liquid draught callbacks), typed XML references (including trap parameters), conditional-item policy JSON, and numeric prog settings. Keyed item on-load links are replaced without changing invocation multiplicity; a payload group that would collapse two callbacks on the same prototype remains separate. Reference closure is checked before the installation transaction commits. NPC/item identities, hook attachments and AI instances remain separate.
+
+The managed record `worldfile-provenance/progs.shared` contains `Version` and `Aliases` entries with `OriginalId`, `OriginalName`, `CanonicalId` and `CanonicalName`. Stable source record keys and raw source snapshots remain intact. Typed `FutureProg`/`Prog` logical IDs point at the canonical row; program IDs/names inside historical source snapshots and synthetic disposition records resolve through the alias manifest. Source-vnum lookup and mutation passes finish before consolidation, so shared cash/setup helpers cannot be modified accidentally during generation.
+
+Shared generated helpers are shared builder defaults: editing one changes all references to it. Clone the helper and rebind an individual NPC/item policy before making a source-specific override. This does not consolidate an already installed world or weaken the package's one-shot refusal. Named foundation toolkit placeholders retain their separate identities. See the [consolidation implementation and verification](Armageddon_Worldfile_Prog_Consolidation_20261114.md).
+
 ### Source identity
 
 The supplied Spaces folder is [ArmSolo](chatgpt-library-folder://6add7a2135c48191b9d0186a1227160d/), described in chat as Armageddon Worldfiles. The qualified local candidate is `C:\Users\luker\Downloads\ArmSolo_Platypus Version-2024.08\ArmSolo`. All 415 admitted Library filenames and sizes match the local manifest, but the Library connector could not materialize bytes for a hash comparison. Uploaded-folder byte equality remains unverified. Do not mix this candidate's tables with an unrelated `codedump.c` or current live-game information.
@@ -555,6 +565,8 @@ Luke selected native shield conversion for plausibly shield-like objects, rather
 
 Base, reset-effective and shop variants share the installed shield components; source descriptions, material/weight conversion, price and source identities remain. These objects use native shield protection, blocking, shield-bash and condition rules instead of a passive worn Armour component. Source AP is not reinterpreted as block probability. Existing wear/carry profiles remain available for stowing shields; only wielded native shields block.
 
+Opening shop-stock shields serialize the native component's unwielded state (`Wielded = 0`), alongside their ordinary holdable state. This is required for a full installation containing merchant shield stock; the stock serializer retains its rejection of unknown component types.
+
 An E reset in either hand or the two-handed slot readies any actual Shield component with native Wielded outfit placement. Carried/container resets and non-hand worn placements retain their original meaning. The pinned package has 65 qualifying hand resets across 23 NPC definitions and 12 distinct shield items; the three cloud references remain on the existing inventory path. Shields count as native melee-capable equipment for ordinary automatic tactical selection, preserving their readiness without forcing Shielder's block-first policy. No saved Shield Use training is invented. Native untrained-blocking behaviour and native defence choice replace the source's sequential shield/parry and grip-specific rules. Preflight requires approved installed shield components for every selected stock type.
 
 #### 6e NPC memory and disposition — 8 November 2026
@@ -562,6 +574,10 @@ An E reset in either hand or the two-handed slot readies any actual Shield compo
 The [source audit and mapping](Armageddon_Worldfile_Npc_Memory.md) documents the actual hate/fear/like producers and consumers. Luke selected session-only memories with no timed expiry and safe cleanup when either character logs out, dies or is removed. Source Unique actors do not acquire these generic memories. Ordinary tribal harm retains militia/tribe-8 exclusions, while the evidenced hostile spell callbacks use raw hate. Jakhal mount targeting, summoned-guardian liking and fear toward visible characters left behind on actual room escape are wired through native progs, effects and hooks. No historical targets are fabricated.
 
 AggressorAI consumes hate through source target progs and can opt into fear/like suppression and native escape. Reactive non-aggressors retain non-aggressive ambient classification. Luke approved ordinary one-room acquisition/native combat approach plus bounded native TrackingAggressor pursuit for Hunt-trained actors within `max(5, Hunt / 10)` rooms. Pursuit-only mode leaves attack delay and openers with Aggressor; native visibility, combat admission, doors, movement and source sentinel/merchant/race exclusions remain. The existing native Champion Blade item adaptation is retained; no sword NPC is invented. Native route-coordinate retreat does not count as a room escape. Existing private-package exclusions and one-shot import semantics remain unchanged.
+
+#### 6f Mount skill identity — 13 November 2026
+
+Mount taming and the source whistle resolve the setting-owned `arm.skill.ride` identity, preserving a builder-renamed skill and using the same native Ride skill as the setting's mounted checks. Older prepared worlds without this owned binding retain case-insensitive `Riding`, then `Ride`, name lookup. Only native skill traits qualify; a same-name attribute is ignored. Name matching runs after the SQL skill-type filter so the MySQL provider does not need to translate `StringComparison` overloads.
 
 #### 7 Single phase crafts and eligibility confirmed
 
@@ -644,7 +660,7 @@ ArmSolo paths below are relative to the candidate source root; line numbers need
 
 FutureMUD references:
 
-- [Seeder interface](../../DatabaseSeeder/IDatabaseSeeder.cs), [metadata/dependencies](../../DatabaseSeeder/SeederMetadataRegistry.cs), [executor](../../DatabaseSeeder/SeederExecutionService.cs), [replay profiles](../../DatabaseSeeder/DebugSeederReplay.cs), [reconciler](../../DatabaseSeeder/SeederManagedRecordReconciler.cs), [repeatability](DatabaseSeeder_Repeatability_Strategy.md).
+- [Seeder interface](../../SeederFramework/IDatabaseSeeder.cs), [metadata/dependencies](../../DatabaseSeeder/SeederMetadataRegistry.cs), [executor](../../SeederFramework/SeederExecutionService.cs), [replay profiles](../../DatabaseSeeder/DebugSeederReplay.cs), [reconciler](../../SeederFramework/SeederManagedRecordReconciler.cs), [repeatability](DatabaseSeeder_Repeatability_Strategy.md).
 - [Setting implementation](../Armageddon/Armageddon_Setting_Implementation_20261019.md), [setting seeder](../../ArmageddonSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonSettingSeeder.cs), [regional land](../../ArmageddonSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonRegionalLandInstaller.cs).
 - [Room](../../MudsharpDatabaseLibrary/Models/Room.cs), [spatial ownership](../../MudsharpDatabaseLibrary/Models/Room.SpatialOwnership.cs), [overlay](../../MudsharpDatabaseLibrary/Models/RoomOverlay.cs), [exit](../../MudsharpDatabaseLibrary/Models/Exit.cs), [room guide](../Building/Room_Building_Builder_Guide.md), [room importer](../../RPI%20Engine%20Worldfile%20Converter/FutureMudRoomImporter.cs).
 - [Item contracts](../../ItemSeeder/Seeders/ItemSeeder/Catalogue/Assemblies/Contracts/CatalogueStockDefinitions.cs), [private item/craft helpers](../../ItemSeeder/Seeders/ItemSeeder/Catalogue/CatalogueInstaller.cs), [craft importer](../../RPI%20Engine%20Worldfile%20Converter/FutureMudCraftImporter.cs), [craft mapping](../../RPI%20Engine%20Worldfile%20Converter/RpiCraftConversionMapping.md).

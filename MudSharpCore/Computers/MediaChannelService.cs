@@ -7,6 +7,7 @@ using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Law;
+using MudSharp.GameItems;
 
 namespace MudSharp.Computers;
 
@@ -20,6 +21,39 @@ public sealed class MediaChannelService : IMediaChannelService
 	private readonly object _sync = new();
 	private readonly IFuturemud _gameworld;
 	private readonly HashSet<IMediaSink> _sinks = [];
+	private readonly Dictionary<IGameItem, IMediaSource[]> _sourceItems = new(ReferenceEqualityComparer.Instance);
+	private readonly List<IMediaSource> _sources = [];
+	private bool _sourcesInitialised;
+
+	internal void RegisterItem(IGameItem item)
+	{
+		lock (_sync)
+		{
+			if (_sourceItems.ContainsKey(item)) return;
+			var sources = item.GetItemTypes<IMediaSource>().ToArray();
+			_sourceItems.Add(item, sources);
+			_sources.AddRange(sources);
+		}
+	}
+
+	internal void UnregisterItem(IGameItem item)
+	{
+		lock (_sync)
+		{
+			if (!_sourceItems.Remove(item, out var sources)) return;
+			foreach (var source in sources) _sources.Remove(source);
+		}
+	}
+
+	internal void RefreshItem(IGameItem item)
+	{
+		lock (_sync)
+		{
+			if (!_sourceItems.ContainsKey(item)) return;
+			UnregisterItem(item);
+			RegisterItem(item);
+		}
+	}
 
 	public MediaChannelService(IFuturemud gameworld)
 	{
@@ -151,8 +185,17 @@ public sealed class MediaChannelService : IMediaChannelService
 
 	public IEnumerable<IMediaSource> GetSources(ILocation? location = null)
 	{
-		return _gameworld.Items
-			.SelectMany(x => x.GetItemTypes<IMediaSource>())
+		IMediaSource[] sources;
+		lock (_sync)
+		{
+			if (!_sourcesInitialised)
+			{
+				_sourcesInitialised = true;
+				foreach (var item in _gameworld.Items) RegisterItem(item);
+			}
+			sources = _sources.ToArray();
+		}
+		return sources
 			.Where(x => location is null || x.Parent.TrueLocations.Any(y => ReferenceEquals(y, location)))
 			.ToList();
 	}

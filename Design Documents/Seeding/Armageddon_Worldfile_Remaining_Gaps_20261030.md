@@ -12,6 +12,10 @@ The pending item callbacks with actual typed reset references are HOK 1952 and T
 
 ## Current continuation
 
+### Private release candidate preparation — 13 November 2026
+
+The [1.0 candidate scope and UAT checklist](Armageddon_Release_Candidate_1.0.md) reconciles the implemented content, remaining callback/NO_ES/host-replacement boundaries and deferred exceptional-failure work. The five item-magic tranches completed local qualification, including a disposable installation and two real save/restart cycles; their precise scope remains in the [handover](Armageddon_Item_Magic_Handover_20261110.md). These results do not retrospectively certify every subsystem's live gameplay. Candidate packaging, exact-revision checks and a clean packaged Release installation have their own qualification receipt.
+
 ### Spell materials and named summons - 8 November 2026
 
 The [spell-component mapping](Armageddon_Worldfile_Spell_Components.md) implements all twelve families, exact ranks for all valid definitions/variants, source-backed costs on 28 native spells, scoped player exemptions, retained tokens, ten named demons with native control/cleanup and source lifetime/risk, and optional Return Tether duration. The existing-character staff joke is excluded by decision. No new supply placements or recipes are added. Original source files and the regenerated private packet remain outside Git. This supersedes earlier four-family/reset-only deferrals below. Focused automated evidence exists; full live installation/gameplay remains unqualified and the walkthrough is untouched.

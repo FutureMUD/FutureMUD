@@ -252,27 +252,28 @@ public sealed class FMDB : IDisposable
 
 	private static DatabaseSession CreateSession(bool suppressEfWrites = false)
 	{
+		var connectionString = ConnectionString;
 		if (ConnectionValidator is { } validate)
 		{
-			using var candidate = new MySqlConnection(ConnectionString);
+			using var candidate = new MySqlConnection(connectionString);
 			validate("new-session-before-autodetect", candidate);
 		}
-		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseLazyLoadingProxies()
-			.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString));
-		if (ConnectionValidator is { } sessionValidator)
-			options.AddInterceptors(new ValidatedConnectionInterceptor(sessionValidator));
-		if (suppressEfWrites)
-		{
-			options.AddInterceptors(SuppressEfWritesInterceptor.Instance);
-		}
-
-		var context = new FuturemudDatabaseContext(options.Options);
-		var connection = new MySqlConnection(ConnectionString);
+		FuturemudDatabaseContext? context = null;
+		var connection = new MySqlConnection(connectionString);
 		try
 		{
 			connection.Open();
 			ConnectionValidator?.Invoke("new-session-opened", connection);
+			// Detect against the mandatory open connection instead of creating an unpooled probe
+			// for every short-lived session. EF still owns its separate connection.
+			var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+				.UseLazyLoadingProxies()
+				.UseMySql(connectionString, ServerVersion.AutoDetect(connection));
+			if (ConnectionValidator is { } sessionValidator)
+				options.AddInterceptors(new ValidatedConnectionInterceptor(sessionValidator));
+			if (suppressEfWrites)
+				options.AddInterceptors(SuppressEfWritesInterceptor.Instance);
+			context = new FuturemudDatabaseContext(options.Options);
 			ConnectionValidator?.Invoke("new-session-context", context.Database.GetDbConnection());
 			connection.StateChange += OnStateChange;
 			return new DatabaseSession
@@ -284,8 +285,8 @@ public sealed class FMDB : IDisposable
 		}
 		catch
 		{
-			context.Dispose();
-			connection.Dispose();
+			try { context?.Dispose(); }
+			finally { connection.Dispose(); }
 			throw;
 		}
 	}

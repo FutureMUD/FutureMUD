@@ -904,12 +904,8 @@ public static class FunctionHelper
 							"User defined functions are not available in computer compilation contexts.", lineNumber);
 					}
 
-                    IFutureProg udfResult =
-                        gameworld.FutureProgs.FirstOrDefault(
-                            x =>
-                                string.Equals(x.FunctionName, unaryOperators.FunctionName,
-                                    StringComparison.InvariantCultureIgnoreCase) &&
-                                x.MatchesParameters(parameterFunctions.Select(y => y.ReturnType)));
+                    IFutureProg udfResult = FutureProgCompilationBatch.Find(gameworld,
+                        unaryOperators.FunctionName, parameterFunctions.Select(y => y.ReturnType).ToArray());
                     if (udfResult == null)
                     {
                         return compileInfoFactory.CreateError(

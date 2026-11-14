@@ -283,7 +283,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 	}
 
 	[TestMethod]
-	public void NativeActionOmittedFromPeek_ExplicitlyRefusesInsteadOfDroppingInputReceipt()
+	public void CommodityActionSharingSource_RefusesBeforePayment()
 	{
 		using var f = new Fixture(); var solid = Mock.Of<ISolid>(x => x.Id == 111);
 		f.F.World.SetupGet(x => x.Materials).Returns(MagicCastingFixture.Collection(() => new[] { solid }));
@@ -292,7 +292,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		var other = new InventoryPlanActionConsumeCommodity(f.F.World.Object, 1, solid, 0, null!, null!) { OriginalReference = "commodity" };
 		f.Spell.InventoryPlanTemplate = new InventoryPlanTemplate(f.F.World.Object, new InventoryPlanAction[] { f.Material, other });
 		var result = f.Cast(1);
-		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.IsTrue(result.Message.Contains("receipts"), result.Message);
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.IsTrue(result.Message.Contains("ambiguous"), result.Message);
 		Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]); Assert.AreEqual(0, f.ConsumptionWrites);
 	}
 

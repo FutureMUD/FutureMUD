@@ -17,9 +17,9 @@ internal sealed class InMemoryDatabaseTestScope : IDisposable
 	private readonly object? _previous;
 	public FuturemudDatabaseContext Context { get; }
 
-	public InMemoryDatabaseTestScope()
+	public InMemoryDatabaseTestScope(DbContextOptions<FuturemudDatabaseContext>? options = null)
 	{
-		Context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+		Context = new FuturemudDatabaseContext(options ?? new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString())
 			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
 		_ambient = typeof(FMDB).GetField("_ambientSession", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;

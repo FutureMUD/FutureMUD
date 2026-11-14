@@ -82,6 +82,9 @@ public class NPC : Character.Character, INPC
 
 	private void InitialiseNativeController()
 	{
+		// Controller focus reads InstanceId. Commit the new identity graph first,
+		// without making that read flush every unrelated dirty actor in the world.
+		if (!IdHasBeenRegistered && !GetNoSave()) Gameworld.SaveManager.FlushInitialisationQueue();
         NPCController controller = new();
         controller.UpdateControlFocus(this);
         SilentAssumeControl(controller);

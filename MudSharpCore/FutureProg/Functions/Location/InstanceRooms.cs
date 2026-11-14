@@ -17,7 +17,7 @@ internal sealed class InstanceRooms : BuiltInFunction
 		var room = ParameterFunctions[0].Result?.GetObject as IRoom;
 		var rooms = room is null ? Enumerable.Empty<IRoom>() :
 			room.EffectsOfType<RoomTemplateInstance>().Any(x => x.IsTemplate)
-				? _gameworld.Rooms.Where(x => x.EffectsOfType<RoomTemplateInstance>().Any(e => !e.IsTemplate && e.TemplateRoomId == room.Id))
+				? RoomTemplateInstanceIndex.For(_gameworld).Get(room.Id)
 				: new[] { room };
 		Result = new CollectionVariable(rooms.ToList(), ProgVariableTypes.Location);
 		return StatementResult.Normal;

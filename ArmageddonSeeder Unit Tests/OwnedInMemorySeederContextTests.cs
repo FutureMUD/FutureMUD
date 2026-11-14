@@ -57,6 +57,34 @@ public class OwnedInMemorySeederContextTests
 	}
 
 	[TestMethod]
+	public void Constructor_RejectsUnconfiguredOptionsBeforeDefaultProviderFallback()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>().Options;
+		Assert.ThrowsExactly<ArgumentException>(() => new OwnedInMemorySeederContext(options));
+	}
+
+	[TestMethod]
+	public void FactoryBorrower_ImplicitStoreRoot_PreservesRowsAndCompositeKeys()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options;
+		using var owner = new OwnedInMemorySeederContext(options);
+		owner.GameItemProtos.Add(new GameItemProto { Id = 900004, RevisionNumber = 0, Name = "Implicit-root owner" });
+		owner.SaveChanges();
+		owner.ChangeTracker.Clear();
+		var factory = (Func<FuturemudDatabaseContext>)typeof(DatabaseSeeder.Seeders.ArmageddonSettingSeeder)
+			.GetMethod("ContextFactory", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+			.Invoke(null, [owner])!;
+		using (var borrower = factory())
+		{
+			Assert.AreEqual("Implicit-root owner", borrower.GameItemProtos.Single().Name);
+			borrower.GameItemProtos.Add(new GameItemProto { Id = 900005, RevisionNumber = 0, Name = "Implicit-root borrower" });
+			borrower.SaveChanges();
+		}
+		Assert.AreEqual("Implicit-root borrower", owner.GameItemProtos.Single(x => x.Id == 900005).Name);
+	}
+
+	[TestMethod]
 	public void Constructor_RejectsRelationalOptionsWithoutOpeningOrDeletingADatabase()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

@@ -19,7 +19,11 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonWorldfileMountTests
 {
 	[TestMethod]
-	public void MountOwnershipAndTamingProgramsCompileForARestrictedMountFixture()
+	[DataRow("Riding", false)]
+	[DataRow("rIDIng", false)]
+	[DataRow("Ride", false)]
+	[DataRow("Custom Mounted Skill", true)]
+	public void MountOwnershipAndTamingProgramsCompileForARestrictedMountFixture(string ridingName, bool ownedRide)
 	{
 		ArmageddonWorldfileTestData.RequireAvailable();
 		using var db = ArmageddonInstallationSettingsTests.Fixture();
@@ -63,13 +67,25 @@ public class ArmageddonWorldfileMountTests
 			Id = roleId, Seeder = "Armageddon Setting", Module = "Mundane Progression", EntityType = nameof(ChargenRole),
 			StableKey = "arm.class.ranger", LogicalId = 99002
 		});
-		db.TraitDefinitions.Add(new TraitDefinition { Id = 99003, Name = "Riding", Type = 0, TraitGroup = "Skill" });
+		db.TraitDefinitions.Add(new TraitDefinition { Id = 99003, Name = ridingName, Type = 0, TraitGroup = "Skill" });
+		db.TraitDefinitions.Add(new TraitDefinition { Id = 99006, Name = "Riding", Type = 1, TraitGroup = "Attribute" });
+		if (ownedRide)
+		{
+			db.SeederManagedRecords.Add(new SeederManagedRecord
+			{
+				Id = 99007, Seeder = "ArmageddonMagicSeeder", EntityType = nameof(TraitDefinition),
+				StableKey = "arm.skill.ride", LogicalId = 99003
+			});
+			db.TraitDefinitions.Add(new TraitDefinition { Id = 99008, Name = "Riding", Type = 0, TraitGroup = "Skill" });
+		}
 		db.SaveChanges();
 
 		var method = typeof(ArmageddonWorldfileWriter).GetMethod("InstallArmageddonMountPolicies", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		method.Invoke(writer, [new ArtificialIntelligence { Id = 99004, Name = "Fixture Mount", Type = "Mount" }, 99004L]);
 		Field<Dictionary<int, GameItemProto>>(writer, "_items").Add(64129, new GameItemProto { Id = 99005, RevisionNumber = 0 });
 		typeof(ArmageddonWorldfileWriter).GetMethod("InstallMountWhistle", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(writer, null);
+		foreach (var name in new[] { "ArmageddonWorldfileTameMount", "ArmageddonWorldfileMountWhistle" })
+			Assert.IsTrue(progs.Single(x => x.FunctionName == name).FunctionText.Contains("totrait(99003)"), name + " must use the resolved fixture skill identity.");
 		var permit = (string)typeof(ArmageddonWorldfileWriter).GetField("MountPermitProg", BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
 		db.FutureProgs.Add(new MudSharp.Models.FutureProg
 		{

@@ -17,7 +17,32 @@ public class ArmageddonWorldfileSpellMaterialPlanTests
 	[TestMethod]
 	public void SourceMaterialPlans_PreserveRanksCostsExemptionsAndOptionalReturnPolicy()
 	{
-		using var db = ArmageddonInstallationSettingsTests.Fixture();
+		using var db = CreateFixture(out _);
+		Assert.AreEqual(-1, (int)Actions("join_traveller").Single().Element("GradeRank")!.Attribute("offset")!);
+		Assert.AreEqual(-1, (int)Actions("draw_traveller").Single().Element("GradeRank")!.Attribute("offset")!);
+		Assert.AreEqual("explicit", (string?)Actions("consuming_flame").Single().Element("GradeRank")!.Attribute("selection"));
+		Assert.AreEqual(7, Actions("consuming_flame").Single().Element("GradeRank")!.Elements("Rank").Count());
+		Assert.AreEqual(7, Actions("sheltering_veil").Single().Element("GradeRank")!.Elements("Rank").Count());
+		Assert.AreEqual(2, Actions("kindle_enchantment").Count());
+		Assert.IsTrue(Actions("kindle_enchantment").All(x => (int?)x.Attribute("grade") == 7));
+		Assert.IsTrue((bool)Actions("return_tether").Single().Attribute("castoptional")!);
+		Assert.AreEqual("return.duration", Xml("return_tether").Element("Effects")!.Element("Effect")!.Element("OptionalDurationComponent")!.Value);
+		Assert.AreEqual(7, Xml("exchange_places").Element("Effects")!.Element("Effect")!.Element("RetainedRanks")!.Elements().Count());
+		var mount = db.FutureProgs.Single(x => x.FunctionName == "ArmageddonWorldfileMaterialMount").FunctionText;
+		Assert.IsTrue(mount.IndexOf("if (@actor.npc)", StringComparison.Ordinal) < mount.IndexOf("torole(9991)", StringComparison.Ordinal));
+		var ordinary = db.FutureProgs.Single(x => x.FunctionName == "ArmageddonWorldfileMaterialOrdinary").FunctionText;
+		StringAssert.Contains(ordinary, "race.id == 920001"); StringAssert.Contains(ordinary, "race.id == 920003");
+		Assert.IsFalse(ordinary.Contains("920002", StringComparison.Ordinal), "Sub-Elemental is not the source's Elemental exemption.");
+		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.GameItemProtos.Count()); Assert.AreEqual(0, db.Crafts.Count());
+		using var compiler = new MudSharp.Framework.OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray(), db.VariableDefinitions.ToArray());
+		foreach (var prog in db.FutureProgs.Where(x => x.FunctionName.StartsWith("ArmageddonWorldfileMaterial")).ToArray()) compiler.Compile(prog.Id);
+		return;
+		XElement Xml(string key) => XElement.Parse(db.MagicSpells.Single(x => x.Name == key).Definition);
+		XElement[] Actions(string key) => Xml(key).Element("Plan")!.Descendants("Action").ToArray();
+	}
+	internal static MudSharp.Database.FuturemudDatabaseContext CreateFixture(out ArmageddonWorldfileWriter writer)
+	{
+		var db = ArmageddonInstallationSettingsTests.Fixture();
 		ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db));
 		var source = new ArmageddonWorldfilePackage { Races =
 		[
@@ -25,7 +50,7 @@ public class ArmageddonWorldfileSpellMaterialPlanTests
 			new(new("fixture", 2), 2, "Sub-Elemental", "s", [], [], "", [], []),
 			new(new("fixture", 3), 3, "Fiend", "f", [], [], "", [], [])
 		] };
-		var writer = new ArmageddonWorldfileWriter(db, source);
+		writer = new ArmageddonWorldfileWriter(db, source);
 		var races = (System.Collections.Generic.Dictionary<int, Db.Race>)typeof(ArmageddonWorldfileWriter).GetField("_races", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(writer)!;
 		foreach (var race in source.Races) races.Add(race.Index, new Db.Race { Id = 920000 + race.Index, Name = race.Name });
 		long next = 800000;
@@ -52,27 +77,8 @@ public class ArmageddonWorldfileSpellMaterialPlanTests
 		db.SaveChanges();
 		typeof(ArmageddonWorldfileWriter).GetMethod("InstallSourceSpellMaterialPlans", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(writer, null);
 		db.SaveChanges();
-		Assert.AreEqual(-1, (int)Actions("join_traveller").Single().Element("GradeRank")!.Attribute("offset")!);
-		Assert.AreEqual(-1, (int)Actions("draw_traveller").Single().Element("GradeRank")!.Attribute("offset")!);
-		Assert.AreEqual("explicit", (string?)Actions("consuming_flame").Single().Element("GradeRank")!.Attribute("selection"));
-		Assert.AreEqual(7, Actions("consuming_flame").Single().Element("GradeRank")!.Elements("Rank").Count());
-		Assert.AreEqual(7, Actions("sheltering_veil").Single().Element("GradeRank")!.Elements("Rank").Count());
-		Assert.AreEqual(2, Actions("kindle_enchantment").Count());
-		Assert.IsTrue(Actions("kindle_enchantment").All(x => (int?)x.Attribute("grade") == 7));
-		Assert.IsTrue((bool)Actions("return_tether").Single().Attribute("castoptional")!);
-		Assert.AreEqual("return.duration", Xml("return_tether").Element("Effects")!.Element("Effect")!.Element("OptionalDurationComponent")!.Value);
-		Assert.AreEqual(7, Xml("exchange_places").Element("Effects")!.Element("Effect")!.Element("RetainedRanks")!.Elements().Count());
-		var mount = db.FutureProgs.Single(x => x.FunctionName == "ArmageddonWorldfileMaterialMount").FunctionText;
-		Assert.IsTrue(mount.IndexOf("if (@actor.npc)", StringComparison.Ordinal) < mount.IndexOf("torole(9991)", StringComparison.Ordinal));
-		var ordinary = db.FutureProgs.Single(x => x.FunctionName == "ArmageddonWorldfileMaterialOrdinary").FunctionText;
-		StringAssert.Contains(ordinary, "race.id == 920001"); StringAssert.Contains(ordinary, "race.id == 920003");
-		Assert.IsFalse(ordinary.Contains("920002", StringComparison.Ordinal), "Sub-Elemental is not the source's Elemental exemption.");
-		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.GameItemProtos.Count()); Assert.AreEqual(0, db.Crafts.Count());
-		using var compiler = new MudSharp.Framework.OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray(), db.VariableDefinitions.ToArray());
-		foreach (var prog in db.FutureProgs.Where(x => x.FunctionName.StartsWith("ArmageddonWorldfileMaterial")).ToArray()) compiler.Compile(prog.Id);
-		return;
+		return db;
 		void Identity(string key, string type, long id) => db.SeederManagedRecords.Add(new Db.SeederManagedRecord { Seeder = "fixture", Module = "materials", StableKey = key, EntityType = type, LogicalId = id });
-		XElement Xml(string key) => XElement.Parse(db.MagicSpells.Single(x => x.Name == key).Definition);
-		XElement[] Actions(string key) => Xml(key).Element("Plan")!.Descendants("Action").ToArray();
 	}
+
 }

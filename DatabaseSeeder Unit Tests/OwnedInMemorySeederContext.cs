@@ -16,11 +16,21 @@ internal sealed class OwnedInMemorySeederContext : FuturemudDatabaseContext
 {
 	private bool _disposed;
 
-	internal OwnedInMemorySeederContext(DbContextOptions<FuturemudDatabaseContext> options) : base(options)
+	internal OwnedInMemorySeederContext(DbContextOptions<FuturemudDatabaseContext> options) : base(SharedPlainOptions(options))
 	{
-		if (Database.IsInMemory()) return;
-		base.Dispose();
-		throw new ArgumentException("An owned seeder fixture requires the InMemory provider.", nameof(options));
+	}
+
+	private static DbContextOptions<FuturemudDatabaseContext> SharedPlainOptions(DbContextOptions<FuturemudDatabaseContext> options)
+	{
+		var builder = new DbContextOptionsBuilder<FuturemudDatabaseContext>(options);
+		if (!builder.IsConfigured)
+			throw new ArgumentException("An owned seeder fixture requires an explicitly configured InMemory provider.", nameof(options));
+		builder.UseLazyLoadingProxies(false);
+		using var probe = new FuturemudDatabaseContext(builder.Options);
+		if (!probe.Database.IsInMemory())
+			throw new ArgumentException("An owned seeder fixture requires the InMemory provider.", nameof(options));
+		// Borrowers use the base context. InMemory composite keys must retain the same property metadata.
+		return builder.UseModel(probe.Model).Options;
 	}
 
 	public override void Dispose()

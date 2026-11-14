@@ -16,7 +16,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Magic.SpellEffects;
 
 /// <summary>Instant two-stage attunement of a local item to detection and inventory retention on a plane.</summary>
-public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation,
+public class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation,
 	IMagicSpellEffectPreparedSelection
 {
 	private readonly Dictionary<IPerceivable, Selection> _selections = new(ReferenceEqualityComparer.Instance);
@@ -39,7 +39,7 @@ public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IM
 			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
-	private EtherealItemAttunementEffect(XElement xml, IMagicSpell spell)
+	protected EtherealItemAttunementEffect(XElement xml, IMagicSpell spell)
 	{
 		Spell = spell;
 		PlaneId = (long?)xml.Element("PlaneId") ?? throw new FormatException("Missing attunement plane.");
@@ -68,6 +68,7 @@ public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IM
 	public double MassPerGrade { get; private set; }
 	public double RiskPercentPerGrade { get; private set; }
 	public PlanarPresenceDefinition? CharacterPlanarDefinition { get; private set; }
+	protected virtual Random DestructionRiskRandom => Random.Shared;
 	private void Validate()
 	{
 		if (PlaneId <= 0 || !double.IsFinite(MassPerGrade) || MassPerGrade <= 0 ||
@@ -141,17 +142,19 @@ public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IM
 			SaveToXml().ToString(SaveOptions.DisableFormatting) == definition;
 		if (recipient is IGameItem item)
 		{
+			var accessCurrent = CaptureItemAccess(item);
 			var prototype = item.Prototype; var custodian = item.InInventoryOf; var container = item.ContainedIn;
 			var location = item.Location; var weight = item.Weight; var affinity = AffinityFor(item);
 			var affinityReady = affinity?.IsReadyForTransition; var affinityVisible = affinity?.IsVisibleToThatPlane;
-			bool ItemCurrent() => Current() && !item.Deleted && !item.Destroyed &&
+			bool ItemCurrent() => accessCurrent() && Current() && !item.Deleted && !item.Destroyed &&
 				ReferenceEquals(Gameworld.Items.Get(item.Id), item) && ReferenceEquals(item.Prototype, prototype) &&
 				ReferenceEquals(item.InInventoryOf, custodian) && ReferenceEquals(item.ContainedIn, container) &&
 				ReferenceEquals(item.Location, location) && item.Weight == weight &&
 				item.TrueLocations.Contains(caster.Location!) && ReferenceEquals(AffinityFor(item), affinity) &&
 				affinity?.IsReadyForTransition == affinityReady && affinity?.IsVisibleToThatPlane == affinityVisible &&
 				EligibleStage(affinity) && weight < grade * MassPerGrade;
-			if (!ItemCurrent()) throw new InvalidOperationException("The item is not local, light enough, or ready for this attunement stage.");
+			if (!ItemCurrent() || !AdmitsItem(caster, item) || !ItemCurrent())
+				throw new InvalidOperationException("The item is not visible, reachable, light enough, or ready for this attunement stage.");
 			var token = new Selection(caster, recipient, grade, definition, ItemCurrent);
 			_selections[recipient] = token; return token;
 		}
@@ -163,6 +166,42 @@ public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IM
 			ReferenceEquals(character.Location, targetLocation);
 		var characterToken = new Selection(caster, recipient, grade, definition, CharacterCurrent);
 		_selections[recipient] = characterToken; return characterToken;
+	}
+
+	private static bool AdmitsItem(ICharacter caster, IGameItem item) =>
+		caster.CanReachItem(item, requireInventoryPermission: false).Truth && caster.CanSee(item);
+
+	/// <summary>Freeze containment before live reach callbacks; raw payment fences must not evaluate access policy.</summary>
+	private static Func<bool> CaptureItemAccess(IGameItem item)
+	{
+		var checks = new List<Func<bool>>();
+		var edges = new List<Func<bool>>();
+		var seen = new HashSet<IGameItem>(ReferenceEqualityComparer.Instance);
+		var ancestors = new List<IGameItem>();
+		for (IGameItem? current = item; current is not null; current = current.ContainedIn)
+		{
+			if (!seen.Add(current)) throw new InvalidOperationException("The attunement item has cyclic containment.");
+			ancestors.Add(current);
+		}
+		foreach (var captured in ancestors)
+		{
+			var parent = captured.ContainedIn;
+			edges.Add(() => ReferenceEquals(captured.ContainedIn, parent));
+			var holder = captured.InInventoryOf;
+			var location = captured.Location;
+			var layer = captured.RoomLayer;
+			var owner = holder?.Actor;
+			var ownerLocation = owner?.Location;
+			var ownerLayer = owner?.RoomLayer;
+			var openable = captured.GetItemType<IOpenable>();
+			var open = openable?.IsOpen;
+			checks.Add(() => !captured.Deleted && !captured.Destroyed &&
+				ReferenceEquals(captured.InInventoryOf, holder) &&
+				ReferenceEquals(captured.Location, location) && captured.RoomLayer == layer &&
+				ReferenceEquals(holder?.Actor, owner) && ReferenceEquals(owner?.Location, ownerLocation) && owner?.RoomLayer == ownerLayer &&
+				ReferenceEquals(captured.GetItemType<IOpenable>(), openable) && openable?.IsOpen == open);
+		}
+		return () => edges.All(check => check()) && checks.All(check => check());
 	}
 
 	private EtherealItemAffinityEffect? AffinityFor(IGameItem item) =>
@@ -181,7 +220,8 @@ public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IM
 		error = "The selected target, item custody, weight, grade or effect definition changed.";
 		if (selection is not Selection token || !ReferenceEquals(token.Caster, caster) || !ReferenceEquals(token.Target, recipient) ||
 			Spell is not MagicSpell native || native.InvocationGrade != token.Grade ||
-			SaveToXml().ToString(SaveOptions.DisableFormatting) != token.Definition || !token.IsCurrent) return false;
+			SaveToXml().ToString(SaveOptions.DisableFormatting) != token.Definition || !token.IsCurrent ||
+			(recipient is IGameItem item && !AdmitsItem(caster, item)) || !token.IsCurrent) return false;
 		_selections[recipient] = token; error = null; return true;
 	}
 
@@ -209,7 +249,7 @@ public sealed class EtherealItemAttunementEffect : IMagicSpellEffectTemplate, IM
 		var ready = true;
 		var visible = reveal || affinity?.IsVisibleToThatPlane == true;
 		var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(item);
-		if (RiskPercentPerGrade > 0 && Random.Shared.NextDouble() * 100 < Math.Min(100, native.InvocationGrade.Value * RiskPercentPerGrade))
+		if (RiskPercentPerGrade > 0 && DestructionRiskRandom.NextDouble() * 100 < Math.Min(100, native.InvocationGrade.Value * RiskPercentPerGrade))
 		{
 			item.Delete();
 			if (!item.Deleted) throw new InvalidOperationException("The item destruction risk succeeded but native item deletion did not complete.");

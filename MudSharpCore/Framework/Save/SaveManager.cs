@@ -187,6 +187,46 @@ public class SaveManager : ISaveManager
         }
     }
 
+	private int _identityInitialisationOnlyDepth;
+
+	private sealed class IdentityInitialisationScope(SaveManager manager) : IDisposable
+	{
+		private bool _disposed;
+		public void Dispose()
+		{
+			if (_disposed) return;
+			_disposed = true;
+			manager._identityInitialisationOnlyDepth--;
+		}
+	}
+
+	internal IDisposable DeferUnrelatedIdentitySaves()
+	{
+		_identityInitialisationOnlyDepth++;
+		return new IdentityInitialisationScope(this);
+	}
+
+	internal static void FlushForIdentity(ISaveManager manager)
+	{
+		if (manager is SaveManager { _identityInitialisationOnlyDepth: > 0 } native) native.FlushInitialisationQueue();
+		else manager.Flush();
+	}
+
+	public void FlushInitialisationQueue()
+	{
+		ForeignCustodyTransferContext.EnsureFlushOutsideTransfer();
+		if (_flushingQueue) return;
+		_flushingQueue = true;
+		try
+		{
+			while (_initialisationQueue.Count > 0) FlushInitialisation();
+		}
+		finally
+		{
+			_flushingQueue = false;
+		}
+	}
+
     public void DirectInitialise(ILateInitialisingItem item)
     {
 		ForeignCustodyTransferContext.EnsureFlushOutsideTransfer();
@@ -302,6 +342,22 @@ public class SaveManager : ISaveManager
                     Console.WriteLine(sb.ToString());
                 }
 #endif
+				if (_identityInitialisationOnlyDepth > 0)
+				{
+					var identities = tempStack.OfType<MudSharp.Character.Character>()
+						.Where(x => x.IdHasBeenRegistered && !x.GetNoSave() && x.IsPrimaryInstance)
+						.Select(x => x.Id).Distinct().ToArray();
+					if (identities.Length >= 32)
+					{
+						// The final startup save needs the same tracked collections as load.
+						// Avoid repeating those navigation queries once for every dirty NPC.
+						if (FMDB.Context.Database.IsRelational() &&
+						    FMDB.Context.Database.GetDbConnection().State != System.Data.ConnectionState.Open)
+							FMDB.Context.Database.OpenConnection();
+						CharacterBootGraph.Load(FMDB.Context, identities);
+					}
+				}
+
                 foreach (ISaveable item in tempStack)
                 {
                     if (IsNoSave(item))

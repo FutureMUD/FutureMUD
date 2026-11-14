@@ -21,6 +21,7 @@ public partial class Futuremud
 		_characters.RemoveAll(x => x.Id == character.Id);
 		_NPCs.RemoveAll(x => x.Id == character.Id);
 		_cachedActors.RemoveAll(x => x.Id == character.Id);
+		PossessionEffectIndex.For(this).UnregisterOwner(character);
 		DestroyListeners(character);
 	}
 }

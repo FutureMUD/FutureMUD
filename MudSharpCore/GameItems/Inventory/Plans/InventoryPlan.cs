@@ -136,6 +136,9 @@ public class InventoryPlan : IInventoryPlan
         using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(Character);
         CheckScouting(fromPhase, Template.Phases.Max(x => x.PhaseNumber));
         if (!CommandExecutionScope.TryContinue(Character)) return InventoryPlanFeasibility.NotFeasibleMissingItems;
+		if (InventoryPlanTemplate.UnderfundedCommodityActions(Phases.Values
+			.Where(x => x.PhaseNumber >= fromPhase).SelectMany(x => x.ScoutedItems)).Any())
+			return InventoryPlanFeasibility.NotFeasibleMissingItems;
         foreach (InventoryPlanPhase phase in Phases.Values.Where(x => x.PhaseNumber >= fromPhase).OrderBy(x => x.PhaseNumber))
         {
             InventoryPlanFeasibility result = Template.PlanIsFeasible(Character, phase);
@@ -153,6 +156,9 @@ public class InventoryPlan : IInventoryPlan
         using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(Character);
         CheckScouting(fromPhase, toPhase);
         if (!CommandExecutionScope.TryContinue(Character)) return InventoryPlanFeasibility.NotFeasibleMissingItems;
+		if (InventoryPlanTemplate.UnderfundedCommodityActions(Phases.Values
+			.Where(x => x.PhaseNumber >= fromPhase && x.PhaseNumber <= toPhase).SelectMany(x => x.ScoutedItems)).Any())
+			return InventoryPlanFeasibility.NotFeasibleMissingItems;
         foreach (InventoryPlanPhase phase in Phases.Values.Where(x => x.PhaseNumber >= fromPhase && x.PhaseNumber <= toPhase)
                                     .OrderBy(x => x.PhaseNumber))
         {
@@ -171,6 +177,8 @@ public class InventoryPlan : IInventoryPlan
         using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(Character);
         CheckScouting(0, Template.Phases.Max(x => x.PhaseNumber));
         if (!CommandExecutionScope.TryContinue(Character)) return InventoryPlanFeasibility.NotFeasibleMissingItems;
+		if (InventoryPlanTemplate.UnderfundedCommodityActions(Phases.Values.SelectMany(x => x.ScoutedItems)).Any())
+			return InventoryPlanFeasibility.NotFeasibleMissingItems;
         foreach (InventoryPlanPhase phase in Phases.Values.OrderBy(x => x.PhaseNumber))
         {
             InventoryPlanFeasibility result = Template.PlanIsFeasible(Character, phase);
@@ -188,12 +196,14 @@ public class InventoryPlan : IInventoryPlan
         using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(Character);
         List<(IInventoryPlanAction, InventoryPlanFeasibility)> actions = new();
         CheckScouting(0, Template.Phases.Max(x => x.PhaseNumber));
+		actions.AddRange(InventoryPlanTemplate.UnderfundedCommodityActions(Phases.Values.SelectMany(x => x.ScoutedItems))
+			.Select(action => (action, InventoryPlanFeasibility.NotFeasibleMissingItems)));
         foreach (InventoryPlanPhase phase in Phases.Values.OrderBy(x => x.PhaseNumber))
         {
             actions.AddRange(Template.InfeasibleActions(Character, phase));
         }
 
-        return actions;
+        return actions.Distinct();
     }
 
     public IEnumerable<InventoryPlanActionResult> ScoutAllTargets(int fromPhase)

@@ -12,7 +12,7 @@ public abstract class LateInitialisingItem : FrameworkItem, ILateInitialisingIte
         {
             if (!IdHasBeenRegistered && !_noSave)
             {
-                Gameworld?.SaveManager.Flush();
+				if (Gameworld?.SaveManager is { } manager) SaveManager.FlushForIdentity(manager);
             }
 
             return _id;
@@ -144,7 +144,7 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
         {
             if (!IdHasBeenRegistered && !_noSave)
             {
-                Gameworld.SaveManager.Flush();
+                SaveManager.FlushForIdentity(Gameworld.SaveManager);
             }
 
             return _id;

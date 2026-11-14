@@ -128,6 +128,8 @@ Compatibility load aliases are registered for older persisted rows and display-n
 | `vicinity` | `CastingTriggerVicinity` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerVicinity.cs` via `SpellTriggerFactory` | Yes | Casts across a vicinity target set |
 
 ## Spell Effect Types
+
+Possession cleanup uses a per-world index of effects on registered actor/item owners, keyed by anchor identity and physical instance. Legacy instance ID zero retains wildcard matching within that identity. Registration precedes `InitialEffect`; removal callbacks still run while the effect is present, and removal notification runs after collection/index removal. Ordinary actor logout retains cached ownership; archive compaction, simulation release and item destruction release it. This avoids a full actor/item scan on every NPC login without suppressing possession lifecycle callbacks.
 V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `personaltagward`. The V5a persistent sensory/combat slice adds 4 builder-creatable tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse` as spell-owned simultaneous, possessed-shell, direct live-body, corpse-possession, or AI corpse-animation instance effects. The information and recitation slice adds `identify`, `reciteproxy`, and `deadspeak`.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |

@@ -2,6 +2,7 @@ using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Magic.Environment;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Effects.Concrete;
 
 namespace MudSharp.Effects;
 
@@ -66,6 +67,10 @@ public class EffectHandler : IEffectHandler
         if (!_effects.Contains(effect))
         {
             _effects.Add(effect);
+			if (Gameworld is not null && effect is IPossessedBodyEffect or ILiveBodyPossessionEffect or ICorpsePossessionEffect)
+				MudSharp.Character.PossessionEffectIndex.For(Gameworld).Add(Parent, effect);
+			if (effect is RoomTemplateInstance && Parent is MudSharp.Construction.IRoom instanceRoom)
+				MudSharp.Construction.RoomTemplateInstanceIndex.For(Gameworld).Refresh(instanceRoom);
         }
 #if DEBUG
         else
@@ -115,6 +120,13 @@ public class EffectHandler : IEffectHandler
         }
 
 		var removed = _effects.Remove(effect);
+		if (removed)
+		{
+			if (Gameworld is not null && effect is IPossessedBodyEffect or ILiveBodyPossessionEffect or ICorpsePossessionEffect)
+				MudSharp.Character.PossessionEffectIndex.For(Gameworld).Remove(effect);
+			if (effect is RoomTemplateInstance && Parent is MudSharp.Construction.IRoom instanceRoom)
+				MudSharp.Construction.RoomTemplateInstanceIndex.For(Gameworld).Refresh(instanceRoom);
+		}
 		if (removed && effect is IEffectRemovalNotification notification) notification.OnRemovedFromOwner();
 		NotifyCastingInputChange(effect);
 		NotifyNauseaInputChange(effect);
@@ -151,7 +163,9 @@ public class EffectHandler : IEffectHandler
 	// row removal may use this. Its scheduler has already been deregistered.
 	internal void ForgetCommittedRetirementEffects()
 	{
+		foreach (var effect in _effects) MudSharp.Character.PossessionEffectIndex.For(Gameworld).Remove(effect);
 		_effects.Clear();
+		if (Parent is MudSharp.Construction.IRoom room) MudSharp.Construction.RoomTemplateInstanceIndex.For(Gameworld).Refresh(room);
 		_hasSaveableScheduledEffects = false;
 	}
 

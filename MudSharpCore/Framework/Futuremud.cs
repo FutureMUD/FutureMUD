@@ -301,6 +301,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         }
     }
 
+    private StartupDiagnostics? _startupDiagnostics;
+
     public void StartGameLoop()
     {
         _needsToHalt = false;
@@ -463,6 +465,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
                 sw.Stop();
                 totalTime.Stop();
+                _startupDiagnostics?.FirstIterationComplete();
                 //#if DEBUG
                 //#else
                 if (totalTime.ElapsedMilliseconds < 250)
@@ -1369,6 +1372,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		if (conflict is not null)
 			throw new InvalidOperationException($"Cannot register room #{room.Id}: unique name '{room.UniqueName}' is already used by room #{conflict.Id}.");
         _rooms.Add(room);
+		RoomTemplateInstanceIndex.For(this).Register(room);
 		EnvironmentalMagic?.Register(room);
     }
 
@@ -1447,6 +1451,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         if (!_actors.Has(actor))
         {
             _actors.Add(actor);
+            Character.PossessionEffectIndex.For(this).RegisterOwner(actor);
         }
 
         if (isNPC)
@@ -1479,6 +1484,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 	internal void AddPreparedNativeNpc(MudSharp.NPC.NPC npc)
 	{
 		if (!_actors.Has(npc)) _actors.Add(npc);
+		Character.PossessionEffectIndex.For(this).RegisterOwner(npc);
 		if (!_NPCs.Has(npc)) _NPCs.Add(npc);
 		if (_cachedActors.Has(npc)) _cachedActors.Remove(npc);
 	}
@@ -1486,6 +1492,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Add(IGameItem item)
     {
         _items.Add(item);
+		Character.PossessionEffectIndex.For(this).RegisterOwner(item);
+		(MediaChannelService as MediaChannelService)?.RegisterItem(item);
 		MudSharp.Form.Material.EnvironmentalExposureService.TrackExisting(this, item);
     }
 
@@ -1762,6 +1770,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     /// <param name="id"></param>
     /// <param name="useCachedValues"></param>
     /// <returns></returns>
+	private Dictionary<long, Models.Character>? _bootTimeCachedCharacters;
+
     public ICharacter TryGetCharacter(long id, bool useCachedValues = false)
     {
         if (id == 0)
@@ -1795,6 +1805,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
                 return _cachedActors.Get(id);
             }
 
+            Character.PossessionEffectIndex.For(this).UnregisterOwner(cached);
             _cachedActors.RemoveAll(x => x.Id == id);
         }
 
@@ -1806,43 +1817,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
         using (new FMDB())
         {
-            Models.Character dbchar = (from ch in FMDB.Context.Characters
-                                       /*
-                                                 .Include(x => x.Body.BodiesGameItems)
-                                                 .ThenInclude(x => x.GameItem.GameItemComponents)
-                                                 .Include(x => x.Body.BodiesGameItems)
-                                                 .ThenInclude(x => x.GameItem.GameItemsMagicResources)
-                                                 .Include(x => x.Body.BodiesGameItems)
-                                                 .ThenInclude(x => x.GameItem.HooksPerceivables)
-                                                 .Include(x => x.Body.BodiesGameItems)
-                                                 .ThenInclude(x => x.GameItem.WoundsGameItem)
-                                                 .Include(x => x.CharactersAccents)
-                                                 .Include(x => x.CharactersLanguages)
-												 .Include(x => x.CharactersSignedLanguages)
-												 .Include(x => x.CharactersSignedLanguageVarieties)
-                                                 .Include(x => x.Body.BodiesSeveredParts)
-                                                 .Include(x => x.Body.Characteristics)
-                                                 .Include(x => x.AlliesCharacter)
-                                                 .Include(x => x.Body.Traits)
-                                                 .ThenInclude(x => x.TraitDefinition)
-                                                 .Include(x => x.PerceiverMerits)
-                                                 .Include(x => x.Body.PerceiverMerits)
-                                                 .Include(x => x.Body.BodiesDrugDoses)
-                                                 .Include(x => x.Body.BodiesDrugExposures)
-                                                 .Include(x => x.Body.BodiesProsthetics)
-                                                 .Include(x => x.Body.BodiesImplants)
-                                                 .Include(x => x.HooksPerceivables)
-                                                 .Include(x => x.CharactersChargenRoles)
-                                                 .Include(x => x.Dubs)
-                                                 .Include(x => x.CharactersScripts)
-                                                 .Include(x => x.ActiveProjects)
-                                                 .Include(x => x.CharacterKnowledges)
-                                                 .Include(x => x.Body.Wounds)
-                                                 .Include(x => x.NpcsCharacter)
-                                                 .Include(x => x.Guest)
-                                       */
-                                       where ch.Id == id && !ch.IsArchived
-                                       select ch).FirstOrDefault();
+            Models.Character dbchar = _bootTimeCachedCharacters?.GetValueOrDefault(id) ??
+                FMDB.Context.Characters.FirstOrDefault(ch => ch.Id == id && !ch.IsArchived);
             if (dbchar == null)
             {
                 return null;
@@ -1873,6 +1849,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
             newChar.SilentAssumeControl(new NPCController());
             _cachedActors.Add(newChar);
+            Character.PossessionEffectIndex.For(this).RegisterOwner(newChar);
             return newChar;
         }
     }
@@ -1899,6 +1876,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         if (addToGameworld)
         {
             _items.Add(newItem);
+            Character.PossessionEffectIndex.For(this).RegisterOwner(newItem);
+            (MediaChannelService as MediaChannelService)?.RegisterItem(newItem);
         }
 
         return newItem;
@@ -1937,6 +1916,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
             if (addToGameworld)
             {
                 _items.Add(newItem);
+            Character.PossessionEffectIndex.For(this).RegisterOwner(newItem);
+            (MediaChannelService as MediaChannelService)?.RegisterItem(newItem);
             }
 
             return newItem;
@@ -2534,6 +2515,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     {
 		MudSharp.Form.Material.EnvironmentalExposureService.ForgetExisting(this, item);
         _items.Remove(item);
+		Character.PossessionEffectIndex.For(this).UnregisterOwner(item);
+		(MediaChannelService as MediaChannelService)?.UnregisterItem(item);
         DestroyListeners(item);
     }
 
@@ -2593,6 +2576,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		EnvironmentalMagic?.Unregister(room);
         room.OwningZone.Unregister(room);
         _rooms.Remove(room);
+		RoomTemplateInstanceIndex.For(this).Unregister(room);
         DestroyListeners(room);
     }
 

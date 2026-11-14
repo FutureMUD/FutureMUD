@@ -12,6 +12,18 @@ An exception during player input aborts only that connection and prevents its re
 
 All text, prompts, and Telnet negotiation frames share one ordered output writer. Staged and queued output is bounded to 2 MiB and 256 frames per connection. A non-reading client that exceeds either limit is disconnected rather than being allowed to grow the managed heap indefinitely. Ordinary logout, timeout, and administrative closure drains queued output for up to two seconds; socket failure and limit violations abort immediately. Engine shutdown stops acceptance, allows connection drains for up to five seconds, and then aborts any remainder.
 
+## Startup loading and readiness
+
+Startup retains its dependency order and the character-materialisation gate. After jobs and world items are loaded, the NPC loader selects the same eligible identities and prefetches their tracked character/body graphs in batches of at most 1,024 identities using split queries. Empty included collections are marked loaded. The temporary character-root lookup is released after NPC loading; ordinary on-demand player loading and pending spell-activation checks remain in place. EF keeps its connection open only within the bounded outer startup database scope, avoiding per-command pool/session resets without changing global connection-reset policy.
+
+Persisted exits have a temporary boot lookup. Overlay membership and endpoint checks still select the applicable exits; unknown IDs fall back to the database. Persistent topology updates invalidate the lookup, which is released after critical-exit preloading. Vehicle graphs use split queries to avoid sibling-collection multiplication; shop graphs already use split queries.
+
+Every loader and the NPC/room completion hooks have `[BOOT]` timing lines. Shared interior population retains its existing per-prog coalescing and drains after placement and room completion hooks, before the listener is declared ready. Room-specific completion hooks remain separate calls, and online interior population retains its deferred scheduling. `Total Boot Time` and `LastStartupSpan` include completion hooks, interior population and Discord startup. The first completed game-loop iteration has a separate diagnostic; the ready message alone is not proof of a responsive login menu.
+
+Native NPC controller setup commits queued new identities in dependency order through `FlushInitialisationQueue` before reading an unregistered instance ID. This does not drain unrelated dirty saves. Dependencies needed for the controller's character/body identity retain their existing initialisation phases; subsequent item creation, periodic saves and graceful shutdown keep their normal boundaries.
+
+Within the scoped startup loader, late character/body/item identity reads initialise their dependency queue without draining unrelated dirty saves. Outside that scope they keep the previous flush boundary, and explicit `Flush` calls remain explicit full saves. Startup then performs a timed full persistence pass before readiness; larger dirty character groups prefetch the tracked graph once per batch. This avoids moving the old startup save cost into the first live autosave or shutdown.
+
 ## Schedules and heartbeats
 
 The normal scheduler and effect scheduler use stable min-heaps ordered by trigger UTC and insertion order. The normal scheduler fires at most 1,000 schedules per dispatch pass, retaining all remaining entries for the next game-loop iteration. This bounds self-rescheduling work while preserving repeating schedule catch-up: a delayed server executes every missed repetition incrementally rather than coalescing or dropping it. Callbacks remain synchronous; the dispatch count limit does not interrupt an individual callback.

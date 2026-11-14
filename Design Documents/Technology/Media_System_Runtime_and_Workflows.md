@@ -8,6 +8,8 @@ Version one supports audio, video, and combined A/V. It records observable in-ch
 
 ## Runtime model
 
+The runtime keeps a registry of actual source components on registered world items. Item loading, creation, copying, deletion and prototype component changes maintain membership; ordinary local output does not scan every world item to discover cameras or microphones. A source's current `TrueLocations` is evaluated when queried, preserving carried and nested-container movement. Power and availability remain component concerns. Native prototype updates refresh membership at each component change, before deletion callbacks, and iterate a snapshot when removing obsolete components.
+
 `MediaEndpointAddress` identifies an endpoint by item id, component id, endpoint key, and direction. `MediaCapabilities` is a flags value (`Audio`, `Video`) and `MediaPacket` is an immutable ordered event with a stream id, sequence, UTC timestamp, capabilities, source, provenance, and typed payload.
 
 Language packets retain language/accent or variety, outcome, volume, raw text, pre-language and optional emotes, and an immutable speaker identity snapshot. Playback uses the normal language output path, so a recipient applies current language comprehension rather than seeing a recorder-side translation. Signed language is visual; spoken language is audio. Ordinary audible and visual IC output is retained as sensor-viewpoint text, and a scene packet contains canonical full-look output plus its SHA-256 content hash.

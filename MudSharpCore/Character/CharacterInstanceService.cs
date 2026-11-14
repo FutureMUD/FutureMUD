@@ -1448,18 +1448,17 @@ public static class CharacterInstanceService
 	public static bool AnyPossessedBodyEffectsForAnchor(ICharacter anchor,
 		Predicate<IPossessedBodyEffect>? predicate = null)
 	{
-		return PossessedBodyEffectOwners(anchor.Gameworld)
-		       .Any(x => x.EffectsOfType<IPossessedBodyEffect>(effect =>
-			       PossessedBodyEffectMatchesAnchor(effect, anchor) &&
-			       (predicate?.Invoke(effect) ?? true)).Any());
+		return PossessionEffectIndex.For(anchor.Gameworld).ForAnchor<IPossessedBodyEffect>(anchor)
+			.Any(x => predicate?.Invoke(x) ?? true);
 	}
 
 	public static bool RemovePossessedBodyEffectsForAnchor(ICharacter anchor,
 		Predicate<IPossessedBodyEffect>? predicate = null)
 	{
-		return RemovePossessedBodyEffects(anchor.Gameworld, effect =>
-			PossessedBodyEffectMatchesAnchor(effect, anchor) &&
-			(predicate?.Invoke(effect) ?? true));
+		var effects = PossessionEffectIndex.For(anchor.Gameworld).ForAnchor<IPossessedBodyEffect>(anchor)
+			.Where(x => predicate?.Invoke(x) ?? true).ToArray();
+		foreach (var effect in effects) effect.Owner.RemoveEffect(effect, true);
+		return effects.Length > 0;
 	}
 
 	public static bool RemovePossessedBodyEffectsForShell(ICharacterInstance shell)
@@ -1478,13 +1477,10 @@ public static class CharacterInstanceService
 
 	private static bool RemovePossessedBodyEffects(IFuturemud gameworld, Predicate<IPossessedBodyEffect> predicate)
 	{
-		var removed = false;
-		foreach (var actor in PossessedBodyEffectOwners(gameworld))
-		{
-			removed |= actor.RemoveAllEffects(predicate, true);
-		}
-
-		return removed;
+		var effects = PossessionEffectIndex.For(gameworld).All<IPossessedBodyEffect>(gameworld)
+			.Where(x => predicate(x)).ToArray();
+		foreach (var effect in effects) effect.Owner.RemoveEffect(effect, true);
+		return effects.Length > 0;
 	}
 
 	private static bool PossessedBodyEffectMatchesAnchor(IPossessedBodyEffect effect, ICharacter anchor)

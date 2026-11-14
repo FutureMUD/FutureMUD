@@ -24,6 +24,52 @@ namespace MudSharp_Unit_Tests;
 public class RoomTemplateInstanceTests
 {
 	[TestMethod]
+	public void BootPopulation_DrainsWorkEnqueuedByAnEarlierPopulationCallback()
+	{
+		var world = new Mock<IFuturemud>(); var scheduler = new Mock<IScheduler>();
+		world.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
+		var rooms = new All<IRoom>(); world.SetupGet(x => x.Rooms).Returns(rooms);
+		var progs = new All<IFutureProg>(); world.SetupGet(x => x.FutureProgs).Returns(progs);
+		Mock<IRoom> Room(long id, long prog)
+		{
+			var room = new Mock<IRoom>(); room.SetupGet(x => x.Id).Returns(id); room.SetupGet(x => x.Gameworld).Returns(world.Object);
+			room.Setup(x => x.EffectsOfType<RoomTemplateInstance>(It.IsAny<Predicate<RoomTemplateInstance>>()))
+				.Returns([new RoomTemplateInstance(room.Object, 100, false, prog)]);
+			rooms.Add(room.Object); return room;
+		}
+		var firstRoom = Room(1, 11); var secondRoom = Room(2, 22);
+		var first = new Mock<IFutureProg>(); first.SetupGet(x => x.Id).Returns(11); progs.Add(first.Object);
+		var second = new Mock<IFutureProg>(); second.SetupGet(x => x.Id).Returns(22); progs.Add(second.Object);
+		first.Setup(x => x.Execute(It.IsAny<object[]>())).Callback(() => RoomTemplateInstance.InitialiseRooms([secondRoom.Object]));
+		RoomTemplateInstance.BeginBootPopulation(world.Object); RoomTemplateInstance.InitialiseRooms([firstRoom.Object]);
+		RoomTemplateInstance.CompleteBootPopulation(world.Object);
+		first.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once); second.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once);
+		scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void BootPopulation_DrainsSharedWorkBeforeReadinessAndRestoresOnlineScheduling()
+	{
+		var world = new Mock<IFuturemud>();
+		var scheduler = new Mock<IScheduler>();
+		world.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
+		var room = new Mock<IRoom>(); room.SetupGet(x => x.Id).Returns(1L); room.SetupGet(x => x.Gameworld).Returns(world.Object);
+		var rooms = new All<IRoom>(); rooms.Add(room.Object); world.SetupGet(x => x.Rooms).Returns(rooms);
+		var marker = new RoomTemplateInstance(room.Object, 100, false, 123);
+		room.Setup(x => x.EffectsOfType<RoomTemplateInstance>(It.IsAny<Predicate<RoomTemplateInstance>>())).Returns([marker]);
+		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(123L);
+		var progs = new All<IFutureProg>(); progs.Add(prog.Object); world.SetupGet(x => x.FutureProgs).Returns(progs);
+		RoomTemplateInstance.BeginBootPopulation(world.Object);
+		RoomTemplateInstance.InitialiseRooms([room.Object]); RoomTemplateInstance.InitialiseRooms([room.Object]);
+		prog.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
+		scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
+		RoomTemplateInstance.CompleteBootPopulation(world.Object);
+		prog.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once);
+		RoomTemplateInstance.InitialiseRooms([room.Object]);
+		scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Once);
+	}
+
+	[TestMethod]
 	public void InventoryDerivedLocationDoesNotCreateOrExposeAnAuthoredDwelling()
 	{
 		var proto = (DwellingGameItemComponentProto)RuntimeHelpers.GetUninitializedObject(typeof(DwellingGameItemComponentProto));

@@ -11,7 +11,37 @@ namespace MudSharp.Effects.Concrete;
 /// <summary>Persistent source identity for rooms instantiated by dwellings or vehicles.</summary>
 public sealed class RoomTemplateInstance : Effect
 {
-	private static readonly ConditionalWeakTable<IFuturemud, HashSet<long>> PendingPopulation = new();
+	private sealed class PopulationQueue
+	{
+		internal bool Booting;
+		internal readonly Dictionary<long, Action> Pending = new();
+	}
+	private static readonly ConditionalWeakTable<IFuturemud, PopulationQueue> PendingPopulation = new();
+	private static PopulationQueue Queue(IFuturemud world) => PendingPopulation.GetValue(world, _ => new());
+
+	internal static void BeginBootPopulation(IFuturemud world)
+	{
+		var queue = Queue(world);
+		lock (queue) queue.Booting = true;
+	}
+
+	internal static void CompleteBootPopulation(IFuturemud world)
+	{
+		var queue = Queue(world);
+		try
+		{
+			// Keep the existing per-prog population coalescing. New rooms created by a
+			// population pass can enqueue a subsequent pass after placement has finished.
+			while (true)
+			{
+				Action? next;
+				lock (queue) next = queue.Pending.Values.FirstOrDefault();
+				if (next is null) break;
+				next();
+			}
+		}
+		finally { lock (queue) queue.Booting = false; }
+	}
 	public long TemplateRoomId { get; }
 	public bool IsTemplate { get; }
 	public long OnLoadProgId { get; }
@@ -58,17 +88,25 @@ public sealed class RoomTemplateInstance : Effect
 		{
 			var room = group.First().Room;
 			var progId = group.Key;
-			var pending = PendingPopulation.GetOrCreateValue(room.Gameworld);
-			lock (pending)
-				if (!pending.Add(progId)) continue;
+			var queue = Queue(room.Gameworld);
 			// Placement and NPC outfit loading must finish before a reset can inspect their
 			// counts. Running the zone prog on the insertion call stack can re-enter itself.
-			room.Gameworld.Scheduler.AddSchedule(new Schedule(() =>
+			void Populate()
 			{
-				lock (pending) pending.Remove(progId);
+				lock (queue)
+					if (!queue.Pending.Remove(progId)) return;
 				if (room.Gameworld.Rooms.Get(room.Id) is { } loaded)
 					room.Gameworld.FutureProgs.Get(progId)?.Execute(loaded);
-			}, ScheduleType.FutureProg, TimeSpan.FromMilliseconds(1), "Populate instantiated interior"));
+			}
+			bool booting;
+			lock (queue)
+			{
+				if (!queue.Pending.TryAdd(progId, Populate)) continue;
+				booting = queue.Booting;
+			}
+			if (!booting)
+				room.Gameworld.Scheduler.AddSchedule(new Schedule(Populate, ScheduleType.FutureProg,
+					TimeSpan.FromMilliseconds(1), "Populate instantiated interior"));
 		}
 	}
 

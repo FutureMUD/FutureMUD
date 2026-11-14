@@ -92,7 +92,6 @@ public class FutureProg : SaveableItem, IFutureProg
 		RefreshExecutionParameters();
         FunctionText = text;
 		_compilationContext = compilationContext;
-        ColouriseFunctionText();
     }
 
     internal FutureProg(MudSharp.Models.FutureProg prog, IFuturemud gameworld)
@@ -114,7 +113,6 @@ public class FutureProg : SaveableItem, IFutureProg
                 .ToList();
 		RefreshExecutionParameters();
         Public = prog.Public;
-        ColouriseFunctionText();
         AcceptsAnyParameters = prog.AcceptsAnyParameters;
         StaticType = (FutureProgStaticType)prog.StaticType;
 		_compilationContext = FutureProgCompilationContext.StandardFutureProg;
@@ -125,7 +123,26 @@ public class FutureProg : SaveableItem, IFutureProg
 
     public TimeSpan CompileTime { get; protected set; }
 
-    public string ColourisedFunctionText { get; protected set; }
+	private string? _colourisedFunctionText;
+	private bool _colourisedDarkMode;
+
+	public string ColourisedFunctionText
+	{
+		get
+		{
+			if (_colourisedFunctionText is null || _colourisedDarkMode != DisplayInDarkMode)
+			{
+				ColouriseFunctionText();
+			}
+
+			return _colourisedFunctionText!;
+		}
+		protected set
+		{
+			_colourisedFunctionText = value;
+			_colourisedDarkMode = DisplayInDarkMode;
+		}
+	}
 
     public string CompileError { get; protected set; }
 
@@ -156,7 +173,7 @@ public class FutureProg : SaveableItem, IFutureProg
         set
         {
             _functionText = value;
-            ColouriseFunctionText();
+            _colourisedFunctionText = null;
             if (!_noSave)
             {
                 Changed = true;

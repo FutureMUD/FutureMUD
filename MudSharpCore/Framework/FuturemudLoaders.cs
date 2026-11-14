@@ -210,6 +210,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
     void IFuturemudLoader.LoadFromDatabase()
     {
         SaveManager.MudBootingMode = true;
+        _startupDiagnostics = new StartupDiagnostics();
+        var bootTimings = _startupDiagnostics;
+		using var identityInitialisation = (SaveManager as MudSharp.Framework.Save.SaveManager)?.DeferUnrelatedIdentitySaves();
+        RoomTemplateInstance.BeginBootPopulation(this);
         SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Disallowed);
         Stopwatch sw = new();
         sw.Start();
@@ -284,167 +288,171 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             StreamWriter sqlwriter = new("SqlDebugLog.txt");
 #endif
             ConsoleUtilities.WriteLine("#ADatabase connection opened.#0");
+			// Keep EF's pooled connection for this bounded load rather than resetting a
+			// session on every navigation query. Disposing FMDB still owns its lifetime.
+			FMDB.Context.Database.OpenConnection();
 
             ConsoleUtilities.WriteLine("\n#ESetting up Email Server...#0");
             ConsoleUtilities.WriteLine(EmailHelper.SetupEmailClient()
                 ? "#AEmail Server successfully setup.#0"
                 : "#9Warning! Email Server did not successfully setup!#0");
 
-            game.LoadStaticValues(); // Definitely call this before all other Loader methods as it caches values that many of them look up later.
+            bootTimings.Measure("LoadStaticValues", game.LoadStaticValues); // Definitely call this before all other Loader methods as it caches values that many of them look up later.
             LogManager = new LogManager(this); // Should go as early as possible after LoadStaticValues
-            game.LoadPlanes();
-            game.LoadAuthorityGroups();
-            game.LoadChargenResources();
+            bootTimings.Measure("LoadPlanes", game.LoadPlanes);
+            bootTimings.Measure("LoadAuthorityGroups", game.LoadAuthorityGroups);
+            bootTimings.Measure("LoadChargenResources", game.LoadChargenResources);
 
             VariableRegister = new VariableRegister(this); // must come before LoadFutureProgs
 
-            game.LoadFutureProgs(); // Needs to come after VariableRegister is initialised
-            game.LoadScriptedEvents();
-            game.LoadTraitExpressions();
-            game.LoadTags();
-            game.LoadChargenAdvices(); // Needs to come after LoadFutureProgs
-            game.LoadGrids();
-            game.LoadDrugs(); // Needs to come after LoadFutureProgs
-            game.LoadKnowledges(); // Needs to come after LoadFutureProgs
-            game.LoadMaterials(); // Needs to come after LoadFutureProgs, LoadTags and LoadDrugs
-            game.LoadChannels(); // Needs to come after LoadFutureProgs
-            game.LoadHooks(); // Needs to come after LoadFutureProgs
-            game.LoadCurrencies(); // Needs to come after LoadFutureProgs
-            game.LoadEntityDescriptionPatterns(); // Needs to come after LoadFutureProgs
-            game.LoadHelpFiles(); // Needs to come after LoadFutureProgs
-            game.LoadEntityDescriptions(); // Needs to come after LoadEntityDescriptionPatterns
-            game.LoadColours();
-            game.LoadCharacterCombatSettings();
-            game.LoadBodypartShapes(); // Must come before LoadCharacteristics
-            game.LoadCharacteristics();
+            bootTimings.Measure("LoadFutureProgs", game.LoadFutureProgs); // Needs to come after VariableRegister is initialised
+            bootTimings.Measure("LoadScriptedEvents", game.LoadScriptedEvents);
+            bootTimings.Measure("LoadTraitExpressions", game.LoadTraitExpressions);
+            bootTimings.Measure("LoadTags", game.LoadTags);
+            bootTimings.Measure("LoadChargenAdvices", game.LoadChargenAdvices); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadGrids", game.LoadGrids);
+            bootTimings.Measure("LoadDrugs", game.LoadDrugs); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadKnowledges", game.LoadKnowledges); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadMaterials", game.LoadMaterials); // Needs to come after LoadFutureProgs, LoadTags and LoadDrugs
+            bootTimings.Measure("LoadChannels", game.LoadChannels); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadHooks", game.LoadHooks); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadCurrencies", game.LoadCurrencies); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadEntityDescriptionPatterns", game.LoadEntityDescriptionPatterns); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadHelpFiles", game.LoadHelpFiles); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadEntityDescriptions", game.LoadEntityDescriptions); // Needs to come after LoadEntityDescriptionPatterns
+            bootTimings.Measure("LoadColours", game.LoadColours);
+            bootTimings.Measure("LoadCharacterCombatSettings", game.LoadCharacterCombatSettings);
+            bootTimings.Measure("LoadBodypartShapes", game.LoadBodypartShapes); // Must come before LoadCharacteristics
+            bootTimings.Measure("LoadCharacteristics", game.LoadCharacteristics);
 
-            game.LoadDreams();
+            bootTimings.Measure("LoadDreams", game.LoadDreams);
 
             // Body Related Loads
-            game.LoadArmourTypes(); // Should come before GameItemComponentProtos and LoadBodies
+            bootTimings.Measure("LoadArmourTypes", game.LoadArmourTypes); // Should come before GameItemComponentProtos and LoadBodies
 
-            game.LoadBodies();
+            bootTimings.Measure("LoadBodies", game.LoadBodies);
             // End Body Related Loads
 
             // World File Loads
 
-            game.LoadClocks(); // Must come before calendars/celestials/listeners
-            game.LoadCalendars();
-            game.LoadCelestials();
+            bootTimings.Measure("LoadClocks", game.LoadClocks); // Must come before calendars/celestials/listeners
+            bootTimings.Measure("LoadCalendars", game.LoadCalendars);
+            bootTimings.Measure("LoadCelestials", game.LoadCelestials);
 
-            game.LoadHearingProfiles(); // must come before LoadWorld(), and after LoadClocks() / LoadCalendars()
-            game.LoadRoomOverlayPackages();
-            game.LoadCover(); // Must come before LoadTerrains
-            game.LoadTerrains();
-            game.LoadNonCardinalExitTemplates();
-            game.LoadSkyDescriptionTemplates();
+            bootTimings.Measure("LoadHearingProfiles", game.LoadHearingProfiles); // must come before LoadWorld(), and after LoadClocks() / LoadCalendars()
+            bootTimings.Measure("LoadRoomOverlayPackages", game.LoadRoomOverlayPackages);
+            bootTimings.Measure("LoadCover", game.LoadCover); // Must come before LoadTerrains
+            bootTimings.Measure("LoadTerrains", game.LoadTerrains);
+            bootTimings.Measure("LoadNonCardinalExitTemplates", game.LoadNonCardinalExitTemplates);
+            bootTimings.Measure("LoadSkyDescriptionTemplates", game.LoadSkyDescriptionTemplates);
 
             InitialiseTypes(); // Presume this needs to happen before LoadWorld but not sure
             Effect.InitialiseEffects(); // Should come before LoadWorld
             PrimeGameItems();
-            game.LoadClimate(); // Should come before LoadWorld and after LoadCelestials
+            bootTimings.Measure("LoadClimate", game.LoadClimate); // Should come before LoadWorld and after LoadCelestials
 
-            game.LoadWorld();
+            bootTimings.Measure("LoadWorld", game.LoadWorld);
             // Needs to come after LoadCellOverlayPackages, LoadSkyDescriptionTemplates and LoadTerrains
             // End World File Loads
 
-            game.LoadImprovementModels();
-            game.LoadTraitDecorators();
-            game.LoadTraits(); // Depends on LoadImprovementModels and LoadTraitDecorators
-			game.LoadNPCSkillPackages(); // Depends on LoadTraits and must precede LoadRaces
-            game.LoadChecks(); // Depends on LoadTraits
+            bootTimings.Measure("LoadImprovementModels", game.LoadImprovementModels);
+            bootTimings.Measure("LoadTraitDecorators", game.LoadTraitDecorators);
+            bootTimings.Measure("LoadTraits", game.LoadTraits); // Depends on LoadImprovementModels and LoadTraitDecorators
+			bootTimings.Measure("LoadNPCSkillPackages", game.LoadNPCSkillPackages); // Depends on LoadTraits and must precede LoadRaces
+            bootTimings.Measure("LoadChecks", game.LoadChecks); // Depends on LoadTraits
 
-            game.LoadSurgery(); // Needs to come after LoadFutureProgs, LoadKnowledges and LoadTags, and LoadBodies
+            bootTimings.Measure("LoadSurgery", game.LoadSurgery); // Needs to come after LoadFutureProgs, LoadKnowledges and LoadTags, and LoadBodies
 
-            game.LoadHeightWeightModels();
-            game.LoadHealthStrategies(); // Depends on LoadTraits
-            game.LoadCorpseModels(); // Depends on LoadTerrains
-            game.LoadButchering(); // Depends on LoadTags, LoadFutureProgs, LoadBodies
-            game.LoadBloodtypes();
-            game.LoadWeaponTypes(); // Should come before GameItemComponentProtos
-            game.LoadRaces(); // Depends on LoadBloodtypes, LoadCorpseModels, LoadHealthStrategies, LoadTraits, LoadArmourTypes, LoadWeaponTypes, and LoadCharacterCombatSettings
-            game.LoadBoards(); // Must come before GameItemComponentProtos
+            bootTimings.Measure("LoadHeightWeightModels", game.LoadHeightWeightModels);
+            bootTimings.Measure("LoadHealthStrategies", game.LoadHealthStrategies); // Depends on LoadTraits
+            bootTimings.Measure("LoadCorpseModels", game.LoadCorpseModels); // Depends on LoadTerrains
+            bootTimings.Measure("LoadButchering", game.LoadButchering); // Depends on LoadTags, LoadFutureProgs, LoadBodies
+            bootTimings.Measure("LoadBloodtypes", game.LoadBloodtypes);
+            bootTimings.Measure("LoadWeaponTypes", game.LoadWeaponTypes); // Should come before GameItemComponentProtos
+            bootTimings.Measure("LoadRaces", game.LoadRaces); // Depends on LoadBloodtypes, LoadCorpseModels, LoadHealthStrategies, LoadTraits, LoadArmourTypes, LoadWeaponTypes, and LoadCharacterCombatSettings
+            bootTimings.Measure("LoadBoards", game.LoadBoards); // Must come before GameItemComponentProtos
                                // Game Item Related Loads
-            game.LoadWearProfiles(); // Depends on LoadBodies
-            game.LoadStackDecorators();
+            bootTimings.Measure("LoadWearProfiles", game.LoadWearProfiles); // Depends on LoadBodies
+            bootTimings.Measure("LoadStackDecorators", game.LoadStackDecorators);
 
-            game.LoadShieldTypes(); // Should come before GameItemComponentProtos and after LoadArmourTypes and LoadTraits
-            game.LoadGameItemComponentProtos(); // Depends on LoadWearProfiles and LoadStackDecorators
-            game.LoadGameItemGroups(); // Depends on LoadWorld
-            game.LoadGameItemProtos(); // Depends on LoadHealthStrategies, LoadGameItemComponentProtos and LoadGameItemGroups
-            game.LoadVehiclePrototypes(); // Depends on LoadGameItemProtos and Vehicle Exterior item components
-			game.LoadVehicleRoutes(); // Depends on world rooms/exits and vehicle access-point prototypes
-            game.LoadGameItemSkins();
-            game.LoadOutfitTemplates();
+            bootTimings.Measure("LoadShieldTypes", game.LoadShieldTypes); // Should come before GameItemComponentProtos and after LoadArmourTypes and LoadTraits
+            bootTimings.Measure("LoadGameItemComponentProtos", game.LoadGameItemComponentProtos); // Depends on LoadWearProfiles and LoadStackDecorators
+            bootTimings.Measure("LoadGameItemGroups", game.LoadGameItemGroups); // Depends on LoadWorld
+            bootTimings.Measure("LoadGameItemProtos", game.LoadGameItemProtos); // Depends on LoadHealthStrategies, LoadGameItemComponentProtos and LoadGameItemGroups
+            bootTimings.Measure("LoadVehiclePrototypes", game.LoadVehiclePrototypes); // Depends on LoadGameItemProtos and Vehicle Exterior item components
+			bootTimings.Measure("LoadVehicleRoutes", game.LoadVehicleRoutes); // Depends on world rooms/exits and vehicle access-point prototypes
+            bootTimings.Measure("LoadGameItemSkins", game.LoadGameItemSkins);
+            bootTimings.Measure("LoadOutfitTemplates", game.LoadOutfitTemplates);
 
             // End Game Item Related Loads
 
-            game.LoadForagables(); // Depends on LoadGameItemProtos
-			game.LoadLootTables(); // Depends on item prototypes, materials, tags and characteristics
+            bootTimings.Measure("LoadForagables", game.LoadForagables); // Depends on LoadGameItemProtos
+			bootTimings.Measure("LoadLootTables", game.LoadLootTables); // Depends on item prototypes, materials, tags and characteristics
 
-            game.LoadNameCultures();
-            game.LoadEthnicities(); // depends on LoadCharacteristics and LoadNameCultures
-            game.LoadCultures(); // depends on LoadNameCultures
+            bootTimings.Measure("LoadNameCultures", game.LoadNameCultures);
+            bootTimings.Measure("LoadEthnicities", game.LoadEthnicities); // depends on LoadCharacteristics and LoadNameCultures
+            bootTimings.Measure("LoadCultures", game.LoadCultures); // depends on LoadNameCultures
 
-            game.LoadClans(); // Needs to come after LoadCalendars, LoadFutureProgs, LoadCultures and LoadCurrencies
+            bootTimings.Measure("LoadClans", game.LoadClans); // Needs to come after LoadCalendars, LoadFutureProgs, LoadCultures and LoadCurrencies
 
-            game.LoadLanguageDifficultyModels(); // Languages need to come after traits
-            game.LoadLanguages();
-			game.LoadSignedLanguages();
-            game.LoadScripts(); // Must come after LoadLanguages
+            bootTimings.Measure("LoadLanguageDifficultyModels", game.LoadLanguageDifficultyModels); // Languages need to come after traits
+            bootTimings.Measure("LoadLanguages", game.LoadLanguages);
+			bootTimings.Measure("LoadSignedLanguages", game.LoadSignedLanguages);
+            bootTimings.Measure("LoadScripts", game.LoadScripts); // Must come after LoadLanguages
 
-            game.LoadUnits();
-            game.LoadMagic(); // Needs to come before LoadMerits
-            game.LoadTrapTemplates(); // Needs traits, magic and item prototypes, and must precede world-item effects
-            game.LoadManualCombatCommands(); // Needs weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs loaded first
-            game.LoadMerits(); // ToDO - where should this be loaded?
-            game.LoadAIs(); // Needs to come after LoadFutureProgs and LoadBodies
-            game.LoadDisfigurements();
-            game.LoadRoles();
-            game.LoadNPCTemplates(); // Needs to come after LoadRoles, LoadAIs, LoadMerits and LoadHeightWeightModels
-            game.LoadWritings(); // Needs to come after LoadScripts and before LoadWorldItems
-            game.LoadDrawings(); // Needs to come before LoadWorldItems
-            game.LoadWritingCollections(); // Needs writings and drawings, and must come before LoadWorldItems
+            bootTimings.Measure("LoadUnits", game.LoadUnits);
+            bootTimings.Measure("LoadMagic", game.LoadMagic); // Needs to come before LoadMerits
+            bootTimings.Measure("LoadTrapTemplates", game.LoadTrapTemplates); // Needs traits, magic and item prototypes, and must precede world-item effects
+            bootTimings.Measure("LoadManualCombatCommands", game.LoadManualCombatCommands); // Needs weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs loaded first
+            bootTimings.Measure("LoadMerits", game.LoadMerits); // ToDO - where should this be loaded?
+            bootTimings.Measure("LoadAIs", game.LoadAIs); // Needs to come after LoadFutureProgs and LoadBodies
+            bootTimings.Measure("LoadDisfigurements", game.LoadDisfigurements);
+            bootTimings.Measure("LoadRoles", game.LoadRoles);
+            bootTimings.Measure("LoadNPCTemplates", game.LoadNPCTemplates); // Needs to come after LoadRoles, LoadAIs, LoadMerits and LoadHeightWeightModels
+            bootTimings.Measure("LoadWritings", game.LoadWritings); // Needs to come after LoadScripts and before LoadWorldItems
+            bootTimings.Measure("LoadDrawings", game.LoadDrawings); // Needs to come before LoadWorldItems
+            bootTimings.Measure("LoadWritingCollections", game.LoadWritingCollections); // Needs writings and drawings, and must come before LoadWorldItems
 
 
-            game.LoadProjects(); // Needs to come before LoadNPCs
-            game.LoadAgriculture(); // Needs projects and world rooms loaded
+            bootTimings.Measure("LoadProjects", game.LoadProjects); // Needs to come before LoadNPCs
+            bootTimings.Measure("LoadAgriculture", game.LoadAgriculture); // Needs projects and world rooms loaded
 
             Character.Character.InitialiseCharacterClass(this);
             LightModel = PerceptionEngine.Light.LightModel.LoadLightModel(this);
 
 
             // Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies, LoadMerits and LoadGameItemProtos
-            game.LoadCrafts(); // Needs to come after LoadFutureProgs and before LoadWorldItems
-            game.LoadEconomy(); // Should come before LoadWorldItems as late as possible
-            game.LoadMarkets(); // Should come after LoadEconomy as late as possible
-            game.LoadLegal(); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs
-            game.LoadJobs(); // Needs to come after LoadEconomy
+            bootTimings.Measure("LoadCrafts", game.LoadCrafts); // Needs to come after LoadFutureProgs and before LoadWorldItems
+            bootTimings.Measure("LoadEconomy", game.LoadEconomy); // Should come before LoadWorldItems as late as possible
+            bootTimings.Measure("LoadMarkets", game.LoadMarkets); // Should come after LoadEconomy as late as possible
+            bootTimings.Measure("LoadLegal", game.LoadLegal); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs
+            bootTimings.Measure("LoadJobs", game.LoadJobs); // Needs to come after LoadEconomy
 			DatabaseRouteMotionPersistence.FreezeInterruptedCharacterMotions();
 			DatabaseVehicleRouteMotionPersistence.FreezeInterruptedVehicleMotions();
-            game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
+            bootTimings.Measure("LoadWorldItems", game.LoadWorldItems); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
 			InitialiseRoomTrapEffects(); // Needs trap templates and bound world items to be loaded
             SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
-            game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
-            game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
-            game.LoadVehicleHitchLinks(); // Needs vehicles, world items and NPCs available for endpoint recovery
-			game.LoadVehicleOperations(); // Needs routes, vehicles and hitch links before recovery/scheduling
-            game.LoadMagicPortalTopology(); // Needs world items and rooms available before exit pathing preload
+            bootTimings.Measure("LoadNPCs", game.LoadNPCs); // Needs to come after InitialiseCharacterClass and LightModel loading
+            bootTimings.Measure("LoadVehicles", game.LoadVehicles); // Needs world items and characters available for exterior/occupant recovery
+            bootTimings.Measure("LoadVehicleHitchLinks", game.LoadVehicleHitchLinks); // Needs vehicles, world items and NPCs available for endpoint recovery
+			bootTimings.Measure("LoadVehicleOperations", game.LoadVehicleOperations); // Needs routes, vehicles and hitch links before recovery/scheduling
+            bootTimings.Measure("LoadMagicPortalTopology", game.LoadMagicPortalTopology); // Needs world items and rooms available before exit pathing preload
 			ReconcileTransientExitTrapEffects(); // Needs every reboot-surviving transient exit source to be rebuilt
             FinalisePostCharacterLoadObjects();
-            game.LoadGroupAIs(); // Needs to come after LoadNPCs
-            ExitManager.PreloadCriticalExits(); // Needs to come after LoadGameItemProtos
+            bootTimings.Measure("LoadGroupAIs", game.LoadGroupAIs); // Needs to come after LoadNPCs
+            bootTimings.Measure("PreloadCriticalExits", ExitManager.PreloadCriticalExits);
+            (ExitManager as ExitManager)?.ReleaseBootCache(); // Needs to come after LoadGameItemProtos
             ReleasePrimedGameItems();
-            game.LoadSocials();
-            game.LoadAutobuilderTemplates();
-            game.LoadCharacterIntroTemplates(); // Needs to come after LoadFutureProgs
-            game.LoadNewPlayerHints(); // Needs to come after LoadFutureProgs
-            game.LoadChargen(); // Needs to come after LoadFutureProgs and LoadRoles
-            game.LoadTracks();
+            bootTimings.Measure("LoadSocials", game.LoadSocials);
+            bootTimings.Measure("LoadAutobuilderTemplates", game.LoadAutobuilderTemplates);
+            bootTimings.Measure("LoadCharacterIntroTemplates", game.LoadCharacterIntroTemplates); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadNewPlayerHints", game.LoadNewPlayerHints); // Needs to come after LoadFutureProgs
+            bootTimings.Measure("LoadChargen", game.LoadChargen); // Needs to come after LoadFutureProgs and LoadRoles
+            bootTimings.Measure("LoadTracks", game.LoadTracks);
 
-            game.LoadTemporalListeners(); // Should come after everything else is loaded
-            game.LoadProgSchedules(); // Should come after everything else is loaded
-            game.LoadAIStorytellers(); // Should come after everything else is loaded
+            bootTimings.Measure("LoadTemporalListeners", game.LoadTemporalListeners); // Should come after everything else is loaded
+            bootTimings.Measure("LoadProgSchedules", game.LoadProgSchedules); // Should come after everything else is loaded
+            bootTimings.Measure("LoadAIStorytellers", game.LoadAIStorytellers); // Should come after everything else is loaded
 
             SaveManager.MudBootingMode = false;
 
@@ -590,19 +598,24 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 		{
 			mediaRecordingService.RecoverInterruptedRecordings();
 		}
-        sw.Stop();
-        ConsoleUtilities.WriteLine($"Total Boot Time: #2{TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}#0");
-        foreach (ICharacter npc in NPCs)
-        {
-            npc.HandleEvent(Events.EventType.NPCOnGameLoadFinished, npc);
-        }
-		foreach (var location in Rooms.ToArray())
+		bootTimings.Measure("NPC boot-finished hooks", () =>
 		{
-			location.HandleEvent(Events.EventType.LocationOnGameLoadFinished, location);
-		}
-		ReconcileSpellOwnedNpcDeaths();
+			foreach (ICharacter npc in NPCs)
+			{
+				npc.HandleEvent(Events.EventType.NPCOnGameLoadFinished, npc);
+			}
+		});
+		bootTimings.Measure("Room boot-finished hooks", () =>
+		{
+			foreach (var location in Rooms.ToArray())
+			{
+				location.HandleEvent(Events.EventType.LocationOnGameLoadFinished, location);
+			}
+		});
+        bootTimings.Measure("Deferred interior population", () => RoomTemplateInstance.CompleteBootPopulation(this));
+		bootTimings.Measure("Reconcile spell-owned NPC deaths", ReconcileSpellOwnedNpcDeaths);
+		bootTimings.Measure("Persist startup changes", SaveManager.Flush);
 
-        GameStatistics.LastStartupSpan = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
         ConsoleUtilities.WriteLine("\n#EAttempting to connect to Discord Server...#0");
         DiscordConnection = new DiscordConnection(this);
         if (DiscordConnection.OpenTcpConnection())
@@ -613,6 +626,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         {
             ConsoleUtilities.WriteLine("#9Was unable to connect to the Discord Server.#0");
         }
+
+        sw.Stop();
+        GameStatistics.LastStartupSpan = sw.Elapsed;
+        ConsoleUtilities.WriteLine($"Total Boot Time: #2{sw.Elapsed}#0");
+        bootTimings.LoaderComplete();
 
         // Boot-finished hooks can populate a large world. Begin the live heartbeat
         // after those callbacks so their runtime is not replayed as overdue ticks.
@@ -2944,31 +2962,6 @@ For information on the syntax to use in emotes (such as those included in bracke
         List<Npc> npcs = (from npc in FMDB.Context.Npcs
                                     .Include(x => x.NpcsArtificialIntelligences)
                                     .Include(x => x.Character)
-                          /*            .Include(x => x.Character.Body.BodiesGameItems)
-                                      .Include(x => x.Character.CharactersAccents)
-                                      .Include(x => x.Character.CharactersLanguages)
-									  .Include(x => x.Character.CharactersSignedLanguages)
-									  .Include(x => x.Character.CharactersSignedLanguageVarieties)
-                                      .Include(x => x.Character.Body.BodiesSeveredParts)
-                                      .Include(x => x.Character.Body.Characteristics)
-                                      .Include(x => x.Character.AlliesCharacter)
-                                      .Include(x => x.Character.Body.Traits)
-                                      .Include(x => x.Character.PerceiverMerits)
-                                      .Include(x => x.Character.Body.PerceiverMerits)
-                                      .Include(x => x.Character.Body.BodiesDrugDoses)
-                                      .Include(x => x.Character.Body.BodiesDrugExposures)
-                                      .Include(x => x.Character.Body.BodiesProsthetics)
-                                      .Include(x => x.Character.Body.BodiesImplants)
-                                      .Include(x => x.Character.HooksPerceivables)
-                                      .Include(x => x.Character.CharactersChargenRoles)
-                                      .Include(x => x.Character.Dubs)
-                                      .Include(x => x.Character.CharactersScripts)
-                                      .Include(x => x.Character.ActiveProjects)
-                                      .Include(x => x.Character.CharacterKnowledges)
-                                      .Include(x => x.Character.CharactersMagicResources)
-                                      .Include(x => x.Character.Body.Wounds)
-                                      .ThenInclude(x => x.Infections)
-                          */
                           where !npc.Character.IsArchived && !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
                               && !FMDB.Context.MagicSpellLifecycles.Any(life => life.Diagnostic.StartsWith(MudSharp.Magic.Lifecycle.SpellOwnedNpcService.ActivationPendingDiagnostic)
                                   && life.Entities.Any(e => e.Kind == (int)MudSharp.Magic.SpellOwnedEntityKind.AutonomousCharacter && e.EntityId == npc.CharacterId))
@@ -2991,6 +2984,9 @@ For information on the syntax to use in emotes (such as those included in bracke
         var companionPrimaryInstances = FMDB.Context.CharacterInstances.AsNoTracking()
             .Where(x => x.IsPrimary && companionHandlerIds.Contains(x.CharacterId))
             .Select(x => new { x.CharacterId, x.LocationId, x.RoomLayer, x.State }).ToDictionary(x => x.CharacterId);
+        _bootTimeCachedCharacters = CharacterBootGraph.Load(FMDB.Context, loadableNpcs.Select(x => x.CharacterId));
+        try
+        {
         foreach (Npc npc in loadableNpcs)
         {
             ICharacter newNpc = TryGetCharacter(npc.CharacterId);
@@ -3041,6 +3037,11 @@ For information on the syntax to use in emotes (such as those included in bracke
             {
                 Rooms.First().Login(newNpc);
             }
+        }
+        }
+        finally
+        {
+            _bootTimeCachedCharacters = null;
         }
 #if DEBUG
         sw.Stop();
@@ -3344,6 +3345,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Restart();
         List<(IFutureProg Prog, long Milliseconds)> compilationTimes = new();
 #endif
+		using (new FutureProg.FutureProgCompilationBatch(this, _futureProgs))
         foreach (IFutureProg prog in _futureProgs)
         {
 #if DEBUG
@@ -3785,6 +3787,7 @@ For information on the syntax to use in emotes (such as those included in bracke
             Room newRoom = new(room, _zones.Get(room.ZoneId));
             loadedRooms[room] = newRoom;
             _rooms.Add(newRoom);
+            RoomTemplateInstanceIndex.For(this).Register(newRoom);
         }
 #if DEBUG
         sw.Stop();
@@ -3820,6 +3823,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Restart();
 #endif
         ExitManager = new ExitManager(this);
+        ((ExitManager)ExitManager).PrepareBootCache();
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
@@ -4382,6 +4386,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                          .Include(x => x.TargetTowLinks)
                                          .Include(x => x.DamageZones).ThenInclude(x => x.Wounds)
 										 .Include(x => x.Dockings)
+                                         .AsSplitQuery()
                                          .AsNoTracking()
                                          select vehicle).ToList();
         var repairedProjectionLinks = 0;

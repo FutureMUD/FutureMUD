@@ -6,6 +6,7 @@ namespace MudSharp.FutureProg.Statements;
 
 internal class IfBlock : Statement
 {
+	private static readonly Regex EndColouriseRegex = new(@"^\s*end (.+)", RegexOptions.IgnoreCase);
     private static readonly Regex IfBlockCompileRegex = new(@"^\s*if\s*\((.+)\)$",
         RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
@@ -228,14 +229,14 @@ internal class IfBlock : Statement
     private static string ColouriseEndStatement(string line)
     {
         return
-            ("end " + new Regex(@"^\s*end (.+)", RegexOptions.IgnoreCase).Match(line).Groups[1].Value).Colour(
+            ("end " + EndColouriseRegex.Match(line).Groups[1].Value).Colour(
                 Telnet.Blue, Telnet.Black);
     }
 
     private static string ColouriseEndStatementDarkMode(string line)
     {
         return
-            ("end " + new Regex(@"^\s*end (.+)", RegexOptions.IgnoreCase).Match(line).Groups[1].Value).Colour(
+            ("end " + EndColouriseRegex.Match(line).Groups[1].Value).Colour(
                 Telnet.KeywordPink);
     }
 

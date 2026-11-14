@@ -30,6 +30,14 @@ Built-in compiler registrations are indexed by case-insensitive canonical functi
 
 Compilation remains a lower priority than execution. Compiler changes must preserve existing diagnostics and are retained only when they do not regress representative compilation.
 
+## Startup compilation and presentation
+
+Boot compilation builds a thread-local, scoped index of user-defined function names after all progs are loaded. Each name retains its overloads in repository order; resolution preserves invariant case-insensitive matching, the first compatible signature and `AcceptsAnyParameters`. Scope disposal restores the previous lookup even on failure. Outside a batch, normal repository lookup remains authoritative, so builder additions, removals and renames do not require a long-lived cache invalidation scheme. Computer-context restrictions still reject user-defined calls before resolution.
+
+Colourised source is presentation data, computed on first display and cached until the source text or dark-mode setting changes. Construction and compilation do not colourise it. Explicit colourisation remains available to editors. The end-statement colouriser reuses its regex rather than constructing one per source line.
+
+Template-instance lookup uses loaded room membership indexed by template ID, retaining world registration order. Room addition/removal and template-marker changes update the index. Ordinary rooms still return themselves and templates without loaded instances still return an empty collection.
+
 ## Invocation And Frames
 
 `Execute` and `ExecuteWithRecursionProtection` share the same binder and executor. The binder reads arguments by index, uses precomputed parameter descriptors, creates an exactly sized root dictionary, translates each argument to one `IProgVariable`, installs the typed `return` variable, and executes the statement array by index. Parameterless progs use a return-only frame and create a name dictionary lazily only if a statement declares another root variable.

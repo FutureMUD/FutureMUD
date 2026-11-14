@@ -79,6 +79,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [FutureMUD Website and Publishing](./Core/FutureMUD_Website_and_Publishing.md)
 - [FutureMUD Release Process](./Core/FutureMUD_Release_Process.md)
 - [Game Loop, Scheduling, and TCP Runtime](./Core/Game_Loop_and_Scheduling_Runtime.md)
+- [Large-World Startup Performance Investigation (13 November 2026)](./Core/Startup_Performance_Investigation_20261113.md)
 - [FutureProg Execution Runtime](./Core/FutureProg_Execution_Runtime.md)
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)
 - [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)

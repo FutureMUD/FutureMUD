@@ -2,6 +2,10 @@
 
 Inventory plans now support a non-consuming `Retained` material state. It uses the consumed-action quantity/tag/grade/custody selectors but reports a distinct action/result state and never splits, deletes or moves its selected item. Casting receipts include retained inputs. Optional/conditional casting policies and builder syntax are documented in [Configurable Casting](../Magic/Configurable_Casting.md#conditional-materials-and-named-summons--8-november-2026). Existing plans default to their previous behaviour.
 
+## Native component discovery and updates
+
+World item registration maintains media-source and possession-effect lookups without changing custody, item identity or component persistence. Prototype updates add/remove source membership with the corresponding component mutation, so deletion callbacks see the current component set. Obsolete component removal iterates a snapshot to avoid invalidating the active enumeration. Copy/morph construction and final item release retain their normal world-registration boundaries; source location and availability are evaluated from current state.
+
 ## Spellbook and spell scroll instance state
 
 `ISpellbook` formulae and `ISpellScroll` payloads persist in component-instance XML with explicit schema validation. Book copies receive independent formula collections; normal scroll copies start blank. Scrolls reject stackable/container/book composition, merging and charge-transfer morph paths. A durable charge tombstone prevents a stale component save from reactivating or retranscribing a consumed scroll. Deleting a scroll does not delete its operation audit or numerical context retained by applied effects. Abandoned Reserved writing is cancelled on lazy access, restoring only matching unspent slot state. Matching item reservations clear even if the item loads later; committed or consumed work never refunds automatically. See [Vancian persistence and commitment boundaries](../Magic/Vancian_Magic_Runtime.md).

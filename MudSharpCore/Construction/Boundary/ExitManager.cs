@@ -10,6 +10,19 @@ public class ExitManager : IExitManager, IHaveFuturemud
     protected readonly CollectionDictionary<IRoom, IExit> TransientExitDictionary = new();
 
     protected readonly DictionaryWithDefault<long, IExit> MasterExitList = new();
+	private Dictionary<long, Models.Exit>? _bootExitRows;
+
+	internal void PrepareBootCache()
+	{
+		using (new FMDB()) _bootExitRows = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+			.AsNoTracking(FMDB.Context.Exits).ToDictionary(x => x.Id);
+	}
+
+	internal void ReleaseBootCache() => _bootExitRows = null;
+
+	internal static IEnumerable<Models.Exit> SelectBootExits(IReadOnlyDictionary<long, Models.Exit> rows,
+		long roomId, IEnumerable<long> exitIds) => exitIds.Distinct().Where(rows.ContainsKey).Select(x => rows[x])
+		.Where(x => x.RoomId1 == roomId || x.RoomId2 == roomId);
 
     public ExitManager(IFuturemud gameworld)
     {
@@ -51,8 +64,9 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
         using (new FMDB())
         {
-            List<Models.Exit> exits =
-                FMDB.Context.Exits.Where(
+            List<Models.Exit> exits = _bootExitRows is { } cached && overlay.ExitIDs.All(cached.ContainsKey)
+				? SelectBootExits(cached, room.Id, overlay.ExitIDs).ToList()
+				: FMDB.Context.Exits.Where(
                         x => (x.RoomId1 == room.Id || x.RoomId2 == room.Id) && overlay.ExitIDs.Contains(x.Id))
                     .ToList();
             List<IExit> exitList = new();
@@ -354,6 +368,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
     public void UpdateRoomOverlayExits(IRoom room, IRoomOverlay overlay)
     {
+		ReleaseBootCache(); // Persistent topology may have changed; use authoritative rows again.
         // It is only necessary to update if it is a Room / Room Overlay combo that we have already loaded. Otherwise it can be caught later.
         if (RoomExitDictionary.ContainsKey((room, overlay)))
         {

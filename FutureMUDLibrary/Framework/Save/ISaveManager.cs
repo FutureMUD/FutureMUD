@@ -15,6 +15,9 @@ namespace MudSharp.Framework.Save
         /// </summary>
         void Flush();
 
+		/// <summary>Commits queued new identities in dependency order without draining unrelated dirty saves.</summary>
+		void FlushInitialisationQueue() => Flush();
+
         /// <summary>
         ///     Requests that the save manager abort the queued saving of the item in question
         /// </summary>

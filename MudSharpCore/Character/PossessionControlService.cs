@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using MudSharp.GameItems;
+using MudSharp.Effects;
 using MudSharp.NPC;
 using MudSharp.PerceptionEngine.Handlers;
 
@@ -22,34 +23,19 @@ public static class PossessionControlService
 {
 	public static bool AnyPossessionEffectsForAnchor(ICharacter anchor)
 	{
-		var anchorId = CharacterInstanceIdentityComparer.IdentityId(anchor);
-		var anchorInstanceId = anchor.InstanceId;
-		return PossessionEffectOwners(anchor.Gameworld)
-		       .Any(x =>
-			       x.EffectsOfType<IPossessedBodyEffect>(effect =>
-				        EffectMatchesAnchor(effect.AnchorCharacterId, effect.AnchorInstanceId, anchorId, anchorInstanceId)).Any() ||
-			       x.EffectsOfType<ILiveBodyPossessionEffect>(effect =>
-				        EffectMatchesAnchor(effect.AnchorCharacterId, effect.AnchorInstanceId, anchorId, anchorInstanceId)).Any() ||
-			       x.EffectsOfType<ICorpsePossessionEffect>(effect =>
-				        EffectMatchesAnchor(effect.AnchorCharacterId, effect.AnchorInstanceId, anchorId, anchorInstanceId)).Any());
+		var index = PossessionEffectIndex.For(anchor.Gameworld);
+		return index.ForAnchor<IPossessedBodyEffect>(anchor).Length > 0 ||
+		       index.ForAnchor<ILiveBodyPossessionEffect>(anchor).Length > 0 ||
+		       index.ForAnchor<ICorpsePossessionEffect>(anchor).Length > 0;
 	}
 
 	public static bool RemovePossessionEffectsForAnchor(ICharacter anchor)
 	{
-		var anchorId = CharacterInstanceIdentityComparer.IdentityId(anchor);
-		var anchorInstanceId = anchor.InstanceId;
-		var removed = false;
-		foreach (var owner in PossessionEffectOwners(anchor.Gameworld))
-		{
-			removed |= owner.RemoveAllEffects<ILiveBodyPossessionEffect>(
-				effect => EffectMatchesAnchor(effect.AnchorCharacterId, effect.AnchorInstanceId, anchorId, anchorInstanceId),
-				true);
-			removed |= owner.RemoveAllEffects<ICorpsePossessionEffect>(
-				effect => EffectMatchesAnchor(effect.AnchorCharacterId, effect.AnchorInstanceId, anchorId, anchorInstanceId),
-				true);
-		}
-
-		return removed;
+		var index = PossessionEffectIndex.For(anchor.Gameworld);
+		var effects = index.ForAnchor<ILiveBodyPossessionEffect>(anchor).Cast<IEffect>()
+			.Concat(index.ForAnchor<ICorpsePossessionEffect>(anchor)).ToArray();
+		foreach (var effect in effects) effect.Owner.RemoveEffect(effect, true);
+		return effects.Length > 0;
 	}
 
 	public static bool RemoveLiveBodyPossessionEffectsForTarget(ICharacter target)

@@ -40,6 +40,16 @@ internal sealed partial class ArmageddonWorldfileWriter
 	private void CompileProgs()
 	{
 		Flush();
+		var aliases = ArmageddonWorldfileProgConsolidation.Apply(_db, _progs);
+		var removed = aliases.Select(x => x.OriginalId).ToHashSet();
+		_progs.RemoveAll(x => removed.Contains(x.Id));
+		Record("progs.shared", "ArmageddonWorldfileProgSharing", null, null, new
+		{
+			Version = 1, Aliases = aliases,
+			Provenance = "Source snapshots retain historical IDs and names. Resolve historical program references through these aliases; typed FutureProg logical IDs point at their canonical row."
+		});
+		_counts["shared prog aliases"] = aliases.Count;
+		Flush();
 		using var compiler = new EngineCompiler::MudSharp.Framework.OfflineProgCompilation(
 			_db.FutureProgs.Include(x => x.FutureProgsParameters).AsNoTracking().ToArray(),
 			_db.VariableDefinitions.AsNoTracking().ToArray());

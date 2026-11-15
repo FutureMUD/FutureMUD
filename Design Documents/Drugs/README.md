@@ -1,11 +1,10 @@
-# Drug System Documentation
+# Drugs
 
-This folder contains the dedicated drug-system documentation for FutureMUD.
+Start with the master guides below. Outstanding designs are requirements or proposals, while verification/review records describe their stated historical scope. A source-backed guide is not proof that every live acceptance scenario was executed.
 
-## Documents
-- [Drug System Design](./Drug_System_Design.md) is the developer-facing implementation map. It explains `IDrug`, persistence, dosing, metabolism, delivery vectors, effect aggregation, and extension points.
-- [Drug Builder Guide](./Drug_Builder_Guide.md) is the content-facing guide for builders, seeder developers, and AI agents authoring drugs, medicines, venoms, poisons, tinctures, food doses, smokeables, salves, and related delivery items.
+## Master guides
 
-## Relationship To Health
-Drugs are implemented as part of the health runtime, but they are intentionally cross-cutting. A finished drug feature may involve health code, item components, fluid materials, combat attacks, magic spell effects, FutureProg hooks, and DatabaseSeeder content.
+- [FutureMUD Drug System Design](Drug_System_Design.md)
+- [FutureMUD Drug Builder Guide](Drug_Builder_Guide.md)
 
+[Documentation home](../README.md) · [Document roles and naming](../Documentation_Guide.md)

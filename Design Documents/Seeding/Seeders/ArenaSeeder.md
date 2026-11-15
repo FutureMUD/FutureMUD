@@ -25,7 +25,7 @@ All named fields and calls above are authored source. The addition steps are sta
 
 **Worked addition.** For a worked format `Example Duel`, add an EnsureEventType call next to Duel with deliberately chosen time limits, betting/elimination and progs, then create its two sides and allowed-class mappings, and add its exact name to `StockArenaEventTypes` readiness detection. Preserve the selected arena/economic-zone bindings. Verify the event graph rather than only ArenaEventTypes, and follow the arena design for physical rooms and operational provisioning not performed by this template installer. These instructions were source-checked but not executed.
 
-Detailed runtime/builder contracts: [Combat Arenas Design](../../Combat/Combat_Arenas_Design.md).
+Detailed runtime/builder contracts: [Combat Arenas Design](../../Combat/Combat_Arenas_System.md).
 
 ## Declared rerun and ownership contract
 

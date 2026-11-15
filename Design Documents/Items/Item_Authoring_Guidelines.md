@@ -16,9 +16,9 @@ Items in FutureMUD are composed of Item Components that give them functionality.
 
 - If the item has a Variable item component attached to it, all three of the above descriptions can have the value of the variable substituted into them with a markup syntax. This is typically $varname, and sometimes $varnamebasic or $varnamefancy. These variables are usually something like colour but can be used for all sorts of things, such as shapes, designs, motifs, anything really. The details of what the plain form and basic/fancy form mean vary by variable type, but each has an assumed grammatical place. 
 
-- All three of the descriptions can have writing blocks that will be substituted by the viewer depending on their skills. See the [Writing Blocks](#Writing-Blocks) section for details.
+- All three of the descriptions can have writing blocks that will be substituted by the viewer depending on their skills. See the [Writing Blocks](#writing-blocks) section for details.
 
-- All three of the descriptions can have trait check blocks that will be substitued by the viewer depending on their skills. See the [Trait Checks](#Trait-Checks) section for details.
+- All three of the descriptions can have trait check blocks that will be substituted by the viewer depending on their skills. See the [Trait Checks](#trait-checks) section for details.
 
 - Items can also have "Additional Descriptions" that are gated behind progs that return boolean and accept a character as an input. If the prog returns true, the extra text is appended to the description. This could be used to reveal information relevant to classes (e.g. a thief might see an extra description on an item that says the enforcers in the thieves guild will pay for any of these they bring to them, etc)
 

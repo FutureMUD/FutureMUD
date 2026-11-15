@@ -22,7 +22,7 @@ Create an empty MySQL database and a dedicated database user. Keep the connectio
 
 ## 3. Run the Database Seeder
 
-The Database Seeder asks how you want the initial world configured, creates the database content, and writes supporting startup configuration. You can run it again later to install additional supported content. To install stock items, download and run the Item Seeder against that existing database after running Core, Kickstart with Standard Item Components, and Animal Seeder. The selected era can also require stock from Combat, Health Seeder, or Kickstart’s Modern Item Components option. Item Seeder reports missing records and accepts equivalent builder-created records.
+The Database Seeder asks how you want the initial world configured, creates the database content, and writes supporting startup configuration. You can run it again later to install additional supported content. To install stock items, download and run the Item Seeder against that existing database after running Core, Kickstart with Standard Item Components, and Animal Seeder. The selected era can also require stock from Combat, Health Seeder, or Kickstartâ€™s Modern Item Components option. Item Seeder reports missing records and accepts equivalent builder-created records.
 
 ## 4. Start the Engine
 

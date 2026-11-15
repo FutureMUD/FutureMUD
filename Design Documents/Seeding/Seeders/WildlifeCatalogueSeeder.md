@@ -46,6 +46,6 @@ The example was checked against source at the pinned baseline. No build, databas
 
 Related source tests and design references:
 
-- [WildlifeCatalogueSeederTests.cs](../../../DatabaseSeeder%20Unit%20Tests/WildlifeCatalogueSeederTests.cs)
+- [Owning Database Seeder test project](../../../DatabaseSeeder%20Unit%20Tests/DatabaseSeeder%20Unit%20Tests.csproj). The former dedicated test-file pointer no longer resolves; inspect actual assertions before claiming wildlife coverage.
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).

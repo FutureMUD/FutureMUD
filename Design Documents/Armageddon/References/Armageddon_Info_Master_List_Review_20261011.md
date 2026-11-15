@@ -2,7 +2,7 @@
 
 The user supplied this reference and explicitly paused S1 to review and preserve it for magic and later class work. The complete [original text](Armageddon_Info_Master_List_20261011.txt) is archived byte for byte. The [structured extraction and comparison](Armageddon_Info_Master_List_Review_20261011.json) and [skill-table TSV](Armageddon_Info_Master_List_Skill_Tables_20261011.tsv) retain original line numbers and printed values.
 
-This is source evidence, not an implementation instruction or automatic amendment of the [locked seeder decisions](../../Magic/Armageddon_Seeder_Decisions_20261011.md). S1 implementation is paused at `76afe8f94553615b40a428cf39551018fb5ff465`; no S1 source code, tests or database installation were changed before the pause. N23 remains the latest bounded runtime checkpoint. The review/archive itself changes documentation only.
+This is source evidence, not an implementation instruction or automatic amendment of the [locked seeder decisions](../Magic/Seeder_Decisions_20261011.md). S1 implementation is paused at `76afe8f94553615b40a428cf39551018fb5ff465`; no S1 source code, tests or database installation were changed before the pause. N23 remains the latest bounded runtime checkpoint. The review/archive itself changes documentation only.
 
 ## Preservation and provenance
 

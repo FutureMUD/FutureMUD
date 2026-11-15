@@ -47,7 +47,7 @@ The example was checked against source at the pinned baseline. No build, databas
 
 Related source tests and design references:
 
-- [PrimaryProductionSeederTests.cs](../../../ItemSeeder%20Unit%20Tests/PrimaryProductionSeederTests.cs)
+- [Owning Item Seeder test project](../../../ItemSeeder%20Unit%20Tests/ItemSeeder%20Unit%20Tests.csproj). The former dedicated test-file pointer no longer resolves; this link does not establish focused Primary Production coverage.
 - [Primary_Production_Seeder_Design_Reference.md](../../../Design%20Documents/Seeding/Primary_Production_Seeder_Design_Reference.md)
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).

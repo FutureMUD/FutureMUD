@@ -532,7 +532,7 @@ focus on the primary; `instances` supplies the numbered selection for `focus`. S
 stays at its figurine anchor. Walking Shadow permits bounded native-exit observation travel
 while its primary body is helpless in trance. Both prohibit physical manipulation and collapse
 on damage, severance, expiry and logout/reboot. See the explicit bindings and policy limits in
-the [Armageddon builder guide](../Magic/Armageddon_Partial_Installer_Builder_Guide.md).
+the [Armageddon builder guide](../Armageddon/Magic/Partial_Installer_Builder_Guide.md).
 
 Magical copy:
 

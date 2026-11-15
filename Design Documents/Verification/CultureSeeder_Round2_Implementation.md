@@ -2,7 +2,7 @@
 
 Implementation commit: `e052681cf6efd6170c3d776afd9ff8b45474fec1`. Branch: `codex/culture-toolkit-round2`. Base: PR #732, `2bbcdff3ed52e200ef17faa61dc3af0d9e9f3b86`, including PR #730. No merge, migration, legacy reset, alias change or new chargen screen is part of this change.
 
-The supplied [corrective handoff](../Seeding/CultureSeederRound2Handoff/AGENT_TASK.md) is retained with its original manifest, reference evidence and validator. Runtime inputs remain under `CultureSeederRedesignHandoff`: the revised names, merged exact native bindings, two new policy documents and additional bibliography entries. The original explicit 28-resource manifest prevented unrelated files from concealing missing required inputs. JSON duplicate properties and stable keys fail loading.
+The supplied [corrective handoff](../Seeding/Seeders/CultureSeeder.md) is retained with its original manifest, reference evidence and validator. Runtime inputs remain under `CultureSeederRedesignHandoff`: the revised names, merged exact native bindings, two new policy documents and additional bibliography entries. The original explicit 28-resource manifest prevented unrelated files from concealing missing required inputs. JSON duplicate properties and stable keys fail loading.
 
 ## Script acquisition
 

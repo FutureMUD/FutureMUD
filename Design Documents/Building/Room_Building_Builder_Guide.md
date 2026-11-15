@@ -1,12 +1,12 @@
 # Room Building Builder Guide
 
-The canonical administrative building command is `room`; `room` remains an alias with identical permissions and dispatch. The live internal and database concept is Room, retaining the former Cell ID. Legacy containing Rooms are removed rather than renamed into playable locations. All examples use the canonical command; existing `room` commands retain identical dispatch. Optional unique names remain room-wide, case-insensitively unique, and independent of overlays; numeric IDs and FutureProg Location values retain their established meaning.
+The canonical administrative building command is `room`; `cell` remains an alias with identical permissions and dispatch. The live internal and database concept is Room, retaining the former Cell ID. Legacy containing Rooms are removed rather than renamed into playable locations. All examples use the canonical command; existing `cell` commands retain identical dispatch. Optional unique names remain room-wide, case-insensitively unique, and independent of overlays; numeric IDs and FutureProg Location values retain their established meaning.
 
 Gameplay commands that target exits use the shared `IRoom.GetExitKeyword` resolver, including door and lock manipulation, door smashing/destruction, directional socials, tollkeeper mode, and exit-targeted spell casting. Cardinal aliases resolve exactly (`n`/`north`, `ne`/`northeast`/`north-east`, `nw`/`northwest`/`north-west`), independently of exit ordering. Non-cardinal exits retain their configured keyword matching. Forced movement also uses exit-specific keyword matching when considering exits across layers. Builder exit editing retains its separate exact-direction, exit-ID, and exact named-keyword lookup. These lookup changes require no database migration or world-data repair.
 
 This guide explains the FutureMUD room-building model for engine users, world builders, and AI agents helping them. It focuses on the builder-facing workflow and command surface rather than the internal persistence model.
 
-A Room is the playable location. The `room` command is a compatibility alias.
+A Room is the playable location. The `cell` command is a compatibility alias for `room`.
 
 ## Stable room identifiers
 
@@ -501,7 +501,7 @@ When an exit is shared by other overlays, edit commands copy it into the current
 
 ## Linear RouteRooms
 
-A RouteRoom is one long, linear room with exact metre coordinates. Use it for a road, railway, river, tunnel, or other corridor whose scale would otherwise require thousands of ordinary rooms. It is not a vehicle timetable: scheduled operational itineraries are authored separately with `vehicleroute`, then attached to recurring operations with `vehicleservice`. See [RouteRoom Spatial System](../World/Route_Cell_System.md) and [Vehicle System](../Vehicle_System.md).
+A RouteRoom is one long, linear room with exact metre coordinates. Use it for a road, railway, river, tunnel, or other corridor whose scale would otherwise require thousands of ordinary rooms. It is not a vehicle timetable: scheduled operational itineraries are authored separately with `vehicleroute`, then attached to recurring operations with `vehicleservice`. See [RouteRoom Spatial System](../World/Route_Cell_System.md) and [Vehicle System](../World/Vehicle_System.md).
 
 Create and inspect the geometry:
 

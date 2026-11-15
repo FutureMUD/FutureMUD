@@ -252,4 +252,4 @@ Rank and appointment editing include `address` rules, with the same creation/edi
 
 `clan set addresslook` requires clan-detail editing permission and toggles that clan's shared-clan look hint. `clan address <clan> <speaker|none> <subject> [hidden]` is an administrator-only local-character resolution preview; `hidden` is an explicit diagnostic disclosure override. NPC-facing text getters have no such override. The global wording is edited through `editstaticstring ClanFormOfAddressLookFormat`.
 
-See [Clan forms of address](Clan_Forms_of_Address_Design.md) for commands, nullable-speaker behavior, conditional signatures and template-copy semantics.
+See [Clan forms of address](Clan_Forms_of_Address.md) for commands, nullable-speaker behavior, conditional signatures and template-copy semantics.

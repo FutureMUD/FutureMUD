@@ -147,7 +147,7 @@ Character-side behavior is important:
 Important current-state notes:
 
 - `PowerLevel` is persisted and shown in builder output, but no generic runtime rule using it was identified in the inspected files
-- `ShowMagicResourcesInPrompt` exists on the capability and is exposed in builder commands, but the implementation file itself marks prompt support as `TODO`
+- `ShowMagicResourcesInPrompt` is exposed in capability builder commands and is consumed by classic/full character prompts when the account prompt includes `IncludeMagic`; an old source TODO is not an indication that prompt rendering is absent
 
 ### Builder Workflow
 The builder entry point is `magic capability`.

@@ -4,7 +4,7 @@
 
 The implementation starts at `420fa26a7cb2be11fbb7b973e7e5270976e95067`, a verified descendant of PR #730 commit `961efca81da0d788bbfb86ccf55fea313c9bf065`. The implementation commit is reported with the final delivery; this record is maintained in that same change.
 
-The final handoff is restored under [CultureSeederRedesignHandoff](../Seeding/CultureSeederRedesignHandoff/AGENT_TASK.md). The original 22 data and four research JSON files pass the supplied **26/26** presence, parse and SHA-256 checks. The original catalogue validator passes **3,810/3,810** checks. These are input checks, not C#, MySQL or historical-attestation tests. Git attributes preserve their original bytes.
+The final handoff is restored under [CultureSeederRedesignHandoff](../Seeding/Seeders/CultureSeeder.md). The original 22 data and four research JSON files pass the supplied **26/26** presence, parse and SHA-256 checks. The original catalogue validator passes **3,810/3,810** checks. These are input checks, not C#, MySQL or historical-attestation tests. Git attributes preserve their original bytes.
 
 ## Installed behavior
 

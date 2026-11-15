@@ -43,9 +43,8 @@ The example was checked against source at the pinned baseline. No build, databas
 Related source tests and design references:
 
 - [PsionicCombatSeederTests.cs](../../../DatabaseSeeder%20Unit%20Tests/PsionicCombatSeederTests.cs)
-- [PsionicPowerSeederSourceTests.cs](../../../DatabaseSeeder%20Unit%20Tests/PsionicPowerSeederSourceTests.cs)
 - [PsionicsSeederTests.cs](../../../DatabaseSeeder%20Unit%20Tests/PsionicsSeederTests.cs)
-- [Armageddon_Magic_Psionics_Gap_Report.md](../../../Design%20Documents/Magic/Armageddon_Magic_Psionics_Gap_Report.md)
+- [Magic_Psionics_Gap_Report.md](../../Armageddon/Magic/Magic_Psionics_Gap_Report.md)
 - [Psionics_Seeder.md](../../../Design%20Documents/Seeding/Psionics_Seeder.md)
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).

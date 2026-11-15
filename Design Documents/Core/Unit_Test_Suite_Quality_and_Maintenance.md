@@ -8,40 +8,25 @@ Tests should normally exercise a public or internal behavioral seam. Direct insp
 
 ## Test Gates
 
-Run a single-node restore before either gate:
+Use the paired repository entry points; they restore/build the selected graph before no-build/no-restore test execution. A whole-solution restore is not a prerequisite for a targeted run.
 
 ```powershell
-dotnet restore MudSharp.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+& .\scripts\test-unit.ps1 -OutputMode Compact
 ```
 
-The default gate is:
-
-```powershell
-& .\scripts\test-unit.ps1
+```bash
+bash ./scripts/test-unit.sh --output-mode compact
 ```
 
-`scripts/unit-test-projects.txt` is the canonical default-project manifest consumed by both `test-unit.ps1` and `test-unit.sh`. Both runners build projects sequentially to avoid shared-output locks and then run the already-built, process-isolated test hosts in parallel. Any project failure makes the overall runner fail.
+`scripts/unit-test-projects.txt` is the canonical default-project manifest. The default suite currently selects library, expression, database seeder, runtime, persistence, Discord, converter, website, TerrainPlanner and TestReporting projects. ItemSeeder and ArmageddonSeeder have separate product gates/solutions. MudClient has release qualification and can be selected explicitly; the separate ordinary PR gate is recorded in [PR 869](https://github.com/FutureMUD/FutureMUD/pull/869), which is not part of this document's base revision.
 
-It runs every fast, meaningful test project:
+Select one project with `-Project '<path>.csproj'` / `--project '<path>.csproj'`. Builds are serial; a project failure must make the gate fail. The fast suite excludes Integration, Benchmark, ClimateSeeder and PsychicBenchmark. Extended coverage requires explicit opt-in; the dedicated climate workflow keeps multi-year simulation outside the normal pass. Do not treat historical case counts below as a current inventory or coverage percentage.
 
-| Project | Responsibility | Tests after the July 2026 review |
-| --- | --- | ---: |
-| `FutureMUDLibrary Unit Tests` | Shared abstractions, extension methods, utilities, and value objects | 396 |
-| `ExpressionEngine Unit Tests` | Expression parsing, evaluation, custom functions, and failure semantics | 21 |
-| `DatabaseSeeder Unit Tests` | Seeder behavior, repeatability, content contracts, and maintained catalogues | 539 |
-| `MudSharpCore Unit Tests` | Engine runtime and gameplay behavior | 1,672 |
-| `MudsharpDatabaseLibrary Unit Tests` | Upgrade coordination, model compatibility, and persistence helpers | 27 |
-| `DiscordBotCore Unit Tests` | Discord protocol parsing and bot integration glue | 22 |
-| `RPI Engine Worldfile Converter Tests` | Legacy parsing and conversion compatibility | 43 |
-| `FutureMUD.Web.Tests` | Website endpoints, publishing, documentation transport, and security | 49 |
+### Test execution and source evidence
 
-The extended climate gate remains separate because it performs deterministic multi-year simulations:
+The [reporter contract](../../scripts/TestReporting/README.md) owns receipt/status semantics, source fingerprints and subprocess handling. Git stdout/stderr are drained concurrently, preserving complete stdout for hashing while bounding surfaced diagnostics. Each Git operation has a 60-second ceiling linked to the original run deadline; cancellation does not begin a fresh fingerprint or extend the deadline. Cleanup targets only the owned process tree, with bounded drain/reap waits.
 
-```powershell
-& .\scripts\test-unit-climate.ps1
-```
-
-It currently contains 34 resolved test cases and takes roughly 42 seconds on the July 2026 Windows development environment.
+A missing initial Git prerequisite is BLOCKED; incomplete or unavailable source evidence cannot produce a stable-source PASS. Two complete captures are required to establish stability. Confirmed build/test failure retains precedence, and uncertain cleanup remains visible. The implemented helper and compiled FakeGit regressions supersede the completed Git-process fix brief. Tests of pipe saturation, NUL/tail preservation, operation/caller timeout, inherited pipes and owned descendants remain durable requirements, rather than source-text snapshots.
 
 ## Test Design Rules
 
@@ -103,7 +88,7 @@ The Discord suite grew from 5 to 22 cases. It now covers framing, size limits wi
 
 The database-library suite grew from 12 to 27 cases. It now covers request validation, settings repair, migration progress and ordering, attempted-state persistence, recovery matching, rollback failures, disabled backups, snapshot exception cleanup, and pruning. It exposed malformed backup-settings JSON as a permanent startup failure; loading now replaces damaged JSON with defaults. The lifecycle is documented in `Database_Upgrade_Coordination.md`.
 
-Normal CI is defined in `.github/workflows/unit-tests.yml` and runs the canonical default gate on .NET 10 for Windows and Linux in parallel matrix jobs. `.github/workflows/climate-tests.yml` keeps the unchanged multi-year climate suite separate on a weekly and manual schedule. Neither workflow collects coverage or runs mutation testing.
+Normal CI is defined in `.github/workflows/unit-tests.yml` and runs the canonical default gate using the checked-out SDK/toolchain for Windows and Linux in parallel matrix jobs. `.github/workflows/climate-tests.yml` keeps the unchanged multi-year climate suite separate on a weekly and manual schedule. Neither workflow collects coverage or runs mutation testing.
 ## Remaining Risks and Priorities
 
 The suite is broad but not demonstrably complete because this branch intentionally does not add line/branch coverage or mutation tooling. Raw coverage percentage should not become a target by itself.

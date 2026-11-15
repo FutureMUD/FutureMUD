@@ -97,7 +97,7 @@ Pope and religious/support offices use the specified immediate-resignation conve
 
 ## Courtesy styles and ordination
 
-The templates include optional direct forms of address through the generic [clan address system](../Economy/Clan_Forms_of_Address_Design.md). Clergy and selected offices supply editable English styles such as Father, Your Excellency, Your Eminence and Your Holiness. Religious profession stays independent of ordination: a male religious member can be addressed as Brother or Father according to their current rank in the explicitly bound Church. Female-house variants adjust the corresponding rules to Sister and selected Mother styles. These are configurable gameplay conventions, not universal historical protocol.
+The templates include optional direct forms of address through the generic [clan address system](../Economy/Clan_Forms_of_Address.md). Clergy and selected offices supply editable English styles such as Father, Your Excellency, Your Eminence and Your Holiness. Religious profession stays independent of ordination: a male religious member can be addressed as Brother or Father according to their current rank in the explicitly bound Church. Female-house variants adjust the corresponding rules to Sister and selected Mother styles. These are configurable gameplay conventions, not universal historical protocol.
 
 Cloning copies all ordered rules and office address priorities with independent rule IDs. Bound address predicates are regenerated for the new clone; they follow that clone's Church binding. No Catholic-specific engine functions or commands are added.
 

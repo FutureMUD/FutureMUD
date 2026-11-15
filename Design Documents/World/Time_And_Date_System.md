@@ -695,3 +695,9 @@ Useful extensions include:
 - more FutureProg helper functions for calendar math, such as `daysbetween`, `monthstart`, `monthend`, and `weekdayname`
 - stronger validation for calendars linked to shards, zones, celestials, weather controllers, economies, and clans before deletion or major edits
 - an admin repair/report command that enumerates stored time strings that would currently trigger fallbacks
+
+## Calendar precision and deferred design
+
+All six algorithm families exist: fixed months, tabular lunar, calculated Hebrew, solar-equinox, astronomical-lunar and East Asian lunisolar. Their names do not all imply ephemeris-driven calculations. The [calendar algorithms](../../MudSharpCore/TimeAndDate/Date/CalendarAlgorithms.cs) currently implement `solar-equinox` leap years using a deterministic 33-year cycle; `TargetLongitude` is stored/displayed metadata, not an event-solver year boundary. `astronomical-lunar` uses the mean 29.530588853-day synodic period. East Asian lunisolar uses mean month lengths with fixed Metonic leap-year/month placement, rather than winter-solstice/principal-solar-term evaluation. The independent event solver supports queries and sunrise/sunset boundaries; it does not change those month/year algorithms into ephemeris-based ones.
+
+The completed calendar-refactor plan is consolidated here with its unfinished precision requirements preserved: ephemeris-derived solar year/lunar month starts, East Asian solstice/principal-term leap-month determination and jurisdiction-specific observation/confirmation ledgers remain deferred. Persisted builder boundaries support midnight, fixed clock time, sunrise and sunset; the reserved `AstronomicalEvent` boundary value is not available for builder persistence. A future observation ledger should record or override deterministic predictions, not make official dates depend on ambient weather. These are outstanding designs, not delivered accuracy guarantees.

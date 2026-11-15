@@ -1,5 +1,7 @@
 # Multiple Simultaneous Character Bodies / Character Instances
 
+**Architecture and staged design.** The V1 foundation is implemented, as recorded in the implementation/status sections below. The opening design and later advanced policies include proposals; the old blanket Draft label must not be read as absence of the V1 runtime. For practical current behavior start with [Multiple Body Form System](Multiple_Body_Form_System.md) and the [builder guide](Multiple_Body_Forms_and_Instances_Builder_Guide.md). Remaining extensions and dated verification retain their own status.
+
 **Status:** Draft design proposal  
 **Area:** Characters, bodies, forms, controllers, movement, combat, effects, persistence  
 **Related document:** `Design Documents/Characters/Multiple_Body_Form_System.md`  

@@ -39,7 +39,7 @@ Historical object statistics, event-unit conversion, all native grades/output
 choices, full installer composition and native commerce/crafting matrices remain
 separate gates.
 
-The [11 October N21 checkpoint](../../Design%20Documents/Magic/Armageddon_Permanent_Tier_Checkpoint_20261011.md)
+The [11 October N21 checkpoint](../../Design%20Documents/Armageddon/Magic/Verification/Permanent_Tier_Checkpoint_20261011.md)
 records the qualified run, exact inputs, payments, retained failures and limits.
 
 ## Initial Fury/Calm scenario
@@ -169,7 +169,7 @@ preflight; no effect is removed and no scheduler entry is excluded from the cens
 This isolates incidental ordinary skill cooldowns from the guardian lifecycle gate.
 Each stage restores every original improver definition byte-for-byte while stopped.
 
-The [9 October installed N16 checkpoint](../../Design%20Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.md) qualifies all 32 restart cycles and the continuous 128-output batch with 2,728 native assertions with identical common runtime source/binary inputs and separately pinned normal-cycle and batch scenario revisions. The current Core/Library suites pass 7,069 tests. This bounded fixture qualification preserves the ordinary permanent guardian and does not establish full catalogue, historical balance or Release readiness.
+The [9 October installed N16 checkpoint](../../Design%20Documents/Armageddon/Magic/Verification/Guardian_Churn_Checkpoint_20261009.md) qualifies all 32 restart cycles and the continuous 128-output batch with 2,728 native assertions with identical common runtime source/binary inputs and separately pinned normal-cycle and batch scenario revisions. The current Core/Library suites pass 7,069 tests. This bounded fixture qualification preserves the ordinary permanent guardian and does not establish full catalogue, historical balance or Release readiness.
 
 ## N22 charged-device activation
 
@@ -214,7 +214,7 @@ capability restoration are required; owned MySQL and its port must close.
 
 The final JSON receipt decides status after cleanup. Retain failed attempts and
 their data; never aggregate their counts into qualification. Source/binary inputs
-remain frozen while running. The [N22 checkpoint](../../Design%20Documents/Magic/Armageddon_Item_Activation_Checkpoint_20261011.md)
+remain frozen while running. The [N22 checkpoint](../../Design%20Documents/Armageddon/Magic/Verification/Item_Activation_Checkpoint_20261011.md)
 records exact final evidence and limitations. N23 recharge and natural stock
 progression remain separate gates.
 

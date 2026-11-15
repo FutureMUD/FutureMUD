@@ -1,5 +1,7 @@
 # Native Organic Yields Verification
 
+**Historical verification receipt for the original organic-yield slice.** The statement below that the Land command was not implemented applies to that delivery only. Current Land selection/commit behavior is documented in [Regional Land Gathering](Regional_Land_Gathering.md); later rejuvenation evidence is in [Land Rejuvenation Verification](Land_Rejuvenation_Verification.md). This receipt does not supersede those guides or establish current end-to-end Land acceptance.
+
 ## Task 3A remaining corrections and native acceptance (20 September 2026)
 
 Assignment: `03A_PR754_Remaining_Corrections_and_Verification.md`, **Task 3A — Finish the PR #754 corrections and native acceptance**, task ID `MAGIC-LAND-YIELDS-03A-CORRECTIONS-FOLLOWUP`. The checked-out source was reviewed PR #754 head `100f3d9f0502bcbe67e6b0d36620ec2f82bae87a` on `codex/pr754-remaining-corrections`. The final commands below ran against that revision plus the uncommitted corrective changeset. This section supersedes the historical C-P03 gap recorded below; the earlier run remains as dated evidence.

@@ -138,3 +138,9 @@ V1 does not implement Monster groups, blood feeding, resurrection, phylacteries,
 ## Verification
 
 See [MonsterAISmokeWorld](../../scripts/MonsterAISmokeWorld/README.md) for native acceptance and its evidence record. Automated coverage lives in `MonsterAITests`, the existing AI/predator/pathing/combat suites and `MonsterAIStockTemplateTests`. The proposal remains available as the approved design record, not a second command reference.
+
+## Delivered design and extension boundary
+
+The implemented V1 uses a sibling `MonsterAI` over shared creature/pathing mechanics. Non-feeding motives, authored schedules, home/territory/provocation and existing predator openings remain configurable; stock recommendations do not grant anatomy, attacks, equipment, spells or powers. Setup validation and founder diagnostics must continue to expose those missing dependencies. Absolute target, capability and pathing gates still apply when a monster is highly motivated.
+
+The retired V1 proposal is superseded by this guide and the recommendation manifest. The exclusions above remain deliberate scope boundaries, not an implicit follow-up implementation promise. Native evidence remains in the linked smoke-world record.

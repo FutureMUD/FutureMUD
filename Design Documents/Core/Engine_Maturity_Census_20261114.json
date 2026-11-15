@@ -1,0 +1,927 @@
+{
+  "audit_date": "2026-11-15",
+  "source_revision": "b32228996a95b745a6ad02298d582347b788ce7e",
+  "scope": "Tracked C# physical-file census, not semantic coverage or passing tests. Nested companion-product test sources may be included in product-root totals.",
+  "method": {
+    "physical_lines": "Python str.splitlines count; includes blanks and comments",
+    "unimplemented_regex": "\\bthrow\\s+new\\s+NotImplementedException\\s*\\(",
+    "marker_regex": "\\b(?:TODO|FIXME|HACK)\\b",
+    "last_touch": "Newest reachable HEAD git log path touch, --diff-filter=AM --no-renames; not last substantive review. Merge simplification or renames can omit history.",
+    "old_cutoff": "2024-11-14",
+    "excluded_path_parts": [
+      "bin",
+      "obj",
+      "MigrationBackup",
+      "MigrationModels"
+    ],
+    "tests_run": false,
+    "live_world_run": false
+  },
+  "design_markdown_files_before_report": 529,
+  "folders": [
+    {
+      "area": "ArmageddonSeeder",
+      "files": 200,
+      "lines": 26672,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "DatabaseSeeder",
+      "files": 254,
+      "lines": 203700,
+      "not_implemented": 3,
+      "todo": 1,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "DiscordBotCore",
+      "files": 36,
+      "lines": 3679,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-10",
+      "older_than_2024": 0
+    },
+    {
+      "area": "ExpressionEngine",
+      "files": 2,
+      "lines": 418,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-24",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUD.Web",
+      "files": 21,
+      "lines": 3250,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-08-27",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Accounts",
+      "files": 3,
+      "lines": 203,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-04-06",
+      "older_than_2024": 1
+    },
+    {
+      "area": "FutureMUDLibrary/Arenas",
+      "files": 11,
+      "lines": 572,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-07",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Body",
+      "files": 50,
+      "lines": 3475,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-09",
+      "older_than_2024": 4
+    },
+    {
+      "area": "FutureMUDLibrary/Celestial",
+      "files": 6,
+      "lines": 372,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-09-26",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Character",
+      "files": 28,
+      "lines": 2278,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/CharacterCreation",
+      "files": 20,
+      "lines": 960,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-10",
+      "older_than_2024": 3
+    },
+    {
+      "area": "FutureMUDLibrary/Climate",
+      "files": 9,
+      "lines": 463,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Combat",
+      "files": 51,
+      "lines": 2004,
+      "not_implemented": 1,
+      "todo": 0,
+      "newest": "2026-11-08",
+      "older_than_2024": 5
+    },
+    {
+      "area": "FutureMUDLibrary/Commands",
+      "files": 7,
+      "lines": 267,
+      "not_implemented": 0,
+      "todo": 1,
+      "newest": "2026-10-07",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Communication",
+      "files": 18,
+      "lines": 1288,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-04",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Community",
+      "files": 20,
+      "lines": 1003,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-11",
+      "older_than_2024": 1
+    },
+    {
+      "area": "FutureMUDLibrary/Computers",
+      "files": 12,
+      "lines": 976,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-09-01",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Construction",
+      "files": 41,
+      "lines": 2728,
+      "not_implemented": 1,
+      "todo": 0,
+      "newest": "2026-11-12",
+      "older_than_2024": 3
+    },
+    {
+      "area": "FutureMUDLibrary/Discord",
+      "files": 4,
+      "lines": 237,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-10",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Documentation",
+      "files": 1,
+      "lines": 98,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-07-18",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Economy",
+      "files": 70,
+      "lines": 5560,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-12",
+      "older_than_2024": 2
+    },
+    {
+      "area": "FutureMUDLibrary/Editor",
+      "files": 5,
+      "lines": 498,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-04-25",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Effects",
+      "files": 195,
+      "lines": 2732,
+      "not_implemented": 0,
+      "todo": 1,
+      "newest": "2026-11-13",
+      "older_than_2024": 30
+    },
+    {
+      "area": "FutureMUDLibrary/Email",
+      "files": 1,
+      "lines": 14,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-04-06",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Events",
+      "files": 7,
+      "lines": 952,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-08",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Form",
+      "files": 35,
+      "lines": 3799,
+      "not_implemented": 2,
+      "todo": 5,
+      "newest": "2026-11-06",
+      "older_than_2024": 3
+    },
+    {
+      "area": "FutureMUDLibrary/Framework",
+      "files": 80,
+      "lines": 17055,
+      "not_implemented": 0,
+      "todo": 3,
+      "newest": "2026-11-14",
+      "older_than_2024": 8
+    },
+    {
+      "area": "FutureMUDLibrary/FutureProg",
+      "files": 25,
+      "lines": 2376,
+      "not_implemented": 1,
+      "todo": 0,
+      "newest": "2026-09-13",
+      "older_than_2024": 1
+    },
+    {
+      "area": "FutureMUDLibrary/GameItems",
+      "files": 218,
+      "lines": 7453,
+      "not_implemented": 1,
+      "todo": 0,
+      "newest": "2026-11-12",
+      "older_than_2024": 24
+    },
+    {
+      "area": "FutureMUDLibrary/Health",
+      "files": 28,
+      "lines": 1620,
+      "not_implemented": 1,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 2
+    },
+    {
+      "area": "FutureMUDLibrary/Help",
+      "files": 3,
+      "lines": 143,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-04-06",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Logging",
+      "files": 2,
+      "lines": 38,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-04-06",
+      "older_than_2024": 1
+    },
+    {
+      "area": "FutureMUDLibrary/Magic",
+      "files": 145,
+      "lines": 7248,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-12",
+      "older_than_2024": 5
+    },
+    {
+      "area": "FutureMUDLibrary/Movement",
+      "files": 6,
+      "lines": 346,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 1
+    },
+    {
+      "area": "FutureMUDLibrary/NPC",
+      "files": 21,
+      "lines": 635,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-08",
+      "older_than_2024": 3
+    },
+    {
+      "area": "FutureMUDLibrary/Network",
+      "files": 2,
+      "lines": 84,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-08-08",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/PerceptionEngine",
+      "files": 9,
+      "lines": 330,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-08-31",
+      "older_than_2024": 1
+    },
+    {
+      "area": "FutureMUDLibrary/Planes",
+      "files": 9,
+      "lines": 746,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-10",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/RPG",
+      "files": 78,
+      "lines": 3418,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-08",
+      "older_than_2024": 14
+    },
+    {
+      "area": "FutureMUDLibrary/Strategies",
+      "files": 1,
+      "lines": 30,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-08-29",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/TimeAndDate",
+      "files": 23,
+      "lines": 5796,
+      "not_implemented": 0,
+      "todo": 1,
+      "newest": "2026-10-25",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Traps",
+      "files": 4,
+      "lines": 204,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-01",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Vehicles",
+      "files": 15,
+      "lines": 1609,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "FutureMUDLibrary/Work",
+      "files": 51,
+      "lines": 2570,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 8
+    },
+    {
+      "area": "ItemSeeder",
+      "files": 2296,
+      "lines": 1535389,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-09",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudClient",
+      "files": 42,
+      "lines": 4439,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-08-16",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Accounts",
+      "files": 3,
+      "lines": 802,
+      "not_implemented": 0,
+      "todo": 1,
+      "newest": "2026-08-08",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Arenas",
+      "files": 29,
+      "lines": 9892,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-07",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/AssemblyInfo.cs",
+      "files": 1,
+      "lines": 6,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-04",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Body",
+      "files": 148,
+      "lines": 36840,
+      "not_implemented": 15,
+      "todo": 32,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Celestial",
+      "files": 14,
+      "lines": 3539,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-09",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Character",
+      "files": 65,
+      "lines": 31306,
+      "not_implemented": 1,
+      "todo": 28,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/CharacterCreation",
+      "files": 60,
+      "lines": 20807,
+      "not_implemented": 2,
+      "todo": 8,
+      "newest": "2026-11-10",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Climate",
+      "files": 20,
+      "lines": 5865,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Combat",
+      "files": 218,
+      "lines": 42465,
+      "not_implemented": 31,
+      "todo": 26,
+      "newest": "2026-11-08",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Commands",
+      "files": 148,
+      "lines": 170659,
+      "not_implemented": 1,
+      "todo": 28,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Communication",
+      "files": 23,
+      "lines": 5220,
+      "not_implemented": 0,
+      "todo": 1,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Community",
+      "files": 26,
+      "lines": 8098,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-11",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Computers",
+      "files": 31,
+      "lines": 14824,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Construction",
+      "files": 93,
+      "lines": 29276,
+      "not_implemented": 7,
+      "todo": 5,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Database",
+      "files": 2,
+      "lines": 400,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Discord",
+      "files": 9,
+      "lines": 3462,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-11",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Documentation",
+      "files": 2,
+      "lines": 959,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-09",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Economy",
+      "files": 140,
+      "lines": 73379,
+      "not_implemented": 0,
+      "todo": 3,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Effects",
+      "files": 415,
+      "lines": 42260,
+      "not_implemented": 0,
+      "todo": 9,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Email",
+      "files": 6,
+      "lines": 1498,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-23",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Events",
+      "files": 8,
+      "lines": 599,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Form",
+      "files": 44,
+      "lines": 11368,
+      "not_implemented": 1,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Framework",
+      "files": 58,
+      "lines": 20970,
+      "not_implemented": 5,
+      "todo": 7,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/FutureProg",
+      "files": 452,
+      "lines": 58446,
+      "not_implemented": 0,
+      "todo": 2,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/GameItems",
+      "files": 630,
+      "lines": 171191,
+      "not_implemented": 27,
+      "todo": 76,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/GlobalUsings.cs",
+      "files": 1,
+      "lines": 17,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-08-24",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Health",
+      "files": 79,
+      "lines": 27640,
+      "not_implemented": 4,
+      "todo": 25,
+      "newest": "2026-11-01",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Help",
+      "files": 1,
+      "lines": 288,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-23",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Logging",
+      "files": 4,
+      "lines": 315,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-07",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Magic",
+      "files": 417,
+      "lines": 83280,
+      "not_implemented": 2,
+      "todo": 1,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Menus",
+      "files": 7,
+      "lines": 2371,
+      "not_implemented": 1,
+      "todo": 3,
+      "newest": "2026-11-11",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Movement",
+      "files": 15,
+      "lines": 4903,
+      "not_implemented": 10,
+      "todo": 0,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/NPC",
+      "files": 89,
+      "lines": 44524,
+      "not_implemented": 0,
+      "todo": 16,
+      "newest": "2026-11-14",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Network",
+      "files": 7,
+      "lines": 1835,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-23",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/OpenAI",
+      "files": 1,
+      "lines": 394,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-24",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/PerceptionEngine",
+      "files": 26,
+      "lines": 4060,
+      "not_implemented": 0,
+      "todo": 4,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Planes",
+      "files": 2,
+      "lines": 387,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-09",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/RPG",
+      "files": 146,
+      "lines": 37859,
+      "not_implemented": 2,
+      "todo": 16,
+      "newest": "2026-11-13",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Server",
+      "files": 4,
+      "lines": 727,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-23",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/ThirdPartyCode",
+      "files": 3,
+      "lines": 1134,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-07-19",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/TimeAndDate",
+      "files": 14,
+      "lines": 7543,
+      "not_implemented": 0,
+      "todo": 3,
+      "newest": "2026-10-25",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Traps",
+      "files": 2,
+      "lines": 1886,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-01",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Vehicles",
+      "files": 30,
+      "lines": 20519,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-30",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudSharpCore/Work",
+      "files": 87,
+      "lines": 31367,
+      "not_implemented": 5,
+      "todo": 1,
+      "newest": "2026-11-12",
+      "older_than_2024": 0
+    },
+    {
+      "area": "MudsharpDatabaseLibrary",
+      "files": 1181,
+      "lines": 8416180,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-13",
+      "older_than_2024": 455
+    },
+    {
+      "area": "RPI Engine Worldfile Converter",
+      "files": 26,
+      "lines": 18840,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-10-24",
+      "older_than_2024": 0
+    },
+    {
+      "area": "SeederFoundations",
+      "files": 4,
+      "lines": 279,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-09",
+      "older_than_2024": 0
+    },
+    {
+      "area": "SeederFramework",
+      "files": 17,
+      "lines": 2058,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-09",
+      "older_than_2024": 0
+    },
+    {
+      "area": "TerrainPlanner",
+      "files": 33,
+      "lines": 2630,
+      "not_implemented": 0,
+      "todo": 0,
+      "newest": "2026-11-07",
+      "older_than_2024": 0
+    }
+  ],
+  "test_csharp_source_files": {
+    "FutureMUDLibrary Unit Tests": 96,
+    "ExpressionEngine Unit Tests": 2,
+    "DatabaseSeeder Unit Tests": 103,
+    "MudSharpCore Unit Tests": 755,
+    "MudsharpDatabaseLibrary Unit Tests": 45,
+    "DiscordBotCore Unit Tests": 1,
+    "RPI Engine Worldfile Converter Tests": 6,
+    "FutureMUD.Web.Tests": 11,
+    "TerrainPlanner/TerrainPlanner.Tests": 11,
+    "scripts/TestReporting.Tests": 8,
+    "MudSharpCore Climate Tests": 3,
+    "ItemSeeder Unit Tests": 46,
+    "ArmageddonSeeder Unit Tests": 129,
+    "MudClient/MudClientTests": 15
+  },
+  "default_test_projects": [
+    "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+    "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+    "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+    "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+    "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+    "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+    "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+    "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+    "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+    "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+  ],
+  "history_caution": {
+    "core_files_last_changed_by_c3bf6a6a9": 1124,
+    "commit_date": "2026-07-19",
+    "commit_subject": "Regenerate seeded data and remove obsolete content"
+  },
+  "original_audit_date": "2026-11-14",
+  "previous_source_revision": "2d09355183f74b926fee3d6c803ddb0f9d2d5385",
+  "working_tree_retirement": {
+    "date": "2026-11-15",
+    "removed_tracked_projects": [
+      "MudSharp Watcher",
+      "FutureMUD Upgrade Service"
+    ],
+    "tracked_service_files_removed": 23,
+    "note": "Source census numbers describe the audited revision. These legacy projects were outside the census product roots. Current TerrainPlanner and DatabaseSeeder terrain seeding are retained.",
+    "removed_tracked_archives": [
+      "MigrationBackup/8ecac18a/Terrain Planner Tool"
+    ],
+    "tracked_archival_files_removed": 3,
+    "obsolete_local_build_outputs_and_settings_removed": true
+  }
+}

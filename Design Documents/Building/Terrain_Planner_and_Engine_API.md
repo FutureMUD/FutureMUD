@@ -6,6 +6,8 @@ Planner project schema 2 stores signed Z levels, each with its own `cells` colle
 
 FutureMUD Terrain Planner & Engine API 2.x is one hosted product under `TerrainPlanner/`. `TerrainPlanner.Server` is the ASP.NET Core host and read-only Engine API, `TerrainPlanner.Client` is the Interactive WebAssembly UI, `TerrainPlanner.Contracts` owns transport and map contracts, and `TerrainPlanner.Deployment` verifies signed releases. The old desktop planner, unfinished Blazor experiments, and standalone Terrain API are retired.
 
+The [legacy-tool retirement record](../Core/Retired_Legacy_Tools.md) identifies the removed service projects and obsolete terrain-tool remnants. Historical release-backfill mappings refer to their original source revisions, not current solution projects.
+
 The service is deliberately read-only toward the game database. It never creates accounts, rooms, tags, or terrains and never uploads database backups. It is typically installed beside the Web MUD Client and relies on the same Caddy prerequisite, but it uses its own hostname and loopback Kestrel listener on port `5010`.
 
 ## Authentication and API

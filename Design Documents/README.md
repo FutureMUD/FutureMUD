@@ -83,6 +83,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [FutureProg Execution Runtime](./Core/FutureProg_Execution_Runtime.md)
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)
 - [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)
+- [Engine Maturity Audit November 2026](./Core/Engine_Maturity_Audit_20261114.md) - refreshed 15 November against remote master `b32228996`; thematic feature map, unfinished paths, documentation gaps and historical review priorities.
+- [Retired Legacy Tools](./Core/Retired_Legacy_Tools.md) - removal of the obsolete Watcher, Upgrade Service and old terrain-tool remnants.
 - [Outbound Email Delivery](./Core/Outbound_Email_Delivery.md)
 - [Static Configuration Security](./Core/Static_Configuration_Security.md)
 - [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)

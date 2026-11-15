@@ -6,6 +6,12 @@ Source revision: `b32228996a95b745a6ad02298d582347b788ce7e` — fetched remote `
 
 Purpose: divide the engine into thematic features and identify incomplete functionality, weak assurance, documentation gaps and older implementations worth reviewing.
 
+## Post-audit hardening implementation
+
+The first agreed hardening batch implements F01's safe password-change notifications, F04's fatal-process exit status, and F05's consistent new-password minimum. It also moves generated registration/recovery/temporary credentials to cryptographic randomness. Existing database email templates retain their content and a safe legacy `{2}` slot; Debug support login and staff-generated reset emails keep their intended behavior. See [account credentials and notifications](Account_Credentials_and_Notifications.md).
+
+The findings below describe the audited baseline; these implementation dispositions supersede their corresponding current-code observations. Hash migration, recovery expiry/throttling and broader session policy remain deferred. Verification of this batch is recorded in the linked credential guide separately from the original source-only audit: 10,709 fast-test passes, three expected Windows skips and three passing Release subprocess cases. A live world boot/normal shutdown and real mail-provider delivery were not exercised.
+
 ## Overall assessment
 
 FutureMUD is a substantial, actively maintained engine with established implementations across most of its advertised simulation and worldbuilding domains. It is not uniformly complete or equally well qualified. Its most important weaknesses are **credential-policy hardening debt, uneven restart continuity, documentation that mixes historical and current claims, and limited evidence for some cross-system gameplay workflows**.
@@ -65,7 +71,7 @@ The 15 November follow-up uses a narrower security threshold than the general ma
 | Plaintext password notification, legacy password hashing, strength/expiry/throttling policy | Concrete hardening debt, with credential possession, mailbox/storage access or another precondition needed for the identified access consequences. | F01/F05 are P2 work, not confirmed direct-entry vulnerabilities requiring an automatic disclosure hold. |
 | Legacy Watcher and Upgrade Service | The owner confirmed that both are obsolete. Their source projects and solution entries are removed by this review. | Resolved by retirement from the maintained repository. External installations are not modified by repository cleanup. |
 
-The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; no gameplay/authentication fixes were made. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
+The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; the later credential hardening is described above. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
 
 ## Thematic feature map
 

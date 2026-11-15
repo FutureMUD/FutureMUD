@@ -2,6 +2,8 @@
 
 FutureMUD composes every outbound message once as a `MimeMessage` and sends it through one global transport. The selected transport is either generic SMTP or the Gmail API. There is no automatic provider detection, fallback, downgrade, or per-player email account configuration.
 
+Password-change notices omit the password while preserving the legacy `{2}` template slot with safe fixed text. Existing database/custom templates are preserved; see [account credentials and notification compatibility](Account_Credentials_and_Notifications.md).
+
 The email server configuration is the `EmailServer` static configuration. The seeded Version 2 configuration is deliberately disabled. Set `<Enabled>true</Enabled>` only after the transport, DNS, account, and secrets have been configured.
 
 Viewing or editing `EmailServer` in game requires implementor permission. Other administrators see the setting name and a red `Redacted for Security` placeholder. See [Static Configuration Security](./Static_Configuration_Security.md).

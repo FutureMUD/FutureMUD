@@ -428,7 +428,7 @@ public partial class CoreDataSeeder : IFoundationSeeder
         {
             TemplateType = (int)EmailTemplateTypes.AccountPasswordChanged,
             Content =
-                @$"<html><p>Hi, {{0}}!<p>Your account password on {gameName} has been recently changed by someone at IP Address {{1}}, presumably you, and is now <b>{{2}}</b>. You can now login to your account with these details.<p>If you did not initiate this password change, please email <a href=\""mailto:staff@{condensedGameName}.com?Subject=False%20Account%20Password%20Change\"">The Head Administrator</a> to commence investigative action.</p><p>Sincerely,<br>The {gameName} Team</p></html>",
+                @$"<html><p>Hi, {{0}}!</p><p>Your account password on {gameName} was recently changed from IP Address {{1}}. You can now log in with the password you selected. Passwords are not included in notification emails.</p><p>If you did not initiate this password change, please email <a href=\""mailto:staff@{condensedGameName}.com?Subject=False%20Account%20Password%20Change\"">The Head Administrator</a> to commence investigative action.</p><p>Sincerely,<br>The {gameName} Team</p></html>",
             ReturnAddress = $"noreply@{condensedGameName}.com",
             Subject = $"{gameName} Password Change"
         });

@@ -873,6 +873,12 @@ internal class LoggedInMenu : Menu
 
     private void EnterNewPassword(string command)
     {
+		if (!SecurityUtilities.IsValidNewPassword(command))
+		{
+			OutputHandler.Send($"\nPasswords must be at least {SecurityUtilities.MinimumPasswordLength} characters long. Please use another: ", false);
+			return;
+		}
+
         State = LoggedInMenuState.EnteredNewPassword;
         _newPasswordSalt = SecurityUtilities.GetSalt64();
         _newPasswordHash = SecurityUtilities.GetPasswordHash(command, _newPasswordSalt);
@@ -900,8 +906,8 @@ internal class LoggedInMenu : Menu
                 currentAccount.Salt = _newPasswordSalt;
                 FMDB.Context.SaveChanges();
                 OutputHandler.Send("\nPassword updated!", false);
-                EmailHelper.Instance.SendEmail(EmailTemplateTypes.AccountPasswordChanged, Account.EmailAddress,
-                    Account.Name.Proper(), Account.LastIP, command);
+                EmailHelper.Instance.SendPasswordChangedEmail(Account.EmailAddress,
+                    Account.Name.Proper(), Account.LastIP);
                 State = LoggedInMenuState.LoggedInMenu;
                 OutputHandler.Send(_menuText);
                 _passwordEntryCount = 0;

@@ -403,9 +403,9 @@ public class MainMenu : Menu, IController
 
     private void CreateAccountPassword(string command)
     {
-        if (command.Length < 8)
+        if (!SecurityUtilities.IsValidNewPassword(command))
         {
-            OutputHandler.Send("\nPasswords must be at least 8 characters long. Please use another: ", false);
+            OutputHandler.Send($"\nPasswords must be at least {SecurityUtilities.MinimumPasswordLength} characters long. Please use another: ", false);
             return;
         }
 

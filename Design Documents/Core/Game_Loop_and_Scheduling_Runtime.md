@@ -40,6 +40,8 @@ Track decay remains per-cell and fuzzy-minute. A cell with no expired tracks per
 
 ### Exception reports
 
+Release startup and game-loop failures exit with status `1` after crash reporting, including a malformed `Connection.config` handled before world construction. Clean engine shutdown retains status `0`; command-line utility modes retain their own success/usage/failure statuses. Process supervision can use the exit status to distinguish a fatal failure from an orderly stop.
+
 Release startup and game-loop failures, isolated player-input failures (both configurations), and unexpected email-worker exits use the shared `Server.ExceptionReporter`. Reports remain UTF-8 text files in the working directory with the `Fatal Exception` prefix. UTC timestamps and a unique suffix, combined with exclusive creation, prevent simultaneous reports from overwriting each other. The header identifies whether the process is terminating; the historical filename prefix also applies to isolated failures.
 
 Every report includes a report ID, UTC time, engine assembly version, informational version (including source revision when embedded in the build), build configuration, actual .NET runtime, OS/process architecture, process ID, uptime, thread identity, current operation and a best-effort memory snapshot. Startup stages and game-loop phases are recorded before execution even when performance monitoring is disabled. Operation context flows through asynchronous continuations and is isolated between workers.

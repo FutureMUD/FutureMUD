@@ -685,3 +685,8 @@ Players enable automatic repayment with `loan autopay <loan id> from <account>`,
 The game checks enabled mandates approximately once per real minute against the zone calendar. It attempts the full amount currently due, including arrears, through the same guarded settlement as a manual repayment. Failed attempts make no withdrawal and leave the loan due. Automatic retries occur on the next game day or when a new instalment becomes due. A borrower can pay manually, refill or replace the account, or use RETRY sooner. Account authority, currency, fees, balance and bank reserves are checked again on every attempt.
 
 An unresolved failure appears on the statement, when the failure reason changes for an online borrower, and on login while a payment remains due. Paying all arrears clears the failure. Death, probate and collateral recovery stop automatic withdrawals. An accepted refinance carries the mandate onto the replacement loan. Mandates, retry dates and failure reasons are stored with the loan's signed terms and survive restart.
+
+
+### F03 durable employment tasks
+
+Employment task inspection now exposes persisted provenance, approval limits/scopes and revocation. Managers with CancelTasks authority can use `employment <host type> <host> tasks revoke <task> <reason>`. See the [recovery contract](Unified%20Employment%20Dispatch%20Design.md#durable-task-approvals-and-restart-recovery-f03-november-2026) before replacing legacy or interrupted financial work.

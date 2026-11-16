@@ -44,6 +44,7 @@ public partial class FuturemudDatabaseContext
 		ConfigureEmploymentActionPlans(modelBuilder);
 		ConfigureEmploymentScheduledTaskRules(modelBuilder);
 		ConfigureEmploymentActiveTasks(modelBuilder);
+		ConfigureEmploymentTaskGrants(modelBuilder);
 		ConfigureEmploymentManagerGoals(modelBuilder);
 		ConfigureEmploymentAuditRows(modelBuilder);
 		ConfigureHotels(modelBuilder);

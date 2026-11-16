@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Threading;
 using MudSharp.Climate;
 using MudSharp.Construction;
@@ -93,6 +93,12 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	public void AuthorisePaymentFor(IEmploymentActionStep step, ICharacter? actor = null, Guid? correlationId = null,
 		bool recordRegister = true)
 	{
+		if (_currentTask is EmploymentActiveTask current &&
+		    (!ReferenceEquals(current.ActionPlan.Steps.ElementAtOrDefault(current.NextStepIndex), step) ||
+		     !EmploymentTaskDispatcher.TaskGrantAuthorisesStep(current, step, current.NextStepIndex)))
+		{
+			return;
+		}
 		if (!_paymentAuthorisations.Add(step) || !recordRegister)
 		{
 			return;
@@ -104,7 +110,10 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	public bool PaymentAuthorised(IEmploymentActionStep step)
 	{
-		return !step.RequiresPaymentAuthorisation || _paymentAuthorisations.Contains(step);
+		return !step.RequiresPaymentAuthorisation || (_paymentAuthorisations.Contains(step) &&
+			(_currentTask is not EmploymentActiveTask current ||
+			 (ReferenceEquals(current.ActionPlan.Steps.ElementAtOrDefault(current.NextStepIndex), step) &&
+			  EmploymentTaskDispatcher.TaskGrantAuthorisesStep(current, step, current.NextStepIndex))));
 	}
 
 	public void AllowCommand(string commandName)
@@ -3549,12 +3558,33 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		{
 			IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? string.Empty : idempotencyKey.Trim()
 		};
-		_activeTasks.Add(task);
 		_persistence?.SaveActiveTask(task);
+		_activeTasks.Add(task);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, authorisedBy,
 			$"Created active task {name}.", task.CorrelationId);
 		_host.DebugEmployment($"Created active task {name} ({task.CorrelationId}).", authorisedBy?.Gameworld);
 		return task;
+	}
+
+	public bool RevokeTaskAuthorisation(IEmploymentActiveTask task, ICharacter? revokedBy, string reason)
+	{
+		if (!IsAuthorised(revokedBy, EmploymentAuthority.CancelTasks))
+		{
+			throw new InvalidOperationException("You are not authorised to revoke task approvals for this host.");
+		}
+		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task) ||
+		    !task.HasRecordedProvenance || task.AuthorisationGrant.RevokedAt.HasValue)
+		{
+			return false;
+		}
+		if (string.IsNullOrWhiteSpace(reason))
+		{
+			throw new ArgumentException("A revocation reason is required.", nameof(reason));
+		}
+		concrete.RevokeAuthorisation(PrincipalForActor(revokedBy, "Host system revocation"), reason);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.TaskApprovalRevoked, revokedBy,
+			$"Revoked approval {task.AuthorisationGrant.Id} for task {task.Name}: {reason}", task.CorrelationId);
+		return true;
 	}
 
 	public bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason)
@@ -3935,8 +3965,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		{
 			IdempotencyKey = concrete.IdempotencyKey
 		};
-		_activeTasks.Add(task);
 		_persistence?.SaveActiveTask(task);
+		_activeTasks.Add(task);
 		concrete.MarkSpawned(now);
 		_persistence?.SaveScheduledRuleState(concrete);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, null,
@@ -4623,6 +4653,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 			employer,
 			"Legacy active task creator",
 			"Legacy active task authoriser");
+		HasRecordedProvenance = provenance is not null;
 		_stepStates = actionPlan.Steps.Select(_ => EmploymentActionStepStatus.Pending).ToList();
 		_stepOperationalStates = actionPlan.Steps.Select(_ => EmploymentActionStepOperationalState.Empty).ToList();
 	}
@@ -4656,16 +4687,25 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 			employer,
 			"Loaded active task creator",
 			"Loaded active task authoriser");
+		HasRecordedProvenance = provenance is not null;
 		_stepStates = stepStates.ToList();
+		var incompleteCheckpoint = _stepStates.Count != actionPlan.Steps.Count;
 		if (_stepStates.Count != actionPlan.Steps.Count)
 		{
 			_stepStates = actionPlan.Steps.Select(_ => EmploymentActionStepStatus.Pending).ToList();
 		}
 
 		_stepOperationalStates = stepOperationalStates.ToList();
+		incompleteCheckpoint |= _stepOperationalStates.Count != actionPlan.Steps.Count;
 		if (_stepOperationalStates.Count != actionPlan.Steps.Count)
 		{
 			_stepOperationalStates = actionPlan.Steps.Select(_ => EmploymentActionStepOperationalState.Empty).ToList();
+		}
+		RequiresFinancialReconciliation = (incompleteCheckpoint && actionPlan.Steps.Any(x => x.RequiresPaymentAuthorisation)) || _stepStates.Where((state, index) =>
+			state == EmploymentActionStepStatus.InProgress && actionPlan.Steps[index].RequiresPaymentAuthorisation).Any();
+		if (RequiresFinancialReconciliation)
+		{
+			BlockForCompatibilityLoad("A financial operation was in progress at reload; reconcile native records before cancelling or replacing this work.");
 		}
 	}
 
@@ -4681,6 +4721,18 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 	public Guid CorrelationId { get; }
 	public string IdempotencyKey { get; init; } = string.Empty;
 	public EmploymentTaskProvenance Provenance { get; private set; }
+	public bool HasRecordedProvenance { get; }
+	internal string? ProvenanceLoadDiagnostic { get; set; }
+	internal bool RequiresFinancialReconciliation { get; set; }
+	internal void RevokeAuthorisation(EmploymentPrincipal principal, string reason)
+	{
+		Provenance = Provenance with { AuthorisationGrant = AuthorisationGrant with
+		{
+			RevokedAt = EmploymentClock.CurrentInstant(Employer), RevokedBy = principal, RevocationReason = reason
+		} };
+		// An uncertain save must never restore authority in the running world.
+		_persistence?.SaveActiveTaskState(this);
+	}
 	public EmploymentTaskSourceKind SourceKind => Provenance.SourceKind;
 	public Guid? SourceRuleId => Provenance.SourceRuleId;
 	public long? SourceGoalId => Provenance.SourceGoalId;
@@ -4916,8 +4968,23 @@ public sealed class EmploymentTaskDispatcher
 		}
 
 		var step = task.ActionPlan.Steps[index];
-		ApplyDurablePaymentAuthorisations(concrete, context, index);
+		if (concrete.RequiresFinancialReconciliation)
+		{
+			concrete.Block("An interrupted financial operation requires native-record reconciliation; automatic retry is disabled.");
+			return EmploymentActionStepResult.Blocked(concrete.BlockedReason!);
+		}
 		context.HydrateTaskState(task, index);
+		if (step.RequiresPaymentAuthorisation && !TaskGrantAuthorisesStep(concrete, step, index))
+		{
+			var diagnostic = concrete.RequiresFinancialReconciliation ? "An interrupted financial operation requires reconciliation." :
+				!task.HasRecordedProvenance ? concrete.ProvenanceLoadDiagnostic ?? "Task has no recorded approval provenance." :
+				task.AuthorisationGrant.RevokedAt.HasValue ? "Task approval was revoked." :
+				task.AuthorisationGrant.ExpiresAt <= EmploymentClock.CurrentInstant(task.Employer) ? "Task approval expired." :
+				"Task approval does not cover this action, source, counterparty or remaining amount.";
+			concrete.Block($"This action requires an auditable payment authorisation. {diagnostic}");
+			return EmploymentActionStepResult.Blocked(concrete.BlockedReason!);
+		}
+		ApplyDurablePaymentAuthorisations(concrete, context, index);
 		if (!step.CanExecute(context, task.AssignedEmployee, out var reason))
 		{
 			concrete.MarkStep(index, EmploymentActionStepStatus.Blocked,
@@ -4931,25 +4998,45 @@ public sealed class EmploymentTaskDispatcher
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		concrete.MarkStep(index, EmploymentActionStepStatus.InProgress);
-		context.RecordRegister(EmploymentRegisterEntryType.ActionStepStarted, task.AssignedEmployee,
-			$"Started {step.StepType} action.", task.CorrelationId);
-		context.Employer.DebugEmployment(
-			$"{task.AssignedEmployee.Name} started step {index + 1:N0} ({step.StepType.DescribeEnum()}) of task {task.Name}.",
-			task.AssignedEmployee.Gameworld);
-		var result = step.Execute(context, task.AssignedEmployee);
-		var operationalState = result.OperationalState;
-		if (!result.Success)
+		EmploymentActionStepResult result;
+		try
 		{
-			operationalState = concrete.StepOperationalStates[index]
-			                           .Merge(result.OperationalState)
-			                           .WithFailure(result.Message);
+			concrete.MarkStep(index, EmploymentActionStepStatus.InProgress);
+			context.RecordRegister(EmploymentRegisterEntryType.ActionStepStarted, task.AssignedEmployee,
+				$"Started {step.StepType} action.", task.CorrelationId);
+			context.Employer.DebugEmployment(
+				$"{task.AssignedEmployee.Name} started step {index + 1:N0} ({step.StepType.DescribeEnum()}) of task {task.Name}.",
+				task.AssignedEmployee.Gameworld);
+			result = step.Execute(context, task.AssignedEmployee);
+			var operationalState = result.OperationalState;
+			if (!result.Success)
+			{
+				operationalState = concrete.StepOperationalStates[index]
+				                           .Merge(result.OperationalState)
+				                           .WithFailure(result.Message);
+			}
+
+			concrete.MarkStep(index, result.Success
+				? result.Completed ? EmploymentActionStepStatus.Completed : EmploymentActionStepStatus.InProgress
+				: result.Completed ? EmploymentActionStepStatus.Failed : EmploymentActionStepStatus.Blocked,
+				operationalState);
+		}
+		catch when (step.RequiresPaymentAuthorisation)
+		{
+			// The native effect or its completion checkpoint may have succeeded before the failure.
+			// Retain uncertainty even if an administrator subsequently resets the step.
+			concrete.RequiresFinancialReconciliation = true;
+			try
+			{
+				concrete.Block("A financial operation failed with an uncertain outcome; reconcile native records before replacing this work.");
+			}
+			catch
+			{
+				// Keep the original exception and the in-memory quarantine if storage is unavailable.
+			}
+			throw;
 		}
 
-		concrete.MarkStep(index, result.Success
-			? result.Completed ? EmploymentActionStepStatus.Completed : EmploymentActionStepStatus.InProgress
-			: result.Completed ? EmploymentActionStepStatus.Failed : EmploymentActionStepStatus.Blocked,
-			operationalState);
 		context.RecordRegister(result.Success && result.Completed
 				? EmploymentRegisterEntryType.ActionStepCompleted
 				: result.Success ? EmploymentRegisterEntryType.ActionStepStarted : EmploymentRegisterEntryType.ActionStepFailed,
@@ -5042,10 +5129,16 @@ public sealed class EmploymentTaskDispatcher
 		}
 	}
 
-	private static bool TaskGrantAuthorisesStep(EmploymentActiveTask task, IEmploymentActionStep currentStep,
+	internal static bool TaskGrantAuthorisesStep(EmploymentActiveTask task, IEmploymentActionStep currentStep,
 		int currentStepIndex)
 	{
 		var grant = task.AuthorisationGrant;
+		if (!task.HasRecordedProvenance || task.RequiresFinancialReconciliation || currentStepIndex < 0 ||
+		    currentStepIndex >= task.ActionPlan.Steps.Count || grant.CorrelationId != task.CorrelationId ||
+		    grant.RevokedAt.HasValue || grant.ExpiresAt <= EmploymentClock.CurrentInstant(task.Employer))
+		{
+			return false;
+		}
 		if (!grant.CoversAuthority(currentStep.RequiredAuthority))
 		{
 			return false;

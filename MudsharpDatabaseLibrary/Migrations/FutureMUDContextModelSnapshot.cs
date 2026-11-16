@@ -10257,14 +10257,26 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("AssignedAtTicks")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("AssignedEmployeeId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<string>("AuthorisedByPrincipal")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AuthorisedByPrincipal"), "utf8");
 
                     b.Property<string>("BlockedReason")
                         .HasColumnType("mediumtext")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("BlockedReason"), "utf8");
+
+                    b.Property<long?>("CompletedAtTicks")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CorrelationId")
                         .IsRequired()
@@ -10273,11 +10285,26 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
 
+                    b.Property<long?>("CreatedAtTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedByPrincipal")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CreatedByPrincipal"), "utf8");
+
+                    b.Property<long?>("DueAtTicks")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("EmploymentActionPlanId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("EmploymentHostStateId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<bool>("FinancialRecoveryRequired")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("IdempotencyKey")
                         .IsRequired()
@@ -10293,12 +10320,33 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
+                    b.Property<int?>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProvenanceVersion")
+                        .HasColumnType("int");
+
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasColumnType("varchar(36)")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PublicId"), "utf8");
+
+                    b.Property<long?>("SourceGoalId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("SourceKind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SourceRuleId")
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SourceRuleId"), "utf8");
+
+                    b.Property<long?>("StartedAtTicks")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Status")
                         .HasColumnType("int(11)");
@@ -11251,6 +11299,127 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_EmploymentTaskConditions_ScheduledRules_idx");
 
                     b.ToTable("EmploymentTaskConditions", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantLimitRecord", b =>
+                {
+                    b.Property<long>("EmploymentActiveTaskId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CurrencyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("EmploymentActiveTaskId", "CurrencyId");
+
+                    b.ToTable("EmploymentTaskGrantLimits", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantRecord", b =>
+                {
+                    b.Property<long>("EmploymentActiveTaskId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<bool>("AllowsUnboundedFinancialSteps")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<long>("Authority")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
+
+                    b.Property<long>("EmploymentActionPlanId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ExpectedCounterpartyScopeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExpectedLimitCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExpectedPaymentScopeCount")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("ExpiresAtTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IssuedAtTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("IssuerPrincipal")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("IssuerPrincipal"), "utf8");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PublicId"), "utf8");
+
+                    b.Property<string>("RevocationReason")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RevocationReason"), "utf8");
+
+                    b.Property<long?>("RevokedAtTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RevokedByPrincipal")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RevokedByPrincipal"), "utf8");
+
+                    b.Property<string>("TaskPublicId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TaskPublicId"), "utf8");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("EmploymentActiveTaskId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("EmploymentTaskGrants", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantScopeRecord", b =>
+                {
+                    b.Property<long>("EmploymentActiveTaskId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Scope")
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Scope"), "utf8");
+
+                    b.HasKey("EmploymentActiveTaskId", "Kind", "Scope");
+
+                    b.ToTable("EmploymentTaskGrantScopes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthoritiesAccusableClasses", b =>
@@ -32442,6 +32611,39 @@ namespace MudSharp.Migrations
                     b.Navigation("ScheduledTaskRule");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantLimitRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentTaskGrantRecord", "Grant")
+                        .WithMany("Limits")
+                        .HasForeignKey("EmploymentActiveTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Grant");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentActiveTaskRecord", "Task")
+                        .WithOne("AuthorisationGrant")
+                        .HasForeignKey("MudSharp.Models.EmploymentTaskGrantRecord", "EmploymentActiveTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantScopeRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentTaskGrantRecord", "Grant")
+                        .WithMany("Scopes")
+                        .HasForeignKey("EmploymentActiveTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Grant");
+                });
+
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthoritiesAccusableClasses", b =>
                 {
                     b.HasOne("MudSharp.Models.EnforcementAuthority", "EnforcementAuthority")
@@ -39885,6 +40087,8 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.EmploymentActiveTaskRecord", b =>
                 {
+                    b.Navigation("AuthorisationGrant");
+
                     b.Navigation("StepStates");
                 });
 
@@ -39938,6 +40142,13 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.EmploymentScheduledTaskRuleRecord", b =>
                 {
                     b.Navigation("Conditions");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskGrantRecord", b =>
+                {
+                    b.Navigation("Limits");
+
+                    b.Navigation("Scopes");
                 });
 
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthority", b =>

@@ -1,4 +1,4 @@
-﻿using MudSharp.Arenas;
+using MudSharp.Arenas;
 using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Economy;
@@ -1004,6 +1004,30 @@ internal sealed class EmploymentCommandService
 		}
 
 		sb.AppendLine($"Correlation: {task.CorrelationId.ToString("D").ColourValue()}");
+		sb.AppendLine($"Recorded Provenance: {task.HasRecordedProvenance.ToColouredString()}");
+		if (task.HasRecordedProvenance)
+		{
+			var grant = task.AuthorisationGrant;
+			sb.AppendLine($"Source: {task.SourceKind.DescribeEnum().ColourName()} / Rule: {task.SourceRuleId?.ToString() ?? "none"} / Goal: {task.SourceGoalId?.ToString(actor) ?? "none"}");
+			sb.AppendLine($"Creator: {task.CreatedByPrincipal.Label.ColourName()} / Authoriser: {task.AuthorisedByPrincipal.Label.ColourName()}");
+			sb.AppendLine($"Priority: {task.Priority.ToString(actor).ColourValue()} / Created: {task.CreatedAt.ToString("O", actor)} / Due: {task.DueAt?.ToString("O", actor) ?? "none"}");
+			sb.AppendLine($"Approval: {grant.Id.ToString().ColourValue()} / Expires: {grant.ExpiresAt?.ToString("O", actor) ?? "none"} / Revoked: {grant.RevokedAt?.ToString("O", actor) ?? "no"}");
+			sb.AppendLine($"Authority: {grant.Authority.Authorities.DescribeEnum().ColourName()}");
+			var completedAuthorisations = task.ActionPlan.Steps
+				.Where((step, index) => task.StepStates[index] == EmploymentActionStepStatus.Completed && step.RequiresPaymentAuthorisation)
+				.Select(step => EmploymentTaskDispatcher.TryGetFinancialStepAmount(step, out var amount) ? amount : null)
+				.OfType<MoneyAmount>().ToList();
+			sb.AppendLine($"Approval limit / remaining: {grant.AmountLimits.Select(x => $"currency {x.Key}: {x.Value.ToString(actor)} / {(x.Value - completedAuthorisations.Where(y => y.Currency.Id == x.Key).Sum(y => y.Amount)).ToString(actor)}").ListToCommaSeparatedValues()}");
+			sb.AppendLine($"Sources: {grant.PaymentSourceScopes.ListToCommaSeparatedValues()} / Counterparties: {grant.CounterpartyScopes.ListToCommaSeparatedValues()}");
+			if (grant.RevokedAt.HasValue)
+			{
+				sb.AppendLine($"Revoked by: {grant.RevokedBy?.Label.ColourName()} / Reason: {grant.RevocationReason.ColourError()}");
+			}
+		}
+		else
+		{
+			sb.AppendLine((task is EmploymentActiveTask concrete ? concrete.ProvenanceLoadDiagnostic : null)?.ColourError() ?? "Legacy/unrecorded task; protected work remains fail-closed.".ColourError());
+		}
 		sb.AppendLine($"Required Authority: {task.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(task.ActionPlan.RequiredCapabilities)}");
 		sb.AppendLine();
@@ -1621,6 +1645,27 @@ internal sealed class EmploymentCommandService
 			case "cancel":
 			case "abort":
 				HandleTaskCancel(actor, host, input);
+				return;
+			case "revoke":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which task approval do you want to revoke? Use tasks revoke <task> <reason>.");
+					return;
+				}
+				var revokeSelector = input.PopSpeech();
+				var revokeTask = ActiveTaskBySelector(host, revokeSelector);
+				if (revokeTask is null || input.IsFinished)
+				{
+					actor.OutputHandler.Send("Specify an active task and a reason for revocation.");
+					return;
+				}
+				try
+				{
+					actor.OutputHandler.Send(host.TaskBoard.RevokeTaskAuthorisation(revokeTask, actor, input.SafeRemainingArgument)
+						? "Task approval revoked. Completed work is retained; future protected actions will refuse it."
+						: "That task has no recorded active approval to revoke.");
+				}
+				catch (InvalidOperationException ex) { actor.OutputHandler.Send(ex.Message.ColourError()); }
 				return;
 			case "actions":
 			case "action":
@@ -3010,6 +3055,7 @@ Active tasks:
 	#3employment <host type> <host> tasks show <##|name>#0 - shows an active task with its step details
 	#3employment <host type> <host> tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
 	#3employment <host type> <host> tasks cancel <##|name> [reason]#0 - cancels a pending, assigned, in-progress, or blocked active task
+	#3employment <host type> <host> tasks revoke <##|name> <reason>#0 - revokes approval using CancelTasks authority; retains completed work
 	#3employment <host type> <host> tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3employment <host type> <host> tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3employment <host type> <host> tasks step <action syntax>#0 - adds an action to your current active-task draft

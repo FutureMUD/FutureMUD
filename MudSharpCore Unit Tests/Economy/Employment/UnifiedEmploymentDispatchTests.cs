@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -4272,14 +4272,11 @@ public partial class UnifiedEmploymentDispatchTests
 			EmploymentAuthority.ManageDeliveryRoutes), null);
 		var steps = new IEmploymentActionStep[]
 		{
+			new CataloguedActionShellStep("authorise", "manager approval", new MoneyAmount(currency.Object, 7.0M)),
 			new PurchaseActionStep("purchase supplies", new MoneyAmount(currency.Object, 5.0M), "shop-transaction-1"),
 			new StoreAccountPaymentActionStep("linen supplier", new MoneyAmount(currency.Object, 2.0M), "store-account-1")
 		};
 		var context = new EmploymentTaskContext(host);
-		foreach (var step in steps.Where(x => x.RequiresPaymentAuthorisation))
-		{
-			context.AuthorisePaymentFor(step);
-		}
 
 		var task = host.TaskBoard.CreateActiveTask("financial work", new EmploymentActionPlan(steps), manager);
 		var dispatcher = new EmploymentTaskDispatcher();
@@ -6661,12 +6658,28 @@ public partial class UnifiedEmploymentDispatchTests
 				EmploymentAuthority.AssignTasks |
 				EmploymentAuthority.ApprovePurchases |
 				EmploymentAuthority.DepositBusinessCash), null);
-			host.TaskBoard.CreateActiveTask("persisted deposit",
+			var originalTask = host.TaskBoard.CreateActiveTask("persisted deposit",
 				new EmploymentActionPlan([
 					new CataloguedActionShellStep("authorise", "deposit approval", new MoneyAmount(currency.Object, 5.0M)),
 					new BankDepositActionStep(new MoneyAmount(currency.Object, 5.0M))
 				]),
-				manager);
+				manager, priority: 7);
+
+			IEmploymentHost approvedReload = new PersistedEmploymentHost(171, "Grant Shop", gameworld.Object, currency.Object);
+			var approvedTask = approvedReload.TaskBoard.ActiveTasks.Single();
+			Assert.IsTrue(approvedTask.HasRecordedProvenance);
+			Assert.AreEqual(originalTask.CreatedByPrincipal, approvedTask.CreatedByPrincipal);
+			Assert.AreEqual(originalTask.AuthorisationGrant.Id, approvedTask.AuthorisationGrant.Id);
+			Assert.AreEqual(originalTask.AuthorisationGrant.AmountLimits[currency.Object.Id], approvedTask.AuthorisationGrant.AmountLimits[currency.Object.Id]);
+			Assert.AreEqual(originalTask.CreatedAt, approvedTask.CreatedAt);
+			Assert.AreEqual(7, approvedTask.Priority);
+
+			// Emulate a pre-migration row; a new recorded approval must survive reconstruction.
+			var legacyRecord = context.EmploymentActiveTasks.Single();
+			context.EmploymentTaskGrants.Remove(legacyRecord.AuthorisationGrant!);
+			legacyRecord.AuthorisationGrant = null;
+			legacyRecord.ProvenanceVersion = null;
+			context.SaveChanges();
 
 			IEmploymentHost reloadedHost = new PersistedEmploymentHost(171, "Grant Shop", gameworld.Object, currency.Object);
 			var reloadedTask = reloadedHost.TaskBoard.ActiveTasks.Single();

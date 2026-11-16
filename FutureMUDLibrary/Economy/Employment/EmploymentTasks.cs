@@ -391,7 +391,10 @@ public sealed record EmploymentAuthorisationGrant(
 	DateTimeOffset? ExpiresAt,
 	Guid CorrelationId,
 	IReadOnlySet<string> PaymentSourceScopes,
-	IReadOnlySet<string> CounterpartyScopes)
+	IReadOnlySet<string> CounterpartyScopes,
+	DateTimeOffset? RevokedAt = null,
+	EmploymentPrincipal? RevokedBy = null,
+	string? RevocationReason = null)
 {
 	public IReadOnlyCollection<EmploymentAuthorisationLimit> Limits =>
 		AmountLimits.Select(x => new EmploymentAuthorisationLimit(x.Key, x.Value)).ToList();
@@ -458,6 +461,7 @@ public sealed record EmploymentTaskProvenance(
 
 public interface IEmploymentActiveTask
 {
+	bool HasRecordedProvenance => false;
 	Guid Id { get; }
 	IEmploymentHost Employer { get; }
 	string Name { get; }
@@ -544,6 +548,7 @@ public interface IEmploymentTaskBoard
 		Guid? correlationId = null, string? idempotencyKey = null, int priority = 0, DateTimeOffset? dueAt = null,
 		EmploymentTaskProvenance? provenance = null);
 	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);
+	bool RevokeTaskAuthorisation(IEmploymentActiveTask task, ICharacter? revokedBy, string reason) => false;
 	bool RetryActiveTask(IEmploymentActiveTask task, ICharacter? retriedBy, string reason);
 	bool RequeueActiveTask(IEmploymentActiveTask task, ICharacter? requeuedBy, string reason);
 	bool AssignActiveTask(IEmploymentActiveTask task, ICharacter employee, IEmploymentTaskContext context, ICharacter? assignedBy, string reason);

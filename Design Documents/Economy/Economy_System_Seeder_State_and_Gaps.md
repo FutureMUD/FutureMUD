@@ -401,3 +401,8 @@ The worldfile importer also activates the four attached flat-fee wagon-storage a
 
 
 Merchandise load arguments are backed by the `MerchandiseLoadArguments` migration, which gives existing records an empty payload. The blank database snapshot must include that migration. Garment fitting itself uses existing component XML and adds no per-item database rows or size foreign keys.
+
+
+### F03 durable employment tasks
+
+F03 ships migration `20261116022849_PersistEmploymentTaskAuthorisation` and the matching refreshed blank SQL/manifest. Existing tasks receive no inferred approval; new installations include the grant tables. No employment hosts, tasks or managerial permissions are seeded automatically. See the [upgrade/recovery contract](Unified%20Employment%20Dispatch%20Design.md#durable-task-approvals-and-restart-recovery-f03-november-2026).

@@ -199,7 +199,7 @@ Payment authorisation now comes from the active task grant or an explicit contex
 
 ### Gaps
 
-- Task provenance and authorisation grants are runtime-only; persisted active tasks load with compatibility host-system principals but fail closed for financial grant authority until schema-backed provenance/grant columns exist.
+- Superseded in November 2026 by F03: task provenance and task-owned approvals now persist. Legacy or invalid rows still fail closed. See the current restart contract in the unified design.
 - Retry and escalation policy fields are still not modelled.
 - The system does not model host-wide concurrency, spending, storage, or supplier budgets.
 - A blocked task can remain indefinitely without an explicit retry or escalation policy.
@@ -496,7 +496,7 @@ As of 2026-06-19, active manager goals evaluate in priority order, propagate the
 
 ### Gaps
 
-- Goal-created task provenance and grants are not yet schema-backed.
+- Goal-created task provenance and grants are schema-backed by F03; manager-goal policy persistence remains a separate question.
 - goals have limited state beyond active or cancelled;
 - broad manager autonomy is not implemented;
 - goal evaluation currently depends in part on employed worker activity rather than a dedicated host operations loop;
@@ -1718,3 +1718,8 @@ Epic 3 materials replenishment is implemented for manager-goal-driven replenishm
 - Acceptance coverage now verifies a `MaintainCraftMaterialSupply` manager goal with a low commodity threshold creates a manager-goal-sourced replenishment task, preserves priority, and carries the configured authorise/reserve/purchase plan.
 
 Design review note: this confirms the runtime automation seam, but it does not yet auto-select suppliers, derive purchase quantities from craft recipes, or tune batches from demand/storage. Those remain the demand-aware batch sizing phase and later manager autonomy work.
+
+
+### November 2026 F03 persistence closure
+
+The historical June runtime-only/grant-revocation deferrals below are superseded by the [current durable task approval and restart contract](Unified%20Employment%20Dispatch%20Design.md#durable-task-approvals-and-restart-recovery-f03-november-2026). F03 persists task provenance, task-bound scoped approvals, lifecycle metadata and permanent revocation, with fail-closed legacy/corrupt reload and sticky interrupted-finance quarantine. It does not close the remaining manager-policy, host-wide budget, route-pair, payroll, or autonomous recovery roadmap. Migration and native restart evidence are recorded with the implementation PR.

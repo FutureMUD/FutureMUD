@@ -667,6 +667,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				IdempotencyKey = task.IdempotencyKey
 			};
 			context.EmploymentActiveTasks.Add(dbitem);
+			EmploymentTaskProvenancePersistence.Create(task, dbitem);
 			AddStepStates(dbitem.StepStates, task.StepStates, task.StepOperationalStates);
 			Touch(context);
 			context.SaveChanges();
@@ -679,6 +680,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		{
 			var dbitem = context.EmploymentActiveTasks
 			                    .Include(x => x.StepStates)
+			                    .Include(x => x.AuthorisationGrant)
 			                    .FirstOrDefault(x => x.PublicId == task.Id.ToString("D"));
 			if (dbitem is null)
 			{
@@ -691,6 +693,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				? null
 				: CharacterInstanceIdentityComparer.IdentityId(task.AssignedEmployee);
 			dbitem.BlockedReason = task.BlockedReason;
+			EmploymentTaskProvenancePersistence.Update(task, dbitem);
 			context.EmploymentActiveTaskStepStates.RemoveRange(dbitem.StepStates);
 			AddStepStates(dbitem.StepStates, task.StepStates, task.StepOperationalStates);
 			Touch(context);
@@ -857,6 +860,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		                            .ToList();
 		var activeTasks = context.EmploymentActiveTasks
 		                         .Include(x => x.StepStates)
+		                         .Include(x => x.AuthorisationGrant).ThenInclude(x => x!.Limits)
+		                         .Include(x => x.AuthorisationGrant).ThenInclude(x => x!.Scopes)
+		                         .AsSplitQuery()
 		                         .Where(x => x.EmploymentHostStateId == StateId)
 		                         .AsNoTracking()
 		                         .ToList()
@@ -3035,7 +3041,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		var assigned = record.AssignedEmployeeId.HasValue
 			? _gameworld.TryGetCharacter(record.AssignedEmployeeId.Value, true)
 			: null;
-		return new EmploymentActiveTask(
+		var provenance = EmploymentTaskProvenancePersistence.Read(record, out var diagnostic);
+		var task = new EmploymentActiveTask(
 			id,
 			_host,
 			record.Name,
@@ -3047,7 +3054,14 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			record.StepStates.OrderBy(x => x.SortOrder).Select(ToOperationalState),
 			correlationId,
 			record.IdempotencyKey,
-			this);
+			this, provenance);
+		task.ProvenanceLoadDiagnostic = diagnostic;
+		task.RequiresFinancialReconciliation |= record.FinancialRecoveryRequired;
+		if (task.RequiresFinancialReconciliation)
+		{
+			task.BlockForCompatibilityLoad("An interrupted financial operation requires native-record reconciliation; automatic retry is disabled.");
+		}
+		return task;
 	}
 
 	private ManagerGoal? ToManagerGoal(DbManagerGoal record, EmploymentActionPlan? actionPlan)

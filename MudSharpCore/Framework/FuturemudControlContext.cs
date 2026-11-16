@@ -51,8 +51,19 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
         }
 
         _context.ExecuteCommand(command);
+		ApplyPendingContext();
+	}
 
-        if (_context.NextContext == null)
+	internal bool IsControlling(IControllable context) => ReferenceEquals(_context, context) && !Closing &&
+		_connection?.State == ConnectionState.Open;
+	public bool IsSensitiveInput => _context is Menu { IsSensitiveInput: true };
+	public bool AwaitingAccountSecurityWork => _context is Menu { AwaitingAccountSecurityWork: true };
+	internal void SendPrivateSecurityMessage(string message) => _connection?.AddOutgoing(message + "\n");
+
+	internal void ApplyPendingContext()
+	{
+
+        if (_context?.NextContext == null)
         {
             return;
         }

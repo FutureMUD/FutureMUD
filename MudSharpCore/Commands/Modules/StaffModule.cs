@@ -1,3 +1,4 @@
+using MudSharp.Menus;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -1919,50 +1920,65 @@ The syntax is:
 
     [PlayerCommand("ResetPassword", "resetpassword")]
     [CommandPermission(PermissionLevel.HighAdmin)]
-    [HelpInfo("resetpassword", @"The #3resetpassword#0 staff command creates a new random password for an account and sends it to the account's email address. Founders also see the generated password in game.
+    [HelpInfo("resetpassword", @"Issue a single-use account password recovery code, valid for 30 minutes. This does not replace the password until the owner chooses a new one.
 
-The syntax is:
+    #3resetpassword <account>#0 - send a recovery code by configured email
+    #3resetpassword <account> code#0 - show a code privately for trusted delivery (implementor only)
 
-	#3resetpassword <account>#0", AutoHelp.HelpArgOrNoArg)]
+Without email, the implementor can use the code option or SETPASSWORD. Recovery attempts and requests are limited.", AutoHelp.HelpArgOrNoArg)]
     protected static void ResetPassword(ICharacter actor, string input)
     {
-        string account = input.RemoveFirstWord();
-        if (string.IsNullOrEmpty(input))
+        var ss = new StringStack(input.RemoveFirstWord());
+        var name = ss.PopSpeech();
+        var mode = ss.IsFinished ? "email" : ss.PopSpeech().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(name) || !ss.IsFinished || mode is not ("email" or "code"))
+        { actor.Send("Use resetpassword <account> [email|code]."); return; }
+        if (mode == "code" && !actor.IsAdministrator(PermissionLevel.Founder))
+        { actor.Send("Only the implementor may receive a recovery code directly."); return; }
+        if (mode == "email")
         {
-            actor.OutputHandler.Send("For which account do you want to reset the password?");
+            if (!EmailHelper.Instance.CanDeliverAccountEmail)
+            { actor.Send("Email delivery is unavailable. The implementor can use resetpassword <account> code or setpassword <account>."); return; }
+            AccountSecurityService.SendRecovery(name, actor.Account.LastIP);
+            actor.Send("If the account has a usable email address and its request cooldown permits, a recovery code has been queued.");
             return;
         }
-
-        string newPassword;
+        if (actor.Account.ControllingContext is not FuturemudControlContext controller)
+        { actor.Send("This operation requires a connected player session."); return; }
+        long id;
         using (new FMDB())
         {
-            Models.Account dbaccount =
-                FMDB.Context.Accounts.FirstOrDefault(
-                    x => x.Name == account);
-            if (dbaccount == null)
-            {
-                actor.OutputHandler.Send("There is no such account for which you can reset the password.");
-                return;
-            }
-
-            newPassword = SecurityUtilities.GetRandomString(12, Constants.RandomPasswordCharacters.ToCharArray());
-
-#if DEBUG
-            Console.WriteLine("Generated new password {0}", newPassword);
-#endif
-            dbaccount.Salt = SecurityUtilities.GetSalt64();
-            dbaccount.Password = SecurityUtilities.GetPasswordHash(newPassword, dbaccount.Salt);
-            EmailHelper.Instance.SendEmail(EmailTemplateTypes.AccountPasswordReset, dbaccount.Email,
-                dbaccount.Name.Proper(), actor.Account.Name.Proper(), newPassword);
-            FMDB.Context.SaveChanges();
+            var account = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == name.ToLowerInvariant());
+            if (account is null) { actor.Send("There is no such account."); return; }
+            id = account.Id;
         }
+        var code = AccountSecurityService.IssueStaffRecovery(id);
+        if (code is null) { actor.Send("A code was issued too recently. Wait one minute and try again."); return; }
+        controller.SendPrivateSecurityMessage($"Recovery code for {name}: {code}. Give it only to the verified owner. It expires in 30 minutes and is case sensitive.");
+        actor.Gameworld.SystemMessage($"Implementor {actor.Account.Name} issued a manual recovery code for account {name}.", true);
+    }
 
-        actor.OutputHandler.Send(
-            $"You have reset the password of account {account.Proper()}, and an email has been sent to them with their new, randomly generated password.");
-        if (actor.IsAdministrator(PermissionLevel.Founder))
-        {
-            actor.OutputHandler.Send($"The new password is {newPassword.ColourValue()}.");
-        }
+    [PlayerCommand("SetPassword", "setpassword")]
+    [CommandPermission(PermissionLevel.Founder)]
+    [HelpInfo("setpassword", @"The implementor can set an account password directly, including on development games without email.
+
+    #3setpassword <account>#0
+
+The password is entered and confirmed in a protected prompt. Do not put it in the command line. The ordinary new-password policy applies. Outstanding recovery codes and other sessions are invalidated after a successful replacement. Use REGISTERACCOUNT to register an account manually.", AutoHelp.HelpArgOrNoArg)]
+    protected static void SetPassword(ICharacter actor, string input)
+    {
+        var ss = new StringStack(input.RemoveFirstWord());
+        var name = ss.PopSpeech();
+        if (string.IsNullOrWhiteSpace(name) || !ss.IsFinished)
+        { actor.Send("Use setpassword <account>, then enter the password in the protected prompt."); return; }
+        if (!actor.IsAdministrator(PermissionLevel.Founder) || actor.Account.ControllingContext is not FuturemudControlContext controller)
+        { actor.Send("Only a connected implementor can set account passwords directly."); return; }
+        var snapshot = AccountSecurityService.ReadCredentials(name);
+        if (snapshot is null) { actor.Send("There is no such account."); return; }
+        var permission = new AccountPasswordPermission(snapshot.Id, snapshot.Version, DateTime.UtcNow.AddMinutes(5));
+        controller.SetContext(new AccountPasswordReplacementMenu(actor.Gameworld, permission, actor,
+            $"implementor {actor.Account.Name} direct replacement",
+            () => actor.IsAdministrator(PermissionLevel.Founder) && actor.Account.AccountStatus == AccountStatus.Normal && ReferenceEquals(controller.Account, actor.Account)));
     }
 
     [PlayerCommand("ToggleAdminAvatar", "toggleadminavatar")]

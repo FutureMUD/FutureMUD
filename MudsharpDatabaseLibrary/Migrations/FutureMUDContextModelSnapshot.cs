@@ -371,6 +371,12 @@ namespace MudSharp.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime");
 
+                    b.Property<long>("CredentialVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
                     b.Property<string>("CultureName")
                         .IsRequired()
                         .HasColumnType("varchar(50)")
@@ -419,6 +425,15 @@ namespace MudSharp.Migrations
                     b.Property<DateTime?>("LastLoginTime")
                         .HasColumnType("datetime");
 
+                    b.Property<DateTime?>("LoginAttemptWindowUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("LoginAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LoginBlockedUntilUtc")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(4000)")
@@ -432,6 +447,7 @@ namespace MudSharp.Migrations
                         .HasDefaultValueSql("'22'");
 
                     b.Property<string>("Password")
+                        .IsConcurrencyToken()
                         .HasColumnType("varchar(1000)")
                         .UseCollation("utf8mb4_unicode_ci");
 
@@ -440,11 +456,24 @@ namespace MudSharp.Migrations
                     b.Property<int>("PromptType")
                         .HasColumnType("int(11)");
 
+                    b.Property<int>("RecoveryAttempts")
+                        .HasColumnType("int");
+
                     b.Property<string>("RecoveryCode")
+                        .IsConcurrencyToken()
                         .HasColumnType("varchar(4000)")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RecoveryCode"), "utf8");
+
+                    b.Property<long?>("RecoveryCredentialVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("RecoveryExpiresUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RecoveryIssuedUtc")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("RegistrationCode")
                         .HasColumnType("varchar(50)")

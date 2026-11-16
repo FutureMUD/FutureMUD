@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using MudSharp.Accounts;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Screens;
@@ -38,6 +38,8 @@ internal class LoggedInMenu : Menu
     private long _newPasswordSalt;
 
     private int _passwordEntryCount;
+    private bool _credentialWorkPending;
+    private AccountPasswordPermission _passwordChangePermission;
 
     public LoggedInMenuState State { get; set; }
 
@@ -477,6 +479,7 @@ internal class LoggedInMenu : Menu
 
     public override bool ExecuteCommand(string command)
     {
+        if (_credentialWorkPending) { OutputHandler.Send("Please wait for the account security operation to finish."); return true; }
         return _commands[State].Execute(command, CharacterState.Any, PermissionLevel.Any, OutputHandler);
     }
 
@@ -834,48 +837,46 @@ internal class LoggedInMenu : Menu
         OutputHandler.Send("\nPlease enter your previous password:", false);
     }
 
+    public override bool IsSensitiveInput => _credentialWorkPending || State is LoggedInMenuState.ChangePassword or
+        LoggedInMenuState.CheckedOldPassword or LoggedInMenuState.EnteredNewPassword or LoggedInMenuState.RegisterAccount;
+	public override bool AwaitingAccountSecurityWork => _credentialWorkPending;
+
     private void CheckOldPassword(string command)
     {
-        using (new FMDB())
-        {
-            Models.Account currentAccount = (from account in FMDB.Context.Accounts
-                                             where account.Id == Account.Id
-                                             select account).FirstOrDefault();
-            if (currentAccount == null)
+        var player = Controller as IPlayerController;
+        if (!AccountSecurityService.AllowSource(player?.IPAddress ?? Account.LastIP, "login", DateTime.UtcNow))
+        { OutputHandler.Send("Too many account security attempts. Please try again later."); return; }
+        var snapshot = AccountSecurityService.ReadCredentials(Account.Id, reserveLogin: true);
+        _credentialWorkPending = true;
+        if (!AccountSecurityWorkQueue.TryQueue(this, () => AccountSecurityService.VerifyCredential(snapshot, command), check =>
             {
-                OutputHandler.Send("\nAn error was encountered. Could not find account to update password for.");
-                throw new ApplicationException("Account: " + Account.Name + ", ID: " + Account.Id +
-                                               " does not exist in the database. Cannot change password.");
-            }
-
-            if (SecurityUtilities.VerifyPassword(command, currentAccount.Password, currentAccount.Salt))
-            {
-                State = LoggedInMenuState.CheckedOldPassword;
-                _passwordEntryCount = 0;
-                OutputHandler.Send("\nPlease enter a new password:", false);
-            }
-            else
-            {
-                if (++_passwordEntryCount > 2)
+                _credentialWorkPending = false;
+                var current = AccountSecurityService.ReadCredentials(Account.Id);
+                if (check.Valid && snapshot is not null && current == snapshot)
                 {
-                    // TODO: Stop bruteforcing passwords, yo. Do a ban here!
-                    OutputHandler.Send("\nToo many incorrect password entries.");
-                    OutputHandler.Send("\nYou have been logged out!");
+                    _passwordChangePermission = new(Account.Id, snapshot.Version, DateTime.UtcNow.AddMinutes(5));
+                    _passwordEntryCount = 0;
+                    State = LoggedInMenuState.CheckedOldPassword;
+                    OutputHandler.Send("Enter a new password:");
+                }
+                else if (++_passwordEntryCount >= 3)
+                {
+                    OutputHandler.Send("Too many incorrect password entries. You have been logged out.");
                     _nextContext = new Quit();
                 }
-                else
-                {
-                    OutputHandler.Send("\nPassword incorrect.\nPlease enter your previous password:", false);
-                }
-            }
+                else OutputHandler.Send("Password incorrect. Enter your previous password:");
+            }))
+        {
+            _credentialWorkPending = false;
+            OutputHandler.Send("Account security is busy. Please try again shortly.");
         }
     }
 
     private void EnterNewPassword(string command)
     {
-		if (!SecurityUtilities.IsValidNewPassword(command))
+		if (!AccountPasswordPolicy.TryValidate(command, out var passwordReason))
 		{
-			OutputHandler.Send($"\nPasswords must be at least {SecurityUtilities.MinimumPasswordLength} characters long. Please use another: ", false);
+			OutputHandler.Send(passwordReason + " Please use another: ", false);
 			return;
 		}
 
@@ -887,55 +888,31 @@ internal class LoggedInMenu : Menu
 
     private void CommitPassword(string command)
     {
-        if (SecurityUtilities.VerifyPassword(command, _newPasswordHash, _newPasswordSalt))
+        if (_passwordChangePermission is null || !SecurityUtilities.VerifyPassword(command, _newPasswordHash, _newPasswordSalt))
         {
-            using (new FMDB())
-            {
-                Models.Account currentAccount = (from account in FMDB.Context.Accounts
-                                                 where account.Id == Account.Id
-                                                 select account).FirstOrDefault();
-                if (currentAccount == null)
-                {
-                    OutputHandler.Send(
-                        "\nAn error was encountered. Could not find account to update password for.", false);
-                    throw new ApplicationException("Account: " + Account.Name + ", ID: " + Account.Id +
-                                                   " does not exist in the database. Cannot change password.");
-                }
-
-                currentAccount.Password = _newPasswordHash;
-                currentAccount.Salt = _newPasswordSalt;
-                FMDB.Context.SaveChanges();
-                OutputHandler.Send("\nPassword updated!", false);
-                EmailHelper.Instance.SendPasswordChangedEmail(Account.EmailAddress,
-                    Account.Name.Proper(), Account.LastIP);
-                State = LoggedInMenuState.LoggedInMenu;
-                OutputHandler.Send(_menuText);
-                _passwordEntryCount = 0;
-            }
+            OutputHandler.Send("The passwords did not match, or password verification expired. Start the password change again.");
+            _passwordChangePermission = null;
+            _newPasswordHash = null;
+            State = LoggedInMenuState.LoggedInMenu;
+            OutputHandler.Send(_menuText);
+            return;
         }
-        else
-        {
-            bool hasRecoveryCode = false;
-            using (new FMDB())
+        var permission = _passwordChangePermission;
+        _credentialWorkPending = true;
+        if (!AccountSecurityWorkQueue.TryQueue(this, () => AccountSecurityService.Hasher.Hash(command), hash =>
             {
-                Models.Account currentAccount = (from account in FMDB.Context.Accounts
-                                                 where account.Id == Account.Id
-                                                 select account).FirstOrDefault();
-                hasRecoveryCode = currentAccount.RecoveryCode != null;
-            }
-
-            if (hasRecoveryCode)
-            {
-                OutputHandler.Send("\nCould not match those passwords.", false);
-                State = LoggedInMenuState.CheckedOldPassword;
-                OutputHandler.Send("\nPlease enter a new password:", false);
-            }
-            else
-            {
-                OutputHandler.Send("\nCould not match new password.", false);
+                _credentialWorkPending = false;
+                _passwordChangePermission = null;
+                _newPasswordHash = null;
+                var changed = AccountSecurityService.ReplacePassword(Gameworld, permission, hash,
+                    Controller as IAccountController, (Controller as IPlayerController)?.IPAddress ?? Account.LastIP, "password change");
+                OutputHandler.Send(changed ? "Password updated!" : "Credentials changed elsewhere or verification expired. Start again.");
                 State = LoggedInMenuState.LoggedInMenu;
                 OutputHandler.Send(_menuText);
-            }
+            }))
+        {
+            _credentialWorkPending = false;
+            OutputHandler.Send("Account security is busy. Reenter the confirmation shortly.");
         }
     }
 

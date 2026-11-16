@@ -49,6 +49,15 @@ public abstract class Menu : IControllable, IHaveFuturemud, ISubContextControlle
         return _menuText;
     }
 
+	public virtual bool IsSensitiveInput => false;
+	public virtual bool AwaitingAccountSecurityWork => false;
+
+	internal virtual void SecurityWorkFailed()
+	{
+		OutputHandler?.Send("The account security operation could not be completed. Please reconnect and try again.");
+		_nextContext = new Quit();
+	}
+
     // This is an abstract class interface enforcement.
 
     #region IControllable Members

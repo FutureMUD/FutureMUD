@@ -9,12 +9,12 @@ namespace MudSharp.Framework
     public static class SecurityUtilities
     {
 		/// <summary>The minimum character count for a newly selected account password.</summary>
-		public const int MinimumPasswordLength = 8;
+		public const int MinimumPasswordLength = MudSharp.Accounts.AccountPasswordPolicy.MinimumLength;
 
 		/// <summary>Checks the shared password-selection policy without affecting existing password verification.</summary>
 		public static bool IsValidNewPassword(string? password)
 		{
-			return password is { Length: >= MinimumPasswordLength };
+			return MudSharp.Accounts.AccountPasswordPolicy.TryValidate(password, out _);
 		}
 
         public static long GetSalt64()

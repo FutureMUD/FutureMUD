@@ -347,8 +347,15 @@ public class NetworkWorkflowTests
 		try
 		{
 			var expected = Enumerable.Range(0, 24).Select(x => $"command{x}").ToArray();
+			var context = Mock.Get((IFuturemudControlContext)fixture.Connection.ControlPuppet);
+			context.SetupGet(x => x.AwaitingAccountSecurityWork).Returns(true);
 			var payload = Encoding.ASCII.GetBytes(string.Join("\r", expected) + "\r");
 			await fixture.Client.GetStream().WriteAsync(payload);
+			await WaitUntil(() => fixture.Connection.HasIncomingCommands);
+			fixture.Connection.AttemptCommand();
+			Assert.AreEqual(0, fixture.Commands.Count, "Credential work must defer input without consuming it.");
+			Assert.IsTrue(fixture.Connection.HasIncomingCommands);
+			context.SetupGet(x => x.AwaitingAccountSecurityWork).Returns(false);
 
 			await WaitUntil(() =>
 			{

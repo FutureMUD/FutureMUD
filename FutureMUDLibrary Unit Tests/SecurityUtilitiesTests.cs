@@ -29,9 +29,10 @@ public class SecurityUtilitiesTests
 	[DataRow(null, false)]
 	[DataRow("", false)]
 	[DataRow("1234567", false)]
-	[DataRow("12345678", true)]
+	[DataRow("12345678", false)]
+	[DataRow("a sufficiently long password", true)]
 	[DataRow("a longer password", true)]
-	public void NewPasswordPolicy_RequiresEightCharacters(string password, bool expected)
+	public void NewPasswordPolicy_UsesTheSharedSelectionRules(string password, bool expected)
 	{
 		Assert.AreEqual(expected, SecurityUtilities.IsValidNewPassword(password));
 	}

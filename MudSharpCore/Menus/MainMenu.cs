@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Commands;
@@ -30,6 +30,7 @@ public class MainMenu : Menu, IController
     private uint _linewidth;
     private CultureInfo _selectedCulture;
 
+    private bool _credentialWorkPending;
     private MainMenuState _state;
     private string _timezone;
     private decimal? _timezoneGMTOffset;
@@ -192,6 +193,11 @@ public class MainMenu : Menu, IController
                 return true;
         }
 
+        if (_credentialWorkPending)
+        {
+            OutputHandler.Send("Please wait for the account security operation to finish.");
+            return true;
+        }
         return _commands[_state].Execute(command, CharacterState.Any, PermissionLevel.Any, OutputHandler);
     }
 
@@ -239,54 +245,11 @@ public class MainMenu : Menu, IController
 
     private void RecoverPasswordSendEmail(string command)
     {
-        if (string.IsNullOrEmpty(command))
-        {
-            OutputHandler.Send(
-                "\nPlease enter the name of your account, your account email, or 0 to return to the main menu: ",
-                false);
-            return;
-        }
-
-        using (new FMDB())
-        {
-            Match match = EmailRegex.Match(command);
-            Models.Account account = match.Success
-                ? FMDB.Context.Accounts.FirstOrDefault(x => x.Email == command)
-                : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == command);
-
-            if (account == null)
-            {
-                if (match.Success)
-                {
-                    // Don't leak whether or not an email address is used by saying it cannot be found. - Case
-                    OutputHandler.Send(
-                        "An Account Recovery Code for the account registered to the specified email address has been sent. Please allow a few minutes for the email to arrive.");
-                    _state = MainMenuState.FrontMenu;
-                    OutputHandler.Send(_menuText, false);
-                }
-                else
-                {
-                    OutputHandler.Send("There are no accounts registered with that name.");
-                    _state = MainMenuState.FrontMenu;
-                    OutputHandler.Send(_menuText, false);
-                }
-
-                return;
-            }
-
-            string code = SecurityUtilities.GetRandomString(20, Constants.ValidRandomCharacters.ToCharArray());
-            account.RecoveryCode = SecurityUtilities.GetPasswordHash(code, account.Salt);
-
-            EmailHelper.Instance.SendEmail(EmailTemplateTypes.AccountRecoveryCode, account.Email,
-                account.Name.TitleCase(), AccountController.IPAddress, code);
-            OutputHandler.Send(match.Success
-                ? "An Account Recovery Code for the account registered to the specified email address has been sent. Please allow a few minutes for the email to arrive."
-                : "An Account Recovery Code for the account has been sent to its registered email address. Please allow a few minutes for the email to arrive.");
-
-            FMDB.Context.SaveChanges();
-            _state = MainMenuState.FrontMenu;
-            OutputHandler.Send(_menuText, false);
-        }
+        if (command == "0") { _state = MainMenuState.FrontMenu; OutputHandler.Send(_menuText); return; }
+        AccountSecurityService.SendRecovery(command, AccountController.IPAddress);
+        OutputHandler.Send("If that account has a usable email address and email delivery is enabled, a recovery code will be sent. Otherwise contact the implementor. Codes expire after 30 minutes.");
+        _state = MainMenuState.FrontMenu;
+        OutputHandler.Send(_menuText, false);
     }
 
     private void RecoverPasswordEnterAccountName(string command)
@@ -299,33 +262,18 @@ public class MainMenu : Menu, IController
 
     private void RecoverPasswordEnterCode(string command)
     {
-        using (new FMDB())
+        var permission = AccountSecurityService.AllowSource(AccountController.IPAddress, "recovery-code", DateTime.UtcNow)
+            ? AccountSecurityService.ValidateRecovery(_accountName, command) : null;
+        if (permission is null)
         {
-            Models.Account accountLookup = (from dbAccount in FMDB.Context.Accounts
-                                            where dbAccount.Name.Equals(_accountName)
-                                            select dbAccount).FirstOrDefault();
-
-            if (accountLookup == null ||
-                !SecurityUtilities.VerifyPassword(command, accountLookup.RecoveryCode, accountLookup.Salt))
-            {
-                OutputHandler.Send(
-                    "That is not a valid Account Recovery Code. Please double check the code that you were sent. Codes are not case sensitive.");
-                _state = MainMenuState.FrontMenu;
-                OutputHandler.Send(_menuText, false);
-                return;
-            }
-
-            accountLookup.RecoveryCode = null;
-            OutputHandler.Send($"Recovering Account {accountLookup.Name.TitleCase()}...");
-            OutputHandler.Send("\nPlease enter a new password: ", false);
-            Gameworld.SystemMessage(
-                $"Account {accountLookup.Name.Proper()} has successfully used the Account Recovery Tool from IP Address {AccountController.IPAddress}.",
-                true);
-            _nextContext = new LoggedInMenu(Gameworld.TryAccount(accountLookup), Gameworld)
-            {
-                State = LoggedInMenu.LoggedInMenuState.CheckedOldPassword
-            };
+            OutputHandler.Send("That recovery code is invalid, expired or has exhausted its attempts. Request a new code or contact the implementor. Codes are case sensitive.");
+            _state = MainMenuState.FrontMenu;
+            OutputHandler.Send(_menuText, false);
+            return;
         }
+        // Recovery permits password replacement only; it is never an authenticated account menu.
+        _nextContext = new AccountPasswordReplacementMenu(Gameworld, permission,
+            new MainMenu(Gameworld, AccountController), "account recovery");
     }
 
     private void CreateAccount(string command)
@@ -403,9 +351,9 @@ public class MainMenu : Menu, IController
 
     private void CreateAccountPassword(string command)
     {
-        if (!SecurityUtilities.IsValidNewPassword(command))
+        if (!AccountPasswordPolicy.TryValidate(command, out var passwordReason))
         {
-            OutputHandler.Send($"\nPasswords must be at least {SecurityUtilities.MinimumPasswordLength} characters long. Please use another: ", false);
+            OutputHandler.Send(passwordReason + " Please use another: ", false);
             return;
         }
 
@@ -428,9 +376,20 @@ public class MainMenu : Menu, IController
         }
         else
         {
-            OutputHandler.Send(Gameworld.GetStaticString("CreateAccountEmail").SubstituteANSIColour().Wrap(80),
-                false);
-            _state = MainMenuState.CreateAccountEmail;
+            _credentialWorkPending = true;
+            if (!AccountSecurityWorkQueue.TryQueue(this, () => AccountSecurityService.Hasher.Hash(command), hash =>
+                {
+                    _credentialWorkPending = false;
+                    _accountPassword = hash;
+                    OutputHandler.Send(Gameworld.GetStaticString("CreateAccountEmail").SubstituteANSIColour().Wrap(80), false);
+                    if (Account.AccountRegistrationByEmailDisabled(Gameworld))
+                        OutputHandler.Send("Email registration is disabled. Enter none to skip the email address.");
+                    _state = MainMenuState.CreateAccountEmail;
+                }))
+            {
+                _credentialWorkPending = false;
+                OutputHandler.Send("Account security is busy. Please reenter the confirmation shortly.");
+            }
         }
     }
 
@@ -441,24 +400,27 @@ public class MainMenu : Menu, IController
 
     private void CreateAccountEmail(string command)
     {
-        if (!EmailRegex.IsMatch(command))
+        if (!EmailRegex.IsMatch(command) && !(Account.AccountRegistrationByEmailDisabled(Gameworld) && command.EqualTo("none")))
         {
             OutputHandler.Send("\nThat is not a valid email address. Please enter a valid email address: ", false);
             return;
         }
 
-        using (new FMDB())
+        if (!command.EqualTo("none"))
         {
-            if (FMDB.Context.Accounts.Any(x => x.Email == command))
+            using (new FMDB())
             {
-                OutputHandler.Send(
-                    "\nThere is already an account registered with that email. If you have lost access to your account, please try password recovery. ",
-                    false);
-                return;
+                if (FMDB.Context.Accounts.Any(x => x.Email == command))
+                {
+                    OutputHandler.Send(
+                        "\nThere is already an account registered with that email. If you have lost access to your account, please try password recovery. ",
+                        false);
+                    return;
+                }
             }
         }
 
-        _email = command;
+        _email = command.EqualTo("none") ? string.Empty : command;
 
         if (Gameworld.GetStaticBool("UseSimpleAccountCreation"))
         {
@@ -783,8 +745,35 @@ public class MainMenu : Menu, IController
 
     private void ConnectAccountPassword(string command)
     {
-        IAccount loginAttempt = Gameworld.LogIn(_accountName, command, AccountController);
+#if DEBUG
+        FinishLogin(Gameworld.LogIn(_accountName, command, AccountController));
+#else
+        if (!AccountSecurityService.AllowSource(AccountController.IPAddress, "login", DateTime.UtcNow))
+        {
+            FinishLogin(null);
+            return;
+        }
+        var snapshot = AccountSecurityService.ReadCredentials(_accountName, reserveLogin: true);
+        _credentialWorkPending = true;
+        if (!AccountSecurityWorkQueue.TryQueue(this, () => AccountSecurityService.VerifyCredential(snapshot, command), check =>
+            {
+                _credentialWorkPending = false;
+                FinishLogin(check.Valid && snapshot is not null && Gameworld is Futuremud world
+                    ? world.LogInVerified(snapshot, AccountController, check.UpgradedHash) : null);
+            }))
+        {
+            _credentialWorkPending = false;
+            OutputHandler.Send("Account security is busy. Please try again shortly.");
+        }
+#endif
+    }
 
+    public override bool IsSensitiveInput => _credentialWorkPending || _state is MainMenuState.CreateAccountPassword or
+        MainMenuState.CreateAccountPasswordConfirm or MainMenuState.ConnectAccountPassword or MainMenuState.RecoverPasswordEnterCode;
+	public override bool AwaitingAccountSecurityWork => _credentialWorkPending;
+
+    private void FinishLogin(IAccount loginAttempt)
+    {
         if (loginAttempt != null)
         {
             lock (Gameworld.Connections)

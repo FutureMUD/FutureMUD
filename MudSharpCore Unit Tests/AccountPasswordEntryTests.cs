@@ -17,9 +17,29 @@ namespace MudSharp_Unit_Tests;
 public class AccountPasswordEntryTests
 {
 	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void RegistrationEmail_NoneIsAllowedOnlyWhenEmailRegistrationIsDisabled(bool disabled)
+	{
+		var output = new Mock<IOutputHandler>();
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.Name).Returns("Test MUD");
+		world.Setup(x => x.GetStaticString(It.IsAny<string>())).Returns("Test menu");
+		world.Setup(x => x.GetStaticBool("DisableAccountRegistrationByEmail")).Returns(disabled);
+		var menu = new MainMenu(world.Object, new Mock<IPlayerController>().Object);
+		var controller = new Mock<IController>();
+		controller.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		menu.SilentAssumeControl(controller.Object);
+		var state = typeof(MainMenu).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		state.SetValue(menu, Enum.Parse(state.FieldType, "CreateAccountEmail"));
+		menu.ExecuteCommand("none");
+		Assert.AreEqual(disabled ? "CreateAccountLineWidth" : "CreateAccountEmail", state.GetValue(menu)!.ToString());
+	}
+
+	[TestMethod]
 	[DataRow("")]
 	[DataRow("1234567")]
-	[DataRow("12345678")]
+	[DataRow("a sufficiently long password")]
 	public void RegistrationPasswordEntry_RequiresTheSharedMinimum(string password)
 	{
 		var output = new Mock<IOutputHandler>();
@@ -35,17 +55,17 @@ public class AccountPasswordEntryTests
 
 		menu.ExecuteCommand(password);
 
-		Assert.AreEqual(password.Length >= 8 ? "CreateAccountPasswordConfirm" : "CreateAccountPassword",
+		Assert.AreEqual(SecurityUtilities.IsValidNewPassword(password) ? "CreateAccountPasswordConfirm" : "CreateAccountPassword",
 			state.GetValue(menu)!.ToString());
 		var hash = typeof(MainMenu).GetField("_accountPassword", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.GetValue(menu) as string;
-		Assert.AreEqual(password.Length >= 8, hash is not null);
+		Assert.AreEqual(SecurityUtilities.IsValidNewPassword(password), hash is not null);
 	}
 
 	[TestMethod]
 	[DataRow("")]
 	[DataRow("1234567")]
-	[DataRow("12345678")]
+	[DataRow("a sufficiently long password")]
 	public void ChangeAndRecoveryPasswordEntry_RejectShortPasswordsBeforeConfirmation(string password)
 	{
 		// The ordinary constructor queries chargen counts. Exercise just the real password-entry
@@ -63,15 +83,15 @@ public class AccountPasswordEntryTests
 		typeof(LoggedInMenu).GetMethod("EnterNewPassword", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.Invoke(menu, [password]);
 
-		Assert.AreEqual(password.Length >= 8
+		Assert.AreEqual(SecurityUtilities.IsValidNewPassword(password)
 			? LoggedInMenu.LoggedInMenuState.EnteredNewPassword
 			: LoggedInMenu.LoggedInMenuState.CheckedOldPassword, menu.State);
 		var hash = typeof(LoggedInMenu).GetField("_newPasswordHash", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.GetValue(menu) as string;
-		Assert.AreEqual(password.Length >= 8, hash is not null);
-		if (password.Length < 8)
+		Assert.AreEqual(SecurityUtilities.IsValidNewPassword(password), hash is not null);
+		if (!SecurityUtilities.IsValidNewPassword(password))
 		{
-			StringAssert.Contains(string.Join("\n", messages), "at least 8 characters");
+			StringAssert.Contains(string.Join("\n", messages), "at least 15 characters");
 		}
 	}
 }

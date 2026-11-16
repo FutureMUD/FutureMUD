@@ -55,6 +55,10 @@ public class EmailHelper
 	}
 
 	public static EmailHelper Instance { get; } = new();
+	public bool CanDeliverAccountEmail
+	{
+		get { lock (_sync) return !SuppressDeliveryInCurrentBuild && _configuration.Enabled; }
+	}
 
 	public void TestFailSendEmail()
 	{

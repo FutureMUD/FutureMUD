@@ -71,6 +71,7 @@ internal class MudSharp
             }
             catch (Exception e)
             {
+                Environment.ExitCode = 1;
                 Console.WriteLine(
                     "FutureMUD Failed to start up due to being unable to open the connection configuration: " +
                     e.Message);
@@ -153,6 +154,7 @@ internal class MudSharp
 		}
 		catch (Exception e)
 		{
+			Environment.ExitCode = 1;
 			WriteCrashLog(ExceptionReporter.Format(e, "Engine main", true));
 		}
 
@@ -160,7 +162,7 @@ internal class MudSharp
 		{
 			FlushBackgroundCrashNotifications();
 			Thread.Sleep(100);
-			Environment.Exit(0);
+			Environment.Exit(Environment.ExitCode);
 		}
 #endif
     }

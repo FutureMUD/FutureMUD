@@ -1,4 +1,5 @@
 #nullable enable
+extern alias EngineCompiler;
 
 using Humanizer;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -17,6 +18,7 @@ using System.Xml.Linq;
 using System;
 using TimeOfDay = MudSharp.Celestial.TimeOfDay;
 using TimeZoneInfo = MudSharp.Models.TimeZoneInfo;
+using CredentialHasher = EngineCompiler::MudSharp.Accounts.Argon2AccountCredentialHasher;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -361,15 +363,15 @@ public partial class CoreDataSeeder : IFoundationSeeder
 		Account dbaccount = new()
 		{
 			Name = questionAnswers["account"],
-			Salt = 8675309,
-			Password = SecurityUtilities.GetPasswordHash(questionAnswers["password"], 8675309),
+			Salt = 0,
+			Password = new CredentialHasher().Hash(questionAnswers["password"]),
 			FormatLength = 180,
 			InnerFormatLength = 80,
 			PageLength = 100,
 			CultureName = "en-US",
 			TimeZoneId = "Eastern Standard Time",
 			UseUnicode = false,
-			Email = questionAnswers["email"],
+			Email = questionAnswers["email"].EqualTo("none") ? string.Empty : questionAnswers["email"],
 			IsRegistered = true,
 			UnitPreference = "metric",
 			ActiveCharactersAllowed = 100,
@@ -428,7 +430,7 @@ public partial class CoreDataSeeder : IFoundationSeeder
         {
             TemplateType = (int)EmailTemplateTypes.AccountPasswordChanged,
             Content =
-                @$"<html><p>Hi, {{0}}!<p>Your account password on {gameName} has been recently changed by someone at IP Address {{1}}, presumably you, and is now <b>{{2}}</b>. You can now login to your account with these details.<p>If you did not initiate this password change, please email <a href=\""mailto:staff@{condensedGameName}.com?Subject=False%20Account%20Password%20Change\"">The Head Administrator</a> to commence investigative action.</p><p>Sincerely,<br>The {gameName} Team</p></html>",
+                @$"<html><p>Hi, {{0}}!</p><p>Your account password on {gameName} was recently changed from IP Address {{1}}. You can now log in with the password you selected. Passwords are not included in notification emails.</p><p>If you did not initiate this password change, please email <a href=\""mailto:staff@{condensedGameName}.com?Subject=False%20Account%20Password%20Change\"">The Head Administrator</a> to commence investigative action.</p><p>Sincerely,<br>The {gameName} Team</p></html>",
             ReturnAddress = $"noreply@{condensedGameName}.com",
             Subject = $"{gameName} Password Change"
         });
@@ -1450,12 +1452,13 @@ public partial class CoreDataSeeder : IFoundationSeeder
 			("password", "What password do you want to use for your implementor account? ", (context, answers) => !IsCoreBootstrapInstalled(context),
                 (text, context) =>
                 {
-                    if (text.Length < 8) { return (false, "Your password must be at least 8 characters long."); } return (true, string.Empty);
+					var valid = MudSharp.Accounts.AccountPasswordPolicy.TryValidate(text, out var reason);
+					return (valid, reason);
                 }),
-			("email", "What email address do you want to use for your implementor account? ",
+			("email", "What email address do you want to use for your implementor account? Enter none for a development account without email. ",
 				(context, answers) => !IsCoreBootstrapInstalled(context), (text, context) =>
                 {
-                    if (!EmailRegex.IsMatch(text)) { return (false, "That is not a valid email address."); } return (true, string.Empty);
+                    if (!text.EqualTo("none") && !EmailRegex.IsMatch(text)) { return (false, "Enter a valid email address or none."); } return (true, string.Empty);
                 })
 		};
 
@@ -1766,7 +1769,7 @@ Please enter an account name for your new account: "
             Id = "CreateAccountPassword",
             Text = @"#3Password Selection#0
 
-Your password will be used to access your account, and will be stored securely in the game's database as an encrypted, salted hash. Passwords must be at least 8 characters long and can use any combination of letters, numbers and symbols.
+Your password will be used to access your account, and will be stored securely in the game's database as a salted password hash. New passwords must contain 15 to 128 characters. Spaces and long passphrases are welcome; common passwords are refused.
 
 Please enter a password for your new account: "
         });

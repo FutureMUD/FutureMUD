@@ -187,14 +187,23 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 		}
 	}
 
+	internal static string AccountSafeFailureInput(bool sensitive, string command)
+	{
+		var words = command.Split((char[]?)null, 2, StringSplitOptions.RemoveEmptyEntries);
+		var verb = words.Length == 0 ? string.Empty : words[0];
+		return sensitive || verb.EqualTo("setpassword") || verb.EqualTo("resetpassword")
+			? "[REDACTED ACCOUNT SECURITY INPUT]" : command;
+	}
+
 	public void AttemptCommand()
 	{
-		if (State != ConnectionState.Open || !_incomingCommands.Reader.TryRead(out var command))
+		if (State != ConnectionState.Open || ControlPuppet?.AwaitingAccountSecurityWork == true || !_incomingCommands.Reader.TryRead(out var command))
 		{
 			return;
 		}
 
 		Interlocked.Decrement(ref _incomingCommandQueueCount);
+		var sensitiveInput = ControlPuppet?.IsSensitiveInput == true;
 		try
 		{
 			using var inputOrigin = MagicSpeechContext.PlayerInput((ControlPuppet as IFuturemudControlContext)?.Actor);
@@ -207,7 +216,7 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 			{
 				var context = ControlPuppet as IFuturemudControlContext;
 				_crashLogger(ExceptionReporter.Format(e, "Crash during player input", false,
-					("Input", () => command),
+					("Input", () => AccountSafeFailureInput(sensitiveInput, command)),
 					("Account", () => context?.Account?.Name),
 					("Character ID", () => context?.Actor?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)),
 					("Room ID", () => context?.Actor?.Location?.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)),

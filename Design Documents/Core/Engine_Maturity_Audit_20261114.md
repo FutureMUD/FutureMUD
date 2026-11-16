@@ -1,10 +1,16 @@
 # FutureMUD engine maturity audit
 
-Original audit: 14 November 2026; refreshed: 15 November 2026
+Original audit: 14 November 2026; refreshed: 15 November 2026; account-security implementation update: 16 November 2026
 
 Source revision: `b32228996a95b745a6ad02298d582347b788ce7e` — fetched remote `master`, 14 November 2026; plus the legacy-tool retirement described in F18
 
 Purpose: divide the engine into thematic features and identify incomplete functionality, weak assurance, documentation gaps and older implementations worth reviewing.
+
+## Post-audit hardening implementation
+
+The first agreed hardening batch implements F01's safe password-change notifications, F04's fatal-process exit status, and F05's consistent new-password minimum. It also moves generated registration/recovery/temporary credentials to cryptographic randomness. Existing database email templates retain their content and a safe legacy `{2}` slot; Debug support login and staff-generated reset emails keep their intended behavior. See [account credentials and notifications](Account_Credentials_and_Notifications.md).
+
+The findings below describe the audited baseline; these implementation dispositions supersede their corresponding current-code observations. Hash migration, recovery expiry/throttling and broader session policy remain deferred. Verification of this batch is recorded in the linked credential guide separately from the original source-only audit: 10,709 fast-test passes, three expected Windows skips and three passing Release subprocess cases. A live world boot/normal shutdown and real mail-provider delivery were not exercised.
 
 ## Overall assessment
 
@@ -14,10 +20,10 @@ The best next investment is a focused hardening and documentation programme. The
 
 The clearest findings are:
 
-1. **Password-change notifications can contain the new plaintext password.** The runtime supplies it and the stock template includes it. This behavior survives from the 2023 import. See F01.
+1. **Password notification and credential/recovery hardening are now implemented on the account-security branch.** F01/F05 retain the original findings below, with current verification and the supported email-free implementor workflows recorded separately.
 2. **Passwordless Debug support login is intentional and accepted.** It enables reproducing player account/character problems without collecting their passwords. Debug builds are excluded from public releases. F02 is a documented support property, not a defect or remediation item.
 3. **Employment task provenance and grants do not survive database reconstruction.** Financial tasks deliberately fail closed after losing their grants; tests explicitly expect this. The narrower implementation contradicts broader release-readiness wording about durable grants. See F03.
-4. **A fatal Release startup/game-loop exception still exits with status zero.** Crash reports exist, but process supervisors cannot distinguish this failure from success using the exit code. See F04.
+4. **Fatal Release exit semantics were corrected in the earlier account-hardening commit carried by this branch.** F04 retains the original finding and dated process verification.
 5. **Several apparent missing features are actually stale documentation.** Land gathering and magic-resource prompts exist. Conversely, some legacy APIs really remain throwing placeholders but have no current callers. See F06–F08.
 6. **The strongest “untouched for years” signal is at method/feature level.** Broad cleanup and Room terminology changes make many old implementations look recently maintained. Specific 2023 branches remain in perception contracts, herd AI, time zones, language presentation and legacy tooling. See the historical review queue.
 
@@ -25,7 +31,7 @@ The clearest findings are:
 
 This is an engine-wide **source, architecture, documentation, test-inventory and Git-history audit**, with deeper call-chain checks on selected high-value findings. It is not a line-by-line review of every implementation, a penetration test, or a new live-world stability campaign. The census covers all tracked C# files in the main runtime and shared library; thematic assessments also examine persistence, bootstrap/content products, selected tools and their integration surfaces.
 
-No build, automated test suite, MySQL migration, fresh install, live Telnet scenario, external-model call or soak test was run for this audit. Test names below identify existing evidence and useful verification seams; they are not newly passing results. Historical acceptance reports are treated as dated evidence, not current certification.
+No build, automated test suite, MySQL migration, fresh install, live Telnet scenario, external-model call or soak test was run for the original audit. Subsequent account-security implementation evidence is listed separately in F01/F05. Test names below identify existing evidence and useful verification seams; they are not newly passing results. Historical acceptance reports are treated as dated evidence, not current certification.
 
 Remote `master` was fetched and the checkout fast-forwarded from `2d0935518` to `b32228996` on 15 November 2026. The engine now targets `net11.0`. The refresh includes the intervening staged-performance/rites prototype, Armageddon RC1 qualification and startup/prog-consolidation changes. An isolated checkout was used for bounded security/delta review; the full original thematic investigation was not repeated line by line. The source census was recomputed. The pre-existing `MudSharp.sln` edit was preserved byte-for-byte.
 
@@ -65,7 +71,7 @@ The 15 November follow-up uses a narrower security threshold than the general ma
 | Plaintext password notification, legacy password hashing, strength/expiry/throttling policy | Concrete hardening debt, with credential possession, mailbox/storage access or another precondition needed for the identified access consequences. | F01/F05 are P2 work, not confirmed direct-entry vulnerabilities requiring an automatic disclosure hold. |
 | Legacy Watcher and Upgrade Service | The owner confirmed that both are obsolete. Their source projects and solution entries are removed by this review. | Resolved by retirement from the maintained repository. External installations are not modified by repository cleanup. |
 
-The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; no gameplay/authentication fixes were made. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
+The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; the later credential hardening is described above. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
 
 ## Thematic feature map
 
@@ -88,7 +94,7 @@ These are logical ownership boundaries for planning and review. They are not a p
 
 | Area and source ownership | Maturity and completeness | Stability evidence | Documentation and next review |
 | --- | --- | --- | --- |
-| Accounts, registration, login and recovery — `Accounts`, `Menus` | **Established workflows with credential-policy hardening debt.** Debug support login is intentional; legacy notification/recovery policy merits a separate review. | **Mixed/thin** for full account lifecycle. A hash-compatibility test does not qualify password security. | Security information is fragmented. **P2:** F01/F05 hardening; write one account-security/operations contract. F02 is accepted behavior. |
+| Accounts, registration, login and recovery — `Accounts`, `Menus` | **Established workflows; F01/F05 upgrade implemented and qualified on the account-security branch.** Debug support login is intentional; email-free implementor tools are retained. | **Mixed/thin** for full account lifecycle. A hash-compatibility test does not qualify password security. | Security information is fragmented. Use the [account-security/operations contract](Account_Credentials_and_Notifications.md) and F01/F05 verification. Broader identity/MFA features are separately deferred. F02 is accepted behavior. |
 | Character creation, roles, resources and approval — `CharacterCreation` | **Established; broad.** Configurable stages, skippers, skill groups, approval and role integration exist. | **Stronger** focused reorder, skipper, knowledge and group tests; whole application/reconnect/restart flow unrun. | Good [chargen index](../Characters/Character_Creation_Documentation_Index.md), runtime, builder and seeder guides. **P2:** complete end-to-end templates for supported application paths. |
 | Identity, character lifecycle and archives — `Character`, `Menus`, related loaders | **Established.** Login/logout, retirement, archives and physical-instance relationships are implemented. | **Mixed/stronger** for lifecycle guards and cleanup; integrated offline/reboot cases still matter. | Split across character/body-form docs and command help. **P2:** join identity, online state, archives and retirement into an operational lifecycle reference. |
 | Anatomy, races, culture and physical bodies — `Body`, `Character/Heritage` | **Established and highly configurable.** Body prototypes, traits, movement capabilities and racial content are extensive; some public API contracts are unfinished. | **Stronger** body/template/perception tests; dormant API holes remain (F07). | Good [body builder guide](../Building/Body_Prototype_Builder_Guide.md) and chargen/seeder material. **P2:** supported API contract census; trace or retire unused members. |
@@ -189,7 +195,11 @@ These are logical ownership boundaries for planning and review. They are not a p
 
 ## Confirmed findings and material limitations
 
-### F01 P2 — Password-change email includes the new password
+### F01 Resolved — Password-change notifications exclude the password
+
+**Current status, 16 November 2026:** resolved on the account-security branch. Password-change notifications receive no password; the fixed compatibility value for old `{2}` templates preserves customised setups without disclosure. Staff reset now issues an expiring code or uses the protected implementor setter. Existing custom templates are not overwritten. See the [account contract](Account_Credentials_and_Notifications.md) and [verification record](../Verification/Account_Security_20261116.md).
+
+**Original finding at the audited revision:**
 
 **Classification: confirmed source behavior, high confidence.**
 
@@ -225,7 +235,11 @@ The [employment roadmap](../Economy/Employment%20Hosts%20Implementation%20Review
 
 **Recommended closure:** agree whether durable grants/provenance are required for the supported restart contract. If yes, implement versioned persistence and round-trip both permitted and denied grants, exact source/priority/timestamps, revocation and old-row compatibility. If runtime-only remains the intended scope, correct readiness wording and clearly expose post-restart blocked-work recovery to builders. Keep the fail-closed regression.
 
-### F04 P1 — Fatal engine failures report success to the operating system
+### F04 Resolved — Fatal engine failures return a failure exit status
+
+**Current status:** resolved by the 15 November hardening commit carried on this account-security branch. Fatal Release paths return failure while retaining crash reporting. The earlier Release subprocess checks covered malformed connection configuration, early startup failure and successful documentation export; their dated evidence is retained in [the account hardening record](Account_Credentials_and_Notifications.md#verification-on-15-november-2026). The 16 November F05 campaign adds real Release world boots; it does not claim to repeat those fatal probes.
+
+**Original finding at the audited revision:**
 
 **Classification: confirmed source behavior, high confidence.**
 
@@ -233,7 +247,13 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 
 **Recommended closure:** preserve a nonzero fatal exit status and a normal success status, with deliberate service restart policy. Test the published Release executable using an invalid startup configuration or isolated injected failure; assert report creation and process exit code. Do not use a production world to simulate this.
 
-### F05 P2 — Account credential and recovery policy needs a joined review
+### F05 Resolved — Compatible credential and recovery upgrade
+
+**Current status, 16 November 2026:** resolved on the account-security branch. New credentials use Argon2id; genuine Release login upgrades legacy hashes without forcing existing passwords to change. Recovery is expiring, single-use at commit and credential-version bound. Persistent account budgets, source throttles, cooldowns, restricted reset prompts, stale-work rejection and session revocation are implemented. The implementor retains direct password setting and private recovery-code delivery without email; manual registration and the global registration toggle are preserved. Debug support login remains intentional and never rehashes its arbitrary input.
+
+**Executed evidence:** generated migration and model parity, native upgrade/down/up, refreshed blank-snapshot import, complete fast gate (11,224 passed, zero failed, three platform skips) and 55 live assertions across three Release boots plus one Debug boot. Nineteen new pure state/parser cases took about 6 ms combined; the slow native campaign is opt-in. See the [verification record](../Verification/Account_Security_20261116.md). Outbound mail delivery and third-party sign-ins were not part of this live campaign.
+
+**Original finding at the audited revision:**
 
 **Classification: confirmed implementation constraints; operational impact needs qualification.**
 

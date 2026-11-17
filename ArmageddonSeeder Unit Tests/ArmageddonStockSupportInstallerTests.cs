@@ -116,8 +116,18 @@ public partial class ArmageddonStockSupportInstallerTests
 		db.ChangeTracker.Clear(); Assert.AreEqual(132, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
 	}
 
-	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
-		=> FixtureWithCombat(mode, classes, null);
+	private static readonly Lazy<InMemorySeederSnapshot> SimplePrerequisites = new(() =>
+	{
+		using var db = FixtureWithCombat(ArmageddonProgressionMode.Simple, false, null);
+		return InMemorySeederSnapshot.Capture(db);
+	});
+
+	internal static FuturemudDatabaseContext CreateSimplePrerequisites() => SimplePrerequisites.Value.Create();
+
+	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false) =>
+		mode == ArmageddonProgressionMode.Simple && !classes
+			? CreateSimplePrerequisites()
+			: FixtureWithCombat(mode, classes, null);
 
 	private static FuturemudDatabaseContext FixtureWithCombat(ArmageddonProgressionMode mode, bool classes,
 		Action<FuturemudDatabaseContext>? configureCombat)

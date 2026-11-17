@@ -85,7 +85,15 @@ Do not add phase-completion tests whose only assertion is that named methods, da
 
 Random helpers should be checked with bounded samples and deterministic invariants. Tests must not require a random run to produce more than one distinct value; that is probabilistic and does not define correct behavior.
 
-Database-backed fixtures may be shared only when they are read-only, the class is not parallelized, and mutation/idempotence cases keep isolated contexts. Expensive climate simulations remain in the dedicated opt-in project.
+An existing class that shares a live EF context must use it read-only and execute serially. Mutation and idempotence cases need an isolated store. Expensive climate simulations remain in the dedicated opt-in project.
+
+### Sharing expensive test setup
+
+Start with the smallest fixture that exercises the contract. Several cheap examples can use the same builder while still constructing fresh state. When many cases pay to install the same prerequisites, use the narrowest fixture scope that covers those consumers. Key variants by the choices that affect persisted data or behaviour. Lazy creation keeps a filtered run from paying for unused variants.
+
+Read-only inputs can be reused directly. For tests that write, a persisted baseline can be captured once and restored into a uniquely owned store per case. A fresh EF context over a writable shared database still sees other tests' writes. Preserve provider options, generated identities, shadow keys, join rows and any tracked-versus-reloaded behaviour the case exercises. Dispose the owner after its borrowers and release the temporary store. Keep clocks, random streams, mock callbacks, event subscribers and temporary directories local when their state can change. Tests that override process-wide registries must restore their changes even on failure.
+
+Use case timings to find candidates, then measure the prerequisite separately. Compare fresh setup with building the baseline, making every copy and releasing it, including the first consumer. Check both execution time and resource cost, such as managed allocations or peak process memory. Run the same assertions and DataRows separately and together, including a pair where one case edits data the other expects to be pristine. The [November fixture review](../../scripts/TestReporting/shared-fixture-review-2026-11-17.md) gives measured examples and an implementation sequence.
 
 ## July 2026 Review Findings
 

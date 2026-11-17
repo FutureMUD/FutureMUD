@@ -391,7 +391,12 @@ public sealed record EmploymentAuthorisationGrant(
 	DateTimeOffset? ExpiresAt,
 	Guid CorrelationId,
 	IReadOnlySet<string> PaymentSourceScopes,
-	IReadOnlySet<string> CounterpartyScopes)
+	IReadOnlySet<string> CounterpartyScopes,
+	EmploymentPrincipal? AuthorityPrincipal = null,
+	EmploymentAuthority IssuanceAuthority = EmploymentAuthority.AssignTasks,
+	DateTimeOffset? RevokedAt = null,
+	string? RevocationReason = null,
+	int Revision = 1)
 {
 	public IReadOnlyCollection<EmploymentAuthorisationLimit> Limits =>
 		AmountLimits.Select(x => new EmploymentAuthorisationLimit(x.Key, x.Value)).ToList();
@@ -454,7 +459,10 @@ public sealed record EmploymentTaskProvenance(
 	DateTimeOffset? DueAt = null,
 	DateTimeOffset? AssignedAt = null,
 	DateTimeOffset? StartedAt = null,
-	DateTimeOffset? CompletedAt = null);
+	DateTimeOffset? CompletedAt = null,
+	IReadOnlySet<int>? UncertainFinancialSteps = null,
+	string? RecoveryIssue = null,
+	bool RequiresExplicitRetry = false);
 
 public interface IEmploymentActiveTask
 {
@@ -545,6 +553,10 @@ public interface IEmploymentTaskBoard
 		EmploymentTaskProvenance? provenance = null);
 	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);
 	bool RetryActiveTask(IEmploymentActiveTask task, ICharacter? retriedBy, string reason);
+	bool ChangeTaskApproval(IEmploymentActiveTask task, ICharacter actor, Guid expectedGrantId,
+		int expectedRevision, bool revoke, DateTimeOffset? expiresAt, string reason, out string message);
+	bool ReconcileFinancialStep(IEmploymentActiveTask task, ICharacter actor, Guid expectedGrantId,
+		int expectedRevision, int stepNumber, bool executed, string reference, string reason, out string message);
 	bool RequeueActiveTask(IEmploymentActiveTask task, ICharacter? requeuedBy, string reason);
 	bool AssignActiveTask(IEmploymentActiveTask task, ICharacter employee, IEmploymentTaskContext context, ICharacter? assignedBy, string reason);
 	bool CancelScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? cancelledBy, string reason);

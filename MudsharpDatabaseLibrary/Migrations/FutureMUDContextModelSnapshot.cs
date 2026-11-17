@@ -10322,6 +10322,13 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
+                    b.Property<string>("ProvenanceJson")
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ProvenanceJson"), "utf8");
+
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasColumnType("varchar(36)")
@@ -10867,6 +10874,12 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("ApprovalConfigurationJson")
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ApprovalConfigurationJson"), "utf8");
+
                     b.Property<string>("ConfigurationDescription")
                         .IsRequired()
                         .HasColumnType("mediumtext")
@@ -11161,6 +11174,12 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ApprovalPrincipalJson")
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ApprovalPrincipalJson"), "utf8");
 
                     b.Property<long>("CooldownTicks")
                         .HasColumnType("bigint(20)");

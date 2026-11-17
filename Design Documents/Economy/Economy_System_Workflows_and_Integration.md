@@ -387,6 +387,9 @@ Contributor note:
 - boot-time auction reconstruction now resolves seller and payout references in a post-character finalisation pass rather than in the constructor path
 
 ### Property and Employment
+
+Employment host task approvals survive restart as versioned, plan-bound provenance and scoped grants. Managers can inspect them with `tasks approval show <task>`, then use the exact task ID, grant ID and revision shown for `revoke`, `replace` or evidence-backed `reconcile`. Mutations require task assignment authority and all authority required by the original plan, plus a reason. A replaced approval does not run work; uncertain financial steps remain held until reconciled against native records. Reconciliation with remaining work persists an explicit-retry requirement; use `tasks retry <task> <reason>` or `tasks requeue <task> <reason>` with task assignment authority after all holds are resolved. This decision survives server restart and cannot be acknowledged by assignment auditing, worker claiming or manual assignment. The commands preserve approval limits and completed steps. Diagnostics show the actual task-bound approval/recovery blocker and the interrupted step number. Missing legacy task approvals and pre-migration rule/goal issuers are never inferred: re-author old automation under an authorised manager for future financial tasks or explicitly approve an already spawned legacy task. Executed purchase/physical-float steps missing durable `SelectedResources`/`LoadedAssets` custody evidence cannot be cleared by native inventory/cash repair; current commands cannot attach the missing evidence or waive its guard. See [Employment task restart and recovery](Employment_Restart_and_Recovery.md) for syntax, scoped verification and remaining migration/provider limits.
+
 Property, legacy jobs, and unified employment all depend strongly on world layout and institutions.
 
 Property builders need:

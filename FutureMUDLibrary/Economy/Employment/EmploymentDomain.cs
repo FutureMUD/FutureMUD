@@ -514,7 +514,9 @@ public enum EmploymentRegisterEntryType
 	ScheduledRuleCancelled,
 	ScheduledRulePaused,
 	ScheduledRuleResumed,
-	ActiveTaskRequeued
+	ActiveTaskRequeued,
+	TaskApprovalChanged,
+	TaskFinancialStepReconciled
 }
 
 public interface IEmploymentRegisterEntry

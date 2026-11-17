@@ -36,7 +36,7 @@ Imported single-rider mounts resolve source clan/race access checks and Tal Zen 
 
 The snapshot clan catalogue provides only rank zero, although executable gate/arena checks require higher numeric ranks. Create explicit `Rank N` placeholders through clan 4 rank 4, clan 12 rank 6, clan 23 rank 3 and clan 26 rank 2. No members or promotions are invented. Preserve numeric references and actual catalogue names: the arena C comment calls clan 23 Borsail, while this snapshot names it Kaltsu Cult; comments do not silently rename or remap the clan.
 
-Use existing effect XML and the native-room reference registry; no new tables. Builder controls are in the [room guide](../Building/Room_Building_Builder_Guide.md).
+Use existing effect XML and the native-room reference registry; no new tables. Builder controls are in the [room guide](../Builder%20Guides/Room_Building_Builder_Guide.md).
 
 ## Room specials
 

@@ -456,8 +456,8 @@ Multiple forms exposed older assumptions where character and body data were inte
 ## Related Documents
 
 - [Character Creation Runtime](./Character_Creation_Runtime.md)
-- [Character Creation Builder Workflows](./Character_Creation_Builder_Workflows.md)
-- [Multiple Body Forms and Instances Builder Guide](./Multiple_Body_Forms_and_Instances_Builder_Guide.md)
+- [Character Creation Builder Workflows](../Builder%20Guides/Character_Creation_Builder_Workflows.md)
+- [Multiple Body Forms and Instances Builder Guide](../Builder%20Guides/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
 - [Multiple Simultaneous Body Instances Design](./Multiple_Simultaneous_Body_Instances_Design.md)
 - [Character Description System](../Markup/Character_Description_System.md)
 - [Magic System Spells](../Magic/Magic_System_Spells.md)

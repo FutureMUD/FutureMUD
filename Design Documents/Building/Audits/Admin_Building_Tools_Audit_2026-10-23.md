@@ -77,7 +77,7 @@ All 29 P2 findings are addressed in the local working tree: F07–F31, F33–F34
 | F33–F34 | Property creation help matches its economic-zone/value/account contract and explains account-derived ownership; population examples invoke marketpopulation. |
 | F39, F41 | Programming shorthand preserves quoted targets. Item-group inclusion/exclusion combines group names and all forms correctly, including empty groups. |
 
-New guides: [body prototype building](../Body_Prototype_Builder_Guide.md) and [check/decorator editors](../Check_and_Decorator_Editors.md). The owning agriculture, generic building, item, economy, magic, vehicle, time and FutureProg documents and relevant in-game help were updated.
+New guides: [body prototype building](../../Builder%20Guides/Body_Prototype_Builder_Guide.md) and [check/decorator editors](../../Builder%20Guides/Check_and_Decorator_Editors.md). The owning agriculture, generic building, item, economy, magic, vehicle, time and FutureProg documents and relevant in-game help were updated.
 
 Regression tests exercise command routing, permissions, revision selection, editor callbacks, runtime factories, rejected-input isolation, ownership, graph/cache behaviour and persistence. Coverage includes independent bodypart copies and limb reloads; inherited movement/default replacement; all supported check/decorator factories; timezone create/update/edit; agriculture configuration round trips; and actual apiary product weight/store consumption. No help-text or source-shape snapshot tests were added.
 
@@ -139,7 +139,7 @@ All seven proposals now have working implementations in the existing builder com
 | Q06 | Shared lists support limit/page/count, stable sorting and CSV output, with matching-result counts. Filters compose lazily until materialisation is required; row formatting follows page selection. Plane display order and hint priority are applied before paging unless explicitly overridden. CSV strips display markup, quotes fields and neutralises spreadsheet formula prefixes. Bespoke lists keep their own domain-filter contracts. |
 | Q07 | Help metadata publishes concrete examples with prerequisites. Tests parse and replay the timezone examples through registered command dispatch, permissions and delegated setters, and cover malformed input and close semantics separately. Independent checks validate colour resets, including the engine's default-colour reset. Coverage is intentionally incremental; there are no prose snapshots or source-shape tests. |
 
-The [shared builder guide](../Generic_Editable_Item_Builder_Workflows.md) documents syntax, lifecycle, provider coverage, limitations and recovery. Agriculture, item, economy and time documentation link their affected workflows to it.
+The [shared builder guide](../../Builder%20Guides/Generic_Editable_Item_Builder_Workflows.md) documents syntax, lifecycle, provider coverage, limitations and recovery. Agriculture, item, economy and time documentation link their affected workflows to it.
 
 Validation on the completed working tree:
 
@@ -350,7 +350,7 @@ Categories: 3, 5. [NPCBuilderModule.cs:1097](../../../MudSharpCore/Commands/Modu
 
 ### F38 — P3: Spatial-package in-game help is behind the documented format
 
-Categories: 3, 4, 5. [RoomBuilderModule.SpatialPackages.cs:17](../../../MudSharpCore/Commands/Modules/RoomBuilderModule.SpatialPackages.cs) describes version 3 and importing versions 1–2, while the [room-building guide:131](../Room_Building_Builder_Guide.md) describes current version 5 and compatibility with versions 1–4. Help also says “room, room” and uses old CELL PACKAGE wording. Retain the supported `cell` alias, but present the current room/package model and compatibility contract consistently.
+Categories: 3, 4, 5. [RoomBuilderModule.SpatialPackages.cs:17](../../../MudSharpCore/Commands/Modules/RoomBuilderModule.SpatialPackages.cs) describes version 3 and importing versions 1–2, while the [room-building guide:131](../../Builder%20Guides/Room_Building_Builder_Guide.md) describes current version 5 and compatibility with versions 1–4. Help also says “room, room” and uses old CELL PACKAGE wording. Retain the supported `cell` alias, but present the current room/package model and compatibility contract consistently.
 
 ### F39 — P2: Documented programming shorthand loses quoted targets
 
@@ -382,7 +382,7 @@ Carry canonical name, aliases, subsystem, capability and summary metadata into t
 
 ### F44 — P3: Shared builder workflow documentation is much narrower than its title
 
-Categories: 3, 6, 7. [Generic_Editable_Item_Builder_Workflows.md](../Generic_Editable_Item_Builder_Workflows.md) thoroughly explains bulk name changes but not the general edit/new/set/show/list/close workflow, the difference between live editable records and revisioned drafts, submission/review, filters, persistence timing, editor cancellation or the meaning of close. Those contracts are spread across [BaseBuilderModule.cs](../../../MudSharpCore/Commands/Modules/BaseBuilderModule.cs) and many separate help constants.
+Categories: 3, 6, 7. [Generic_Editable_Item_Builder_Workflows.md](../../Builder%20Guides/Generic_Editable_Item_Builder_Workflows.md) thoroughly explains bulk name changes but not the general edit/new/set/show/list/close workflow, the difference between live editable records and revisioned drafts, submission/review, filters, persistence timing, editor cancellation or the meaning of close. Those contracts are spread across [BaseBuilderModule.cs](../../../MudSharpCore/Commands/Modules/BaseBuilderModule.cs) and many separate help constants.
 
 Extend this existing document into the common reference, with command-family exceptions and runnable examples. Link to it from the building documentation index and family guides. Do not imply that closing a non-revisable editor discards changes: it merely removes the editing effect.
 

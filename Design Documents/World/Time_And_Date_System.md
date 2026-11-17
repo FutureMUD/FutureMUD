@@ -1,6 +1,6 @@
 # FutureMUD Time And Date System
 
-Timezone built-in help publishes concrete, prerequisite-labelled examples that the regression suite replays through registered command dispatch and delegated setters. The shared `timezone undo` operation applies only to the last alias/name-identity change, with current-state and collision checks; display-name edits have no generic undo. See the [shared builder guide](../Building/Generic_Editable_Item_Builder_Workflows.md).
+Timezone built-in help publishes concrete, prerequisite-labelled examples that the regression suite replays through registered command dispatch and delegated setters. The shared `timezone undo` operation applies only to the last alias/name-identity change, with current-state and collision checks; display-name edits have no generic undo. See the [shared builder guide](../Builder%20Guides/Generic_Editable_Item_Builder_Workflows.md).
 
 ## Scope
 This document describes the verified current implementation of FutureMUD's in-game time and date system.

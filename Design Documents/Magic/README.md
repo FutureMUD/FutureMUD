@@ -12,7 +12,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 - [Editable detection accumulation](Detection_Accumulation_Lifetime_Policy.md)
 - [Environmental Magic Acceptance Mapping](Environmental_Magic_Acceptance.md)
-- [Environmental Magic Builder Guide](Environmental_Magic_Builder_Guide.md)
+- [Environmental Magic Builder Guide](../Builder%20Guides/Environmental_Magic_Builder_Guide.md)
 - [Environmental magic performance measurements](Environmental_Magic_Performance.md)
 - [Environmental magic runtime](Environmental_Magic_Runtime.md)
 - [Bounded land rejuvenation verification](Land_Rejuvenation_Verification.md)
@@ -29,7 +29,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 - [Regional Land gathering](Regional_Land_Gathering.md)
 - [Spell-owned lifecycle foundation](Spell_Owned_Lifecycle.md)
 - [Supernatural Seeder](Supernatural_Seeder.md)
-- [Building Vancian magic](Vancian_Magic_Builder_Guide.md)
+- [Building Vancian magic](../Builder%20Guides/Vancian_Magic_Builder_Guide.md)
 - [FutureMUD: Vancian Magic](Vancian_Magic_Design_and_Implementation.md)
 - [Vancian FutureProg contracts](Vancian_Magic_FutureProg.md)
 - [Playing with Vancian magic](Vancian_Magic_Player_Guide.md)

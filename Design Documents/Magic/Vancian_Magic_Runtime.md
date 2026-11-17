@@ -77,4 +77,4 @@ Migration `20260912061254_VancianMagic` adds default-zero `MagicSpells.SpellLeve
 
 New effect implementations default to unsupported for scrolls. Add a manifest entry, identify every creator-dependent numerical input and retained field, provide a typed adapter and missing-reference validation, then test release and persistence with different creator/reader stats. Do not fake a creator character, pre-roll results or install global ambient numerical bindings. The service's public validated writing entry points are also the crafting/FutureProg integration boundary; there is no unchecked public setter for a prepaid payload.
 
-See the [builder guide](Vancian_Magic_Builder_Guide.md), [player guide](Vancian_Magic_Player_Guide.md), [full design](Vancian_Magic_Design_and_Implementation.md) and [verification report](Vancian_Magic_Verification.md).
+See the [builder guide](../Builder%20Guides/Vancian_Magic_Builder_Guide.md), [player guide](Vancian_Magic_Player_Guide.md), [full design](Vancian_Magic_Design_and_Implementation.md) and [verification report](Vancian_Magic_Verification.md).

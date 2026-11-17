@@ -1,8 +1,14 @@
+---
+slug: environmental-exposure
+category: Health and environment
+summary: Author exposure reactions, inspect protection and heat, and test an isolated terrain setup.
+---
+
 # Environmental Exposure Builder Guide
 
 This guide describes the environmental exposure controls available to builders. It covers liquid surface reactions, gas contact and inhalation, material transmission, ambient heat, mode/configuration, migration, and a reproducible isolated setup. The demonstration steps below are instructions only; they are not a verified live-server transcript.
 
-See [Environmental Exposure Design](Environmental_Exposure_Design.md) for ownership, rates, route resolution, finite-source accounting and lifecycle details, and [the catalogue audit](Environmental_Exposure_Seeder_Audit.md) for seeded material/fluid coverage.
+See [Environmental Exposure Design](../Environment/Environmental_Exposure_Design.md) for ownership, rates, route resolution, finite-source accounting and lifecycle details, and [the catalogue audit](../Environment/Environmental_Exposure_Seeder_Audit.md) for seeded material/fluid coverage.
 
 ## Enablement and migration
 
@@ -131,7 +137,7 @@ Common messages use `EnvironmentalExposureWarning`, `EnvironmentalExposureContin
 
 Use a disposable development database/world. Apply the migration through the repository's ordinary database upgrade process, select `Enabled` in fresh Core setup (or set the static configuration in the development world), and install the natural/industrial and optional fantasy Environmental Exposure packages after prerequisites are seeded. Do not use a production world for this exercise. The commands below are setup instructions, not a transcript; names in angle brackets must be replaced with IDs/names that exist in the test world. They assert no output or injury result.
 
-First create a test terrain from an existing terrain, then assign it to a cell in an overlay package following the [room-building package workflow](../Building/Room_Building_Builder_Guide.md):
+First create a test terrain from an existing terrain, then assign it to a cell in an overlay package following the [room-building package workflow](Room_Building_Builder_Guide.md):
 
 ```text
 terrain clone <existing-terrain> "Exposure Shallows"
@@ -193,7 +199,7 @@ sniff <subject>
 
 The non-caster received an Inhalation/chemical multiplier of 0.25. In this stock human, the remaining dose was fully absorbed by natural organ armour; it did not provide breathable oxygen. The effect and its substance activation survived restart. External ward activation was separately verified through the existing `exposecharactertoliquid(character, liquid-id, volume-text, bodypart-text)` FutureProg function, applying 1 mL to the abdomen. Applying that amount only to a hand may retain too little for the preparation's minimum dose.
 
-The acid/lava pool, compatible/incompatible finite vessels, heat, reagent and respiratory observations are quantified in the [verification report](Environmental_Exposure_Verification.md). A pre-weakened glass flask was used for the destruction/spill check; an intact polymer flask retained its contents. Those observations should not be interpreted as a claimed destruction time for a healthy glass vessel.
+The acid/lava pool, compatible/incompatible finite vessels, heat, reagent and respiratory observations are quantified in the [verification report](../Environment/Environmental_Exposure_Verification.md). A pre-weakened glass flask was used for the destruction/spill check; an intact polymer flask retained its contents. Those observations should not be interpreted as a claimed destruction time for a healthy glass vessel.
 
 ## Boundaries
 

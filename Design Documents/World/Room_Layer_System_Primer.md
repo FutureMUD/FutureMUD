@@ -633,7 +633,7 @@ room show
 room exit list all
 ```
 
-The exact commands for creating or switching overlay packages are documented in the [Room Building Builder Guide](../Building/Room_Building_Builder_Guide.md).
+The exact commands for creating or switching overlay packages are documented in the [Room Building Builder Guide](../Builder%20Guides/Room_Building_Builder_Guide.md).
 
 ### Verify an exit's layers
 

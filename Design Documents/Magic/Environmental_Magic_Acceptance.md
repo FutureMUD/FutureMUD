@@ -4,7 +4,7 @@ This document maps the revised Task 1 functional and scheduling requirements to 
 
 **Execution status, 13 September 2026:** the final repository fast gate passed all 5,547 tests across nine suites, including all mapped environmental regressions. Targeted Debug/Release engine builds passed. Disposable MySQL upgrade and fresh installer import passed; live creation, cloning, attachment, advancement, idempotent damage/repair, flush/restart, inspection and disabling passed. See [verification evidence](Environmental_Magic_Verification.md) and the [108-scenario performance report](Environmental_Magic_Performance.md) for results and their limits.
 
-See the [builder guide](Environmental_Magic_Builder_Guide.md) for commands and input units, and the [runtime contract](Environmental_Magic_Runtime.md) for sampling, persistence and scheduling policy.
+See the [builder guide](../Builder%20Guides/Environmental_Magic_Builder_Guide.md) for commands and input units, and the [runtime contract](Environmental_Magic_Runtime.md) for sampling, persistence and scheduling policy.
 
 ## Test sources and boundaries
 

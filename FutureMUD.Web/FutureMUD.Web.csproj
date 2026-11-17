@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
+		<PackageReference Include="Markdig" Version="1.6.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,6 +33,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="..\Design Documents\Builder Guides\*.md"
+						  LogicalName="BuilderGuides.%(Filename)%(Extension)" />
 		<Content Include="Content\**\*.md"
 				 CopyToOutputDirectory="PreserveNewest"
 				 CopyToPublishDirectory="PreserveNewest" />

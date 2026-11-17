@@ -1,6 +1,6 @@
 # Multiple Simultaneous Character Bodies / Character Instances
 
-**Architecture and staged design.** The V1 foundation is implemented, as recorded in the implementation/status sections below. The opening design and later advanced policies include proposals; the old blanket Draft label must not be read as absence of the V1 runtime. For practical current behavior start with [Multiple Body Form System](Multiple_Body_Form_System.md) and the [builder guide](Multiple_Body_Forms_and_Instances_Builder_Guide.md). Remaining extensions and dated verification retain their own status.
+**Architecture and staged design.** The V1 foundation is implemented, as recorded in the implementation/status sections below. The opening design and later advanced policies include proposals; the old blanket Draft label must not be read as absence of the V1 runtime. For practical current behavior start with [Multiple Body Form System](Multiple_Body_Form_System.md) and the [builder guide](../Builder%20Guides/Multiple_Body_Forms_and_Instances_Builder_Guide.md). Remaining extensions and dated verification retain their own status.
 
 **Status:** Draft design proposal  
 **Area:** Characters, bodies, forms, controllers, movement, combat, effects, persistence  
@@ -1831,7 +1831,7 @@ Post-V1 hardening note, June 16, 2026:
 
 Final V1 documentation and smoke-test pass, June 16, 2026:
 
-- Added: [Multiple Body Forms and Instances Builder Guide](./Multiple_Body_Forms_and_Instances_Builder_Guide.md) is the builder-facing runbook for exclusive forms, simultaneous instances, player focus, staff commands, spell effects, FutureProg APIs, diagnostics, and worked examples.
+- Added: [Multiple Body Forms and Instances Builder Guide](../Builder%20Guides/Multiple_Body_Forms_and_Instances_Builder_Guide.md) is the builder-facing runbook for exclusive forms, simultaneous instances, player focus, staff commands, spell effects, FutureProg APIs, diagnostics, and worked examples.
 - Updated: the design-document index and the multiple body form system document now link builders to both this architecture document and the builder guide.
 - Fixed: `PlayerConnection.PrepareOutgoing()` now snapshots the current control puppet and output handler for the send cycle, preventing a disconnect or focus-context transition from nulling `ControlPuppet.OutputHandler` between the initial guard and the buffered-output check.
 - Fixed: race loading now uses split/no-tracking query materialisation for the large race include graph and explicitly includes additional bodypart prototypes. Mature demo database startup logs improved from approximately 31.6 seconds for `Loading Races` to approximately 0.7-0.8 seconds for 293 races.

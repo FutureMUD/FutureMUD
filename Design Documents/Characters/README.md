@@ -9,12 +9,12 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
-- [Character Creation Builder Workflows](Character_Creation_Builder_Workflows.md)
+- [Character Creation Builder Workflows](../Builder%20Guides/Character_Creation_Builder_Workflows.md)
 - [Character Creation Documentation Index](Character_Creation_Documentation_Index.md)
 - [Character Creation Seeder](Character_Creation_Seeder.md)
 - [Chargen Skill Selection Groups](Chargen_Skill_Selection_Groups.md)
 - [Intrinsic racial merits](Intrinsic_Racial_Merits.md)
-- [Multiple Body Forms and Instances Builder Guide](Multiple_Body_Forms_and_Instances_Builder_Guide.md)
+- [Multiple Body Forms and Instances Builder Guide](../Builder%20Guides/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
 - [Multiple Simultaneous Character Bodies / Character Instances](Multiple_Simultaneous_Body_Instances_Design.md)
 - [NPC Skill Packages](NPC_Skill_Packages.md)
 - [Peek covert inspection](Peek_Inspection.md)

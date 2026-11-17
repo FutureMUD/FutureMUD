@@ -6,7 +6,7 @@ This document describes the current implementation of the projects system that l
 The intended audience is engine developers, maintainers, and agents working on the FutureMUD codebase. This is a current-state document, not an aspirational redesign. Where the implementation has TODOs, stubs, or quirks, they are called out explicitly.
 
 ## Document Map
-- [Projects System Builder Workflows](./Projects_System_Builder_Workflows.md) explains the in-game builder and admin command surface for authoring and operating projects.
+- [Projects System Builder Workflows](../Builder%20Guides/Projects_System_Builder_Workflows.md) explains the in-game builder and admin command surface for authoring and operating projects.
 - [Agriculture Runtime Model](../Agriculture/Agriculture_Runtime_Model.md) explains how farming operations use normal local projects plus `AgricultureProjectContext` and the `agriculture` completion action.
 
 ## Core Idea

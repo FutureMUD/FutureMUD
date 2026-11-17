@@ -1,3 +1,9 @@
+---
+slug: staged-performances
+category: Performances and rites
+summary: Write, cast and rehearse a performance with roles, cues, stage equipment and audience access.
+---
+
 # Building and staging a performance
 
 A **work** is the reusable script. Its roles, places, exits and props have names such as `speaker` and `platform`. A **production** uses one published revision of the work and binds those names to people and things in your game. You can rehearse the same script in a different hall by making another production.

@@ -11,7 +11,7 @@ The intended audience for this head document is:
 
 ## Document Map
 - [Crafting System Runtime and Extensibility](./Crafting_System_Runtime_and_Extensibility.md) covers runtime behaviour, persistence, implemented types, extension seams, and cross-system integration.
-- [Crafting System Builder Workflows](./Crafting_System_Builder_Workflows.md) covers the in-game authoring and review workflow, command surface, and builder-facing reference material.
+- [Crafting System Builder Workflows](../Builder%20Guides/Crafting_System_Builder_Workflows.md) covers the in-game authoring and review workflow, command surface, and builder-facing reference material.
 - [Food And Cooking System](./Food_and_Cooking_System.md) covers prepared-food components, `CookedFoodProduct`, and the `cook` facade over ordinary crafts.
 
 ## What Crafts Are
@@ -68,4 +68,4 @@ Important distinctions:
 
 ## Recommended Reading Order
 1. Read [Crafting System Runtime and Extensibility](./Crafting_System_Runtime_and_Extensibility.md) if you need to change code, understand lifecycle and persistence, or add a new craft subtype.
-2. Read [Crafting System Builder Workflows](./Crafting_System_Builder_Workflows.md) if you need to create, revise, validate, test, or review craft content in game.
+2. Read [Crafting System Builder Workflows](../Builder%20Guides/Crafting_System_Builder_Workflows.md) if you need to create, revise, validate, test, or review craft content in game.

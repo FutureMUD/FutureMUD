@@ -97,7 +97,7 @@ The ordered applicability/intensity inputs are documented in the builder guide. 
 
 ## Related documents
 
-* [Builder guide and isolated demo](Environmental_Exposure_Builder_Guide.md)
+* [Builder guide and isolated demo](../Builder%20Guides/Environmental_Exposure_Builder_Guide.md)
 * [Catalogue audit](Environmental_Exposure_Seeder_Audit.md)
 * [Verification report](Environmental_Exposure_Verification.md)
 * [Magical substances](../Magic/Magical_Substances.md)

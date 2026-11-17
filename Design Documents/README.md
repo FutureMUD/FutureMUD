@@ -1,350 +1,48 @@
-# FutureMUD Design Documents
+# FutureMUD Design and Operations Documentation
 
-This folder is organised by subsystem so implementation notes, builder workflows, reference catalogues, and audit reports live near the systems they describe.
+Use the area's master guide for supported behavior and limits, its builder/player guide for practical use, and dated verification records for evidence. Proposals and roadmaps retain unfinished requirements; they are not announcements that every described feature exists.
 
-## Agriculture
-- [Agriculture System Overview](./Agriculture/Agriculture_System_Overview.md)
-- [Agriculture Runtime Model](./Agriculture/Agriculture_Runtime_Model.md)
-- [Agriculture Builder Workflows](./Agriculture/Agriculture_Builder_Workflows.md)
-- [Native Organic Yields and Ecological Penalties](./Magic/Native_Organic_Yields_and_Ecological_Penalties.md)
+## Find a system
 
-## AI
-- [AI Storyteller Design](./AI/AI_Storyteller_Design.md)
-- [AI Storyteller Implementation Plan](./AI/AI_Storyteller_Implementation_Plan.md)
-- [OpenAI Integration](./AI/OpenAI_Integration.md)
-- [Event System for AI and Hooks](./AI/Event_System_for_AI_and_Hooks.md)
-- [NPC AI and Group AI Runtime](./AI/NPC_AI_and_Group_AI_Runtime.md)
-- [Predator Hunting](./AI/Predator_Hunting.md)
-- [Monster AI](./AI/Monster_AI.md)
-- [Monster AI v1 Approved Proposal](./AI/Monster_AI_V1_Proposal.md)
-- [NPC Skill Packages](./Characters/NPC_Skill_Packages.md)
+| Area | Documentation index | First master guide |
+| --- | --- | --- |
+| AI | [AI](AI/README.md) | [AI Storyteller System](AI/AI_Storyteller_System.md) |
+| Agriculture | [Agriculture](Agriculture/README.md) | [FutureMUD Agriculture System Overview](Agriculture/Agriculture_System_Overview.md) |
+| Armageddon | [Armageddon](Armageddon/README.md) | [Armageddon Magic](Armageddon/Magic/README.md) |
+| Building | [Building](Building/README.md) | [Room Building Builder Guide](Building/Room_Building_Builder_Guide.md) |
+| Characters | [Characters](Characters/README.md) | [Character Creation Runtime](Characters/Character_Creation_Runtime.md) |
+| Combat | [Combat](Combat/README.md) | [Combat Strategy Runtime](Combat/Combat_Strategy_Runtime.md) |
+| Communication | [Communication](Communication/README.md) | [Native Languages and Accents](Communication/Native_Languages_and_Accents.md) |
+| Core | [Core](Core/README.md) | [Game Loop and Scheduling Runtime](Core/Game_Loop_and_Scheduling_Runtime.md) |
+| Crafting | [Crafting](Crafting/README.md) | [FutureMUD Crafting System Overview](Crafting/Crafting_System_Overview.md) |
+| Data | [Data](Data/README.md) | [Exported Data References](Data/README.md) |
+| Drugs | [Drugs](Drugs/README.md) | [FutureMUD Drug System Design](Drugs/Drug_System_Design.md) |
+| Economy | [Economy](Economy/README.md) | [FutureMUD Economy System: Runtime](Economy/Economy_System_Runtime.md) |
+| Environment | [Environment](Environment/README.md) | [Environmental and substance exposure](Environment/Environmental_Exposure_Design.md) |
+| Features | [Features](Features/README.md) | [Loot Tables](Features/LootTables.md) |
+| Health | [Health](Health/README.md) | [FutureMUD Health System Design](Health/Health_System_Design.md) |
+| Items | [Items](Items/README.md) | [FutureMUD Item System Overview](Items/Item_System_Overview.md) |
+| Magic | [Magic](Magic/README.md) | [FutureMUD Magic System Overview](Magic/Magic_System_Overview.md) |
+| Markup | [Markup](Markup/README.md) | [FutureMUD Emote System](Markup/Emote_System.md) |
+| Seeding | [Seeding](Seeding/README.md) | [Database seeder source and authoring guides](Seeding/Seeders/README.md) |
+| Technology | [Technology](Technology/README.md) | [Computer System](Technology/Computer_System.md) |
+| Verification | [Verification](Verification/README.md) | [Verification](Verification/README.md) |
+| World | [World](World/README.md) | [FutureMUD Time And Date System](World/Time_And_Date_System.md) |
 
-## Building
-- [Body Prototype Builder Guide](./Building/Body_Prototype_Builder_Guide.md)
-- [Check and Decorator Editors](./Building/Check_and_Decorator_Editors.md)
-- [Autobuilder Builder How-To](./Building/Autobuilder_Builder_How_To.md)
-- [Autobuilder Seeder Implementation Guide](./Building/Autobuilder_Seeder_Implementation_Guide.md)
-- [Autobuilder System Implementation](./Building/Autobuilder_System_Implementation.md)
-- [Generic Editable Item Builder Workflows](./Building/Generic_Editable_Item_Builder_Workflows.md)
-- [Room Building Builder Guide](./Building/Room_Building_Builder_Guide.md)
-- [Building and staging a performance](./Building/Staged_Performance_Builder_Guide.md)
-- [Terrain Planner and Engine API](./Building/Terrain_Planner_and_Engine_API.md)
+## Working with the suite
 
-## Characters
-- [Intrinsic Racial Merits](./Characters/Intrinsic_Racial_Merits.md)
-- [Chargen Skill Selection Groups](./Characters/Chargen_Skill_Selection_Groups.md)
-- [Character Creation Documentation Index](./Characters/Character_Creation_Documentation_Index.md)
-- [Character Creation Runtime](./Characters/Character_Creation_Runtime.md)
-- [Character Creation Builder Workflows](./Characters/Character_Creation_Builder_Workflows.md)
-- [Character Creation Seeder](./Characters/Character_Creation_Seeder.md)
-- [CultureSeeder Round-Two Implementation](./Verification/CultureSeeder_Round2_Implementation.md)
-- [CultureSeeder Round-Two Content Receipt](./Verification/CultureSeeder_Round2_Content_Receipt.md)
-- [CultureSeeder Round-Two Verification](./Verification/CultureSeeder_Round2_Verification.md)
-- [CultureSeeder Performance and Warnings](./Verification/CultureSeeder_Performance_and_Warnings.md)
-- [Multiple Body Form System](./Characters/Multiple_Body_Form_System.md)
-- [Multiple Body Forms and Instances Builder Guide](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
-- [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
+- [Document roles, consolidation and naming](Documentation_Guide.md)
+- [Engine maturity audit, 14 November 2026](Core/Engine_Maturity_Audit_20261114.md): thematic source assessment with explicit assurance limits.
+- [Documentation suite review, 16 November 2026](Core/Documentation_Review_20261116.md): completed-plan consolidation, corrected claims and remaining work.
+- [Seeder authoring inventory](Seeding/Seeders/README.md) and [exported data references](Data/README.md).
+- [Armageddon magic](Armageddon/Magic/README.md): setting-specific contracts, outstanding programme designs and historical receipts.
 
-## Combat
-- [Blind Fighting](./Combat/Blind_Fighting.md)
-- [Dual Wield Double Attacks](./Combat/Dual_Wield_Double_Attacks.md) - runtime, configuration and existing-world binding.
-- [Dual Wield Double Attacks Plan](./Combat/Dual_Wield_Double_Attacks_Plan.md) - approved design and integration plan.
-- [Dual Wield Double Attacks Verification](./Combat/Dual_Wield_Double_Attacks_Verification.md) - receipts and remaining verification gaps.
-- [Explicit Hostile Guard Challenges](./Combat/Hostile_Guard_Challenges.md)
-- [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
-- [Animal Combat Balance Second Pass](./Combat/Animal_Combat_Balance_Second_Pass.md)
-- [Mythical and Supernatural Combat Balance Pass](./Combat/Mythical_Supernatural_Combat_Balance_Pass.md)
-- [Human Combat Balance Pass](./Combat/Human_Combat_Balance_Pass.md)
-- [Combat Arenas Design](./Combat/Combat_Arenas_Design.md)
-- [Combat Arenas Implementation Plan](./Combat/Combat_Arenas_Implementation_Plan.md)
-- [Combat Settings Defaults Design](./Combat/Combat_Settings_Defaults_Design.md)
-- [Backstab Attacks](./Combat/Backstab_Attacks.md)
-- [Combat Strategy Runtime](./Combat/Combat_Strategy_Runtime.md)
-- [Mounted Combat](./Combat/Mounted_Combat.md)
-- [Multi-Target Combat Attacks](./Combat/Multi_Target_Combat_Attacks.md)
-- [Modern Firearms, Attachments, and Alternate Fire Modes](./Combat/Modern_Firearms_and_Attachments.md)
-- [Ranged Weapon Balance Pass](./Combat/Ranged_Weapon_Balance_Pass.md)
-- [Natural Ranged Attacks Design](./Combat/Natural_Ranged_Attacks_Design.md)
-- [Natural Ranged Attacks Implementation Plan](./Combat/Natural_Ranged_Attacks_Implementation_Plan.md)
+## Product and operator guides
 
-## Core
+- [Web client deployment](../MudClient/DEPLOYMENT.md) and [Windows/AWS walkthrough](../MudClient/Deployment/Windows_AWS_Web_Client_Guide.md).
+- [TerrainPlanner deployment](../TerrainPlanner/DEPLOYMENT.md).
+- [Website deployment](../FutureMUD.Web/Deployment/README.md), [publishing design](Core/FutureMUD_Website_and_Publishing.md) and [release process](Core/FutureMUD_Release_Process.md).
+- [Optional Armageddon installer](../ArmageddonSeeder/README.md).
+- [Test execution/reporting contract](../scripts/TestReporting/README.md).
 
-- [Staged Performances and Rites](./Core/Staged_Performances_and_Rites.md)
-- [Framework Extension Contracts and Performance](./Core/Framework_Extensions.md)
-- [NuGet Dependency Maintenance](./Core/NuGet_Dependencies.md)
-- [Database Upgrade Coordination](./Core/Database_Upgrade_Coordination.md)
-- [Discord Bot Protocol and Settings](./Core/Discord_Bot_Protocol_and_Settings.md)
-- [Discord Bot Expansion Review and Discord Hooks Proposal](./Core/Discord_Bot_Expansion_Review.md)
-- [Discord Remote Operations and Hook Authoring](./Core/Discord_Remote_Operations.md)
-- [FutureMUD Website and Publishing](./Core/FutureMUD_Website_and_Publishing.md)
-- [FutureMUD Release Process](./Core/FutureMUD_Release_Process.md)
-- [Game Loop, Scheduling, and TCP Runtime](./Core/Game_Loop_and_Scheduling_Runtime.md)
-- [Large-World Startup Performance Investigation (13 November 2026)](./Core/Startup_Performance_Investigation_20261113.md)
-- [FutureProg Execution Runtime](./Core/FutureProg_Execution_Runtime.md)
-- [FutureProg Type System](./Core/FutureProg_Type_System.md)
-- [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)
-- [Engine Maturity Audit November 2026](./Core/Engine_Maturity_Audit_20261114.md) - refreshed 15 November against remote master `b32228996`; thematic feature map, unfinished paths, documentation gaps and historical review priorities.
-- [Retired Legacy Tools](./Core/Retired_Legacy_Tools.md) - removal of the obsolete Watcher, Upgrade Service and old terrain-tool remnants.
-- [Outbound Email Delivery](./Core/Outbound_Email_Delivery.md)
-- [Account Credentials and Notifications](./Core/Account_Credentials_and_Notifications.md) - shared password policy, credential generation and legacy email-template compatibility.
-- [Static Configuration Security](./Core/Static_Configuration_Security.md)
-- [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)
-- [Unit Test Suite Quality and Maintenance](./Core/Unit_Test_Suite_Quality_and_Maintenance.md)
-- [Trap System](./Core/Trap_System.md)
-
-## Crafting
-- [Optional Psionics Seeder](./Seeding/Psionics_Seeder.md)
-- [Antiquity Crafting Catalogue Audit](./Seeding/Antiquity_Crafting_Audit.md)
-- [Antiquity Item Component Gap Report](./Seeding/Antiquity_Item_Component_Gap_Report.md)
-- [Antiquity Clothing Crafting Suite](./Seeding/Antiquity_Hellenic_Clothing_Crafting_Suite.md)
-- [Antiquity Equipment Crafting Suite](./Seeding/Antiquity_Equipment_Crafting_Suite.md)
-- [Antiquity Food and Beverage Crafting Suite](./Seeding/Antiquity_Food_Beverage_Crafting_Suite.md)
-- [Antiquity Furniture and Container Crafting Suite](./Seeding/Antiquity_Furniture_Container_Crafting_Suite.md)
-- [Antiquity Jewellery Crafting Suite](./Seeding/Antiquity_Jewellery_Crafting_Suite.md)
-- [Antiquity Medical Crafting Suite](./Seeding/Antiquity_Medical_Crafting_Suite.md)
-- [Antiquity Writing Implements and Documents Crafting Suite](./Seeding/Antiquity_Writing_Implements_Crafting_Suite.md)
-- [Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)
-- [Medieval Industry Chain and Craft Dependency Design Reference](./Seeding/FutureMUD_Medieval_Industry_Chain_Craft_Design_Reference.md)
-- [Medieval Industry Tools and Intermediate Stock Item Catalogue](./Seeding/FutureMUD_Medieval_Industry_Tools_And_Stock_Item_Catalogue.md)
-- [Medieval Industry Tool Production Chain Second Pass](./Seeding/FutureMUD_Medieval_Industry_Tool_Production_Chain_Second_Pass.md)
-- [Medieval Food, Beverage, and Preservation Foundation](./Seeding/Medieval_Food_Beverage_Preservation_Foundation.md)
-- [Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)
-- [Shared Pre-Industrial Leisure](./Seeding/FutureMUD_PreIndustrial_Leisure_Design_Reference.md)
-- [Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)
-- [Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)
-- [Medieval Jewellery Seeder Design Reference](./Seeding/Medieval_Jewellery_Seeder_Design_Reference.md)
-- [Medieval Writing, Books, and Documents Seeder Design Reference](./Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md)
-- [Medieval Treatment Items, Drugs, and Repair Kits Design Reference](./Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md)
-- [Renaissance and Early Modern Medical and Repair Catalogue](./Seeding/FutureMUD_Renaissance_EarlyModern_Medical_Repair_Design_Reference.md)
-- [Pre-Industrial Shared Item Seeder Design Reference](./Seeding/PreIndustrial_Item_Seeder_Design_Reference.md)
-- [Pre-Industrial Item Seeder Alias Catalogue](./Seeding/PreIndustrial_Item_Seeder_Alias_Catalogue.md)
-- [Pre-Industrial Food Catalogue Design Reference](./Seeding/PreIndustrial_Food_Catalogue_Design_Reference.md)
-- [Industrialised Food and Drink Design Reference](./Seeding/FutureMUD_Industrialised_Food_Drink_Design_Reference.md)
-- [Pre-Industrial Jewellery and Doors](./Seeding/FutureMUD_PreIndustrial_Jewellery_Doors_Design_Reference.md)
-- [Renaissance Jewellery and Devotional Goods](./Seeding/FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md)
-- [Renaissance Doors, Locks, and Gates](./Seeding/FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md)
-- [Early Modern Jewellery and Devotional Goods](./Seeding/FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md)
-- [Early Modern Doors, Locks, and Gates](./Seeding/FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md)
-- [Renaissance and Early Modern Jewellery and Door Admission Ledger](./Seeding/FutureMUD_Renaissance_EarlyModern_Jewellery_Doors_Admission_Ledger.md)
-- [Medieval Shared Baseline Admission Manifest](./Seeding/FutureMUD_Medieval_Shared_Baseline_Admission_Manifest.md)
-- [Medieval Shared Food Admission Manifest](./Seeding/FutureMUD_Medieval_Shared_Food_Admission_Manifest.md)
-- [Butchering System](./Crafting/Butchering_System.md)
-- [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
-- [Analyse Capability](./Crafting/Analyse_Capability.md)
-- [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)
-- [Crafting System Builder Workflows](./Crafting/Crafting_System_Builder_Workflows.md)
-- [Food and Cooking System](./Crafting/Food_and_Cooking_System.md)
-- [Projects System Overview](./Crafting/Projects_System_Overview.md)
-- [Projects System Builder Workflows](./Crafting/Projects_System_Builder_Workflows.md)
-
-## Data
-- [Item Component Types](./Data/Item_Component_Types.json)
-- [Seeded Item Components](./Data/Seeded_Item_Components.json)
-- [Seeded Materials](./Data/Seeded_Materials.json)
-- [Seeded Liquids](./Data/Seeded_Liquids.json)
-- [Seeded Gases](./Data/Seeded_Gases.json)
-- [Seeded Tag Hierarchy](./Data/SeededTagHierarchy.csv)
-
-## Drugs
-- [Drug System Documentation](./Drugs/README.md)
-- [Drug System Design](./Drugs/Drug_System_Design.md)
-- [Drug Builder Guide](./Drugs/Drug_Builder_Guide.md)
-
-## Environment
-- [Environmental Exposure Design](./Environment/Environmental_Exposure_Design.md)
-- [Environmental Exposure Builder Guide](./Environment/Environmental_Exposure_Builder_Guide.md)
-- [Environmental Exposure Seeder Audit](./Environment/Environmental_Exposure_Seeder_Audit.md)
-
-## Economy
-- [Employment Restart and Recovery](./Economy/Employment_Restart_and_Recovery.md) - durable task approvals, legacy compatibility, explicit retry and live Telnet validation of interrupted financial recovery.
-- [Economy System Runtime](./Economy/Economy_System_Runtime.md)
-- [Economy System Workflows and Integration](./Economy/Economy_System_Workflows_and_Integration.md)
-- [Economy System Seeder State and Gaps](./Economy/Economy_System_Seeder_State_and_Gaps.md)
-- [Unified Employment, Manager Goals, and Task Dispatch Design](./Economy/Unified%20Employment%20Dispatch%20Design.md)
-- [Clan Command Surface and Permissions](./Economy/Clan_Command_Surface_and_Permissions.md)
-- [Clan Elections and External Control](./Economy/Clan_Elections_and_External_Control.md)
-- [Estate Probate and Item Ownership](./Economy/Estate_Probate_and_Item_Ownership.md)
-- [Loans, Mortgages and Pawnbroking (design proposal)](./Economy/Loans_and_Secured_Lending_Design.md)
-- [Law System Runtime](./Economy/Law_System_Runtime.md)
-
-## Health
-- [Health System Design](./Health/Health_System_Design.md)
-- [Health Core Runtime](./Health/Health_Core_Runtime.md)
-- [Health Adjacencies and Items](./Health/Health_Adjacencies_and_Items.md)
-- [Health Medical Interactions](./Health/Health_Medical_Interactions.md)
-- [Health Seeder State and Gaps](./Health/Health_Seeder_State_and_Gaps.md)
-- [Damage System Design](./Health/Damage_System_Design.md)
-- [Damage Balance First Pass Report](./Health/Damage_Balance_First_Pass_Report.md)
-- [Non-Human Damage Balance First Pass Report](./Health/Damage_Balance_NonHuman_First_Pass_Report.md)
-- [Animal and Mythic Attribute Scaling Report](./Health/Damage_Balance_Animal_Mythic_Attribute_Scaling_Report.md)
-- [Disfigurement System Design](./Health/Disfigurement_System_Design.md)
-- [Disfigurement Seeder Builder Reference](./Health/Disfigurement_Seeder_Builder_Reference.md)
-
-## Items
-
-- [Physical Manipulation Audit](./Items/Physical_Manipulation_Audit.md)
-- [Item System Overview](./Items/Item_System_Overview.md)
-- [Item System Runtime Model](./Items/Item_System_Runtime_Model.md)
-- [Item System Component Authoring](./Items/Item_System_Component_Authoring.md)
-- [Item System Content Workflows](./Items/Item_System_Content_Workflows.md)
-- [Item System Presentation and Integration](./Items/Item_System_Presentation_and_Integration.md)
-- [Item Authoring Guidelines](./Items/Item_Authoring_Guidelines.md)
-- [ItemSeeder AddCraft Authoring Guide](./Items/ItemSeeder_AddCraft_Guide.md)
-
-## Magic
-
-- [Armageddon Templars and configurable magic items](./Armageddon/Armageddon_Templars.md) � class trees, pressure points, Lirathan powers, patron casting, shrines, bindings and resource restoration.
-- [Armageddon S4 Continuation Handoff](./Magic/Armageddon_S4_Continuation_Handoff_20261012.md) — start here in a new task: current state, locked decisions, full archived brief, hosted test follow-up, S4 execution and later gates.
-- [ARM-01 Configurable Casting Design and Candidate Repertoire](./Magic/Armageddon_Casting_Design.md)
-- [ARM-02 Configurable Casting Player, Builder and FutureProg Guide](./Magic/Configurable_Casting.md)
-- [ARM-02 Implementation and Verification Handover](./Magic/Configurable_Casting_Handover.md)
-- [Armageddon Continuation Checkpoint](./Magic/Armageddon_Continuation_20261008.md)
-- [Armageddon Recharge Checkpoint](./Magic/Armageddon_Recharge_Checkpoint_20261011.md)
-- [Armageddon Seeder Completeness Design](./Magic/Armageddon_Seeder_Completeness_Design_20261011.md)
-- [Armageddon Master List Adoption](./Magic/Armageddon_Master_List_Adoption_20261011.md)
-- [Armageddon S1 Installation Settings](./Magic/Armageddon_Installation_Settings_S1_20261011.md)
-- [Armageddon S2 Stock Progression](./Magic/Armageddon_Stock_Progression_S2_20261011.md)
-- [Armageddon S3 Catalogue Checkpoint](./Magic/Armageddon_Catalogue_S3_Checkpoint_20261012.md) — historical supply, shelter-template and melee-weapon qualification.
-- [Armageddon S3 Native Decisions](./Magic/Armageddon_Catalogue_S3_Decisions_20261012.md) — native infections, S4 focus/device dependencies and source nutrition translated into satiation.
-- [Armageddon S3 Provisions](./Magic/Armageddon_Catalogue_S3_Provisions_20261012.md) — native food/drink prototypes, conservative reruns and corrected shared liquid mass.
-- [Armageddon S3 Catalogue Completion](./Magic/Armageddon_Catalogue_S3_Completion_20261012.md) — composite catalogue, creature controllers, native special mechanics and bounded qualification.
-- [Armageddon S3 Creature Foundations](./Magic/Armageddon_Catalogue_S3_Creature_Foundations_20261012.md) — seven owned anatomy/race/ethnicity bundles, native traits and explicit affinity merits.
-- [Armageddon S3 Native Special Mechanics](./Magic/Armageddon_S3_Native_Special_Mechanics.md) — durable one-use Ember/Mud, native infection symptoms and S4/S5 dependencies.
-- [Armageddon Final Seeder Decisions](./Magic/Armageddon_Seeder_Decisions_20261011.md)
-- [Armageddon Master List Archive and Review](./Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md) — preserved full source, 15 guild tables and comparison with locked magic decisions; source adoption complete; other classes retained for later work.
-- [Armageddon Elementalist Research Adoption](./Magic/Armageddon_Elementalist_Research_Adoption_20261011.md) — selected seven-guild graphs, explicit numeric reconstruction and identity/provenance boundaries.
-- [Armageddon Fury/Calm Runtime and Installer](./Magic/Armageddon_Fury_Calm_Runtime.md)
-- [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
-- [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)
-- [Vancian Magic Builder Guide and Examples](./Magic/Vancian_Magic_Builder_Guide.md)
-- [Vancian FutureProg Contracts](./Magic/Vancian_Magic_FutureProg.md)
-- [Spell Scroll Compatibility Inventory](./Magic/Vancian_Scroll_Compatibility.md)
-- [Vancian Verification and Acceptance Matrix](./Magic/Vancian_Magic_Verification.md)
-- [Vancian Full Feature Specification](./Magic/Vancian_Magic_Design_and_Implementation.md)
-- [Magical Substances: Potions, Oils and Other Carriers](./Magic/Magical_Substances.md)
-- [Magical and Psychic Combat Powers](./Magic/Magic_Combat_Powers.md)
-
-- [Psychic Powers, Impressions and Witness Memory](./Magic/Psychic_Powers_Impressions_and_Witness_Memory.md)
-- [Magic System Overview](./Magic/Magic_System_Overview.md)
-- [Magic System Capabilities, Resources, and Generators](./Magic/Magic_System_Capabilities_Resources_and_Generators.md)
-- [Environmental Magic Builder Guide](./Magic/Environmental_Magic_Builder_Guide.md)
-- [Environmental Magic Runtime and Integration](./Magic/Environmental_Magic_Runtime.md)
-- [Environmental Magic Acceptance Mapping](./Magic/Environmental_Magic_Acceptance.md)
-- [Native Organic Yields and Ecological Penalties](./Magic/Native_Organic_Yields_and_Ecological_Penalties.md)
-- [Native Organic Yields Acceptance Mapping](./Magic/Native_Organic_Yields_Acceptance.md)
-- [Native Organic Yields Verification](./Magic/Native_Organic_Yields_Verification.md)
-- [Capability-configured Self and Gentle Gathering](./Magic/Magic_Gathering.md)
-- [Capability-configured Gathering Acceptance Mapping](./Magic/Magic_Gathering_Acceptance.md)
-- [Magic System Implemented Types](./Magic/Magic_System_Implemented_Types.md)
-- [Magic System Powers](./Magic/Magic_System_Powers.md)
-- [Magic System Spells](./Magic/Magic_System_Spells.md)
-- [Armageddon Magic and Psionics Gap Report](./Magic/Armageddon_Magic_Psionics_Gap_Report.md)
-- [Supernatural Seeder](./Magic/Supernatural_Seeder.md)
-
-## Markup
-- [Emote System](./Markup/Emote_System.md)
-- [Character Description System](./Markup/Character_Description_System.md)
-- [Human Seeder Description Patterns](./Markup/Human_Seeder_Description_Patterns.md)
-- [Room Description Markup](./Markup/Room_Description_Markup.md)
-
-## Communication
-
-- [Native Languages and Accents](./Communication/Native_Languages_and_Accents.md)
-- [Native Languages and Accents](./Communication/Native_Languages_and_Accents.md)
-- [Signed Language Communication System](./Communication/Sign_Language_System.md)
-
-## Seeding
-
-- [Armageddon Worldfile Seeder Design](./Seeding/Armageddon_Worldfile_Seeder_Design.md) - question-free historical world import, confirmed mappings, implementation boundaries and acceptance.
-- [Armageddon Worldfile Format Reference](./Seeding/Armageddon_Worldfile_Format_Reference.md) - source grammars, code consumers, field layouts and corpus audit.
-- [Database seeder source and authoring guides](./Seeding/Seeders/README.md) — complete concrete inventory, dependency map and reviewed source evidence.
-- [Attribute Describer Ranges](./Seeding/Attribute_Describer_Ranges.md)
-- [DatabaseSeeder Repeatability Strategy](./Seeding/DatabaseSeeder_Repeatability_Strategy.md)
-- [Seeding staged performances and their help topics](./Seeding/Staged_Performance_Seeder_Guide.md)
-- [DatabaseSeeder System Gap Audit](./Seeding/DatabaseSeeder_System_Gap_Audit.md)
-- [Stock Terrain Catalogue](./Seeding/Stock_Terrain_Catalogue.md)
-- [Item Content Engine Dependency Ledger](./Seeding/FutureMUD_Item_Content_Engine_Dependency_Ledger.md)
-- [Culture Seeder Language Pack Reference](./Seeding/Culture_Seeder_Language_Pack_Reference.md)
-- [Culture Seeder Native Language and Accent Review](./Seeding/Culture_Seeder_Native_Language_Accent_Review.md)
-- [Culture Seeder Heritage Pack Reference](./Seeding/Culture_Seeder_Heritage_Pack_Reference.md)
-- [Clan Seeder Template Catalogue](./Seeding/Clan_Seeder_Template_Catalogue.md)
-- [Era Seeder Shared Architecture](./Seeding/Era_Seeder_Shared_Architecture.md)
-- [Industrialised ItemSeeder Programme](./Seeding/FutureMUD_Industrialised_Item_Seeder_Programme.md)
-- [Industrialised Shared Baseline Design Reference](./Seeding/FutureMUD_Industrialised_Shared_Baseline_Design_Reference.md)
-- [Industrialised Clothing, Footwear and Uniforms Design Reference](./Seeding/FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md)
-  - Wave 1 approved scope (Gate 1 passed; production gates open): [garment inventory](./Seeding/Industrialised_Clothing_Wave1_Inventory.md), [outfits](./Seeding/Industrialised_Clothing_Wave1_Outfits.md), [family/reuse review](./Seeding/Industrialised_Clothing_Wave1_Reuse_Review.md), and [evidence and scope approval record](./Seeding/Industrialised_Clothing_Wave1_Evidence_and_Coverage.md)
-  - [Wave 2 infrastructure and Gate 2 evidence](./Seeding/Industrialised_Clothing_Wave2_Infrastructure_and_Gate2.md) — in progress; includes stock-anatomy ensemble checks, new-base/skin/outfit/craft/access-prog ownership and first-install generated IDs; preserved outfit/recipe graphs, wearer, stock craft capabilities and database proof remain open
-  - [Clothing source-graph audit](./Seeding/Industrialised_Clothing_Catalogue_Audit.tsv) — derived row-level evidence; structural checks are not database or production acceptance
-  - [Full clothing dependency plan](./Seeding/Industrialised_Clothing_Dependency_Plan.tsv) — all 364 approved bases, exact stock-name gaps and outfit consumers; physical verification remains open
-- [Industrialised Food and Drink Design Reference](./Seeding/FutureMUD_Industrialised_Food_Drink_Design_Reference.md)
-  - [Gate 1 evidence and approved scope](./Seeding/Industrialised_Food_Wave1_Evidence_and_Coverage.md) — approved 4 September 2026 against recorded source fingerprints
-  - [Gate 2 dependency audit](./Seeding/Industrialised_Food_Dependency_Audit.tsv) — 464 concepts and 307 adopted dependencies; automated graph proof awaiting editorial acceptance
-- [Industrial Era Master Design Reference](./Seeding/FutureMUD_Industrial_Item_Seeder_Master_Era_Design_Reference.md)
-- [Modern Era Master Design Reference](./Seeding/FutureMUD_Modern_Item_Seeder_Master_Era_Design_Reference.md)
-- [Nuclear Era Master Design Reference](./Seeding/FutureMUD_Nuclear_Item_Seeder_Master_Era_Design_Reference.md)
-- [Information Age Master Design Reference](./Seeding/FutureMUD_InformationAge_Item_Seeder_Master_Era_Design_Reference.md)
-- [Industrialised Capability, Material and Tag Gap Reference](./Seeding/FutureMUD_Industrialised_Component_Material_Tag_Gap_Reference.md)
-- [Industrialised Runtime Component Prerequisite Audit](./Seeding/Industrialised_Component_Prerequisite_Audit.tsv)
-- [Industrialised Resource Prerequisite Audit](./Seeding/Industrialised_Resource_Prerequisite_Audit.tsv)
-- [Industrialised Historical Pricing Methodology](./Seeding/FutureMUD_Industrialised_Historical_Pricing_Methodology.md)
-- [Industrialised Stage 2 Catalogue Audit](./Seeding/Industrialised_Item_Catalogue_Audit.tsv)
-- [Renaissance Master Era Design Reference](./Seeding/FutureMUD_Renaissance_Master_Era_Design_Reference.md)
-- [Renaissance Shared Baseline Admission Manifest](./Seeding/FutureMUD_Renaissance_Shared_Baseline_Admission_Manifest.md)
-- [Renaissance Shared Food Admission Manifest](./Seeding/FutureMUD_Renaissance_Shared_Food_Admission_Manifest.md)
-- [Renaissance Clothing and Accessories](./Seeding/FutureMUD_Renaissance_Clothing_Accessories_Design_Reference.md)
-- [Renaissance Military, Firearms, and Armour](./Seeding/FutureMUD_Renaissance_Military_Firearms_Armour_Design_Reference.md)
-- [Renaissance Writing, Print, and Administration](./Seeding/FutureMUD_Renaissance_Writing_Print_Administration_Design_Reference.md)
-- [Renaissance Household, Urban, and Trade](./Seeding/FutureMUD_Renaissance_Household_Urban_Trade_Design_Reference.md)
-- [Renaissance Art, Craft, Science, and Navigation](./Seeding/FutureMUD_Renaissance_Art_Craft_Science_Navigation_Design_Reference.md)
-- [Renaissance Agriculture, Food, Drink, and Commodities](./Seeding/FutureMUD_Renaissance_Agriculture_Food_Drink_Commodities_Design_Reference.md)
-- [Renaissance Primary Industry and UsefulSeeder Impact](./Seeding/FutureMUD_Renaissance_PrimaryIndustry_UsefulSeeder_Impact_Reference.md)
-- [Renaissance Jewellery and Devotional Goods](./Seeding/FutureMUD_Renaissance_Jewellery_Devotional_Seeder_Design_Reference.md)
-- [Renaissance Doors, Locks, and Gates](./Seeding/FutureMUD_Renaissance_Doors_Locks_Gates_Seeder_Design_Reference.md)
-- [Renaissance Culture Manifest](./Seeding/FutureMUD_Renaissance_Culture_Manifest_Reference.md)
-- [Early Modern Master Era Design Reference](./Seeding/FutureMUD_EarlyModern_Master_Era_Design_Reference.md)
-- [Early Modern Shared Baseline Admission Manifest](./Seeding/FutureMUD_EarlyModern_Shared_Baseline_Admission_Manifest.md)
-- [Early Modern Shared Food Admission Manifest](./Seeding/FutureMUD_EarlyModern_Shared_Food_Admission_Manifest.md)
-- [Early Modern Clothing and Accessories](./Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Design_Reference.md)
-- [Early Modern Clothing and Accessories Dependency Ledger](./Seeding/FutureMUD_EarlyModern_Clothing_Accessories_Dependency_Ledger.md)
-- [Early Modern Military, Firearms, Uniforms, and Naval](./Seeding/FutureMUD_EarlyModern_Military_Firearms_Uniforms_Naval_Design_Reference.md)
-- [Early Modern Writing, Print, Administration, and Finance](./Seeding/FutureMUD_EarlyModern_Writing_Print_Administration_Finance_Design_Reference.md)
-- [Early Modern Household, Coffeehouse, Tavern, and Trade](./Seeding/FutureMUD_EarlyModern_Household_Coffeehouse_Tavern_Trade_Design_Reference.md)
-- [Early Modern Household Furniture and Container Catalogue](./Seeding/FutureMUD_EarlyModern_Household_Furniture_Container_Design_Reference.md)
-- [Household Seeder Coverage Audit](./Seeding/FutureMUD_Household_Seeder_Coverage_Audit.md)
-- [Early Modern Science, Navigation, Optics, and Measurement](./Seeding/FutureMUD_EarlyModern_Science_Navigation_Optics_Measurement_Design_Reference.md)
-- [Early Modern Agriculture, Food, Drink, and Commodities](./Seeding/FutureMUD_EarlyModern_Agriculture_Food_Drink_Commodities_Design_Reference.md)
-- [Early Modern Primary Industry and UsefulSeeder Impact](./Seeding/FutureMUD_EarlyModern_PrimaryIndustry_UsefulSeeder_Impact_Reference.md)
-- [Early Modern Jewellery and Devotional Goods](./Seeding/FutureMUD_EarlyModern_Jewellery_Devotional_Seeder_Design_Reference.md)
-- [Early Modern Doors, Locks, and Gates](./Seeding/FutureMUD_EarlyModern_Doors_Locks_Gates_Seeder_Design_Reference.md)
-- [Early Modern Culture Manifest](./Seeding/FutureMUD_EarlyModern_Culture_Manifest_Reference.md)
-
-## Technology
-- [Automation End-To-End Test Scenarios](./Technology/Automation_End_To_End_Test_Scenarios.md)
-- [Computer Program Concept Design](./Technology/FutureMUD_Computer_Programs_Concept_Design.md)
-- [Computer and Electronics A/V Framework](./Technology/Media_System_Runtime_and_Workflows.md)
-
-## Vehicles
-
-- [Vehicle System](./Vehicle_System.md)
-- [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md)
-- [Vehicle Item Seeder Design Reference](./Seeding/Vehicle_Item_Seeder_Design_Reference.md)
-- [RouteCell and RoomScale Vehicle V1.0 Acceptance Evidence](./Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md)
-
-## World
-- [Astronomical Time Calendar Refactor](./World/Astronomical_Time_Calendar_Refactor.md)
-- [Celestial System Overview](./World/Celestial_System_Overview.md)
-- [Celestial System Seeder](./World/Celestial_System_Seeder.md)
-- [Celestial System Tests](./World/Celestial_System_Tests.md)
-- [Celestial Type: PlanetaryMoon](./World/Celestial_Type_PlanetaryMoon.md)
-- [Celestial Type: PlanetFromMoon](./World/Celestial_Type_PlanetFromMoon.md)
-- [Celestial Type: Sun](./World/Celestial_Type_Sun.md)
-- [Celestial Type: SunFromPlanetaryMoon](./World/Celestial_Type_SunFromPlanetaryMoon.md)
-- [Corporeality and Planes](./World/Corporeality_and_Planes.md)
-- [Pathfinding System](./World/Pathfinding_System.md)
-- [Position State System](./World/Position_State_System.md)
-- [Room Layer System Primer](./World/Room_Layer_System_Primer.md)
-- [RouteCell Spatial System](./World/Route_Cell_System.md)
-- [Spatial Area Transfer Packages](./World/Spatial_Area_Transfer_Packages.md)
-- [Time and Date System](./World/Time_And_Date_System.md)
-- [Weather forecasts and hazardous weather](./World/Weather_System.md)
-- [Zero Gravity System](./World/Zero_Gravity_System.md)
+Published website news/patch notes and third-party package documents remain in their owning locations. Historical counts, local run artifacts and delivery branches are evidence of their stated snapshots, not current qualification or product support promises.

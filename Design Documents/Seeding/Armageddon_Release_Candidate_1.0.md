@@ -8,7 +8,7 @@ The [13 November qualification receipt](Armageddon_Release_Candidate_1.0_Qualifi
 
 The candidate contains the optional Armageddon Setting and one-shot Worldfile import, including the completed item-magic admission/payment, curse cleansing, Glyph, two-stage item Shadow Passage and selective planar inventory work. Existing implemented world services, NPC/combat adaptations, spell components, summons, tools, brewing, traps, travel and mount/stable systems are available for representative UAT. Implementation does not imply that every imported mechanic has passed live acceptance.
 
-The [item-magic handover](Armageddon_Item_Magic_Handover_20261110.md) supplies the dated local qualification. The [gap register](Armageddon_Worldfile_Remaining_Gaps_20261030.md) and its later continuations distinguish completed mappings from historical recommendations. The [V1 readiness policy](../Magic/Armageddon_V1_Readiness_20261018.md) retains representative ordinary gameplay, supported installation and normal persistence as the acceptance boundary.
+The [item-magic handover](Armageddon_Item_Magic_Handover_20261110.md) supplies the dated local qualification. The [gap register](Armageddon_Worldfile_Remaining_Gaps_20261030.md) and its later continuations distinguish completed mappings from historical recommendations. The [V1 readiness policy](../Armageddon/Magic/V1_Readiness_20261018.md) retains representative ordinary gameplay, supported installation and normal persistence as the acceptance boundary.
 
 ## Preparation and installation
 

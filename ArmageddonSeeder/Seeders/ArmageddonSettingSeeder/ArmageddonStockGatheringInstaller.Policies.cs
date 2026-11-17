@@ -112,7 +112,7 @@ end if
 	{
 		var row = new FutureProg { FunctionName = name, FunctionText = body, ReturnTypeDefinition = returns.ToStorageString(),
 			AcceptsAnyParameters = false, StaticType = 0, Category = "Magic", Subcategory = "Armageddon Gathering", Public = false,
-			FunctionComment = "Builder-editable source-faithful gathering translation. Source trace and native unit adaptations: Armageddon_Gathering_Source_Translation_20261016.md. Stock availability remains independently false." };
+			FunctionComment = "Builder-editable source-faithful gathering translation. Source trace and native unit adaptations: Gathering_Source_Translation_20261016.md. Stock availability remains independently false." };
 		foreach (var (parameter, index) in (parameters ?? Context).Select((value, index) => (value, index)))
 			row.FutureProgsParameters.Add(new() { ParameterIndex = index, ParameterName = parameter.Name, ParameterTypeDefinition = parameter.Type.ToStorageString() });
 		return row;

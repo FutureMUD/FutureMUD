@@ -896,7 +896,7 @@ When adding new AI, the safest progression is usually:
 
 ## Related References
 - Companion event document: [Event_System_for_AI_and_Hooks.md](./Event_System_for_AI_and_Hooks.md)
-- Existing AI storyteller design for contrast with this subsystem: [AI_Storyteller_Design.md](./AI_Storyteller_Design.md)
+- Existing AI storyteller design for contrast with this subsystem: [AI_Storyteller_System.md](AI_Storyteller_System.md)
 
 ## Psychic disposition
 
@@ -912,7 +912,7 @@ This is selected combat-action authority, not a general deferred-command system 
 
 Ordered selected actions and their unchanged native moves also retain the exact combat context. Pure participation checks surround the executable policy, so leaving or replacing combat cannot transfer an old selected action into another fight or authorize a child resolution after a callback.
 
-Retrieve, stand, change-position and reposition moves also revalidate after their own internal defender responses, before inventory or posture mutation. Refusal is sticky for that move and suppresses its action stamina cost. This qualifies those four paths; the remaining attack/manual/message/defence-Prog callback gaps are recorded in [the callback audit](../Magic/Armageddon_QueuedCommand_Callback_Audit.md). The original queued-authority checkpoint was rejected during parent review and remains uncleared as a comprehensive claim.
+Retrieve, stand, change-position and reposition moves also revalidate after their own internal defender responses, before inventory or posture mutation. Refusal is sticky for that move and suppresses its action stamina cost. This qualifies those four paths; the remaining attack/manual/message/defence-Prog callback gaps are recorded in [the callback audit](../Armageddon/Magic/QueuedCommand_Callback_Audit.md). The original queued-authority checkpoint was rejected during parent review and remains uncleared as a comprehensive claim.
 
 
 ## Imported guard interactions

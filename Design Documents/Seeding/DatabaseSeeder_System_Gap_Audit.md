@@ -1,5 +1,7 @@
 # FutureMUD Database Seeder System Gap Audit
 
+**Historical source snapshot.** Counts, source locations and gap recommendations below apply to the stated review baseline, not automatically to the current checkout. For maintained installer ownership and content entry points use the [seeding documentation index](README.md). Source/contract checks are required before promoting an old recommendation to current backlog; no fresh installer/runtime acceptance was performed for this documentation review.
+
 ## Scope
 This document audits the Database Seeder against the builder-facing systems a fully operational FutureMUD game commonly needs.
 

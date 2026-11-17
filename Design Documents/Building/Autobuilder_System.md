@@ -1,0 +1,239 @@
+# Autobuilder System
+
+## Purpose
+
+The autobuilder subsystem exists to let builders generate cells in bulk without hand-linking and hand-describing every location. It is intentionally split into two cooperating models:
+
+- Area templates decide topology: how many cells to create, which cells exist, how exits are linked, and what arguments the builder must supply.
+- Room templates decide presentation: terrain, cell name, description text, light, outdoors behaviour, forage profile, and any description randomisation.
+
+This split is the key design choice to preserve when extending the subsystem.
+
+## Core Contracts
+
+### `IAutobuilderArea`
+
+Area templates are the orchestration layer.
+
+- `Parameters` exposes the ordered argument contract for builders.
+- `TryArguments(...)` validates raw builder input and returns typed arguments.
+- `ExecuteTemplate(...)` creates cells and exits from those arguments.
+- `ShowCommandByLine` is the short summary shown in builder listings.
+- `Clone(...)` creates a persistent copy with its own database row.
+
+`AutobuilderAreaBase` supplies the shared persistence, rename/summary editing, and parameter parsing pipeline.
+
+### `IAutobuilderRoom`
+
+Room templates are the cell materialisation layer.
+
+- `CreateRoom(...)` creates a new cell for a supplied terrain.
+- `RedescribeRoom(...)` updates an already-created cell, typically after area tags/features are known.
+- `ShowCommandByline` is the short summary shown in room-template listings.
+- `Clone(...)` creates a persistent copy with its own database row.
+
+`AutobuilderRoomBase` owns shared save logic and the `ApplyAutobuilderTagsAsFrameworkTags` toggle. When enabled, any autobuilder tag that matches a framework tag name is applied directly to the created cell.
+
+### `IAutobuilderParameter`
+
+Parameters are deliberately simple and ordered.
+
+- They describe one slot in the builder argument list.
+- Validation can inspect already-parsed earlier arguments.
+- This is how terrain masks, feature masks, room-template references, and numeric dimensions are all unified behind the same pipeline.
+
+## Persistence Model
+
+Autobuilders are persisted as data, not code configuration.
+
+- `AutobuilderAreaTemplate` stores `Id`, `Name`, `TemplateType`, and XML `Definition`.
+- `AutobuilderRoomTemplate` stores `Id`, `Name`, `TemplateType`, and XML `Definition`.
+
+The runtime contract is:
+
+1. `TemplateType` selects the concrete loader.
+2. `Definition` is parsed by that loader.
+3. Edits round-trip back into XML via `SaveToXml()`.
+
+There is no schema-version layer in front of these XML definitions, so backward compatibility depends on loaders remaining tolerant of missing elements and sensible defaults.
+
+## Loader Architecture
+
+`AutobuilderFactory` is the registry and dispatch point.
+
+- Concrete template classes expose a static `RegisterAutobuilderLoader()` method.
+- `AutobuilderFactory.InitialiseAutobuilders()` scans the assembly with reflection and invokes those registration methods.
+- Loaders are registered twice:
+  - persisted load by `TemplateType`
+  - builder creation by the short type keyword used in `autoarea edit new ...` or `autoroom edit new ...`
+
+This means any new autobuilder type needs four things:
+
+1. a concrete class
+2. XML load/save support
+3. static registration
+4. a stable `TemplateType` string
+
+## Built-In Template Families
+
+### Room templates
+
+- `simple`: one fixed name/description pair
+- `room by terrain`: deterministic per-terrain overrides
+- `room random description`: per-terrain defaults plus weighted description elements
+
+### Area templates
+
+- `rectangle`
+- `rectangle diagonals`
+- `terrain rectangle`
+- `terrain feature rectangle`
+- `room by terrain random features`
+- `cylinder`
+- `terrain stack`
+
+The important distinction is that only the area side knows about masks and exit linking. Only the room side knows about description composition.
+
+## Runtime Flow
+
+The normal execution path is:
+
+1. Builder opens a cell overlay package.
+2. Builder runs `cell new <autoarea> ...`.
+3. The chosen `IAutobuilderArea` parses its ordered parameters.
+4. The area template calls the selected `IAutobuilderRoom` to create each cell directly in the chosen zone. The template class names remain builder vocabulary; no Room parent is allocated. Fresh cells and template clones start with zero stored XYZ, no unique name and no inherited Area memberships, matching the earlier fresh-parent defaults.
+5. Once the cell grid is initialised, the area template links its exits.
+6. Some area templates gather feature tags first and call `RedescribeRoom(...)` afterwards so descriptions can react to those tags.
+7. Optional `prog=<prog>` arguments can run post-processing against the generated result set.
+
+This is why area templates should stay focused on structure and room templates on presentation.
+
+`terrain stack` takes a room template and one `FMS1:` compressed payload, instead of dimensions and separate masks. All terrain/tag IDs, sizes, coordinates and vertical overrides are preflighted before materialisation. Rooms are created in Z/Y/X order before any exits; east/north/up connections are each created once and registered with both endpoints in the builder's overlay package. Vertical overrides map to the existing exit climb flag/difficulty and `FallRoom` (the lower endpoint). Overrides are saved before adding the exit to either overlay, because overlay registration immediately initialises exit-manager objects from the database. Ordinary links have no climb or fall requirement. Missing levels, holes and suppressed vertical links are skipped. Horizontal diagonals are not supported.
+
+The `room new` / `cell new` command retains its post-processing prog and built-room tracking path. For this type only, `editor` replaces the payload argument to collect wrapped text. Submission rechecks the adopted under-design overlay package, zone and area/room template identities, then decodes and resolves references before executing the same completion path. Validation and progress messages use the editor callback's output handler, since the character's ordinary handler is quiet while editing. Invalid or cancelled input creates nothing. Unexpected failures during room creation retain the normal autobuilder failure semantics; preflight is not a database transaction or a rollback mechanism. Existing area types and their masks are unchanged. The first occupied Z/Y/X room is the transfer destination; persisted world XYZ retains the usual fresh-room defaults.
+
+Rectangle-family area templates initialise the complete cell grid before creating exits. A shared topology pass then
+adds each cardinal connection once and, for diagonal templates, both diagonal families. Terrain-mask holes are skipped
+when either end of a potential connection has no cell.
+
+## Random Description Pipeline
+
+`AutobuilderRoomRandomDescription` is the descriptive workhorse.
+
+It combines:
+
+- a default `AutobuilderRoomInfo`
+- optional per-terrain `AutobuilderRoomInfo` overrides
+- an expression for how many random elements to pick
+- a weighted list of `IAutobuilderRandomDescriptionElement`
+- an optional fixed sentence appended to all results
+
+Element types currently supported:
+
+- simple description elements
+- road-aware description elements
+- grouped weighted elements
+
+Elements can be:
+
+- terrain-limited
+- tag-limited
+- mandatory if valid
+- fixed to a sentence position
+- weighted relative to siblings
+
+`CreateRoom(...)` and `RedescribeRoom(...)` both use the same mandatory/fixed-position selection rules, so area-generated feature tags can reliably enforce ordered prose layers.
+
+Road elements are special because they interpret one tag as `tag=directions` and expand `$directions`, `$thedirections`, and `$dashdirections` tokens. In practice that means seeded road prose must key off topology tags such as `Trail Straight`, `Trail Bend`, or `Dirt Road Tee`, not a plain base tag like `Trail`.
+
+## Feature Propagation
+
+There are two different feature/tag paths:
+
+- `terrain feature rectangle` takes an explicit tag-ID mask from the builder.
+- `room by terrain random features` generates features internally through feature groups.
+
+Feature groups currently include:
+
+- simple density-based feature groups
+- uniform per-room feature groups
+- road feature groups
+
+Generated feature groups become string tags passed into the room template. If `ApplyAutobuilderTagsAsFrameworkTags` is on, matching framework tags are also written to the cells themselves. In contrast, `terrain feature rectangle` parses each explicit feature-mask entry as a positive framework tag ID, resolves it to the exact tag, passes its name to descriptive feature rules, and applies that resolved tag directly to the created cell. This prevents duplicate tag names from selecting the wrong framework tag.
+
+The stock wilderness package also uses internal marker tags such as `Physical Primary` and `Physical Secondary` so its mandatory first and second prose layers remain stable even when the same descriptive feature name is reused in different terrain domains.
+
+## Seeder Split: Core vs Useful
+
+The seeder intentionally divides responsibilities.
+
+### `CoreDataSeeder`
+
+Core seeding installs the structural baseline:
+
+- `Blank` room template
+- stock area-shape templates such as `Rectangle`, `Terrain Rectangle`, and `Feature Rectangle`
+
+These are about geometry and workflow, not rich stock prose.
+
+### `UsefulSeeder`
+
+Useful seeding now owns the wilderness descriptive bootstrap package:
+
+- room template: `Seeded Terrain Wilderness Grouped Description`
+- area template: `Seeded Terrain Wilderness Grouped Features`
+- the supporting wilderness terrain feature tag hierarchy
+
+These templates are built from the seeded terrain catalogue and are meant to be usable immediately with either the core area templates or the stock wilderness area template, plus Terrain Planner.
+
+That split matches the intended product model:
+
+- Core package: shape first, manual description later
+- Useful package: ready-to-use terrain-matched wilderness prose and feature generation
+
+## Terrain Planner Role
+
+Terrain Planner 2.x is a hosted Interactive WebAssembly application bundled with its authenticated, read-only Engine API. It loads terrain editor metadata and hierarchical tags from live database projections, then produces both the terrain mask and feature/tag mask expected by terrain-aware area templates. Existing registered, unsuspended Admin-or-higher game accounts authenticate; the planner never creates accounts or writes game data.
+
+The mask format matches Cartesian coordinates: the first entry is the south-west `(0,0)` cell, each row proceeds
+west-to-east, and subsequent rows proceed northward. Terrain Planner displays north at the top while exporting the
+southern row first.
+
+Terrain entries are numeric terrain IDs. `Feature Rectangle` entries are numeric framework tag IDs, with multiple IDs in a cell separated by `|`; names are not accepted for that explicit-mask template.
+
+## Extension Guidance
+
+When adding a new autobuilder type:
+
+1. Decide whether it is structural or descriptive. Start from area vs room responsibility, not from convenience.
+2. Reuse `AutobuilderAreaBase` or `AutobuilderRoomBase`.
+3. Keep XML tolerant of missing nodes.
+4. Register a stable loader keyword and template type.
+5. Add or update seeder support only if the type should be part of stock content.
+6. Add repeatability coverage if seeding is involved.
+7. Update the autobuilder design and builder docs in the same change.
+
+## Current Constraints
+
+- XML definitions are versionless and must stay backwards-compatible.
+- Terrain Planner creates both terrain and multi-tag feature masks and preserves project JSON locally in the browser.
+- Tag-driven description variation only matters when the chosen area template actually supplies tags.
+- The stock wilderness package assumes the seeded terrain catalogue and its `Terrain` tag root already exist before the Useful autobuilder package is installed.
+
+## Detached presentation for spell-owned shelters
+
+`IAutobuilderRoomPresentation` returns a detached deterministic presentation for an exact
+terrain. The native Simple and ByTerrain templates share this presentation with ordinary
+room creation. It contains terrain identity, name/description, outdoors policy, light,
+atmosphere, forage and room-layer inputs; it does not create a room or invoke builder UI.
+
+An optional shelter `AutobuilderTemplate` binds the exact current S3 template. Selected-grade
+capacity, its presentation and the original caster/room/terrain/route/registry frame are frozen
+before payment and rechecked after callbacks and inside private topology creation. Temporary
+rooms and exits are born through the protected lifecycle transaction. Invalid or changed
+presentation refuses; legacy definitions without the template retain their existing behavior.
+These prepared adapter checks do not themselves certify live-world occupancy or cold cleanup.
+
+## Stock selector identity
+
+Room templates may include `FrameworkTagBindings`, with each `Binding` carrying selector text and a framework tag ID. Text continues to drive description/group/road matching; the binding chooses the intended taxonomy branch independently of duplicate leaf names. Save and clone preserve this map. In mapped templates, unbound text labels are not applied as framework tags. Missing mapped IDs fail at load; unmapped legacy templates require unique names and pre-resolve the entire requested tag set before mutating room tags. Typed feature-mask IDs keep their existing precedence. See [Core tag foundations](../Seeding/Core_Tag_Foundations.md).

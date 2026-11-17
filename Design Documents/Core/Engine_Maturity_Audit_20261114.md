@@ -2,6 +2,8 @@
 
 Original audit: 14 November 2026; refreshed: 15 November 2026; account-security implementation update: 16 November 2026
 
+Finding status reviewed: 17 November 2026. The source census and original findings retain their audited baseline.
+
 Source revision: `b32228996a95b745a6ad02298d582347b788ce7e` — fetched remote `master`, 14 November 2026; plus the legacy-tool retirement described in F18
 
 Purpose: divide the engine into thematic features and identify incomplete functionality, weak assurance, documentation gaps and older implementations worth reviewing.
@@ -10,13 +12,41 @@ Purpose: divide the engine into thematic features and identify incomplete functi
 
 Migration `20261117030326_PersistEmploymentTaskApprovals` adds durable versioned task provenance, scoped approvals and automation approval configuration. Financial execution rechecks issuer authority, revocation, expiry, scopes and cumulative limits. Legacy tasks need explicit approval; interrupted financial attempts need audited reconciliation, followed by an explicit authorised retry when work remains. The [current restart and recovery contract](../Economy/Employment_Restart_and_Recovery.md) records the corrected command surface, real-MySQL upgrade/snapshot verification, live Telnet payment/crash/restart qualification and remaining physical-custody limits. Subsequent restarts preserved single native payments and their reconciliation/retry audits. This closes F03's specific active-task approval persistence gap; the original source assessment and broader workflow recommendations below remain historical.
 
-## Post-audit hardening implementation
+## Finding status — 17 November 2026
 
-The first agreed hardening batch implements F01's safe password-change notifications, F04's fatal-process exit status, and F05's consistent new-password minimum. It also moves generated registration/recovery/temporary credentials to cryptographic randomness. Existing database email templates retain their content and a safe legacy `{2}` slot; Debug support login and staff-generated reset emails keep their intended behavior. See [account credentials and notifications](Account_Credentials_and_Notifications.md).
+This register supersedes the baseline findings' remediation status, not their historical evidence. **Implemented, awaiting merge** means the change exists in a reviewed draft PR; it does not mean remote `master`, a released binary or an installed world contains it. **Partial** closes only the named part. Open qualification work is not a claim that an exploit or gameplay failure was reproduced.
 
-The findings below describe the audited baseline; these implementation dispositions supersede their corresponding current-code observations. Hash migration, recovery expiry/throttling and broader session policy remain deferred. Verification of this batch is recorded in the linked credential guide separately from the original source-only audit: 10,709 fast-test passes, three expected Windows skips and three passing Release subprocess cases. A live world boot/normal shutdown and real mail-provider delivery were not exercised.
+Remote `master` was refreshed against `4c2f230c1` for the 17 November conflict reconciliation. PRs [867](https://github.com/FutureMUD/FutureMUD/pull/867), [868](https://github.com/FutureMUD/FutureMUD/pull/868), [869](https://github.com/FutureMUD/FutureMUD/pull/869), [871](https://github.com/FutureMUD/FutureMUD/pull/871) and [872](https://github.com/FutureMUD/FutureMUD/pull/872) are merged. PR [870](https://github.com/FutureMUD/FutureMUD/pull/870) supplies the documentation consolidation below. Merge state does not imply deployment; historical evidence retains its original revision and scope.
 
-## Overall assessment
+| Finding | Current disposition | Evidence and remaining work |
+| --- | --- | --- |
+| F01 — Password-change email | **Implemented and merged — PR 868.** | Runtime notification inputs cannot carry the replacement password; legacy/custom templates retain a neutral `{2}` slot and their stored branding/content. Synthetic composition tests pass. Real SMTP/provider delivery remains unexercised. |
+| F02 — Debug support login | **Accepted; original defect withdrawn.** | Intentional owner-approved reproduction workflow. Preserve the Debug bypass and the public Release boundary. |
+| F03 — Employment provenance/grants | **Implemented and merged — PR 871.** | Versioned approvals/provenance, legacy compatibility, live issuer checks and audited recovery now persist. The [restart and recovery guide](../Economy/Employment_Restart_and_Recovery.md) records provider and live Telnet crash/restart evidence and physical-custody limits. |
+| F04 — Fatal process exit | **Implemented and merged — PR 868.** | Fatal Release exceptions and malformed connection configuration retain exit 1. Three owned Release subprocess cases pass; normal export exits 0. Full world startup/graceful shutdown was not exercised. |
+| F05 — Joined credential/recovery policy | **Implemented and merged — PR 868.** | Versioned Argon2id hashes with legacy migration, expiring one-use recovery, throttling and credential/session concurrency are implemented. Email-free implementor workflows and Debug support remain supported. The [security qualification](../Verification/Account_Security_20261116.md) records the scoped provider/live evidence and outstanding external-provider limits. |
+| F06 — Conflicting documentation/status | **Implemented — PR 870.** | [Suite consolidation](Documentation_Review_20261116.md) corrects the identified contradictions, consolidates completed plans and separates current guides, outstanding designs and dated evidence. This closes the identified presentation work, not every future documentation need. |
+| F07 — Dormant throwing contracts | **Open qualification/cleanup.** | No new caller/registration matrix, dormant API retirement or exception behavior change was implemented. Preserve the distinction between dormant contracts and reachable defects. |
+| F08 — Old behavior hidden by recent edits | **Open review queue.** | The method-level historical queue remains evidence for bounded review; renaming documentation does not qualify those implementations. |
+| F09 — Synchronous callbacks/progs | **Open operational qualification.** | No new callback budget, transaction/interruption policy, load profile or failure campaign was implemented. |
+| F10 — Vehicle recovery assurance | **Open targeted verification.** | Existing runtime and historical native evidence remain; real-provider checkpoint/interruption/reload coverage was not added. |
+| F11 — Electrical grid assurance | **Open targeted verification.** | Demand allocation, producer/consumer membership, load failure and power-loss/reconnection behavior still need the proposed focused checks. |
+| F12 — Joined builder guides | **Partial — navigation improved in PR 870.** | The consolidation baseline indexed 535 design documents, but indexes do not replace the specific joined skill/check/merit, scripted-event, board/helpfile, foraging, mount/stable and hospital guides listed below. |
+| F13 — Dynamic flooding | **Documented scope boundary; conditional extension.** | Weather/terrain layers do not provide flood state. No flooding feature is implemented or newly authorised by this status update. |
+| F14 — Reserved Messenger | **Documented reserved feature; no defect established.** | The [computer system guide](../Technology/Computer_System.md) retains the explicit unavailable/reserved boundary. Messenger itself remains unimplemented. |
+| F15 — Combat response matrix | **Open targeted verification.** | No new supported pairing matrix, extension policy or behavioral response tests were added. |
+| F16 — Wound infection TODO | **Closed as false positive; no repair required.** | Infection checks exist; the TODO concerns balance. No duplicate infection mechanism was introduced. |
+| F17 — MudClient PR coverage | **Implemented, hosted-verified and merged — PR 869.** | Dedicated path-filtered Windows/Linux Release workflow passed all 136 existing tests on each platform and retained TRX. Browser/deployment campaigns and coverage collection are separate. |
+| F18 — Obsolete service projects | **Resolved and merged — PR 867.** | Watcher, Upgrade Service and approved obsolete terrain-tool remnants were retired. Active TerrainPlanner and terrain seeding remain; external installations were not uninstalled. |
+
+### Follow-up verification evidence
+
+- **Credential/exit batch, `9cd159efa8effb08c81120d88efcda975e34e969`:** 10,709 local fast-test passes, three expected Windows skips and three passing Release subprocess cases. Existing Debug support login and staff-generated temporary-password emails retain their intended behavior. The [credential compatibility/verification guide](https://github.com/FutureMUD/FutureMUD/blob/9cd159efa8effb08c81120d88efcda975e34e969/Design%20Documents/Core/Account_Credentials_and_Notifications.md) records the limits. All six hosted checks reported success on that PR head at this review.
+- **MudClient CI, `acab007d4912be955748a5f81e995ebb37086549`:** [hosted run](https://github.com/FutureMUD/FutureMUD/actions/runs/43699242315) passed 136 tests per OS, zero failures/skips; both TRX artifacts were retained. All eight hosted PR checks reported success on that head.
+- **Documentation consolidation, `af6ddee828c303c9775889086e39a620dfbe8408`:** 663 Markdown documents decode as UTF-8; 535 design documents are indexed; 3,652 local links and their heading anchors pass validation. The retained culture validators pass 4,052 and 6,949 data checks respectively, plus 11 round-two data/research hashes; a changed research payload is rejected. Reported hosted checks passed on that consolidation head. This status-only follow-up does not reuse those results as a claim about a later CI head.
+- These are follow-up checks, distinct from the original source-only audit. They do not establish a live-world boot/normal shutdown, real mail delivery, browser/server upgrade, new gameplay acceptance campaign or production deployment. The original thematic census and dated receipts were not recomputed or relabelled as fresh evidence.
+
+## Overall assessment at the audit baseline
 
 FutureMUD is a substantial, actively maintained engine with established implementations across most of its advertised simulation and worldbuilding domains. It is not uniformly complete or equally well qualified. Its most important weaknesses are **credential-policy hardening debt, uneven restart continuity, documentation that mixes historical and current claims, and limited evidence for some cross-system gameplay workflows**.
 
@@ -35,7 +65,7 @@ The clearest findings are:
 
 This is an engine-wide **source, architecture, documentation, test-inventory and Git-history audit**, with deeper call-chain checks on selected high-value findings. It is not a line-by-line review of every implementation, a penetration test, or a new live-world stability campaign. The census covers all tracked C# files in the main runtime and shared library; thematic assessments also examine persistence, bootstrap/content products, selected tools and their integration surfaces.
 
-No build, automated test suite, MySQL migration, fresh install, live Telnet scenario, external-model call or soak test was run for the original audit. Subsequent account-security implementation evidence is listed separately in F01/F05. Test names below identify existing evidence and useful verification seams; they are not newly passing results. Historical acceptance reports are treated as dated evidence, not current certification.
+For the original audit, no build, automated test suite, MySQL migration, fresh install, live Telnet scenario, external-model call or soak test was run. Test names in the baseline findings identify existing evidence and useful verification seams; follow-up execution is recorded separately in the status register above. Historical acceptance reports are treated as dated evidence, not current certification.
 
 Remote `master` was fetched and the checkout fast-forwarded from `2d0935518` to `b32228996` on 15 November 2026. The engine now targets `net11.0`. The refresh includes the intervening staged-performance/rites prototype, Armageddon RC1 qualification and startup/prog-consolidation changes. An isolated checkout was used for bounded security/delta review; the full original thematic investigation was not repeated line by line. The source census was recomputed. The pre-existing `MudSharp.sln` edit was preserved byte-for-byte.
 
@@ -77,7 +107,7 @@ The 15 November follow-up uses a narrower security threshold than the general ma
 
 The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; the later credential hardening is described above. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
 
-## Thematic feature map
+## Thematic feature map at the audit baseline
 
 These are logical ownership boundaries for planning and review. They are not a proposal to turn every row into a separate assembly or service. Commands, effects, persistence and seeders cross these boundaries and must remain part of each feature's acceptance criteria.
 
@@ -114,8 +144,8 @@ These are logical ownership boundaries for planning and review. They are not a p
 | Autobuilding and terrain planning — `Construction/Autobuilder`, TerrainPlanner | **Established supported types; some legacy placeholders.** Current feature creation supports simple/uniform/road groups; the old river loader branch is not a supported builder feature. | **Mixed/stronger** planning/contract and room tests; invalid persisted templates merit checks. | Good [autobuilder how-to](../Building/Autobuilder_Builder_How_To.md) and [planner/API guide](../Building/Terrain_Planner_and_Engine_API.md). **P3:** F07 river loader cleanup/migration diagnostics. |
 | Movement, parties, following, positions and stamina — `Movement`, body/character movement | **Established.** Rich native movement and group behavior; Party exposes some unused proxy-contract stubs. | **Mixed/stronger** movement, posture, stamina and security tests. | [Position states](../World/Position_State_System.md), layer and movement-specific docs; not one consolidated movement guide. **P2:** party/follower cancellation, callbacks and inter-system transitions. |
 | Pathfinding, topology and route compilation — construction pathing and spatial services | **Established.** Incremental/live topology and route-aware paths are implemented. | **Stronger** live-mutation and path service tests plus dated acceptance evidence. | Good [pathfinding guide](../World/Pathfinding_System.md). **P2:** large topology mutation/portal invalidation campaigns; avoid replacing this with a second path system. |
-| Mounts, riding, stables, hitches and towing — body/commands/vehicle integrations | **Established, with integration debt.** Mount equipment, stables, mixed hitch graph and towing exist; service-level consent/recovery design has unfinished refactoring. | **Mixed/stronger** mounted combat, landing, gear, stable and towing tests. | [Mounted combat](../Combat/Mounted_Combat.md) and [vehicle guide](../Vehicle_System.md); mount/stable workflows are spread across sources. **P2:** one builder/player guide and consent/recovery campaign. |
-| Vehicles, interiors, routes, services and journeys — `Vehicles` | **Established within V1.** Manual exits, linear RouteCell movement, persistent interiors, services and restart checkpoints exist. Arbitrary 2D/3D navigation is outside V1. | **Stronger** focused tests and [dated live/reboot evidence](../Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md). Actual persistence adapter has less identified direct recovery coverage than strategy fakes. | Extensive [system guide](../Vehicle_System.md) and [fresh-world runbook](../Vehicle_System_Fresh_MUD_Test_Runbook.md). **P2:** F10; distinguish historical campaign success from current regression protection. |
+| Mounts, riding, stables, hitches and towing — body/commands/vehicle integrations | **Established, with integration debt.** Mount equipment, stables, mixed hitch graph and towing exist; service-level consent/recovery design has unfinished refactoring. | **Mixed/stronger** mounted combat, landing, gear, stable and towing tests. | [Mounted combat](../Combat/Mounted_Combat.md) and [vehicle guide](../World/Vehicle_System.md); mount/stable workflows are spread across sources. **P2:** one builder/player guide and consent/recovery campaign. |
+| Vehicles, interiors, routes, services and journeys — `Vehicles` | **Established within V1.** Manual exits, linear RouteCell movement, persistent interiors, services and restart checkpoints exist. Arbitrary 2D/3D navigation is outside V1. | **Stronger** focused tests and [dated live/reboot evidence](../Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md). Actual persistence adapter has less identified direct recovery coverage than strategy fakes. | Extensive [system guide](../World/Vehicle_System.md) and [fresh-world runbook](../World/Vehicle_System_Test_Runbook.md). **P2:** F10; distinguish historical campaign success from current regression protection. |
 | Planes, corporeality, portals and zero gravity — `Planes`, related movement/magic | **Established bounded capabilities.** Visibility, physical state, portal topology and zero-gravity anchors/tethers exist. Collision simulation is outside the stated slice. | **Mixed/stronger** topology and selected security tests; many combinations require integration testing. | Good [planes](../World/Corporeality_and_Planes.md), [zero-gravity](../World/Zero_Gravity_System.md). **P2:** perception/combat/party/item/restart matrix. |
 | Time, calendars, astronomy and celestials — `TimeAndDate`, `Celestial` | **Established; explicit civil-time omission.** Custom clocks/calendars and astronomical events are substantial; daylight-saving logic remains TODO. | **Stronger** focused calendrical/celestial tests and authored-celestial receipts. | Good [time/date](../World/Time_And_Date_System.md) and [celestial index](../World/Celestial_System_Overview.md). **P3:** decide whether DST is a supported requirement; F08. |
 | Weather, climate and environmental exposure — `Climate`, health/environment integrations | **Established with unusually deliberate simulation verification.** Profiles, forecasting, hazards and exposure have native runtime paths. | **Stronger** dedicated slow climate suite, forecast/hazard tests and environmental verification docs; no new simulation here. | Good [weather](../World/Weather_System.md), [verification](../World/Weather_Verification.md), [exposure](../Environment/Environmental_Exposure_Design.md). **P2:** preserve benchmark-driven climate acceptance and qualify world-specific content. |
@@ -140,15 +170,15 @@ These are logical ownership boundaries for planning and review. They are not a p
 | Materials, liquids, gases, contamination, food and cooking | **Established.** Constituent mixtures, surfaces, ingestion and crafting/item integrations exist. Stock catalogue coverage is a separate question. | **Mixed/stronger** liquid/surface/food and craft tests; arbitrary authored combinations remain a large state space. | Good item/health/[food guide](../Crafting/Food_and_Cooking_System.md), generated material inventories. **P2:** serialization, quantity conservation and invalid content. |
 | Electrical/liquid grids, power distribution and telecom networks — construction grids/components | **Established bounded/legacy implementation.** Membership persistence and power cutout/cutin logic exist; full network physics/topology is not promised. | **Mixed:** `GridSystemTests` covers meaningful producer/component behavior; direct demand-shedding/priority/reconnection tests were not located. | Scattered item runtime and technology docs. **P2:** F11 allocation and connector-policy matrix. |
 | Electronics, sensors, microcontrollers and access control — components/computers | **Developing to established within the shipped slice.** Service access, signals, automation, credential readers and powered hosts exist. | **Mixed** focused tests plus detailed manual end-to-end scenarios; document existence is not execution evidence. | Good [automation scenarios](../Technology/Automation_End_To_End_Test_Scenarios.md). **P2:** power loss, broken routes, credentials, administrator-vs-player actions and restart. |
-| Computers, programs, terminals, storage, mail/FTP/boards and media — `Computers`, components | **Developing; substantial but deliberately bounded.** Persisted programs and built-in applications exist; Messenger is intentionally reserved without an executor. | **Mixed:** workspace, media-app and FTP-backoff tests; broad host/network/process lifecycle remains a review target. | Detailed [computer design](../Technology/FutureMUD_Computer_Programs_Concept_Design.md), [media workflows](../Technology/Media_System_Runtime_and_Workflows.md) and scenarios. **P2/P3:** F14, with reserved capabilities clearly labelled. |
+| Computers, programs, terminals, storage, mail/FTP/boards and media — `Computers`, components | **Developing; substantial but deliberately bounded.** Persisted programs and built-in applications exist; Messenger is intentionally reserved without an executor. | **Mixed:** workspace, media-app and FTP-backoff tests; broad host/network/process lifecycle remains a review target. | Detailed [computer design](../Technology/Computer_System.md), [media workflows](../Technology/Media_System_Runtime_and_Workflows.md) and scenarios. **P2/P3:** F14, with reserved capabilities clearly labelled. |
 
 ### 6. Conflict, health and survival
 
 | Area and source ownership | Maturity and completeness | Stability evidence | Documentation and next review |
 | --- | --- | --- | --- |
 | Melee, ranged combat, strategies and combat settings — `Combat` | **Established, extensive and actively maintained.** Native strategy/response matrix is broad; defensive throw branches and legacy edge policies deserve targeted review. | **Stronger** simulation, strategy, action-availability, messaging and target-retention tests; not every combination is qualified. | Good [strategy runtime](../Combat/Combat_Strategy_Runtime.md), mounted/ranged/defaults docs. **P2:** F15 response matrix, target changes and custom strategy contracts. |
-| Weapons, ammunition, poison, natural attacks and traps — combat/items/`Traps` | **Established scoped features.** Native ranged attacks, generic ammunition damage and trap definitions/activation exist. | **Stronger** natural-ranged, poison and explosive-trap tests plus historical closeout evidence. | Good [natural ranged](../Combat/Natural_Ranged_Attacks_Design.md), [trap system](Trap_System.md), firearms and balance docs. **P2:** authored combinations, activation/recovery/restart and NPC selection. |
-| Arenas and organised combat — `Arenas` | **Established bounded system.** Scheduling, lifecycle, preparation, observation, finance, betting, ratings and cleanup exist. | **Stronger** dedicated arena tests; no new full live event campaign. | Substantial design, but [implementation plan](../Combat/Combat_Arenas_Implementation_Plan.md) still opens “Draft for implementation handoff.” **P2:** current support/operations guide and restart/refund/inventory campaign; F06. |
+| Weapons, ammunition, poison, natural attacks and traps — combat/items/`Traps` | **Established scoped features.** Native ranged attacks, generic ammunition damage and trap definitions/activation exist. | **Stronger** natural-ranged, poison and explosive-trap tests plus historical closeout evidence. | Good [natural ranged](../Combat/Natural_Ranged_Attacks_System.md), [trap system](Trap_System.md), firearms and balance docs. **P2:** authored combinations, activation/recovery/restart and NPC selection. |
+| Arenas and organised combat — `Arenas` | **Established bounded system.** Scheduling, lifecycle, preparation, observation, finance, betting, ratings and cleanup exist. | **Stronger** dedicated arena tests; no new full live event campaign. | The former Draft plan is consolidated into the [master guide](../Combat/Combat_Arenas_System.md), with current finance/provisioning limits qualified. **P2:** current support/operations guide and restart/refund/inventory campaign; F06. |
 | Wounds, damage, healing, infection, physiology and survival — `Health`, body integrations | **Established and deeply integrated.** Strategies, healing, infection, thermal exposure and survival consequences are implemented. | **Stronger** focused health/wound/body tests and damage reports; long elapsed-time/offline scenarios remain useful. | Good [health runtime](../Health/Health_Core_Runtime.md), [damage design](../Health/Damage_System_Design.md), medical and seeder docs. **P2:** balance and interruption/restart qualification; do not infer missing infection from one TODO (F16). |
 | Surgery, medicine, drugs, dependence and disfigurement | **Established scope; uneven end-to-end assurance.** Procedures, treatment items, metabolism/dependence and markings are substantial. A legacy examination-proposal class is unused. | **Mixed/stronger** drug metadata/runtime/dependence and selected treatment tests; full medical campaigns are not established by those alone. | Good [medical interactions](../Health/Health_Medical_Interactions.md), [drugs](../Drugs/README.md), [disfigurement](../Health/Disfigurement_System_Design.md). **P2:** multi-stage treatment, offline time and clone/reload; F07 orphan proposal. |
 
@@ -159,9 +189,9 @@ These are logical ownership boundaries for planning and review. They are not a p
 | Clans, ranks, appointments, elections and external control — `Community` | **Established and actively maintained.** Governance and permissions are native systems; organisation-specific policy is configurable. | **Stronger** dedicated election/appointment/recall/address/persistence/security tests. | Good [command/permissions](../Economy/Clan_Command_Surface_and_Permissions.md), [elections/control](../Economy/Clan_Elections_and_External_Control.md). **P2:** complete real governance transitions and offline/restart scenarios. |
 | Crime, law, enforcement, custody, trials and sentencing — `RPG/Law`, NPC/commands | **Established.** Arrest/custody, handover, court progression and sentencing paths align with current documentation. No concrete defect established in this pass. | **Stronger** `LegalTrialFlowTests`, `AutomaticSentencingTests`, patrol/docket/handover tests; live case progression unrun. | Good [law runtime](../Economy/Law_System_Runtime.md) and seeder guidance. **P2:** full seeded authority-to-sentence/release campaign. |
 | Currency, markets, taxes, shops and trade — `Economy` | **Established.** Native money, market pressures, merchandise, settlement and tax authoring exist. A turnkey world economy is not seeded automatically. | **Stronger** selected purchase, shop, haggle, market and financial-boundary tests; older tax logic is a review candidate. | Good [economy runtime](../Economy/Economy_System_Runtime.md), workflows and seeder gaps. **P2:** tax periods, cross-calendar settlement, duplicate/failed transfers and F08 aging review. |
-| Banking, loans, mortgages, pawn and autopay | **Established banking; newer lending extensions need qualification.** Native accounts and optional secured/unsecured lending are implemented at this head. | **Mixed/stronger** dedicated financial tests, with very recent changes; no full loan lifecycle/restart campaign in this audit. | Economy docs and [lending design](../Economy/Loans_and_Secured_Lending_Design.md) require implementation-vs-proposal status to remain clear. **P2:** default, collateral ownership, interest, precision and restart/retry. |
+| Banking, loans, mortgages, pawn and autopay | **Established banking; newer lending extensions need qualification.** Native accounts and optional secured/unsecured lending are implemented at this head. | **Mixed/stronger** dedicated financial tests, with very recent changes; no full loan lifecycle/restart campaign in this audit. | Economy docs and [lending design](../Economy/Lending_System.md) require implementation-vs-proposal status to remain clear. **P2:** default, collateral ownership, interest, precision and restart/retry. |
 | Property, rentals/hotels, auctions, estates and probate | **Established, with broad persistence/ownership consequences.** The native features exist and have recent maintenance. | **Mixed/stronger** property/security, auction settlement and estate-focused tests; complete death-to-distribution workflows remain a high-value campaign. | Good economy set and [estate/ownership guide](../Economy/Estate_Probate_and_Item_Ownership.md). **P2:** insolvency, stale owners, duplicated settlement and interrupted transfers. |
-| Employment, manager goals, dispatch, worker AI and payroll | **Established runtime with a material persistence limitation.** Host/action/payment matrix, consent, goals, hiring and payroll exist; active-task provenance/grants are runtime-only. | **Mixed/stronger** large functional suite, including an explicit fail-closed grant reload test. It does not prove durable grant continuity. | Extensive [employment roadmap](../Economy/Employment%20Hosts%20Implementation%20Review%20and%20Roadmap.md), but contradictory status claims remain. **P1:** F03 supported restart contract. Autonomous management/QC extensions are separately deferred. |
+| Employment, manager goals, dispatch, worker AI and payroll | **Established runtime with a material persistence limitation.** Host/action/payment matrix, consent, goals, hiring and payroll exist; active-task provenance/grants are runtime-only. | **Mixed/stronger** large functional suite, including an explicit fail-closed grant reload test. It does not prove durable grant continuity. | Extensive [employment roadmap](../Economy/Employment_Roadmap.md), but contradictory status claims remain. **P1:** F03 supported restart contract. Autonomous management/QC extensions are separately deferred. |
 | Hospitals and institutional services — employment/native health hosts | **Established supported workflows.** Treatment dispatch, rooms, supplies, billing and native medical integration exist. | **Mixed/stronger** hospital billing/room and dispatch tests; player treatment plus worker/equipment/restart continuity needs integration evidence. | Split between health and employment guides. **P2:** a joined setup/operations guide and interruption/custody/billing campaign. |
 
 ### 8. Work, production and ecology
@@ -181,7 +211,7 @@ These are logical ownership boundaries for planning and review. They are not a p
 | Spells, configurable casting, Vancian magic, scrolls and magic items | **Established/developing by slice.** Significant native lifecycle, payment, access and compatibility work exists; optional setting repertoires and balance are separate. | **Mixed/stronger** configurable/Vancian/scroll/owned-object tests and dated acceptance matrices. | Good [configurable casting](../Magic/Configurable_Casting.md), [Vancian runtime](../Magic/Vancian_Magic_Runtime.md), builder/player guides. **P2:** real installed-world cast/payment/save/reload/expiry campaigns on the intended product revision. |
 | Environmental magic, gathering and land ecology | **Established scoped implementations.** Land player selection and committed gathering exist; earlier verification notes describe only a predecessor slice. | **Stronger** gathering/land witness/native-accounting tests and dated native evidence. | Good [gathering](../Magic/Magic_Gathering.md), [regional land](../Magic/Regional_Land_Gathering.md), environmental set. **P2:** reconcile historical boundaries (F06); qualify ecological and legal/NPC policy per configured method. |
 | Individual NPC AI, group AI, ecology and event hooks — `NPC` | **Established catalogue with legacy exceptions.** Native registries, builders, persistence, pathing and event subscriptions are substantial. `WildAnimalHerdAI` needs a separate retain/retire review. | **Mixed/stronger** selected commandable/sentry/worker/predator/event tests; not every AI type has comparable evidence. | Good [NPC/group runtime](../AI/NPC_AI_and_Group_AI_Runtime.md), predator/monster guides and local authoring instructions. **P2:** F08 old branches, LOS policy and group long-run behavior. |
-| AI Storyteller and external text assistance — `NPC/AIStorytellers`, `OpenAI` | **Developing, operationally bounded.** Persisted storytellers, queues, tool loops, memories, pause/cancellation, output limits and game-loop application exist. Provider-backed quality/reliability remain external dependencies. | **Stronger** focused adapter/tool-loop tests; **mixed** external-provider/long-running evidence. | Good [storyteller design](../AI/AI_Storyteller_Design.md), implementation plan and [integration guide](../AI/OpenAI_Integration.md). **P2:** controlled provider-backed outage/rate-limit/pause/restart/cost campaign; F09 synchronous tools. |
+| AI Storyteller and external text assistance — `NPC/AIStorytellers`, `OpenAI` | **Developing, operationally bounded.** Persisted storytellers, queues, tool loops, memories, pause/cancellation, output limits and game-loop application exist. Provider-backed quality/reliability remain external dependencies. | **Stronger** focused adapter/tool-loop tests; **mixed** external-provider/long-running evidence. | Good [storyteller design](../AI/AI_Storyteller_System.md), implementation plan and [integration guide](../AI/OpenAI_Integration.md). **P2:** controlled provider-backed outage/rate-limit/pause/restart/cost campaign; F09 synchronous tools. |
 
 ### 10. Installation, content and companion products
 
@@ -197,7 +227,9 @@ These are logical ownership boundaries for planning and review. They are not a p
 | Website, documentation publishing and product releases — `FutureMUD.Web`, workflows | **Established infrastructure.** Product manifest, release storage, publishing boundaries and documentation export are explicit. | **Stronger** website tests/security workflow and product release gates; no hosted state verified here. | Good publishing/release docs. **P2:** keep release gates distinct from ordinary runtime tests; audit current deployment separately. |
 | Legacy WPF configuration tool | **Legacy; outside this retirement.** The configuration tool still uses .NET Framework 4.8/EF6-era dependencies and needs its own retain/retire decision. The Watcher and Upgrade Service have been removed (F18). | **Thin:** no dedicated current lifecycle suite located; not an active release product. | [Retirement record](Retired_Legacy_Tools.md) distinguishes removed tools from this remaining project. **P2/P3:** assess the configuration tool separately; it was not requested for deletion. |
 
-## Confirmed findings and material limitations
+## Baseline findings and material limitations
+
+The classification, source observations and original closure recommendations below preserve the audit snapshot. Each current status points to the register above; completed follow-up work must not be inferred to have existed at the original source revision.
 
 ### F01 Resolved — Password-change notifications exclude the password
 
@@ -205,15 +237,19 @@ These are logical ownership boundaries for planning and review. They are not a p
 
 **Original finding at the audited revision:**
 
+**Status at the 16 November review:** **Implemented, awaiting merge in PR 868.** Password-free notification construction and legacy-template compatibility are tested; real mail delivery is not newly qualified.
+
 **Classification: confirmed source behavior, high confidence.**
 
 [`LoggedInMenu.CommitPassword`](../../MudSharpCore/Menus/LoggedInMenu.cs#L882) saves the new hash/salt, then calls `SendEmail(AccountPasswordChanged, ..., command)` at lines 903–904, passing the confirmation input as a template argument. The stock [`CoreDataSeeder` template](../../DatabaseSeeder/Seeders/CoreDataSeeder/CoreDataSeeder.cs#L427) contains `{2}` in the sentence giving the new password. [`EmailHelper`](../../MudSharpCore/Email/EmailHelper.cs#L195) formats those arguments into the message body before queueing it.
 
 This exposes a usable password to the configured mail transport and mailbox. Failed-message storage may also retain that body when enabled. Actual exposure depends on the installed template and enabled transport; custom templates may already omit it, and Debug suppresses delivery. The runtime still supplies the sensitive argument.
 
-**Recommended closure:** remove the password from runtime notification inputs and stock templates, with an ownership-safe update path for existing stock templates. Keep a change notification that includes no credential. Verify with a synthetic message and fake transport/failure store; never use a real password. Add a test asserting that notification construction cannot include the replacement password. Both sender and stock template trace to 7 April 2023.
+**Original closure recommendation:** remove the password from runtime notification inputs and stock templates, with an ownership-safe update path for existing stock templates. Keep a change notification that includes no credential. Verify with a synthetic message and fake transport/failure store; never use a real password. Add a test asserting that notification construction cannot include the replacement password. Both sender and stock template trace to 7 April 2023.
 
 ### F02 Accepted — Passwordless Debug support login is intentional
+
+**Current status, 16 November 2026:** **Accepted behavior; original defect withdrawn.** Preserve the owner-approved Debug support workflow and Release authentication boundary.
 
 **Classification: accepted product behavior; no fix recommended.**
 
@@ -222,6 +258,8 @@ This exposes a usable password to the configured mail transport and mailbox. Fai
 The original audit incorrectly treated this as a defect and recommended changing it. That finding and recommendation are withdrawn. Public-release authentication remains the relevant security boundary for this review.
 
 ### F03 P1 — Employment grants and task provenance are runtime-only
+
+**Current status, 17 November 2026:** **Implemented and merged in PR 871.** The [current recovery contract](../Economy/Employment_Restart_and_Recovery.md) supersedes the baseline trace below. Durable approvals and automation approvers, legacy compatibility, issuer validation, reconciliation and explicit retry are implemented; provider/live qualification retains its stated scope.
 
 **Classification: confirmed persistence limitation and contradictory documentation, high confidence.**
 
@@ -233,11 +271,11 @@ The trace is complete enough to distinguish intended fail-closed behavior from a
 4. [`TaskGrantAuthorisesStep`](../../MudSharpCore/Economy/Employment/EmploymentTaskBoard.cs#L5045) checks authority, payment source, counterparty and amount limits. Empty compatibility grants fail those checks.
 5. Existing [`EmploymentPersistence_LoadedTasksWithoutPersistedGrantFailClosedForFinancialAuthority`](../../MudSharpCore%20Unit%20Tests/Economy/Employment/UnifiedEmploymentDispatchTests.cs#L6645) deliberately asserts the lost provenance and blocked financial action. This test was inspected, not executed.
 
-The [employment roadmap](../Economy/Employment%20Hosts%20Implementation%20Review%20and%20Roadmap.md) explicitly describes runtime-only provenance/grants at lines 196–204 and 1600–1611. The [2.0 readiness audit](MudSharp_2_0_Release_Readiness_Audit.md) instead calls durable provenance/grants complete. The narrower code/test contract is authoritative.
+The [employment roadmap](../Economy/Employment_Roadmap.md) explicitly describes runtime-only provenance/grants at lines 196–204 and 1600–1611. At the audit baseline, the [2.0 readiness audit](MudSharp_2_0_Release_Readiness_Audit.md) instead called durable provenance/grants complete; that historical overstatement was explicitly corrected during the 16 November documentation review. That narrower code/test contract was authoritative for the audited baseline; PR #871 and the linked current recovery contract supersede it.
 
 **Practical consequence:** a running workflow cannot assume that its task origin, priority, due dates or scoped financial approval survive reload. Financial safety is preserved by refusal, but continuity and audit attribution are reduced. This is not proof that payroll, settled wage ledgers or every employment record is lost; those have separate persistence.
 
-**Recommended closure:** agree whether durable grants/provenance are required for the supported restart contract. If yes, implement versioned persistence and round-trip both permitted and denied grants, exact source/priority/timestamps, revocation and old-row compatibility. If runtime-only remains the intended scope, correct readiness wording and clearly expose post-restart blocked-work recovery to builders. Keep the fail-closed regression.
+**Original closure recommendation:** agree whether durable grants/provenance are required for the supported restart contract. If yes, implement versioned persistence and round-trip both permitted and denied grants, exact source/priority/timestamps, revocation and old-row compatibility. If runtime-only remains the intended scope, correct readiness wording and clearly expose post-restart blocked-work recovery to builders. Keep the fail-closed regression.
 
 ### F04 Resolved — Fatal engine failures return a failure exit status
 
@@ -245,11 +283,13 @@ The [employment roadmap](../Economy/Employment%20Hosts%20Implementation%20Review
 
 **Original finding at the audited revision:**
 
+**Status at the 16 November review:** **Implemented, awaiting merge in PR 868.** Owned Release subprocess checks establish fatal exit 1 and normal documentation-export exit 0. Full-world normal shutdown remains unexercised.
+
 **Classification: confirmed source behavior, high confidence.**
 
 The Release `Main` catches startup/game-loop exceptions and writes a crash report, then [`finally` calls `Environment.Exit(0)`](../../MudSharpCore/Server/Main.cs#L152). Exit zero is also used after normal completion. A supervisor relying on nonzero exit status, such as a failure-only restart policy, may not restart or alert for these crashes. The exact service policy was not inspected or tested.
 
-**Recommended closure:** preserve a nonzero fatal exit status and a normal success status, with deliberate service restart policy. Test the published Release executable using an invalid startup configuration or isolated injected failure; assert report creation and process exit code. Do not use a production world to simulate this.
+**Original closure recommendation:** preserve a nonzero fatal exit status and a normal success status, with deliberate service restart policy. Test the published Release executable using an invalid startup configuration or isolated injected failure; assert report creation and process exit code. Do not use a production world to simulate this.
 
 ### F05 Resolved — Compatible credential and recovery upgrade
 
@@ -259,6 +299,8 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 
 **Original finding at the audited revision:**
 
+**Status at the 16 November review:** **Partially addressed in PR 868, awaiting merge.** Consistent eight-character new-password validation and cryptographic generation are implemented; existing short-password/hash login compatibility is preserved. Hash migration, recovery lifecycle, throttling and session policy remain open.
+
 **Classification: confirmed implementation constraints; operational impact needs qualification.**
 
 - [`SecurityUtilities.GetPasswordHash`](../../FutureMUDLibrary/Framework/SecurityUtilities.cs#L19) uses one salted SHA-384 operation and decodes the resulting bytes as UTF-8. This is a legacy compatibility representation, not a versioned, deliberately expensive password-storage scheme. [`SecurityUtilitiesTests`](../../FutureMUDLibrary%20Unit%20Tests/SecurityUtilitiesTests.cs#L13) explicitly preserves it. A replacement needs a safe migration/rehash-on-login plan.
@@ -266,9 +308,13 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 - [`RecoverPasswordSendEmail` and code validation](../../MudSharpCore/Menus/MainMenu.cs#L240) persist a recovery hash but do not record or check expiry in that path; the account model exposes a recovery code without an expiry field. Clearing the code on successful validation has no explicit `SaveChanges` in that method. Completing a password change rotates the salt, so this is not a claim that the same code remains usable after a successful password replacement.
 - Main-menu login/recovery paths do not show a per-account attempt budget or recovery-email cooldown. TCP connection/flood limits are a different protection. Logged-in old-password verification has a three-attempt disconnect and an older TODO about a ban; that is not a complete cross-session/account policy.
 
-**Recommended closure:** define one supported credential/recovery contract, covering secure hashing migration, consistent strength validation, expiring single-use recovery, throttling and generic responses. Verify state transitions with isolated storage and fake email, including disconnect before completion and concurrent attempts. Retain existing-hash compatibility until migration is intentional. This audit does not certify the rest of authentication or claim an external exploit was reproduced.
+**Original closure recommendation:** define one supported credential/recovery contract, covering secure hashing migration, consistent strength validation, expiring single-use recovery, throttling and generic responses. Verify state transitions with isolated storage and fake email, including disconnect before completion and concurrent attempts. Retain existing-hash compatibility until migration is intentional. This audit does not certify the rest of authentication or claim an external exploit was reproduced.
 
 ### F06 P2 — Historical and current documentation are difficult to distinguish
+
+**Current status, 17 November 2026:** **Implemented in PR 870.** The identified contradictions and current/plan/evidence presentation are corrected; ongoing documentation maintenance and the separate F12 guide gaps remain.
+
+**Documentation follow-up, 16 November 2026:** [suite consolidation](Documentation_Review_20261116.md) corrects the prompt/Land, employment and arena presentation issues, retires completed plans and provides current/roadmap/evidence indexes. This resolves the identified presentation contradictions without implementing durable employment grants, higher-precision calendars or missing arena finance/provisioning features. The table below preserves the audit-baseline findings.
 
 **Classification: confirmed documentation drift.**
 
@@ -276,13 +322,15 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 | --- | --- | --- |
 | [Native Organic Yields Verification](../Magic/Native_Organic_Yields_Verification.md#L83) says Land command is not implemented “by this PR.” | [`MagicModule.Gathering`](../../MudSharpCore/Commands/Modules/MagicModule.Gathering.cs#L18) offers the player workflow; [`MagicGatheringService.Land`](../../MudSharpCore/Magic/Gathering/MagicGatheringService.Land.cs#L122) implements the commit. | Preserve the historical receipt, but add a prominent current-successor link. Do not report Land gathering as absent. |
 | [Capabilities/resources guide](../Magic/Magic_System_Capabilities_Resources_and_Generators.md#L148) cites a prompt-support TODO as current status. | [`Character` prompt construction](../../MudSharpCore/Character/Character.cs#L3104) checks `IncludeMagic` and `ShowMagicResourcesInPrompt`; both classic/full prompt paths exist. | Correct the current guide and remove/update the stale source TODO. |
-| Employment roadmap and release-readiness audit disagree about durable grants. | F03 confirms runtime-only grants and an intentional fail-closed reload test. | Publish one supported restart contract and mark historical completion claims precisely. |
-| [Arena implementation plan](../Combat/Combat_Arenas_Implementation_Plan.md#L3) says Draft for implementation handoff. | The same document and runtime contain extensive implemented lifecycle/finance/cleanup behavior and tests. | Separate historical plan from current builder/operations contract. |
+| Employment roadmap and release-readiness audit disagree about durable grants. | At the audit baseline, F03 identified runtime-only grants and an intentional fail-closed reload test; PR #871 subsequently implemented durable approvals. | Publish one supported restart contract and mark historical completion claims precisely. |
+| The retired arena implementation plan said Draft for implementation handoff. | The [arena master guide](../Combat/Combat_Arenas_System.md) now owns the implemented lifecycle and explicit finance/provisioning limits. | Completed plan consolidated on 16 November; retain live restart/refund/inventory qualification as separate work. |
 | [DatabaseSeeder system-gap audit](../Seeding/DatabaseSeeder_System_Gap_Audit.md#L25) lists ItemSeeder under DatabaseSeeder and says later eras are unavailable/no-op. | ItemSeeder is now a separate optional product with a compiled catalogue and later-era source. | Mark the old audit's revision and route current readers to the standalone product docs. Do not use it as the current installer roster. |
 
 Documentation is plentiful: 529 tracked Markdown files were found under `Design Documents` before this report. The problem is often status drift and navigation, rather than complete absence. Historical test totals and one-worktree acceptance receipts should not be promoted into current whole-engine assurances.
 
 ### F07 P2/P3 — Genuine throwing placeholders mostly belong to dormant contracts
+
+**Current status, 16 November 2026:** **Open qualification/cleanup.** No new dormant-contract retirement or caller/registration/response mapping has been implemented.
 
 **Classification: confirmed incomplete code, with limited or no established gameplay reachability.**
 
@@ -296,6 +344,8 @@ Documentation is plentiful: 529 tracked Markdown files were found under `Design 
 
 ### F08 P2/P3 — Older behavior deserves review even when the file was touched recently
 
+**Current status, 16 November 2026:** **Open review queue.** The specific older branches have not been newly behavior-qualified by the documentation work.
+
 **Classification: line-history evidence plus targeted review risks.**
 
 The dated queue below records the actual evidence. Its strongest review concerns are legacy account-policy behavior and legacy AI decision branches; accepted Debug support login is excluded. Time-zone daylight saving, non-language audience presentation, word-mask configuration and the craft quality fallback need product decisions or compatibility review; they are not automatically active defects.
@@ -304,31 +354,39 @@ The dated queue below records the actual evidence. Its strongest review concerns
 
 ### F09 P2 — Synchronous world callbacks and progs remain an operational risk boundary
 
+**Current status, 16 November 2026:** **Open operational qualification.** Execution budgets, authored-world profiling and interruption/failure scenarios remain to be designed and exercised.
+
 **Classification: confirmed architecture, workload-dependent risk.**
 
 [`Scheduler.CheckSchedules`](../../MudSharpCore/Framework/Scheduling/Scheduler.cs#L78) bounds callback count, not individual callback time, and rethrows callback exceptions. Main-loop saves, clocks, effects and storyteller tools execute within the world loop. [`ForLoop` compilation](../../MudSharpCore/FutureProg/Statements/ForLoop.cs#L111) leaves standard FutureProg repetition uncapped by its optional iteration limit; other compilation contexts use 10,000. While loops and recursion have their own guards. There is no evidence here of a common elapsed-time budget that preempts arbitrary synchronous work.
 
 This design preserves serial world consistency. It also means a sufficiently costly trusted script/callback can stall the world, and a thrown scheduler callback can reach the process-level failure boundary. Network cancellation cannot interrupt a synchronous storyteller tool already executing.
 
-**Recommended closure:** document supported execution budgets, profile representative authored worlds and add deterministic failure/slow-work scenarios. Consider cooperative budget checks where needed, with an explicit transaction/interruption policy; casually moving world mutations to background threads would introduce different correctness problems.
+**Original closure recommendation:** document supported execution budgets, profile representative authored worlds and add deterministic failure/slow-work scenarios. Consider cooperative budget checks where needed, with an explicit transaction/interruption policy; casually moving world mutations to background threads would introduce different correctness problems.
 
 ### F10 P2 — Vehicle recovery has real implementation and historical evidence, but uneven adapter-level regression coverage
+
+**Current status, 16 November 2026:** **Open targeted verification.** No new real-provider interruption/checkpoint/reload campaign was added; retain the existing bounded native evidence.
 
 **Classification: verification gap, not missing restart support.**
 
 [`VehicleRouteMotionPersistence`](../../MudSharpCore/Vehicles/VehicleRouteMotionPersistence.cs#L315) freezes interrupted motion at durable checkpoints. The [V1 acceptance record](../Verification/RouteCell_Vehicle_V1_Acceptance_Evidence.md) records live/reboot qualification for specific train/platform/wagon scenarios. Several strategy tests substitute `IVehicleRouteMotionPersistence`; no direct automated test of `FreezeInterruptedVehicleMotions` was located in the reviewed core test inventory.
 
-**Recommended closure:** targeted real-provider tests for interruption, checkpoint loading, idempotent freeze/resume, occupied interiors, and route/topology changes. Keep existing historical evidence and state its revision. Arbitrary coordinate travel, collision, fares/reservations and richer dispatch/signalling are declared V1 exclusions, not hidden implementation failures.
+**Original closure recommendation:** targeted real-provider tests for interruption, checkpoint loading, idempotent freeze/resume, occupied interiors, and route/topology changes. Keep existing historical evidence and state its revision. Arbitrary coordinate travel, collision, fares/reservations and richer dispatch/signalling are declared V1 exclusions, not hidden implementation failures.
 
 ### F11 P2 — Grid allocation and connector policy have weaker focused assurance
+
+**Current status, 16 November 2026:** **Open targeted verification.** Allocation, membership, power-loss/reconnection and connector-policy checks remain outstanding.
 
 **Classification: test/contract gap; no specific allocation defect proved.**
 
 [`ElectricalGrid`](../../MudSharpCore/Construction/Grids/ElectricalGrid.cs) persists membership, rebuilds consumers/producers and implements cutout/cutin ordering. [`GridSystemTests`](../../MudSharpCore%20Unit%20Tests/GridSystemTests.cs) exercises producer/component drawdown and other meaningful contracts, but direct grid shedding/reconnection/priority cases were not located. [`PowerSocketGameItemComponent`](../../MudSharpCore/GameItems/Components/PowerSocketGameItemComponent.cs#L301) has generic connection/disconnection approval methods returning true with TODOs; surrounding connector/manipulation checks still apply.
 
-**Recommended closure:** test multiple producers/consumers, equal/unequal draw, failed load, late membership, power loss/reconnection and deletion. State whether generic permission hooks are intentionally permissive or incomplete authoring policy. This is a bounded legacy network model; do not grade it against an unapproved electrical-physics redesign.
+**Original closure recommendation:** test multiple producers/consumers, equal/unequal draw, failed load, late membership, power loss/reconnection and deletion. State whether generic permission hooks are intentionally permissive or incomplete authoring policy. This is a bounded legacy network model; do not grade it against an unapproved electrical-physics redesign.
 
 ### F12 P2 — Several established systems lack an easy current builder/runtime entry point
+
+**Current status, 16 November 2026:** **Partially addressed by PR 870.** All design documents now have indexed entry points. The joined workflow guides listed below were not created by the naming/consolidation pass.
 
 **Classification: documentation gaps, scoped to what was located.**
 
@@ -345,29 +403,37 @@ This design preserves serial world consistency. It also means a sufficiently cos
 
 ### F13 P3 — Flood state is not implemented by authored terrain layers
 
+**Current status, 16 November 2026:** **Documented scope boundary; conditional extension.** No flood-state simulation is provided or newly authorised. The recommendation is conditional on a product requirement.
+
 **Classification: explicit omission/product boundary.**
 
 [`Room`](../../MudSharpCore/Construction/Room.cs#L301) still marks room flooding effects TODO in swimming/underwater-layer calculations. Water traversal currently derives from authored layers in those paths. Weather, surface liquids and immersion-related mechanics elsewhere do not by themselves supply a persistent dynamic flood-state system.
 
-**Recommended closure:** document this limit. Add flooding only if required by the intended simulation scope, with water level, exits, items, occupants, save/reload and recession semantics. Do not list it as already provided by weather support.
+**Original closure recommendation:** document this limit. Add flooding only if required by the intended simulation scope, with water level, exits, items, occupants, save/reload and recession semantics. Do not list it as already provided by weather support.
 
 ### F14 P3 — Reserved computer applications must remain visibly reserved
 
+**Current status, 16 November 2026:** **Documented reserved feature; no defect established.** The current computer guide preserves the unavailable Messenger boundary; this is not a delivered messaging service.
+
 **Classification: intentional incomplete capability, already documented.**
 
-[`ComputerBuiltInApplications`](../../MudSharpCore/Computers/ComputerBuiltInApplications.cs#L27) contains Messenger. [`ComputerBuiltInApplicationExecutors`](../../MudSharpCore/Computers/ComputerBuiltInApplicationExecutors.cs#L37) returns “not implemented yet” when no executor exists; service discovery filters through `IsImplemented`. The [computer design](../Technology/FutureMUD_Computer_Programs_Concept_Design.md) explicitly marks Messenger reserved at several points.
+[`ComputerBuiltInApplications`](../../MudSharpCore/Computers/ComputerBuiltInApplications.cs#L27) contains Messenger. [`ComputerBuiltInApplicationExecutors`](../../MudSharpCore/Computers/ComputerBuiltInApplicationExecutors.cs#L37) returns “not implemented yet” when no executor exists; service discovery filters through `IsImplemented`. The [computer design](../Technology/Computer_System.md) explicitly marks Messenger reserved at several points.
 
 This is not an undocumented broken shipped service. Review whether local application lists distinguish reserved entries from runnable apps, then either label/hide the reservation or implement it when desired. Do not infer that working Mail, Boards, FTP or media applications are missing.
 
 ### F15 P2 — Combat response assertions warrant a defined extension contract
 
+**Current status, 16 November 2026:** **Open targeted verification.** Supported response combinations and extension behavior still need the proposed behavioral matrix.
+
 **Classification: latent edge/extension risk, not a reproduced native combat crash.**
 
 [`ChangePositionMove`](../../MudSharpCore/Combat/Moves/ChangePositionMove.cs#L46), [`BreakClinchMove`](../../MudSharpCore/Combat/Moves/BreakClinchMove.cs#L96) and parts of [`ClinchStrategy`](../../MudSharpCore/Combat/Strategies/ClinchStrategy.cs) throw for unsupported responses/targets. Deeper tracing found normal native strategy response paths that avoid the first two fallthroughs: movement responses fall through to null, while break-clinch has a specific supported response. Clinch's non-character target case remains a targeted edge question.
 
-**Recommended closure:** enumerate registered move/response/strategy pairings and define extension behavior for unsupported responses. Add behavioral matrix tests around viable supported combinations, callback target invalidation and non-character targets. Avoid treating every `NotImplementedException` as a reachable combat feature gap.
+**Original closure recommendation:** enumerate registered move/response/strategy pairings and define extension behavior for unsupported responses. Add behavioral matrix tests around viable supported combinations, callback target invalidation and non-character targets. Avoid treating every `NotImplementedException` as a reachable combat feature gap.
 
 ### F16 P3 — Wound infection TODO is a balance note, not an absent infection system
+
+**Current status, 16 November 2026:** **Closed as false positive; no fix required.** Existing infection simulation remains; the balance comment is not evidence of a missing mechanism.
 
 **Classification: ruled-out functional-gap candidate.**
 
@@ -377,15 +443,19 @@ Only revisit it with a health-balance requirement and simulation evidence. Do no
 
 ### F17 P2 — Web client tests are missing from ordinary default PR coverage
 
+**Current status, 17 November 2026:** **Implemented, hosted-verified and merged in PR 869.** Both OS jobs passed 136 tests and retained TRX. Browser/deployment and coverage-collection claims remain separate.
+
 **Classification: confirmed CI-selection gap at this snapshot.**
 
 [`scripts/unit-test-projects.txt`](../../scripts/unit-test-projects.txt) includes ten projects, including TerrainPlanner and TestReporting, but omits `MudClient/MudClientTests`. The client tests are selected by the [product publishing workflow](../../.github/workflows/publish-products.yml#L159), which runs for product tags/manual publication rather than ordinary PRs. No separate client PR test workflow was located.
 
-**Recommended closure:** add a path-filtered client/proxy CI job or explicitly include the suite in an appropriate PR gate, preserving the separate deployment/package tests. The mere presence of `coverlet.collector` in a project does not establish that coverage is collected by the ordinary workflow.
+**Original closure recommendation:** add a path-filtered client/proxy CI job or explicitly include the suite in an appropriate PR gate, preserving the separate deployment/package tests. The mere presence of `coverlet.collector` in a project does not establish that coverage is collected by the ordinary workflow.
 
 **Post-audit implementation, 15 November 2026:** the dedicated [MudClient Tests workflow](../../.github/workflows/mudclient-tests.yml) now selects the existing client/proxy/deployment suite for relevant pull requests and `master` pushes, merge groups and manual runs on Windows and Linux. It uses the product SDK configuration, runs Release tests and retains TRX evidence. The default engine manifest and product release qualification remain separate. Local Windows validation passed all 136 tests without the optional WebAssembly publishing workload. This closes the workflow-selection omission in source; successful hosted execution must be established from the workflow results, not inferred from this addition.
 
 ### F18 Resolved — Obsolete service projects retired
+
+**Current status, 16 November 2026:** **Resolved and merged in PR 867.** Repository retirement is complete; external installations and the separately retained configuration tool are outside that closure.
 
 **Classification: resolved by owner-requested source retirement on 15 November 2026.**
 
@@ -426,13 +496,15 @@ The two removed service entries above are retained as historical evidence and ar
 
 ## Documentation and acceptance work to prioritise
 
-### First: correct reliability and security contracts
+**Historical recommendations from the audit and 16 November review.** The 17 November disposition register above supersedes the completed F01/F03/F04/F05/F17 implementation and merge recommendations below. Preserve these original priorities as dated evidence; use that register and the linked current contracts for remaining work.
 
-Close the fatal-exit reliability issue F04, and plan account notification/recovery hardening in F01/F05. Preserve the accepted Debug support behavior F02. For employment, explicitly choose durable restart continuity or documented recovery from runtime-only grants (F03). Before changing behavior, preserve old-world identities/customisation and verify persistence/provider boundaries.
+### First: integrate completed hardening and define the remaining continuity policy
 
-### Second: publish one current support map
+F01/F04 and the minimum-strength/secure-generation portion of F05 are implemented in PR 868; merge and deployment remain separate actions. The remaining account work is hash migration, expiring/consumed recovery proof, throttling and session/concurrency policy. Preserve accepted Debug support behavior F02 and existing-world compatibility. Employment's current fail-closed restart contract is documented; decide whether durable grant/provenance continuity is required before implementing that separate persistence change (F03).
 
-Use this thematic map as an index into current builder/runtime guides. Give each major subsystem a short supported-scope and known-limitations section, a minimal setup workflow, and explicit links to historical verification receipts. Mark older plans and PR-boundary reports as historical. Start with magic, employment, arenas and seeder product boundaries, where contradictory status claims were demonstrated.
+### Second: integrate the support map and finish the missing joined guides
+
+PR 870 supplies the [thematic indexes](../README.md), [document roles/naming](../Documentation_Guide.md), consolidated master guides and corrected magic/employment/arena/seeder status boundaries. PR 869 supplies the separate client PR gate. Both await merge at this review; preserve that distinction from delivered source and hosted test evidence.
 
 Fill the dedicated guide gaps in F12. The goal is that a builder can find the supported setup without reconstructing it from source, seeded catalogue prose and multiple dated handovers.
 

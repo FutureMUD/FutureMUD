@@ -154,7 +154,7 @@ The compiler and production load/edit/seeding share the 16 MiB default source bu
 
 The optional CelestialSeeder authored package installs RailSun, RailMoon, ScriptedSun, ScriptedMoon, MorningStar and MorningGlow examples. The initial `packages` screen offers `Rails`, `Scripts`, `MorningStar`, and `MorningGlow` separately; the interactive default selects only EarthSun and EarthMoon. Debug replay profiles select all non-Armageddon options and inventory `authoredcalendar`, which is only asked when more than one calendar exists. All six remain unattached. `SeederPreset` identifies managed examples: reruns add missing members and preserve existing definitions, names and stable IDs. Builder clones clear this marker. MorningStar rises only to two degrees, so it produces Dawn/Dusk without Morning/Afternoon; MorningGlow stays below the horizon and uses explicit glow lighting and sky narrative.
 
-See [verification coverage](Celestial_System_Tests.md), [seeder contract](Celestial_System_Seeder.md), and the [implementation handover](Authored_Celestials_Handover.md) for measured results and native transcripts.
+See [verification coverage](Celestial_System_Tests.md), [seeder contract](Celestial_System_Seeder.md), and the [historical verification record](Verification/Authored_Celestials_Verification_20260926.md) for measured results and native transcripts.
 
 
 ## Armageddon stock sky

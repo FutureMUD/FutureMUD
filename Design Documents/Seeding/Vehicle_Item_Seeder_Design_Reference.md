@@ -15,7 +15,7 @@ The first implementation provides:
 
 Read this document together with:
 
-- `Design Documents/Vehicle_System.md` for the runtime vehicle system;
+- `Design Documents/World/Vehicle_System.md` for the runtime vehicle system;
 - `Item_Authoring_Guidelines.md` for player-facing item descriptions;
 - `FutureMUD_Item_Seeder_Working_Guidelines.md` for catalogue and rerun conventions;
 - `Seeded_Item_Components.json` for ordinary reusable item components;

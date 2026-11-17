@@ -2,17 +2,17 @@
 
 ## Scope
 
-This document describes the inline markup language used in cell and room descriptions as implemented by:
+This document describes the inline markup language used in room descriptions as implemented by:
 
 - `MudSharpCore/Construction/RoomDescription.cs`
 - `FutureMUDLibrary/Framework/StringUtilities.cs`
 - `MudSharpCore/Commands/Modules/RoomBuilderModule.cs`
 
-It covers the text builders can place directly into cell names and cell descriptions. It does not cover character description markup or emote markup.
+It covers the text builders can place directly into room names and descriptions. It does not cover character description markup or emote markup.
 
 ## Where This Markup Runs
 
-`CellDescription.SubstituteDescriptionVariables` currently applies the room markup pipeline in this order:
+`Room.SubstituteDescriptionVariables` currently applies the room markup pipeline in this order:
 
 1. `environment{...}` weather/light/time substitution
 2. ANSI colour substitution
@@ -30,7 +30,7 @@ So builders can use the same inline markup in either place.
 
 ### `environment{conditions=text}...{fallback}`
 
-This is the weather/light/time/season selector implemented in `CellDescription.cs`.
+This is the weather/light/time/season selector implemented in `RoomDescription.cs`.
 
 Form:
 
@@ -136,7 +136,7 @@ environment{>rain=Water runs in thin rivulets along the floor.}
 
 #### Light Qualifiers
 
-Light text is matched through the current light model, not through a hardcoded list inside `CellDescription.cs`.
+Light text is matched through the current light model, not through a hardcoded list inside `RoomDescription.cs`.
 
 In other words:
 
@@ -248,19 +248,19 @@ check{appraisal,35}{You notice the maker's stamp worked into the metal.}{At a gl
 
 Current behaviour:
 
-- if `Cell.Shop` is set, it substitutes the shop name
+- if `Room.Shop` is set, it substitutes the shop name
 - otherwise it substitutes `An Empty Shop`
 
 Important nuance:
 
-- this inline replacement only checks `Cell.Shop`
+- this inline replacement only checks `Room.Shop`
 - later room-description notices also detect shop stalls and other coded room services
 
 So `@shop` and the later "A shop is here..." notice do not use exactly the same detection path.
 
 ## Full Room Description Render Order
 
-`CellFullDescription` builds the visible room output in this order:
+`RoomFullDescription` builds the visible room output in this order:
 
 1. room short name, already passed through the markup pipeline
 2. admin info line for administrators, otherwise a blank spacer line
@@ -274,7 +274,7 @@ After that broader look output continues elsewhere with characters and items ren
 
 That means:
 
-- builder-authored room markup controls the cell's own name and prose block
+- builder-authored room markup controls the room's own name and prose block
 - engine-appended notices are a separate later layer
 - character and item long descriptions, including pmote/omote influenced output, are not part of the room-markup system itself
 

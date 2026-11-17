@@ -264,7 +264,7 @@ For a compiled portal step, an externally pulled vehicle's incoming character or
 
 `VehicleRoute`, `VehicleService`, and `VehicleJourney` are operational concepts described in the vehicle design. They pin typed spatial steps and RouteRoom topology versions; they do not change the RouteRoom spatial model.
 
-Vehicle players use `drive forward|backward [<distance>]`, `drive to <distance|landmark|visible exit|route stop>`, `drive route <approved vehicle route>`, and `drive stop`. Builders author operational routes and recurring services with `vehicleroute` and `vehicleservice`; see [Vehicle System](../Vehicle_System.md) for the exact workflow. RouteRoom exit bands never imply automatic traversal during free driving. Only an explicit normal exit command or a compiled `RoomExitStep` crosses the portal.
+Vehicle players use `drive forward|backward [<distance>]`, `drive to <distance|landmark|visible exit|route stop>`, `drive route <approved vehicle route>`, and `drive stop`. Builders author operational routes and recurring services with `vehicleroute` and `vehicleservice`; see [Vehicle System](Vehicle_System.md) for the exact workflow. RouteRoom exit bands never imply automatic traversal during free driving. Only an explicit normal exit command or a compiled `RoomExitStep` crosses the portal.
 
 After `drive stop` materialises a mid-leg coordinate, `drive route` resumes the approved pinned itinerary only when exactly one remaining compiled continuation contains that coordinate. It starts a new durable operation at the materialised coordinate. Off-leg, ambiguous, terminal, or topology-invalid coordinates fail closed; manual route execution does not silently rewind, pick a branch, recompile, or reroute.
 

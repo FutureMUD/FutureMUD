@@ -10,8 +10,8 @@ import unicodedata
 
 ERAS = ['antiquity', 'darkages', 'medieval', 'renaissance', 'earlymodern']
 REQUIRED = [
- 'README.md','AGENT_TASK.md','01_SCOPE_AND_FINDING_DISPOSITION.md',
- '02_IMPLEMENTATION_BRIEF.md','03_CONTENT_CATALOGUE.md','04_ACCEPTANCE_AND_VERIFICATION.md',
+ 'README.md','01_SCOPE_AND_FINDING_DISPOSITION.md',
+ '03_CONTENT_CATALOGUE.md','04_ACCEPTANCE_AND_VERIFICATION.md',
  'data/finding_disposition.json','data/native_binding_patch.json','data/accent_era_policy.json',
  'data/targeted_name_corpora.json','data/name_playability_policy.json','data/regression_cases.json',
  'data/runtime_resource_manifest.json','research/sources.json','research/original_name_evidence.json',
@@ -19,7 +19,7 @@ REQUIRED = [
  'tools/validate_handoff.py','tools/extract_embedded_pack.py'
 ]
 
-def validate(root: Path) -> dict:
+def validate(root: Path, verify_original_package: bool = False) -> dict:
     failures: list[str] = []
     checks = 0
     def check(condition: bool, message: str) -> None:
@@ -129,16 +129,23 @@ def validate(root: Path) -> dict:
           'Round-two or subsequent accent-role policy resources absent')
     cases=read('data/regression_cases.json')['cases']
     check([c['id'] for c in cases]==[f'R2-{i:02d}' for i in range(1,27)],'Regression case IDs incomplete')
-    # Integrity is a separate transport check, not inflated into the authoring-assertion count.
+    # The immutable package manifest also records completed plans and authoring tools.
+    # Their old hashes are historical after documentation consolidation. Retained data
+    # and research payloads must still match; use the opt-in for an original archive.
     hashed=0
+    historical_authoring_checksums=[]
     manifest=root/'MANIFEST.sha256'
     if manifest.exists():
         for line in manifest.read_text().splitlines():
             digest,rel=line.split('  ',1)
+            if not verify_original_package and not rel.startswith(('data/', 'research/')):
+                historical_authoring_checksums.append(rel)
+                continue
             path=root/rel
             if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:failures.append('Checksum mismatch: '+rel)
             hashed+=1
-    return {'passed':not failures,'scope':'Authoring data and optional transport checksums only; no C# or database execution.',
+    return {'passed':not failures,'scope':'Retained authoring data/research integrity; original package integrity only with explicit opt-in. No C# or database execution.',
+      'verify_original_package':verify_original_package,'historical_authoring_checksums_not_applied':historical_authoring_checksums,
       'data_checks':checks,'checksum_files_checked':hashed,'original_entries_preserved':len(original),'new_authored_profile_entries':new_entries,
       'total_entries':len(all_entries),'playable_cells':len(active_counts),'native_binding_rows':len(mappings),'active_counts':active_counts,'failures':failures}
 
@@ -146,8 +153,9 @@ def main()->int:
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[1])
     parser.add_argument('--write-report',type=Path)
+    parser.add_argument('--verify-original-package',action='store_true',help='Also verify the historical manifest hashes for the original plans, README and tools; use only with the original extracted archive.')
     args=parser.parse_args()
-    try: result=validate(args.root.resolve())
+    try: result=validate(args.root.resolve(),args.verify_original_package)
     except (OSError,ValueError,KeyError,TypeError) as exc:
         print(f'Validation could not complete: {exc}',file=sys.stderr);return 2
     text=json.dumps(result,ensure_ascii=False,indent=2)+'\n'

@@ -1,6 +1,6 @@
 # Dual Wield double attacks
 
-Ordinary automatic melee selection can offer a coordinated pair alongside single attacks. Two distinct weapons attack the same captured target. Each strike retains its weapon-family skill, profile and fresh defence. The [approved plan](./Dual_Wield_Double_Attacks_Plan.md) defines the mechanics; the [verification receipt](./Dual_Wield_Double_Attacks_Verification.md) records checks, limitations and the Haggle/Analyse merge gate.
+Ordinary automatic melee selection can offer a coordinated pair alongside single attacks. Two distinct weapons attack the same captured target. Each strike retains its weapon-family skill, profile and fresh defence. This guide defines the implemented mechanics; the [verification receipt](./Dual_Wield_Double_Attacks_Verification.md) records checks, limitations and the Haggle/Analyse merge gate.
 
 ## Coordination and selection
 
@@ -55,3 +55,11 @@ Existing-world builder workflow:
 Installer integrations may use `DualWieldCoordinationSeederHelper.BindExistingSkill(context, traitId, enableFeature: false)`. It validates IDs, replaces only a literal-zero placeholder, preserves custom formulas/settings and never grants skills. True enablement supplies only a missing flag, preserving explicit false. Do not rerun foundational CombatSeeder as an upgrade shortcut.
 
 Armageddon uses the same explicit native binding; source-tree opening/cap/enrollment and unpublished continuation work are not dependencies. Publication integration assigns `DualWieldCoordinationCheck = 230`, leaving Haggle 227 and Analyse 229 intact. The earlier isolated native fixture used the unpublished 227 assignment; it is historical evidence, not a production migration contract. No published Dual Wield ID is renumbered. Blind Fighting #792 remains absent at this base and is not changed here. Preserve its ordinary `CombatCheck` wrappers if merged later, assessing sight per child/defence. Coordination is not vision influenced.
+
+## Durable selection and completion contract
+
+Keep ordinary single-weapon candidates and the ordinary weapon-channel percentage. Pair selection extends that channel with feasible combinations weighted by the product of the child weights and configured pair multiplier; it is not an independent extra-hit roll. Constructing candidates must not make checks, spend stamina or mutate combat. Stable item/profile ordering is required before the weighted selection.
+
+Admission validates both strikes and the pair's required resources before the coordination check. Child two selects its defence only after child one's effects and callbacks. Each committed child owns its actual costs, scoring, use callbacks, blood/poison and recovery contribution exactly once; the parent must not repeat them. A late irrelevant result cannot erase a defence that already committed work. The continuation guard must stop a second strike after changed body, combat, equipment, position, authority or resources, without substituting another weapon or victim.
+
+The current settings and installation section above supersedes the retired plan's proposed signatures, task order and branch-specific check-ID examples. Keep the separate [verification receipt](Dual_Wield_Double_Attacks_Verification.md) and its native/qualification limitations.

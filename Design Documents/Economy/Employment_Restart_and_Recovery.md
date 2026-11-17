@@ -2,7 +2,7 @@
 
 Status: current runtime and persistence contract, source reviewed 17 November 2026. Focused runtime checks, independent real-MySQL writer/reader processes, and live Telnet crash/restart scenarios are recorded below.
 
-This guide covers persisted active-task approvals and interrupted financial work. See the [employment roadmap](Employment%20Hosts%20Implementation%20Review%20and%20Roadmap.md) and [unified dispatch design](Unified%20Employment%20Dispatch%20Design.md) for the broader system. Historical readiness statements are retained as dated receipts, not current verification.
+This guide covers persisted active-task approvals and interrupted financial work. See the [employment roadmap](Employment_Roadmap.md) and [unified dispatch design](Employment_System.md) for the broader system. Historical readiness statements are retained as dated receipts, not current verification.
 
 ## Durable task approval
 

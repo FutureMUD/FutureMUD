@@ -25,7 +25,7 @@ Loan advances, confirmed repayments, surplus and sale-proceeds withdrawals, purc
 
 The zone calendar drives simple interest and due dates. A balloon has no interim minimum. Other products can require interest alone or interest plus a fixed principal amount. Each missed instalment keeps its due date and grace deadline. The borrower must accept a proposed pause or replacement schedule.
 
-The bank balance sheet includes loan principal and interest receivable. Economy holdings distinguish receivables, debt and surplus. Advances and repayments are transfer activity. Realised shop interest enters net profit at financial close. A zone can configure the `bankinterest` profit tax to withhold a percentage of realised bank interest. See the [lending design and worked examples](Loans_and_Secured_Lending_Design.md).
+The bank balance sheet includes loan principal and interest receivable. Economy holdings distinguish receivables, debt and surplus. Advances and repayments are transfer activity. Realised shop interest enters net profit at financial close. A zone can configure the `bankinterest` profit tax to withhold a percentage of realised bank interest. See the [lending design and worked examples](Lending_System.md).
 
 Cash-funded shops can use their virtual float and physical register coins. Account-funded products use the shop's nominated bank account. A foreclosure is held if a pledged property has acquired a hosted business. An estate is created for a deceased borrower whose only remaining asset is collateral already at recovery auction, and finalisation waits for that auction.
 

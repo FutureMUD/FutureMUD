@@ -1,5 +1,9 @@
 # Configurable casting (ARM-02)
 
+## Scope and navigation
+
+This master guide describes configurable acquisition, casting, payment, progression and recovery. Start with [player commands](#players), [builder setup](#builders), [staff recovery](#staff-acquisition-and-recovery) or [persistence](#persistence-and-extension-seams). Later optional effect/device additions retain their stated source and stock-admission limits. The generic casting implementation does not make the entire Armageddon programme installed or qualified.
+
 ## Optional local item targeting and curse cleansing
 
 The native `character` casting trigger has an optional `CanTargetItems` XML flag, default false. Its `items` builder command permits visible local/carried item targeting alongside characters, with characters taking precedence for ambiguous keywords. Native target parsing, capture and invocation safety remain in use. In this mode an optional target-filter prog must accept Perceivable, optionally followed by Character; incompatible/missing filters fail closed. Existing character-only definitions and substance delivery retain their defaults. The trigger reports `perceivable` when item selection is enabled so character-only effects cannot be attached accidentally. Single-character recipients retain native reflection and captured ward-use consumption; item recipients do not become reflectable.
@@ -148,11 +152,11 @@ omit runtime-only `ITransientExit` identities from the nullable directional exit
 foreign keys; the track survives restart without a reference to an unpersisted
 portal. Ordinary persistent exit references remain saved.
 
-This is the implementation guide for [ARM-02](ARM02_Configurable_Casting_Implementation_Brief.md).
-The broader [ARM-01 contract](Armageddon_Casting_Design.md) includes later features; this slice
+This is the master implementation contract for ARM-02.
+The broader [ARM-01 contract](../Armageddon/Magic/Proposals/Casting_Design.md) includes later features; this slice
 provides explicit acquisition, normal casting, controlled grades and prerequisite progression.
 It does not install the candidate repertoire as stock content. See the
-[verification handover](Configurable_Casting_Handover.md) for executed evidence and limits.
+[historical acceptance evidence](#historical-acceptance-evidence) for executed evidence and limits.
 
 The completion plan's first progression stage adds opt-in route openings/raw caps,
 cap-relative mastery gates and source-shaped energy. Its full remaining phases and
@@ -512,7 +516,7 @@ contract is unchanged.
 An interrupted operation reconciles the effects actually remaining; it does not roll back
 effects or restore energy. Incomplete reconstruction retains its stricter accounting refusal.
 
-See [capacity and affordability](Armageddon_Capacity_Affordability.md) for provisional
+See [capacity and affordability](../Armageddon/Magic/Capacity_Affordability.md) for provisional
 attribute scenarios, the complete 82-spell energy envelope and native verification limits.
 
 Prerequisites belong to their particular capability and require every listed edge.
@@ -635,7 +639,7 @@ attachment can reactivate an already learned route; it cannot create learning hi
 The Read Attunement adapter uses this query separately from explicit affinity merits in
 a description overlay on its actual spell target. Only its exact casting instance can
 read that overlay while it can see the target; ordinary casting retains target wards and
-resistance. See the [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) for the bounded
+resistance. See the [S4 checkpoint](../Armageddon/Magic/Verification/S4_Checkpoint_20261012.md) for the bounded
 verification and outstanding installed-stock bindings.
 
 The generated `ConfigurableCasting` migration introduces empty acquired-spell,
@@ -701,7 +705,7 @@ The optional shared `IMagicSpellEffectInvocationInputs` capability binds typed p
 
 Input binding draws no randomness and changes no shared spell definition, acquisition or player state. Native missions retain the captured exact target identity, instance, body and spatial state, and exact parcel identity, quantity, registry and held custody. Fresh invocation copies must agree on these inputs. Raw fences run after live admission callbacks, immediately before native creation, after load callbacks, and after controller authority/visibility callbacks immediately before mission construction. A stale input cannot be silently resampled. Failure after committed NPC creation retains a lifecycle hold and refuses replay. Normal controller primary-creator, current acquisition and attached enabled capability guards remain required.
 
-The [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) distinguishes focused pipeline/fixture evidence from outstanding paid native creature acceptance.
+The [S4 checkpoint](../Armageddon/Magic/Verification/S4_Checkpoint_20261012.md) distinguishes focused pipeline/fixture evidence from outstanding paid native creature acceptance.
 
 ## Exact native maintenance and linked vitality
 
@@ -740,7 +744,7 @@ Stock Turn the Elements selects the explicit S2 Fire school, no inferred union, 
 
 ## Gated S4 focus and device stock
 
-The worldfile import additionally uses the optional native `EnergyReservoir` device mode for four placed staves. A reservoir has a fixed registered spell, configurable per-grade energy costs and resource donations, and does not use frozen producer-bound charges or acquired casting routes. Its invocation-local fixed outcome suppresses the personal cast check while preserving native target resistance and wards. Room-wide character, configured-area and direct-room-corpse adapters prepare the existing native effects, then spend energy once for the activation. Frozen-charge compatibility gates remain unchanged. See [charged-device integration](Armageddon_Charged_Device_Integration.md) for commands, persistence, the approved source mappings and verification.
+The worldfile import additionally uses the optional native `EnergyReservoir` device mode for four placed staves. A reservoir has a fixed registered spell, configurable per-grade energy costs and resource donations, and does not use frozen producer-bound charges or acquired casting routes. Its invocation-local fixed outcome suppresses the personal cast check while preserving native target resistance and wards. Room-wide character, configured-area and direct-room-corpse adapters prepare the existing native effects, then spend energy once for the activation. Frozen-charge compatibility gates remain unchanged. See [charged-device integration](../Armageddon/Magic/Charged_Device_Integration.md) for commands, persistence, the approved source mappings and verification.
 
 The fixed installer follows the152 spell definitions with `ArmageddonStockFocusDeviceInstaller`.
 It owns ten `arm.focus.<tradition>` prototypes and `arm.item.blank_wand` / `arm.item.blank_staff`,
@@ -787,7 +791,7 @@ changes use existing capacity reconciliation and clamps, preserving exertion and
 These bonuses grant no enrolment, capability or casting permission.
 
 The source-traced stock Kindle options, grade tables and bounded adaptation are recorded in
-[the Kindle source decision](Armageddon_Kindle_Source_Trace_20261015.md). The installed
+[the Kindle source decision](../Armageddon/Magic/Verification/Kindle_Source_Trace_20261015.md). The installed
 minimum remains33, with60*grade seconds and explicit native pool options. Its owned old
 weapon-filter program and spell identities reconcile in place; builder edits remain protected.
 
@@ -805,3 +809,24 @@ Item attunement independently checks native sight and physical reach during prep
 Configured casting also checks that native consumptive component payment will not alter a selected item recipient with a non-null prepared selection. Item, liquid and commodity consumption cannot use the selected item, an item containing it, or an item inside it. This includes partial stack consumption: changing quantity, contents or mass can invalidate the prepared recipient even when it survives. Retained material requirements and unrelated sibling materials remain permitted. The check runs before resource debit, material consumption and operation journaling. Paid native casting failures still spend their admitted resources/materials, and only an eligible successful attunement stage samples destruction risk. Explicit later Glyph casting may replace an expended glyph; an already revealed item refuses another attunement without payment or a new risk roll.
 
 `removeplanarstate` optionally enables `itemvisibility true` (`ClearItemEtherealVisibility`): items lose ethereal visibility while retaining readiness. Its separate `ethereal true` setting continues to remove one spell-owned character overlay. Other planar removal defaults are unchanged.
+
+## Acquisition closure and implementation boundary
+
+One reconciliation or enrolment operation completes the affected prerequisite cascade before returning, independently of source-tree admission order. Newly admitted prerequisites enqueue their dependants; an unchanged evaluation is not permission to repeatedly grant the same node. Capability/route eligibility, activation conditions and permanent acquisition remain separate checks. Temporary capability attachment alone must not grant permanent roots or branches. The reverse-ordered chain regressions in `MagicCastingAcquisitionTests` protect this behavior.
+
+This master contract replaces the completed ARM02 implementation brief, cascade-fix brief and handover. Durable enrolment/acquisition, immutable resolved quotes, admission/payment boundaries and operation recovery remain owned by this guide and the focused lifecycle/runtime guides. Completing ARM02 does not imply that the entire optional Armageddon catalogue or its native release qualification is complete.
+
+## Historical acceptance evidence
+
+The retired ARM-02 handover contained unique execution evidence, summarised here rather than discarded or presented as a new run:
+
+| Dated run | Recorded result and scope |
+| --- | --- |
+| 27 September 2026 focused ARM-02 / blank snapshot / compatibility checks | 47 / 9 / 3 passed respectively, no failures/skips; included in the final fast gate. |
+| `20260927T065116Z-4951a270fc1d` | Ten-project fast gate: 6,125 passed, no failures/skips; complete TRX and stable source recorded. |
+| 27 September native MySQL acceptance | Disposable schema/snapshot import, real character resources/skills, acting-body casting/gathering, retained effects and separate-process reloads passed. Outcomes/randomness and unrelated world/heartbeat components were controlled or doubled. |
+| 30 September pre-fix cascade regressions | Two reverse-order acquisition cases failed before the fix; this failure evidence is retained. |
+| `20260930T073157Z-61547f4aca7e` | Fixed acquisition suite: 31 passed, no failures/skips. |
+| `20260930T073448Z-14364818683d` / `20260930T073506Z-2fdf2ab1f327` | All casting regressions: 78 passed; full core gate: 4,087 passed; no failures/skips recorded. |
+
+The [native harness guide](../../Temporary%20Scratch%20App/GatheringNativePersistenceHarness/README.md) owns safe disposable execution. The historical acceptance used generated MySQL schema and real casting/gathering stores but did not establish a full installed-world Telnet session, stock balance, the complete proposed repertoire or 04C closure. Ignored local logs and failed/superseded runs are not current qualification. The complete original delivery record remains in Git history at the retired handover path. No acceptance was rerun for this documentation update.

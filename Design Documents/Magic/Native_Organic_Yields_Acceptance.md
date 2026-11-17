@@ -1,5 +1,7 @@
 # Native Organic Yields Acceptance Map
 
+**Historical acceptance map for slice 03A.** Preserve its tested scope and remaining checks. Use [Regional Land Gathering](Regional_Land_Gathering.md) for the implemented player workflow and the current organic-yield guide for accounting; an unmet check in this older map does not prove that the later feature is missing.
+
 This map is the durable requirement-to-proof record for `MAGIC-LAND-YIELDS-03A`. A proof named here exercises the production owner, coordinator, builder, operation or persistence path; it is not a second mock stock store. Exact execution results and fixture identities are recorded in [Native Organic Yields Verification](Native_Organic_Yields_Verification.md).
 
 ## Automated acceptance

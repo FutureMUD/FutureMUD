@@ -1,6 +1,6 @@
 # Approved Armageddon naming integration
 
-The [embedded manifest](../../DatabaseSeeder/Assets/Manifests/Armageddon/naming.json) is a **user-approved Dark Sun-inspired adaptation**, not historical Armageddon canon. It includes all15 logical traditions (five upbringing, ten racial),8 canonical personal pools,321 distinct display forms /401 racial associations,62 supplementary components and78 original element descriptions. Human inheritance for Half-Elf/Half-Giant is a reference to one pool; it does not duplicate weights. Standalone Aarakocra, Halfling, Pterran and Thri-kreen naming cultures create no races, languages or playable profiles.
+The [embedded manifest](../../ArmageddonSeeder/Assets/Manifests/Armageddon/naming.json) is a **user-approved Dark Sun-inspired adaptation**, not historical Armageddon canon. It includes all15 logical traditions (five upbringing, ten racial),8 canonical personal pools,321 distinct display forms /401 racial associations,62 supplementary components and78 original element descriptions. Human inheritance for Half-Elf/Half-Giant is a reference to one pool; it does not duplicate weights. Standalone Aarakocra, Halfling, Pterran and Thri-kreen naming cultures create no races, languages or playable profiles.
 
 ## Source recovery and provenance
 

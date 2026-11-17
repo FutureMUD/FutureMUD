@@ -327,7 +327,7 @@ These matter to developers extending the subsystem, but they are not standalone 
 - `connectmind` has a target-eligibility prog in addition to its target-list prog. Use that for animal, wild, or setting-specific contact variants before adding a new hard-coded link power.
 
 ## Related Reading
-- [Armageddon psionics and class access](./Armageddon_Psionics.md)
+- [Armageddon psionics and class access](../Armageddon/Magic/Psionics.md)
 - [Magic System Overview](./Magic_System_Overview.md)
 - [Magic System: Capabilities, Resources, and Generators](./Magic_System_Capabilities_Resources_and_Generators.md)
 - [Magic System: Spells](./Magic_System_Spells.md)

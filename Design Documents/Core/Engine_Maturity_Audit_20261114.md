@@ -6,6 +6,10 @@ Source revision: `b32228996a95b745a6ad02298d582347b788ce7e` — fetched remote `
 
 Purpose: divide the engine into thematic features and identify incomplete functionality, weak assurance, documentation gaps and older implementations worth reviewing.
 
+## Employment restart follow-up, 17 November 2026
+
+Migration `20261117030326_PersistEmploymentTaskApprovals` adds durable versioned task provenance, scoped approvals and automation approval configuration. Financial execution rechecks issuer authority, revocation, expiry, scopes and cumulative limits. Legacy tasks need explicit approval; interrupted financial attempts need audited reconciliation, followed by an explicit authorised retry when work remains. The [current restart and recovery contract](../Economy/Employment_Restart_and_Recovery.md) records the corrected command surface, real-MySQL upgrade/snapshot verification, live Telnet payment/crash/restart qualification and remaining physical-custody limits. Subsequent restarts preserved single native payments and their reconciliation/retry audits. This closes F03's specific active-task approval persistence gap; the original source assessment and broader workflow recommendations below remain historical.
+
 ## Post-audit hardening implementation
 
 The first agreed hardening batch implements F01's safe password-change notifications, F04's fatal-process exit status, and F05's consistent new-password minimum. It also moves generated registration/recovery/temporary credentials to cryptographic randomness. Existing database email templates retain their content and a safe legacy `{2}` slot; Debug support login and staff-generated reset emails keep their intended behavior. See [account credentials and notifications](Account_Credentials_and_Notifications.md).

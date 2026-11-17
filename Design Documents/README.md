@@ -156,6 +156,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Environmental Exposure Seeder Audit](./Environment/Environmental_Exposure_Seeder_Audit.md)
 
 ## Economy
+- [Employment Restart and Recovery](./Economy/Employment_Restart_and_Recovery.md) - durable task approvals, legacy compatibility, explicit retry and live Telnet validation of interrupted financial recovery.
 - [Economy System Runtime](./Economy/Economy_System_Runtime.md)
 - [Economy System Workflows and Integration](./Economy/Economy_System_Workflows_and_Integration.md)
 - [Economy System Seeder State and Gaps](./Economy/Economy_System_Seeder_State_and_Gaps.md)

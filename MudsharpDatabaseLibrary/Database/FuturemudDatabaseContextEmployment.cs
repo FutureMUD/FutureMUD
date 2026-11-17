@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MudSharp.Models;
 
@@ -298,6 +298,7 @@ public partial class FuturemudDatabaseContext
 	{
 		modelBuilder.Entity<EmploymentScheduledTaskRuleRecord>(entity =>
 		{
+			entity.Property(e => e.ApprovalPrincipalJson).OptionalString("longtext");
 			entity.ToTable("EmploymentScheduledTaskRules");
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => e.EmploymentHostStateId)
@@ -465,6 +466,7 @@ public partial class FuturemudDatabaseContext
 	{
 		modelBuilder.Entity<EmploymentActiveTaskRecord>(entity =>
 		{
+			entity.Property(e => e.ProvenanceJson).OptionalString("longtext").IsConcurrencyToken();
 			entity.ToTable("EmploymentActiveTasks");
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => e.EmploymentHostStateId).HasDatabaseName("FK_EmploymentActiveTasks_HostStates_idx");
@@ -527,6 +529,7 @@ public partial class FuturemudDatabaseContext
 	{
 		modelBuilder.Entity<EmploymentManagerGoalRecord>(entity =>
 		{
+			entity.Property(e => e.ApprovalConfigurationJson).OptionalString("longtext");
 			entity.ToTable("EmploymentManagerGoals");
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => new { e.EmploymentHostStateId, e.RuntimeId })

@@ -4272,14 +4272,11 @@ public partial class UnifiedEmploymentDispatchTests
 			EmploymentAuthority.ManageDeliveryRoutes), null);
 		var steps = new IEmploymentActionStep[]
 		{
+			new CataloguedActionShellStep("authorise", "supplies and account payment", new MoneyAmount(currency.Object, 7.0M)),
 			new PurchaseActionStep("purchase supplies", new MoneyAmount(currency.Object, 5.0M), "shop-transaction-1"),
 			new StoreAccountPaymentActionStep("linen supplier", new MoneyAmount(currency.Object, 2.0M), "store-account-1")
 		};
 		var context = new EmploymentTaskContext(host);
-		foreach (var step in steps.Where(x => x.RequiresPaymentAuthorisation))
-		{
-			context.AuthorisePaymentFor(step);
-		}
 
 		var task = host.TaskBoard.CreateActiveTask("financial work", new EmploymentActionPlan(steps), manager);
 		var dispatcher = new EmploymentTaskDispatcher();
@@ -6500,9 +6497,10 @@ public partial class UnifiedEmploymentDispatchTests
 				ManagerGoalType.MaintainMinimumStock,
 				EmploymentAuthority.PostToHostBoard,
 				new ManagerGoalConfiguration("post stock notice", scheduledPlan,
-					[new AccountBalanceCondition("operating", 5.0M, true)]),
+					[new AccountBalanceCondition("operating", 5.0M, true)], EmploymentConditionExpression.Condition(1)),
 				1,
-				TimeSpan.FromMinutes(15)), manager);
+				TimeSpan.FromMinutes(15), new ManagerGoalPolicy([new MoneyAmount(currency.Object, 17)],
+					new ManagerGoalRiskLimits(MaximumActiveTasks: 2, MaximumActionSteps: 3))), manager);
 			host.BusinessLedger.Record(EmploymentLedgerEntryType.Purchase, manager,
 				new MoneyAmount(currency.Object, 3.0M), "seed purchase audit");
 
@@ -6514,6 +6512,9 @@ public partial class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(1, reloaded.Applications.Count);
 			Assert.AreEqual(1, reloaded.TaskBoard.ScheduledRules.Count);
 			Assert.AreEqual(EmploymentScheduledRuleStatus.Paused, reloaded.TaskBoard.ScheduledRules.Single().Status);
+			var loadedRule = (EmploymentScheduledTaskRule)reloaded.TaskBoard.ScheduledRules.Single();
+			Assert.AreEqual(manager.Id, loadedRule.AuthorisingPrincipal!.CharacterId);
+			Assert.AreEqual(((EmploymentScheduledTaskRule)scheduledRule).RequiredIssuanceAuthority, loadedRule.RequiredIssuanceAuthority);
 			Assert.IsNotNull(reloaded.TaskBoard.ScheduledRules.Single().ConditionExpression);
 			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is ItemThresholdCondition));
 			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is CommodityThresholdCondition));
@@ -6529,6 +6530,12 @@ public partial class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(EmploymentActionStepStatus.Completed, reloaded.TaskBoard.ActiveTasks.Single().StepStates.Single());
 			Assert.AreEqual(1, reloaded.ManagerGoalBoard.Goals.Count);
 			Assert.AreEqual(1, reloaded.ManagerGoalBoard.Goals.Single().Priority);
+			var loadedGoal = (ManagerGoal)reloaded.ManagerGoalBoard.Goals.Single();
+			Assert.AreEqual(manager.Id, loadedGoal.AuthorisingPrincipal!.CharacterId);
+			Assert.AreEqual(17M, loadedGoal.Policy.BudgetLimits.Single().Amount);
+			Assert.AreEqual(currency.Object.Id, loadedGoal.Policy.BudgetLimits.Single().Currency.Id);
+			Assert.AreEqual(new ManagerGoalRiskLimits(MaximumActiveTasks: 2, MaximumActionSteps: 3), loadedGoal.Policy.RiskLimits);
+			Assert.IsNotNull(loadedGoal.Configuration.ConditionExpression);
 			Assert.IsTrue(reloaded.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Purchase));
 			Assert.IsTrue(reloaded.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ContractHired));
 			Assert.AreEqual(context.EmploymentHostStates.Single().BoardId, reloaded.Board.Id);
@@ -6668,6 +6675,11 @@ public partial class UnifiedEmploymentDispatchTests
 				]),
 				manager);
 
+			// Model an upgraded legacy row: the migration leaves approval storage null.
+			context.EmploymentActiveTasks.Single().ProvenanceJson = null;
+			context.SaveChanges();
+			context.ChangeTracker.Clear();
+
 			IEmploymentHost reloadedHost = new PersistedEmploymentHost(171, "Grant Shop", gameworld.Object, currency.Object);
 			var reloadedTask = reloadedHost.TaskBoard.ActiveTasks.Single();
 			var dispatcher = new EmploymentTaskDispatcher();
@@ -6679,12 +6691,9 @@ public partial class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(EmploymentAuthority.None, reloadedTask.AuthorisationGrant.Authority.Authorities);
 			Assert.IsFalse(reloadedTask.AuthorisationGrant.AllowsUnboundedFinancialSteps);
 			Assert.AreEqual(0, reloadedTask.AuthorisationGrant.AmountLimits.Count);
-			Assert.IsTrue(dispatcher.TryAssignTask(reloadedTask, [profile], taskContext, out var reason), reason);
-			Assert.IsTrue(dispatcher.AdvanceTask(reloadedTask, taskContext).Success);
-			var deposit = AdvanceTaskOrAssignmentFailure(dispatcher, reloadedTask, taskContext, profile);
-
-			Assert.IsFalse(deposit.Success);
-			StringAssert.Contains(deposit.Message, "requires an auditable payment authorisation");
+			Assert.IsFalse(dispatcher.TryAssignTask(reloadedTask, [profile], taskContext, out var reason));
+			StringAssert.Contains(reason, "requires an auditable payment authorisation");
+			Assert.IsTrue(reloadedTask.StepStates.All(x => x == EmploymentActionStepStatus.Pending));
 			Assert.AreEqual(EmploymentTaskStatus.Blocked, reloadedTask.Status);
 		}
 		finally
@@ -8018,12 +8027,9 @@ public partial class UnifiedEmploymentDispatchTests
 		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
 			Caps(EmploymentAICapability.CanPurchaseCommodities));
 
-		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
-		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
-		var purchaseResult = AdvanceTaskOrAssignmentFailure(dispatcher, task, context, profile);
-
-		Assert.IsFalse(purchaseResult.Success);
-		StringAssert.Contains(purchaseResult.Message, "requires an auditable payment authorisation");
+		Assert.IsFalse(dispatcher.TryAssignTask(task, [profile], context, out var reason));
+		StringAssert.Contains(reason, "approval");
+		Assert.IsTrue(task.StepStates.All(x => x == EmploymentActionStepStatus.Pending));
 		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
 		Assert.IsFalse(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Purchase));
 	}

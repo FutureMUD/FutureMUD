@@ -44,7 +44,7 @@ internal readonly record struct EmploymentHostKey(string HostType, long HostId)
 	}
 }
 
-public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
+public sealed partial class EmploymentPersistenceStore : IEmploymentPersistenceStore
 {
 	private enum JobRequirementType
 	{
@@ -508,6 +508,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				IdempotencyKey = rule.IdempotencyKey,
 				EmploymentActionPlanId = planId,
 				ExpressionJson = SerializeExpression(rule.ConditionExpression),
+				ApprovalPrincipalJson = EmploymentApprovalJson.Write(new EmploymentApprovalJson.RuleDocument(1, rule.AuthorisingPrincipal, rule.RequiredIssuanceAuthority)),
 				Status = (int)rule.Status,
 				CooldownTicks = rule.Cooldown.Ticks,
 				LastSpawnedAt = rule.LastSpawnedAt?.UtcDateTime
@@ -652,9 +653,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			}
 
 			var planId = SaveActionPlan(context, $"{task.Name} action plan", task.ActionPlan);
+			task.ApprovalPlanBinding = StoredPlanBinding(context, planId);
 			var dbitem = new DbActiveTask
 			{
 				PublicId = task.Id.ToString("D"),
+				ProvenanceJson = ApprovalDocument(task),
 				EmploymentHostStateId = StateId,
 				Name = task.Name,
 				EmploymentActionPlanId = planId,
@@ -675,6 +678,13 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	public void SaveActiveTaskState(EmploymentActiveTask task)
 	{
+		SaveActiveTaskState(task, task.AuthorisationGrant.Id, task.AuthorisationGrant.Revision);
+	}
+
+	private void SaveActiveTaskState(EmploymentActiveTask task, Guid expectedGrantId, int expectedRevision)
+	{
+		// Preserve malformed/unmappable persisted evidence for inspection instead of rewriting its steps.
+		if (task.Provenance.RecoveryIssue is not null) return;
 		WithContext(context =>
 		{
 			var dbitem = context.EmploymentActiveTasks
@@ -686,6 +696,16 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				return;
 			}
 
+			var stored = EmploymentApprovalJson.Read<EmploymentApprovalJson.Document>(dbitem.ProvenanceJson);
+			if (dbitem.ProvenanceJson is not null &&
+			    (stored?.Version != 1 || stored.Provenance?.AuthorisationGrant is not { } grant ||
+			     grant.Id != expectedGrantId || grant.Revision != expectedRevision) ||
+			    dbitem.ProvenanceJson is null && !task.LegacyApproval)
+			{
+				throw new DbUpdateConcurrencyException("Task approval changed; reload the task before saving its state.");
+			}
+
+			dbitem.ProvenanceJson = ApprovalDocument(task);
 			dbitem.Status = (int)task.Status;
 			dbitem.AssignedEmployeeId = task.AssignedEmployee is null
 				? null
@@ -713,6 +733,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			var dbitem = new DbManagerGoal
 			{
 				RuntimeId = goal.Id,
+				ApprovalConfigurationJson = GoalApprovalDocument(goal),
 				EmploymentHostStateId = StateId,
 				GoalType = (int)goal.GoalType,
 				RequiredAuthority = (long)goal.RequiredAuthority.Authorities,
@@ -777,8 +798,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 			existing = new EmploymentActionPlan(record.Steps
 			                                         .OrderBy(x => x.SortOrder)
-			                                         .Select(x => ToActionStep(x))
-			                                         .OfType<IEmploymentActionStep>());
+			                                         .Select(x => LoadBoundActionStep(x)));
 			planCache[id] = existing;
 			return existing;
 		}
@@ -1061,7 +1081,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return entry;
 	}
 
-	private static IFuturemud? ResolveGameworld(IEmploymentHost host)
+	internal static IFuturemud? ResolveGameworld(IEmploymentHost host)
 	{
 		return host switch
 		{
@@ -2982,6 +3002,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private EmploymentScheduledTaskRule? ToScheduledRule(DbScheduledRule record, EmploymentActionPlan actionPlan)
 	{
+		var approval = EmploymentApprovalJson.Read<EmploymentApprovalJson.RuleDocument>(record.ApprovalPrincipalJson);
 		return Guid.TryParse(record.PublicId, out var id)
 			? new EmploymentScheduledTaskRule(
 				id,
@@ -2994,6 +3015,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				TimeSpan.FromTicks(record.CooldownTicks),
 				ToNullableOffset(record.LastSpawnedAt),
 				(EmploymentScheduledRuleStatus)record.Status)
+			{
+				AuthorisingPrincipal = approval?.Version == 1 ? approval.Principal : null,
+				ApprovalIssuanceAuthority = approval?.Version == 1 ? approval.IssuanceAuthority : EmploymentAuthority.None
+			}
 			: null;
 	}
 
@@ -3027,27 +3052,27 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private EmploymentActiveTask? ToActiveTask(DbActiveTask record, EmploymentActionPlan actionPlan)
 	{
-		if (!Guid.TryParse(record.PublicId, out var id) || !Guid.TryParse(record.CorrelationId, out var correlationId))
-		{
-			return null;
-		}
-
-		var assigned = record.AssignedEmployeeId.HasValue
-			? _gameworld.TryGetCharacter(record.AssignedEmployeeId.Value, true)
-			: null;
-		return new EmploymentActiveTask(
-			id,
-			_host,
-			record.Name,
-			actionPlan,
-			(EmploymentTaskStatus)record.Status,
-			assigned,
-			record.BlockedReason,
+		if (!Guid.TryParse(record.PublicId, out var id) || !Guid.TryParse(record.CorrelationId, out var correlationId)) return null;
+		var binding = StoredPlanBinding(FMDB.Context, record.EmploymentActionPlanId);
+		var document = EmploymentApprovalJson.Read<EmploymentApprovalJson.Document>(record.ProvenanceJson);
+		var valid = EmploymentApprovalJson.Valid(document, id, _host, correlationId, binding);
+		var assigned = record.AssignedEmployeeId.HasValue ? _gameworld.TryGetCharacter(record.AssignedEmployeeId.Value, true) : null;
+		var task = new EmploymentActiveTask(id, _host, record.Name, actionPlan, (EmploymentTaskStatus)record.Status,
+			assigned, record.BlockedReason,
 			record.StepStates.OrderBy(x => x.SortOrder).Select(x => (EmploymentActionStepStatus)x.Status),
-			record.StepStates.OrderBy(x => x.SortOrder).Select(ToOperationalState),
-			correlationId,
-			record.IdempotencyKey,
-			this);
+			record.StepStates.OrderBy(x => x.SortOrder).Select(ToOperationalState), correlationId, record.IdempotencyKey,
+			this, valid ? document!.Provenance : null)
+		{
+			ApprovalPlanBinding = binding,
+			LegacyApproval = record.ProvenanceJson is null || valid && document!.LegacyApproval
+		};
+		if (record.ProvenanceJson is not null && !valid || actionPlan.Steps.Any(x => x is UnresolvedEmploymentStep) ||
+		    !record.StepStates.OrderBy(x => x.SortOrder).Select(x => x.SortOrder).SequenceEqual(Enumerable.Range(0, actionPlan.Steps.Count)))
+		{
+			task.Quarantine("The stored task approval or ordered action/step-state mapping cannot be verified; preserve its evidence for repair.");
+		}
+		task.HoldInterruptedFinancialSteps();
+		return task;
 	}
 
 	private ManagerGoal? ToManagerGoal(DbManagerGoal record, EmploymentActionPlan? actionPlan)
@@ -3057,6 +3082,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			correlationId = Guid.NewGuid();
 		}
 
+		var approval = EmploymentApprovalJson.Read<EmploymentApprovalJson.GoalDocument>(record.ApprovalConfigurationJson);
+		var budgets = approval?.Budgets?.Select(x => ToMoney(x.CurrencyId, x.Amount)).OfType<MoneyAmount>().ToList() ?? [];
+		var valid = approval is { Version: 1, RiskLimits: not null, Budgets: not null } && budgets.Count == approval.Budgets.Count;
 		return new ManagerGoal(
 			record.RuntimeId,
 			_host,
@@ -3066,14 +3094,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			new ManagerGoalConfiguration(
 				record.ConfigurationDescription,
 				actionPlan,
-				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>().ToList()),
+				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>().ToList(),
+				valid ? approval!.Expression : null),
 			record.Priority,
 			TimeSpan.FromTicks(record.EvaluationCadenceTicks),
-			ManagerGoalPolicy.Default,
+			valid ? new ManagerGoalPolicy(budgets, approval!.RiskLimits) : ManagerGoalPolicy.Default,
 			ToNullableOffset(record.LastEvaluatedAt),
 			record.LastEvaluationResult,
 			correlationId,
-			this);
+			this) { AuthorisingPrincipal = valid ? approval!.Principal : null };
 	}
 
 	private IEmploymentTaskCondition? ToCondition(DbTaskCondition record)

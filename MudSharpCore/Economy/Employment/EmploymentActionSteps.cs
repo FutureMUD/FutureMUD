@@ -216,6 +216,12 @@ public abstract class EmploymentActionStepBase : IEmploymentActionStep
 			return false;
 		}
 
+		if (IsFinancialStep && context is EmploymentTaskContext taskContext &&
+		    !taskContext.FinancialTaskAllowed(this, out reason))
+		{
+			return false;
+		}
+
 		if (RequiresPaymentAuthorisation && !context.PaymentAuthorised(this))
 		{
 			reason = $"{StepType} requires an auditable payment authorisation.";

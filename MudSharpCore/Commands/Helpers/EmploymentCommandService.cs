@@ -72,7 +72,7 @@ internal sealed class EmploymentHostResolver : IEmploymentHostResolver
 	}
 }
 
-internal sealed class EmploymentCommandService
+internal sealed partial class EmploymentCommandService
 {
 	private const EmploymentAuthority ManagerAliasHelpAuthorities =
 		EmploymentAuthority.ViewEmployees |
@@ -1610,6 +1610,13 @@ internal sealed class EmploymentCommandService
 				SendOperationalView(actor, host,
 					(viewer, employmentHost) => RenderTaskDetail(viewer, employmentHost, input.SafeRemainingArgument));
 				return;
+			case "approval":
+				HandleTaskApproval(actor, host, input);
+				return;
+			case "retry":
+			case "requeue":
+				HandleTaskRequeue(actor, host, input, taskCommand == "retry");
+				return;
 			case "draft":
 				HandleTaskDraft(actor, host, input);
 				return;
@@ -2586,6 +2593,17 @@ internal sealed class EmploymentCommandService
 		IEmploymentContract contract, ICharacter voyeur)
 	{
 		var reasons = new List<string>();
+		var canResume = true;
+		if (task is EmploymentActiveTask concrete && !concrete.CanResume(out var recoveryReason))
+		{
+			canResume = false;
+			reasons.Add(recoveryReason);
+		}
+		else if (task.Status == EmploymentTaskStatus.Blocked)
+		{
+			canResume = false;
+			reasons.Add("requires explicit retry or requeue after resolving the block");
+		}
 		if (task.AssignedEmployee is not null && task.AssignedEmployee.Id != contract.Employee.Id)
 		{
 			reasons.Add($"already assigned to {task.AssignedEmployee.HowSeen(voyeur, colour: false)}");
@@ -2623,9 +2641,11 @@ internal sealed class EmploymentCommandService
 				aiReasons.Add($"missing {missingCapabilities.Select(x => x.DescribeEnum()).ListToString()} capability");
 			}
 
-			if (!aiReasons.Any() && NextStep(task) is { } step)
+			if (canResume && !aiReasons.Any() && NextStep(task) is { } step)
 			{
 				var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
+				var stepIndex = task.ActionPlan.Steps.ToList().IndexOf(step);
+				context.HydrateTaskState(task, stepIndex);
 				if (!step.CanExecute(context, contract.Employee, out var reason))
 				{
 					aiReasons.Add(reason);
@@ -2634,7 +2654,7 @@ internal sealed class EmploymentCommandService
 
 			reasons.Add(aiReasons.Any()
 				? $"{ai.Name} AI: {aiReasons.ListToString()}"
-				: $"{ai.Name} AI eligible on its next minute tick");
+				: canResume ? $"{ai.Name} AI eligible to claim the task" : $"{ai.Name} AI cannot resume this task");
 		}
 
 		return reasons.Any()
@@ -2656,9 +2676,16 @@ internal sealed class EmploymentCommandService
 
 	private static IEmploymentActionStep? NextStep(IEmploymentActiveTask task)
 	{
-		var index = task.StepStates.ToList()
-		                .FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.Blocked);
+		var index = NextStepIndex(task);
 		return index < 0 || index >= task.ActionPlan.Steps.Count ? null : task.ActionPlan.Steps[index];
+	}
+
+	private static int NextStepIndex(IEmploymentActiveTask task)
+	{
+		return task is EmploymentActiveTask concrete
+			? concrete.NextStepIndex
+			: task.StepStates.ToList().FindIndex(x => x is EmploymentActionStepStatus.Pending or
+				EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked);
 	}
 
 	private static IEmploymentActiveTask? ActiveTaskBySelector(IEmploymentHost host, string selector)
@@ -2977,8 +3004,8 @@ internal sealed class EmploymentCommandService
 
 	private static string DescribeNextStep(IEmploymentActiveTask task, ICharacter actor)
 	{
-		var index = task.StepStates.ToList().FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.Blocked);
-		if (index < 0)
+		var index = NextStepIndex(task);
+		if (index < 0 || index >= task.ActionPlan.Steps.Count)
 		{
 			return "none".ColourError();
 		}
@@ -3008,7 +3035,9 @@ Active tasks:
 
 	#3employment <host type> <host> tasks#0 - lists scheduled rules and active tasks
 	#3employment <host type> <host> tasks show <##|name>#0 - shows an active task with its step details
+	#3employment <host type> <host> tasks approval show|revoke|replace|reconcile ...#0 - inspects or explicitly recovers task approvals
 	#3employment <host type> <host> tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
+	#3employment <host type> <host> tasks retry|requeue <task> <reason>#0 - requeues eligible work after approval and financial recovery holds are resolved
 	#3employment <host type> <host> tasks cancel <##|name> [reason]#0 - cancels a pending, assigned, in-progress, or blocked active task
 	#3employment <host type> <host> tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3employment <host type> <host> tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks

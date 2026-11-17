@@ -199,7 +199,7 @@ Payment authorisation now comes from the active task grant or an explicit contex
 
 ### Gaps
 
-- Task provenance and authorisation grants are runtime-only; persisted active tasks load with compatibility host-system principals but fail closed for financial grant authority until schema-backed provenance/grant columns exist.
+- **Current restart contract (source and scoped verification dated 17 November 2026):** active tasks persist versioned provenance and scoped grants bound to host, task, correlation and ordered plan; manager-goal approval configuration and scheduled-rule approver are also persisted. Legacy rows with no provenance load without inferred approval; pre-migration rules/goals likewise have no inferred issuer. Re-author those sources under an authorised manager for future financial tasks, or explicitly replace approval on an already-spawned legacy task. Malformed/version/identity/plan/step mismatches are quarantined with evidence retained. Issuer authority, expiry and revocation are checked live before financial execution. Audited task approval inspection, replacement/revocation and uncertain-financial-step reconciliation are available; they require exact grant ID/revision, task assignment authority and the original plan's full authority. A reconciliation decision records evidence and never retries or performs payment. If an executed purchase/physical-float step lacks durable `SelectedResources`/`LoadedAssets`, native inventory/cash repair alone cannot clear its task-custody guard; current commands cannot attach the missing evidence or waive the guard. Remaining reconciled work requires an explicit authorised retry or requeue, persisted across restarts; assignment cannot bypass it. See [Employment task restart and recovery](Employment_Restart_and_Recovery.md) for live Telnet crash/restart verification and remaining recovery limits.
 - Retry and escalation policy fields are still not modelled.
 - The system does not model host-wide concurrency, spending, storage, or supplier budgets.
 - A blocked task can remain indefinitely without an explicit retry or escalation policy.
@@ -496,7 +496,7 @@ As of 2026-06-19, active manager goals evaluate in priority order, propagate the
 
 ### Gaps
 
-- Goal-created task provenance and grants are not yet schema-backed.
+- Goal-created task provenance and grants are stored in the active-task approval document; manager-goal authorising principal, condition expression, risk limits and budgets are stored in the versioned goal approval configuration. See the restart/recovery guide for scoped verification and remaining limits.
 - goals have limited state beyond active or cancelled;
 - broad manager autonomy is not implemented;
 - goal evaluation currently depends in part on employed worker activity rather than a dedicated host operations loop;
@@ -563,7 +563,7 @@ A durable `EmploymentAuthorisationGrant` should contain:
 
 Manual tasks, scheduled rules, goals, and parent organisations should issue grants. Worker steps consume grants. A worker completing an `authorise` step must not be treated as managerial approval.
 
-As of 2026-06-19, this exists as a runtime model for active tasks: `EmploymentTaskProvenance`, `EmploymentPrincipal`, and `EmploymentAuthorisationGrant` are stamped onto newly-created manual tasks, scheduled-rule spawns, and manager-goal spawns. Grants currently derive their amount caps from manager-authored `authorise` action steps at task creation/spawn time, and payment steps consume the task grant rather than the worker's later completion of the shell step. Durable grant persistence, revocation, counterparty limits, payment-source limits, redelegation, and parent-organisation scoping remain deferred.
+Historical status at the 2026-06-19 implementation: `EmploymentTaskProvenance`, `EmploymentPrincipal`, and `EmploymentAuthorisationGrant` were runtime models stamped onto manual tasks, scheduled-rule spawns, and manager-goal spawns. Grants derive amount caps from manager-authored `authorise` action steps at task creation/spawn time, and payment steps consume the task grant rather than a worker's later completion of the shell step. Task grant persistence and audited revocation/replacement are now implemented in the current source; counterparty/payment-source scoping exists, while redelegation and parent-organisation scoping remain deferred.
 
 ## 5.2 Central host operations scheduler
 
@@ -684,11 +684,11 @@ Deliver:
 - paired transaction correlation (same-currency transfer/settlement records and source/target employment evidence implemented 2026-06-19; consolidated intercompany accounting remains);
 - currency conversion policy (same-currency fail-closed policy implemented 2026-06-19; exchange-rate settlement remains deferred);
 - atomic reservations and disbursements (current finance steps consume task reservations before native movements; fuller persistence transaction state remains);
-- authorisation amount and counterparty limits (runtime amount, payment-source, and counterparty scopes implemented 2026-06-19; durable grant persistence/revocation and route-pair policy remain).
+- authorisation amount and counterparty limits (runtime amount, payment-source and counterparty scopes implemented 2026-06-19; task grants now persist with audited revocation/replacement, while route-pair policy remains).
 
 Employment ledger entries remain correlating audit evidence, not the canonical general ledger.
 
-As of 2026-06-19, Epic 2 has live same-currency account-transfer and supported-host settlement paths. Employment action plans can use `transfer <amount> to <bank account id|bankcode:account|alias>` to move funds from the supported host's linked native bank account to another active native bank account, and `settle <amount> to <host type> <id|name>` to move backed same-currency value from one supported employment host to another. These steps require task payment authorisation plus a reservation, write native finance records where the host subsystem exposes them, record employment ledger/register evidence, and persist transaction/reservation references in active-task step state. Runtime grants now also carry amount, payment-source, and counterparty scopes for financial steps. Currency conversion, parent/consolidated settlement, durable grant persistence/revocation, and route-pair accounting remain deferred.
+As of 2026-06-19, Epic 2 has live same-currency account-transfer and supported-host settlement paths. Employment action plans can use `transfer <amount> to <bank account id|bankcode:account|alias>` to move funds from the supported host's linked native bank account to another active native bank account, and `settle <amount> to <host type> <id|name>` to move backed same-currency value from one supported employment host to another. These steps require task payment authorisation plus a reservation, write native finance records where the host subsystem exposes them, record employment ledger/register evidence, and persist transaction/reservation references in active-task step state. Runtime grants carry amount, payment-source and counterparty scopes; the current persistence/recovery implementation and its scoped verification are described in the restart guide. Currency conversion, parent/consolidated settlement, and route-pair accounting remain deferred.
 
 ## Epic 3: Craft and production operations
 
@@ -1266,7 +1266,7 @@ Epic 5 manager-goal priority, budget, and risk-limit baseline is implemented.
 - Builder authoring exposes `goals draft budget <amount|none>` and `goals draft risk tasks|steps|unbounded ...`; draft action additions are rejected immediately if they would violate the draft policy.
 - Acceptance coverage verifies creation-time budget and step-cap rejection, active-task risk throttling, and command/draft policy authoring.
 
-Design review note: this phase intentionally keeps manager-goal policy runtime-only. Persisted goals loaded from the database currently use `ManagerGoalPolicy.Default`; durable policy columns/serialization and explicit assigned manager role remain later Epic 5 design work.
+Historical design review note: this phase initially kept manager-goal policy runtime-only. The current task-approval persistence stores a versioned manager-goal approval configuration including authorising principal, risk limits, budgets, and condition expression; broader goal editing and explicit assigned manager role remain separate Epic 5 work.
 
 ### 2026-06-19 manager-goal satisfaction-failure state progress
 
@@ -1292,7 +1292,7 @@ Epic 5 manager-goal rich condition expressions are implemented for runtime-creat
 - Builder authoring exposes `goals draft expression <expression>` and goal detail renders the effective expression beside conditions.
 - Acceptance coverage verifies OR-based satisfaction/reactivation, invalid expression rejection, and command-service finalise/detail behaviour.
 
-Design review note: this phase intentionally keeps manager-goal expressions runtime-only. `EmploymentManagerGoalRecord` has no expression JSON column today, so persisted goals loaded from the database currently use implicit `All` semantics. Durable expression persistence should be designed alongside the remaining manager-goal policy persistence work rather than slipped in as an isolated schema change.
+Historical design review note: manager-goal condition-expression persistence was absent in the earlier implementation. The current versioned approval configuration persists that expression together with its authorising principal, risk limits and budgets; see the restart/recovery guide. Broader manager-goal definition editing remains separate work.
 
 ### 2026-06-19 controlled scheduled-rule administration progress
 
@@ -1608,7 +1608,7 @@ Phase A item 7 is implemented for runtime task ordering and grant-backed payment
 - Financial steps consume the active task grant or explicit context authorisation; a worker completing an `authorise` action step no longer unlocks employer spending by itself.
 - Verification added: goal priority/provenance, worker task-claim priority within and across hosts, existing grant amount coverage, persisted-grant fail-closed reload behaviour, and the self-authorisation rejection case.
 
-No new large design decision was required. This phase deliberately keeps provenance/grants runtime-only; loaded tasks without persisted grants fail closed for financial authority. Durable active-task provenance, grant revocation, retry/escalation policy, and host-wide budget/concurrency caps remain for later schema and scheduler work.
+Historical status at the 2026-06-19 implementation: this phase deliberately kept provenance/grants runtime-only; loaded tasks without persisted grants failed closed for financial authority. The later persistence and recovery work is recorded in the current restart contract above. Retry/escalation policy and host-wide budget/concurrency caps remain separate scheduler work.
 The central host operations scheduler slice below closes the Epic 1 scheduler requirement.
 
 ### 2026-06-19 central host operations scheduler progress
@@ -1654,7 +1654,7 @@ Epic 2 runtime grant scoping is implemented for the current same-currency financ
 - Runtime `EmploymentAuthorisationGrant` now carries derived payment-source and counterparty scopes for financial steps in addition to authority and amount limits. Durable payment authorisation refuses account-transfer or host-settlement steps whose source or counterparty is outside the grant scope.
 - Verification added: otherwise valid same-currency account transfers and host settlements block before native movement when the grant names a different counterparty; existing successful transfer/settlement and currency-mismatch regressions still pass.
 
-No new large design decision was required. The implementation deliberately keeps scope derivation runtime-only and set-based, matching the current runtime grant model. Durable grant persistence, revocation, source/counterparty route-pair matrices, cross-currency exchange-rate policy, and parent/consolidated settlement remain deferred to the future organisation/accounting model.
+Historical status at the 2026-06-19 implementation: scope derivation was runtime-only and set-based. Task-grant persistence and revocation are now covered by the current restart/recovery contract; source/counterparty route-pair matrices, cross-currency exchange-rate policy, and parent/consolidated settlement remain deferred to the future organisation/accounting model.
 
 ### 2026-06-19 craft station capacity progress
 

@@ -36,7 +36,6 @@ Use the area's master guide for supported behavior and limits, its builder/playe
 - [Documentation suite review, 16 November 2026](Core/Documentation_Review_20261116.md): completed-plan consolidation, corrected claims and remaining work.
 - [Seeder authoring inventory](Seeding/Seeders/README.md) and [exported data references](Data/README.md).
 - [Armageddon magic](Armageddon/Magic/README.md): setting-specific contracts, outstanding programme designs and historical receipts.
-- [Historical security review](Security%20Review/README.md): dated findings, not a current vulnerability inventory.
 
 ## Product and operator guides
 

@@ -2,16 +2,12 @@
 
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using GravityModel = MudSharp.Construction.GravityModel;
 using RevisionStatus = MudSharp.Framework.Revision.RevisionStatus;
 
@@ -20,99 +16,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CoreDataSeederTerrainTests
 {
-    private static FuturemudDatabaseContext BuildContext()
-    {
-        DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-            .Options;
-        return new FuturemudDatabaseContext(options);
-    }
-
-    private static void SeedAccount(FuturemudDatabaseContext context)
-    {
-        context.Accounts.Add(new Account
-        {
-            Id = 1,
-            Name = "SeederTest",
-            Password = "password",
-            Salt = 1,
-            AccessStatus = 0,
-            Email = "seeder@example.com",
-            LastLoginIp = "127.0.0.1",
-            FormatLength = 80,
-            InnerFormatLength = 78,
-            UseMxp = false,
-            UseMsp = false,
-            UseMccp = false,
-            ActiveCharactersAllowed = 1,
-            UseUnicode = true,
-            TimeZoneId = "UTC",
-            CultureName = "en-AU",
-            RegistrationCode = string.Empty,
-            IsRegistered = true,
-            RecoveryCode = string.Empty,
-            UnitPreference = "metric",
-            CreationDate = DateTime.UtcNow,
-            PageLength = 22,
-            PromptType = 0,
-            TabRoomDescriptions = false,
-            CodedRoomDescriptionAdditionsOnNewLine = false,
-            CharacterNameOverlaySetting = 0,
-            AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
-            ActLawfully = false,
-            HasBeenActiveInWeek = true,
-            HintsEnabled = true,
-            AutoReacquireTargets = false
-        });
-        context.SaveChanges();
-    }
-
-    private static void SeedMaterials(FuturemudDatabaseContext context)
-    {
-        CoreDataSeeder seeder = new();
-        typeof(CoreDataSeeder)
-            .GetMethod("SeedMaterials", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(seeder, [context]);
-    }
-
-    private static void SeedVoidTerrain(FuturemudDatabaseContext context)
-    {
-        context.Terrains.Add(new Terrain
-        {
-            Id = 1,
-            Name = "Void",
-            HideDifficulty = 0,
-            SpotDifficulty = 0,
-            InfectionType = 0,
-            InfectionVirulence = 0,
-            InfectionMultiplier = 0,
-            StaminaCost = 0,
-            TerrainANSIColour = "7",
-            TerrainEditorColour = "#FFFFFFFF",
-            TerrainBehaviourMode = "outdoors",
-            DefaultTerrain = true,
-            MovementRate = 0,
-            ForagableProfileId = 0,
-            AtmosphereType = "Gas",
-            DefaultRoomOutdoorsType = 0,
-            GravityModel = (int)GravityModel.Normal,
-            TerrainEditorText = "Vo",
-            CanHaveTracks = false,
-            TrackIntensityMultiplierVisual = 1.0,
-            TrackIntensityMultiplierOlfactory = 1.0,
-            TagInformation = string.Empty
-        });
-        context.SaveChanges();
-    }
-
-    private static void SeedTerrainFoundations(FuturemudDatabaseContext context)
-    {
-        SeedMaterials(context);
-        SeedVoidTerrain(context);
-        CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
-    }
-
     private static ForagableProfile AddCustomForageProfile(FuturemudDatabaseContext context, string name)
     {
         long profileId = context.ForagableProfiles
@@ -155,12 +58,32 @@ public class CoreDataSeederTerrainTests
         return profile;
     }
 
+	[TestMethod]
+	[TestCategory("Integration")]
+	public void TerrainPrerequisites_PreserveAccountChoiceAndIsolateSavedEdits()
+	{
+		using var reader = TerrainSeederFixture.CreateSeeded(withAccount: true);
+		string originalName;
+		using (var writer = TerrainSeederFixture.CreateSeeded(withAccount: true))
+		{
+			var terrain = writer.Terrains.Single(x => x.Id == 1);
+			originalName = terrain.Name;
+			terrain.Name += " edited by another test";
+			writer.SaveChanges();
+
+			Assert.AreEqual(originalName, reader.Terrains.Where(x => x.Id == 1).Select(x => x.Name).Single());
+		}
+
+		Assert.IsTrue(reader.Accounts.Any());
+		using var withoutAccount = TerrainSeederFixture.CreateSeeded();
+		Assert.IsFalse(withoutAccount.Accounts.Any());
+		Assert.AreEqual(originalName, withoutAccount.Terrains.Where(x => x.Id == 1).Select(x => x.Name).Single());
+	}
+
     [TestMethod]
     public void SeedTerrainFoundationsForTesting_RerunDoesNotDuplicateTagsOrTerrains()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-
-        SeedTerrainFoundations(context);
+        using var context = TerrainSeederFixture.CreateSeeded();
         int initialForageProfileCount = context.ForagableProfiles.Count();
         int initialMaximumYieldCount = context.ForagableProfilesMaximumYields.Count();
         int initialHourlyYieldCount = context.ForagableProfilesHourlyYieldGains.Count();
@@ -190,9 +113,7 @@ public class CoreDataSeederTerrainTests
 	[TestMethod]
 	public void SeedTerrainFoundationsForTesting_RerunRepairsStockGasAndLiquidAtmospheres()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
-
-		SeedTerrainFoundations(context);
+		using var context = TerrainSeederFixture.CreateSeeded();
 
 		Terrain grasslands = context.Terrains.Single(x => x.Name == "Grasslands");
 		Terrain deepOcean = context.Terrains.Single(x => x.Name == "Deep Ocean");
@@ -215,9 +136,7 @@ public class CoreDataSeederTerrainTests
     [TestMethod]
     public void UsefulSeeder_NoLongerOwnsTerrainQuestionOrTerrainInstalledState()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-        SeedAccount(context);
-        SeedTerrainFoundations(context);
+        using var context = TerrainSeederFixture.CreateSeeded(withAccount: true);
         UsefulSeeder seeder = new();
 
         List<string> ids = seeder.SeederQuestions.Select(x => x.Id).ToList();
@@ -229,9 +148,7 @@ public class CoreDataSeederTerrainTests
     [TestMethod]
     public void SeedTerrainFoundationsForTesting_RerunPreservesCustomProfileAssignmentsAndRepairsInvalidAssignments()
     {
-        using FuturemudDatabaseContext context = BuildContext();
-
-        SeedTerrainFoundations(context);
+        using var context = TerrainSeederFixture.CreateSeeded();
         ForagableProfile customProfile = AddCustomForageProfile(context, "Builder Custom Forage");
         Terrain grasslands = context.Terrains.Single(x => x.Name == "Grasslands");
         Terrain ocean = context.Terrains.Single(x => x.Name == "Ocean");

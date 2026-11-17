@@ -1,38 +1,42 @@
 # FutureMUD engine maturity audit
 
-Original audit: 14 November 2026; refreshed: 15 November 2026
+Original audit: 14 November 2026; refreshed: 15 November 2026; account-security implementation update: 16 November 2026
 
-Finding status reviewed: 16 November 2026. The source census and original findings retain their audited baseline.
+Finding status reviewed: 17 November 2026. The source census and original findings retain their audited baseline.
 
 Source revision: `b32228996a95b745a6ad02298d582347b788ce7e` — fetched remote `master`, 14 November 2026; plus the legacy-tool retirement described in F18
 
 Purpose: divide the engine into thematic features and identify incomplete functionality, weak assurance, documentation gaps and older implementations worth reviewing.
 
-## Finding status — 16 November 2026
+## Employment restart follow-up, 17 November 2026
+
+Migration `20261117030326_PersistEmploymentTaskApprovals` adds durable versioned task provenance, scoped approvals and automation approval configuration. Financial execution rechecks issuer authority, revocation, expiry, scopes and cumulative limits. Legacy tasks need explicit approval; interrupted financial attempts need audited reconciliation, followed by an explicit authorised retry when work remains. The [current restart and recovery contract](../Economy/Employment_Restart_and_Recovery.md) records the corrected command surface, real-MySQL upgrade/snapshot verification, live Telnet payment/crash/restart qualification and remaining physical-custody limits. Subsequent restarts preserved single native payments and their reconciliation/retry audits. This closes F03's specific active-task approval persistence gap; the original source assessment and broader workflow recommendations below remain historical.
+
+## Finding status — 17 November 2026
 
 This register supersedes the baseline findings' remediation status, not their historical evidence. **Implemented, awaiting merge** means the change exists in a reviewed draft PR; it does not mean remote `master`, a released binary or an installed world contains it. **Partial** closes only the named part. Open qualification work is not a claim that an exploit or gameplay failure was reproduced.
 
-Remote `master` was refreshed for this status review. [PR 867](https://github.com/FutureMUD/FutureMUD/pull/867) is merged; [PR 868](https://github.com/FutureMUD/FutureMUD/pull/868), [PR 869](https://github.com/FutureMUD/FutureMUD/pull/869) and [PR 870](https://github.com/FutureMUD/FutureMUD/pull/870) remain open drafts. No merge or deployment is implied by the implementation evidence below.
+Remote `master` was refreshed against `4c2f230c1` for the 17 November conflict reconciliation. PRs [867](https://github.com/FutureMUD/FutureMUD/pull/867), [868](https://github.com/FutureMUD/FutureMUD/pull/868), [869](https://github.com/FutureMUD/FutureMUD/pull/869), [871](https://github.com/FutureMUD/FutureMUD/pull/871) and [872](https://github.com/FutureMUD/FutureMUD/pull/872) are merged. PR [870](https://github.com/FutureMUD/FutureMUD/pull/870) supplies the documentation consolidation below. Merge state does not imply deployment; historical evidence retains its original revision and scope.
 
 | Finding | Current disposition | Evidence and remaining work |
 | --- | --- | --- |
-| F01 — Password-change email | **Implemented, awaiting merge — PR 868.** | Runtime notification inputs cannot carry the replacement password; legacy/custom templates retain a neutral `{2}` slot and their stored branding/content. Synthetic composition tests pass. Real SMTP/provider delivery remains unexercised. |
+| F01 — Password-change email | **Implemented and merged — PR 868.** | Runtime notification inputs cannot carry the replacement password; legacy/custom templates retain a neutral `{2}` slot and their stored branding/content. Synthetic composition tests pass. Real SMTP/provider delivery remains unexercised. |
 | F02 — Debug support login | **Accepted; original defect withdrawn.** | Intentional owner-approved reproduction workflow. Preserve the Debug bypass and the public Release boundary. |
-| F03 — Employment provenance/grants | **Open runtime limitation; documentation corrected in PR 870.** | The [master restart contract](../Economy/Employment_System.md#supported-restart-contract) explains runtime-only provenance/grants and fail-closed financial reload. Durable continuity, schema/compatibility and revocation remain separate design work. |
-| F04 — Fatal process exit | **Implemented, awaiting merge — PR 868.** | Fatal Release exceptions and malformed connection configuration retain exit 1. Three owned Release subprocess cases pass; normal export exits 0. Full world startup/graceful shutdown was not exercised. |
-| F05 — Joined credential/recovery policy | **Partial; implemented portion awaiting merge — PR 868.** | Shared eight-character new-password validation and cryptographic credential generation are implemented with old-hash compatibility. Versioned password-hash migration, recovery expiry/consumption, throttling and session/concurrency policy remain open. |
-| F06 — Conflicting documentation/status | **Implemented, awaiting merge — PR 870.** | [Suite consolidation](Documentation_Review_20261116.md) corrects the identified contradictions, consolidates completed plans and separates current guides, outstanding designs and dated evidence. This closes the identified presentation work, not every future documentation need. |
+| F03 — Employment provenance/grants | **Implemented and merged — PR 871.** | Versioned approvals/provenance, legacy compatibility, live issuer checks and audited recovery now persist. The [restart and recovery guide](../Economy/Employment_Restart_and_Recovery.md) records provider and live Telnet crash/restart evidence and physical-custody limits. |
+| F04 — Fatal process exit | **Implemented and merged — PR 868.** | Fatal Release exceptions and malformed connection configuration retain exit 1. Three owned Release subprocess cases pass; normal export exits 0. Full world startup/graceful shutdown was not exercised. |
+| F05 — Joined credential/recovery policy | **Implemented and merged — PR 868.** | Versioned Argon2id hashes with legacy migration, expiring one-use recovery, throttling and credential/session concurrency are implemented. Email-free implementor workflows and Debug support remain supported. The [security qualification](../Verification/Account_Security_20261116.md) records the scoped provider/live evidence and outstanding external-provider limits. |
+| F06 — Conflicting documentation/status | **Implemented — PR 870.** | [Suite consolidation](Documentation_Review_20261116.md) corrects the identified contradictions, consolidates completed plans and separates current guides, outstanding designs and dated evidence. This closes the identified presentation work, not every future documentation need. |
 | F07 — Dormant throwing contracts | **Open qualification/cleanup.** | No new caller/registration matrix, dormant API retirement or exception behavior change was implemented. Preserve the distinction between dormant contracts and reachable defects. |
 | F08 — Old behavior hidden by recent edits | **Open review queue.** | The method-level historical queue remains evidence for bounded review; renaming documentation does not qualify those implementations. |
 | F09 — Synchronous callbacks/progs | **Open operational qualification.** | No new callback budget, transaction/interruption policy, load profile or failure campaign was implemented. |
 | F10 — Vehicle recovery assurance | **Open targeted verification.** | Existing runtime and historical native evidence remain; real-provider checkpoint/interruption/reload coverage was not added. |
 | F11 — Electrical grid assurance | **Open targeted verification.** | Demand allocation, producer/consumer membership, load failure and power-loss/reconnection behavior still need the proposed focused checks. |
-| F12 — Joined builder guides | **Partial — navigation improved in PR 870.** | All 535 design documents are indexed, but indexes do not replace the specific joined skill/check/merit, scripted-event, board/helpfile, foraging, mount/stable and hospital guides listed below. |
+| F12 — Joined builder guides | **Partial — navigation improved in PR 870.** | The consolidation baseline indexed 535 design documents, but indexes do not replace the specific joined skill/check/merit, scripted-event, board/helpfile, foraging, mount/stable and hospital guides listed below. |
 | F13 — Dynamic flooding | **Documented scope boundary; conditional extension.** | Weather/terrain layers do not provide flood state. No flooding feature is implemented or newly authorised by this status update. |
 | F14 — Reserved Messenger | **Documented reserved feature; no defect established.** | The [computer system guide](../Technology/Computer_System.md) retains the explicit unavailable/reserved boundary. Messenger itself remains unimplemented. |
 | F15 — Combat response matrix | **Open targeted verification.** | No new supported pairing matrix, extension policy or behavioral response tests were added. |
 | F16 — Wound infection TODO | **Closed as false positive; no repair required.** | Infection checks exist; the TODO concerns balance. No duplicate infection mechanism was introduced. |
-| F17 — MudClient PR coverage | **Implemented and hosted-verified, awaiting merge — PR 869.** | Dedicated path-filtered Windows/Linux Release workflow passed all 136 existing tests on each platform and retained TRX. Browser/deployment campaigns and coverage collection are separate. |
+| F17 — MudClient PR coverage | **Implemented, hosted-verified and merged — PR 869.** | Dedicated path-filtered Windows/Linux Release workflow passed all 136 existing tests on each platform and retained TRX. Browser/deployment campaigns and coverage collection are separate. |
 | F18 — Obsolete service projects | **Resolved and merged — PR 867.** | Watcher, Upgrade Service and approved obsolete terrain-tool remnants were retired. Active TerrainPlanner and terrain seeding remain; external installations were not uninstalled. |
 
 ### Follow-up verification evidence
@@ -50,10 +54,10 @@ The best next investment is a focused hardening and documentation programme. The
 
 The clearest findings are:
 
-1. **Password-change notifications can contain the new plaintext password.** The runtime supplies it and the stock template includes it. This behavior survives from the 2023 import. See F01.
+1. **Password notification and credential/recovery hardening are now implemented on the account-security branch.** F01/F05 retain the original findings below, with current verification and the supported email-free implementor workflows recorded separately.
 2. **Passwordless Debug support login is intentional and accepted.** It enables reproducing player account/character problems without collecting their passwords. Debug builds are excluded from public releases. F02 is a documented support property, not a defect or remediation item.
 3. **Employment task provenance and grants do not survive database reconstruction.** Financial tasks deliberately fail closed after losing their grants; tests explicitly expect this. The narrower implementation contradicts broader release-readiness wording about durable grants. See F03.
-4. **A fatal Release startup/game-loop exception still exits with status zero.** Crash reports exist, but process supervisors cannot distinguish this failure from success using the exit code. See F04.
+4. **Fatal Release exit semantics were corrected in the earlier account-hardening commit carried by this branch.** F04 retains the original finding and dated process verification.
 5. **Several apparent missing features are actually stale documentation.** Land gathering and magic-resource prompts exist. Conversely, some legacy APIs really remain throwing placeholders but have no current callers. See F06–F08.
 6. **The strongest “untouched for years” signal is at method/feature level.** Broad cleanup and Room terminology changes make many old implementations look recently maintained. Specific 2023 branches remain in perception contracts, herd AI, time zones, language presentation and legacy tooling. See the historical review queue.
 
@@ -101,7 +105,7 @@ The 15 November follow-up uses a narrower security threshold than the general ma
 | Plaintext password notification, legacy password hashing, strength/expiry/throttling policy | Concrete hardening debt, with credential possession, mailbox/storage access or another precondition needed for the identified access consequences. | F01/F05 are P2 work, not confirmed direct-entry vulnerabilities requiring an automatic disclosure hold. |
 | Legacy Watcher and Upgrade Service | The owner confirmed that both are obsolete. Their source projects and solution entries are removed by this review. | Resolved by retirement from the maintained repository. External installations are not modified by repository cleanup. |
 
-The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; no gameplay/authentication fixes were made. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
+The employment reload limitation is fail-closed, and the fatal-exit issue concerns reliability/monitoring. Neither was established as a direct-access exploit. The requested legacy service retirement removes their source and build entries; the later credential hardening is described above. Publishing this report does not extend the source-only security assessment into deployment verification. Real-world deployment exposure remains outside this source-only assessment.
 
 ## Thematic feature map at the audit baseline
 
@@ -124,7 +128,7 @@ These are logical ownership boundaries for planning and review. They are not a p
 
 | Area and source ownership | Maturity and completeness | Stability evidence | Documentation and next review |
 | --- | --- | --- | --- |
-| Accounts, registration, login and recovery — `Accounts`, `Menus` | **Established workflows with credential-policy hardening debt.** Debug support login is intentional; legacy notification/recovery policy merits a separate review. | **Mixed/thin** for full account lifecycle. A hash-compatibility test does not qualify password security. | Security information is fragmented. **P2:** F01/F05 hardening; write one account-security/operations contract. F02 is accepted behavior. |
+| Accounts, registration, login and recovery — `Accounts`, `Menus` | **Established workflows; F01/F05 upgrade implemented and qualified on the account-security branch.** Debug support login is intentional; email-free implementor tools are retained. | **Mixed/thin** for full account lifecycle. A hash-compatibility test does not qualify password security. | Security information is fragmented. Use the [account-security/operations contract](Account_Credentials_and_Notifications.md) and F01/F05 verification. Broader identity/MFA features are separately deferred. F02 is accepted behavior. |
 | Character creation, roles, resources and approval — `CharacterCreation` | **Established; broad.** Configurable stages, skippers, skill groups, approval and role integration exist. | **Stronger** focused reorder, skipper, knowledge and group tests; whole application/reconnect/restart flow unrun. | Good [chargen index](../Characters/Character_Creation_Documentation_Index.md), runtime, builder and seeder guides. **P2:** complete end-to-end templates for supported application paths. |
 | Identity, character lifecycle and archives — `Character`, `Menus`, related loaders | **Established.** Login/logout, retirement, archives and physical-instance relationships are implemented. | **Mixed/stronger** for lifecycle guards and cleanup; integrated offline/reboot cases still matter. | Split across character/body-form docs and command help. **P2:** join identity, online state, archives and retirement into an operational lifecycle reference. |
 | Anatomy, races, culture and physical bodies — `Body`, `Character/Heritage` | **Established and highly configurable.** Body prototypes, traits, movement capabilities and racial content are extensive; some public API contracts are unfinished. | **Stronger** body/template/perception tests; dormant API holes remain (F07). | Good [body builder guide](../Building/Body_Prototype_Builder_Guide.md) and chargen/seeder material. **P2:** supported API contract census; trace or retire unused members. |
@@ -227,9 +231,13 @@ These are logical ownership boundaries for planning and review. They are not a p
 
 The classification, source observations and original closure recommendations below preserve the audit snapshot. Each current status points to the register above; completed follow-up work must not be inferred to have existed at the original source revision.
 
-### F01 P2 — Password-change email includes the new password
+### F01 Resolved — Password-change notifications exclude the password
 
-**Current status, 16 November 2026:** **Implemented, awaiting merge in PR 868.** Password-free notification construction and legacy-template compatibility are tested; real mail delivery is not newly qualified.
+**Current status, 16 November 2026:** resolved on the account-security branch. Password-change notifications receive no password; the fixed compatibility value for old `{2}` templates preserves customised setups without disclosure. Staff reset now issues an expiring code or uses the protected implementor setter. Existing custom templates are not overwritten. See the [account contract](Account_Credentials_and_Notifications.md) and [verification record](../Verification/Account_Security_20261116.md).
+
+**Original finding at the audited revision:**
+
+**Status at the 16 November review:** **Implemented, awaiting merge in PR 868.** Password-free notification construction and legacy-template compatibility are tested; real mail delivery is not newly qualified.
 
 **Classification: confirmed source behavior, high confidence.**
 
@@ -251,7 +259,7 @@ The original audit incorrectly treated this as a defect and recommended changing
 
 ### F03 P1 — Employment grants and task provenance are runtime-only
 
-**Current status, 16 November 2026:** **Open runtime limitation; documentation corrected in PR 870.** The supported fail-closed restart/recovery contract is explicit. Durable task grants/provenance and their compatibility/revocation design remain outstanding.
+**Current status, 17 November 2026:** **Implemented and merged in PR 871.** The [current recovery contract](../Economy/Employment_Restart_and_Recovery.md) supersedes the baseline trace below. Durable approvals and automation approvers, legacy compatibility, issuer validation, reconciliation and explicit retry are implemented; provider/live qualification retains its stated scope.
 
 **Classification: confirmed persistence limitation and contradictory documentation, high confidence.**
 
@@ -263,15 +271,19 @@ The trace is complete enough to distinguish intended fail-closed behavior from a
 4. [`TaskGrantAuthorisesStep`](../../MudSharpCore/Economy/Employment/EmploymentTaskBoard.cs#L5045) checks authority, payment source, counterparty and amount limits. Empty compatibility grants fail those checks.
 5. Existing [`EmploymentPersistence_LoadedTasksWithoutPersistedGrantFailClosedForFinancialAuthority`](../../MudSharpCore%20Unit%20Tests/Economy/Employment/UnifiedEmploymentDispatchTests.cs#L6645) deliberately asserts the lost provenance and blocked financial action. This test was inspected, not executed.
 
-The [employment roadmap](../Economy/Employment_Roadmap.md) explicitly describes runtime-only provenance/grants at lines 196–204 and 1600–1611. At the audit baseline, the [2.0 readiness audit](MudSharp_2_0_Release_Readiness_Audit.md) instead called durable provenance/grants complete; that historical overstatement was explicitly corrected during the 16 November documentation review. The narrower code/test contract is authoritative.
+The [employment roadmap](../Economy/Employment_Roadmap.md) explicitly describes runtime-only provenance/grants at lines 196–204 and 1600–1611. At the audit baseline, the [2.0 readiness audit](MudSharp_2_0_Release_Readiness_Audit.md) instead called durable provenance/grants complete; that historical overstatement was explicitly corrected during the 16 November documentation review. That narrower code/test contract was authoritative for the audited baseline; PR #871 and the linked current recovery contract supersede it.
 
 **Practical consequence:** a running workflow cannot assume that its task origin, priority, due dates or scoped financial approval survive reload. Financial safety is preserved by refusal, but continuity and audit attribution are reduced. This is not proof that payroll, settled wage ledgers or every employment record is lost; those have separate persistence.
 
 **Original closure recommendation:** agree whether durable grants/provenance are required for the supported restart contract. If yes, implement versioned persistence and round-trip both permitted and denied grants, exact source/priority/timestamps, revocation and old-row compatibility. If runtime-only remains the intended scope, correct readiness wording and clearly expose post-restart blocked-work recovery to builders. Keep the fail-closed regression.
 
-### F04 P1 — Fatal engine failures report success to the operating system
+### F04 Resolved — Fatal engine failures return a failure exit status
 
-**Current status, 16 November 2026:** **Implemented, awaiting merge in PR 868.** Owned Release subprocess checks establish fatal exit 1 and normal documentation-export exit 0. Full-world normal shutdown remains unexercised.
+**Current status:** resolved by the 15 November hardening commit carried on this account-security branch. Fatal Release paths return failure while retaining crash reporting. The earlier Release subprocess checks covered malformed connection configuration, early startup failure and successful documentation export; their dated evidence is retained in [the account hardening record](Account_Credentials_and_Notifications.md#verification-on-15-november-2026). The 16 November F05 campaign adds real Release world boots; it does not claim to repeat those fatal probes.
+
+**Original finding at the audited revision:**
+
+**Status at the 16 November review:** **Implemented, awaiting merge in PR 868.** Owned Release subprocess checks establish fatal exit 1 and normal documentation-export exit 0. Full-world normal shutdown remains unexercised.
 
 **Classification: confirmed source behavior, high confidence.**
 
@@ -279,9 +291,15 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 
 **Original closure recommendation:** preserve a nonzero fatal exit status and a normal success status, with deliberate service restart policy. Test the published Release executable using an invalid startup configuration or isolated injected failure; assert report creation and process exit code. Do not use a production world to simulate this.
 
-### F05 P2 — Account credential and recovery policy needs a joined review
+### F05 Resolved — Compatible credential and recovery upgrade
 
-**Current status, 16 November 2026:** **Partially addressed in PR 868, awaiting merge.** Consistent eight-character new-password validation and cryptographic generation are implemented; existing short-password/hash login compatibility is preserved. Hash migration, recovery lifecycle, throttling and session policy remain open.
+**Current status, 16 November 2026:** resolved on the account-security branch. New credentials use Argon2id; genuine Release login upgrades legacy hashes without forcing existing passwords to change. Recovery is expiring, single-use at commit and credential-version bound. Persistent account budgets, source throttles, cooldowns, restricted reset prompts, stale-work rejection and session revocation are implemented. The implementor retains direct password setting and private recovery-code delivery without email; manual registration and the global registration toggle are preserved. Debug support login remains intentional and never rehashes its arbitrary input.
+
+**Executed evidence:** generated migration and model parity, native upgrade/down/up, refreshed blank-snapshot import, complete fast gate (11,224 passed, zero failed, three platform skips) and 55 live assertions across three Release boots plus one Debug boot. Nineteen new pure state/parser cases took about 6 ms combined; the slow native campaign is opt-in. See the [verification record](../Verification/Account_Security_20261116.md). Outbound mail delivery and third-party sign-ins were not part of this live campaign.
+
+**Original finding at the audited revision:**
+
+**Status at the 16 November review:** **Partially addressed in PR 868, awaiting merge.** Consistent eight-character new-password validation and cryptographic generation are implemented; existing short-password/hash login compatibility is preserved. Hash migration, recovery lifecycle, throttling and session policy remain open.
 
 **Classification: confirmed implementation constraints; operational impact needs qualification.**
 
@@ -294,7 +312,7 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 
 ### F06 P2 — Historical and current documentation are difficult to distinguish
 
-**Current status, 16 November 2026:** **Implemented, awaiting merge in PR 870.** The identified contradictions and current/plan/evidence presentation are corrected; ongoing documentation maintenance and the separate F12 guide gaps remain.
+**Current status, 17 November 2026:** **Implemented in PR 870.** The identified contradictions and current/plan/evidence presentation are corrected; ongoing documentation maintenance and the separate F12 guide gaps remain.
 
 **Documentation follow-up, 16 November 2026:** [suite consolidation](Documentation_Review_20261116.md) corrects the prompt/Land, employment and arena presentation issues, retires completed plans and provides current/roadmap/evidence indexes. This resolves the identified presentation contradictions without implementing durable employment grants, higher-precision calendars or missing arena finance/provisioning features. The table below preserves the audit-baseline findings.
 
@@ -304,7 +322,7 @@ The Release `Main` catches startup/game-loop exceptions and writes a crash repor
 | --- | --- | --- |
 | [Native Organic Yields Verification](../Magic/Native_Organic_Yields_Verification.md#L83) says Land command is not implemented “by this PR.” | [`MagicModule.Gathering`](../../MudSharpCore/Commands/Modules/MagicModule.Gathering.cs#L18) offers the player workflow; [`MagicGatheringService.Land`](../../MudSharpCore/Magic/Gathering/MagicGatheringService.Land.cs#L122) implements the commit. | Preserve the historical receipt, but add a prominent current-successor link. Do not report Land gathering as absent. |
 | [Capabilities/resources guide](../Magic/Magic_System_Capabilities_Resources_and_Generators.md#L148) cites a prompt-support TODO as current status. | [`Character` prompt construction](../../MudSharpCore/Character/Character.cs#L3104) checks `IncludeMagic` and `ShowMagicResourcesInPrompt`; both classic/full prompt paths exist. | Correct the current guide and remove/update the stale source TODO. |
-| Employment roadmap and release-readiness audit disagree about durable grants. | F03 confirms runtime-only grants and an intentional fail-closed reload test. | Publish one supported restart contract and mark historical completion claims precisely. |
+| Employment roadmap and release-readiness audit disagree about durable grants. | At the audit baseline, F03 identified runtime-only grants and an intentional fail-closed reload test; PR #871 subsequently implemented durable approvals. | Publish one supported restart contract and mark historical completion claims precisely. |
 | The retired arena implementation plan said Draft for implementation handoff. | The [arena master guide](../Combat/Combat_Arenas_System.md) now owns the implemented lifecycle and explicit finance/provisioning limits. | Completed plan consolidated on 16 November; retain live restart/refund/inventory qualification as separate work. |
 | [DatabaseSeeder system-gap audit](../Seeding/DatabaseSeeder_System_Gap_Audit.md#L25) lists ItemSeeder under DatabaseSeeder and says later eras are unavailable/no-op. | ItemSeeder is now a separate optional product with a compiled catalogue and later-era source. | Mark the old audit's revision and route current readers to the standalone product docs. Do not use it as the current installer roster. |
 
@@ -425,13 +443,15 @@ Only revisit it with a health-balance requirement and simulation evidence. Do no
 
 ### F17 P2 — Web client tests are missing from ordinary default PR coverage
 
-**Current status, 16 November 2026:** **Implemented and hosted-verified in PR 869, awaiting merge.** Both OS jobs passed 136 tests and retained TRX. Browser/deployment and coverage-collection claims remain separate.
+**Current status, 17 November 2026:** **Implemented, hosted-verified and merged in PR 869.** Both OS jobs passed 136 tests and retained TRX. Browser/deployment and coverage-collection claims remain separate.
 
 **Classification: confirmed CI-selection gap at this snapshot.**
 
 [`scripts/unit-test-projects.txt`](../../scripts/unit-test-projects.txt) includes ten projects, including TerrainPlanner and TestReporting, but omits `MudClient/MudClientTests`. The client tests are selected by the [product publishing workflow](../../.github/workflows/publish-products.yml#L159), which runs for product tags/manual publication rather than ordinary PRs. No separate client PR test workflow was located.
 
 **Original closure recommendation:** add a path-filtered client/proxy CI job or explicitly include the suite in an appropriate PR gate, preserving the separate deployment/package tests. The mere presence of `coverlet.collector` in a project does not establish that coverage is collected by the ordinary workflow.
+
+**Post-audit implementation, 15 November 2026:** the dedicated [MudClient Tests workflow](../../.github/workflows/mudclient-tests.yml) now selects the existing client/proxy/deployment suite for relevant pull requests and `master` pushes, merge groups and manual runs on Windows and Linux. It uses the product SDK configuration, runs Release tests and retains TRX evidence. The default engine manifest and product release qualification remain separate. Local Windows validation passed all 136 tests without the optional WebAssembly publishing workload. This closes the workflow-selection omission in source; successful hosted execution must be established from the workflow results, not inferred from this addition.
 
 ### F18 Resolved — Obsolete service projects retired
 
@@ -475,6 +495,8 @@ The following line-level evidence is more useful. Dates are the oldest surviving
 The two removed service entries above are retained as historical evidence and are resolved by F18. This queue deliberately does not label recently developed banking/lending, auctions, employment hiring, clan governance, configurable/Vancian magic, Room/layer integration or weather as abandoned. Their older subpaths may still deserve review.
 
 ## Documentation and acceptance work to prioritise
+
+**Historical recommendations from the audit and 16 November review.** The 17 November disposition register above supersedes the completed F01/F03/F04/F05/F17 implementation and merge recommendations below. Preserve these original priorities as dated evidence; use that register and the linked current contracts for remaining work.
 
 ### First: integrate completed hardening and define the remaining continuity policy
 

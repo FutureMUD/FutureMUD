@@ -10,6 +10,8 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
+- [Account credentials and notifications](Account_Credentials_and_Notifications.md)
+
 - [Database Upgrade Coordination](Database_Upgrade_Coordination.md)
 - [Discord Bot Protocol and Settings](Discord_Bot_Protocol_and_Settings.md)
 - [Discord Remote Operations](Discord_Remote_Operations.md)
@@ -28,6 +30,8 @@ Start with the master guides below. Outstanding designs are requirements or prop
 - [Trap System](Trap_System.md)
 
 ## Dated reviews and verification records
+
+- [Documentation suite review, 16 November 2026](Documentation_Review_20261116.md)
 
 - [Discord Bot Expansion Review and Discord Hooks Proposal](Discord_Bot_Expansion_Review.md)
 - [FutureMUD engine maturity audit](Engine_Maturity_Audit_20261114.md)

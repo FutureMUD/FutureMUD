@@ -30,6 +30,18 @@ A missing initial Git prerequisite is BLOCKED; incomplete or unavailable source 
 
 ## Test Design Rules
 
+### Employment approval and restart tests, 17 November 2026
+
+The initial employment restart change added 15 fast cases covering approval identity/plan binding, malformed security fields, live issuer authority, revocation/expiry, cross-task approval isolation, reconciliation and cumulative spending, uncertain cancellation, execute/flush failures, ordinary retry and invalid persisted statuses. These are permanent behavioral/security requirements. They exercise small runtime/serialization seams without constructing the EF provider model. In the final full default run, the added cases took approximately 64 ms combined; the slowest took 35 ms, and none exceeded one second. Retain them in the default suite rather than adding a parallel set of full-EF in-memory mirrors.
+
+The existing `EmploymentPersistence_RoundTripsCoreEmploymentTasksGoalsAndAuditRows` fixture was extended to verify scheduled-rule issuers/issuance authority and manager-goal issuer, expression, currency budgets and risk limits. Its isolated cold run took 3.356 seconds, including EF model initialization; a new model-heavy test would duplicate that cost. Retain these assertions in the existing case because they catch actual save/load omissions that a serializer-only test cannot establish. In the final broad run the same case took 247 ms, below the one-second review threshold. Its additional assertions protect automation approval persistence without adding another EF model initialization.
+
+The single `EmploymentRestartNative_IndependentProcessesPreserveApprovalsAndNeverReplayTransfers` case is classified `Integration` and excluded from the default gate. Its two independent test-host processes use real MySQL migrations, durable approvals and native bank-account transactions. Provider startup, legacy upgrade and process restart are essential to that compatibility requirement and cannot be established by fast mocks. Keep those related assertions consolidated in the existing disposable-world harness; do not add a full-world startup or a separate provider fixture per assertion. See [the reproducible provider scenario](../../scripts/EmploymentRestartSmoke/README.md) for execution and evidence. The final writer/reader cases passed against real MySQL in 8.772 and 6.325 seconds respectively. Those costs are justified only in the opt-in tier; they must not enter the default unit gate. The full default gate passed 11,248 cases with three expected Windows skips; the 14 focused snapshot checks passed separately. Local receipts are in `.artifacts/employment-restart/fast-final/20261117T041429Z-81e17d8c2bb8/`, `snapshot-final/20261117T042654Z-2ad0a20d1011/`, and the owned native attempt `employment-attempt-a32792ee6f72`.
+
+The live Telnet follow-up adds eight permanent fast cases: five task-bound diagnostic blocker previews, two public retry/requeue command cases covering authority/reason/hold requirements, and one manual-assignment case for a reconciled payment followed by nonfinancial work. They protect the actual diagnostic and recovery bypasses found during qualification and focused review. Keep them because they exercise distinct public entry paths that the policy-only cases do not establish. Extend the existing two-outcome reconciliation case to invoke the command service, catching the documented `not-executed` spelling, and the existing JSON round-trip to check the durable explicit-retry flag; do not add duplicate parser or EF fixtures.
+
+In the final affected core/library run, all 10,240 tests passed with no failures/skips and stable source. All 23 approval cases took 250 ms combined (172 ms maximum); the eight new cases took 186 ms combined. None exceeded one second. The existing persistence round-trip took 402 ms. These measurements support retaining the focused cases in the default suite. The live server/crash/restart operator is separate opt-in acceptance, consolidated around one preserved disposable world; it must not become a default unit test or an additional full-provider fixture per assertion. The dated [recovery guide](../Economy/Employment_Restart_and_Recovery.md#live-telnet-follow-up-17-november-2026) records its scope, observed failures/corrections and receipts.
+
 ### Durable requirements
 
 Prefer tests that state observable behavior:
@@ -58,7 +70,15 @@ Do not add phase-completion tests whose only assertion is that named methods, da
 
 Random helpers should be checked with bounded samples and deterministic invariants. Tests must not require a random run to produce more than one distinct value; that is probabilistic and does not define correct behavior.
 
-Database-backed fixtures may be shared only when they are read-only, the class is not parallelized, and mutation/idempotence cases keep isolated contexts. Expensive climate simulations remain in the dedicated opt-in project.
+An existing class that shares a live EF context must use it read-only and execute serially. Mutation and idempotence cases need an isolated store. Expensive climate simulations remain in the dedicated opt-in project.
+
+### Sharing expensive test setup
+
+Start with the smallest fixture that exercises the contract. Several cheap examples can use the same builder while still constructing fresh state. When many cases pay to install the same prerequisites, use the narrowest fixture scope that covers those consumers. Key variants by the choices that affect persisted data or behaviour. Lazy creation keeps a filtered run from paying for unused variants.
+
+Read-only inputs can be reused directly. For tests that write, a persisted baseline can be captured once and restored into a uniquely owned store per case. A fresh EF context over a writable shared database still sees other tests' writes. Preserve provider options, generated identities, shadow keys, join rows and any tracked-versus-reloaded behaviour the case exercises. Dispose the owner after its borrowers and release the temporary store. Keep clocks, random streams, mock callbacks, event subscribers and temporary directories local when their state can change. Tests that override process-wide registries must restore their changes even on failure.
+
+Use case timings to find candidates, then measure the prerequisite separately. Compare fresh setup with building the baseline, making every copy and releasing it, including the first consumer. Check both execution time and resource cost, such as managed allocations or peak process memory. Run the same assertions and DataRows separately and together, including a pair where one case edits data the other expects to be pristine. The [November fixture review](../../scripts/TestReporting/shared-fixture-review-2026-11-17.md) gives measured examples and an implementation sequence.
 
 ## July 2026 Review Findings
 

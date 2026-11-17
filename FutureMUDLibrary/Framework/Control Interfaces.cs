@@ -95,6 +95,8 @@ namespace MudSharp.Framework
 
     public interface IPlayerController : ICharacterController, IAccountController, ITimeout, IHandleOutput
     {
+		bool IsSensitiveInput => false;
+		bool AwaitingAccountSecurityWork => false;
         bool Closing { get; }
 
         string IPAddress { get; }

@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation.Resources;
+using MudSharp.CharacterCreation.Resources;
 using MudSharp.Database;
 using MudSharp.Email;
 using MudSharp.Framework.Save;
@@ -306,36 +306,23 @@ public sealed class Account : SaveableItem, IAccount
         private set => _isRegistered = value;
     }
 
-    private static bool AccountRegistrationByEmailDisabled(IFuturemud gameworld)
+    internal static bool AccountRegistrationByEmailDisabled(IFuturemud gameworld)
     {
         return gameworld.GetStaticBool(DisableAccountRegistrationByEmailStaticConfiguration);
     }
 
     public bool TryAccountRegistration(string text)
     {
-        if (AccountRegistrationByEmailDisabled(Gameworld))
-        {
-            IsRegistered = true;
-            return true;
-        }
-
         using (new FMDB())
         {
-            Models.Account dbaccount = FMDB.Context.Accounts.Find(Id);
-            if (dbaccount == null)
-            {
-                return false;
-            }
-
-            if (text.Equals(dbaccount.RegistrationCode, StringComparison.InvariantCultureIgnoreCase))
-            {
-                dbaccount.IsRegistered = true;
-                FMDB.Context.SaveChanges();
-                IsRegistered = true;
-                return true;
-            }
-
-            return false;
+            var dbaccount = FMDB.Context.Accounts.Find(Id);
+            if (dbaccount is null) return false;
+            if (!AccountRegistrationByEmailDisabled(Gameworld) &&
+                !string.Equals(text, dbaccount.RegistrationCode, StringComparison.InvariantCultureIgnoreCase)) return false;
+            dbaccount.IsRegistered = true;
+            FMDB.Context.SaveChanges();
+            IsRegistered = true;
+            return true;
         }
     }
 
@@ -420,7 +407,7 @@ public sealed class Account : SaveableItem, IAccount
                 {
                     Name = name.ToLowerInvariant(),
                     Password = password,
-                    Salt = salt,
+                    Salt = password.StartsWith(Argon2AccountCredentialHasher.Prefix, StringComparison.Ordinal) ? 0 : salt,
                     AccessStatus = 0,
                     FormatLength = linewidth,
                     InnerFormatLength = 80,
@@ -462,17 +449,13 @@ public sealed class Account : SaveableItem, IAccount
                     FirstDate = newAccount.CreationDate
                 };
 
-                if (!disableAccountRegistrationByEmail)
-                {
-                    EmailHelper.Instance.SendEmail(EmailTemplateTypes.NewAccountVerification, email, name.Proper(),
-                        newAccount.RegistrationCode);
-                }
-
                 FMDB.Context.Accounts.Add(newAccount);
                 FMDB.Context.LoginIps.Add(ipLog);
 
                 if (FMDB.Context.SaveChanges() > 0)
                 {
+					if (!disableAccountRegistrationByEmail)
+						EmailHelper.Instance.SendEmail(EmailTemplateTypes.NewAccountVerification, email, name.Proper(), newAccount.RegistrationCode);
                     return true;
                 }
             }

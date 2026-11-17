@@ -237,27 +237,30 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public IAccount LogIn(string loginName, string password, IPlayerController controller)
     {
-        string nameLower = loginName.ToLowerInvariant();
+        var snapshot = AccountSecurityService.ReadCredentials(loginName);
+        if (snapshot is null) return null;
+#if DEBUG
+        // Intentional support impersonation. Never rehash an unverified Debug password.
+        return LogInVerified(snapshot, controller, null);
+#else
+        var check = AccountSecurityService.VerifyCredential(snapshot, password);
+        return check.Valid ? LogInVerified(snapshot, controller, check.UpgradedHash) : null;
+#endif
+    }
 
+    internal IAccount LogInVerified(AccountCredentialSnapshot snapshot, IPlayerController controller, string upgradedHash)
+    {
         using (new FMDB())
         {
-            Models.Account accountLookup = (from dbAccount in FMDB.Context.Accounts
-                                            where dbAccount.Name == nameLower
-                                            select dbAccount).FirstOrDefault();
-#if DEBUG
-            if (accountLookup == null)
+            var accountLookup = FMDB.Context.Accounts.Find(snapshot.Id);
+            if (accountLookup is null || !snapshot.Matches(accountLookup)) return null;
+            if (upgradedHash is not null)
             {
-                return null;
+                accountLookup.Password = upgradedHash;
+                accountLookup.Salt = 0;
             }
-#else
-				if ((accountLookup == null) ||
-					!SecurityUtilities.VerifyPassword(password, accountLookup.Password, accountLookup.Salt))
-				{
-					return null;
-				}
-#endif
-
-
+            accountLookup.LoginAttempts = 0;
+            accountLookup.LoginBlockedUntilUtc = null;
             IAccount account = Accounts.Get(accountLookup.Id);
 
             Output output = null;
@@ -346,6 +349,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 				phaseAllocatedBefore = collectPerformance ? GC.GetAllocatedBytesForCurrentThread() : 0L;
 				sw.Restart();
 				MudSharp.Server.ExceptionReporter.Operation = "Game loop: PendingCommands";
+				AccountSecurityWorkQueue.ProcessCompleted(this);
 				ProcessPendingCommands();
 				RecordLoopPhase(RuntimeLoopPhase.PendingCommands, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)

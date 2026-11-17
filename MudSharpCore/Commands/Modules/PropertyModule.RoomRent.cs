@@ -90,6 +90,8 @@ Hotel employment tasks:
 	#3roomrent tasks#0 - lists scheduled rules and active tasks
 	#3roomrent tasks show <##|name>#0 - shows an active task with its step details
 	#3roomrent tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3roomrent tasks approval show|revoke|replace|reconcile ...#0 - inspects or explicitly recovers task approvals
+	#3roomrent tasks retry|requeue <task> <reason>#0 - explicitly requeues eligible work after recovery holds are resolved
 	#3roomrent tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3roomrent tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3roomrent tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks

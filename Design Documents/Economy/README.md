@@ -6,6 +6,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 - [FutureMUD Economy System: Runtime](Economy_System_Runtime.md)
 - [Employment System](Employment_System.md)
+- [Employment restart and recovery](Employment_Restart_and_Recovery.md)
 - [Loans, mortgages and pawnbroking](Lending_System.md)
 - [FutureMUD Law System Runtime](Law_System_Runtime.md)
 

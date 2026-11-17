@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261113003430_AddStagedPerformanceRecords",
-  "GeneratedUtc": "2026-11-13T00:57:01.922648Z"
+  "LatestMigrationId": "20261117030326_PersistEmploymentTaskApprovals",
+  "GeneratedUtc": "2026-11-17T04:12:09.9653008Z"
 }

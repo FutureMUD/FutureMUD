@@ -1281,7 +1281,7 @@ If at any time you make a mistake or want to go back, you can type #3""quit""#0 
         {"PasswordSelectionMessage", @"
 #3Password Selection#0
 
-Your password will be used to access your account, and will be stored securely on the FutureMUD servers as an encrypted, salted hash. Passwords must be at least 8 characters long and can use any combination of letters, numbers and symbols. Please enter a password for your new account:" },
+Your password will be used to access your account, and will be stored securely on the FutureMUD servers as a salted password hash. New passwords must contain 15 to 128 characters. Spaces and long passphrases are welcome; common passwords are refused. Please enter a password for your new account:" },
         {"GunshotHeardEcho", "A gun shot can be heard {0}."},
         {"ExplosionHeardEcho", "An explosion can be heard {0}."},
         {"LaserHeardEcho", "A laser blast can be heard {0}."},

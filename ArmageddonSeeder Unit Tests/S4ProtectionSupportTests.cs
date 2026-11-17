@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,7 @@ public class S4ProtectionSupportTests
 	[TestMethod]
 	public void CreationSix_RealTypedSupplyAndCraftCanBeLoadedAfterContextClear()
 	{
-		using var db = Fixture(); var result = Install(db); db.ChangeTracker.Clear();
+		using var db = ArmageddonStockSupportInstallerTests.CreateSimplePrerequisites(); var result = Install(db); db.ChangeTracker.Clear();
 		var item = db.GameItemProtos.Include(x => x.GameItemProtosTags).Include(x => x.GameItemProtosGameItemComponentProtos)
 			.Single(x => x.Id == result.Identities[ArmageddonStockSupportInstaller.CreationRankSixKey]);
 		Assert.AreEqual(10.0, item.Weight); // Fixture kilogram is 1000 native weight units.
@@ -49,7 +48,7 @@ public class S4ProtectionSupportTests
 	[DataRow(false)] [DataRow(true)]
 	public void Armour_ColdNativeLoadPreservesSupportedAndExcludedDamageChannels(bool electrical)
 	{
-		using var db = Fixture(); var result = Install(db); db.ChangeTracker.Clear();
+		using var db = ArmageddonStockSupportInstallerTests.CreateSimplePrerequisites(); var result = Install(db); db.ChangeTracker.Clear();
 		var key = electrical ? ArmageddonStockSupportInstaller.ElectricalArmourKey : ArmageddonStockSupportInstaller.ExternalArmourKey;
 		var row = db.ArmourTypes.AsNoTracking().Single(x => x.Id == result.Identities[key]);
 		// Only the world/body/material boundary is mocked; real persisted armour XML and native damage evaluation run.
@@ -73,7 +72,7 @@ public class S4ProtectionSupportTests
 	[TestMethod]
 	public void Rerun_BuilderArmourAndSupplyEditsKeepExactIdentities()
 	{
-		using var db = Fixture(); var first = Install(db); db.ChangeTracker.Clear();
+		using var db = ArmageddonStockSupportInstallerTests.CreateSimplePrerequisites(); var first = Install(db); db.ChangeTracker.Clear();
 		var armour = db.ArmourTypes.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.ExternalArmourKey]); armour.Name = "Builder ward";
 		var original = armour.Definition;
 		armour.Definition = armour.Definition.Replace("><![CDATA[0]]></Expression>", "><![CDATA[damage/2]]></Expression>");
@@ -90,7 +89,7 @@ public class S4ProtectionSupportTests
 	[DataRow("blank")] [DataRow("stackable")] [DataRow("clay")] [DataRow("craft")]
 	public void MissingTypedDependencies_RefuseBeforeAnySupplementalWrites(string failure)
 	{
-		using var db = Fixture();
+		using var db = ArmageddonStockSupportInstallerTests.CreateSimplePrerequisites();
 		var key = failure switch { "blank" => "arm.item.component_blank", "stackable" => "arm.catalogue.component.stackable", "clay" => "arm.binding.material.clay", _ => ArmageddonStockProgression.CraftTraitKey };
 		db.SeederManagedRecords.Remove(db.SeederManagedRecords.Single(x => x.StableKey == key)); db.SaveChanges();
 		var rows = (db.SeederManagedRecords.Count(), db.GameItemProtos.Count(), db.ArmourTypes.Count(), db.Crafts.Count(), db.FutureProgs.Count());
@@ -102,7 +101,7 @@ public class S4ProtectionSupportTests
 	[TestMethod]
 	public void UnownedArmourNameCollision_RefusesWithoutAdoptionOrOtherWrites()
 	{
-		using var db = Fixture(); db.ArmourTypes.Add(new ArmourType { Name = "Armageddon electrical protection", Definition = "<Definition />" }); db.SaveChanges();
+		using var db = ArmageddonStockSupportInstallerTests.CreateSimplePrerequisites(); db.ArmourTypes.Add(new ArmourType { Name = "Armageddon electrical protection", Definition = "<Definition />" }); db.SaveChanges();
 		var before = db.SeederManagedRecords.Count(); var result = ArmageddonStockSupportInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, result.Status); Assert.AreEqual(before, db.SeederManagedRecords.Count()); Assert.AreEqual(1, db.ArmourTypes.Count());
 		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.StableKey == ArmageddonStockSupportInstaller.CreationRankSixKey));
@@ -112,7 +111,7 @@ public class S4ProtectionSupportTests
 	[DataRow("revision")] [DataRow("missing")] [DataRow("retired")] [DataRow("module")] [DataRow("competing")]
 	public void ArmourOwnership_InvalidClaimsStillRefusePrepareWithoutChanges(string failure)
 	{
-		using var db = Fixture(); var installed = Install(db); db.ChangeTracker.Clear();
+		using var db = ArmageddonStockSupportInstallerTests.CreateSimplePrerequisites(); var installed = Install(db); db.ChangeTracker.Clear();
 		var claim = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.ExternalArmourKey);
 		switch (failure)
 		{
@@ -133,6 +132,4 @@ public class S4ProtectionSupportTests
 		var result = ArmageddonStockSupportInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages)); return result;
 	}
-	private static FuturemudDatabaseContext Fixture() => (FuturemudDatabaseContext)typeof(ArmageddonStockSupportInstallerTests)
-		.GetMethod("Fixture", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [ArmageddonProgressionMode.Simple, false])!;
 }

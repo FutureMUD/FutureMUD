@@ -18,7 +18,7 @@ using MudSharp.Vehicles;
 
 namespace MudSharp.Economy.Employment;
 
-public sealed class EmploymentTaskContext : IEmploymentTaskContext
+public sealed partial class EmploymentTaskContext : IEmploymentTaskContext
 {
 	private sealed record CommodityProfile(
 		long ItemId,
@@ -104,6 +104,10 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	public bool PaymentAuthorised(IEmploymentActionStep step)
 	{
+		if (_currentTask is EmploymentActiveTask task)
+		{
+			return EmploymentTaskDispatcher.TaskGrantAuthorisesStep(task, step, _currentStepIndex);
+		}
 		return !step.RequiresPaymentAuthorisation || _paymentAuthorisations.Contains(step);
 	}
 
@@ -3126,7 +3130,7 @@ internal static class EmploymentConditionExpressionEvaluator
 	}
 }
 
-public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
+public sealed partial class EmploymentTaskBoard : IEmploymentTaskBoard
 {
 	private const string PhysicalCustodySuspensionReason =
 		"The task is suspended for manager review because physical task items may still be in the assigned worker's custody.";
@@ -3180,7 +3184,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		EmploymentActionPlan actionPlan, Guid correlationId, EmploymentTaskSourceKind sourceKind,
 		EmploymentPrincipal createdByPrincipal, EmploymentPrincipal authorisedByPrincipal, int priority,
 		DateTimeOffset createdAt, DateTimeOffset? dueAt = null, Guid? sourceRuleId = null,
-		long? sourceGoalId = null)
+		long? sourceGoalId = null, EmploymentPrincipal? authorityPrincipal = null,
+		EmploymentAuthority issuanceAuthority = EmploymentAuthority.AssignTasks)
 	{
 		var (limits, allowsUnboundedFinancialSteps, paymentSourceScopes, counterpartyScopes) =
 			AuthorisationLimitsFor(employer, actionPlan);
@@ -3190,11 +3195,13 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			actionPlan.RequiredAuthority,
 			limits,
 			allowsUnboundedFinancialSteps,
-			createdAt,
+			DateTimeOffset.UtcNow,
 			null,
 			correlationId,
 			paymentSourceScopes,
-			counterpartyScopes);
+			counterpartyScopes,
+			authorityPrincipal ?? authorisedByPrincipal,
+			issuanceAuthority);
 
 		return new EmploymentTaskProvenance(
 			sourceKind,
@@ -3387,6 +3394,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 		var rule = new EmploymentScheduledTaskRule(_host, name, idempotencyKey, conditionList, conditionExpression,
 			actionPlan, cooldown);
+		rule.AuthorisingPrincipal = EmploymentApprovalPolicy.Principal(_host, authorisedBy, "Trusted host rule", conditionAuthority | actionPlan.RequiredAuthority.Authorities | EmploymentAuthority.CreateScheduledRules);
+		rule.ApprovalIssuanceAuthority = conditionAuthority | EmploymentAuthority.CreateScheduledRules;
 		_scheduledRules.Add(rule);
 		_persistence?.SaveScheduledRule(rule);
 		EmploymentScheduledRuleEvaluationService.RegisterHost(_host);
@@ -3540,8 +3549,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			actionPlan,
 			actualCorrelationId,
 			authorisedBy is null ? EmploymentTaskSourceKind.HostSystem : EmploymentTaskSourceKind.Manual,
-			PrincipalForActor(authorisedBy, "Host system task creator"),
-			PrincipalForActor(authorisedBy, "Host system task authoriser"),
+			EmploymentApprovalPolicy.Principal(_host, authorisedBy, "Host system task creator", actionPlan.RequiredAuthority.Authorities | EmploymentAuthority.AssignTasks),
+			EmploymentApprovalPolicy.Principal(_host, authorisedBy, "Host system task authoriser", actionPlan.RequiredAuthority.Authorities | EmploymentAuthority.AssignTasks),
 			priority,
 			createdAt,
 			dueAt);
@@ -3606,7 +3615,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		}
 
 		reason = string.IsNullOrWhiteSpace(reason) ? "Retried by a manager." : reason.Trim();
-		if (!concrete.RequeueForAdministration(reason, clearCurrentFailure: true, allowFailedStep: true))
+		if (!concrete.RequeueForAdministration(reason, clearCurrentFailure: true, allowFailedStep: true, explicitRecovery: true))
 		{
 			return false;
 		}
@@ -3640,7 +3649,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		}
 
 		reason = string.IsNullOrWhiteSpace(reason) ? "Requeued by a manager." : reason.Trim();
-		if (!concrete.RequeueForAdministration(reason, clearCurrentFailure: false, allowFailedStep: false))
+		if (!concrete.RequeueForAdministration(reason, clearCurrentFailure: false, allowFailedStep: false, explicitRecovery: true))
 		{
 			return false;
 		}
@@ -3660,6 +3669,11 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		}
 
 		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task))
+		{
+			return false;
+		}
+
+		if (!concrete.CanResume(out _))
 		{
 			return false;
 		}
@@ -3847,6 +3861,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			                                 EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked)
 		                                 .ToList())
 		{
+			if (task.Provenance.RequiresExplicitRetry)
+			{
+				continue;
+			}
 			if (task.Status == EmploymentTaskStatus.Blocked &&
 			    task.BlockedReason?.Contains(PhysicalCustodySuspensionReason,
 				    StringComparison.InvariantCultureIgnoreCase) == true)
@@ -3931,7 +3949,9 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				rulePrincipal,
 				0,
 				now,
-				sourceRuleId: concrete.Id))
+				sourceRuleId: concrete.Id,
+				authorityPrincipal: concrete.AuthorisingPrincipal,
+				issuanceAuthority: concrete.RequiredIssuanceAuthority))
 		{
 			IdempotencyKey = concrete.IdempotencyKey
 		};
@@ -3955,7 +3975,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		AuditActiveTaskAssignments();
 		return _activeTasks.OfType<EmploymentActiveTask>().Any(x =>
 			x.IdempotencyKey.Equals(idempotencyKey, StringComparison.InvariantCultureIgnoreCase) &&
-			x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked);
+			(x.HasUncertainFinancialSteps || x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked));
 	}
 
 	private bool TryGetAssignmentAuditReason(EmploymentActiveTask task, out string reason)
@@ -4446,6 +4466,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 {
+	internal EmploymentPrincipal? AuthorisingPrincipal { get; set; }
+	internal EmploymentAuthority ApprovalIssuanceAuthority { get; set; }
+	internal EmploymentAuthority RequiredIssuanceAuthority => ApprovalIssuanceAuthority | EmploymentAuthority.CreateScheduledRules |
+		ActionPlan.RequiredAuthority.Authorities | _conditions.Aggregate(EmploymentAuthority.None, (a, c) => a | c.RequiredAuthority.Authorities);
 	private readonly List<IEmploymentTaskCondition> _conditions;
 
 	public EmploymentScheduledTaskRule(IEmploymentHost employer, string name, string idempotencyKey,
@@ -4604,7 +4628,7 @@ public sealed class EmploymentScheduledRuleTemplate : IEmploymentScheduledRuleTe
 	public EmploymentAuthoritySet RequiredAuthority { get; }
 }
 
-public sealed class EmploymentActiveTask : IEmploymentActiveTask
+public sealed partial class EmploymentActiveTask : IEmploymentActiveTask
 {
 	private readonly List<EmploymentActionStepStatus> _stepStates;
 	private readonly List<EmploymentActionStepOperationalState> _stepOperationalStates;
@@ -4618,6 +4642,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		Name = name;
 		ActionPlan = actionPlan;
 		CorrelationId = correlationId;
+		LegacyApproval = provenance is null;
 		Provenance = provenance ?? EmploymentTaskBoard.CreateCompatibilityTaskProvenance(
 			correlationId,
 			employer,
@@ -4651,6 +4676,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		CorrelationId = correlationId;
 		IdempotencyKey = idempotencyKey;
 		_persistence = persistence;
+		LegacyApproval = provenance is null;
 		Provenance = provenance ?? EmploymentTaskBoard.CreateCompatibilityTaskProvenance(
 			correlationId,
 			employer,
@@ -4659,14 +4685,19 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		_stepStates = stepStates.ToList();
 		if (_stepStates.Count != actionPlan.Steps.Count)
 		{
-			_stepStates = actionPlan.Steps.Select(_ => EmploymentActionStepStatus.Pending).ToList();
+			Provenance = Provenance with { RecoveryIssue = "Stored task step states do not match the action plan; execution and approval recovery are quarantined." };
 		}
 
 		_stepOperationalStates = stepOperationalStates.ToList();
 		if (_stepOperationalStates.Count != actionPlan.Steps.Count)
 		{
-			_stepOperationalStates = actionPlan.Steps.Select(_ => EmploymentActionStepOperationalState.Empty).ToList();
+			Provenance = Provenance with { RecoveryIssue = "Stored task operational states do not match the action plan; execution and approval recovery are quarantined." };
 		}
+		if (!Enum.IsDefined(Status) || _stepStates.Any(x => !Enum.IsDefined(x)))
+		{
+			Quarantine("The stored task or step status is unknown; preserve its evidence for repair.");
+		}
+
 	}
 
 	public Guid Id { get; }
@@ -4692,7 +4723,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 	public DateTimeOffset? DueAt => Provenance.DueAt;
 	public DateTimeOffset? AssignedAt => Provenance.AssignedAt;
 
-	public int NextStepIndex => _stepStates.FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked);
+	public int NextStepIndex => Provenance.RecoveryIssue is not null ? -1 : _stepStates.FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked);
 
 	public void Assign(ICharacter employee)
 	{
@@ -4723,8 +4754,10 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		_persistence?.SaveActiveTaskState(this);
 	}
 
-	public bool RequeueForAdministration(string reason, bool clearCurrentFailure, bool allowFailedStep)
+	public bool RequeueForAdministration(string reason, bool clearCurrentFailure, bool allowFailedStep,
+		bool explicitRecovery = false)
 	{
+		if (!CanResume(out _, forRetry: allowFailedStep, explicitRecovery: explicitRecovery)) return false;
 		var index = _stepStates.FindIndex(x =>
 			x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked ||
 			allowFailedStep && x == EmploymentActionStepStatus.Failed);
@@ -4749,7 +4782,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		AssignedEmployee = null;
 		Status = EmploymentTaskStatus.Pending;
 		BlockedReason = reason;
-		Provenance = Provenance with { AssignedAt = null };
+		Provenance = Provenance with { AssignedAt = null, RequiresExplicitRetry = false };
 		_persistence?.SaveActiveTaskState(this);
 		return true;
 	}
@@ -4826,6 +4859,8 @@ public sealed class EmploymentTaskDispatcher
 			return false;
 		}
 
+		if (!concrete.CanResume(out reason)) return false;
+
 		var rejectionReasons = new List<string>();
 		foreach (var candidate in candidates)
 		{
@@ -4894,10 +4929,24 @@ public sealed class EmploymentTaskDispatcher
 
 	public EmploymentActionStepResult AdvanceTask(IEmploymentActiveTask task, IEmploymentTaskContext context)
 	{
+		if (task.Status == EmploymentTaskStatus.Completed)
+		{
+			return EmploymentActionStepResult.CompletedResult("Task is already complete.");
+		}
+		if (task.Status is EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+		{
+			return EmploymentActionStepResult.Blocked("Terminal tasks cannot execute action steps.");
+		}
 		if (task is not EmploymentActiveTask concrete)
 		{
 			context.Employer.DebugEmployment($"Could not advance task {task.Name}: unsupported active task implementation.");
 			return EmploymentActionStepResult.Failed("Unsupported active task implementation.");
+		}
+
+		if (!concrete.CanResume(out var recoveryReason))
+		{
+			concrete.Block(recoveryReason);
+			return EmploymentActionStepResult.Blocked(recoveryReason);
 		}
 
 		if (task.AssignedEmployee is null)
@@ -4937,7 +4986,25 @@ public sealed class EmploymentTaskDispatcher
 		context.Employer.DebugEmployment(
 			$"{task.AssignedEmployee.Name} started step {index + 1:N0} ({step.StepType.DescribeEnum()}) of task {task.Name}.",
 			task.AssignedEmployee.Gameworld);
-		var result = step.Execute(context, task.AssignedEmployee);
+		EmploymentActionStepResult result;
+		try
+		{
+			result = step.Execute(context, task.AssignedEmployee);
+			if (result.Success && (step.IsFinancialStep || step.RequiresPaymentAuthorisation))
+			{
+				// Commit native writes before the completed checkpoint. A lost process in between
+				// retains InProgress; an exception in this process installs the same recovery hold.
+				(EmploymentPersistenceStore.ResolveGameworld(task.Employer) ?? task.AssignedEmployee.Gameworld)?.SaveManager?.Flush();
+			}
+		}
+		catch (Exception ex) when ((step.IsFinancialStep || step.RequiresPaymentAuthorisation) && ex is not OutOfMemoryException)
+		{
+			concrete.HoldInterruptedFinancialSteps();
+			var uncertain = $"The financial attempt raised {ex.GetType().Name} after starting; native outcome must be reconciled before retry.";
+			concrete.Block(uncertain);
+			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee, uncertain, task.CorrelationId);
+			return EmploymentActionStepResult.Blocked(uncertain);
+		}
 		var operationalState = result.OperationalState;
 		if (!result.Success)
 		{
@@ -5036,17 +5103,18 @@ public sealed class EmploymentTaskDispatcher
 			return;
 		}
 
-		if (TaskGrantAuthorisesStep(task, currentStep, currentStepIndex))
-		{
-			context.AuthorisePaymentFor(currentStep, null, task.CorrelationId, recordRegister: false);
-		}
+		// Grant-derived approval is evaluated on demand for the bound task/step.
+		// Never add it to a reusable context's explicit approval set.
 	}
 
-	private static bool TaskGrantAuthorisesStep(EmploymentActiveTask task, IEmploymentActionStep currentStep,
+	internal static bool TaskGrantAuthorisesStep(EmploymentActiveTask task, IEmploymentActionStep currentStep,
 		int currentStepIndex)
 	{
 		var grant = task.AuthorisationGrant;
-		if (!grant.CoversAuthority(currentStep.RequiredAuthority))
+		if (currentStepIndex < 0 || currentStepIndex >= task.ActionPlan.Steps.Count ||
+		    !ReferenceEquals(task.ActionPlan.Steps[currentStepIndex], currentStep) ||
+		    !EmploymentApprovalPolicy.CanExecute(task, out _) ||
+		    !grant.CoversAuthority(currentStep.RequiredAuthority))
 		{
 			return false;
 		}
@@ -5194,6 +5262,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			policy,
 			Guid.NewGuid(),
 			_persistence);
+		goal.AuthorisingPrincipal = EmploymentApprovalPolicy.Principal(_host, authorisedBy, "Manager goal", requiredAuthority.Authorities | EmploymentAuthority.CreateManagerGoals);
 		_goals.Add(goal);
 		_persistence?.SaveManagerGoal(goal);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalCreated, authorisedBy,
@@ -5387,7 +5456,9 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 				goalPrincipal,
 				concrete.Priority,
 				now,
-				sourceGoalId: concrete.Id));
+				sourceGoalId: concrete.Id,
+				authorityPrincipal: concrete.AuthorisingPrincipal,
+				issuanceAuthority: concrete.RequiredAuthority.Authorities | EmploymentAuthority.CreateManagerGoals));
 		concrete.MarkEvaluated(now, $"Created active task {task.Name}.");
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
 			concrete.LastEvaluationResult!, concrete.CorrelationId);
@@ -5486,7 +5557,9 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 				goalPrincipal,
 				concrete.Priority,
 				now,
-				sourceGoalId: concrete.Id));
+				sourceGoalId: concrete.Id,
+				authorityPrincipal: concrete.AuthorisingPrincipal,
+				issuanceAuthority: concrete.RequiredAuthority.Authorities | EmploymentAuthority.CreateManagerGoals));
 		concrete.MarkEvaluated(now, $"Created active task {task.Name}.");
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
 			concrete.LastEvaluationResult!, concrete.CorrelationId);
@@ -5596,6 +5669,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 
 public sealed class ManagerGoal : IManagerGoal
 {
+	internal EmploymentPrincipal? AuthorisingPrincipal { get; set; }
 	private readonly IEmploymentPersistenceStore? _persistence;
 
 	public ManagerGoal(long id, IEmploymentHost employer, ManagerGoalType goalType,

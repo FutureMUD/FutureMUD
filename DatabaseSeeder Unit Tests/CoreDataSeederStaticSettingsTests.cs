@@ -17,6 +17,48 @@ namespace MudSharp_Unit_Tests;
 public class CoreDataSeederStaticSettingsTests
 {
 	[TestMethod]
+	public void SeedData_ExistingWorld_PreservesCustomPasswordNotificationTemplate()
+	{
+		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString())
+			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
+		context.SeederChoices.Add(new SeederChoice
+		{
+			Seeder = "Core", Version = "test", Choice = "gamename", Answer = "Existing MUD", DateTime = DateTime.UtcNow
+		});
+		context.Terrains.Add(new Terrain
+		{
+			Id = 1, Name = "Void", DefaultTerrain = true,
+			TerrainANSIColour = "7", TerrainEditorColour = "#FFFFFFFF", TerrainBehaviourMode = "outdoors",
+			AtmosphereType = "Gas", TerrainEditorText = "Vo", TagInformation = string.Empty
+		});
+		context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = 1, Name = "prior", Value = "prior",
+			Definition = new CharacteristicDefinition
+			{
+				Id = 9000, Name = "Prior stock characteristic", Pattern = "^prior$", Model = "standard", Description = "Prior stock"
+			}
+		});
+		context.EmailTemplates.Add(new EmailTemplate
+		{
+			TemplateType = (int)MudSharp.Email.EmailTemplateTypes.AccountPasswordChanged,
+			Content = "<p>Our world: {0} / {1} / {2}</p>",
+			Subject = "Our custom subject", ReturnAddress = "staff@custom.example"
+		});
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+
+		new CoreDataSeeder().SeedData(context, new Dictionary<string, string>());
+		context.ChangeTracker.Clear();
+
+		var template = context.EmailTemplates.Single();
+		Assert.AreEqual("<p>Our world: {0} / {1} / {2}</p>", template.Content);
+		Assert.AreEqual("Our custom subject", template.Subject);
+		Assert.AreEqual("staff@custom.example", template.ReturnAddress);
+	}
+
+	[TestMethod]
 	[DataRow(null)]
 	[DataRow("false")]
 	[DataRow("true")]

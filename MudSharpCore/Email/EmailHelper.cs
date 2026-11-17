@@ -55,6 +55,10 @@ public class EmailHelper
 	}
 
 	public static EmailHelper Instance { get; } = new();
+	public bool CanDeliverAccountEmail
+	{
+		get { lock (_sync) return !SuppressDeliveryInCurrentBuild && _configuration.Enabled; }
+	}
 
 	public void TestFailSendEmail()
 	{
@@ -192,14 +196,8 @@ public class EmailHelper
 
 		try
 		{
-			var message = new MimeMessage();
-			message.From.Add(new MailboxAddress(Futuremud.Games.FirstOrDefault()?.Name ?? "FutureMUD", template.ReturnAddress));
-			message.To.Add(new MailboxAddress(email, email));
-			message.Subject = template.Subject;
-			message.Body = new TextPart(TextFormat.Html)
-			{
-				Text = string.Format(CultureInfo.InvariantCulture, template.Content, arguments)
-			};
+			var message = ComposeMessage(Futuremud.Games.FirstOrDefault()?.Name ?? "FutureMUD",
+				type, template, email, arguments);
 			Enqueue(new QueuedMessage(correlationId, type, message, 0), DateTimeOffset.UtcNow);
 		}
 		catch (Exception exception) when (exception is FormatException or ParseException or ArgumentException)
@@ -207,6 +205,38 @@ public class EmailHelper
 			LogDelivery(correlationId, type, 0, configuration.Transport.ToString(), "InvalidMessage",
 				exception.GetType().Name);
 		}
+	}
+
+	/// <summary>Sends a password-change notification without receiving or retaining the replacement password.</summary>
+	public void SendPasswordChangedEmail(string email, string accountName, string ipAddress)
+	{
+		SendEmail(EmailTemplateTypes.AccountPasswordChanged, email, accountName, ipAddress);
+	}
+
+	internal static MimeMessage ComposeMessage(string senderName, EmailTemplateTypes type, EmailTemplate template, string email,
+		params string[] arguments)
+	{
+		if (type == EmailTemplateTypes.AccountPasswordChanged)
+		{
+			if (arguments.Length < 2)
+			{
+				throw new ArgumentException("A password-change notification requires an account name and IP address.",
+					nameof(arguments));
+			}
+
+			// Preserve legacy {2} templates without passing credentials to MIME composition or the queue.
+			arguments = [arguments[0], arguments[1], "not included in email"];
+		}
+
+		var message = new MimeMessage();
+		message.From.Add(new MailboxAddress(senderName, template.ReturnAddress));
+		message.To.Add(new MailboxAddress(email, email));
+		message.Subject = template.Subject;
+		message.Body = new TextPart(TextFormat.Html)
+		{
+			Text = string.Format(CultureInfo.InvariantCulture, template.Content, arguments)
+		};
+		return message;
 	}
 
 	public void ProcessEmails()

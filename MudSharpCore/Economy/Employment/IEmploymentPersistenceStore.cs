@@ -24,6 +24,11 @@ internal interface IEmploymentPersistenceStore
 	void DeleteScheduledRuleTemplate(EmploymentScheduledRuleTemplate template);
 	void SaveActiveTask(EmploymentActiveTask task);
 	void SaveActiveTaskState(EmploymentActiveTask task);
+	void SaveApprovalTransition(EmploymentActiveTask task, EmploymentRegisterEntry entry, Guid expectedGrantId, int expectedRevision)
+	{
+		SaveActiveTaskState(task);
+		SaveRegisterEntry(entry);
+	}
 	void SaveManagerGoal(ManagerGoal goal);
 	void SaveManagerGoalState(ManagerGoal goal);
 }

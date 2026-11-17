@@ -18,7 +18,7 @@ Reviewers classified the Magic/Armageddon, Seeding/Verification and other runtim
 
 | Area | Corrected supported contract |
 | --- | --- |
-| Employment | Task grants/provenance, priority and lifecycle timestamps are runtime-only. Reload uses empty compatibility grants and financial work fails closed. Separate payroll/ledger persistence remains intact. Retrying a restored task does not recreate approval. |
+| Employment at the 16 November baseline | Task grants/provenance, priority and lifecycle timestamps were runtime-only. Reload uses empty compatibility grants and financial work fails closed. Separate payroll/ledger persistence remains intact. Retrying a restored task does not recreate approval. |
 | Arenas | The lifecycle and operational services exist. Fixed odds have a fixed 5% house edge; periodic Economic Zone tax/P&L settlement and automatic class signature-item provisioning are not delivered contracts. Backfill may leave underfilled starts. |
 | Time/calendar | All six algorithm families exist, but solar-equinoctial/lunar/lunisolar naming does not imply ephemeris-driven boundaries. Mean-cycle approximations and deferred precision/observation ledgers are explicit. |
 | Magic | Classic/full prompts consume magic visibility settings. Land gathering succeeds the earlier organic-yield slice; old verification statements remain historical. Cascade acquisition semantics are retained in the casting master. |
@@ -60,3 +60,11 @@ The employment roadmap, ARM-01 proposals and broad Armageddon programme brief re
 Seeder handoff directories retain embedded JSON, source catalogues and provenance. ItemSeeder completion/stage receipts and native acceptance records preserve their stated revisions, failed/unexecuted checks and local-artifact limitations. Historical release readiness is not present-day release approval.
 
 Validation covers link/path/index consistency, encoding, preserved data assets, Python syntax and the retained catalogue validators on disposable copies. No engine gameplay, fresh MySQL installation, SMTP, live Discord/model session, browser deployment or release qualification was executed by this documentation consolidation. Final local checks covered 663 current Markdown documents, 535 design documents, 3,652 local links, heading anchors, index reachability and UTF-8 with no unresolved errors. All 473 pre-existing non-Markdown design files were hashed: 471 were unchanged and only the two retained validators were adjusted. The redesign validator passed 4,052 checks; round-two passed 6,949 data checks and 11 retained data/research checksums. A modified research payload was rejected in a negative checksum check. Both validators ran on disposable copies; tracked validation reports/manifests were not rewritten. Independent focused source/document review found no actionable defect, with its whole-suite/runtime verification limits retained.
+
+## Merge reconciliation, 17 November 2026
+
+Reconciled against `master` at `4c2f230c1`, retaining the thematic indexes, World vehicle paths and current account-security/employment updates. PRs #868, #869, #871 and #872 are now merged. The runtime-only employment observation above is historical: [employment restart and recovery](../Economy/Employment_Restart_and_Recovery.md) now owns the durable approval, legacy compatibility and audited recovery contract and its provider/live evidence. The 18-finding disposition register distinguishes those merged implementations from this documentation consolidation and its remaining verification boundaries.
+
+The merge resolution is checked locally for conflicts, links, encoding and retained index entries. CI is not awaited for this merge, as requested; earlier validation figures above retain their original source scope.
+
+Local reconciliation checks: all 682 tracked Markdown documents decode as UTF-8; all 537 design documents are reachable from the design index; 4,014 local links and their Markdown heading targets have no unresolved errors. Website-root routes were excluded from filesystem-link validation. No engine/gameplay acceptance or hosted CI completion is claimed for this merge.

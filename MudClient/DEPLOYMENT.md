@@ -101,6 +101,19 @@ sudo bash /tmp/mudclient-package/mudclient-1.3.2-linux-x64/deploy/linux/install-
 
 Use `CADDY_CONFIG` and `CADDY_FRAGMENTS_DIR` for nonstandard Caddyfile locations. The installer saves `.before-mudclient-install` backups of the files it changes; review those and take a normal deployment backup before upgrading an existing installation.
 
+## Automated tests
+
+The [MudClient Tests workflow](../.github/workflows/mudclient-tests.yml) runs the existing client, WebSocket proxy and deployment test suite in Release on Windows and Linux. Pull requests and `master` pushes trigger it when `MudClient/`, shared build/package configuration, the default test settings or the workflow itself change. Merge queues and manual dispatches also run both platforms. Each job uses `MudClient/global.json` and retains TRX results for 14 days, including results produced by failed test runs.
+
+To run the same tests locally, start in `MudClient/` with the SDK selected by `global.json`. The test build does not require the WebAssembly tools used for optimized publishing:
+
+```text
+dotnet restore MudClientTests/MudClientTests.csproj -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=true
+dotnet test MudClientTests/MudClientTests.csproj -c Release --no-restore -m:1
+```
+
+These tests supplement the release qualification below. They do not exercise a deployed browser session or certify a live server upgrade.
+
 ## Build A Release
 
 The production release is created by an annotated `mudclient-v<version>` tag in the FutureMUD repository. The normal product workflow installs the WebAssembly build tools, fails closed if NuGet advisory data is unavailable or any direct/transitive dependency is vulnerable, runs the client tests, produces self-contained Windows x64, Linux x64, and Linux ARM64 packages, smoke-publishes them to a temporary website host, and promotes the validated archives to futuremud.com.

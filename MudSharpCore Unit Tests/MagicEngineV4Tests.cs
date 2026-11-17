@@ -477,8 +477,8 @@ public partial class MagicEngineV4Tests
 		"psychicbolt"
 	];
 
-	[TestInitialize]
-	public void TestInitialize()
+	[ClassInitialize]
+	public static void RegisterSpellFactories(TestContext context)
 	{
 		SpellTriggerFactory.SetupFactory();
 		SpellEffectFactory.SetupFactory();

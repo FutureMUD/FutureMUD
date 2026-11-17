@@ -383,6 +383,8 @@ Only revisit it with a health-balance requirement and simulation evidence. Do no
 
 **Recommended closure:** add a path-filtered client/proxy CI job or explicitly include the suite in an appropriate PR gate, preserving the separate deployment/package tests. The mere presence of `coverlet.collector` in a project does not establish that coverage is collected by the ordinary workflow.
 
+**Post-audit implementation, 15 November 2026:** the dedicated [MudClient Tests workflow](../../.github/workflows/mudclient-tests.yml) now selects the existing client/proxy/deployment suite for relevant pull requests and `master` pushes, merge groups and manual runs on Windows and Linux. It uses the product SDK configuration, runs Release tests and retains TRX evidence. The default engine manifest and product release qualification remain separate. Local Windows validation passed all 136 tests without the optional WebAssembly publishing workload. This closes the workflow-selection omission in source; successful hosted execution must be established from the workflow results, not inferred from this addition.
+
 ### F18 Resolved — Obsolete service projects retired
 
 **Classification: resolved by owner-requested source retirement on 15 November 2026.**

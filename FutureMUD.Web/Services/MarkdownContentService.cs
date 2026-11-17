@@ -181,7 +181,7 @@ public sealed partial class MarkdownContentService
 			RenderMarkdown(markdown));
 	}
 
-	private static (Dictionary<string, string> Metadata, string Markdown) ParseFrontMatter(string text)
+	internal static (Dictionary<string, string> Metadata, string Markdown) ParseFrontMatter(string text)
 	{
 		var metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		var normalised = text.Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -224,7 +224,7 @@ public sealed partial class MarkdownContentService
 		return encoded;
 	}
 
-	private static bool IsSafeLinkTarget(string href)
+	internal static bool IsSafeLinkTarget(string href)
 	{
 		if (string.IsNullOrWhiteSpace(href))
 		{

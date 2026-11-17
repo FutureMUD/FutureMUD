@@ -12,9 +12,9 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 - [Analyse capability](Analyse_Capability.md)
 - [Butchering System](Butchering_System.md)
-- [Crafting System Builder Workflows](Crafting_System_Builder_Workflows.md)
+- [Crafting System Builder Workflows](../Builder%20Guides/Crafting_System_Builder_Workflows.md)
 - [FutureMUD Crafting System: Runtime and Extensibility](Crafting_System_Runtime_and_Extensibility.md)
-- [FutureMUD Projects System Builder Workflows](Projects_System_Builder_Workflows.md)
+- [FutureMUD Projects System Builder Workflows](../Builder%20Guides/Projects_System_Builder_Workflows.md)
 
 ## Content and source references
 

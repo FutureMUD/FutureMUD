@@ -1,3 +1,9 @@
+---
+slug: character-creation
+category: Characters and bodies
+summary: Configure character creation storyboards, requirements, costs, skills and starting locations.
+---
+
 # Character Creation Builder Workflows
 
 ## Purpose
@@ -17,7 +23,7 @@ Builders are expected to customise:
 
 ## Working With Storyboards
 
-Use `chargenskillgroup` to author generic bounded skill entitlements separately from storyboards. See [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md) for the complete command reference and a non-language exactly-two example.
+Use `chargenskillgroup` to author generic bounded skill entitlements separately from storyboards. See [Chargen Skill Selection Groups](../Characters/Chargen_Skill_Selection_Groups.md) for the complete command reference and a non-language exactly-two example.
 
 Use the `chargen` command family.
 
@@ -30,7 +36,7 @@ The normal workflow is:
 
 Use `chargen types` and `chargen typehelp <type>` before swapping a stage to a different screen implementation.
 
-For NamePicker, `chargen set stylesprog <prog|none>` controls optional naming styles. The prog returns a name-culture collection and accepts chargen-compatible parameters (including Toon or any-parameter progs). Existing ethnicity/upbringing fallback remains available. `chargen set allowunicode` remains a separate control. Name-culture builder options `preservecase`, `exactgender` and `typographic` toggle their opt-in XML policies; absent options retain legacy behavior. See [naming runtime](Character_Creation_Runtime.md#structured-naming-and-encoding).
+For NamePicker, `chargen set stylesprog <prog|none>` controls optional naming styles. The prog returns a name-culture collection and accepts chargen-compatible parameters (including Toon or any-parameter progs). Existing ethnicity/upbringing fallback remains available. `chargen set allowunicode` remains a separate control. Name-culture builder options `preservecase`, `exactgender` and `typographic` toggle their opt-in XML policies; absent options retain legacy behavior. See [naming runtime](../Characters/Character_Creation_Runtime.md#structured-naming-and-encoding).
 
 ## Changing Screen Type
 Some stages support alternative storyboard types.

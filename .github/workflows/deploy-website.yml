@@ -6,6 +6,7 @@ on:
     paths:
       - 'FutureMUD.Web/**'
       - 'FutureMUDLibrary/Documentation/**'
+      - 'Design Documents/Builder Guides/*.md'
       - 'Futuremud Configuration Tool/Images/FM Logo.png'
       - '.github/workflows/deploy-website.yml'
 

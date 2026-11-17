@@ -492,7 +492,7 @@ The same-identity effects reuse the same owned-form provisioning conventions as 
 
 `possessbody` remains the safe shell model for NPC-derived vessels. Use `seizebody` when the fiction requires direct control of an actual living body, including hostile PC possession. Use `possesscorpse` when the fiction requires the caster to command the same corpse item as a possessed vessel. Use `animatecorpse` when the fiction requires a zombie-like NPC with configured AIs. Use `deadspeak` when the fiction requires a corpse's original body to become a temporary speech proxy without giving it AI or player command. The corpse effects hide and restore the same corpse item rather than producing a second set of remains. These effects are temporary, spell-bound, non-persistent across reboot, and collapse on dispel, relevant death/logout cleanup, or actor retirement.
 
-Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
+Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Builder%20Guides/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
 
 `animatecorpse` additionally supports opt-in `lifecycle durable`, `family <name>` and
 `lifetime <real-seconds expression>`. Its recovery journal persists across reboot while

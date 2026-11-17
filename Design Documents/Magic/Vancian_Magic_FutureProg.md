@@ -48,7 +48,7 @@ Boolean start functions report that work was accepted, which may mean a timed ac
 
 Known-selection callbacks receive immutable distinct spell sets on the canonical identity. A callback is marked `Invoking` durably before execution. Errors become `NeedsReview`; neither reload nor another commit automatically retries it. Staff can acknowledge an inspected committed operation or cancel a precommit reservation. Progs should not implement an independent slot store.
 
-The exact configurable hook signatures and worked interval examples are in the [builder guide](Vancian_Magic_Builder_Guide.md). The ten programs in [Vancian_Example_Progs.json](Vancian_Example_Progs.json) are compiled and executed by `EveryDocumentedPolicyCompilesAndExecutesItsDeclaredContract`; all public function overloads are compiled with their declared types by `EveryPublicVancianFunctionCompilesWithItsExactDeclaredTypes`.
+The exact configurable hook signatures and worked interval examples are in the [builder guide](../Builder%20Guides/Vancian_Magic_Builder_Guide.md). The ten programs in [Vancian_Example_Progs.json](Vancian_Example_Progs.json) are compiled and executed by `EveryDocumentedPolicyCompilesAndExecutesItsDeclaredContract`; all public function overloads are compiled with their declared types by `EveryPublicVancianFunctionCompilesWithItsExactDeclaredTypes`.
 
 ## Spell metadata
 

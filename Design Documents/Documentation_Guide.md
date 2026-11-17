@@ -17,6 +17,28 @@ Do not call a system complete from a checklist, source marker, test-project pres
 - Keep current contracts, outstanding proposals and dated evidence visibly separated in each area's `README.md`. Use a `Proposals/` or `Verification/` subdirectory when a large family needs one.
 - Use UTF-8 and repository-relative Markdown links. Encode spaces in link targets or use angle brackets. After moving a file, resolve its outgoing links from its new directory and update all inbound documentation, tool and instruction references.
 
+## Publishing builder guides
+
+[Builder guides](https://futuremud.com/docs/builder-guides) are for people and agents working inside a running FutureMUD game. Put each public guide directly in `Design Documents/Builder Guides/` as a UTF-8 `.md` file. Placement in that folder opts the guide into publication. Keep engine and seeder implementation instructions, proposals and verification records in their thematic directories. The thematic index should link to the guide's canonical source.
+
+Begin the file with the following front matter, then a single Markdown title. The title appears in the results list and at the top of the page.
+
+```markdown
+---
+slug: room-descriptions
+category: World building
+summary: Write room descriptions that respond to light, weather and viewer knowledge.
+---
+
+# Room descriptions
+```
+
+Use a unique slug of lowercase letters and digits with single hyphens between words. Keep the slug stable so links continue to work after a title or filename change. Reuse an existing category where it fits. The site searches the title, summary and body, and filters by category. Relative links to other public guides open their site pages. Links to supporting files elsewhere in the repository open the corresponding GitHub paths. Use ordinary headings, lists, tables and fenced command examples. The guide renderer escapes raw HTML.
+
+Explain the builder's mental model and prerequisites, then show the relevant command syntax and its revision, activation and permission rules. Walk through a concrete setup with expected results, show how it connects to other systems, and document common failures and how to diagnose them. Link to the command or FutureProg reference for exhaustive syntax. See the [builder guide coverage review](Building/Builder_Guide_Coverage_20261118.md) for the current backlog.
+
+Build and run `FutureMUD.Web.Tests` when adding or changing guides. The website build embeds every guide in the publication folder and the `Deploy FutureMUD website` action picks up changes after they reach `master`. Removing a guide from the folder removes its page in the next deployment. See the [website publishing contract](Core/FutureMUD_Website_and_Publishing.md#builder-guide-publication).
+
 ## Historical and generated material
 
 Published news/patch notes, source research, original corpora and generated/embedded payloads have different lifecycles from implementation plans. Preserve dated claims as history; correct a known factual overstatement explicitly. An ignored `.artifacts` path is local evidence and should be labelled as such, not presented as a downloadable repository file.

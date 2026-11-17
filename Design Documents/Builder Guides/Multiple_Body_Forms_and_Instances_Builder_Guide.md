@@ -1,3 +1,9 @@
+---
+slug: body-forms-and-instances
+category: Characters and bodies
+summary: Configure transformations, projections, secondary bodies and possession with commands and FutureProg.
+---
+
 # Multiple Body Forms and Instances Builder Guide
 
 ## Purpose
@@ -829,8 +835,8 @@ animatecorpse returns the same corpse item rather than creating duplicate remain
 
 ## Related Documents
 
-- [Multiple Body Form System](./Multiple_Body_Form_System.md)
-- [Multiple Simultaneous Body Instances Design](./Multiple_Simultaneous_Body_Instances_Design.md)
+- [Multiple Body Form System](../Characters/Multiple_Body_Form_System.md)
+- [Multiple Simultaneous Body Instances Design](../Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 - [Character Description System](../Markup/Character_Description_System.md)
 - [Magic System Spells](../Magic/Magic_System_Spells.md)
 - [NPC AI and Group AI Runtime](../AI/NPC_AI_and_Group_AI_Runtime.md)

@@ -1,3 +1,9 @@
+---
+slug: item-authoring
+category: Items
+summary: Choose item descriptions, properties, tags, components and skins for consistent in-game content.
+---
+
 # FutureMUD Item Authoring Guidelines
 
 Items in FutureMUD are composed of Item Components that give them functionality. For example, the ability to be worn is given by an IWearable component.

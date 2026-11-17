@@ -4,7 +4,7 @@
 
 ## Playing the prototype
 
-For a first production, follow the [builder walkthrough](../Building/Staged_Performance_Builder_Guide.md). Setting packages can install a reusable published work using the [seeder guide](../Seeding/Staged_Performance_Seeder_Guide.md).
+For a first production, follow the [builder walkthrough](../Builder%20Guides/Staged_Performance_Builder_Guide.md). Setting packages can install a reusable published work using the [seeder guide](../Seeding/Staged_Performance_Seeder_Guide.md).
 
 Use `performance work help` for the implemented editor and `performance help` for staging. The proposed long-form syntax in the worked designs below illustrates the intended content. The following commands use the running prototype's syntax. Create each fixture once, then edit or publish the resulting ordinary work.
 

@@ -257,7 +257,7 @@ Infections are advanced by infection ticks rather than only by treatment command
 
 ### Configured infection definitions
 
-`ConfiguredInfection` is a persistent whole-body illness defined by an Infection drug-effect profile. Its symptom drug is reconciled through the native drug-effect handlers without physical dosing. Definitions select native immune progression or fixed active-play duration, and periodic or symptom-episode-triggered room transmission. The legacy terrain infection selector excludes this family because it requires a particular definition drug, rather than an enum alone. Existing infection families and their persistence remain unchanged apart from an optional metadata column. See [drug architecture](../Drugs/Drug_System_Design.md#infection-causing-drugs-and-infection-owned-symptoms) and [builder workflow](../Drugs/Drug_Builder_Guide.md#configuring-an-infection).
+`ConfiguredInfection` is a persistent whole-body illness defined by an Infection drug-effect profile. Its symptom drug is reconciled through the native drug-effect handlers without physical dosing. Definitions select native immune progression or fixed active-play duration, and periodic or symptom-episode-triggered room transmission. The legacy terrain infection selector excludes this family because it requires a particular definition drug, rather than an enum alone. Existing infection families and their persistence remain unchanged apart from an optional metadata column. See [drug architecture](../Drugs/Drug_System_Design.md#infection-causing-drugs-and-infection-owned-symptoms) and [builder workflow](../Builder%20Guides/Drug_Builder_Guide.md#configuring-an-infection).
 
 ### Infection interactions
 Infections currently interact with:

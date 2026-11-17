@@ -8,7 +8,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
-- [Environmental Exposure Builder Guide](Environmental_Exposure_Builder_Guide.md)
+- [Environmental Exposure Builder Guide](../Builder%20Guides/Environmental_Exposure_Builder_Guide.md)
 
 ## Dated reviews and verification records
 

@@ -1,3 +1,9 @@
+---
+slug: editable-content
+category: Builder tools
+summary: Find, edit, validate and review content with the shared builder commands.
+---
+
 # Generic Editable Item Builder Workflows
 
 ## The common editing workflow

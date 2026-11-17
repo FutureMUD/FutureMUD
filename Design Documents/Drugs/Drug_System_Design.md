@@ -3,7 +3,7 @@
 ## Purpose
 This document describes the current FutureMUD drug implementation for developers. It is an implementation map, not a redesign proposal.
 
-The content-facing companion is [Drug Builder Guide](./Drug_Builder_Guide.md).
+The content-facing companion is [Drug Builder Guide](../Builder%20Guides/Drug_Builder_Guide.md).
 
 ## Implementation Map
 | Surface | Primary types |

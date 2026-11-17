@@ -1,6 +1,6 @@
 # Seeding staged performances
 
-A setting package can offer a published script that organisers can select immediately or copy into a draft. The organiser supplies the actual cast, rooms, exits, equipment and booking time in the running game. [Builder walkthrough](../Building/Staged_Performance_Builder_Guide.md)
+A setting package can offer a published script that organisers can select immediately or copy into a draft. The organiser supplies the actual cast, rooms, exits, equipment and booking time in the running game. [Builder walkthrough](../Builder%20Guides/Staged_Performance_Builder_Guide.md)
 
 ## Create the work
 

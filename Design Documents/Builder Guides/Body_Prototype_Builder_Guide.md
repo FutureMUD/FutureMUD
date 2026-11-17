@@ -1,3 +1,9 @@
+---
+slug: body-prototypes
+category: Characters and bodies
+summary: Build and validate anatomy, positions and movement before assigning a body prototype to a race.
+---
+
 # Body Prototype Builder Guide
 
 See the [common builder workflow](Generic_Editable_Item_Builder_Workflows.md) for selection, closing, help discovery and persistence conventions.

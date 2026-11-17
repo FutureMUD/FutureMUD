@@ -1,9 +1,15 @@
+---
+slug: drugs
+category: Health and environment
+summary: Configure in-game drug effects and delivery through items, liquids, gases and magic.
+---
+
 # FutureMUD Drug Builder Guide
 
 ## Purpose
 This guide is for builders, seeder developers, and AI agents creating drug content in FutureMUD.
 
-Use [Drug System Design](./Drug_System_Design.md) when you need implementation details.
+Use [Drug System Design](../Drugs/Drug_System_Design.md) when you need implementation details.
 
 ## Mental Model
 A drug is the pharmacology. It says what the substance does, which delivery routes can work, how strong it is per gram, and how quickly it clears.

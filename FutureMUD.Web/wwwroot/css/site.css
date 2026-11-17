@@ -84,6 +84,11 @@ h2 { font-size: clamp(1.55rem, 3vw, 2.2rem); }
 .page-header h1, .document h1 { font-size: clamp(2.4rem, 6vw, 4.7rem); }
 .document { max-width: 70rem; margin: auto; }
 .document--commands, .document--components { max-width: 64rem; }
+.document--builder-guides h1 { max-width: 24ch; overflow-wrap: anywhere; }
+.builder-guide-copy { overflow-wrap: anywhere; }
+.builder-guide-copy table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.builder-guide-copy th, .builder-guide-copy td { border: 1px solid var(--line); padding: .5rem .75rem; text-align: left; vertical-align: top; }
+.builder-guide-copy th { background: var(--surface); }
 .prose { font-family: ui-serif, Georgia, Cambria, serif; font-size: 1.08rem; }
 .prose h2, .prose h3 { margin-top: 2.5rem; font-family: "Cascadia Code", Consolas, monospace; }
 .prose pre { overflow: auto; padding: 1.4rem; border: 1px solid var(--line); background: #070b08; white-space: pre-wrap; font: .95rem/1.65 "Cascadia Code", Consolas, monospace; }

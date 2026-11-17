@@ -58,7 +58,7 @@ For commands, apply `MudSharpCore/Commands/AGENTS.md` as well; command uniquenes
 | Character description markup | [Character descriptions](Design%20Documents/Markup/Character_Description_System.md) |
 | Human seeder description patterns | [Human seeder patterns](Design%20Documents/Markup/Human_Seeder_Description_Patterns.md) |
 | Room/cell description markup | [Room description markup](Design%20Documents/Markup/Room_Description_Markup.md) |
-| Room-building commands/workflows | [Room building guide](Design%20Documents/Building/Room_Building_Builder_Guide.md) |
+| Room-building commands/workflows | [Room building guide](Design%20Documents/Builder%20Guides/Room_Building_Builder_Guide.md) |
 | Subsystem design or changed behaviour | Relevant document in `Design Documents/`; use [the index](Design%20Documents/README.md) when its location is unknown. |
 | Test selection, sandbox build issues, item/economy document routing | [Verification and documentation map](.codex/references/verification-and-docs.md), only the relevant section. |
 

@@ -1,10 +1,16 @@
+---
+slug: environmental-magic
+category: Magic
+summary: Author land and resource profiles, bind them to terrain and rooms, and verify ecological effects.
+---
+
 # Environmental Magic Builder Guide
 
-For shared ecological life on physical Areas/Zones, use the separate [Regional Land gathering guide](Regional_Land_Gathering.md). Regional profiles share one regenerating stock owner and are distinct from room environmental generators and forage-profile inheritance. Their builder surface is `magic environment regional`.
+For shared ecological life on physical Areas/Zones, use the separate [Regional Land gathering guide](../Magic/Regional_Land_Gathering.md). Regional profiles share one regenerating stock owner and are distinct from room environmental generators and forage-profile inheritance. Their builder surface is `magic environment regional`.
 
 An `environmental` regenerator is a reusable profile for resources held by physical cells. It uses the existing magic-resource balances, one environmental maximum for each configured resource, and persistent cell damage. It applies only after an explicit cell binding or terrain default is configured. No stock setting content is installed.
 
-The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured gathering](Magic_Gathering.md) uses the exact managed mana-debit surface for Gentle and configured local managed/native sources for destructive Land. [Native organic yields](Native_Organic_Yields_and_Ecological_Penalties.md) define the profile authorisation, native owner debits and scar-sensitive positive production Land depends on. A profile alone grants no gathering method; the capability builder must configure and grant one explicitly.
+The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](../Magic/Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](../Magic/Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured gathering](../Magic/Magic_Gathering.md) uses the exact managed mana-debit surface for Gentle and configured local managed/native sources for destructive Land. [Native organic yields](../Magic/Native_Organic_Yields_and_Ecological_Penalties.md) define the profile authorisation, native owner debits and scar-sensitive positive production Land depends on. A profile alone grants no gathering method; the capability builder must configure and grant one explicitly.
 
 ## Author a profile
 
@@ -45,7 +51,7 @@ magic regenerator set idle <seconds|default>
 
 Each resource occurs at most once. Half-life must be at least one second; an optional idle interval is from one through 3,600 seconds. Repair zero disables natural repair. Inputs and outputs have finite count limits enforced by the profile. A missing reference, invalid expression, unsupported resource holder, duplicate output or invalid numeric result disables the affected environmental route with diagnostics.
 
-`magicalrepaircap` independently limits the scar units repaired per real minute by a [`rejuvenateland` spell treatment](Magic_System_Spells.md#bounded-land-rejuvenation). Older profiles and `none` add no cap beyond the spell's captured rate. Zero disables treatments; it does not change natural repair or erase scars. For slow restoration, use `magic regenerator set magicalrepaircap 1`. Positive cap edits apply prospectively; disabling or replacing the effective profile ends an existing treatment. Invalid persisted cap values fault treatment policy while preserving otherwise valid mana outputs.
+`magicalrepaircap` independently limits the scar units repaired per real minute by a [`rejuvenateland` spell treatment](../Magic/Magic_System_Spells.md#bounded-land-rejuvenation). Older profiles and `none` add no cap beyond the spell's captured rate. Zero disables treatments; it does not change natural repair or erase scars. For slow restoration, use `magic regenerator set magicalrepaircap 1`. Positive cap edits apply prospectively; disabling or replacing the effective profile ends an existing treatment. Invalid persisted cap values fault treatment policy while preserving otherwise valid mana outputs.
 
 Changing a profile retains existing room balances and damage. A valid lower maximum discards excess energy at the owning managed mutation/configuration/advance boundary. A higher maximum increases capacity only. Removing an output or disabling a profile does not delete stored balances or damage. A newly attached output starts empty; existing stored zero balances remain empty on restart.
 
@@ -87,7 +93,7 @@ magic regenerator set organic protection <prog|none>
 
 Canonical selectors are `forage:<normalised-key>`, `crop`, `woodland` and `pasture`. Crop covers both an annual crop and an orchard in the shared native crop slot. A profile permits at most 32 declarations and rejects duplicate canonical selectors. Empty definition/use restrictions mean any compatible current definition/use for that declared source; they do not enable undeclared channels. Where a field and wild forage represent the same plants, declare only the intended native owner.
 
-Penalty tokens are `forage`, `crophealth`, `cropyield`, `woodlandhealth`, `woodlandyield`, `pasture`, `cropinitial`, `woodlandinitial` and `pastureinitial`. Formulae must be deterministic and return a finite multiplier from zero through one. Inputs and units are documented in the [native-yields design](Native_Organic_Yields_and_Ecological_Penalties.md). For `forage`, `baselineincrease` is the full ordinary hourly rate before clamping to remaining capacity. A missing formula is neutral. An invalid configured result contributes no uncertain positive growth to that channel and is diagnosed; it never turns into unrestricted growth. The organic conversion gateway also checks applicable configured recovery penalties against the current native and scar/pressure inputs during inspection, planning and apply. An invalid result reports `Invalid` with raw stock retained for diagnosis; fixing the formula or scars restores eligibility without creating stock. A factor of zero is valid.
+Penalty tokens are `forage`, `crophealth`, `cropyield`, `woodlandhealth`, `woodlandyield`, `pasture`, `cropinitial`, `woodlandinitial` and `pastureinitial`. Formulae must be deterministic and return a finite multiplier from zero through one. Inputs and units are documented in the [native-yields design](../Magic/Native_Organic_Yields_and_Ecological_Penalties.md). For `forage`, `baselineincrease` is the full ordinary hourly rate before clamping to remaining capacity. A missing formula is neutral. An invalid configured result contributes no uncertain positive growth to that channel and is diagnosed; it never turns into unrestricted growth. The organic conversion gateway also checks applicable configured recovery penalties against the current native and scar/pressure inputs during inspection, planning and apply. An invalid result reports `Invalid` with raw stock retained for diagnosis; fixing the formula or scars restores eligibility without creating stock. A factor of zero is valid.
 
 The optional protection prog is validated now for the later destructive operation and is not invoked by Task 3A. It returns boolean and accepts character actor, character owner, magic capability, text method key, numeric requested amount and location cell, in that order.
 
@@ -127,7 +133,7 @@ One effective profile applies to each physical cell. An explicit cell profile ov
 
 ## Staff damage and repair
 
-Treatment inspection reports captured and remaining work, status, source IDs and ecological step IDs without advancing time or loading the creator. `treatments confirm` reconciles an existing uncertain step; it never applies repair or evaluates a policy. A foreign pending ecological operation remains owned by its original action. See [the treatment verification record](Land_Rejuvenation_Verification.md) for restart, cancellation and provider-fault evidence.
+Treatment inspection reports captured and remaining work, status, source IDs and ecological step IDs without advancing time or loading the creator. `treatments confirm` reconciles an existing uncertain step; it never applies repair or evaluates a policy. A foreign pending ecological operation remains owned by its original action. See [the treatment verification record](../Magic/Land_Rejuvenation_Verification.md) for restart, cancellation and provider-fault evidence.
 
 ```text
 magic environment damage <here|cell id> <damage> <pressure> <operation guid> <reason>

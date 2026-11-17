@@ -1,3 +1,9 @@
+---
+slug: projects
+category: Crafting and projects
+summary: Build projects with phases, labour, materials and actions, including paid work by NPCs.
+---
+
 # FutureMUD Projects System Builder Workflows
 
 ## Purpose
@@ -5,7 +11,7 @@ This document explains how builders and admins currently create, revise, approve
 
 This is a builder-facing guide. It describes the command workflows that exist today, including current limitations and implementation quirks.
 
-Agriculture uses this project system for field labour. See [Agriculture Builder Workflows](../Agriculture/Agriculture_Builder_Workflows.md) for the field-facing commands and the extra agriculture project context written when `field start` creates a local project.
+Agriculture uses this project system for field labour. See [Agriculture Builder Workflows](Agriculture_Builder_Workflows.md) for the field-facing commands and the extra agriculture project context written when `field start` creates a local project.
 
 ## Builder Mental Model
 Keep these three layers separate in your head:

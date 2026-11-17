@@ -1,3 +1,9 @@
+---
+slug: autobuilder
+category: World building
+summary: Generate areas from room and area templates, including maps from Terrain Planner.
+---
+
 # Autobuilder Builder How-To
 
 ## What The Seeders Give You

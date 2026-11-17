@@ -9,7 +9,7 @@ Use the area's master guide for supported behavior and limits, its builder/playe
 | AI | [AI](AI/README.md) | [AI Storyteller System](AI/AI_Storyteller_System.md) |
 | Agriculture | [Agriculture](Agriculture/README.md) | [FutureMUD Agriculture System Overview](Agriculture/Agriculture_System_Overview.md) |
 | Armageddon | [Armageddon](Armageddon/README.md) | [Armageddon Magic](Armageddon/Magic/README.md) |
-| Building | [Building](Building/README.md) | [Room Building Builder Guide](Building/Room_Building_Builder_Guide.md) |
+| Building | [Building](Building/README.md) | [Room Building Builder Guide](Builder%20Guides/Room_Building_Builder_Guide.md) |
 | Characters | [Characters](Characters/README.md) | [Character Creation Runtime](Characters/Character_Creation_Runtime.md) |
 | Combat | [Combat](Combat/README.md) | [Combat Strategy Runtime](Combat/Combat_Strategy_Runtime.md) |
 | Communication | [Communication](Communication/README.md) | [Native Languages and Accents](Communication/Native_Languages_and_Accents.md) |
@@ -32,6 +32,7 @@ Use the area's master guide for supported behavior and limits, its builder/playe
 ## Working with the suite
 
 - [Document roles, consolidation and naming](Documentation_Guide.md)
+- [Publishing builder guides](Documentation_Guide.md#publishing-builder-guides) and [builder guide coverage review](Building/Builder_Guide_Coverage_20261118.md)
 - [Engine maturity audit, 14 November 2026](Core/Engine_Maturity_Audit_20261114.md): thematic source assessment with explicit assurance limits.
 - [Documentation suite review, 16 November 2026](Core/Documentation_Review_20261116.md): completed-plan consolidation, corrected claims and remaining work.
 - [Seeder authoring inventory](Seeding/Seeders/README.md) and [exported data references](Data/README.md).

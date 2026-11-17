@@ -1,3 +1,9 @@
+---
+slug: checks-and-decorators
+category: Builder tools
+summary: Configure check templates, trait expressions and display decorators, and activate the edits after restart.
+---
+
 # Check and Decorator Editors
 
 See the [common builder workflow](Generic_Editable_Item_Builder_Workflows.md) for help discovery, selection and closing. The restart activation rule below is specific to these editors.

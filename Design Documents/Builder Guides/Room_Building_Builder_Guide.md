@@ -1,3 +1,9 @@
+---
+slug: rooms
+category: World building
+summary: Build and review rooms, exits, terrain, overlay packages, landmarks and linear routes.
+---
+
 # Room Building Builder Guide
 
 The canonical administrative building command is `room`; `cell` remains an alias with identical permissions and dispatch. The live internal and database concept is Room, retaining the former Cell ID. Legacy containing Rooms are removed rather than renamed into playable locations. All examples use the canonical command; existing `cell` commands retain identical dispatch. Optional unique names remain room-wide, case-insensitively unique, and independent of overlays; numeric IDs and FutureProg Location values retain their established meaning.
@@ -22,7 +28,7 @@ The additive `CellUniqueNames` migration adds nullable `utf8mb4` storage and a n
 
 ## Quick Mental Model
 
-The [staged spatial migration](Cell_Spatial_Ownership_Migration.md) removes the legacy containing Room entity. Surviving Rooms directly own their zone, stored integer XYZ coordinates and Area memberships. Familiar room vocabulary and FutureProg location functions remain. Rezone and Area editing affect the selected Room directly. Hosted interiors still project their exterior environment while their stored ownership remains independent.
+The [staged spatial migration](../Building/Cell_Spatial_Ownership_Migration.md) removes the legacy containing Room entity. Surviving Rooms directly own their zone, stored integer XYZ coordinates and Area memberships. Familiar room vocabulary and FutureProg location functions remain. Rezone and Area editing affect the selected Room directly. Hosted interiors still project their exterior environment while their stored ownership remains independent.
 
 FutureMUD locations are built from a small set of concepts:
 
@@ -173,7 +179,7 @@ Agriculture note:
 - agriculture fields are live room state, not overlay text
 - terrain can define a default agriculture profile with `terrain set agriculture <profile|none>`
 - builders create and maintain actual fields with `field create`, `field set`, `field reset`, and `field tick`
-- see [Agriculture Builder Workflows](../Agriculture/Agriculture_Builder_Workflows.md) for the full field workflow
+- see [Agriculture Builder Workflows](Agriculture_Builder_Workflows.md) for the full field workflow
 
 ### Areas
 
@@ -358,7 +364,7 @@ An explicit `room set forage <profile>` override is stored on the Room and takes
 
 Environmental magic resources use a separate explicit binding. Create an `environmental` regenerator with `magic regenerator edit new environmental <resource> <name>`, then set `terrain set environment <profile>` or `magic environment terrain <terrain> <profile>`. Use `magic environment room <here|room id> <profile|inherit|disabled>` for the physical room's override. `disabled` suppresses the terrain default; `inherit` restores it. Balances and persistent scar damage survive overlay/profile changes and restart. A new output starts empty, and a higher cap never refills discarded energy.
 
-`magic environment show [here|room id]` purely inspects inputs, resources and damage. Staff damage/repair, FutureProg helpers, explicit input scaling and disposable examples are documented in the [Environmental Magic Builder Guide](../Magic/Environmental_Magic_Builder_Guide.md). Environmental reads do not consume forage or agriculture yields.
+`magic environment show [here|room id]` purely inspects inputs, resources and damage. Staff damage/repair, FutureProg helpers, explicit input scaling and disposable examples are documented in the [Environmental Magic Builder Guide](Environmental_Magic_Builder_Guide.md). Environmental reads do not consume forage or agriculture yields.
 
 Outdoors type:
 

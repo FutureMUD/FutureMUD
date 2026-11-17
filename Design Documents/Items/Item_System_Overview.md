@@ -2,7 +2,7 @@
 
 ## Vancian magical writing
 
-`spellbook` holds structured formulae on each physical instance. `spellscroll` holds one prepaid stored spell, with creator numerical potency and reader-owned activation. Prototypes configure capacity, usability and production; they never provide free formulae or charges. See [Vancian player workflows](../Magic/Vancian_Magic_Player_Guide.md) and [component authoring](../Magic/Vancian_Magic_Builder_Guide.md).
+`spellbook` holds structured formulae on each physical instance. `spellscroll` holds one prepaid stored spell, with creator numerical potency and reader-owned activation. Prototypes configure capacity, usability and production; they never provide free formulae or charges. See [Vancian player workflows](../Magic/Vancian_Magic_Player_Guide.md) and [component authoring](../Builder%20Guides/Vancian_Magic_Builder_Guide.md).
 
 The representative modern ranged catalogue and its item-component coverage are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 

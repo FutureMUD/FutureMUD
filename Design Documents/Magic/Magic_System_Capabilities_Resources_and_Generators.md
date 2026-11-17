@@ -127,7 +127,7 @@ The current `IMagicCapability` contract exposes:
 - a prompt-visibility flag for resources
 - a clone method
 
-The implemented capability types are `skilllevel` and `vancian`. The latter shares concentration, regenerators and inherent powers, and adds configurable spell repertoires, allowances and recovery. Its choices and slot ledger are persisted per canonical identity/capability, while live capabilities are still derived from grants. See [Vancian runtime](Vancian_Magic_Runtime.md) for state ownership, suspension and migration details, and the [builder guide](Vancian_Magic_Builder_Guide.md) for complete configuration.
+The implemented capability types are `skilllevel` and `vancian`. The latter shares concentration, regenerators and inherent powers, and adds configurable spell repertoires, allowances and recovery. Its choices and slot ledger are persisted per canonical identity/capability, while live capabilities are still derived from grants. See [Vancian runtime](Vancian_Magic_Runtime.md) for state ownership, suspension and migration details, and the [builder guide](../Builder%20Guides/Vancian_Magic_Builder_Guide.md) for complete configuration.
 
 Its runtime model includes:
 
@@ -416,7 +416,7 @@ Useful subtype commands:
   - `magic regenerator set state swap <index1> <index2>`
   - `magic regenerator set state <index> <resource> <amount>`
   - `magic regenerator set all`
-- for `environmental`, use the output/input/half-life/repair/idle editor and the `magic environment` binding and inspection surface in the [Environmental Magic Builder Guide](Environmental_Magic_Builder_Guide.md).
+- for `environmental`, use the output/input/half-life/repair/idle editor and the `magic environment` binding and inspection surface in the [Environmental Magic Builder Guide](../Builder%20Guides/Environmental_Magic_Builder_Guide.md).
 
 Practical builder guidance:
 

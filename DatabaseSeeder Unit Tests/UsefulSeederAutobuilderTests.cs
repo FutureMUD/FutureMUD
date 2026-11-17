@@ -2,15 +2,11 @@
 
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MudSharp.Database;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -18,99 +14,6 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class UsefulSeederAutobuilderTests
 {
-
-	private static FuturemudDatabaseContext BuildContext()
-	{
-		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString())
-			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-			.Options;
-		return new FuturemudDatabaseContext(options);
-	}
-
-	private static void SeedAccount(FuturemudDatabaseContext context)
-	{
-		context.Accounts.Add(new Account
-		{
-			Id = 1,
-			Name = "SeederTest",
-			Password = "password",
-			Salt = 1,
-			AccessStatus = 0,
-			Email = "seeder@example.com",
-			LastLoginIp = "127.0.0.1",
-			FormatLength = 80,
-			InnerFormatLength = 78,
-			UseMxp = false,
-			UseMsp = false,
-			UseMccp = false,
-			ActiveCharactersAllowed = 1,
-			UseUnicode = true,
-			TimeZoneId = "UTC",
-			CultureName = "en-AU",
-			RegistrationCode = string.Empty,
-			IsRegistered = true,
-			RecoveryCode = string.Empty,
-			UnitPreference = "metric",
-			CreationDate = DateTime.UtcNow,
-			PageLength = 22,
-			PromptType = 0,
-			TabRoomDescriptions = false,
-			CodedRoomDescriptionAdditionsOnNewLine = false,
-			CharacterNameOverlaySetting = 0,
-			AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
-			ActLawfully = false,
-			HasBeenActiveInWeek = true,
-			HintsEnabled = true,
-			AutoReacquireTargets = false
-		});
-		context.SaveChanges();
-	}
-
-	private static void SeedMaterials(FuturemudDatabaseContext context)
-	{
-		CoreDataSeeder seeder = new();
-		typeof(CoreDataSeeder)
-			.GetMethod("SeedMaterials", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.Invoke(seeder, [context]);
-	}
-
-	private static void SeedVoidTerrain(FuturemudDatabaseContext context)
-	{
-		context.Terrains.Add(new Terrain
-		{
-			Id = 1,
-			Name = "Void",
-			HideDifficulty = 0,
-			SpotDifficulty = 0,
-			InfectionType = 0,
-			InfectionVirulence = 0,
-			InfectionMultiplier = 0,
-			StaminaCost = 0,
-			TerrainANSIColour = "7",
-			TerrainEditorColour = "#FFFFFFFF",
-			TerrainBehaviourMode = "outdoors",
-			DefaultTerrain = true,
-			MovementRate = 0,
-			ForagableProfileId = 0,
-			AtmosphereType = "Gas",
-			DefaultRoomOutdoorsType = 0,
-			TerrainEditorText = "Vo",
-			CanHaveTracks = false,
-			TrackIntensityMultiplierVisual = 1.0,
-			TrackIntensityMultiplierOlfactory = 1.0,
-			TagInformation = string.Empty
-		});
-		context.SaveChanges();
-	}
-
-	private static void SeedTerrainFoundations(FuturemudDatabaseContext context)
-	{
-		SeedMaterials(context);
-		SeedVoidTerrain(context);
-		CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
-	}
-
 	private static Dictionary<string, string> BuildAutobuilderOnlyAnswers()
 	{
 		return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -129,8 +32,7 @@ public class UsefulSeederAutobuilderTests
     [TestMethod]
     public void GeneratedTemplates_BindCanonicalCoreIdsAndPreserveUnownedOrEditedLegacyTemplates()
     {
-        using var context = BuildContext();
-        SeedTerrainFoundations(context);
+        using var context = TerrainSeederFixture.CreateSeeded();
         var seeder = new UsefulSeeder();
         seeder.SeedTerrainAutobuilderForTesting(context);
         var room = context.AutobuilderRoomTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single());
@@ -153,8 +55,7 @@ public class UsefulSeederAutobuilderTests
 	[TestMethod]
 	public void ClassifyAutobuilderPackagePresence_NonePartialAndFull_ReturnExpectedStates()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedTerrainFoundations(context);
+		using var context = TerrainSeederFixture.CreateSeeded();
 		UsefulSeeder seeder = new();
 
 		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyAutobuilderPackagePresence(context));
@@ -178,14 +79,14 @@ public class UsefulSeederAutobuilderTests
 	[TestMethod]
 	public void SeederQuestions_AutobuilderQuestionAppearsOnlyWhenTerrainCatalogueExistsAndPackageIncomplete()
 	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedAccount(context);
+		using var context = TerrainSeederFixture.CreateEmpty();
+		TerrainSeederFixture.SeedAccount(context);
 		UsefulSeeder seeder = new();
 		var question = seeder.SeederQuestions.Single(x => x.Id == "autobuilder");
 
 		Assert.IsFalse(question.Filter(context, new Dictionary<string, string>()));
 
-		SeedTerrainFoundations(context);
+		TerrainSeederFixture.SeedTerrainFoundations(context);
 
 		Assert.IsTrue(question.Filter(context, new Dictionary<string, string>()));
 
@@ -209,9 +110,7 @@ public class UsefulSeederAutobuilderTests
 	[TestMethod]
 	public void SeedData_AutobuilderOnlyAnswers_InstallAndRerunWithoutDuplicateIds()
 	{
-		using var context = BuildContext();
-		SeedAccount(context);
-		SeedTerrainFoundations(context);
+		using var context = TerrainSeederFixture.CreateSeeded(withAccount: true);
 		var seeder = new UsefulSeeder();
 		var prior0 = context.AutobuilderRoomTemplates.Select(x => x.Id).ToArray();
 		var prior1 = context.AutobuilderAreaTemplates.Select(x => x.Id).ToArray();
@@ -228,9 +127,7 @@ public class UsefulSeederAutobuilderTests
     [TestMethod]
     public void AutobuilderRerun_DoesNotRepairMissingCoreTagOrRebindMissingOwnedTemplate()
     {
-        using var context = BuildContext();
-        SeedAccount(context);
-        SeedTerrainFoundations(context);
+        using var context = TerrainSeederFixture.CreateSeeded(withAccount: true);
         var seeder = new UsefulSeeder();
         seeder.SeedTerrainAutobuilderForTesting(context);
         var room = context.AutobuilderRoomTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single());
@@ -254,9 +151,7 @@ public class UsefulSeederAutobuilderTests
     [TestMethod]
     public void AutobuilderRerun_RetainsRenamedRoomAndAreaIdsAndRejectsRetiredOwnership()
     {
-        using var context = BuildContext();
-        SeedAccount(context);
-        SeedTerrainFoundations(context);
+        using var context = TerrainSeederFixture.CreateSeeded(withAccount: true);
         var seeder = new UsefulSeeder();
         seeder.SeedTerrainAutobuilderForTesting(context);
         var room = context.AutobuilderRoomTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single());

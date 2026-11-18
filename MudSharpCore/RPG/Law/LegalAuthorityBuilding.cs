@@ -18,7 +18,7 @@ public partial class LegalAuthority
 	#3currency <currency>#0 - changes the currency that fines and such will be issued in
 	#3know#0 - toggles whether players know the crimes they have committed
 	#3zone <zone>#0 - toggles a zone as in or out of the enforcement area of this legal authority
-	#3class add <name>#0 - adds a new legal class
+	#3class add <name> <prog>#0 - adds a new legal class
 	#3class delete <name>#0 - deletes a legal class
 	#3class <which> ...#0 - sets properties of a legal class
 	#3enforcement add <name>#0 - adds a new enforcer authority
@@ -193,7 +193,7 @@ public partial class LegalAuthority
         OnPrisonerHeld = prog;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This legal authority will now execute the {OnPrisonerReleased.MXPClickableFunctionNameWithId()} prog when a prisoner is arrested.");
+            $"This legal authority will now execute the {prog.MXPClickableFunctionNameWithId()} prog when a prisoner is arrested.");
         return true;
     }
 
@@ -630,7 +630,7 @@ public partial class LegalAuthority
         OnPrisonerImprisoned = prog;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This legal authority will now execute the {OnPrisonerReleased.MXPClickableFunctionNameWithId()} prog when a prisoner is imprisoned.");
+            $"This legal authority will now execute the {prog.MXPClickableFunctionNameWithId()} prog when a prisoner is imprisoned.");
         return true;
     }
 
@@ -1000,7 +1000,7 @@ public partial class LegalAuthority
                 return false;
             }
 
-            string newName = command.SafeRemainingArgument.TitleCase();
+            string newName = command.PopSpeech().TitleCase();
             if (_legalClasses.Any(x => x.Name.EqualTo(newName)))
             {
                 actor.OutputHandler.Send(

@@ -19,6 +19,10 @@ Weighted `drop` requires a positive finite amount and checks lawful-action prote
 
 Splits preserve `ItemOnDisplayInShop` for existing shoplifting hooks. Shop split and merge notifications preserve the stock index without recording newly acquired or lost goods. Stock loss values the portion removed and preserves the count of a residual commodity pile; purchases reconcile the actual number of indexed piles removed. Covert transfers retain their intentional consent bypass and crime handling; ordinary manipulation still requires the inventory owner's permission. This audit does not introduce new crime categories. See [the full ledger](../Items/Physical_Manipulation_Audit.md).
 
+## Authoring a new jurisdiction
+
+See [Building the justice system](../Builder%20Guides/Justice_System_Builder_Guide.md) for the Alderbridge walkthrough. Create a legal class with `legalauthority set class add <name> <prog>`. Quote a class name containing spaces, and supply a Boolean prog that accepts one Character. New laws start with no punishment, no active enforcement and automatic application disabled. Choose and inspect the law's punishment strategy before enabling the law in play.
+
 ## Automatic Crime Application
 
 Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window. Violent victim-targeted automatic crimes are additionally treated as encounter repeats for the same offender and victim during that window, so a single fight does not create fresh assault or grievous-bodily-harm counts for every blow, weapon, or room transition.

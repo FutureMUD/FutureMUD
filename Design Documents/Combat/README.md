@@ -10,6 +10,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
+- [Combat and arenas builder guide](../Builder%20Guides/Combat_and_Arenas_Builder_Guide.md)
 - [Accelerated Combat Simulation](Accelerated_Combat_Simulation.md)
 - [Backstab Attacks](Backstab_Attacks.md)
 - [Blind Fighting](Blind_Fighting.md)

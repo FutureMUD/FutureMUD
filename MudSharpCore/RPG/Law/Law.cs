@@ -33,6 +33,7 @@ public class Law : SaveableItem, ILaw
         EnforcementPriority = Gameworld.GetStaticInt("DefaultEnforcementPriority");
         EnforcementStrategy = EnforcementStrategy.NoActiveEnforcement;
         DoNotAutomaticallyApplyRepeats = true;
+        PunishmentStrategy = new PunishmentStrategies.PunishmentStrategyMultiple(Gameworld);
         using (new FMDB())
         {
             Models.Law dbitem = new();

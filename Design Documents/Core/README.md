@@ -19,6 +19,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 - [FutureMUD Release Process](FutureMUD_Release_Process.md)
 - [FutureMUD Website and Publishing](FutureMUD_Website_and_Publishing.md)
 - [FutureProg Type System](FutureProg_Type_System.md)
+- [FutureProg for builders](../Builder%20Guides/FutureProg_Builder_Guide.md)
 - [Migration model compilation](Migration_Model_Compilation.md)
 - [NuGet dependency maintenance](NuGet_Dependencies.md)
 - [Outbound Email Delivery](Outbound_Email_Delivery.md)

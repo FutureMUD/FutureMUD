@@ -14,6 +14,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 - [Shops, currencies and banking builder guide](../Builder%20Guides/Shop_and_Banking_Builder_Guide.md)
 - [Employment hosts builder guide](../Builder%20Guides/Employment_Hosts_Builder_Guide.md)
+- [Building clans and town government](../Builder%20Guides/Clan_Builder_Guide.md)
 - [Clan Command Surface and Permissions](Clan_Command_Surface_and_Permissions.md)
 - [Clan Elections and External Control](Clan_Elections_and_External_Control.md)
 - [Clan Forms of Address](Clan_Forms_of_Address.md)

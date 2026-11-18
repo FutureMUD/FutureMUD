@@ -13,7 +13,7 @@
 		<Compile Remove="Seeders/ItemSeeder/Catalogue/Assemblies/**/*.cs" />
 		<ProjectReference Include="../SeederFramework/SeederFramework.csproj" />
 		<ProjectReference Include="Seeders/ItemSeeder/Catalogue/Assemblies/*/*.csproj" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="11.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 	<EmbeddedResource Include="..\Design Documents\Data\Item_Component_Types.json" Link="Seeders\IndustrialisedCatalogue\Item_Component_Types.json">

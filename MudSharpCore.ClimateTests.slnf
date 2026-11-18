@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "MudSharp.sln",
+    "path": "ArmageddonSeeder.sln",
     "projects": [
       "MudSharpCore Climate Tests\\MudSharpCore Climate Tests.csproj"
     ]

@@ -173,6 +173,7 @@ def generate():
     optional_solution([
         "ArmageddonSeeder/ArmageddonSeeder.csproj",
         "ArmageddonSeeder Unit Tests/ArmageddonSeeder Unit Tests.csproj",
+        "MudSharpCore Climate Tests/MudSharpCore Climate Tests.csproj",
     ], "ArmageddonSeeder.sln")
     return outputs
 

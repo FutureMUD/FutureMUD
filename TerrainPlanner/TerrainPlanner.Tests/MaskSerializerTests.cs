@@ -35,23 +35,23 @@ public class MaskSerializerTests
 		Assert.AreEqual("999", MaskSerializer.ExportFeatureMask(map));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("forest")]
 	[DataRow("0")]
 	[DataRow("-1")]
 	[DataRow("1.5")]
 	public void NonPositiveOrNonNumericTagIdsAreRejected(string value)
 	{
-		Assert.ThrowsException<InvalidDataException>(() => MaskSerializer.ParseFeatureTagId(value));
+		Assert.ThrowsExactly<InvalidDataException>(() => MaskSerializer.ParseFeatureTagId(value));
 	}
 
 	[TestMethod]
 	public void UnknownTerrainIdsAndWrongDimensionsAreRejected()
 	{
 		var map = new PlannerMap(2, 1);
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			MaskSerializer.ImportTerrainMask(map, "1,999", new HashSet<long> { 1 }));
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			MaskSerializer.ImportFeatureMask(map, "", new Dictionary<long, TagCatalogueItem>()));
 	}
 

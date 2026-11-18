@@ -302,7 +302,7 @@ public class RunnerTests
 		}
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("git-missing", 2, "BLOCKED", "PREREQUISITE_UNAVAILABLE")]
 	[DataRow("git-failure", 3, "INCONCLUSIVE", "REPORTING_ERROR")]
 	[DataRow("git-initial-hang", 3, "INCONCLUSIVE", "TIMEOUT")]

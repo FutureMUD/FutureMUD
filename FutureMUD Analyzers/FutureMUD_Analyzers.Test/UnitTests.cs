@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using FutureMUD_Analyzers;
-using FutureMUD_Analyzers.Test.Helpers;
+using FutureMUD_Analyzers.Test.Verifiers;
 
 namespace FutureMUD_Analyzers.Test
 {

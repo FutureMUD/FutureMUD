@@ -40,11 +40,11 @@ public class UpdateManifestVerifierTests
 		var privateKey = new Ed25519PrivateKeyParameters(RandomNumberGenerator.GetBytes(Ed25519PrivateKeyParameters.KeySize), 0);
 		var manifest = CreateManifest([1, 2, 3], "mudclient");
 		var bytes = JsonSerializer.SerializeToUtf8Bytes(manifest, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-		Assert.ThrowsException<InvalidDataException>(() =>
+		Assert.ThrowsExactly<InvalidDataException>(() =>
 			UpdateManifestVerifier.Verify(bytes, new byte[Ed25519PrivateKeyParameters.KeySize * 2], "linux-x64",
 				privateKey.GeneratePublicKey().GetEncoded()));
 
-		Assert.ThrowsException<InvalidDataException>(() => UpdateManifestVerifier.Validate(manifest, "linux-x64"));
+		Assert.ThrowsExactly<InvalidDataException>(() => UpdateManifestVerifier.Validate(manifest, "linux-x64"));
 	}
 
 	private static UpdateManifest CreateManifest(byte[] archiveBytes, string product = "terrainplanner") => new()

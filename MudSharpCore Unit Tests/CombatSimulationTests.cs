@@ -282,8 +282,10 @@ public class CombatSimulationTests
 
 		using var scope = new CombatSimulationRuntimeScope(gameworld.Object, new AdvancingTimeProvider(epoch),
 			8675309, new CombatSimulationExecutionFingerprint(8675309));
+		// Wait on the completion proxy so the queued work cannot run inline in this scope.
 		var childState = Task.Run(() =>
 			(RuntimeClock.UtcNow, RuntimeSideEffectContext.IsCrimeCreationSuppressed))
+			.WaitAsync(TimeSpan.FromSeconds(30))
 			.GetAwaiter()
 			.GetResult();
 

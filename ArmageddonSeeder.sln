@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArmageddonSeeder Unit Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MigrationModelCompiler", "BuildTools\MigrationModelCompiler\MigrationModelCompiler.csproj", "{B8642F34-B4C3-4813-BC32-DBEC8990224D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseSeeder", "DatabaseSeeder\DatabaseSeeder.csproj", "{9DA9C0B0-9B5C-451F-AE0E-EDBE4B9DADEF}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressionEngine", "ExpressionEngine\ExpressionEngine.csproj", "{9E727C55-2627-41ED-9FE0-36186E95F454}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FutureMUD_Analyzers", "FutureMUD Analyzers\FutureMUD_Analyzers\FutureMUD_Analyzers.csproj", "{5C727653-AE8C-468A-AFED-99E2CA615B31}"
@@ -116,6 +118,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Batch0021", "MigrationModel
 		{7C041FC7-32DF-471E-88A9-30AD304D2400} = {7C041FC7-32DF-471E-88A9-30AD304D2400}
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudSharpCore Climate Tests", "MudSharpCore Climate Tests\MudSharpCore Climate Tests.csproj", "{089CA47F-309C-57F1-A58B-72CFA6C69F62}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudSharpCore", "MudSharpCore\MudSharpCore.csproj", "{9C705585-68F4-478E-AA12-EE8AE5D6AC3A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudsharpDatabaseLibrary", "MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj", "{2DD7C1C9-1632-486C-814C-0AFFA285DA0A}"
@@ -142,6 +146,10 @@ Global
 		{B8642F34-B4C3-4813-BC32-DBEC8990224D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8642F34-B4C3-4813-BC32-DBEC8990224D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8642F34-B4C3-4813-BC32-DBEC8990224D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DA9C0B0-9B5C-451F-AE0E-EDBE4B9DADEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA9C0B0-9B5C-451F-AE0E-EDBE4B9DADEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA9C0B0-9B5C-451F-AE0E-EDBE4B9DADEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA9C0B0-9B5C-451F-AE0E-EDBE4B9DADEF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E727C55-2627-41ED-9FE0-36186E95F454}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E727C55-2627-41ED-9FE0-36186E95F454}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E727C55-2627-41ED-9FE0-36186E95F454}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -238,6 +246,10 @@ Global
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{089CA47F-309C-57F1-A58B-72CFA6C69F62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{089CA47F-309C-57F1-A58B-72CFA6C69F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{089CA47F-309C-57F1-A58B-72CFA6C69F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{089CA47F-309C-57F1-A58B-72CFA6C69F62}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C705585-68F4-478E-AA12-EE8AE5D6AC3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C705585-68F4-478E-AA12-EE8AE5D6AC3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C705585-68F4-478E-AA12-EE8AE5D6AC3A}.Release|Any CPU.ActiveCfg = Release|Any CPU

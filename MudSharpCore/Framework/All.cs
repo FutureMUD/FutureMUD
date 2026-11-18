@@ -196,6 +196,25 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
         return false;
     }
 
+	internal bool RemoveExact(T value)
+	{
+		if (value is ILateInitialisingItem lateSave)
+		{
+			lateSave.IdRegistered -= All_IdRegistered;
+		}
+
+		if ((value is not ILateInitialisingItem pending || pending.IdHasBeenRegistered) &&
+		    ReferenceEquals(Get(value.Id), value))
+		{
+			_idlookup.Remove(value.Id);
+		}
+
+		var index = _iterlist.FindIndex(x => ReferenceEquals(x, value));
+		if (index < 0) return false;
+		_iterlist.RemoveAt(index);
+		return true;
+	}
+
     public int RemoveAll(Func<T, bool> predicateFunc)
     {
         int numberRemoved = 0;

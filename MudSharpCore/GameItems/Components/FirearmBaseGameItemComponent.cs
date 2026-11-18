@@ -84,8 +84,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     protected virtual void LoadFromXml(XElement root)
     {
-        ChamberedRound = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedRound").Value), true)
-                                  ?.GetItemType<IAmmo>();
+        ChamberedRound = RestoreOwnedChildSlot(root, "ChamberedRound")?.GetItemType<IAmmo>();
+        ChamberedRound?.Parent.LoadTimeSetContainedIn(Parent);
         PrimaryWieldedLocation = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
 
 
@@ -114,12 +114,12 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         {
             var slotName = attachmentElement.Attribute("slot")?.Value;
             if (string.IsNullOrWhiteSpace(slotName) ||
-                !long.TryParse(attachmentElement.Value, out var itemId))
+                !long.TryParse(attachmentElement.Value, out _))
             {
                 continue;
             }
 
-            var attachment = Gameworld.TryGetItem(itemId, true)?.GetItemType<IFirearmAttachment>();
+            var attachment = RestoreOwnedChild(attachmentElement)?.GetItemType<IFirearmAttachment>();
             if (attachment is null)
             {
                 continue;
@@ -127,7 +127,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
             _installedAttachments[slotName] = attachment;
             attachment.InstalledIn = this;
-            attachment.Parent.ContainedIn = Parent;
+            attachment.Parent.LoadTimeSetContainedIn(Parent);
         }
     }
 
@@ -789,7 +789,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         yield return new XElement("Attachments",
             _installedAttachments.Select(x => new XElement("Attachment",
                 new XAttribute("slot", x.Key),
-                x.Value.Parent.Id)));
+                x.Value.Parent.Id)),
+            AmbiguousLegacyChildClaims("Attachment"));
     }
 
     protected double AttachedItemsWeight => InstalledAttachments.Values.Sum(x => x.Parent.Weight);
@@ -872,8 +873,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         base.Delete();
         foreach (var attachment in InstalledAttachments.Values.ToList())
         {
-            attachment.Parent.ContainedIn = null;
-            attachment.Parent.Delete();
+            DeleteOwnedContainedChild(attachment.Parent);
         }
 
         _installedAttachments.Clear();

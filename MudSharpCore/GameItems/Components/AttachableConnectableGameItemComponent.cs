@@ -1,5 +1,7 @@
 ﻿using MudSharp.GameItems;
 using MudSharp.Construction;
+using MudSharp.Database;
+using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
 
 #nullable enable annotations
@@ -81,6 +83,12 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
     public override bool AffectsLocationOnDestruction => true;
 
+    public override void Delete()
+    {
+        if (_connectedItem is { } peer) RawDisconnect(peer, true);
+        base.Delete();
+    }
+
     public override int ComponentDieOrder => 1;
 
     #endregion
@@ -147,6 +155,8 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 		}
 
         _connectedItem = other;
+        _connectedItemId = null;
+        _connectedParentId = null;
         other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector)));
         Changed = true;
         if (Parent.GetItemType<IHoldable>()?.HeldBy != null)
@@ -167,6 +177,8 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItem = other;
+        _connectedItemId = null;
+        _connectedParentId = null;
         Parent.ConnectedItem(other, type);
         Changed = true;
     }
@@ -234,6 +246,8 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
     public void RawDisconnect(IConnectable other, bool handleEvents)
     {
         _connectedItem = null;
+        _connectedItemId = null;
+        _connectedParentId = null;
         if (handleEvents)
         {
             other.RawDisconnect(this, false);
@@ -269,7 +283,9 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("ConnectedItem", _connectedItem?.Id ?? 0)
+            new XElement("ConnectedItem",
+                new XAttribute("parentItemId", _connectedItem?.Parent.Id ?? _connectedParentId ?? 0),
+                _connectedItem?.Id ?? _connectedItemId ?? 0)
         ).ToString();
     }
 
@@ -292,19 +308,46 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
     }
 
     private long? _connectedItemId;
+    private long? _connectedParentId;
+
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        independent && _connectedParentId == peerId ? [_prototype.Connector] : [];
+
+    internal override bool CanRestoreConnectionFrom(IConnectable peer) =>
+        (_connectedItemId is null || peer.Id == _connectedItemId) &&
+        ComponentItemTransfer.IsDetached(Parent) && !ComponentItemTransfer.HasDirectBodyCustody(Parent);
+
+    public override void Login() => FinaliseLoad();
 
     public override void FinaliseLoad()
     {
-        _connectedItem = Gameworld.TryGetItem(_connectedItemId ?? 0, true)?.GetItemType<IConnectable>();
+        if (_connectedItem is not null || _connectedItemId is not > 0) return;
+        if (_connectedParentId is not > 0 && Gameworld is Futuremud)
+        {
+            // Legacy definitions wrote the peer component ID. Resolving it as an item ID
+            // can connect unrelated items when the namespaces happen to overlap.
+            using (new FMDB())
+            {
+                _connectedParentId = FMDB.Context.GameItemComponents
+                    .Where(component => component.Id == _connectedItemId)
+                    .Select(component => (long?)component.GameItemId)
+                    .SingleOrDefault();
+            }
+        }
+        if (_connectedParentId is not > 0) return;
+
+        var item = Gameworld.Items.Get(_connectedParentId.Value);
+        if (item is null || item.Deleted) return;
+        var peer = item.GetItemTypes<IConnectable>().SingleOrDefault(x => x.Id == _connectedItemId);
+        if (peer is not null) RestoreExactConnection(this, _prototype.Connector, [peer]);
     }
 
     private void LoadFromXml(XElement root)
     {
         XElement element = root.Element("ConnectedItem");
-        if (element != null)
-        {
-            _connectedItemId = long.Parse(element.Value);
-        }
+        if (long.TryParse(element?.Value, out var componentId) && componentId > 0) _connectedItemId = componentId;
+        if (long.TryParse(element?.Attribute("parentItemId")?.Value, out var parentId) && parentId > 0)
+            _connectedParentId = parentId;
     }
 
     public AttachableConnectableGameItemComponent(AttachableConnectableGameItemComponent rhs, IGameItem newParent,

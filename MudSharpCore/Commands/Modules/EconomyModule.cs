@@ -6381,15 +6381,16 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         }
 
         IGameItem gameitem = item.Item;
-        gameitem.Login();
         if (item.IsSeller(actor) && actor.Body.CanGet(gameitem, 0))
         {
             actor.Body.Get(gameitem, silent: true);
-            return;
         }
-
-        gameitem.RoomLayer = actor.RoomLayer;
-        auctionHouse.AuctionHouseRoom.Insert(gameitem);
+        else
+        {
+            gameitem.RoomLayer = actor.RoomLayer;
+            auctionHouse.AuctionHouseRoom.Insert(gameitem);
+        }
+        gameitem.Login();
     }
 
     private static void AuctionClaim(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
@@ -6413,8 +6414,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
         foreach (UnclaimedAuctionItem item in unclaimed)
         {
-            item.AuctionItem.Item!.Login();
-            item.AuctionItem.Item.SetOwner(item.WinningBid?.Bidder ?? actor);
+            item.AuctionItem.Item!.SetOwner(item.WinningBid?.Bidder ?? actor);
         }
 
         List<IGameItem> items = unclaimed.Select(x => x.AuctionItem.Item!).ToList();
@@ -6422,7 +6422,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         IGameItem givenItem = null;
         if (items.Count > 1)
         {
-            givenItem = PileGameItemComponentProto.CreateNewBundle(items);
+            givenItem = PileGameItemComponentProto.CreateNewBundle(items, activate: false);
             actor.Gameworld.Add(givenItem);
         }
         else
@@ -6444,6 +6444,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             actor.OutputHandler.Send(
                 $"You were unable to pick up {givenItem.HowSeen(actor)}, so it is on the ground at your feet.");
         }
+        givenItem.Login();
+        if (items.Count > 1 && !givenItem.Deleted) givenItem.HandleEvent(EventType.ItemFinishedLoading, givenItem);
     }
 
     private static void AuctionSell(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
@@ -6666,7 +6668,11 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                 if (!propertySale)
                 {
                     actor.Body.Take(item);
-                    item.Drop(null);
+                    if (!ComponentItemTransfer.IsDetached(item))
+                    {
+                        actor.OutputHandler.Send($"You could not release {itemDesc} into auction escrow.");
+                        return;
+                    }
                 }
 
                 auctionHouse.AddAuctionItem(new AuctionItem

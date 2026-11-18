@@ -24,10 +24,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         {
             _liquidMixture = value;
             Changed = true;
-            if (_liquidMixture != null && _liquidMixture.CountsAs(_prototype.LiquidFuel).Truth && SwitchedOn)
-            {
-                CheckOn();
-            }
+            CheckOn();
         }
     }
 
@@ -142,22 +139,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         {
             _switchedOn = value;
             Changed = true;
-            if (value)
-            {
-                CheckOn();
-            }
-            else
-            {
-                foreach (IConsumePower item in _powerUsers.ToList())
-                {
-                    item.OnPowerCutOut();
-                }
-
-                _spikeDrawdown = 0.0;
-                _powerUsers.Clear();
-                Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
-                _heartbeatOn = false;
-            }
+            CheckOn();
         }
     }
 
@@ -167,29 +149,33 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 
     public override void Delete()
     {
+        SuspendPower();
         base.Delete();
         foreach (ILock item in Locks.ToList())
         {
+            DeleteOwnedContainedChild(item.Parent);
             _locks.Remove(item);
-            item.Parent.Delete();
         }
     }
 
     public override void Quit()
     {
+        SuspendPower();
         base.Quit();
         foreach (ILock item in Locks.ToArray())
         {
-            item.Quit();
+            item.Parent.Quit();
         }
     }
 
     public override void Login()
     {
         base.Login();
-        foreach (ILock item in Locks)
+        _active = true;
+        CheckOn();
+        foreach (ILock item in Locks.ToArray())
         {
-            item.Login();
+            item.Parent.Login();
         }
     }
 
@@ -257,7 +243,8 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 
     public double FuelLevel => (LiquidMixture?.TotalVolume ?? 0.0) / _prototype.FuelCapacity;
 
-    public bool ProducingPower => SwitchedOn && LiquidMixture?.CountsAs(_prototype.LiquidFuel).Truth == true;
+    public bool ProducingPower => _active && SwitchedOn && LiquidMixture is { IsEmpty: false } mixture &&
+        mixture.CountsAs(_prototype.LiquidFuel).Truth;
 
     public double MaximumPowerInWatts => ProducingPower
         ? _prototype.WattageProvided * Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x =>
@@ -302,7 +289,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         {
             _connectedConsumers.Add(item);
 
-            if (SwitchedOn &&
+            if (ProducingPower &&
                 _powerUsers.Sum(x => x.PowerConsumptionInWatts) + item.PowerConsumptionInWatts <=
                 MaximumPowerInWatts)
             {
@@ -315,12 +302,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
     public void EndDrawdown(IConsumePower item)
     {
         _connectedConsumers.Remove(item);
-        if (_powerUsers.Contains(item))
-        {
-            item.OnPowerCutOut();
-        }
-
-        _powerUsers.Remove(item);
+        if (_powerUsers.Remove(item)) item.OnPowerCutOut();
     }
 
     public override double ComponentWeight => Locks.Sum(x => x.Parent.Weight) + LiquidMixture?.TotalWeight ?? 0.0;
@@ -465,50 +447,65 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         return true;
     }
 
+    private bool _active;
     private bool _heartbeatOn;
+
+    private void SuspendPower()
+    {
+        _active = false;
+        CheckOn();
+    }
 
     private void CheckOn()
     {
-        if (!_heartbeatOn && SwitchedOn && LiquidMixture?.CountsAs(_prototype.LiquidFuel).Truth == true)
+        if (ProducingPower)
         {
-            _spikeDrawdown = 0.0;
-            double cumulativeDraw = 0.0;
-            foreach (IConsumePower item in _connectedConsumers)
+            if (!_heartbeatOn)
             {
-                if (MaximumPowerInWatts - cumulativeDraw >= item.PowerConsumptionInWatts)
-                {
-                    _powerUsers.Add(item);
-                    item.OnPowerCutIn();
-                    cumulativeDraw += item.PowerConsumptionInWatts;
-                }
+                Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
+                _heartbeatOn = true;
             }
 
-            Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
-            _heartbeatOn = true;
+            foreach (var item in _connectedConsumers.ToArray())
+            {
+                if (!ProducingPower) break;
+                if (!_connectedConsumers.Contains(item) || _powerUsers.Contains(item) ||
+                    _powerUsers.Sum(x => x.PowerConsumptionInWatts) + item.PowerConsumptionInWatts + _spikeDrawdown > MaximumPowerInWatts) continue;
+                _powerUsers.Add(item);
+                item.OnPowerCutIn();
+            }
+            return;
         }
+
+        if (_heartbeatOn)
+        {
+            Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
+            _heartbeatOn = false;
+        }
+
+        _spikeDrawdown = 0.0;
+        var powered = _powerUsers.ToArray();
+        _powerUsers.Clear();
+        foreach (var item in powered) item.OnPowerCutOut();
     }
 
     private void HeartbeatManager_SecondHeartbeat()
     {
+        if (!_heartbeatOn || !ProducingPower) return;
         var fuelMultiplier = Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x => x.AppliesToPoweredItem(Parent))
                                    .Aggregate(1.0, (current, effect) => current * effect.FuelUseMultiplier);
-        LiquidMixture?.RemoveLiquidVolume(_prototype.FuelPerSecond * fuelMultiplier);
+        LiquidMixture.RemoveLiquidVolume(_prototype.FuelPerSecond * fuelMultiplier);
+        Changed = true;
         _spikeDrawdown = 0.0;
-        if ((LiquidMixture?.TotalWeight ?? 0.0) <= 0)
+        if (LiquidMixture.IsEmpty)
         {
             LiquidMixture = null;
             Parent.Handle(new EmoteOutput(new Emote(_prototype.FuelExpendedEmote, Parent, Parent)));
             _prototype.FuelOutProg?.Execute(Parent);
-            Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
-            _heartbeatOn = false;
-            Changed = true;
-            foreach (IConsumePower item in _powerUsers)
-            {
-                item.OnPowerCutOut();
-            }
-
-            _powerUsers.Clear();
+            return;
         }
+
+        CheckOn();
     }
 
     private bool SwitchOff(ICharacter actor)
@@ -524,9 +521,9 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
-        LiquidMixture = rhs.LiquidMixture?.Clone();
-        SwitchedOn = rhs.SwitchedOn;
-        IsOpen = rhs.IsOpen;
+        _liquidMixture = rhs.LiquidMixture?.Clone();
+        _switchedOn = rhs.SwitchedOn;
+        _isOpen = rhs.IsOpen;
     }
 
     public FuelGeneratorGameItemComponent(FuelGeneratorGameItemComponentProto proto, IGameItem parent,
@@ -553,7 +550,8 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
                     new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
                     new XAttribute("On", SwitchedOn),
                     LiquidMixture?.SaveToXml() ?? new XElement("NoLiquid"),
-                    new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)))
+                    new XElement("Locks", Locks.Select(itemLock => new XElement("Lock", itemLock.Parent.Id)),
+                        AmbiguousLegacyChildClaims("Lock")))
                 .ToString();
     }
 
@@ -568,31 +566,12 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
         attr = root.Attribute("On");
         if (attr != null)
         {
-            SwitchedOn = bool.Parse(attr.Value);
+            _switchedOn = bool.Parse(attr.Value);
         }
 
-        XElement lockelem = root.Element("Locks");
-        if (lockelem != null)
+        foreach (var reference in root.Element("Locks")?.Elements("Lock") ?? [])
         {
-            foreach (
-                IGameItem item in
-                lockelem.Elements("Lock")
-                        .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                        .Where(item => item != null && item.IsItemType<ILock>()))
-            {
-                if ((item.ContainedIn != null && item.ContainedIn != Parent) || item.Location != null ||
-                    item.InInventoryOf != null)
-                {
-                    Changed = true;
-                    Gameworld.SystemMessage(
-                        $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                        true);
-                    continue;
-                }
-
-                item.Get(null);
-                InstallLock(item.GetItemType<ILock>());
-            }
+            if (RestoreOwnedChild(reference)?.GetItemType<ILock>() is { } itemLock) InstallLock(itemLock);
         }
 
         // Legacy
@@ -629,10 +608,6 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
             item.Parent.FinaliseLoadTimeTasks();
         }
 
-        if (SwitchedOn)
-        {
-            Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
-        }
     }
 
     #endregion

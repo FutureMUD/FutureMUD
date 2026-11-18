@@ -451,15 +451,16 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     private readonly List<(IEffect Effect, TimeSpan Time)> _cachedEffects = new();
 
-    protected void ScheduleCachedEffects()
+    protected void ScheduleCachedEffects(bool login = true)
     {
-        foreach ((IEffect effect, TimeSpan timespan) in _cachedEffects)
-        {
-            EffectHandler.Reschedule(effect, timespan);
-            effect.Login();
-        }
-
+        var cached = _cachedEffects.ToArray();
         _cachedEffects.Clear();
+        foreach ((IEffect effect, TimeSpan timespan) in cached)
+        {
+            if (!Effects.Contains(effect)) continue;
+            EffectHandler.Reschedule(effect, timespan);
+            if (login) effect.Login();
+        }
     }
 
     protected void CacheScheduledEffects()
@@ -502,7 +503,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
             }
 
             double remaining = double.Parse(effect.Element("Remaining").Value);
-            if (remaining > 0)
+            if (remaining > 0 || (bool?)effect.Attribute("scheduled") == true)
             {
                 _cachedEffects.Add((newEffect, TimeSpan.FromMilliseconds(remaining)));
             }
@@ -823,6 +824,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     }
 
     public event PerceivableEvent OnDeleted;
+	protected bool HasDeletionObservers => OnDeleted is not null;
 
     protected void PerceivableDeleted()
     {

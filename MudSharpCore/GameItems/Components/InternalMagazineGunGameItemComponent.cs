@@ -61,30 +61,16 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     protected override void LoadFromXml(XElement root)
     {
         base.LoadFromXml(root);
-        if (!RestoreLoadedChild(ChamberedRound?.Parent)) ChamberedRound = null;
-        foreach (XElement sub in root.Element("RoundsInMagazine").Elements())
+        foreach (var reference in root.Element("RoundsInMagazine")?.Elements("Round") ?? [])
         {
-            IGameItem item = Gameworld.TryGetItem(long.Parse(sub.Value), true);
-            if (RestoreLoadedChild(item))
-            {
-                _roundsInMagazine.Add(item);
-            }
+            var item = RestoreOwnedChild(reference);
+            if (item is null) continue;
+            item.LoadTimeSetContainedIn(Parent);
+            _roundsInMagazine.Add(item);
         }
 
-        ChamberedCasing = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedCasing")?.Value ?? "0"), true);
-        if (!RestoreLoadedChild(ChamberedCasing)) ChamberedCasing = null;
-    }
-
-    private bool RestoreLoadedChild(IGameItem item)
-    {
-        if (item is null || item.Deleted || item.Destroyed) return false;
-        var alreadyContained = ReferenceEquals(item.ContainedIn, Parent);
-        if (!alreadyContained && item is GameItem native && native.LoadedFromDatabase &&
-            native.ContainerIdAtLoad != Parent.Id) return false;
-        if (alreadyContained ? !ComponentUnloadCompletion.OwnedBy(item, Parent) : !ComponentItemTransfer.IsDetached(item))
-            return false;
-        item.LoadTimeSetContainedIn(Parent);
-        return true;
+        ChamberedCasing = RestoreOwnedChildSlot(root, "ChamberedCasing");
+        ChamberedCasing?.LoadTimeSetContainedIn(Parent);
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -101,12 +87,13 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         return new XElement("Definition",
             new XElement("RoundsInMagazine",
                 from item in _roundsInMagazine
-                select new XElement("Round", item.Id)
+                select new XElement("Round", item.Id),
+                AmbiguousLegacyChildClaims("Round")
             ),
-            new XElement("ChamberedRound", ChamberedRound?.Parent.Id ?? 0),
+            SaveOwnedChildSlot("ChamberedRound", ChamberedRound?.Parent.Id),
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
             new XElement("Safety", Safety ? "true" : "false"),
-            new XElement("ChamberedCasing", ChamberedCasing?.Id ?? 0),
+            SaveOwnedChildSlot("ChamberedCasing", ChamberedCasing?.Id),
             SaveFirearmState()
         ).ToString();
     }
@@ -754,17 +741,11 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     public override void Delete()
     {
         base.Delete();
-        ChamberedRound?.Parent.ContainedIn = null;
-        ChamberedRound?.Parent.Delete();
-
-        ChamberedCasing?.ContainedIn = null;
-        ChamberedCasing?.Delete();
-
-
+        DeleteOwnedContainedChild(ChamberedRound?.Parent);
+        DeleteOwnedContainedChild(ChamberedCasing);
         foreach (IGameItem item in _roundsInMagazine.ToList())
         {
-            item.ContainedIn = null;
-            item.Delete();
+            DeleteOwnedContainedChild(item);
         }
     }
 

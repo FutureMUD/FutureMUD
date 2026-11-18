@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 
@@ -6,7 +6,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IContainerPrototype, IOpenablePrototype, IProducePowerPrototype, IConsumePowerPrototype, IConnectablePrototype
+public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IContainerPrototype, IOpenablePrototype, IPrimaryPowerProducerPrototype, IConsumePowerPrototype, IConnectablePrototype
 {
     public override string TypeDescription => "BatteryPowered";
 
@@ -40,7 +40,8 @@ public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, ICon
                 select new XElement("Connection",
                     new XAttribute("gender", (short)connector.Gender),
                     new XAttribute("type", connector.ConnectionType),
-                    new XAttribute("powered", connector.Powered)))
+                    new XAttribute("powered", connector.Powered),
+                    new XAttribute("id", connector.PortId)))
         ).ToString();
     }
 
@@ -80,7 +81,9 @@ public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, ICon
     protected BatteryPoweredGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)
     {
-        LoadFromXml(XElement.Parse(proto.Definition));
+        var definition = XElement.Parse(proto.Definition);
+        LoadFromXml(definition);
+        ConnectorType.EnsurePrototypePortIds(Id, Connections, definition);
     }
 
     protected override void LoadFromXml(XElement root)

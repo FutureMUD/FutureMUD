@@ -75,39 +75,18 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         XElement? lockElement = root.Element("Locks");
         if (lockElement != null)
         {
-            foreach (IGameItem? item in lockElement.Elements("Lock")
-                                            .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                                            .Where(item => item?.IsItemType<ILock>() == true))
+            foreach (var reference in lockElement.Elements("Lock"))
             {
-                if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
-                {
-                    Changed = true;
-                    Gameworld.SystemMessage(
-                        $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                        true);
-                    continue;
-                }
-
-                InstallLock(item.GetItemType<ILock>());
+                if (RestoreOwnedChild(reference)?.GetItemType<ILock>() is { } itemLock) InstallLock(itemLock);
             }
         }
 
-        foreach (IGameItem? item in root.Elements("Contained")
-                                 .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                                 .Where(item => item != null))
+        foreach (var reference in root.Elements("Contained"))
         {
-            if ((item.ContainedIn != null && item.ContainedIn != Parent) || item.Location != null ||
-                item.InInventoryOf != null)
-            {
-                Changed = true;
-                Gameworld.SystemMessage(
-                    $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                    true);
-                continue;
-            }
+            var item = RestoreOwnedChild(reference);
+            if (item is null) continue;
 
             _contents.Add(item);
-            item.Get(null);
             item.LoadTimeSetContainedIn(Parent);
         }
 
@@ -145,12 +124,14 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         root.Add(new XAttribute("Open", IsOpen));
         root.Add(new XElement("Locks",
             from thelock in Locks
-            select new XElement("Lock", thelock.Parent.Id)
+            select new XElement("Lock", thelock.Parent.Id),
+            AmbiguousLegacyChildClaims("Lock")
         ));
         foreach (IGameItem item in Contents)
         {
             root.Add(new XElement("Contained", item.Id));
         }
+        root.Add(AmbiguousLegacyChildClaims("Contained"));
 
         root.Add(new XElement("CurrentInkLevels", CurrentInkLevels));
         root.Add(new XElement("PendingFaxes",
@@ -192,25 +173,25 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         base.Quit();
         foreach (IGameItem item in Contents.ToArray())
         {
-            item.Quit();
+            if (Contents.Contains(item) && !item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, Parent)) item.Quit();
         }
 
         foreach (ILock item in Locks.ToArray())
         {
-            item.Quit();
+            if (Locks.Contains(item) && !item.Parent.Deleted && !item.Parent.Destroyed && ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Quit();
         }
     }
 
     public override void Login()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
-            item.Login();
+            if (Contents.Contains(item) && !item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, Parent)) item.Login();
         }
 
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
-            item.Login();
+            if (Locks.Contains(item) && !item.Parent.Deleted && !item.Parent.Destroyed && ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Login();
         }
 
         base.Login();
@@ -222,14 +203,14 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         base.Delete();
         foreach (IGameItem? item in Contents.ToList())
         {
+            DeleteOwnedContainedChild(item);
             _contents.Remove(item);
-            item.Delete();
         }
 
         foreach (ILock? item in Locks.ToList())
         {
+            DeleteOwnedContainedChild(item.Parent);
             _locks.Remove(item);
-            item.Parent.Delete();
         }
     }
 

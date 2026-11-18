@@ -11,6 +11,8 @@ This document explains how to add a new item capability through the component sy
 
 It is the primary implementation guide for creating new item "types" in FutureMUD.
 
+For components that own children, consume power, subscribe to events or advance a timer, choose the durable key, activation phase, clock and teardown owner before implementing the hooks. The lifecycle guide traces the engine calls and lists the cases to exercise. [Item and component lifecycle](Item_Lifecycle.md)
+
 ### Climbing aids and locksmithing bonuses
 
 `climbingaid` adds a native `Climbing Aid` component. Builder options are `bonus <number>`, `held` and `worn`; both equipment modes default on. Worn eligibility is independent of body location. Vertical and tree-to-tree climbing use the strongest eligible equipped aid, without stacking or granting climbing ability. Saved XML fields are `CheckBonus`, `WorksHeld` and `WorksWorn`. The component has no consumable instance state.
@@ -356,6 +358,8 @@ Not every component needs these, but authors should deliberately consider them:
 - `ComponentBuoyancy(...)`
 - `WarnBeforePurge`
 
+`HandleDieOrMorph` runs before the default replacement placement. Check whether the replacement already has a custodian before attaching, equipping or installing it. Return `true` when the hook has placed the replacement. Return `false` when the hook only transfers state or children, or when a destination declines the replacement. Use the captured spatial point for children spilled to the floor. The parent item owns registration, activation and `ItemFinishedLoading`. [Replacement lifecycle](Item_Lifecycle.md#leaving-play-replacement-and-deletion)
+
 Component `Delete` may recursively destroy children, so keep conservation checks at
 the parent orchestration boundary before it invokes components. Removal-authorized
 spell-owned corpses run that check both before and after deletion observers. A held
@@ -365,6 +369,8 @@ side effects. Positive corpse replacement morphs require a verified transfer ada
 and currently hold before replacement construction or activation. Container, lock and
 attachment reachability does not authorize deleting foreign objects. See
 [spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
+For ordinary native items the engine can delete an approved containment graph in a single transaction. Other persisted native items record a checkpoint before callbacks and complete it after teardown and the save flush. Boot can repeat the final row removal from a completed checkpoint. If teardown was interrupted, preserve the item IDs and side-effect evidence for reconciliation. Design new destructive callbacks so they can either commit their owned state together or recognize an already-applied operation. [Item deletion lifecycle](Item_Lifecycle.md#leaving-play-replacement-and-deletion)
 
 ### Runtime state versus proto state
 Use this rule consistently:
@@ -382,6 +388,8 @@ For example:
 
 ### Connectable item patterns
 When a component can join a physical network, treat the connector list as part of the prototype definition and the actual links as runtime state.
+
+Keep each prototype connector's `id` with that physical port when revising or reordering a connector list. Instance connection records use `portid` and `peerportid` to identify the two ends. Use the shared free-port enumeration and compare physical identity when allocating a port. For standard two-sided connectors, use `ConnectPair` after selecting both free ports. It creates link-specific descriptors and queues item connection callbacks until the two records are installed. It skips notifications for a pair that an earlier observer removed or replaced. Compatibility checks continue to use the connector descriptor. Preserve an unresolved legacy descriptor when several physical ports could match it. [Connector lifecycle](Item_Lifecycle.md#relationships-and-power)
 
 That pattern is now used by items such as:
 - telephones and telecommunications feeders

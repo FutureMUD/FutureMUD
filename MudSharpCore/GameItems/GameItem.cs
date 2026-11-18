@@ -1,6 +1,4 @@
 using ExpressionEngine;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -88,7 +86,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public bool CheckPrototypeForUpdate()
     {
-		if (SpellCreationOrigin?.IsTemporary == true) return false;
+		if (HasSupersedingInstance || SpellCreationOrigin?.IsTemporary == true) return false;
 		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return false;
         if (Prototype.Status == RevisionStatus.Obsolete || Prototype.Status == RevisionStatus.Revised)
         {
@@ -100,22 +98,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 return false;
             }
 
-            Models.GameItem dbitem = new()
+            Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
+            if (dbitem is null)
             {
-                Id = Id,
-                GameItemProtoRevision = newProto.RevisionNumber,
-                Quality = (int)newProto.BaseItemQuality,
-                ContainerId = ContainedIn?.Id,
-                GameItemProtoId = Prototype.Id,
-                EffectData = SaveEffects().ToString()
-            };
-            FMDB.Context.GameItems.Attach(dbitem);
-            EntityEntry<Models.GameItem> entry = FMDB.Context.Entry(dbitem);
-            entry.State = EntityState.Modified;
-            entry.Property(x => x.GameItemProtoRevision).IsModified = true;
-            entry.Property(x => x.Quality).IsModified = true;
+                return false;
+            }
+
+            dbitem.GameItemProtoRevision = newProto.RevisionNumber;
+            dbitem.Quality = (int)newProto.BaseItemQuality;
             _quality = newProto.BaseItemQuality;
 
+            var addedComponents = new List<IGameItemComponent>();
             // Create components that didn't previously exist
             foreach (
                 IGameItemComponentProto component in
@@ -123,7 +116,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             {
                 IGameItemComponent newComp = component.CreateNew(this);
                 _components.Add(newComp);
-                (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
+                addedComponents.Add(newComp);
             }
 
             // Delete components that no longer exist
@@ -154,12 +147,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             }
 
             Prototype = newProto;
-            _overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
+            InitialiseRevisionComponents(addedComponents);
             (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
             return true;
         }
 
         bool result = false;
+        var repairedComponents = new List<IGameItemComponent>();
         foreach (IGameItemComponent component in Components.ToList())
         {
             if (Prototype.Components.All(x => x.Id != component.Prototype.Id))
@@ -187,7 +181,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             {
                 IGameItemComponent newComponent = component.CreateNew(this);
                 _components.Add(newComponent);
-                (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
+                repairedComponents.Add(newComponent);
                 result = true;
             }
         }
@@ -198,6 +192,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             result = result || compResult;
         }
 
+        InitialiseRevisionComponents(repairedComponents);
         if (result) (Gameworld.MediaChannelService as MudSharp.Computers.MediaChannelService)?.RefreshItem(this);
         return result;
     }
@@ -308,6 +303,20 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             }
 
             return _owner;
+        }
+    }
+
+    private void InitialiseRevisionComponents(List<IGameItemComponent> components)
+    {
+        _overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
+        if (components.Count == 0) return;
+        _loadTimeTasksFinalised = false;
+        if (!_active) return;
+        FinaliseLoadTimeTasks();
+        foreach (var component in components)
+        {
+            if (Deleted || !_active) break;
+            if (_components.Contains(component)) component.Login();
         }
     }
 
@@ -467,6 +476,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public override void Save()
     {
+		if (_nativeRowDeleted || HasSupersedingInstance || Gameworld is Futuremud world && world.IsOfflineMaintenanceItem(this))
+		{
+			Changed = false;
+			return;
+		}
 		ForeignCustodyTransferContext.RecordSave(this);
         Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
         if (dbitem is null)
@@ -930,6 +944,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     // another root has loaded this child's hand or room membership.
     internal bool LoadedFromDatabase { get; }
     internal long? ContainerIdAtLoad { get; }
+    internal bool HadDirectCustodyAtLoad { get; }
+    internal bool HasSupersedingInstance => Gameworld is Futuremud world && world.HasDifferentItemInstance(this);
 
     public GameItem(MudSharp.Models.GameItem item, IFuturemud game)
         : base(item.Id)
@@ -940,6 +956,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _id = item.Id;
 		LoadedFromDatabase = true;
 		ContainerIdAtLoad = item.ContainerId;
+		HadDirectCustodyAtLoad = item.RoomsGameItems.Count > 0 || item.BodiesGameItems.Count > 0 ||
+            item.BodiesImplants.Count > 0 || item.BodiesProsthetics.Count > 0 || item.WoundsLodgedItem.Count > 0;
 		SpellCreationOrigin = game.SpellOwnedItems?.FindOrigin(item.Id);
         Prototype = game.ItemProtos.Get(item.GameItemProtoId, item.GameItemProtoRevision);
         if (Prototype == null)
@@ -1006,14 +1024,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             _wounds.Add(WoundFactory.LoadWound(wound, this, Gameworld));
         }
 
+        if (Gameworld is Futuremud { LoadingOfflineMaintenanceItems: true }) return;
+
         if (_overridingWoundBehaviourComponent is IBodyRemains && Gameworld.SaveManager.MudBootingMode)
         {
             _deferredInitialHealthTick = true;
             Gameworld.RegisterPostCharacterLoadFinalisable(this);
-            return;
         }
-
-        StartHealthTick();
     }
 
     void IPostCharacterLoadFinalisable.FinaliseLoading()
@@ -1024,7 +1041,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         _deferredInitialHealthTick = false;
-        StartHealthTick();
+        if (IsActive) StartHealthTick();
     }
 
     public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard)
@@ -1079,10 +1096,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         SetState(PositionUndefined.Instance);
 		if (!deferSpellInitialisation && !currencyPreview) Gameworld.SaveManager.AddInitialisation(this);
-        foreach (IGameItemComponent comp in deferSpellInitialisation || currencyPreview ? Enumerable.Empty<IGameItemComponent>() : Components)
-        {
-            comp.FinaliseLoad();
-        }
+        if (!deferSpellInitialisation && !currencyPreview) FinaliseComponents();
 
         if (Prototype.Morphs)
         {
@@ -1187,6 +1201,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
 	internal GameItem(GameItem rhs, bool temporary, bool preserveMorphTime, Action<GameItem> beforeExposure)
     {
+		_temporaryCopy = temporary;
 		if (!temporary) SpellOwnedItemValuePolicy.RequireOrdinaryValue(rhs, "copying");
 		if (rhs.GetItemType<ICorpse>() is not null && rhs.Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(rhs.Id) == true)
 			throw new InvalidOperationException("A borrowed animated corpse cannot be copied.");
@@ -1243,7 +1258,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         foreach (IGameItemComponent component in rhs._components)
         {
-            _components.Add(component.Copy(this, temporary));
+            _components.Add(component is BodypartGameItemComponent severed
+                ? severed.Copy(this, temporary, preserveMorphTime)
+                : component.Copy(this, temporary));
         }
 
         if (!temporary)
@@ -1273,10 +1290,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			PositionEmote = rhs.PositionEmote;
 		}
 
-        foreach (IGameItemComponent component in Components)
-        {
-            component.FinaliseLoad();
-        }
+        if (!temporary) FinaliseComponents();
 
         LoadSurfaceLiquidState(rhs.SaveSurfaceLiquidState());
 
@@ -1337,31 +1351,48 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     /// </summary>
     public void FinaliseLoadTimeTasks()
     {
-        if (Deleted) return;
-		if (GetItemTypes<ITransientItemPolicy>().Any(x => x.RetireOnLoad))
-		{
-			Delete();
-			return;
-		}
-		if (_loadTimeTasksFinalised)
-		{
-			return;
-		}
-
-		// Mark this before walking components because connected and contained item graphs can be cyclic.
-		_loadTimeTasksFinalised = true;
-        foreach (IGameItemComponent component in Components)
+        if (Deleted || _finalisingLoad || _loadTimeTasksFinalised) return;
+        if (LoadedFromDatabase && GetItemTypes<ITransientItemPolicy>().Any(x => x.RetireOnLoad))
         {
-            component.FinaliseLoad();
+            Delete();
+            return;
         }
 
-        foreach (IGameItem item in _wounds.SelectNotNull(x => x.Lodged).ToArray())
+        FinaliseComponents();
+    }
+
+    private void FinaliseComponents()
+    {
+        _finalisingLoad = true;
+        try
         {
-            item.FinaliseLoadTimeTasks();
+            foreach (var component in Components.ToArray())
+            {
+                if (Deleted) return;
+                if (!_components.Contains(component) || _finalisedComponents.Contains(component)) continue;
+                component.FinaliseLoad();
+                _finalisedComponents.Add(component);
+            }
+
+            foreach (var item in LodgedItems) item.FinaliseLoadTimeTasks();
+            _loadTimeTasksFinalised = true;
+        }
+        finally
+        {
+            _finalisingLoad = false;
         }
     }
 
-	private bool _loadTimeTasksFinalised;
+    private readonly HashSet<IGameItemComponent> _finalisedComponents = new(ReferenceEqualityComparer.Instance);
+    private bool _finalisingLoad;
+    private bool _loadTimeTasksFinalised;
+    private bool _active;
+    private bool _auctionEscrow;
+    internal bool IsActive => _active;
+    private bool _suspended;
+    private bool _quitting;
+    private bool _resumeRegistration;
+    private bool _temporaryCopy;
 
     #endregion
 
@@ -1681,6 +1712,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void ConnectedItem(IConnectable other, ConnectorType type)
     {
+        if (GameItemComponent.TryDeferConnectionNotification(() => OnConnected?.Invoke(other, type)))
+        {
+            return;
+        }
+
         OnConnected?.Invoke(other, type);
     }
 
@@ -1985,6 +2021,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 	private bool _deletionObserversNotified;
 	private bool _notifyingDeletionObservers;
 	private Exception _deletionObserverFailure;
+	private bool _deletingNative;
+	private bool _nativeDeletionStarted;
+	private bool _nativeRowDeleted;
+	private HashSet<IGameItemComponent>? _deletedComponents;
 
 
     public void Delete()
@@ -2006,13 +2046,25 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 	private void DeleteCore(Func<bool>? beforeNativeRemoval, Func<bool>? mayNotify = null, bool persistedAlready = false)
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
-          if (Deleted || _notifyingDeletionObservers) return;
+          if (Deleted || _notifyingDeletionObservers || _deletingNative) return;
+		if (HasSupersedingInstance)
+		{
+			SuspendSupersededItem();
+			return;
+		}
 		if (mayNotify is not null && !mayNotify()) return;
 		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
 		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
         if (_deletionObserverFailure is not null)
             throw new InvalidOperationException("Deletion observers failed; native removal remains held.", _deletionObserverFailure);
+        if (_nativeDeletionTeardownFailure is not null)
+            throw new InvalidOperationException($"Deletion teardown for item #{_id} requires reconciliation.", _nativeDeletionTeardownFailure);
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
+        if (beforeNativeRemoval is null && !persistedAlready && !_nativeRowDeleted && !_nativeDeletionStarted &&
+            !CommitOrdinaryContainerDeletion())
+        {
+            BeginNativeDeletionCheckpoint();
+        }
         // Deletion callbacks can change possessions. Recheck before invoking components
         // whose native deletion would recursively destroy an owned corpse's inventory.
         if (!_deletionObserversNotified)
@@ -2022,7 +2074,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             {
                 if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs is { } ownedNpcs)
                 {
-                    if (!ownedNpcs.TryNotifyRemainsDeletion(this, NotifyDeletionObservers)) return;
+                    if (!ownedNpcs.TryNotifyRemainsDeletion(this, NotifyDeletionObservers))
+                    {
+                        CancelNativeDeletionCheckpoint();
+                        return;
+                    }
                 }
                 else NotifyDeletionObservers();
                 _deletionObserversNotified = true;
@@ -2030,18 +2086,95 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             catch (Exception ex) { _deletionObserversNotified = true; _deletionObserverFailure = ex; throw; }
             finally { _notifyingDeletionObservers = false; }
         }
-        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
-        if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
-		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
-        if (SpellCreationOrigin?.IsTemporary == true) { DeleteSpellOwnedItem(); return; }
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false)
+        {
+            CancelNativeDeletionCheckpoint();
+            return;
+        }
+		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true)
+		{
+			CancelNativeDeletionCheckpoint();
+			return;
+		}
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true)
+		{
+			CancelNativeDeletionCheckpoint();
+			return;
+		}
+		if (SpellCreationOrigin?.IsTemporary == true)
+		{
+			CancelNativeDeletionCheckpoint();
+			DeleteSpellOwnedItem();
+			return;
+		}
 		if (beforeNativeRemoval is not null && !beforeNativeRemoval()) return;
-          DeleteNative(persistedAlready);
+        _deletingNative = true;
+        try
+        {
+            DeleteNative(persistedAlready);
+        }
+        catch (Exception ex) when (_nativeDeletionCheckpointed && !_nativeDeletionReleased)
+        {
+            _nativeDeletionTeardownFailure = ex;
+            throw;
+        }
+        finally
+        {
+            _deletingNative = false;
+        }
     }
 
     private void DeleteNative(bool persistedAlready = false)
     {
+        if (!_nativeDeletionReleased)
+        {
+            TeardownNativeItem();
+            if (_nativeDeletionCheckpointed)
+            {
+                ReleaseNativeCustodyAndEffects();
+                _nativeDeletionReleased = true;
+            }
+        }
+
+        if (_id != 0 && !persistedAlready && !_nativeRowDeleted)
+        {
+            if (_nativeDeletionCheckpointed)
+            {
+                CommitCheckpointedNativeDeletion();
+            }
+            else
+            {
+                using (new FMDB())
+                {
+                    Gameworld.SaveManager.Flush();
+                    DisableHitchLinks(FMDB.Context, Id);
+                    Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
+                    if (dbitem != null)
+                    {
+                        FMDB.Context.GameItems.Remove(dbitem);
+                    }
+                    FMDB.Context.SaveChanges();
+                    MarkNativeItemRowDeleted();
+                }
+            }
+        }
+
+        if (!_nativeDeletionReleased) ReleaseNativeCustodyAndEffects();
+
+        Deleted = true;
+        Gameworld.Destroy(this);
+		Gameworld.SpellOwnedItems?.ObserveRemoval(this);
+    }
+
+    private void TeardownNativeItem()
+    {
+        _nativeDeletionStarted = true;
+        _active = false;
         ReleaseEvents();
-        if (GetItemType<ICorpse>()?.OriginalBody?.Actor.State.HasFlag(CharacterState.Dead) == true) EndHealthTick();
+        EndHealthTick();
+        EndMorphTimer();
+        Gameworld.EffectScheduler.Destroy(this);
+        Gameworld.Scheduler.Destroy(this);
         Changed = false;
         _noSave = true;
         Gameworld.SaveManager.Abort(this);
@@ -2050,63 +2183,31 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             Gameworld.SaveManager.Abort(component);
         }
 
+        _deletedComponents ??= new HashSet<IGameItemComponent>(ReferenceEqualityComparer.Instance);
+        foreach (var component in Components.ToArray())
+        {
+            if (_deletedComponents.Contains(component)) continue;
+            component.Delete();
+            _deletedComponents.Add(component);
+        }
+
+        foreach (IWound wound in Wounds.ToList())
+        {
+            DeleteNativeItemWound(wound);
+        }
+    }
+
+    private void ReleaseNativeCustodyAndEffects()
+    {
         InvalidatePositionTargets();
         SoftReleasePositionTarget();
         ContainedIn?.Take(this);
         ContainedIn = null;
         if (InInventoryOf is MudSharp.Body.Implementations.Body nativeBody) nativeBody.TakeForNativeDeletion(this);
 		else InInventoryOf?.Take(this);
-        Location?.Extract(this);
+        DirectLocation?.Extract(this);
         Get(null);
-
-        foreach (IGameItemComponent component in Components)
-        {
-            component.Delete();
-        }
-
-        Gameworld.EffectScheduler.Destroy(this);
-        Gameworld.Scheduler.Destroy(this);
         EffectHandler.RemoveAllEffects();
-        Gameworld.Destroy(this);
-        EndMorphTimer();
-
-        foreach (IWound wound in Wounds.ToList())
-        {
-            wound.Delete();
-        }
-
-        if (_id != 0 && !persistedAlready)
-        {
-            using (new FMDB())
-            {
-                Gameworld.SaveManager.Flush();
-                var towLinks = FMDB.Context.VehicleTowLinks
-                                      .Where(x => x.HitchItemId == Id && !x.IsDisabled)
-                                      .ToList();
-                foreach (var link in towLinks)
-                {
-                    link.IsDisabled = true;
-                }
-
-                var hitchLinks = FMDB.Context.VehicleHitchLinks
-                                      .Where(x => x.HitchItemId == Id && !x.IsDisabled)
-                                      .ToList();
-                foreach (var link in hitchLinks)
-                {
-                    link.IsDisabled = true;
-                }
-
-                Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
-                if (dbitem != null)
-                {
-                    FMDB.Context.GameItems.Remove(dbitem);
-                    FMDB.Context.SaveChanges();
-                }
-            }
-        }
-
-        Deleted = true;
-		Gameworld.SpellOwnedItems?.ObserveRemoval(this);
     }
 
     protected override void ReleaseEvents()
@@ -2122,65 +2223,192 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Login()
     {
-		if (Deleted) return;
-        foreach (IGameItemComponent component in Components)
+        if (Deleted || _active || _quitting || _finalisingLoad || _nativeDeletionStarted || _nativeRowDeleted || InAuctionEscrow() || _temporaryCopy || _currencyPreview || HasSupersedingInstance) return;
+        FinaliseLoadTimeTasks();
+        if (Deleted) return;
+        if (_resumeRegistration && Gameworld is Futuremud world) world.Add(this);
+        _resumeRegistration = false;
+        _suspended = false;
+        _active = true;
+        var enteringComponents = new List<IGameItemComponent>();
+        var enteringLodgedItems = new List<IGameItem>();
+        try
         {
-            component.Login();
-        }
+            foreach (var component in Components.ToArray())
+            {
+                if (Deleted || !_active) return;
+                if (!_components.Contains(component)) continue;
+                enteringComponents.Add(component);
+                component.Login();
+            }
 
-        if (CachedMorphTime is not null)
+            foreach (var item in LodgedItems)
+            {
+                if (Deleted || !_active) return;
+                enteringLodgedItems.Add(item);
+                item.Login();
+            }
+
+            if (Deleted || !_active) return;
+            if (CachedMorphTime is not null) StartMorphTimer();
+            ScheduleCachedEffects(login: false);
+            foreach (var effect in Effects.ToArray())
+            {
+                if (Deleted || !_active) return;
+                if (Effects.Contains(effect)) effect.Login();
+            }
+
+            if (Deleted || !_active) return;
+            if (_overridingWoundBehaviourComponent is not null)
+            {
+                if (!_deferredInitialHealthTick) StartHealthTick();
+            }
+            else if (Wounds.Any())
+            {
+                if (HealthStrategy.RequiresPeriodicHealthTick) StartHealthTick();
+                else CheckHealthStatus();
+            }
+        }
+        catch
         {
-            StartMorphTimer();
+            if (!Deleted && _active) RollBackLogin(enteringComponents, enteringLodgedItems);
+            throw;
         }
-
-        // Effects without a duration are already on the item rather than the cache
-        foreach (IEffect effect in Effects)
-        {
-            effect.Login();
-        }
-
-        // Scheduled effects will call Login() when they become scheduled
-        ScheduleCachedEffects();
-
-		if (_overridingWoundBehaviourComponent is null && Wounds.Any() && !HealthStrategy.RequiresPeriodicHealthTick)
-		{
-			CheckHealthStatus();
-		}
     }
 
-    public void Quit()
+    private void RollBackLogin(List<IGameItemComponent> components, List<IGameItem> lodgedItems)
     {
-        if (Deleted) return;
-		if (GetItemTypes<ITransientItemPolicy>().Any(x => x.RetireOnLogout))
-		{
-			Delete();
-			return;
-		}
-		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
-		EndHealthTick();
-        EffectsChanged = true;
-        if (Changed || Components.Any(x => x.Changed))
+        _active = false;
+        _quitting = true;
+        try
         {
-            Gameworld.SaveManager.Flush();
+            TryCleanup(EndHealthTick);
+            TryCleanup(CacheScheduledEffects);
+            TryCleanup(EndMorphTimer);
+            for (var i = lodgedItems.Count - 1; i >= 0 && !Deleted; i--)
+            {
+                TryCleanup(lodgedItems[i].Quit);
+            }
+
+            for (var i = components.Count - 1; i >= 0 && !Deleted; i--)
+            {
+                var component = components[i];
+                if (_components.Contains(component)) TryCleanup(component.Quit);
+            }
+        }
+        finally
+        {
+            _quitting = false;
         }
 
-        InvalidatePositionTargets();
-        SoftReleasePositionTarget();
-        PerceivableQuit();
-
-        Location?.Extract(this);
-
-        Drop(null);
-
-        CacheScheduledEffects();
-        foreach (IGameItemComponent component in Components.ToArray())
+        void TryCleanup(Action cleanup)
         {
-            component.Quit();
+            try
+            {
+                cleanup();
+            }
+            catch (Exception exception)
+            {
+                Console.Error.WriteLine($"Could not unwind activation of item #{Id}: {exception}");
+            }
         }
+    }
 
-        Gameworld.EffectScheduler.Destroy(this);
-        Gameworld.Destroy(this);
+    private void SuspendSupersededItem()
+    {
+        if (_quitting || _suspended) return;
+        _active = false;
+        _suspended = true;
+        EndHealthTick();
         EndMorphTimer();
+        Gameworld.EffectScheduler.Destroy(this);
+        Gameworld.Scheduler.Destroy(this);
+        Gameworld.SaveManager.Abort(this);
+        foreach (var component in Components) Gameworld.SaveManager.Abort(component);
+        Gameworld.Destroy(this);
+    }
+
+    public void Quit() => Suspend(leavingWorld: true);
+
+    internal bool SuspendForAuctionEscrow()
+    {
+        if (!ComponentItemTransfer.IsDetached(this) || ComponentItemTransfer.HasDirectBodyCustody(this)) return false;
+        _auctionEscrow = true;
+        try
+        {
+            if (!LoadedFromDatabase || _active) Suspend(leavingWorld: false);
+            return _auctionEscrow = ComponentItemTransfer.IsDetached(this);
+        }
+        catch
+        {
+            _auctionEscrow = false;
+            throw;
+        }
+    }
+
+    internal void ReleaseFromAuctionEscrow() => _auctionEscrow = false;
+
+    private bool InAuctionEscrow()
+    {
+        if (_auctionEscrow) return true;
+        if (ContainedIn is not GameItem parent) return false;
+        var visited = new HashSet<GameItem>(ReferenceEqualityComparer.Instance);
+        for (; parent is not null && visited.Add(parent); parent = parent.ContainedIn as GameItem)
+        {
+            if (parent._auctionEscrow) return true;
+        }
+        return false;
+    }
+
+    private void Suspend(bool leavingWorld)
+    {
+        if (Deleted || _suspended || _quitting || _nativeDeletionStarted) return;
+        if (HasSupersedingInstance)
+        {
+            SuspendSupersededItem();
+            return;
+        }
+        if (GetItemTypes<ITransientItemPolicy>().Any(x => x.RetireOnLogout))
+        {
+            Delete();
+            return;
+        }
+
+        ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
+        _quitting = true;
+        _active = false;
+        var inEscrow = InAuctionEscrow();
+        _resumeRegistration = !inEscrow && Gameworld is Futuremud world && world.ContainsExactItem(this);
+        try
+        {
+            EndHealthTick();
+            CacheScheduledEffects();
+            EndMorphTimer();
+            EffectsChanged = true;
+            if (Changed || Components.Any(x => x.Changed)) Gameworld.SaveManager.Flush();
+            InvalidatePositionTargets();
+            SoftReleasePositionTarget();
+            PerceivableQuit();
+            if (leavingWorld && !inEscrow)
+            {
+                DirectLocation?.Extract(this);
+                Drop(null);
+            }
+            foreach (var component in Components.ToArray())
+            {
+                if (Deleted) return;
+                if (_components.Contains(component)) component.Quit();
+            }
+
+            foreach (var item in LodgedItems) item.Quit();
+            Gameworld.EffectScheduler.Destroy(this);
+            if (!inEscrow) Gameworld.Destroy(this);
+            _suspended = true;
+        }
+        finally
+        {
+            _quitting = false;
+        }
     }
 
     public bool IsItemType<T>() where T : IGameItemComponent
@@ -2240,15 +2468,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     public IGameItemProto Prototype { get; protected set; }
     public PlanarPresenceDefinition BasePlanarPresence => Prototype.BasePlanarPresence;
 
-    /// <summary>
-    /// Creates a new item that is a copy of this item, including similar copies of all contained items
-    /// </summary>
-    /// <returns></returns>
+    /// <summary>Copies this item, including its ordinary container contents.</summary>
     public IGameItem DeepCopy(bool addToGameworld, bool preserveMorphTime)
     {
         GameItem newItem = new(this, !addToGameworld, preserveMorphTime);
         foreach (IContainer component in Components.OfType<IContainer>())
         {
+            // Severed remains reconstruct their own contents, implants and wounds as one component.
+            if (component is BodypartGameItemComponent) continue;
             IContainer newComponent = (IContainer)newItem.Components.First(x => x.Prototype == component.Prototype);
             foreach (IGameItem item in component.Contents)
             {
@@ -3115,7 +3342,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     {
         if (CachedMorphTime is not null)
         {
-            dbitem.MorphTimeRemaining = (int)CachedMorphTime.Value.TotalSeconds;
+            dbitem.MorphTimeRemaining = (int)Math.Clamp(CachedMorphTime.Value.TotalSeconds, 0, int.MaxValue);
             return;
         }
 
@@ -3125,9 +3352,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return;
         }
 
-		var remaining = Gameworld.Scheduler.RemainingDuration(this, ScheduleType.Morph);
-		dbitem.MorphTimeRemaining = (int)(remaining.TotalSeconds *
-			(Prototype.RefrigerationSensitive ? _morphRateAtSchedule : 1.0));
+		var remaining = MorphTime - RuntimeClock.UtcNow;
+		var effectiveRemaining = Prototype.RefrigerationSensitive
+			? ItemTimeRateMath.EffectiveElapsed(remaining, _morphRateAtSchedule)
+			: remaining;
+		dbitem.MorphTimeRemaining = (int)Math.Clamp(effectiveRemaining.TotalSeconds, 0, int.MaxValue);
     }
 
     public TimeSpan? CachedMorphTime { get; set; }
@@ -3221,13 +3450,32 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			EndMorphTimer();
 		}
 
-		if (wasScheduled || CachedMorphTime is not null)
+		if ((wasScheduled || CachedMorphTime is not null) && !_suspended && !_quitting && !InAuctionEscrow())
 		{
 			StartMorphTimer();
 		}
 	}
 
-    private void Morph(IGameItem item)
+    private bool _replacing;
+
+    private bool CanStartReplacement => !Deleted && !Destroyed && !_replacing && !_notifyingDeletionObservers &&
+        !_deletingNative && !NativeDeletionInProgress && !HasSupersedingInstance;
+
+    private void Morph(IGameItem _)
+    {
+        if (!CanStartReplacement) return;
+        _replacing = true;
+        try
+        {
+            MorphCore();
+        }
+        finally
+        {
+            _replacing = false;
+        }
+    }
+
+    private void MorphCore()
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
@@ -3246,15 +3494,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         if (newItem != null)
         {
             newItem.CopyOwnerFrom(this);
-            InInventoryOf?.SwapInPlace(this, newItem);
-            ContainedIn?.SwapInPlace(this, newItem);
             newItem.RoomLayer = RoomLayer;
-			if (Location is not null && originalSpatialLocation.HasValue)
-			{
-				newItem.InsertAtSpatialLocation(originalSpatialLocation.Value);
-			}
-            foreach (IEffect effect in Effects)
+            foreach (IEffect effect in Effects.ToArray())
             {
+                if (newItem.Deleted || newItem.Destroyed) break;
+                if (!Effects.Contains(effect)) continue;
                 IEffect newEffect = effect.NewEffectOnItemMorph(this, newItem);
                 if (newEffect != null)
                 {
@@ -3269,15 +3513,57 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 }
             }
 
-            foreach (IGameItemComponent comp in Components)
-            {
-                comp.HandleDieOrMorph(newItem, location, originalSpatialLocation);
-            }
-
-            newItem.Login();
         }
 
+        var placedByComponent = newItem is not null && RunReplacementComponentHooks(newItem, location, originalSpatialLocation);
+        CompleteReplacement(newItem, originalSpatialLocation, placedByComponent, destroyed: false);
+    }
+
+    private bool RunReplacementComponentHooks(IGameItem? replacement, IRoom? location, SpatialLocation? originalSpatialLocation)
+    {
+        var placementHandled = false;
+        foreach (var component in Components.OrderBy(x => x.ComponentDieOrder).ToArray())
+        {
+            if (Deleted || replacement is { Deleted: true } or { Destroyed: true }) break;
+            if (_components.Contains(component))
+                placementHandled |= component.HandleDieOrMorph(replacement, location, originalSpatialLocation);
+        }
+
+        return placementHandled;
+    }
+
+    private IGameItem? CompleteReplacement(IGameItem? replacement, SpatialLocation? originalSpatialLocation,
+        bool placedByComponent, bool destroyed)
+    {
+        if (!Deleted && !placedByComponent && ComponentItemTransfer.IsDetached(replacement))
+            PlaceReplacementInOriginalCustodian(replacement!);
+
         Delete();
+        if (!Deleted) return null;
+        if (destroyed) Destroyed = true;
+
+        if (!placedByComponent && ComponentItemTransfer.IsDetached(replacement) && originalSpatialLocation is { } point)
+            replacement!.InsertAtSpatialLocation(point);
+
+        ActivateReplacement(replacement);
+        return replacement;
+    }
+
+    private void PlaceReplacementInOriginalCustodian(IGameItem replacement)
+    {
+        if (!ComponentItemTransfer.IsDetached(replacement)) return;
+        if (ContainedIn?.SwapInPlace(this, replacement) == true) return;
+        if (ComponentItemTransfer.IsDetached(replacement) && ComponentItemTransfer.HasDirectBodyCustody(this))
+            InInventoryOf?.SwapInPlace(this, replacement);
+    }
+
+    private void ActivateReplacement(IGameItem? replacement)
+    {
+        if (replacement is null || replacement.Deleted || replacement.Destroyed) return;
+        Gameworld.Add(replacement);
+        replacement.Login();
+        if (!replacement.Deleted && !replacement.Destroyed && replacement is not GameItem { IsActive: false })
+            replacement.HandleEvent(EventType.ItemFinishedLoading, replacement);
     }
 
 	private SpatialLocation CaptureComponentLifecycleSpatialLocation(IRoom selectedRoom)

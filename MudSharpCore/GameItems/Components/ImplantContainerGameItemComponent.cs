@@ -58,46 +58,15 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
             _isOpen = attr.Value == "true";
         }
 
-        XElement lockelem = root.Element("Locks");
-        if (lockelem != null)
+        foreach (var reference in root.Element("Locks")?.Elements("Lock") ?? [])
         {
-            foreach (
-                IGameItem item in
-                lockelem.Elements("Lock")
-                        .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                        .Where(item => item?.IsItemType<ILock>() == true))
-            {
-                if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
-                {
-                    Changed = true;
-                    Gameworld.SystemMessage(
-                        $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                        true);
-                    continue;
-                }
-
-                InstallLock(item.GetItemType<ILock>());
-            }
+            if (RestoreOwnedChild(reference)?.GetItemType<ILock>() is { } itemLock) InstallLock(itemLock);
         }
 
-        foreach (
-            IGameItem item in
-            root.Elements("Contained")
-                .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                .Where(item => item != null))
+        foreach (var reference in root.Elements("Contained"))
         {
-            if ((item.ContainedIn != null && item.ContainedIn != Parent) || item.Location != null ||
-                item.InInventoryOf != null)
-            {
-                Changed = true;
-                Gameworld.SystemMessage(
-                    $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                    true);
-                continue;
-            }
-
+            if (RestoreOwnedChild(reference) is not { } item) continue;
             _contents.Add(item);
-            item.Get(null);
             item.LoadTimeSetContainedIn(Parent);
         }
     }
@@ -115,8 +84,10 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
     {
         XElement basevalue = SaveToXmlNoTextConversion();
         basevalue.Add(new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
-            new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
-            from content in Contents select new XElement("Contained", content.Id));
+            new XElement("Locks", Locks.Select(itemLock => new XElement("Lock", itemLock.Parent.Id)),
+                AmbiguousLegacyChildClaims("Lock")),
+            Contents.Select(content => new XElement("Contained", content.Id)),
+            AmbiguousLegacyChildClaims("Contained"));
         return basevalue.ToString();
     }
 
@@ -518,14 +489,14 @@ public class ImplantContainerGameItemComponent : ImplantBaseGameItemComponent, I
         base.Delete();
         foreach (IGameItem item in Contents.ToList())
         {
+            DeleteOwnedContainedChild(item);
             _contents.Remove(item);
-            item.Delete();
         }
 
         foreach (ILock item in Locks.ToList())
         {
+            DeleteOwnedContainedChild(item.Parent);
             _locks.Remove(item);
-            item.Parent.Delete();
         }
     }
 

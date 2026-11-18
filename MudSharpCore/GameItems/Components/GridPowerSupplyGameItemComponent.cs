@@ -17,30 +17,45 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
     }
 
     private IElectricalGrid _grid;
+    private bool _gridActive;
 
     public IElectricalGrid ElectricalGrid
     {
         get => _grid;
         set
         {
-            _grid?.LeaveGrid((IConsumePower)this);
-
+            if (ReferenceEquals(_grid, value)) return;
+            if (_gridActive) _grid?.LeaveGrid((IConsumePower)this);
             _grid = value;
-            _grid?.JoinGrid((IConsumePower)this);
-
+            if (_gridActive) _grid?.JoinGrid((IConsumePower)this);
             Changed = true;
         }
     }
 
-    #region Overrides of GameItemComponent
-
     public override void Login()
     {
         base.Login();
-        ElectricalGrid?.RecalculateGrid();
+        if (_gridActive) return;
+        _gridActive = true;
+        _grid?.JoinGrid((IConsumePower)this);
+        _grid?.RecalculateGrid();
     }
 
-    #endregion
+    public override void Quit()
+    {
+        if (!_gridActive) return;
+        _gridActive = false;
+        if (_powered) OnPowerCutOut();
+        _grid?.LeaveGrid((IConsumePower)this);
+        base.Quit();
+    }
+
+    public override void Delete()
+    {
+        Quit();
+        ElectricalGrid = null;
+        base.Delete();
+    }
 
     #region Constructors
 
@@ -118,12 +133,10 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
     public void EndDrawdown(IConsumePower item)
     {
         _connectedConsumers.Remove(item);
-        if (_powerUsers.Contains(item))
+        if (_powerUsers.Remove(item))
         {
             item.OnPowerCutOut();
         }
-
-        _powerUsers.Remove(item);
         ElectricalGrid?.RecalculateGrid();
     }
 
@@ -164,13 +177,11 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
     public void OnPowerCutIn()
     {
+        if (_powered) return;
         _powered = true;
-        foreach (IConsumePower item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
-        {
-            _powerUsers.Add(item);
-        }
-
-        foreach (IConsumePower item in _powerUsers)
+        var newPowerUsers = _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList();
+        _powerUsers.AddRange(newPowerUsers);
+        foreach (IConsumePower item in newPowerUsers)
         {
             item.OnPowerCutIn();
         }
@@ -178,13 +189,14 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
     public void OnPowerCutOut()
     {
+        if (!_powered && _powerUsers.Count == 0) return;
         _powered = false;
-        foreach (IConsumePower item in _powerUsers)
+        var previousPowerUsers = _powerUsers.ToList();
+        _powerUsers.Clear();
+        foreach (IConsumePower item in previousPowerUsers)
         {
             item.OnPowerCutOut();
         }
-
-        _powerUsers.Clear();
     }
 
     #endregion

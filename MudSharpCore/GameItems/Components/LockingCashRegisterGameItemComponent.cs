@@ -31,11 +31,9 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 		_isLocked = bool.Parse(root.Element("IsLocked")?.Value ?? "false");
 		_pattern = int.Parse(root.Element("Pattern")?.Value ?? "0");
 		_noSave = true;
-		foreach (var item in root.Element("Locks")?.Elements("Lock")
-			         .Select(x => Gameworld.TryGetItem(long.Parse(x.Value), true))
-			         .Where(x => x?.IsItemType<ILock>() == true) ?? [])
+		foreach (var reference in root.Element("Locks")?.Elements("Lock") ?? [])
 		{
-			InstallLock(item!.GetItemType<ILock>());
+			if (RestoreOwnedChild(reference)?.GetItemType<ILock>() is { } itemLock) InstallLock(itemLock);
 		}
 		_noSave = false;
 	}
@@ -67,7 +65,8 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 		root.Add(
 			new XElement("Pattern", Pattern),
 			new XElement("IsLocked", _isLocked),
-			new XElement("Locks", Locks.Select(x => new XElement("Lock", x.Parent.Id)))
+			new XElement("Locks", Locks.Select(x => new XElement("Lock", x.Parent.Id)),
+				AmbiguousLegacyChildClaims("Lock"))
 		);
 		return root.ToString();
 	}
@@ -244,17 +243,17 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 		base.Delete();
 		foreach (var item in Locks.ToList())
 		{
+			DeleteOwnedContainedChild(item.Parent);
 			_locks.Remove(item);
-			item.Parent.Delete();
 		}
 	}
 
 	public override void Login()
 	{
 		base.Login();
-		foreach (var item in Locks)
+		foreach (var item in Locks.ToArray())
 		{
-			item.Login();
+			if (Locks.Contains(item) && !item.Parent.Deleted && !item.Parent.Destroyed && ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Login();
 		}
 	}
 
@@ -263,7 +262,7 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 		base.Quit();
 		foreach (var item in Locks.ToArray())
 		{
-			item.Quit();
+			if (Locks.Contains(item) && !item.Parent.Deleted && !item.Parent.Destroyed && ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Quit();
 		}
 	}
 

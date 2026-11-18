@@ -108,14 +108,12 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                 if (item.Attribute("independent")?.Value == "false")
                 {
                     _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
                 else
                 {
                     _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
             }
         }
@@ -136,17 +134,14 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                 LiquidMixture?.SaveToXml() ?? new XElement("NoLiquid"),
                 new XElement(
                     "Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
-                new XElement("ConnectedItems",
-                    from item in ConnectedItems
-                    select
-                        new XElement("Item", new XAttribute("id", item.Item2.Parent.Id),
-                            new XAttribute("connectiontype", item.Item1),
-                            new XAttribute("independent", item.Item2.Independent)))
+                SaveConnections(this, ConnectedItems, _pendingLoadTimeConnections, _pendingDependentLoadTimeConnections)
             )
             .ToString();
     }
 
     #endregion
+
+    private bool _active;
 
     public IVMode Mode { get; protected set; }
     public bool CanBeEmptiedWhenInRoom => true;
@@ -266,7 +261,9 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     public override void Delete()
     {
+        _active = false;
         EndHeartbeat();
+        foreach (var peer in _connectedItems.Select(x => x.Item2).Distinct().ToArray()) RawDisconnect(peer, true);
         base.Delete();
         foreach (ILock item in Locks.ToList())
         {
@@ -275,8 +272,17 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
         }
     }
 
+    public override void Login()
+    {
+        FinaliseLoad();
+        if (_active || Parent.Deleted) return;
+        _active = true;
+        if (_connectedItems.Any(x => x.Item2 is ICannula or IDrip)) StartHeartbeat();
+    }
+
     public override void Quit()
     {
+        _active = false;
         EndHeartbeat();
         foreach (ILock item in Locks.ToArray())
         {
@@ -434,74 +440,14 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
         }
     }
 
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        (independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+        .Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
     public override void FinaliseLoad()
     {
-        foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                continue;
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            if (!Parent.ColocatedWith(gitem))
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (!connectable.CanConnect(null, this))
-                {
-                    continue;
-                }
-
-                RestorePersistedConnection(connectable, () => Connect(null, connectable));
-                break;
-            }
-        }
-
-        _pendingLoadTimeConnections.Clear();
-
-        foreach (Tuple<long, ConnectorType> item in _pendingDependentLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                gitem = Gameworld.TryGetItem(item.Item1, true);
-                if (gitem == null)
-                {
-                    continue;
-                }
-
-                gitem.FinaliseLoadTimeTasks();
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (connectable == null)
-                {
-                    continue;
-                }
-
-                RestorePersistedConnection(connectable, () => Connect(null, connectable));
-                break;
-            }
-        }
-
-        _pendingDependentLoadTimeConnections.Clear();
+        RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+        RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
     }
 
     #region IOpenable Members
@@ -758,6 +704,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     private void StartHeartbeat()
     {
+        if (!_active) return;
         Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= HeartbeatManagerOnFuzzyFiveSecondHeartbeat;
         Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HeartbeatManagerOnFuzzyFiveSecondHeartbeat;
         _initialMessageSent = false;
@@ -765,7 +712,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
 
     private void HeartbeatManagerOnFuzzyFiveSecondHeartbeat()
     {
-        if (Mode == IVMode.Neutral)
+        if (!_active || Mode == IVMode.Neutral)
         {
             return;
         }
@@ -933,13 +880,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
     {
         get
         {
-            List<ConnectorType> rvar = new(Connections);
-            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
-            {
-                rvar.Remove(item.Item1);
-            }
-
-            return rvar;
+            return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
         }
     }
 
@@ -985,15 +926,17 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
             return;
         }
 
-        RawConnect(other, connection);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+        ConnectPair(this, connection, other, otherConnection);
         Changed = true;
     }
 
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItems.Add(Tuple.Create(type, other));
-        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        ConsumeSavedConnection(this, other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections,
+            other.Parent.Id, type);
         Parent.ConnectedItem(other, type);
         if (other is ICannula || other is IDrip)
         {

@@ -1,16 +1,18 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto, IConnectablePrototype, IProducePowerPrototype, IConsumePowerPrototype, ICanConnectToElectricalGridPrototype
+public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto, IConnectablePrototype, IProducePowerPrototype, IConsumePowerPrototype, ICanConnectToElectricalGridPrototype, IConnectableItemProto
 {
     public override string TypeDescription => "ElectricGridOutlet";
 
     public List<ConnectorType> Connections { get; } = new();
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
     #region Constructors
 
@@ -54,7 +56,8 @@ public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto, 
                     new XElement("Connection",
                         new XAttribute("gender", (short)connector.Gender),
                         new XAttribute("type", connector.ConnectionType),
-                        new XAttribute("powered", connector.Powered)
+                        new XAttribute("powered", connector.Powered),
+                    new XAttribute("id", connector.PortId)
                     )
             )
         ).ToString();

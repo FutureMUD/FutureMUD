@@ -13,10 +13,16 @@ Start with the master guides below. Outstanding designs are requirements or prop
 - [FutureMUD Item System Content Workflows](Item_System_Content_Workflows.md)
 - [FutureMUD Item System Presentation and Integration](Item_System_Presentation_and_Integration.md)
 - [FutureMUD Item System Runtime Model](Item_System_Runtime_Model.md)
+- [Item and component lifecycle](Item_Lifecycle.md)
 - [ItemSeeder AddCraft Authoring Guide](ItemSeeder_AddCraft_Guide.md)
+
+## Proposed work
+
+- [Item lifecycle remediation roadmap](Item_Lifecycle_Remediation_Roadmap.md)
 
 ## Dated reviews and verification records
 
+- [Item lifecycle review, 17 November 2026](Item_Lifecycle_Review_20261117.md)
 - [Physical manipulation and bodypart audit](Physical_Manipulation_Audit.md)
 
 [Documentation home](../README.md) · [Document roles and naming](../Documentation_Guide.md)

@@ -896,6 +896,23 @@ public class SealAndMeasurementComponentTests
 	}
 
 	[TestMethod]
+	public void AmbientScent_SavesColouredSourceAndScentAsXmlWithSeparateColour()
+	{
+		var gameworld = CreateGameworld();
+		var owner = new Mock<IPerceivable>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var scent = new AmbientScent(owner.Object, 99L, "a bronze censer".ColourName(),
+			"Sweet resinous smoke".Colour(Telnet.Yellow), RoomLayer.GroundLevel, 0, Difficulty.Easy, Telnet.Green);
+
+		var persisted = XElement.Parse(scent.SaveToXml(new Dictionary<IEffect, TimeSpan>()).ToString());
+		var reloaded = new AmbientScent(persisted, owner.Object);
+
+		Assert.AreEqual("a bronze censer", reloaded.SourceDescription);
+		Assert.AreEqual("Sweet resinous smoke", reloaded.AdditionalText);
+		Assert.AreEqual(Telnet.Green.Name, reloaded.Colour.Name);
+	}
+
+	[TestMethod]
 	public void Sealable_SealsBreaksSavesCopiesAndCompares()
 	{
 		var gameworld = CreateGameworld();

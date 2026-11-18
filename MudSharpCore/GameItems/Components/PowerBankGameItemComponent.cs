@@ -9,6 +9,8 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 	private PowerBankGameItemComponentProto _powerBankPrototype;
 	private IProducePower? _inputSource;
 	private bool _inputPowered;
+	private bool _active;
+	private bool _deleted;
 	private bool _heartbeatOn;
 	private readonly List<IConsumePower> _connectedConsumers = [];
 	private readonly List<IConsumePower> _powerUsers = [];
@@ -18,7 +20,6 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 	{
 		_powerBankPrototype = proto;
 		WattHoursRemaining = proto.CapacityInWattHours;
-		SubscribeToConnections();
 	}
 
 	public PowerBankGameItemComponent(MudSharp.Models.GameItemComponent component, PowerBankGameItemComponentProto proto,
@@ -28,7 +29,6 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		var root = XElement.Parse(component.Definition);
 		WattHoursRemaining = Math.Clamp(double.Parse(root.Element("WattHoursRemaining")?.Value ??
 			proto.CapacityInWattHours.ToString()), 0.0, proto.CapacityInWattHours);
-		SubscribeToConnections();
 	}
 
 	public PowerBankGameItemComponent(PowerBankGameItemComponent rhs, IGameItem newParent, bool temporary = false)
@@ -36,13 +36,6 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 	{
 		_powerBankPrototype = rhs._powerBankPrototype;
 		WattHoursRemaining = rhs.WattHoursRemaining;
-		SubscribeToConnections();
-	}
-
-	private void SubscribeToConnections()
-	{
-		Parent.OnConnected += ParentOnConnected;
-		Parent.OnDisconnected += ParentOnDisconnected;
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false) =>
@@ -67,12 +60,12 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 	public bool PrimaryExternalConnectionPowerProducer => true;
 	public double FuelLevel => _powerBankPrototype.CapacityInWattHours > 0.0
 		? WattHoursRemaining / _powerBankPrototype.CapacityInWattHours : 0.0;
-	public bool ProducingPower => WattHoursRemaining > 0.0;
+	public bool ProducingPower => _active && WattHoursRemaining > 0.0;
 	public double MaximumPowerInWatts => ProducingPower ? _powerBankPrototype.MaximumOutputInWatts : 0.0;
 
 	public void BeginDrawdown(IConsumePower item)
 	{
-		if (!IsConnectedToOutput(item))
+		if (_deleted || !IsConnectedToOutput(item))
 		{
 			return;
 		}
@@ -98,7 +91,7 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 
 	private void TryPowerConsumer(IConsumePower item)
 	{
-		if (_powerUsers.Contains(item) || !ProducingPower ||
+		if (!_connectedConsumers.Contains(item) || _powerUsers.Contains(item) || !ProducingPower ||
 			_powerUsers.Sum(x => Math.Max(0.0, x.PowerConsumptionInWatts)) +
 			Math.Max(0.0, item.PowerConsumptionInWatts) > _powerBankPrototype.MaximumOutputInWatts)
 		{
@@ -144,10 +137,11 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		return true;
 	}
 
-	public double PowerConsumptionInWatts => _inputSource is not null && WattHoursRemaining < _powerBankPrototype.CapacityInWattHours
+	public double PowerConsumptionInWatts => _active && _inputSource is not null && WattHoursRemaining < _powerBankPrototype.CapacityInWattHours
 		? _powerBankPrototype.MaximumInputInWatts : 0.0;
 	public void OnPowerCutIn()
 	{
+		if (!_active || _inputSource is null) return;
 		_inputPowered = true;
 		CheckHeartbeat();
 	}
@@ -159,7 +153,8 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 
 	private void CheckHeartbeat()
 	{
-		var needed = (_inputPowered && WattHoursRemaining < _powerBankPrototype.CapacityInWattHours) || _powerUsers.Any();
+		var needed = _active &&
+		             ((_inputPowered && WattHoursRemaining < _powerBankPrototype.CapacityInWattHours) || _powerUsers.Count > 0);
 		if (needed && !_heartbeatOn)
 		{
 			Gameworld.HeartbeatManager.SecondHeartbeat += Heartbeat;
@@ -174,7 +169,9 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 
 	private void Heartbeat()
 	{
+		if (!_active) return;
 		EnforceOutputLimit();
+		if (!_active) return;
 		var output = _powerUsers.Sum(x => Math.Max(0.0, x.PowerConsumptionInWatts));
 		var input = _inputPowered ? _powerBankPrototype.MaximumInputInWatts : 0.0;
 		WattHoursRemaining = PowerBankEnergyMath.ResolveWattHours(WattHoursRemaining,
@@ -183,15 +180,11 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		Changed = true;
 		if (WattHoursRemaining <= 0.0)
 		{
-			foreach (var user in _powerUsers.ToList())
-			{
-				user.OnPowerCutOut();
-			}
-			_powerUsers.Clear();
+			CutPowerToUsers();
 		}
 		else
 		{
-			foreach (var consumer in _connectedConsumers)
+			foreach (var consumer in _connectedConsumers.ToArray())
 			{
 				TryPowerConsumer(consumer);
 			}
@@ -204,6 +197,7 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		var admittedWatts = 0.0;
 		foreach (var user in _powerUsers.ToList())
 		{
+			if (!_powerUsers.Contains(user)) continue;
 			var requestedWatts = Math.Max(0.0, user.PowerConsumptionInWatts);
 			if (admittedWatts + requestedWatts <= _powerBankPrototype.MaximumOutputInWatts)
 			{
@@ -233,14 +227,12 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 
 	private void ParentOnConnected(IConnectable other, ConnectorType type)
 	{
-		if (!IsInputConnection(type))
+		if (!_active || !IsInputConnection(type))
 		{
 			return;
 		}
-		_inputSource?.EndDrawdown(this);
-		_inputSource = other.Parent.GetItemTypes<IProducePower>()
-			.FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
-		_inputSource?.BeginDrawdown(this);
+		ReleaseInputSource();
+		RestoreInputSource();
 	}
 
 	private void ParentOnDisconnected(IConnectable other, ConnectorType type)
@@ -254,16 +246,24 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		{
 			return;
 		}
-		_inputSource.EndDrawdown(this);
-		_inputSource = null;
-		_inputPowered = false;
+		ReleaseInputSource();
 		CheckHeartbeat();
 	}
 
 	public override void Login()
 	{
+		if (_active || _deleted) return;
 		base.Login();
+		if (Parent.Deleted || _deleted) return;
+		_active = true;
+		Parent.OnConnected += ParentOnConnected;
+		Parent.OnDisconnected += ParentOnDisconnected;
 		RestoreInputSource();
+		foreach (var consumer in _connectedConsumers.ToArray())
+		{
+			TryPowerConsumer(consumer);
+		}
+		CheckHeartbeat();
 	}
 
 	public override void Quit()
@@ -274,30 +274,42 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 
 	public override void Delete()
 	{
+		_deleted = true;
 		ReleasePower();
 		base.Delete();
+		_connectedConsumers.Clear();
 	}
 
 	private void ReleasePower()
 	{
-		_inputSource?.EndDrawdown(this);
+		if (!_active) return;
+		_active = false;
+		Parent.OnConnected -= ParentOnConnected;
+		Parent.OnDisconnected -= ParentOnDisconnected;
+		ReleaseInputSource();
+		CheckHeartbeat();
+		CutPowerToUsers();
+	}
+
+	private void ReleaseInputSource()
+	{
+		var source = _inputSource;
 		_inputSource = null;
 		_inputPowered = false;
-		if (_heartbeatOn)
+		source?.EndDrawdown(this);
+	}
+
+	private void CutPowerToUsers()
+	{
+		foreach (var user in _powerUsers.ToArray())
 		{
-			Gameworld.HeartbeatManager.SecondHeartbeat -= Heartbeat;
-			_heartbeatOn = false;
+			if (_powerUsers.Remove(user)) user.OnPowerCutOut();
 		}
-		foreach (var user in _powerUsers.ToList())
-		{
-			user.OnPowerCutOut();
-		}
-		_powerUsers.Clear();
 	}
 
 	private void RestoreInputSource()
 	{
-		if (_inputSource is not null)
+		if (!_active || _inputSource is not null)
 		{
 			return;
 		}
@@ -309,7 +321,8 @@ public class PowerBankGameItemComponent : ConnectableGameItemComponent, IProduce
 		}
 
 		_inputSource = inputConnection.Item2.Parent.GetItemTypes<IProducePower>()
-			.FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
+			.FirstOrDefault(x => !ReferenceEquals(x, this) &&
+			                     (x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0));
 		_inputSource?.BeginDrawdown(this);
 	}
 }

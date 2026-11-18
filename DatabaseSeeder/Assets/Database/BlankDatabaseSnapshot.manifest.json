@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261117030326_PersistEmploymentTaskApprovals",
-  "GeneratedUtc": "2026-11-17T04:12:09.9653008Z"
+  "LatestMigrationId": "20261118024538_PersistNativeItemDeletionCheckpoint",
+  "GeneratedUtc": "2026-11-18T02:45:38Z"
 }

@@ -36,6 +36,7 @@ public abstract partial class Effect : FrameworkItem, IEffect, IPhysicalEntityRe
     {
         bool scheduled = scheduledEffects.ContainsKey(this);
         return new XElement("Effect",
+            scheduled ? new XAttribute("scheduled", true) : null,
             new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
             new XElement("Type", SpecificEffectType),
             new XElement("Original", scheduled ? (long)scheduledEffects[this].TotalMilliseconds : 0),

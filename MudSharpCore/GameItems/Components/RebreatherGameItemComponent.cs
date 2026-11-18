@@ -214,8 +214,8 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
             return;
         }
 
-        RawConnect(other, _prototype.Connector);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector)));
+        var otherConnector = other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector));
+        ConnectPair(this, _prototype.Connector, other, otherConnector);
         Changed = true;
     }
 

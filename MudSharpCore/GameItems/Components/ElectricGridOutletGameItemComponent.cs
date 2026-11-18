@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.GameItems.Prototypes;
@@ -14,19 +14,46 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
     public override IGameItemComponentProto Prototype => _prototype;
 
     private IElectricalGrid _grid;
+    private bool _gridActive;
 
     public IElectricalGrid ElectricalGrid
     {
         get => _grid;
         set
         {
-            _grid?.LeaveGrid((IConsumePower)this);
-
+            if (ReferenceEquals(_grid, value)) return;
+            if (_gridActive) _grid?.LeaveGrid((IConsumePower)this);
             _grid = value;
-            _grid?.JoinGrid((IConsumePower)this);
-
+            if (_gridActive) _grid?.JoinGrid((IConsumePower)this);
             Changed = true;
         }
+    }
+
+    public override void Login()
+    {
+        FinaliseLoad();
+        base.Login();
+        if (_gridActive) return;
+        _gridActive = true;
+        _grid?.JoinGrid((IConsumePower)this);
+        _grid?.RecalculateGrid();
+    }
+
+    public override void Quit()
+    {
+        if (!_gridActive) return;
+        _gridActive = false;
+        if (_powered) OnPowerCutOut();
+        _grid?.LeaveGrid((IConsumePower)this);
+        base.Quit();
+    }
+
+    public override void Delete()
+    {
+        foreach (var peer in _connectedItems.Select(x => x.Item2).Distinct().ToArray()) RawDisconnect(peer, true);
+        Quit();
+        ElectricalGrid = null;
+        base.Delete();
     }
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -64,17 +91,14 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
         {
             foreach (XElement item in element.Elements("Item"))
             {
+                var connection = LoadSavedConnector(item);
                 if (item.Attribute("independent")?.Value == "false")
                 {
-                    _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                    _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value), connection));
                 }
                 else
                 {
-                    _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                    _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value), connection));
                 }
             }
         }
@@ -99,12 +123,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
     {
         return new XElement("Definition",
             new XElement("Grid", ElectricalGrid?.Id ?? 0),
-            new XElement("ConnectedItems",
-                from item in ConnectedItems
-                select
-                    new XElement("Item", new XAttribute("id", item.Item2.Parent.Id),
-                        new XAttribute("connectiontype", item.Item1),
-                        new XAttribute("independent", item.Item2.Independent)))
+            SaveConnections(this, ConnectedItems, _pendingLoadTimeConnections, _pendingDependentLoadTimeConnections)
         ).ToString();
     }
 
@@ -229,75 +248,14 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
         return false;
     }
 
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        (independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+        .Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
     public override void FinaliseLoad()
     {
-        foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                continue;
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            if (!Parent.ColocatedWith(gitem))
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (!connectable.CanConnect(null, this))
-                {
-                    continue;
-                }
-
-                Connect(null, connectable);
-                break;
-            }
-        }
-
-        _pendingLoadTimeConnections.Clear();
-
-        foreach (Tuple<long, ConnectorType> item in _pendingDependentLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                gitem = Gameworld.TryGetItem(item.Item1, true);
-                if (gitem == null)
-                {
-                    continue;
-                }
-
-                gitem.FinaliseLoadTimeTasks();
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (connectable == null)
-                {
-                    continue;
-                }
-
-                Connect(null, connectable);
-                break;
-            }
-        }
-
-        _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
+        RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+        RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
     }
 
     #region Implementation of IConnectable
@@ -309,13 +267,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
     {
         get
         {
-            List<ConnectorType> rvar = new(Connections);
-            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
-            {
-                rvar.Remove(item.Item1);
-            }
-
-            return rvar;
+            return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
         }
     }
 
@@ -361,15 +313,17 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
             return;
         }
 
-        RawConnect(other, connection);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+        ConnectPair(this, connection, other, otherConnection);
         Changed = true;
     }
 
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItems.Add(Tuple.Create(type, other));
-        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        ConsumeSavedConnection(this, other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections,
+            other.Parent.Id, type);
         Parent.ConnectedItem(other, type);
         Changed = true;
     }
@@ -471,8 +425,12 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
 
     public void BeginDrawdown(IConsumePower item)
     {
-        _connectedConsumers.Add(item);
-        if (ProducingPower)
+        if (!_connectedConsumers.Contains(item))
+        {
+            _connectedConsumers.Add(item);
+        }
+
+        if (ProducingPower && !_powerUsers.Contains(item))
         {
             _powerUsers.Add(item);
             item.OnPowerCutIn();
@@ -484,12 +442,10 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
     public void EndDrawdown(IConsumePower item)
     {
         _connectedConsumers.Remove(item);
-        if (_powerUsers.Contains(item))
+        if (_powerUsers.Remove(item))
         {
             item.OnPowerCutOut();
         }
-
-        _powerUsers.Remove(item);
         ElectricalGrid?.RecalculateGrid();
     }
 
@@ -521,13 +477,11 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
 
     public void OnPowerCutIn()
     {
+        if (_powered) return;
         _powered = true;
-        foreach (IConsumePower item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
-        {
-            _powerUsers.Add(item);
-        }
-
-        foreach (IConsumePower item in _powerUsers)
+        var newPowerUsers = _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList();
+        _powerUsers.AddRange(newPowerUsers);
+        foreach (IConsumePower item in newPowerUsers)
         {
             item.OnPowerCutIn();
         }
@@ -535,13 +489,14 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
 
     public void OnPowerCutOut()
     {
+        if (!_powered && _powerUsers.Count == 0) return;
         _powered = false;
-        foreach (IConsumePower item in _powerUsers)
+        var previousPowerUsers = _powerUsers.ToList();
+        _powerUsers.Clear();
+        foreach (IConsumePower item in previousPowerUsers)
         {
             item.OnPowerCutOut();
         }
-
-        _powerUsers.Clear();
     }
 
     #endregion

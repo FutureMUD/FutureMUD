@@ -16,13 +16,18 @@ public class PileGameItemComponentProto : GameItemComponentProto, IContainerProt
 
     public IStackDecorator Decorator { get; private set; }
 
-    public static IGameItem CreateNewBundle(IEnumerable<IGameItem> items)
+    public static IGameItem CreateNewBundle(IEnumerable<IGameItem> items) => CreateNewBundle(items, activate: true);
+
+    internal static IGameItem CreateNewBundle(IEnumerable<IGameItem> items, bool activate)
     {
         IGameItem newItem = ItemPrototype.CreateNew();
         PileGameItemComponent newItemPile = newItem.GetItemType<PileGameItemComponent>();
         newItemPile.SetContents(items);
-        newItem.Login();
-        newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+        if (activate)
+        {
+            newItem.Login();
+            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+        }
         return newItem;
     }
 

@@ -293,6 +293,7 @@
     "20261111103628_AddLendingContracts.Designer.cs": "Batch0021",
     "20261113003430_AddStagedPerformanceRecords.Designer.cs": "Batch0021",
     "20261116104103_HardenAccountCredentialRecovery.Designer.cs": "Batch0021",
-    "20261117030326_PersistEmploymentTaskApprovals.Designer.cs": "Batch0021"
+    "20261117030326_PersistEmploymentTaskApprovals.Designer.cs": "Batch0021",
+    "20261118024538_PersistNativeItemDeletionCheckpoint.Designer.cs": "Batch0021"
   }
 }

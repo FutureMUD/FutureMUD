@@ -63,7 +63,7 @@ namespace MudSharp.GameItems.Components
                 foreach (
                     IGameItem item in
                     lockelem.Elements("Lock")
-                            .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
+                            .Select(RestoreOwnedChild)
                             .Where(item => item?.IsItemType<ILock>() == true))
                 {
                     if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
@@ -82,7 +82,7 @@ namespace MudSharp.GameItems.Components
             foreach (
                 IGameItem item in
                 root.Elements("Contained")
-                    .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
+                    .Select(RestoreOwnedChild)
                     .Where(item => item != null))
             {
                 if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
@@ -125,8 +125,10 @@ namespace MudSharp.GameItems.Components
                    new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
                         new XElement("Pattern", Pattern),
                         new XElement("IsLocked", IsLocked),
-                        new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
-                        from content in Contents select new XElement("Contained", content.Id)
+                        new XElement("Locks", Locks.Select(thelock => new XElement("Lock", thelock.Parent.Id)),
+                            AmbiguousLegacyChildClaims("Lock")),
+                        Contents.Select(content => new XElement("Contained", content.Id)),
+                        AmbiguousLegacyChildClaims("Contained")
                     ).ToString();
         }
         #endregion
@@ -627,15 +629,14 @@ namespace MudSharp.GameItems.Components
             base.Delete();
             foreach (IGameItem item in Contents.ToList())
             {
+                DeleteOwnedContainedChild(item);
                 _contents.Remove(item);
-                item.ContainedIn = null;
-                item.Delete();
             }
 
             foreach (ILock item in Locks.ToList())
             {
+                DeleteOwnedContainedChild(item.Parent);
                 _locks.Remove(item);
-                item.Parent.Delete();
             }
         }
 

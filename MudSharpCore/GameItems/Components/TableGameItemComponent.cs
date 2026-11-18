@@ -42,8 +42,8 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
         base.Delete();
         foreach (IChair item in Chairs.ToList())
         {
+            if (ReferenceEquals(item.Table, this)) DeleteOwnedContainedChild(item.Parent);
             _chairs.Remove(item);
-            item.Parent.Delete();
         }
     }
 
@@ -179,8 +179,10 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
         {
             foreach (XElement element in root.Elements("Chair"))
             {
-                IGameItem newItem = Gameworld.TryGetItem(long.Parse(element.Value), true);
+                IGameItem newItem = RestoreOwnedChild(element);
+                if (newItem is null) continue;
                 IChair chair = newItem.GetItemType<IChair>();
+                if (chair is null) continue;
                 chair.SetTable(this, true); // This causes the table to save itself, hence the save-lock outside
             }
         }
@@ -194,7 +196,8 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
         return new XElement("Table",
             new XElement("Flipped", Flipped),
             from chair in Chairs
-            select new XElement("Chair", chair.Parent.Id)
+            select new XElement("Chair", chair.Parent.Id),
+            AmbiguousLegacyChildClaims("Chair")
         ).ToString();
     }
 

@@ -661,6 +661,10 @@ public interface IProducePowerPrototype : IAggregateGameItemComponentPrototype<I
 {
 }
 
+public interface IPrimaryPowerProducerPrototype : IProducePowerPrototype
+{
+}
+
 public interface IProstheticPrototype : IExclusiveGameItemComponentPrototype<IProsthetic>
 {
 }

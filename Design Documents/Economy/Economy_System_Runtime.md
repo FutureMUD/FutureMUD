@@ -437,6 +437,8 @@ Current verified runtime characteristics:
 - winning property-share bids transfer the sold share directly at auction completion without requiring a fixed-price property sale order
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available
 
+Item lots stay suspended through listing and, when applicable, until the winner claims them. Active-time clocks pause and absolute deadlines are retained. Auction-only items structurally finalise after materialisation. Claim and cancellation place the item before resuming its active interval. See [item lifecycle and clocks](../Items/Item_Lifecycle.md#effects-decay-and-time).
+
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.
 
 ### Legacy PC-Facing Jobs

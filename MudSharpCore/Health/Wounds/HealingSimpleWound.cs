@@ -103,6 +103,9 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         base.Save();
     }
 
+    internal long? StoredActorOriginId => _actorOriginId == 0 ? null : _actorOriginId;
+    internal long? StoredToolOriginId => _toolOriginId == 0 ? null : _toolOriginId;
+
     public string SaveExtras()
     {
         return new XElement("Definition",
@@ -388,7 +391,8 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
     private void LoadFromDb(Wound wound)
     {
         _id = wound.Id;
-        IdInitialised = true;
+        IdInitialised = wound.Id != 0;
+        _noSave = !IdInitialised;
         _name = string.Empty;
         _currentDamage = wound.CurrentDamage;
 		_currentStun = double.IsFinite(wound.CurrentStun) ? Math.Max(0.0, wound.CurrentStun) : 0.0;

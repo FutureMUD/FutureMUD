@@ -51,7 +51,7 @@ You can also use the following options to change the properties of an authority 
 	#3legal set currency <currency>#0 - changes the currency that fines and such will be issued in
 	#3legal set know#0 - toggles whether players know the crimes they have committed
 	#3legal set zone <zone>#0 - toggles a zone as in or out of the enforcement area of this legal authority
-	#3legal set class add <name>#0 - adds a new legal class
+	#3legalauthority set class add <name> <prog>#0 - adds a new legal class
 	#3legal set class delete <name>#0 - deletes a legal class
 	#3legal set class <which> ...#0 - sets properties of a legal class
 	#3legal set enforcement add <name>#0 - adds a new enforcer authority

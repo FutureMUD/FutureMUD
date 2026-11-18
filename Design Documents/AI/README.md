@@ -10,6 +10,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
+- [NPC templates, spawners and AI builder guide](../Builder%20Guides/NPC_Builder_Guide.md)
 - [Event System for AI and Hooks](Event_System_for_AI_and_Hooks.md)
 - [OpenAI Integration](OpenAI_Integration.md)
 - [Predator Hunting](Predator_Hunting.md)

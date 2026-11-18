@@ -48,8 +48,8 @@ public class BeltableGameItemComponent : GameItemComponent, IBeltable
         IBelt connectedItem = ConnectedTo;
         connectedItem.RemoveConnectedItem(this);
 
-        IBeltable newItemBeltable = newItem?.GetItemType<IBeltable>();
-        if (newItemBeltable != null)
+        if (ComponentItemTransfer.IsDetached(newItem) && newItem.GetItemType<IBeltable>() is { } newItemBeltable &&
+            connectedItem.CanAttachBeltable(newItemBeltable) == IBeltCanAttachBeltableResult.Success)
         {
             connectedItem.AddConnectedItem(newItemBeltable);
             return true;

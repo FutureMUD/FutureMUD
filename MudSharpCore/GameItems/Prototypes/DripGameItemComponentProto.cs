@@ -2,16 +2,18 @@
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class DripGameItemComponentProto : GameItemComponentProto, IDripPrototype, ISelectablePrototype
+public class DripGameItemComponentProto : GameItemComponentProto, IDripPrototype, ISelectablePrototype, IConnectableItemProto
 {
     public override string TypeDescription => "Drip";
 
     public List<ConnectorType> Connections { get; } = new();
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
     #region Constructors
 
@@ -53,7 +55,9 @@ public class DripGameItemComponentProto : GameItemComponentProto, IDripPrototype
                         select
                             new XElement("Connection",
                                 new XAttribute("gender", (short)connector.Gender),
-                                new XAttribute("type", connector.ConnectionType)
+                                new XAttribute("type", connector.ConnectionType),
+                                new XAttribute("powered", connector.Powered),
+                                new XAttribute("id", connector.PortId)
                             )
                     )
                 )

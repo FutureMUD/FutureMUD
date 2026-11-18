@@ -93,6 +93,8 @@ Important responsibilities include:
 
 In practice, `GameItem` is the orchestration layer. Components provide most specialised behaviour, while `GameItem` coordinates persistence, description composition, movement, inventory state, wound handling, and world integration.
 
+The lifecycle guide traces the order of construction, registration, placement, graph finalisation, login, quit and removal for each major entry path. The dated review records where implementations diverge and which failures were reproduced. [Item and component lifecycle](Item_Lifecycle.md) · [Lifecycle review](Item_Lifecycle_Review_20261117.md)
+
 Morph schedules created during item login use the stable item ID in diagnostic labels.
 They must not render item descriptions: a cold corpse description can resolve its
 original character before boot permits character materialisation. This leaves the
@@ -429,7 +431,7 @@ Current runtime connection rules for that slice are:
 - keypad codes, biometric stable-character identities and saved display names, keycard contents, reader accept lists, and reader self-target selection persist in component XML; legacy keypads without an instance code continue to use the prototype code
 - biometric scans require an exposed usable matching bodypart on a living actor, while a held `ISeveredBodypart` may authenticate its original character identity when any preserved part has the configured shape
 - keycards and readers each store at most 64 unique ordinal case-sensitive printable codes of at most 64 characters; matching succeeds when any card code occurs in the reader list
-- world boot finalises and logs in the complete graph materialised from world-root cell items, including independent items found only through persisted connections and items discovered while another component finalises; finalisation is idempotent so nested or cyclic graphs are safe, while items rooted only in character inventories stay dormant until their owning body or character logs in and propagates the lifecycle to them
+- world boot repeatedly finalises registered items discovered during room and component loading, initialises grids and shops, then logs in a registry snapshot. The item finalisation guard covers recursion among materialised objects. Constructor-time ownership cycles, duplicate child login and later roots have separate behaviours. [Lifecycle review](Item_Lifecycle_Review_20261117.md)
 - `AutomationMountHost` forwards `Login()`, `Quit()`, and `Delete()` to mounted bay items so extracted modules still come online and tear down with their host item even though they are not ordinary cell-contained items
 - powered machine automation modules and other powered-machine-based automation components now treat power resolution as a topology-aware live process rather than a single login-time lookup: they subscribe to relevant parent and host power-topology changes, retry for a longer post-login window if switched on but initially unpowered, and refresh power resolution when connected or mounted power availability changes after reboot/load ordering
 - `ElectronicDoor` now performs the same kind of late reconnect retry for its signal binding after load/login, so a controller or mounted module that becomes discoverable slightly later in the reboot sequence can still subscribe and drive the door without manual rewiring

@@ -147,15 +147,15 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, IPreparedLi
     {
         foreach (ILock item in Locks.ToArray())
         {
-            item.Quit();
+            if (ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Quit();
         }
     }
 
     public override void Login()
     {
-        foreach (ILock item in Locks)
+        foreach (ILock item in Locks.ToArray())
         {
-            item.Login();
+            if (ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Login();
         }
     }
 

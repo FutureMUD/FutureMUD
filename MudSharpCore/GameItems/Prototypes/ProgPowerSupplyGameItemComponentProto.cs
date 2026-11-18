@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 
@@ -6,7 +6,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ProgPowerSupplyGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, IOnOffPrototype
+public class ProgPowerSupplyGameItemComponentProto : GameItemComponentProto, IPrimaryPowerProducerPrototype, IOnOffPrototype
 {
     public override string TypeDescription => "ProgPowerSupply";
 

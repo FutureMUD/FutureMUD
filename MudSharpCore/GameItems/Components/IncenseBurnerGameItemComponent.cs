@@ -227,7 +227,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 			return;
 		}
 
-		var sourceDescription = Parent.HowSeen(null, flags: PerceiveIgnoreFlags.IgnoreCanSee);
+		var sourceDescription = Parent.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee);
 		foreach (var (room, distance) in AffectedRooms(_prototype.ScentRange))
 		{
 			var text = distance == 0 ? _prototype.SourceScentDescription : _prototype.DistantScentDescription;

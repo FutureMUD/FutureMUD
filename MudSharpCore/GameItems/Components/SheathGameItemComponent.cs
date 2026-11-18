@@ -22,7 +22,8 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
         base.Delete();
         foreach (var content in _contents.ToList())
         {
-            content.Parent.Delete();
+            DeleteOwnedContainedChild(content.Parent);
+            _contents.Remove(content);
         }
     }
 
@@ -166,7 +167,8 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("Contents", _contents.Select(x => new XElement("Content", x.Parent.Id)))
+            new XElement("Contents", _contents.Select(x => new XElement("Content", x.Parent.Id)),
+                AmbiguousLegacyChildClaims("Content"))
         ).ToString();
     }
 
@@ -326,7 +328,8 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
                 continue;
             }
 
-            IGameItem contentItem = Gameworld.TryGetItem(long.Parse(content.Value), true);
+            IGameItem contentItem = RestoreOwnedChild(content);
+            if (contentItem is null) continue;
             contentItem.Get(null);
             IWieldable wieldable = contentItem.GetItemType<IWieldable>();
             if (wieldable != null)

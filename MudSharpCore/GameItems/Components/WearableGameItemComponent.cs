@@ -105,35 +105,33 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 		if (replacement is not null && replacement._prototype.SizingEnabled == _prototype.SizingEnabled &&
 		    replacement._prototype.ScalarSizeProg?.Id == _prototype.ScalarSizeProg?.Id)
 			replacement.SetFit(Fit);
-        if (WornBy == null)
-        {
-            return false;
-        }
+        if (WornBy is not { } wearer) return false;
 
         IHoldable held = Parent.GetItemType<IHoldable>();
         held?.HeldBy = null;
 
         WearableGameItemComponent newItemWearable = newItem?.GetItemType<WearableGameItemComponent>();
-        if (newItemWearable?.Profiles.Any(x => x.CompatibleWith(CurrentProfile)) == true)
+        var placed = false;
+        if (ComponentItemTransfer.IsDetached(newItem))
         {
-            WornBy.SwapInPlace(Parent, newItem);
-        }
-        else if (newItem != null)
-        {
-            if (WornBy.CanGet(newItem, 0))
+            if (newItemWearable?.Profiles.Any(x => x.CompatibleWith(CurrentProfile)) == true)
             {
-                WornBy.Get(newItem, silent: true);
+                placed = wearer.SwapInPlace(Parent, newItem);
             }
             else
             {
-                newItem.InsertAtSource(WornBy.Actor);
+                var canGet = wearer.CanGet(newItem, 0);
+                if (ReferenceEquals(WornBy, wearer) && ComponentItemTransfer.IsDetached(newItem))
+                {
+                    if (canGet) wearer.Get(newItem, silent: true);
+                    placed = !ComponentItemTransfer.IsDetached(newItem);
+                }
             }
         }
 
-        WornBy?.Take(Parent);
-        WornBy = null;
-        CurrentProfile = null;
-        return true;
+        if (ReferenceEquals(WornBy, wearer)) wearer.Take(Parent);
+        if (ReferenceEquals(WornBy, wearer)) UpdateWear(null, null);
+        return placed;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)

@@ -22,6 +22,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     protected BodypartGameItemComponentProto _prototype;
     private bool _decayListenerOn;
     private DateTime _lastDecayResolvedUtc;
+    private readonly bool _temporaryCopy;
 
     public override bool PreventsMerging(IGameItemComponent component)
     {
@@ -34,9 +35,13 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     public override IGameItemComponentProto Prototype => _prototype;
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-    {
-        return new BodypartGameItemComponent(this, newParent, temporary);
-    }
+        => Copy(newParent, temporary, preserveMorphTime: true);
+
+    internal BodypartGameItemComponent Copy(IGameItem newParent, bool temporary, bool preserveMorphTime)
+        => new(this, newParent, temporary, preserveMorphTime);
+
+    // Persist contents and implants after the first save has assigned item IDs.
+    public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
 
     public override int DecorationPriority => 1;
 
@@ -91,6 +96,8 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         {
             item.FinaliseLoadTimeTasks();
         }
+
+        foreach (var item in ComponentOwnedLodgedItems()) item.FinaliseLoadTimeTasks();
     }
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -100,6 +107,9 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     protected override string SaveToXml()
     {
+        var wounds = Wounds.ToArray();
+        var awaitingWoundIds = _woundsByOwner &&
+            wounds.OfType<ILateInitialisingItem>().Any(wound => !wound.IdHasBeenRegistered);
         return new XElement("Definition",
             new XElement("OriginalCharacterId", OriginalCharacterId),
             new XElement("OriginalBodyId", OriginalBodyId),
@@ -117,16 +127,19 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             ),
             new XElement("Contents",
                 from item in Contents
-                select new XElement("Item", item.Id)
+                select new XElement("Item", item.Id),
+                AmbiguousLegacyChildClaims("Item")
             ),
             new XElement("Implants",
                 from item in _implants
-                select new XElement("Implant", item.Id)
+                select new XElement("Implant", item.Id),
+                AmbiguousLegacyChildClaims("Implant")
             ),
             new XElement("Wounds",
-                from item in Wounds
-                select new XElement("Wound", item.Id)
+                wounds.Where(wound => wound is not ILateInitialisingItem { IdHasBeenRegistered: false })
+                    .Select(wound => new XElement("Wound", wound.Id))
             ),
+            awaitingWoundIds ? new XElement("WoundsByOwner", true) : null,
             new XElement("Tattoos",
                 from item in Tattoos
                 select item.SaveToXml()
@@ -167,14 +180,16 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             : _parts.Single();
         foreach (XElement item in definition.Element("Contents").Elements())
         {
-            IGameItem newItem = Gameworld.TryGetItem(long.Parse(item.Value), true);
+            IGameItem? newItem = RestoreOwnedChild(item);
+            if (newItem is null) continue;
             newItem.LoadTimeSetContainedIn(Parent);
             _contents.Add(newItem);
         }
 
         foreach (XElement item in definition.Element("Implants")?.Elements() ?? Enumerable.Empty<XElement>())
         {
-            IGameItem newItem = Gameworld.TryGetItem(long.Parse(item.Value), true);
+            IGameItem? newItem = RestoreOwnedChild(item);
+            if (newItem is null) continue;
             newItem.LoadTimeSetContainedIn(Parent);
             _implants.Add(newItem);
         }
@@ -183,6 +198,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         {
             _woundIDs.Add(long.Parse(wound.Value));
         }
+        _loadWoundsByOwner = (bool?)definition.Element("WoundsByOwner") == true;
 
         foreach (XElement tattoo in definition.Element("Tattoos")?.Elements() ?? Enumerable.Empty<XElement>())
         {
@@ -202,10 +218,6 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     {
         _prototype = proto;
         Decay = DecayState.Fresh;
-        if (!temporary)
-        {
-            SetupDecayListener();
-        }
     }
 
     public BodypartGameItemComponent(MudSharp.Models.GameItemComponent component, BodypartGameItemComponentProto proto,
@@ -214,29 +226,57 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         _prototype = proto;
         _noSave = true;
         LoadFromXml(XElement.Parse(component.Definition));
-        Gameworld.SaveManager.AddLazyLoad(this);
+        if (Gameworld is not Futuremud { LoadingOfflineMaintenanceItems: true }) Gameworld.SaveManager.AddLazyLoad(this);
         _noSave = false;
-        SetupDecayListener();
     }
 
-    public BodypartGameItemComponent(BodypartGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(
-        rhs, newParent, temporary)
+    private BodypartGameItemComponent(BodypartGameItemComponent rhs, IGameItem parent, bool temporary,
+        bool preserveMorphTime) : base(rhs, parent, temporary)
     {
         _prototype = rhs._prototype;
-        if (!temporary)
-        {
-            SetupDecayListener();
-        }
-
-        _contents = rhs._contents.ToList();
-        _implants = rhs._implants.ToList();
-        Wounds = rhs.Wounds.ToList();
-        Tattoos = rhs.Tattoos.ToList();
-        _butcheredSubcategories.AddRange(rhs._butcheredSubcategories);
+        _temporaryCopy = temporary;
         OriginalCharacterId = rhs.OriginalCharacterId;
         _originalCharacter = rhs._originalCharacter;
         _originalBodyId = rhs._originalBodyId;
         _originalBody = rhs._originalBody;
+        Model = rhs.Model;
+        RootPart = rhs.RootPart;
+        _parts = [.. rhs._parts];
+        _bones = [.. rhs._bones];
+        _organs = [.. rhs._organs];
+        _decayPoints = rhs._decayPoints;
+        Decay = rhs.Decay;
+        _eatenWeight = rhs._eatenWeight;
+        _butcheredSubcategories.AddRange(rhs._butcheredSubcategories);
+        _tattoos.AddRange(rhs._tattoos.Select(tattoo => new Tattoo(tattoo.SaveToXml(), Gameworld)));
+        _contents.AddRange(rhs._contents.Select(child => CopyChild(child, parent)));
+        _implants.AddRange(rhs._implants.Select(child => CopyChild(child, parent)));
+        _woundsByOwner = true;
+        foreach (var wound in rhs.Wounds)
+        {
+            var lodged = wound.Lodged is { } item ? CopyChild(item, null) : null;
+            var copy = WoundFactory.CopyToSeveredPart(wound, parent, lodged, temporary);
+            _wounds.Add(copy);
+            if (!temporary && copy is ILateInitialisingItem initialising)
+            {
+                initialising.IdRegistered += WoundIdRegistered;
+            }
+        }
+
+        IGameItem CopyChild(IGameItem child, IGameItem? container)
+        {
+            var copy = child.DeepCopy(!temporary, preserveMorphTime);
+            copy.Get(null);
+            copy.LoadTimeSetContainedIn(container);
+            if (container is not null) copy.Changed = true;
+            return copy;
+        }
+    }
+
+    private void WoundIdRegistered(ILateInitialisingItem wound)
+    {
+        wound.IdRegistered -= WoundIdRegistered;
+        Changed = true;
     }
 
     private void SetupBodypartWeight()
@@ -306,25 +346,20 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public override void Delete()
     {
-        ICharacter originalCharacter = OriginalCharacter;
-        IBody originalBody = OriginalBody;
+        ICharacter originalCharacter = _temporaryCopy ? null : OriginalCharacter;
+        IBody originalBody = _temporaryCopy ? null : OriginalBody;
         base.Delete();
-        foreach (IGameItem item in Contents.ToList())
-        {
-            _contents.Remove(item);
-            item.ContainedIn = null;
-            item.Delete();
-        }
-
-        foreach (IGameItem item in _implants.ToList())
-        {
-            _implants.Remove(item);
-            item.Delete();
-        }
+        DeleteOwnedChildren(_contents);
+        DeleteOwnedChildren(_implants);
 
         foreach (IWound wound in Wounds.ToList())
         {
-            wound.Delete();
+            if (Parent is GameItem native)
+            {
+                native.DeleteNativeItemWound(wound);
+                native.ForgetSeveredWound(wound);
+            }
+            else wound.Delete();
             _wounds.Remove(wound);
         }
 
@@ -332,6 +367,16 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         ReleaseDecayListener();
         if (originalCharacter is not null && originalBody is not null)
             originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
+    }
+
+    private void DeleteOwnedChildren(List<IGameItem> children)
+    {
+        foreach (var item in children.ToArray())
+        {
+            if (!children.Any(child => ReferenceEquals(child, item))) continue;
+            DeleteOwnedContainedChild(item);
+            children.RemoveAll(child => ReferenceEquals(child, item));
+        }
     }
 
     public override void Quit()
@@ -347,10 +392,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             item.Quit();
         }
 
-        foreach (IWound wound in Wounds.ToList())
-        {
-            wound.Lodged?.Quit();
-        }
+        foreach (var item in ComponentOwnedLodgedItems()) item.Quit();
 
         ReleaseDecayListener();
     }
@@ -369,10 +411,14 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             item.Login();
         }
 
-        foreach (IWound wound in Wounds.ToList())
-        {
-            wound.Lodged?.Login();
-        }
+        foreach (var item in ComponentOwnedLodgedItems()) item.Login();
+    }
+
+    private IGameItem[] ComponentOwnedLodgedItems()
+    {
+        var itemWounds = Parent.Wounds.ToHashSet(ReferenceEqualityComparer.Instance);
+        return Wounds.Where(wound => !itemWounds.Contains(wound))
+            .SelectNotNull(wound => wound.Lodged).ToArray();
     }
 
     private double _bodypartWeight;
@@ -568,7 +614,11 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public IEnumerable<IWound> Wounds
     {
-        get => _wounds;
+        get
+        {
+            LoadStoredWounds();
+            return _wounds;
+        }
         set => _wounds = value.ToList();
     }
 
@@ -605,6 +655,10 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         _tattoos.Clear();
         _implants.Clear();
         _contents.Clear();
+        if (Parent is GameItem native)
+        {
+            foreach (var wound in _wounds) native.ForgetSeveredWound(wound);
+        }
         _wounds.Clear();
     }
 
@@ -614,7 +668,9 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     private ICharacter _originalCharacter;
     private long _originalBodyId;
     private IBody _originalBody;
-    private List<long> _woundIDs = new();
+    private readonly List<long> _woundIDs = new();
+    private bool _woundsByOwner;
+    private bool _loadWoundsByOwner;
 
     private void LoadOriginalReferences(bool viaSaveManager)
     {
@@ -631,11 +687,32 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             Gameworld.SaveManager.AbortLazyLoad(this);
         }
 
-        if (_woundIDs.Any())
+        LoadStoredWounds();
+    }
+
+    private void LoadStoredWounds()
+    {
+        if (_loadWoundsByOwner)
+        {
+            _loadWoundsByOwner = false;
+            _wounds.AddRange(Parent.Wounds.Where(wound => wound.Bodypart is { } part &&
+                (_parts.Contains(part) || part is IBone bone && _bones.Contains(bone))));
+        }
+
+        if (_woundIDs.Count == 0) return;
+        foreach (var wound in Parent.Wounds)
+        {
+            if (_woundIDs.Remove(wound.Id) && !_wounds.Contains(wound)) _wounds.Add(wound);
+        }
+
+        if (_woundIDs.Count > 0)
         {
             using (new FMDB())
             {
-                List<Models.Wound> wounds = FMDB.Context.Wounds.Where(x => _woundIDs.Contains(x.Id)).ToList();
+                // Older definitions can name unowned wound rows. Never take a wound that has
+                // since been transferred to another item or replanted in a body.
+                List<Models.Wound> wounds = FMDB.Context.Wounds.Where(x => _woundIDs.Contains(x.Id) &&
+                    x.GameItemId == null && x.BodyId == null && x.VehicleId == null).ToList();
                 _wounds.AddRange(wounds.Select(x => WoundFactory.LoadWound(x, Parent, Gameworld)));
             }
 

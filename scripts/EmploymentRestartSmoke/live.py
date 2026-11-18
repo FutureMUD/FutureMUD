@@ -21,9 +21,15 @@ import uuid
 
 sys.dont_write_bytecode = True
 repo = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from lifecycle_fixture import seed_lodged_remains_fixture
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--run-dir', required=True, type=pathlib.Path)
-root = parser.parse_args().run_dir.resolve()
+parser.add_argument('--plan', type=pathlib.Path,
+                    help='Preload bounded read-only/command requests from an acceptance JSONL file.')
+args = parser.parse_args()
+root = args.run_dir.resolve()
 if not root.is_relative_to((repo / '.artifacts/authored-celestials').resolve()):
     raise RuntimeError('Expected an owned disposable run directory.')
 instance = json.loads((root / 'mysql-instance.json').read_text())
@@ -43,11 +49,20 @@ runtime = root / ('employment-live-' + uuid.uuid4().hex[:12])
 runtime.mkdir()
 (root / 'employment-live-runtime.txt').write_text(str(runtime), encoding='utf-8')
 requests = runtime / 'requests.jsonl'
-requests.touch()
+plan_arg = args.plan or (pathlib.Path(os.environ['FUTUREMUD_LIVE_PLAN'])
+                         if os.environ.get('FUTUREMUD_LIVE_PLAN') else None)
+if plan_arg:
+    plan_path = plan_arg.resolve()
+    if not plan_path.is_relative_to(root):
+        raise RuntimeError('Acceptance plan must be stored in the exact owned disposable run directory.')
+    requests.write_text(plan_path.read_text(encoding='utf-8'), encoding='utf-8')
+else:
+    requests.touch()
 responses = runtime / 'responses.jsonl'
 report = {'status': 'RUNNING', 'scenario': 'employment live Telnet restart', 'runtime': str(runtime),
           'assertions': [], 'completedScenarios': [], 'boots': [], 'shutdowns': []}
 process = session = None
+current_port = None
 transcripts = []
 deadline = time.monotonic() + 3300
 os.environ['FUTUREMUD_ENVIRONMENT'] = 'test'
@@ -76,16 +91,25 @@ def identity():
 
 def sql(query, fixture=False):
     identity()
+    client_options = []
     if fixture:
         if process is not None:
             raise RuntimeError('Fixture mutations require the owned MUD to be stopped.')
-        if not query.lstrip().upper().startswith(('CREATE TRIGGER QA_EMPLOYMENT_',
+        normalized_query = re.sub(r'\s+', ' ', query.strip()).upper()
+        permitted_fixture = normalized_query.startswith(('CREATE TRIGGER QA_EMPLOYMENT_',
                 'DROP TRIGGER QA_EMPLOYMENT_', 'UPDATE EMPLOYMENTACTIVETASKS ',
-                'UPDATE EMPLOYMENTACTIVETASKSTEPSTATES ')):
+                'UPDATE EMPLOYMENTACTIVETASKSTEPSTATES '))
+        item_delete_trigger = re.fullmatch(
+            r"CREATE TRIGGER QA_ITEM_DELETE_([1-9][0-9]*) BEFORE DELETE ON GAMEITEMS FOR EACH ROW "
+            r"BEGIN IF OLD\.ID = \1 THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'QA_ITEM_DELETE_FAILURE'; END IF; END",
+            normalized_query) or re.fullmatch(r'DROP TRIGGER QA_ITEM_DELETE_[1-9][0-9]*', normalized_query)
+        if not permitted_fixture and item_delete_trigger is None:
             raise RuntimeError('Fixture operation is outside the employment crash/legacy scenario.')
+        if item_delete_trigger and normalized_query.startswith('CREATE'):
+            client_options.append('--delimiter=//')
     elif not query.lstrip().upper().startswith(('SELECT ', 'SHOW ')):
         raise RuntimeError('Only read queries are accepted while the MUD is live.')
-    answer = subprocess.run(client + [instance['database'], '-e', query], capture_output=True,
+    answer = subprocess.run(client + client_options + [instance['database'], '-e', query], capture_output=True,
         text=True, encoding='utf-8', errors='replace', creationflags=subprocess.CREATE_NO_WINDOW, timeout=60)
     if answer.returncode:
         raise RuntimeError(helper.redact(answer.stderr[:2000], secrets))
@@ -118,13 +142,14 @@ def command(text, seconds=.4):
 
 
 def start():
-    global process, session
+    global process, session, current_port
     identity()
     if process is not None:
         raise RuntimeError('The owned MUD is already running.')
     with socket.socket() as listener:
         listener.bind(('127.0.0.1', 0))
         port = listener.getsockname()[1]
+    current_port = port
     (runtime / 'Connection.config').write_text(f'127.0.0.1\n{port}\n\n', encoding='utf-8')
     with (runtime / 'operator.log').open('a', encoding='utf-8') as output, contextlib.redirect_stdout(output):
         process = helper.launch_mud(repo, runtime,
@@ -137,11 +162,34 @@ def start():
         session.send('Admin', read_seconds=.3)
         session.send(password, secret=True, read_seconds=.5)
         session.send('c', read_seconds=.3)
-        answer = session.send('1', read_seconds=2)
+        answer = session.send('1', read_seconds=8)
     check('administrator entered world, boot ' + str(len(report['boots'])),
         'Guest Lounge' in answer or 'Exits' in answer, answer[-1500:])
     command('impdebug freezetime')
     emit({'started': str(runtime), 'boot': len(report['boots']), 'port': port})
+
+
+def reconnect_character():
+    global session
+    if session is None or process is None or process.poll() is not None or current_port is None:
+        raise RuntimeError('Character reconnect requires the same running MUD process.')
+    original_pid = process.pid
+    try:
+        command('quit', 1)
+    except (OSError, ConnectionError):
+        # The server closes this socket as part of the normal quit flow.
+        pass
+    transcripts.append(session.full_transcript())
+    session.close()
+    session = helper.MudSocket('127.0.0.1', current_port, secrets)
+    session.read_for(.5)
+    session.send('l', read_seconds=.3)
+    session.send('Admin', read_seconds=.3)
+    session.send(password, secret=True, read_seconds=.5)
+    session.send('c', read_seconds=.3)
+    answer = session.send('1', read_seconds=8)
+    check('same-process character logout/login', process.pid == original_pid and
+          ('Guest Lounge' in answer or 'Exits' in answer), answer[-1500:])
 
 
 def stop(crash=False):
@@ -178,6 +226,29 @@ try:
                 stop()
             if 'fixtureSql' in request:
                 emit({'request': cursor, 'fixture': sql(request['fixtureSql'], fixture=True)})
+            if 'seedLodgedRemainsFixture' in request:
+                if process is not None:
+                    raise RuntimeError('Lodged-remains fixtures require the owned MUD to be stopped.')
+                identity()
+                fixture = seed_lodged_remains_fixture(
+                    client, instance['database'], process,
+                    request['seedLodgedRemainsFixture']['parentItemId'],
+                    request['seedLodgedRemainsFixture']['lodgedItemId'],
+                    subprocess.CREATE_NO_WINDOW)
+                report.setdefault('lifecycleFixtures', []).append(fixture)
+                emit({'request': cursor, 'lifecycleFixture': fixture})
+            if 'seedItemLodgingFixture' in request:
+                if process is not None:
+                    raise RuntimeError('Item-lodging fixtures require the owned MUD to be stopped.')
+                identity()
+                from lifecycle_fixture import seed_item_lodging_fixture
+                fixture = seed_item_lodging_fixture(
+                    client, instance['database'], process,
+                    request['seedItemLodgingFixture']['parentItemId'],
+                    request['seedItemLodgingFixture']['lodgedItemId'],
+                    subprocess.CREATE_NO_WINDOW)
+                report.setdefault('lifecycleFixtures', []).append(fixture)
+                emit({'request': cursor, 'itemLodgingFixture': fixture})
             if request.get('start') or request.get('restart'):
                 start()
             if 'sql' in request:
@@ -197,6 +268,29 @@ try:
                 if 'forbidden' in step:
                     check(step.get('label', step['text']) + ' suppressed', re.search(step['forbidden'], answer, re.I | re.S) is None, answer[-4000:])
                 emit({'request': cursor, 'command': step['text'], 'output': answer})
+            if request.get('reconnectCharacter'):
+                reconnect_character()
+                emit({'request': cursor, 'reconnectedCharacter': True, 'pid': process.pid})
+            if request.get('expectItemDeleteFailure') or request.get('expectCheckpointedItemDeleteFailure'):
+                if process is None:
+                    raise RuntimeError('Expected a running server for the provider refusal.')
+                checkpointed_delete = request.get('expectCheckpointedItemDeleteFailure', False)
+                delete_stack_pattern = (r'(?:CommitCheckpointedNativeDeletion|DeleteReadyNativeItemRow)'
+                                        if checkpointed_delete else r'CommitOrdinaryContainerDeletion')
+                until = time.monotonic() + 15
+                observed = False
+                while time.monotonic() < until:
+                    reports = [path.read_text(encoding='utf-8', errors='replace')
+                               for path in runtime.glob('Fatal Exception*.txt')]
+                    observed = any('QA_ITEM_DELETE_FAILURE' in log and
+                                   re.search(delete_stack_pattern, log, re.I) is not None
+                                   for log in reports)
+                    if observed:
+                        break
+                    time.sleep(.2)
+                path_name = 'checkpointed native deletion' if checkpointed_delete else 'ordinary native deletion'
+                check('MySQL refused the ' + path_name, observed)
+                stop(crash=True)
             if 'read' in request:
                 answer = session.read_for(min(10, request['read']))
                 emit({'request': cursor, 'output': answer})

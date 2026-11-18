@@ -54,7 +54,8 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
     protected override void LoadFromXml(XElement root)
     {
         base.LoadFromXml(root);
-        Magazine = Gameworld.TryGetItem(long.Parse(root.Element("Magazine").Value), true)?.GetItemType<IContainer>();
+        Magazine = RestoreOwnedChildSlot(root, "Magazine")?.GetItemType<IContainer>();
+        Magazine?.Parent.LoadTimeSetContainedIn(Parent);
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -69,8 +70,8 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("Magazine", Magazine?.Parent.Id ?? 0),
-            new XElement("ChamberedRound", ChamberedRound?.Parent.Id ?? 0),
+            SaveOwnedChildSlot("Magazine", Magazine?.Parent.Id),
+            SaveOwnedChildSlot("ChamberedRound", ChamberedRound?.Parent.Id),
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
             new XElement("Safety", Safety ? "true" : "false"),
             SaveFirearmState()
@@ -385,11 +386,8 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
     public override void Delete()
     {
         base.Delete();
-        ChamberedRound?.Parent.ContainedIn = null;
-        ChamberedRound?.Parent.Delete();
-
-        Magazine?.Parent.ContainedIn = null;
-        Magazine?.Parent.Delete();
+        DeleteOwnedContainedChild(ChamberedRound?.Parent);
+        DeleteOwnedContainedChild(Magazine?.Parent);
     }
 
     public override void Login()

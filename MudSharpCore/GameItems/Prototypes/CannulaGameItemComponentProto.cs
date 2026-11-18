@@ -2,14 +2,16 @@
 using MudSharp.Body;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CannulaGameItemComponentProto : GameItemComponentProto, ICannulaPrototype
+public class CannulaGameItemComponentProto : GameItemComponentProto, ICannulaPrototype, IConnectableItemProto
 {
     public List<ConnectorType> Connections { get; } = new();
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
     public string ExternalDescription { get; protected set; }
 
@@ -59,7 +61,9 @@ public class CannulaGameItemComponentProto : GameItemComponentProto, ICannulaPro
                 select
                     new XElement("Connection",
                         new XAttribute("gender", (short)connector.Gender),
-                        new XAttribute("type", connector.ConnectionType)
+                        new XAttribute("type", connector.ConnectionType),
+                        new XAttribute("powered", connector.Powered),
+                        new XAttribute("id", connector.PortId)
                     )
             ),
             new XElement("TargetBody", TargetBody?.Id ?? 0L),

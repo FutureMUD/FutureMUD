@@ -2,12 +2,13 @@
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class IVBagGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ISwitchablePrototype, IConnectablePrototype
+public class IVBagGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ISwitchablePrototype, IConnectablePrototype, IConnectableItemProto
 {
     public override string TypeDescription => "IVBag";
 
@@ -16,6 +17,7 @@ public class IVBagGameItemComponentProto : GameItemComponentProto, ILiquidContai
     public bool Transparent { get; set; }
 
     public List<ConnectorType> Connections { get; } = new();
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
     #region Constructors
 
@@ -79,7 +81,9 @@ public class IVBagGameItemComponentProto : GameItemComponentProto, ILiquidContai
                         select
                             new XElement("Connection",
                                 new XAttribute("gender", (short)connector.Gender),
-                                new XAttribute("type", connector.ConnectionType)
+                                    new XAttribute("type", connector.ConnectionType),
+                                    new XAttribute("powered", connector.Powered),
+                                    new XAttribute("id", connector.PortId)
                             )
                     )
                 )

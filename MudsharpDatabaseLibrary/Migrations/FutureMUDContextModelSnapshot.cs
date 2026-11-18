@@ -12514,6 +12514,9 @@ namespace MudSharp.Migrations
                     b.Property<int?>("MorphTimeRemaining")
                         .HasColumnType("int(11)");
 
+                    b.Property<byte?>("NativeDeletionStage")
+                        .HasColumnType("tinyint unsigned");
+
                     b.Property<string>("OverrideDesc")
                         .HasColumnType("text")
                         .UseCollation("utf8_general_ci");

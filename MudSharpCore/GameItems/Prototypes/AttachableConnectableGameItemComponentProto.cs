@@ -1,12 +1,13 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class AttachableConnectableGameItemComponentProto : GameItemComponentProto, IConnectablePrototype
+public class AttachableConnectableGameItemComponentProto : GameItemComponentProto, IConnectablePrototype, IConnectableItemProto
 {
     protected AttachableConnectableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Attachable Connectable")
@@ -20,6 +21,7 @@ public class AttachableConnectableGameItemComponentProto : GameItemComponentProt
     }
 
     public ConnectorType Connector { get; set; }
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => [Connector];
     public override string TypeDescription => "Attachable Connectable";
 
     protected override void LoadFromXml(XElement root)
@@ -95,7 +97,7 @@ public class AttachableConnectableGameItemComponentProto : GameItemComponentProt
             return false;
         }
 
-        Connector = new ConnectorType(gendering.Enum, Connector.ConnectionType);
+        Connector = new ConnectorType(gendering.Enum, Connector.ConnectionType, Connector.Powered, portId: Connector.PortId);
         Changed = true;
         actor.Send(
             $"This item will now connect to other connectables of type {Connector.ConnectionType.Colour(Telnet.Green)}, and is of gender {Gendering.Get(Connector.Gender).GenderClass(true).Colour(Telnet.Green)}.");
@@ -126,7 +128,8 @@ public class AttachableConnectableGameItemComponentProto : GameItemComponentProt
             new XElement("Definition",
                 Connector != null
                     ? new XElement("Connector", new XAttribute("gender", (short)Connector.Gender),
-                        new XAttribute("type", Connector.ConnectionType))
+                        new XAttribute("type", Connector.ConnectionType),
+                        new XAttribute("id", Connector.PortId))
                     : null).ToString();
     }
 

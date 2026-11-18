@@ -51,13 +51,7 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 	{
 		get
 		{
-			var connectors = Connections.ToList();
-			foreach (var connection in _connectedItems)
-			{
-				connectors.Remove(connection.Item1);
-			}
-
-			return connectors;
+			return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
 		}
 	}
 
@@ -133,8 +127,7 @@ public abstract class MediaEndpointPoweredComponentBase : PoweredMachineBaseGame
 
 		var ownConnector = FreeConnections.First(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
 		var otherConnector = other.FreeConnections.First(x => x.CompatibleWith(ownConnector));
-		RawConnect(other, ownConnector);
-		other.RawConnect(this, otherConnector);
+		ConnectPair(this, ownConnector, other, otherConnector);
 		BindMediaEndpoints(other, ownConnector, otherConnector);
 		Parent.ConnectedItem(other, ownConnector);
 		other.Parent.ConnectedItem(this, otherConnector);

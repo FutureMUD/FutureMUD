@@ -57,23 +57,12 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
             _isOpen = attr.Value == "true";
         }
 
-        foreach (
-            IGameItem item in
-            root.Elements("Contained")
-                .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                .Where(item => item != null))
+		foreach (var element in root.Elements("Contained"))
         {
-            if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
-            {
-                Changed = true;
-                Gameworld.SystemMessage(
-                    $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                    true);
-                continue;
-            }
+		    var item = RestoreOwnedChild(element);
+		    if (item is null) continue;
 
             _contents.Add(item);
-            item.Get(null);
             item.LoadTimeSetContainedIn(Parent);
         }
     }
@@ -91,7 +80,8 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
     {
         return new XElement("Definition",
             new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
-            from content in Contents select new XElement("Contained", content.Id)
+		    from content in Contents select new XElement("Contained", content.Id),
+		    AmbiguousLegacyChildClaims("Contained")
         ).ToString();
     }
 
@@ -424,9 +414,8 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
         base.Delete();
         foreach (IGameItem item in Contents.ToList())
         {
+            DeleteOwnedContainedChild(item);
             _contents.Remove(item);
-            item.ContainedIn = null;
-            item.Delete();
         }
     }
 
@@ -434,23 +423,25 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
     {
         foreach (IGameItem item in Contents.ToArray())
         {
-            item.Quit();
+	        if (Contents.Contains(item) && !item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, Parent)) item.Quit();
         }
     }
 
     public override void Login()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
-            item.Login();
+	        if (Contents.Contains(item) && !item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, Parent)) item.Login();
         }
     }
 
     public override bool Take(IGameItem item)
     {
-        if (Contents.Contains(item))
+        if (_contents.Any(child => ReferenceEquals(child, item)))
         {
-            IPermanentShop shop = Parent.TrueLocations.First().Shop;
+            var shop = Parent is GameItem { NativeDeletionInProgress: true }
+                ? null
+                : Parent.TrueLocations.FirstOrDefault()?.Shop;
             ICurrencyPile currency = item.GetItemType<ICurrencyPile>();
             if (currency is not null && shop is not null && currency.Currency == shop.Currency)
             {
@@ -459,7 +450,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
                     0.0M, null));
             }
 
-            _contents.Remove(item);
+            _contents.RemoveAll(child => ReferenceEquals(child, item));
             Changed = true;
             return true;
         }

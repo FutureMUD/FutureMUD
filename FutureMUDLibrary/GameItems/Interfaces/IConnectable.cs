@@ -2,6 +2,10 @@ using MudSharp.Character;
 using MudSharp.Form.Shape;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Xml.Linq;
 
 #nullable enable annotations
 
@@ -59,11 +63,14 @@ namespace MudSharp.GameItems.Interfaces
 
     public class ConnectorType
     {
-        public ConnectorType(Gender gender, string connectionType, bool powered = true)
+        public ConnectorType(Gender gender, string connectionType, bool powered = true, int? portIndex = null,
+            string? portId = null)
         {
             Gender = gender;
             ConnectionType = connectionType;
             Powered = powered;
+            PortIndex = portIndex;
+            PortId = portId ?? Guid.NewGuid().ToString("N");
         }
 
         public ConnectorType(string toString)
@@ -83,9 +90,85 @@ namespace MudSharp.GameItems.Interfaces
             }
         }
 
+        public ConnectorType(string toString, int? portIndex, int? peerPortIndex = null, string? portId = null,
+            string? peerPortId = null) : this(toString)
+        {
+            PortIndex = portIndex;
+            PeerPortIndex = peerPortIndex;
+            PortId = portId;
+            PeerPortId = peerPortId;
+        }
+
         public Gender Gender { get; }
         public string ConnectionType { get; }
         public bool Powered { get; }
+
+        /// <summary>The zero-based physical connector position recorded by a persisted connection, when known.</summary>
+        public int? PortIndex { get; private set; }
+
+        /// <summary>The physical connector position on the opposite endpoint, when recorded.</summary>
+        public int? PeerPortIndex { get; private set; }
+
+        /// <summary>The persistent physical connector identity on the opposite endpoint.</summary>
+        public string? PeerPortId { get; private set; }
+
+        /// <summary>Persistent identity of this physical connector within its component prototype.</summary>
+        public string? PortId { get; private set; }
+
+        internal void SetPortId(string portId) => PortId = portId;
+
+        public static (ConnectorType First, ConnectorType Second) CreatePairedConnectionInstances(
+            ConnectorType firstPort, ConnectorType secondPort)
+        {
+            if (!firstPort.CompatibleWith(secondPort))
+            {
+                throw new ArgumentException("Connector ports must be compatible to form a physical pair.");
+            }
+
+            var first = firstPort.CreateConnectionInstance();
+            var second = secondPort.CreateConnectionInstance();
+            first.PeerPortId = second.PortId;
+            second.PeerPortId = first.PortId;
+            return (first, second);
+        }
+
+        private ConnectorType CreateConnectionInstance() =>
+            new(ToString(), PortIndex, PeerPortIndex, PortId, PeerPortId);
+
+        /// <summary>
+        /// Assigns persistent identities to connector definitions. Existing explicit IDs are retained; older
+        /// definitions receive deterministic IDs so item connections can be upgraded without ambiguity.
+        /// </summary>
+        public static void EnsurePrototypePortIds(long prototypeId, IEnumerable<ConnectorType> connectors, XElement? definition)
+        {
+            var ports = connectors.ToArray();
+            var savedPorts = definition?.Element("Connectors")?.Elements("Connection").ToArray() ??
+                             (definition?.Element("InputConnectors")?.Elements("Connection") ?? [])
+                             .Concat(definition?.Element("OutputConnectors")?.Elements("Connection") ?? [])
+                             .ToArray();
+            if (savedPorts.Length == 0)
+            {
+                savedPorts = definition?.Elements().Where(x => x.Name.LocalName is "Connection" or "Connector" or "VenousConnection" or "ArterialConnection").ToArray() ?? [];
+            }
+            var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (var i = 0; i < ports.Length; i++)
+            {
+                var port = ports[i];
+                var key = $"{(short)port.Gender}|{port.ConnectionType}|{port.Powered}";
+                occurrences.TryGetValue(key, out var occurrence);
+                occurrences[key] = occurrence + 1;
+                var savedId = i < savedPorts.Length ? savedPorts[i].Attribute("id")?.Value : null;
+                port.SetPortId(string.IsNullOrWhiteSpace(savedId)
+                    ? DeterministicPortId(prototypeId, key, occurrence)
+                    : savedId);
+            }
+        }
+
+        private static string DeterministicPortId(long prototypeId, string descriptor, int occurrence)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes($"FutureMUD connector port|{prototypeId}|{descriptor}|{occurrence}"));
+            return new Guid(bytes.AsSpan(0, 16)).ToString("N");
+        }
 
         public bool CompatibleWith(ConnectorType type)
         {

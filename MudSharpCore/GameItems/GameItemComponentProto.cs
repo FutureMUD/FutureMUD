@@ -1,6 +1,8 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 
 #nullable enable annotations
 
@@ -18,7 +20,12 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
         Description = proto.Description;
         if (proto.Definition.Length > 0)
         {
-            LoadFromXml(XElement.Parse(proto.Definition));
+            var definition = XElement.Parse(proto.Definition);
+            LoadFromXml(definition);
+            if (this is IConnectableItemProto connectable)
+            {
+                ConnectorType.EnsurePrototypePortIds(Id, connectable.Connections, definition);
+            }
         }
 
         _noSave = false;

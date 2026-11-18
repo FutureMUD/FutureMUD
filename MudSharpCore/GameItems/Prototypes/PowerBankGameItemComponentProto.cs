@@ -71,7 +71,8 @@ public class PowerBankGameItemComponentProto : ConnectableGameItemComponentProto
 
 	private static XElement SaveConnections(string name, IEnumerable<ConnectorType> connections) =>
 		new(name, connections.Select(x => new XElement("Connection",
-			new XAttribute("gender", (short)x.Gender), new XAttribute("type", x.ConnectionType))));
+			new XAttribute("gender", (short)x.Gender), new XAttribute("type", x.ConnectionType),
+			new XAttribute("powered", x.Powered), new XAttribute("id", x.PortId))));
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false) =>
 		new PowerBankGameItemComponent(this, parent, temporary);

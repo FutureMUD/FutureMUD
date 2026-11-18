@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
@@ -50,14 +50,12 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
                 if (item.Attribute("independent")?.Value == "false")
                 {
                     _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
                 else
                 {
                     _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
             }
         }
@@ -76,11 +74,12 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
     {
         return new XElement("Definition",
             new XElement("ConnectedItems",
-                from item in ConnectedItems
-                select
-                    new XElement("Item", new XAttribute("id", item.Item2.Parent.Id),
-                        new XAttribute("connectiontype", item.Item1),
-                        new XAttribute("independent", item.Item2.Independent)))
+                ConnectedItems.Select(x => SaveConnectionEntry(x.Item2.Parent.Id, x.Item1, x.Item2.Independent,
+                    FindPortIndex(this, x.Item1), FindPeerPortIndex(this, x.Item2, x.Item1), FindPortId(this, x.Item1), FindPeerPortId(this, x.Item2, x.Item1))),
+                _pendingLoadTimeConnections.Select(x => SaveConnectionEntry(x.Item1, x.Item2, true, x.Item2.PortIndex,
+                    x.Item2.PeerPortIndex, x.Item2.PortId, x.Item2.PeerPortId)),
+                _pendingDependentLoadTimeConnections.Select(x => SaveConnectionEntry(x.Item1, x.Item2, false, x.Item2.PortIndex,
+                    x.Item2.PeerPortIndex, x.Item2.PortId, x.Item2.PeerPortId)))
         ).ToString();
     }
 
@@ -204,77 +203,47 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
         return false;
     }
 
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        (independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+        .Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
     public override void FinaliseLoad()
     {
-        foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
+        RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+        RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
+    }
+
+    public override void Login()
+    {
+        FinaliseLoad();
+        if (_connectedPowerSource is not null) return;
+        var candidates = Parent.GetItemTypes<IProducePower>()
+            .Where(x => !ReferenceEquals(x, this) && x.PrimaryLoadTimePowerProducer).ToArray();
+        if (candidates.Length != 1)
         {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                continue;
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            if (!Parent.ColocatedWith(gitem))
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (!connectable.CanConnect(null, this))
-                {
-                    continue;
-                }
-
-                RestorePersistedConnection(connectable, () => Connect(null, connectable));
-                break;
-            }
+            Gameworld.DebugMessage($"Power socket on item {Parent.Id:N0} requires one primary producer; found {candidates.Length}.");
+            return;
         }
 
-        _pendingLoadTimeConnections.Clear();
-
-        foreach (Tuple<long, ConnectorType> item in _pendingDependentLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                gitem = Gameworld.TryGetItem(item.Item1, true);
-                if (gitem == null)
-                {
-                    continue;
-                }
-
-                gitem.FinaliseLoadTimeTasks();
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (connectable == null)
-                {
-                    continue;
-                }
-
-                RestorePersistedConnection(connectable, () => Connect(null, connectable));
-                break;
-            }
-        }
-
-        _pendingDependentLoadTimeConnections.Clear();
-        _connectedPowerSource = Parent.Components.Except(this).OfType<IProducePower>()
-                                      .First(x => x.PrimaryLoadTimePowerProducer);
+        _connectedPowerSource = candidates[0];
         _connectedPowerSource.BeginDrawdown(this);
+    }
+
+    public override void Quit() => ReleasePowerSource();
+
+    public override void Delete()
+    {
+        ReleasePowerSource();
+        foreach (var peer in _connectedItems.Select(x => x.Item2).Distinct().ToArray()) RawDisconnect(peer, true);
+        base.Delete();
+    }
+
+    private void ReleasePowerSource()
+    {
+        var source = _connectedPowerSource;
+        _connectedPowerSource = null;
+        source?.EndDrawdown(this);
+        OnPowerCutOut();
     }
 
     #region Implementation of IConnectable
@@ -286,13 +255,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
     {
         get
         {
-            List<ConnectorType> rvar = new(Connections);
-            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
-            {
-                rvar.Remove(item.Item1);
-            }
-
-            return rvar;
+            return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
         }
     }
 
@@ -338,15 +301,17 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
             return;
         }
 
-        RawConnect(other, connection);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+        ConnectPair(this, connection, other, otherConnection);
         Changed = true;
     }
 
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItems.Add(Tuple.Create(type, other));
-        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        var pending = other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections;
+        ConsumeSavedConnection(this, pending, other.Parent.Id, type);
         Parent.ConnectedItem(other, type);
         Changed = true;
     }
@@ -406,11 +371,12 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
     {
         if (handleEvents)
         {
+            var connections = GetConnectedPortPairs(this, other);
             other.RawDisconnect(this, false);
-            foreach (Tuple<ConnectorType, IConnectable> connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+            foreach (var connection in connections)
             {
-                Parent.DisconnectedItem(other, connection.Item1);
-                other.Parent.DisconnectedItem(this, connection.Item1);
+                Parent.DisconnectedItem(other, connection.Local);
+                other.Parent.DisconnectedItem(this, connection.Peer ?? connection.Local);
             }
         }
 
@@ -448,6 +414,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
 
     public void BeginDrawdown(IConsumePower item)
     {
+        if (_connectedConsumers.Contains(item)) return;
         _connectedConsumers.Add(item);
 
         if (ProducingPower)
@@ -460,12 +427,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
     public void EndDrawdown(IConsumePower item)
     {
         _connectedConsumers.Remove(item);
-        if (_powerUsers.Contains(item))
-        {
-            item.OnPowerCutOut();
-        }
-
-        _powerUsers.Remove(item);
+        if (_powerUsers.Remove(item)) item.OnPowerCutOut();
     }
 
     public bool CanBeginDrawDown(double wattage)
@@ -503,25 +465,20 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
 
     public void OnPowerCutIn()
     {
-        foreach (IConsumePower item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
+        foreach (var item in _connectedConsumers.ToArray())
         {
+            if (_connectedPowerSource is null) break;
+            if (!_connectedConsumers.Contains(item) || _powerUsers.Contains(item)) continue;
             _powerUsers.Add(item);
-        }
-
-        foreach (IConsumePower item in _powerUsers)
-        {
             item.OnPowerCutIn();
         }
     }
 
     public void OnPowerCutOut()
     {
-        foreach (IConsumePower item in _powerUsers)
-        {
-            item.OnPowerCutOut();
-        }
-
+        var powered = _powerUsers.ToArray();
         _powerUsers.Clear();
+        foreach (var item in powered) item.OnPowerCutOut();
     }
 
     #endregion

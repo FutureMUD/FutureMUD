@@ -86,9 +86,8 @@ public class RcsThrusterGameItemComponent : GameItemComponent, IZeroGravityPropu
 			return;
 		}
 
-		RawConnect(other, _prototype.Connector);
 		var otherConnector = other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector));
-		other.RawConnect(this, otherConnector);
+		ConnectPair(this, _prototype.Connector, other, otherConnector);
 	}
 
 	public void RawConnect(IConnectable other, ConnectorType type)

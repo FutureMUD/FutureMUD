@@ -26,8 +26,11 @@ public partial class GameItem : IHaveWounds
     private IOverrideItemWoundBehaviour _overridingWoundBehaviourComponent;
 
     private bool _deferredInitialHealthTick;
+    private bool _healthTickSubscribed;
 
     private readonly List<IWound> _wounds = new();
+
+    internal void ForgetSeveredWound(IWound wound) => _wounds.Remove(wound);
 
     public IEnumerable<IWound> Wounds =>
         _overridingWoundBehaviourComponent?.Wounds ??
@@ -518,13 +521,14 @@ public partial class GameItem : IHaveWounds
 
         if (!HealthStrategy.RequiresPeriodicHealthTick)
         {
-            Gameworld.HeartbeatManager.TenSecondHeartbeat -= HealthTick_TenSecondHeartbeat;
+            EndHealthTick();
             return;
         }
 
-		if (Wounds.Any())
+		if (!_healthTickSubscribed && Wounds.Any())
         {
             Gameworld.HeartbeatManager.TenSecondHeartbeat += HealthTick_TenSecondHeartbeat;
+            _healthTickSubscribed = true;
         }
     }
 
@@ -546,7 +550,9 @@ public partial class GameItem : IHaveWounds
             return;
         }
 
+        if (!_healthTickSubscribed) return;
         Gameworld.HeartbeatManager.TenSecondHeartbeat -= HealthTick_TenSecondHeartbeat;
+        _healthTickSubscribed = false;
     }
 
     public void CureAllWounds()
@@ -581,7 +587,20 @@ public partial class GameItem : IHaveWounds
 
     public IGameItem Die()
     {
-		if (Deleted || Destroyed) return null;
+		if (!CanStartReplacement) return null;
+		_replacing = true;
+		try
+		{
+			return DieCore();
+		}
+		finally
+		{
+			_replacing = false;
+		}
+	}
+
+	private IGameItem DieCore()
+	{
 		if (Gameworld?.SpellOwnedCorpseAnimations is { } animations && GetItemType<ICorpse>() is not null && animations.IsBorrowedCorpse(Id)) return this;
 		if (SpellCreationOrigin?.IsTemporary == true)
 		{
@@ -614,6 +633,9 @@ public partial class GameItem : IHaveWounds
         }
 
         OnDeath?.Invoke(this);
+        if (Deleted) return null;
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false)
+            return this;
 
         // TODO - customisable message
         GameItem newItem = Prototype.LoadDestroyedItem(this) as GameItem;
@@ -628,7 +650,6 @@ public partial class GameItem : IHaveWounds
             Console.WriteLine($"Item {Id} ({HowSeen(this, colour: false)}) did not have a location.");
         }
 
-        bool locationChanged = false;
 		if (!SurfaceLiquidState.ContaminatingLiquid.IsEmpty)
 		{
 			var remaining = SurfaceLiquidState.RemoveLiquidVolume(SurfaceLiquidState.LiquidVolume);
@@ -640,50 +661,16 @@ public partial class GameItem : IHaveWounds
 				else originalTrueLocation?.AddLiquidToSurface(remaining, RoomLayer, LocationLevelPerceivable);
 			}
 		}
-        foreach (IGameItemComponent component in Components.OrderBy(x => x.ComponentDieOrder))
+        var placedByComponent = RunReplacementComponentHooks(newItem, originalTrueLocation, originalSpatialLocation);
+        if (newItem is { Deleted: false, Destroyed: false })
         {
-            if (component.HandleDieOrMorph(newItem, originalTrueLocation, originalSpatialLocation))
+            foreach (IPerceivable target in TargetedBy.ToList())
             {
-                locationChanged = true;
+                target.SetTarget(newItem);
             }
         }
 
-        Destroyed = true;
-        EndHealthTick();
-
-        if (newItem == null)
-        {
-            Delete();
-            return null;
-        }
-
-        foreach (IPerceivable target in TargetedBy.ToList())
-        {
-            target.SetTarget(newItem);
-        }
-
-        Gameworld.Add(newItem);
-        if (locationChanged)
-        {
-            Delete();
-            return newItem;
-        }
-
-        if (ContainedIn?.SwapInPlace(this, newItem) == true)
-        {
-            Delete();
-            return newItem;
-        }
-
-        Delete();
-        newItem.RoomLayer = RoomLayer;
-		if (originalSpatialLocation.HasValue)
-		{
-			newItem.InsertAtSpatialLocation(originalSpatialLocation.Value);
-		}
-        newItem.Login();
-        newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
-        return newItem;
+        return CompleteReplacement(newItem, originalSpatialLocation, placedByComponent, destroyed: true);
     }
 
     public ICharacter Resurrect(IRoom location)

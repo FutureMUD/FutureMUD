@@ -12,7 +12,8 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	private const int PowerRetryAttemptsAfterLogin = 60;
 	private PoweredMachineBaseGameItemComponentProto _prototype;
 	private IProducePower? _powerSource;
-	private bool _drawingPower;
+	private bool _registeredDrawdown;
+	private bool _parentPowerEventsSubscribed;
 	private bool _powerRetrySubscribed;
 	private int _powerRetryAttemptsRemaining;
 	private IGameItem? _subscribedHostPowerItem;
@@ -32,8 +33,6 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 		bool temporary = false) : base(parent, proto, temporary)
 	{
 		_prototype = proto;
-		Parent.OnConnected += Parent_OnConnected;
-		Parent.OnDisconnected += Parent_OnDisconnected;
 		if (!_prototype.Switchable)
 		{
 			_switchedOn = true;
@@ -44,8 +43,6 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 		PoweredMachineBaseGameItemComponentProto proto, IGameItem parent) : base(component, parent)
 	{
 		_prototype = proto;
-		Parent.OnConnected += Parent_OnConnected;
-		Parent.OnDisconnected += Parent_OnDisconnected;
 		_noSave = true;
 		LoadFromXml(XElement.Parse(component.Definition));
 		_noSave = false;
@@ -56,8 +53,6 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	{
 		_prototype = rhs._prototype;
 		_switchedOn = rhs._switchedOn;
-		Parent.OnConnected += Parent_OnConnected;
-		Parent.OnDisconnected += Parent_OnDisconnected;
 	}
 
 	protected virtual void LoadFromXml(XElement root)
@@ -108,6 +103,12 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	public override void Login()
 	{
 		_runtimeActive = true;
+		if (!_parentPowerEventsSubscribed)
+		{
+			Parent.OnConnected += Parent_OnConnected;
+			Parent.OnDisconnected += Parent_OnDisconnected;
+			_parentPowerEventsSubscribed = true;
+		}
 		RefreshPowerTopologySubscriptions();
 		if (SwitchedOn)
 		{
@@ -126,9 +127,9 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	public void OnPowerCutIn()
 	{
 		StopPowerRetry();
-		if (SwitchedOn)
+		if (_runtimeActive && SwitchedOn && !_onAndPowered)
 		{
-			_drawingPower = true;
+			_onAndPowered = true;
 			if (PowerAudioVolume is { } volume)
 			{
 				Parent.Handle(new AudioOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent), volume,
@@ -139,9 +140,9 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 				Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent),
 					flags: OutputFlags.SuppressObscured), OutputRange.Local);
 			}
+			if (!_onAndPowered) return;
 			_prototype.OnPoweredProg?.Execute(Parent);
-			_onAndPowered = true;
-			OnPowerCutInAction();
+			if (_onAndPowered) OnPowerCutInAction();
 		}
 	}
 
@@ -151,9 +152,9 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	public void OnPowerCutOut()
 	{
-		_drawingPower = false;
 		if (_onAndPowered)
 		{
+			_onAndPowered = false;
 			if (PowerAudioVolume is { } volume)
 			{
 				Parent.Handle(new AudioOutput(new Emote(_prototype.PowerOffEmote, Parent, Parent), volume,
@@ -165,8 +166,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 					flags: OutputFlags.SuppressObscured), OutputRange.Local);
 			}
 			_prototype.OnUnpoweredProg?.Execute(Parent);
-			OnPowerCutOutAction();
-			_onAndPowered = false;
+			if (!_onAndPowered) OnPowerCutOutAction();
 		}
 
 		if (_runtimeActive)
@@ -403,35 +403,26 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	private void EndPowerDrawdown()
 	{
-		if (_powerSource is not null && _drawingPower)
-		{
-			_powerSource.EndDrawdown(this);
-		}
-
+		var source = _registeredDrawdown ? _powerSource : null;
+		_registeredDrawdown = false;
 		_powerSource = null;
-		_drawingPower = false;
+		source?.EndDrawdown(this);
+		if (_onAndPowered) OnPowerCutOut();
 	}
 
 	private void SetPowerSource(IProducePower? powerSource)
 	{
 		if (!ReferenceEquals(_powerSource, powerSource))
 		{
-			if (_powerSource is not null && _drawingPower)
-			{
-				_powerSource.EndDrawdown(this);
-				_drawingPower = false;
-			}
-
+			EndPowerDrawdown();
+			if (!_runtimeActive || !SwitchedOn || _powerSource is not null) return;
 			_powerSource = powerSource;
 		}
 
-		if (_powerSource is null || _drawingPower || !_powerSource.CanBeginDrawDown(PowerConsumptionInWatts))
-		{
-			return;
-		}
+		if (_powerSource is null || _registeredDrawdown || !_powerSource.CanBeginDrawDown(PowerConsumptionInWatts)) return;
 
+		_registeredDrawdown = true;
 		_powerSource.BeginDrawdown(this);
-		_drawingPower = _onAndPowered;
 	}
 
 	private void Parent_OnConnected(IConnectable other, ConnectorType type)
@@ -468,6 +459,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	private void RefreshPowerTopologySubscriptions()
 	{
+		if (!_runtimeActive) return;
 		var currentHostPowerItem = ResolveHostPowerItem();
 		if (ReferenceEquals(_subscribedHostPowerItem, currentHostPowerItem))
 		{
@@ -505,6 +497,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	{
 		Parent.OnConnected -= Parent_OnConnected;
 		Parent.OnDisconnected -= Parent_OnDisconnected;
+		_parentPowerEventsSubscribed = false;
 		if (_subscribedHostPowerItem is null)
 		{
 			return;

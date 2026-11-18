@@ -163,13 +163,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	{
 		get
 		{
-			var connectors = Connections.ToList();
-			foreach (var connection in ConnectedItems)
-			{
-				connectors.Remove(connection.Item1);
-			}
-
-			return connectors;
+			return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
 		}
 	}
 

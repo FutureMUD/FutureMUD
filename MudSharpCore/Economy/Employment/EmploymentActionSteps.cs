@@ -2857,7 +2857,8 @@ public sealed class AuctionLotListingActionStep : EmploymentActionStepBase, IEmp
 			actor.Body.Take(item);
 		}
 
-		item.Drop(null);
+		if (!ComponentItemTransfer.IsDetached(item))
+			return EmploymentActionStepResult.Blocked("The item could not be released into auction escrow.");
 		var now = AuctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		var finish = new MudDateTime(now) + (Duration ?? AuctionHouse.DefaultListingTime);
 		AuctionHouse.AddAuctionItem(new AuctionItem
@@ -3135,7 +3136,6 @@ public sealed class AuctionClaimActionStep : EmploymentActionStepBase, IEmployme
 		}
 
 		AuctionHouse.ClaimItem(unclaimed.AuctionItem);
-		item.Login();
 		if (unclaimed.WinningBid?.Bidder is { } winner)
 		{
 			item.SetOwner(winner);
@@ -3147,6 +3147,7 @@ public sealed class AuctionClaimActionStep : EmploymentActionStepBase, IEmployme
 
 		item.RoomLayer = actor.RoomLayer;
 		AuctionHouse.AuctionHouseRoom.Insert(item, true);
+		item.Login();
 		if (!context.TryCollectTaskItem(actor, item, AuctionHouse.AuctionHouseRoom, out reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);

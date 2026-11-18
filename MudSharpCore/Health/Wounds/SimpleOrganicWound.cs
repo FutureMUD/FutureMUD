@@ -540,7 +540,8 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
     private void LoadFromDb(Wound wound)
     {
         _id = wound.Id;
-        IdInitialised = true;
+        IdInitialised = wound.Id != 0;
+        _noSave = !IdInitialised;
         _name = string.Empty;
         _currentDamage = wound.CurrentDamage;
         _originalDamage = wound.OriginalDamage;
@@ -632,6 +633,10 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
     public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
 
     #endregion
+
+    internal long? StoredActorOriginId => _actorOriginId == 0 ? null : _actorOriginId;
+    internal long? StoredToolOriginId => _toolOriginId == 0 ? null : _toolOriginId;
+    internal double UnmodifiedPain => _currentPain;
 
     public string SaveExtras()
     {

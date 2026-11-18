@@ -60,8 +60,8 @@ public class AmbientScent : Effect, IScentTrailEffect
 	{
 		return new XElement("Effect",
 			new XElement("SourceItemId", SourceItemId),
-			new XElement("SourceDescription", new XCData(SourceDescription)),
-			new XElement("AdditionalText", new XCData(AdditionalText)),
+			new XElement("SourceDescription", new XCData(SourceDescription.StripANSIColour())),
+			new XElement("AdditionalText", new XCData(AdditionalText.StripANSIColour())),
 			new XElement("RoomLayer", (int)RoomLayer),
 			new XElement("Distance", Distance),
 			new XElement("ScentDifficulty", (int)BaseScentDifficulty),

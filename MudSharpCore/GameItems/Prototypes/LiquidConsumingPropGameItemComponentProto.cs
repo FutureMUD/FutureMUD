@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
@@ -31,7 +31,9 @@ public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto,
     protected LiquidConsumingPropGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)
     {
-        LoadFromXml(XElement.Parse(proto.Definition));
+        var definition = XElement.Parse(proto.Definition);
+        LoadFromXml(definition);
+        ConnectorType.EnsurePrototypePortIds(Id, Connections, definition);
     }
 
     protected override void LoadFromXml(XElement root)
@@ -66,7 +68,8 @@ public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto,
                 select new XElement("Connection",
                     new XAttribute("gender", (short)connector.Gender),
                     new XAttribute("type", connector.ConnectionType),
-                    new XAttribute("powered", connector.Powered)))
+                    new XAttribute("powered", connector.Powered),
+                    new XAttribute("id", connector.PortId)))
         ).ToString();
     }
 

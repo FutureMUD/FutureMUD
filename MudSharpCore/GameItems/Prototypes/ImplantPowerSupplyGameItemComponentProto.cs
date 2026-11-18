@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
@@ -7,7 +7,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantPowerSupplyGameItemComponentProto : GameItemComponentProto, IImplantPowerSupplyPrototype
+public class ImplantPowerSupplyGameItemComponentProto : GameItemComponentProto, IImplantPowerSupplyPrototype, IPrimaryPowerProducerPrototype
 {
     public override string TypeDescription => "ImplantPowerSupply";
 

@@ -5,6 +5,7 @@ using Moq;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -67,12 +68,74 @@ public class PowerToolComponentTests
 		var proto = (PowerBankGameItemComponentProto)new GameItemComponentManager()
 			.GetProto(databasePrototype, gameworld.Object)!;
 		var component = (PowerBankGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		component.Login();
 
 		Assert.IsTrue(component.CanDrawdownSpike(18.0, TimeSpan.FromHours(2)));
 		Assert.IsTrue(component.DrawdownSpike(18.0, TimeSpan.FromHours(2)));
 		Assert.AreEqual(4.0, component.WattHoursRemaining, 1.0e-9);
 		Assert.IsFalse(component.CanDrawdownSpike(18.0, TimeSpan.FromMinutes(14)));
 		Assert.IsFalse(component.CanDrawdownSpike(19.0, TimeSpan.FromSeconds(1)));
+	}
+
+
+	[TestMethod]
+	public void PowerBank_PreservesStoredChargeAndResumesWaitingOutputAcrossLogout()
+	{
+		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
+		var heartbeat = new Mock<IHeartbeatManager>();
+		world.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
+		HeartbeatManagerDelegate? tick = null;
+		heartbeat.SetupAdd(x => x.SecondHeartbeat += It.IsAny<HeartbeatManagerDelegate>())
+			.Callback<HeartbeatManagerDelegate>(callback => tick += callback);
+		heartbeat.SetupRemove(x => x.SecondHeartbeat -= It.IsAny<HeartbeatManagerDelegate>())
+			.Callback<HeartbeatManagerDelegate>(callback => tick -= callback);
+		var parent = Mock.Of<IGameItem>(x => x.Gameworld == world.Object);
+		var consumerParent = Mock.Of<IGameItem>(x => x.Gameworld == world.Object);
+		var consumer = new Mock<IConsumePower>();
+		consumer.SetupGet(x => x.Parent).Returns(consumerParent);
+		consumer.SetupGet(x => x.PowerConsumptionInWatts).Returns(18.0);
+		var connector = Mock.Of<IConnectable>(x => x.Parent == consumerParent && x.Independent);
+		var model = CreatePrototype();
+		model.Type = "PowerBank";
+		model.Definition = $"""
+			<Definition><CapacityInWattHours>1</CapacityInWattHours><OutputConnectors>
+			  <Connection gender="{(short)Gender.Female}" type="power" />
+			</OutputConnectors></Definition>
+			""";
+		var proto = (PowerBankGameItemComponentProto)new GameItemComponentManager().GetProto(model, world.Object)!;
+		var bank = (PowerBankGameItemComponent)proto.LoadComponent(new DbGameItemComponent
+		{
+			Id = 5,
+			Definition = "<Definition><WattHoursRemaining>0.8</WattHoursRemaining></Definition>"
+		}, parent);
+		bank.RawConnect(connector, proto.OutputConnections.Single());
+		bank.BeginDrawdown(consumer.Object);
+		consumer.Verify(x => x.OnPowerCutIn(), Times.Never);
+		Assert.IsFalse(bank.ProducingPower);
+		Assert.IsNull(tick);
+
+		bank.Login();
+		bank.Login();
+		Mock.Get(parent).VerifyAdd(x => x.OnConnected += It.IsAny<ConnectedEvent>(), Times.Once);
+		consumer.Verify(x => x.OnPowerCutIn(), Times.Once);
+		Assert.IsNotNull(tick);
+		tick.Invoke();
+		bank.Quit();
+		bank.Quit();
+		Mock.Get(parent).VerifyRemove(x => x.OnConnected -= It.IsAny<ConnectedEvent>(), Times.Once);
+		Assert.IsNull(tick);
+		consumer.Verify(x => x.OnPowerCutOut(), Times.Once);
+		Assert.AreEqual(0.795, bank.WattHoursRemaining, 1e-9);
+		Assert.IsFalse(bank.DrawdownSpike(18.0));
+
+		bank.Login();
+		Mock.Get(parent).VerifyAdd(x => x.OnConnected += It.IsAny<ConnectedEvent>(), Times.Exactly(2));
+		Assert.IsNotNull(tick);
+		consumer.Verify(x => x.OnPowerCutIn(), Times.Exactly(2));
+		bank.Delete();
+		Assert.IsNull(tick);
+		consumer.Verify(x => x.OnPowerCutOut(), Times.Exactly(2));
+		Mock.Get(connector).Verify(x => x.RawDisconnect(bank, false), Times.Once);
 	}
 
 	[TestMethod]
@@ -115,6 +178,7 @@ public class PowerToolComponentTests
 		model.Definition = "<Definition><Connectors/><CapacityInWattHours>1</CapacityInWattHours><MaximumInputInWatts>18</MaximumInputInWatts><MaximumOutputInWatts>18</MaximumOutputInWatts><ChargingEfficiency>0.9</ChargingEfficiency><InputConnectors/><OutputConnectors/></Definition>";
 		var proto = (PowerBankGameItemComponentProto)new GameItemComponentManager().GetProto(model, gameworld.Object)!;
 		var bank = (PowerBankGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		bank.Login();
 		IProducePower proxy;
 		if (kind == "implant")
 		{

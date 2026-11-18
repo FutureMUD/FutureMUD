@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.GameItems.Prototypes;
@@ -52,14 +52,12 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
                 if (item.Attribute("independent")?.Value == "false")
                 {
                     _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
                 else
                 {
                     _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
             }
         }
@@ -79,12 +77,7 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
         return new XElement("Definition",
             new XElement("Gas", Gas?.Id ?? 0),
             new XElement("GasVolume", GasVolumeAtOneAtmosphere),
-            new XElement("ConnectedItems",
-                from item in ConnectedItems
-                select
-                    new XElement("Item", new XAttribute("id", item.Item2.Parent.Id),
-                        new XAttribute("connectiontype", item.Item1),
-                        new XAttribute("independent", item.Item2.Independent)))
+            SaveConnections(this, ConnectedItems, _pendingLoadTimeConnections, _pendingDependentLoadTimeConnections)
         ).ToString();
     }
 
@@ -220,75 +213,22 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
         return false;
     }
 
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        (independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+        .Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
+    public override void Login() => FinaliseLoad();
+
+    public override void Delete()
+    {
+        foreach (var peer in _connectedItems.Select(x => x.Item2).Distinct().ToArray()) RawDisconnect(peer, true);
+        base.Delete();
+    }
+
     public override void FinaliseLoad()
     {
-        foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                continue;
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            if (!Parent.ColocatedWith(gitem))
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (!connectable.CanConnect(null, this))
-                {
-                    continue;
-                }
-
-                Connect(null, connectable);
-                break;
-            }
-        }
-
-        _pendingLoadTimeConnections.Clear();
-
-        foreach (Tuple<long, ConnectorType> item in _pendingDependentLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                gitem = Gameworld.TryGetItem(item.Item1, true);
-                if (gitem == null)
-                {
-                    continue;
-                }
-
-                gitem.FinaliseLoadTimeTasks();
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (connectable == null)
-                {
-                    continue;
-                }
-
-                Connect(null, connectable);
-                break;
-            }
-        }
-
-        _pendingDependentLoadTimeConnections.Clear();
-        Changed = true;
+        RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+        RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
     }
 
     #region IGasContainer Implementation
@@ -361,13 +301,7 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
     {
         get
         {
-            List<ConnectorType> rvar = new(Connections);
-            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
-            {
-                rvar.Remove(item.Item1);
-            }
-
-            return rvar;
+            return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
         }
     }
 
@@ -413,15 +347,17 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
             return;
         }
 
-        RawConnect(other, connection);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+        ConnectPair(this, connection, other, otherConnection);
         Changed = true;
     }
 
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItems.Add(Tuple.Create(type, other));
-        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        ConsumeSavedConnection(this, other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections,
+            other.Parent.Id, type);
         Parent.ConnectedItem(other, type);
         Changed = true;
     }

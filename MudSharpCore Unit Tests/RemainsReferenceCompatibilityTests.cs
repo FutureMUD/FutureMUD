@@ -160,11 +160,16 @@ public class RemainsReferenceCompatibilityTests
 	}
 
 	[TestMethod]
-	[DataRow(true)]
-	[DataRow(false)]
-	public void Load_ExactInactiveCachedBody_UsesReferenceWithoutChangingItsId(bool corpse)
+	[DataRow(true, false)]
+	[DataRow(false, false)]
+	[DataRow(true, true)]
+	public void Load_ExactInactiveCachedBody_UsesReferenceWithoutChangingItsId(bool corpse, bool movedInventory)
 	{
 		var f = new Fixture(); f.Bodies.Add(f.Old.Object);
+		var deleted = false;
+		f.Inventory.SetupGet(x => x.InInventoryOf).Returns(movedInventory ? f.Current.Object : f.Old.Object);
+		f.Inventory.SetupGet(x => x.Deleted).Returns(() => deleted);
+		f.Inventory.Setup(x => x.Delete()).Callback(() => deleted = true);
 		var component = f.Load(corpse, 17);
 		Assert.AreSame(f.Old.Object, ((IButcherable)component).OriginalBody);
 		Assert.AreEqual(17L, ((IButcherable)component).OriginalBodyId);
@@ -173,7 +178,7 @@ public class RemainsReferenceCompatibilityTests
 		Assert.IsTrue(component.ComponentWeight > 0);
 		component.Delete();
 		f.Owner.Verify(x => x.TryCleanupRetiredBody(f.Old.Object, f.Parent.Object), Times.Once);
-		f.Inventory.Verify(x => x.Delete(), corpse ? Times.Once() : Times.Never());
+		f.Inventory.Verify(x => x.Delete(), corpse && !movedInventory ? Times.Once() : Times.Never());
 	}
 
 	[TestMethod]
@@ -206,14 +211,25 @@ public class RemainsReferenceCompatibilityTests
 	}
 
 	[TestMethod]
-	public void Load_UnresolvedPartWithKnownContents_PreservesTheirWeightAndReleasesThem()
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Load_UnresolvedPartWithKnownContents_PreservesTheirWeightAndChecksCustodyBeforeDelete(bool moved)
 	{
 		var f = new Fixture(); var content = new Mock<IGameItem>();
 		content.SetupGet(x => x.Weight).Returns(7.0); content.Setup(x => x.Buoyancy(1.0)).Returns(2.0);
+		content.SetupProperty(x => x.ContainedIn);
+		content.Setup(x => x.LoadTimeSetContainedIn(It.IsAny<IGameItem>())).Callback<IGameItem>(owner => content.Object.ContainedIn = owner);
+		var deleted = false;
+		content.SetupGet(x => x.Deleted).Returns(() => deleted);
+		content.Setup(x => x.Delete()).Callback(() => deleted = true);
 		f.World.Setup(x => x.TryGetItem(7, true)).Returns(content.Object);
 		var component = f.Load(false, 1000017, contents: "<Item>7</Item>");
 		Assert.AreEqual(7.0, component.ComponentWeight); Assert.AreEqual(2.0, component.ComponentBuoyancy(1.0));
-		component.Delete(); content.Verify(x => x.Delete(), Times.Once); f.Inventory.Verify(x => x.Delete(), Times.Never);
+		Assert.AreSame(f.Parent.Object, content.Object.ContainedIn);
+		if (moved) content.Object.ContainedIn = Mock.Of<IGameItem>();
+		component.Delete();
+		content.Verify(x => x.Delete(), moved ? Times.Never() : Times.Once());
+		f.Inventory.Verify(x => x.Delete(), Times.Never);
 	}
 
 	[TestMethod]

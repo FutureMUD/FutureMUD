@@ -44,7 +44,8 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             new XElement("Connector",
                 new XAttribute("gender", (sbyte)Connector.Gender),
                 new XAttribute("type", Connector.ConnectionType),
-                new XAttribute("powered", Connector.Powered))
+                new XAttribute("powered", Connector.Powered),
+                new XAttribute("id", Connector.PortId))
         ).ToString();
     }
 
@@ -107,7 +108,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             actor.Send("What is the name of the connector type?");
             return false;
         }
-        Connector = new ConnectorType(Connector.Gender, command.PopSpeech(), Connector.Powered);
+        Connector = new ConnectorType(Connector.Gender, command.PopSpeech(), Connector.Powered, portId: Connector.PortId);
         actor.Send($"This inhaler will have a connector of type {Connector.ConnectionType.Colour(Telnet.Cyan)}.");
         Changed = true;
         return true;
@@ -126,7 +127,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             actor.Send("That is not a valid gender.");
             return false;
         }
-        Connector = new ConnectorType(gender.Enum, Connector.ConnectionType, Connector.Powered);
+        Connector = new ConnectorType(gender.Enum, Connector.ConnectionType, Connector.Powered, portId: Connector.PortId);
         actor.Send($"This inhaler now has a {gender.Enum.ToString().ToLowerInvariant()} connector.");
         Changed = true;
         return true;

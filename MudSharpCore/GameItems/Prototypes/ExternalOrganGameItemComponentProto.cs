@@ -2,12 +2,13 @@
 using MudSharp.Body;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExternalBloodOxygenatorPrototype, IExternalOrganFunctionPrototype, IConnectablePrototype, IConsumePowerPrototype, IOnOffPrototype, ISwitchablePrototype
+public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExternalBloodOxygenatorPrototype, IExternalOrganFunctionPrototype, IConnectablePrototype, IConsumePowerPrototype, IOnOffPrototype, ISwitchablePrototype, IConnectableItemProto
 {
     private readonly List<IOrganProto> _organs = new();
 
@@ -21,6 +22,8 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExte
 
     public ConnectorType VenousConnection { get; protected set; }
     public ConnectorType ArterialConnection { get; protected set; }
+
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => [VenousConnection, ArterialConnection];
 
     public double BasePowerConsumptionInWatts { get; protected set; }
 
@@ -84,8 +87,8 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExte
             new XElement("Body", Body?.Id ?? 0),
             new XElement("OxygenatesBlood", OxygenatesBlood),
             new XElement("Addendum", new XCData(AddendumDescription)),
-            new XElement("VenousConnection", VenousConnection.ToString()),
-            new XElement("ArterialConnection", ArterialConnection.ToString()),
+            new XElement("VenousConnection", new XAttribute("id", VenousConnection.PortId ?? ""), VenousConnection.ToString()),
+            new XElement("ArterialConnection", new XAttribute("id", ArterialConnection.PortId ?? ""), ArterialConnection.ToString()),
             new XElement("BasePowerConsumptionInWatts", BasePowerConsumptionInWatts),
             new XElement("PowerConsumptionDiscountPerQuality", PowerConsumptionDiscountPerQuality),
             new XElement("SwitchOnEmote", new XCData(SwitchOnEmote)),
@@ -309,7 +312,7 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExte
                      .FirstOrDefault(x => x.EqualTo(type) && !x.Equals(type, StringComparison.InvariantCulture)) ??
             type;
 
-        VenousConnection = new ConnectorType(gendering.Enum, type, false);
+        VenousConnection = new ConnectorType(gendering.Enum, type, false, portId: VenousConnection.PortId);
         actor.Send(
             $"This machine will now have a venous connection of type {type.Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
         Changed = true;
@@ -345,7 +348,7 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExte
                      .FirstOrDefault(x => x.EqualTo(type) && !x.Equals(type, StringComparison.InvariantCulture)) ??
             type;
 
-        ArterialConnection = new ConnectorType(gendering.Enum, type, false);
+        ArterialConnection = new ConnectorType(gendering.Enum, type, false, portId: ArterialConnection.PortId);
         actor.Send(
             $"This machine will now have an arterial connection of type {type.Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
         Changed = true;

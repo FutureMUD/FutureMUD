@@ -19,9 +19,16 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
         base.Delete();
         foreach (IBeltable item in ConnectedItems.ToList())
         {
+            var child = item.Parent;
+            if (ReferenceEquals(item.ConnectedTo, this) && child.ContainedIn is null &&
+                ComponentItemTransfer.DirectLocationOf(child) is null && !ComponentItemTransfer.HasDirectBodyCustody(child))
+            {
+                child.Delete();
+                if (!child.Deleted && ReferenceEquals(item.ConnectedTo, this))
+                    throw new InvalidOperationException($"Belt #{Parent.Id} still owns attachment #{child.Id} after deletion.");
+            }
             _connectedItems.Remove(item);
-            item.ConnectedTo = null;
-            item.Parent.Delete();
+            if (ReferenceEquals(item.ConnectedTo, this)) item.ConnectedTo = null;
         }
     }
 
@@ -118,7 +125,8 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
         return new XElement("Definition", new object[]
             {
                 from item in ConnectedItems
-                select new XElement("Connected", item.Parent.Id)
+                select new XElement("Connected", item.Parent.Id),
+                AmbiguousLegacyChildClaims("Connected")
             }
         ).ToString();
     }
@@ -184,7 +192,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
     {
         foreach (XElement element in root.Elements("Connected"))
         {
-            IGameItem item = Gameworld.TryGetItem(long.Parse(element.Value), true);
+            IGameItem item = RestoreOwnedChild(element);
             if (item?.IsItemType<IBeltable>() != true)
             {
                 continue;

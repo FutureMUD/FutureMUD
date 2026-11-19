@@ -12,11 +12,13 @@ The old `Microsoft.Extensions.AI` and `Microsoft.Extensions.AI.OpenAI` package r
 
 ## Request Lifecycle and Diagnostics
 
-Shared builder/thread OpenAI requests run away from the main game loop and have a 120-second cancellation timeout. Every shared-handler request receives a unique `X-Client-Request-Id`. Console diagnostics record that client reference and, when OpenAI returns a response, its `x-request-id`. These references allow an administrator to correlate a builder-visible failure with the full server log and with OpenAI support without logging the API key.
+Shared model lookups and text requests run away from the main game loop with a 120-second cancellation timeout. The game loop delivers the result to the command, builder workflow or FutureProg. Every shared-handler request receives a unique `X-Client-Request-Id`. Console diagnostics record that client reference and the provider's `x-request-id` when available.
 
-All exceptions must be caught inside the asynchronous request body. A catch around only the call that schedules background work does not observe later network or API failures. The shared handler therefore routes completion to the success callback and all exceptions, including timeouts and TLS failures, to the failure path.
+The shared handler observes HTTP errors, timeouts and transport failures and routes them to its failure path. Incomplete responses and responses with no usable text also fail. Failed requests do not save thread history, set up description suggestions or run a FutureProg success callback. The boolean returned by `GPTRequest(...)` indicates whether the request was queued. A missing key returns `false` immediately.
 
-Builder commands receive a concise failure message and correlation reference. Full exception details go to the server console, while Discord receives a sanitised alert containing only exception type and request references. Network/TLS failures are distinguished from HTTP responses; HTTP failures include the status and OpenAI request ID when one exists.
+`gpt create` and `gpt set <thread> model` report that a lookup is in progress. OpenAI must return a model catalogue before the command can open the prompt editor or change the stored model. On failure, `gpt`, `testgpt` and the description suggestion commands report a concise error. When the configured key is missing, the command reports that immediately.
+
+The console records a safe failure summary, exception type and stack trace. Discord alerts also use sanitised diagnostics. Raw exception messages and provider error bodies can contain credential fragments and are omitted. HTTP diagnostics include the status and request references when available.
 
 ## Builder Description Suggestions
 
@@ -30,12 +32,12 @@ They queue a request immediately and later return either suggestions or a correl
 
 ## Operational Troubleshooting
 
-If a request reports that it could not establish a secure network connection, inspect the full exception in the server console. On Windows, a process launched in a restricted or sandboxed security context can fail TLS setup with `SEC_E_NO_CREDENTIALS` before OpenAI receives the request. Run the MUD under its normal service/user identity with access to Windows TLS credentials; changing the API key or model will not repair that transport failure.
+If a request reports that it could not establish a secure network connection, check the server's network and service identity. On Windows, a process launched in a restricted or sandboxed security context can fail TLS setup with `SEC_E_NO_CREDENTIALS` before OpenAI receives the request. Run the MUD under its normal service/user identity with access to Windows TLS credentials.
 
-If OpenAI returns an HTTP error, use the client request reference and logged OpenAI request ID to distinguish authentication, model access, rate-limit, and request-validation failures.
+For HTTP 401, check `GPT_Secret_Key` and replace the key if it expired or was revoked. For HTTP 403 or 404, check the project's access and configured model. For HTTP 429, check limits and quota. Use the request references when investigating an error with OpenAI support.
 
 ## Storyteller runtime
 
-Storytellers use the same pinned OpenAI 2.14.0 SDK through an injectable protocol adapter. Request preparation and tool execution run on the game loop; asynchronous network tasks receive immutable JSON only. Scoped model/reasoning/output settings are preserved for the entire run, with a default 120-second cancellation deadline. Completed, refused, incomplete and failed responses are distinguished before tool execution. Pausing or deleting a storyteller cancels active work and discards queued activity.
+Storytellers use the pinned OpenAI SDK through an injectable protocol adapter. Request preparation and tool execution run on the game loop. Asynchronous network tasks receive immutable JSON only. Scoped model, reasoning and output settings are preserved for the entire run, with a default 120-second cancellation deadline. Completed, refused, incomplete and failed responses are distinguished before tool execution. A provider error finishes the affected run and records safe diagnostics. Pausing or deleting a storyteller cancels active work and discards queued activity.
 
 New stock uses a fast classifier and a separate narrative model. Explicit stable-prefix caching on verified compatible models uses a developer content breakpoint with a 30-minute lifetime; legacy/unknown models retain provider defaults. Raw protocol JSON supports those fields without upgrading the SDK. Full output items, including encrypted reasoning, survive continuations. `ais usage` exposes numerical usage and cache-write/read counters without exposing narrative content. The full builder, migration and opt-in evaluation contract is in [AI Storyteller Design](AI_Storyteller_System.md).

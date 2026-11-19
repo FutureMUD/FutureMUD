@@ -39,7 +39,7 @@ internal static class ExternalIntegrationAlertHelper
 	{
 		var safeContext = SanitiseDiscordAdminAlert(context.IfNullOrWhiteSpace("GPT request"), 200);
 		var safeType = SanitiseDiscordAdminAlert(exception.GetType().Name, 120);
-		return $"**GPT Error**\n\n{safeContext} failed with {safeType}. Full exception details were written to the server console.";
+		return $"**GPT Error**\n\n{safeContext} ({safeType}). See the server console for diagnostics.";
 	}
 
 	public static string SummariseSensitivePayload(string? payload)

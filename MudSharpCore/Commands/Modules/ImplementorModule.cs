@@ -230,12 +230,17 @@ The syntax is:
 
             string prompt = ss.SafeRemainingArgument;
             string threadName = thread.Name;
-            actor.OutputHandler.Send(
-                $"You send the following request to the {thread.Name.ColourName()} GPT thread:\n\n{prompt}");
-            OpenAI.OpenAIHandler.MakeGPTRequest(thread, prompt, actor, text =>
+            if (!OpenAIHandler.MakeGPTRequest(actor.Gameworld, thread, prompt, actor, text =>
             {
                 actor.OutputHandler.Send($"#B[GPT Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
-            }, errorCallback: error => actor.OutputHandler.Send(error.ColourError()));
+            }, errorCallback: error => actor.OutputHandler.Send(error.ColourError())))
+            {
+                actor.OutputHandler.Send(OpenAIHandler.MissingGptKey.ColourError());
+                return;
+            }
+
+            actor.OutputHandler.Send(
+                $"You send the following request to the {threadName.ColourName()} GPT thread:\n\n{prompt}");
         }
     }
 
@@ -2782,12 +2787,13 @@ The syntax is as follows:
 
 #3GPT list#0 - lists all GPT Threads
 #3GPT show <which>#0 - shows a GPT Thread
-#3GPT create <name> <temp> <model>#0 - drops you into a model to create a new GPT Thread
+#3GPT create <name> <temp> [<model>]#0 - looks up models and opens the prompt editor if a model is supplied
 #3GPT delete <which>#0 - deletes a GPT Thread
 #3GPT set <which> name <name>#0 - renames a GPT Thread
 #3GPT set <which> temperature <temp>#0 - sets the thread temperature
-#3GPT set <which> model <name>#0 - changes the GPT Model
-#3GPT set <which> prompt#0 - drops into an editor to write the prompt";
+#3GPT set <which> model [<name>]#0 - looks up models and changes the GPT Model if a model is supplied
+#3GPT set <which> prompt#0 - drops into an editor to write the prompt
+#3GPT query <which> <prompt>#0 - sends a prompt to the GPT Thread";
 
     [PlayerCommand("GPT", "gpt")]
     [CommandPermission(PermissionLevel.Founder)]
@@ -2850,11 +2856,23 @@ The syntax is as follows:
                 return;
             }
 
-            actor.OutputHandler.Send($"You make the following request to the GPT Thread:\n\n{ss.SafeRemainingArgument}");
-            MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(thread, ss.SafeRemainingArgument, actor, text =>
+            string prompt = ss.SafeRemainingArgument;
+            if (string.IsNullOrWhiteSpace(prompt))
+            {
+                actor.OutputHandler.Send("What is your prompt for GPT?");
+                return;
+            }
+
+            if (!OpenAIHandler.MakeGPTRequest(actor.Gameworld, thread, prompt, actor, text =>
             {
                 actor.OutputHandler.Send($"GPT Response:\n\n{text}");
-            }, -1, true, error => actor.OutputHandler.Send(error.ColourError()));
+            }, errorCallback: error => actor.OutputHandler.Send(error.ColourError())))
+            {
+                actor.OutputHandler.Send(OpenAIHandler.MissingGptKey.ColourError());
+                return;
+            }
+
+            actor.OutputHandler.Send($"You make the following request to the GPT Thread:\n\n{prompt}");
         }
     }
 
@@ -2973,26 +2991,89 @@ The syntax is as follows:
 
     private static void GPTSetModel(ICharacter actor, GPTThread thread, StringStack ss)
     {
-        IEnumerable<string> models = OpenAIHandler.GPTModels().Result;
-        if (ss.IsFinished)
-        {
-            actor.OutputHandler.Send($"Which model should this GPTThread use?\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
-            return;
-        }
+		long threadId = thread.Id;
+		string originalModel = thread.Model;
+		string modelText = ss.SafeRemainingArgument;
+		GPTLookupModels(actor, models =>
+		{
+			if (string.IsNullOrWhiteSpace(modelText))
+			{
+				actor.OutputHandler.Send($"Which model should this GPTThread use?\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
+				return;
+			}
 
-        string modelText = ss.SafeRemainingArgument;
-        string model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
-                    models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
-        if (model is null)
-        {
-            actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
-            return;
-        }
+			string model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
+			               models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
+			if (model is null)
+			{
+				actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
+				return;
+			}
 
-        thread.Model = model;
-        FMDB.Context.SaveChanges();
-        actor.OutputHandler.Send($"The {thread.Name.ColourName()} GPTThread will now use the {model.ColourName()} model.");
+			using (new FMDB())
+			{
+				var currentThread = FMDB.Context.GPTThreads.Find(threadId);
+				if (currentThread is null)
+				{
+					actor.OutputHandler.Send("That GPT thread was deleted while OpenAI was checking the model.");
+					return;
+				}
+
+				if (currentThread.Model != originalModel)
+				{
+					actor.OutputHandler.Send("The GPT thread's model changed while OpenAI was checking your request. Please try again.");
+					return;
+				}
+
+				currentThread.Model = model;
+				FMDB.Context.SaveChanges();
+				actor.OutputHandler.Send($"The {currentThread.Name.ColourName()} GPTThread will now use the {model.ColourName()} model.");
+			}
+		});
     }
+
+	private static void GPTLookupModels(ICharacter actor, Action<IReadOnlyList<string>> useModels)
+	{
+		var controller = actor.Controller as FuturemudControlContext;
+		var output = actor.OutputHandler;
+
+		bool CanReceiveResult() => controller is not null
+			? controller.IsControlling(actor) && actor.NextContext is null
+			: ReferenceEquals(output, actor.OutputHandler);
+
+		void Complete(IReadOnlyList<string> models)
+		{
+			if (!CanReceiveResult())
+			{
+				return;
+			}
+
+			if (models.Count == 0)
+			{
+				output.Send("OpenAI returned no models for the configured API key.");
+				return;
+			}
+
+			useModels(models);
+			controller?.ApplyPendingContext();
+		}
+
+		void ReportFailure(string error)
+		{
+			if (CanReceiveResult())
+			{
+				output.Send(error.ColourError());
+			}
+		}
+
+		if (!OpenAIHandler.TryGetGptModels(actor.Gameworld, Complete, ReportFailure))
+		{
+			output.Send(OpenAIHandler.MissingGptKey.ColourError());
+			return;
+		}
+
+		output.Send("Looking up the models available from OpenAI...");
+	}
 
     private static void GPTShow(ICharacter actor, StringStack ss)
     {
@@ -3122,28 +3203,19 @@ The syntax is as follows:
             return;
         }
 
-        IEnumerable<string> models = OpenAIHandler.GPTModels().Result;
-        if (ss.IsFinished)
-        {
-            actor.OutputHandler.Send($"Which GPT Model should your thread use? Valid choices are {models.Select(x => x.ColourName()).ListToString()}.");
-            return;
-        }
+		string modelText = ss.SafeRemainingArgument;
+		GPTLookupModels(actor, models =>
+		{
+			if (string.IsNullOrWhiteSpace(modelText))
+			{
+				actor.OutputHandler.Send($"Which GPT Model should your thread use? Valid choices are {models.Select(x => x.ColourName()).ListToString()}.");
+				return;
+			}
 
-        string modelText = ss.SafeRemainingArgument;
-        if (modelText is null)
-        {
-            actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
-            return;
-        }
-
-        actor.OutputHandler.Send("Enter a prompt for GPT below:");
-        actor.EditorMode(PostActionCreate, CancelActionCreate, 1.0, null, EditorOptions.None, new object[]
-        {
-            name,
-            temperature,
-            modelText,
-            actor
-        });
+			actor.OutputHandler.Send("Enter a prompt for GPT below:");
+			actor.EditorMode(PostActionCreate, CancelActionCreate, 1.0, null, EditorOptions.None,
+				new object[] { name, temperature, modelText, actor });
+		});
     }
 
     private static void CancelActionCreate(IOutputHandler handler, object[] args)
@@ -3155,9 +3227,16 @@ The syntax is as follows:
     {
         using (new FMDB())
         {
+			string name = (string)args[0];
+			if (FMDB.Context.GPTThreads.Any(x => x.Name == name))
+			{
+				handler.Send($"There is already a GPTThread called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
             GPTThread dbitem = new()
             {
-                Name = (string)args[0],
+                Name = name,
                 Temperature = (double)args[1],
                 Model = (string)args[2],
                 Prompt = text

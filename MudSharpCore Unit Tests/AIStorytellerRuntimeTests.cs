@@ -1,6 +1,8 @@
 #nullable enable
 #pragma warning disable OPENAI001
 using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -151,6 +153,31 @@ public class AIStorytellerRuntimeTests
 		s.ProcessPendingWork(); s.ProcessPendingWork(); s.ProcessPendingWork();
 		Assert.AreEqual(1, a.Requests.Count);
 		Assert.AreEqual(0, s.PendingStorytellerWorkCount);
+	}
+
+	[TestMethod]
+	public void ProviderAuthenticationFailure_LogsSafeErrorAndContinuesWithNextRun()
+	{
+		var (s, a, _) = Create(0);
+		const string credential = "expired-test-key";
+		var response = new Mock<PipelineResponse>();
+		response.SetupGet(x => x.Status).Returns(401);
+		a.Responses.Enqueue(Task.FromException<BinaryData>(new ClientResultException($"Invalid key {credential}", response.Object)));
+		a.Responses.Enqueue(Task.FromResult(Response("completed", Noop)));
+
+		Assert.IsTrue(Enqueue(s, room: 1, classify: false));
+		Assert.IsTrue(Enqueue(s, room: 2, classify: false));
+		s.ProcessPendingWork();
+		s.ProcessPendingWork();
+		Assert.AreEqual(1, s.PendingStorytellerWorkCount);
+		s.ProcessPendingWork();
+		s.ProcessPendingWork();
+
+		Assert.AreEqual(2, a.Requests.Count);
+		Assert.AreEqual(0, s.PendingStorytellerWorkCount);
+		var world = Mock.Get(s.Gameworld);
+		world.Verify(x => x.DebugMessage(It.Is<string>(message => message.Contains("HTTP status 401"))), Times.Once);
+		world.Verify(x => x.DebugMessage(It.Is<string>(message => message.Contains(credential))), Times.Never);
 	}
 
 	[TestMethod]

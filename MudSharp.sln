@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11520.95
@@ -2111,14 +2110,50 @@ Global
 		{7C041FC7-32DF-471E-88A9-30AD304D2400}.Release|x64.Build.0 = Release|Any CPU
 		{7C041FC7-32DF-471E-88A9-30AD304D2400}.Release|x86.ActiveCfg = Release|Any CPU
 		{7C041FC7-32DF-471E-88A9-30AD304D2400}.Release|x86.Build.0 = Release|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (LabMUD)|Win32.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (LabMUD)|x64.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (LabMUD)|x86.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (MySQL)|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (MySQL)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (MySQL)|Win32.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (MySQL)|x64.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug (MySQL)|x86.ActiveCfg = Debug|Any CPU
 		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Release|x64.ActiveCfg = Release|Any CPU
+		{3B812666-F116-5522-ADF6-BB4FBE0FD21A}.Release|x86.ActiveCfg = Release|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (LabMUD)|Win32.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (LabMUD)|x64.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (LabMUD)|x86.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (MySQL)|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (MySQL)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (MySQL)|Win32.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (MySQL)|x64.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug (MySQL)|x86.ActiveCfg = Debug|Any CPU
 		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Release|x64.ActiveCfg = Release|Any CPU
+		{3EDE31B1-11D4-5E73-81A1-C9564CEE303A}.Release|x86.ActiveCfg = Release|Any CPU
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2}.Debug (LabMUD)|Any CPU.Build.0 = Debug|Any CPU
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -2191,8 +2226,8 @@ Global
 		{E64898C6-FC6E-434B-BFF5-6A5756154FC2} = {756F43E7-3C8A-4E6E-965F-70A0093568D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 		BuildVersion_StartDate = 2000/1/1
+		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MudSharp.vsmdi

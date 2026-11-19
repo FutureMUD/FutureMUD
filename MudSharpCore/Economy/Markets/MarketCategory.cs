@@ -421,7 +421,7 @@ public class MarketCategory : SaveableItem, IMarketCategory
 			return false;
 		}
 
-		ElasticityFactorBelow = value;
+		ElasticityFactorAbove = value;
 		Changed = true;
 		InvalidateMarketCaches();
 		actor.OutputHandler.Send(
@@ -444,7 +444,7 @@ public class MarketCategory : SaveableItem, IMarketCategory
 			return false;
 		}
 
-		ElasticityFactorAbove = value;
+		ElasticityFactorBelow = value;
 		Changed = true;
 		InvalidateMarketCaches();
 		actor.OutputHandler.Send(

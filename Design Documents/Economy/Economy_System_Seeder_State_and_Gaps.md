@@ -54,7 +54,7 @@ The current repository has two dedicated economy seeders:
 - era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
 - explicit population income factors and non-zero savings caps so seeded households can accumulate reserves before becoming stressed
 - population-stress influence templates and their helper FutureProgs, with stress now reducing lower-priority demand while also contracting supply in the sectors that stressed populations plausibly sustain
-- one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures now scaled by both era assumptions and the chosen currency package
+- one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures scaled by both era assumptions and the chosen currency package. The seeded item callbacks already use Item, Merchandise and Number (price).
 
 The current stock eras are:
 

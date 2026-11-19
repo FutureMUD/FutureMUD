@@ -1036,10 +1036,9 @@ public partial class LegalAuthority
             }
 
             LegalClass newClass = new(newName, this, prog);
-            _legalClasses.Add(newClass);
+            AddLegalClass(newClass);
             actor.OutputHandler.Send(
                 $"You create a new legal class called {newClass.Name.Colour(Telnet.Cyan)}, with ID #{newClass.Id.ToString("N0", actor)} that uses the {prog.MXPClickableFunctionNameWithId()} prog to determine membership.");
-            Changed = true;
             return true;
         }
 
@@ -1068,7 +1067,7 @@ public partial class LegalAuthority
                 AcceptAction = text =>
                 {
                     actor.OutputHandler.Send($"You delete the {legalClass.Name.Colour(Telnet.Green)} legal class.");
-                    _legalClasses.Remove(legalClass);
+                    RemoveLegalClass(legalClass);
                     legalClass.Delete();
                     foreach (ILaw law in _laws.ToList())
                     {

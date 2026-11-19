@@ -264,6 +264,8 @@ Partial stack and commodity retrieval preserve shop display identity. Stock remo
 `IShop.RegisterStockItemSplit` indexes another portion of existing displayed goods without a stock transaction. Stack quantity remains conserved; commodity splitting adds one pile. `RegisterStockItemMerge` removes absorbed pile identities without recording lost goods, including repeated pickup into a held display pile. Commodity purchases reconcile the indexed pile count they remove, so a held display split does not appear as newly acquired stock.
 
 ### Markets, Influences, Populations, and Shoppers
+
+Market category elasticity uses the oversupply setting when supply exceeds demand and the undersupply setting otherwise. The builder commands update those respective fields. Saved field values retain their existing runtime meanings.
 The market subsystem models macroeconomic pressure rather than only local shop stock.
 
 Verified current parts:

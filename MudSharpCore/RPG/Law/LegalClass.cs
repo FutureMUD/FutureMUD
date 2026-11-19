@@ -23,6 +23,7 @@ public partial class LegalClass : SaveableItem, ILegalClass
             dbitem.MembershipProgId = membershipProg.Id;
             dbitem.CanBeDetainedUntilFinesPaid = false;
             LegalClassPriority = Authority.LegalClasses.Select(x => x.LegalClassPriority).DefaultIfEmpty(0).Max() + 1;
+            dbitem.LegalClassPriority = LegalClassPriority;
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
         }

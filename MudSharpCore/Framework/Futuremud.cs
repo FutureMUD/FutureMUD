@@ -2084,6 +2084,16 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _crimes.Remove(crime);
     }
 
+    public void Destroy(ILaw law)
+    {
+        _laws.Remove(law);
+    }
+
+    public void Destroy(ILegalClass legalClass)
+    {
+        _legalClasses.Remove(legalClass);
+    }
+
     public void Destroy(INPCSpawner spawner)
     {
         _npcSpawners.Remove(spawner);

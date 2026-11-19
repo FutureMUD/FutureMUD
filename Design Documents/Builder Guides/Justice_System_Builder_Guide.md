@@ -26,7 +26,7 @@ legalauthority show "Alderbridge Bench"
 
 The zone here is the **world zone** that contains the rooms. Alderbridge can use the same currency for taxes and fines, but its economic zone and clan are separate records. Check all authorities that share a room's zone before adding a new one. Each authority evaluates its own laws in its enforcement area.
 
-Start with one class for residents, officers and visitors. If your setting later distinguishes groups such as citizens, visitors or clergy, author Boolean Character membership progs and verify which class the authority resolves for representative characters, including staff, NPCs and outsiders. Keep a catch-all because the engine expects a match. Set intended priorities with `legalauthority set class <class> priority <number>` and test overlapping predicates before relying on the order. You can use disjoint predicates to make the result independent of order. The class editor's `detain` switch permits detention for unpaid fines. Leave that off for this first trial.
+Start with one class for residents, officers and visitors. If your setting later distinguishes groups such as citizens, visitors or clergy, author Boolean Character membership progs and verify which class the authority resolves for representative characters, including staff, NPCs and outsiders. Keep a catch-all because the engine expects a match. Set intended priorities with `legalauthority set class <class> priority <number>`. When more than one prog matches, the highest priority wins. Equal priorities resolve to the lowest class ID. Give specialised classes a higher priority than your catch-all. The class editor's `detain` switch permits detention for unpaid fines. Leave that off for this first trial.
 
 ## Define who can enforce and judge
 
@@ -86,11 +86,11 @@ legalauthority status "Alderbridge Bench"
 
 | Role | What to build and test |
 | --- | --- |
-| `prison` | The public prison location handles reporting, fine payment, bail and custody intake. The current sentencing transfer also lands here before any authored onward move. |
+| `prison` | The public prison location handles reporting, fine payment, bail and custody intake. It also receives sentenced prisoners for authorities with no jail entry configured. |
 | `cell` | These are **remand** rooms. Intake selects a registered cell and records that the prisoner is awaiting sentencing. `cell` toggles each room, so inspect the list before repeating it. |
 | `belongings` | Intake stores confiscated belongings as a character-specific bundle. Use a secure staff-only room and check the return path with a test item and coins. |
 | `court` and `release` | The court hosts trials. The release location is the public destination when the authority releases someone. Provide a usable exit from it. |
-| `jailentry` and `jail` | Define the entry and rooms of the sentenced jail. Keep them distinct from remand. To move a sentenced prisoner from the default transfer at `prison` into a separate wing, provide a guarded escort or an `imprisonedprog` appropriate to your layout. Check the resulting location and sentence status on a test prisoner. |
+| `jailentry` and `jail` | Set `jailentry` to the room that receives newly sentenced prisoners. Use `jail` to mark the rooms in that jail, including the entry if it is inside the secure wing. Keep sentenced housing distinct from remand. |
 
 The authority also has `heldprog`, `imprisonedprog` and `releasedprog` hooks for Void progs taking the prisoner Character. Use them for in-game notices or an authored handoff. Test each independently before adding side effects. Provide staffed access to secure doors, drinking water and a way to ask for a hearing. A room role does not provision locks or guards.
 
@@ -133,7 +133,7 @@ Leave repeat suppression enabled for this example. `repeats` changes whether rep
 | An automatically recognised offence with an exception | Bind a Boolean `prog <prog>` to the law. The shortest signature takes offender and victim as Characters. Victim may be null. Extended signatures expose the item or law ID and context. For example, a Boolean prog taking `(character offender, character victim, text crime, text context)` receives the crime name and automatic context. Match the signature exactly when binding it. |
 | A warning or a fine without pursuit | Use a policy such as `NoActiveEnforcement`, and inspect the arrest and bail switches separately. Setting the punishment alone does not authorise a patrol to arrest. |
 | Prison or a good behaviour bond | Choose `punishment type jail` or `punishment type bond`. On a test jail law, set `punishment maximum 1 day` and `punishment minimum 1 day` for a fixed sentence, and review it with `show`. Use `punishment length <time>` for a bond. |
-| Different or combined sentences | A `hierarchy` can choose a penalty by prog. A `multi` strategy can combine penalties. Inspect the chosen strategy's options and test a complete verdict and release for each policy you enable. |
+| Different or combined sentences | A `hierarchy` can choose a penalty by prog. A `multi` strategy can combine penalties. Edit a child using its displayed number, such as `punishment 1 length 7 days` for a bond. In a hierarchy, `punishment swap 1 2` changes which of the two conditions the court considers first. |
 
 A type alone does not create a coded trigger. Some types have automatic action hooks, others need an accusation or scripted witnessing. For scripting, the runtime reference shows `reportcrime(law, criminal, witness, victim, item, context)`. A distinct present witness must see the accused and the law must apply. [Automatic offences and witnessed-crime progs](../Economy/Law_System_Runtime.md)
 

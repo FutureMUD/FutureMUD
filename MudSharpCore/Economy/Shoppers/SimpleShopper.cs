@@ -82,8 +82,8 @@ internal class SimpleShopper : ShopperBase
     protected override string SubtypeHelpText => @"	#3budget <amount>#0 - how much the shopper will spend per trip
 	#3shop <prog>#0 - sets the prog that controls whether a shop is selected
 	#3shopweight <prog>#0 - sets the prog that determines the priority weight of a shop
-	#3item <prog>#0 - sets the prog that controls whether an item is selected
-	#3itemweight <prog>#0 - sets the prog that determines the priority weight of a shop
+	#3item <prog>#0 - sets the Boolean item eligibility prog, taking Item and optionally Merchandise and Number (price)
+	#3itemweight <prog>#0 - sets the numeric item selection weight prog with the same parameters
 	#3skipempty#0 - skips empty shops when selecting";
 
     /// <inheritdoc />
@@ -129,9 +129,9 @@ internal class SimpleShopper : ShopperBase
 
         IFutureProg prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Number,
             [
-                [ProgVariableTypes.Shop],
-                [ProgVariableTypes.Shop, ProgVariableTypes.Merchandise],
-                [ProgVariableTypes.Shop, ProgVariableTypes.Merchandise, ProgVariableTypes.Number]
+                [ProgVariableTypes.Item],
+                [ProgVariableTypes.Item, ProgVariableTypes.Merchandise],
+                [ProgVariableTypes.Item, ProgVariableTypes.Merchandise, ProgVariableTypes.Number]
             ]
         ).LookupProg();
         if (prog is null)
@@ -155,9 +155,9 @@ internal class SimpleShopper : ShopperBase
 
         IFutureProg prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
             [
-                [ProgVariableTypes.Shop],
-                [ProgVariableTypes.Shop, ProgVariableTypes.Merchandise],
-                [ProgVariableTypes.Shop, ProgVariableTypes.Merchandise, ProgVariableTypes.Number]
+                [ProgVariableTypes.Item],
+                [ProgVariableTypes.Item, ProgVariableTypes.Merchandise],
+                [ProgVariableTypes.Item, ProgVariableTypes.Merchandise, ProgVariableTypes.Number]
             ]
             ).LookupProg();
         if (prog is null)
@@ -267,9 +267,12 @@ internal class SimpleShopper : ShopperBase
             return;
         }
 
+        // Previously the editor accepted Shop as the first parameter. Honour saved progs with that signature.
+        bool eligibilityUsesShop = WillBuyItemProg.Parameters?.FirstOrDefault() == ProgVariableTypes.Shop;
+        bool weightUsesShop = ItemBuyWeightProg.Parameters?.FirstOrDefault() == ProgVariableTypes.Shop;
         List<(IGameItem Item, IMerchandise Merchandise, decimal Price)> allItems = shop
                        .AllMerchandiseForVirtualShoppers
-                       .Where(x => WillBuyItemProg.ExecuteBool(x.Item, x.Merchandise, x.Price))
+                       .Where(x => WillBuyItemProg.ExecuteBool(eligibilityUsesShop ? shop : (object)x.Item, x.Merchandise, x.Price))
                        .ToList();
         decimal budget = BudgetPerShop;
 
@@ -283,7 +286,7 @@ internal class SimpleShopper : ShopperBase
 
             // Select a random item
             (IGameItem Item, IMerchandise Merchandise, decimal Price) item = allItems
-                .GetWeightedRandom(x => ItemBuyWeightProg.ExecuteDouble(1.0, x.Item, x.Merchandise, x.Price));
+                .GetWeightedRandom(x => ItemBuyWeightProg.ExecuteDouble(1.0, weightUsesShop ? shop : (object)x.Item, x.Merchandise, x.Price));
             if (item.Item is null)
             {
                 break;

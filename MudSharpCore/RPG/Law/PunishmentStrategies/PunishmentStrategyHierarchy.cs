@@ -49,7 +49,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
             case "prog":
                 return BuildingCommandProg(actor, command);
             default:
-                if (int.TryParse(command.Last, out int index) && index > 0 && index < _strategyHierarchy.Count)
+                if (int.TryParse(command.Last, out int index) && index > 0 && index <= _strategyHierarchy.Count)
                 {
                     return _strategyHierarchy[index - 1].Strategy.BuildingCommand(actor, authority, command);
                 }
@@ -142,7 +142,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
             return false;
         }
 
-        _strategyHierarchy.SwapByIndex(index1, index2);
+        _strategyHierarchy.SwapByIndex(index1 - 1, index2 - 1);
         actor.OutputHandler.Send(
             $"You swap the positions of the {index1.ToOrdinal()} and {index2.ToOrdinal()} punishments in the hierarchy.");
         return true;

@@ -14,7 +14,7 @@ public class TelecommunicationsGridOutletGameItemComponentProto : GameItemCompon
     protected TelecommunicationsGridOutletGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "TelecommunicationsGridOutlet")
     {
-        Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Female, "telephone", true));
+        Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Female, "TelephoneLine", true));
     }
 
     protected TelecommunicationsGridOutletGameItemComponentProto(Models.GameItemComponentProto proto,

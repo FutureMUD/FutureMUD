@@ -650,6 +650,8 @@ namespace MudSharp.Framework
         void Destroy(ICurrency currency);
         void Destroy(ICoin coin);
         void Destroy(ICrime crime);
+        void Destroy(ILaw law);
+        void Destroy(ILegalClass legalClass);
         void Destroy(INPCSpawner spawner);
         void Destroy(IJobListing listing);
         void Destroy(IActiveJob job);

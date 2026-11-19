@@ -260,7 +260,7 @@ Current builder steps usually include:
 - create one or more markets per economic region
 - add market influence templates or live influences
 - define or tune market populations and their spending needs, base income factor, current savings, savings cap, and stress flicker threshold
-- create or tune shoppers, usually `SimpleShopper`, with scripted selection behavior
+- create or tune shoppers, usually `SimpleShopper`, with scripted selection behavior. For item selection and weighting, author Item first and optionally add Merchandise and Number (price). Older saved item callbacks with a Shop first parameter receive the selected shop.
 - point relevant shops at a market for pricing purposes
 
 The population and shopper layers are where FutureProg dependence becomes especially important.

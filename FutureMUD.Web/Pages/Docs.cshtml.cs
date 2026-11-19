@@ -17,11 +17,13 @@ public sealed class DocsModel : PageModel
 	private const int MaximumFilterLength = 100;
 	private const int MaximumFilterOptions = 256;
 	private readonly DocumentationService _documentation;
+	private readonly BuilderGuideCatalogue _builderGuides;
 	private readonly IMemoryCache _memoryCache;
 
-	public DocsModel(DocumentationService documentation, IMemoryCache memoryCache)
+	public DocsModel(DocumentationService documentation, BuilderGuideCatalogue builderGuides, IMemoryCache memoryCache)
 	{
 		_documentation = documentation;
+		_builderGuides = builderGuides;
 		_memoryCache = memoryCache;
 	}
 
@@ -43,6 +45,8 @@ public sealed class DocsModel : PageModel
 	public ProgTypeDocumentationDetail? TypeDetail { get; private set; }
 	public CollectionExtensionDocumentationDetail? CollectionDetail { get; private set; }
 	public ItemComponentDocumentationDetail? ItemComponentDetail { get; private set; }
+	public bool IsBuilderGuideSection => CollectionUrl == BuilderGuideCatalogue.Route;
+	public string? BuilderGuideHtml { get; private set; }
 	public int TotalResults { get; private set; }
 	public int CurrentPage { get; private set; } = 1;
 	public int TotalPages { get; private set; } = 1;
@@ -60,18 +64,21 @@ public sealed class DocsModel : PageModel
 		string? category,
 		int pageNumber = 1)
 	{
-		if (section == "commands" && collection is not null && slug is null)
+		if (section is "commands" or "builder-guides" && collection is not null && slug is null)
 		{
 			slug = collection;
 			collection = null;
 		}
 
-		var catalogue = _documentation.GetCatalogue();
-		EngineVersion = catalogue.EngineVersion;
-		SourceRevision = catalogue.SourceRevision;
 		if (!ConfigureSection(section, collection))
 		{
 			return NotFound();
+		}
+		var catalogue = IsBuilderGuideSection ? null : _documentation.GetCatalogue();
+		if (catalogue is not null)
+		{
+			EngineVersion = catalogue.EngineVersion;
+			SourceRevision = catalogue.SourceRevision;
 		}
 		var projection = GetCachedProjection(catalogue, section, collection);
 
@@ -82,7 +89,14 @@ public sealed class DocsModel : PageModel
 				return NotFound();
 			}
 			Detail = detail;
-			ConfigureDetail(catalogue, section, collection, slug);
+			if (catalogue is null)
+			{
+				BuilderGuideHtml = _builderGuides.Guides[slug].Html;
+			}
+			else
+			{
+				ConfigureDetail(catalogue, section, collection, slug);
+			}
 			return Page();
 		}
 
@@ -122,6 +136,7 @@ public sealed class DocsModel : PageModel
 	{
 		(Title, CollectionUrl, SectionCssClass, SectionDescription) = (section, collection) switch
 		{
+			("builder-guides", null) => ("Builder guides", BuilderGuideCatalogue.Route, "builder-guides", "Practical guides for building and configuring a FutureMUD world in-game."),
 			("commands", null) => ("Command reference", "/docs/commands", "commands", "Player, builder and staff command help generated from the engine."),
 			("futureprog", "functions") => ("FutureProg functions", "/docs/futureprog/functions", "functions", "Built-in FutureProg functions with overloads, types, contexts and parameter help."),
 			("futureprog", "types") => ("FutureProg types", "/docs/futureprog/types", "types", "FutureProg variable types and their available dot-reference properties."),
@@ -133,7 +148,7 @@ public sealed class DocsModel : PageModel
 	}
 
 	private DocumentationProjection GetCachedProjection(
-		DocumentationCatalogue catalogue,
+		DocumentationCatalogue? catalogue,
 		string section,
 		string? collection)
 	{
@@ -150,7 +165,10 @@ public sealed class DocsModel : PageModel
 				return projection;
 			}
 
-			var entries = SelectEntries(catalogue, section, collection)
+			var entries = (catalogue is null
+				? _builderGuides.Guides.Values.Select(guide => new DocumentationEntry(
+					guide.Slug, guide.Title, guide.Category, string.Empty, guide.Summary, guide.Markdown)).ToList()
+				: SelectEntries(catalogue, section, collection))
 				?? throw new InvalidOperationException("The configured documentation section is not supported.");
 			var entriesBySlug = new Dictionary<string, DocumentationEntry>(StringComparer.Ordinal);
 			foreach (var entry in entries)
@@ -354,7 +372,7 @@ public sealed class DocsModel : PageModel
 }
 
 file sealed record DocumentationCacheKey(
-	DocumentationCatalogue Catalogue,
+	DocumentationCatalogue? Catalogue,
 	string Section,
 	string Collection);
 

@@ -62,10 +62,13 @@ internal sealed class InMemorySeederSnapshot
 		return new(tables.ToArray());
 	}
 
-	internal FuturemudDatabaseContext Create()
+	internal FuturemudDatabaseContext Create() =>
+		RestoreInto(new OwnedInMemorySeederContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options));
+
+	// The caller supplies a new, uniquely owned store with its fixture's provider options.
+	internal FuturemudDatabaseContext RestoreInto(OwnedInMemorySeederContext db)
 	{
-		var db = new OwnedInMemorySeederContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
 		try
 		{
 			db.ChangeTracker.AutoDetectChangesEnabled = false;

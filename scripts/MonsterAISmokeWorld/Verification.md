@@ -10,7 +10,7 @@ Implementation date: 2026-09-29. Checkout baseline: `960155faa385d7d24dd34190ac5
 - Builders have `monster` registration, configuration/help, readiness checks, conflict guards and `impdebug monster`. Weapon and authored combat-power behavior uses existing combat. The previously empty `combat config psychic` handler now validates and saves its weight; weight rebalancing handles increases as well as decreases.
 - The packs seed twelve additional stock Monster definitions. The source-generated recommendation manifest covers all 43 mythical and 46 supernatural races, with required setup and explicit limitations. Existing NPC assignments and Wildlife recommendations are retained.
 
-See the [builder/runtime guide](../../Design%20Documents/AI/Monster_AI.md), [approved proposal](../../Design%20Documents/AI/Monster_AI_V1_Proposal.md), and [recommendation manifest](../../DatabaseSeeder/Assets/Manifests/Monster_AI_Recommendations.json).
+See the [builder/runtime guide](../../Design%20Documents/AI/Monster_AI.md), [approved proposal](../../Design%20Documents/AI/Monster_AI.md), and [recommendation manifest](../../DatabaseSeeder/Assets/Manifests/Monster_AI_Recommendations.json).
 
 ## Automated results
 

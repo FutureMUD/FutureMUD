@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Computers;
@@ -275,8 +275,8 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 		}
 
 		var connection = FreeConnections.First(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
-		RawConnect(other, connection);
-		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+		var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+		ConnectPair(this, connection, other, otherConnection);
 		Parent.ConnectedItem(other, connection);
 		other.Parent.ConnectedItem(this, connection);
 	}

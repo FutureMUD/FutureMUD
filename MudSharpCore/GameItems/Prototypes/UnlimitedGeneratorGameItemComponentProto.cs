@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
@@ -7,7 +7,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class UnlimitedGeneratorGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, ISwitchablePrototype, IOnOffPrototype
+public class UnlimitedGeneratorGameItemComponentProto : GameItemComponentProto, IPrimaryPowerProducerPrototype, ISwitchablePrototype, IOnOffPrototype
 {
     public override string TypeDescription => "UnlimitedGenerator";
 

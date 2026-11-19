@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Construction;
+using MudSharp.GameItems;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Effects.Concrete;
@@ -58,10 +59,24 @@ public partial class DescriptionAddition
 		return copy;
 	}
 
-	public override void InitialEffect() => ScheduleExpiration();
+	public override void InitialEffect()
+	{
+		if (Owner is GameItem { LoadedFromDatabase: true, IsActive: false }) return;
+		ScheduleExpiration();
+	}
 
 	// Native cached duration restoration runs before Login. The persisted UTC deadline remains authoritative.
-	public override void Login() => ScheduleExpiration();
+	public override void Login()
+	{
+		if (ExpiresUtc is { } expires && expires <= RuntimeClock.UtcNow)
+		{
+			_expirationCompleted = true;
+			Gameworld.EffectScheduler.Unschedule(this);
+			Owner.RemoveEffect(this);
+			return;
+		}
+		ScheduleExpiration();
+	}
 
 	private void ScheduleExpiration()
 	{

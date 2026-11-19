@@ -550,44 +550,26 @@ Note: The following two subcommands take a long time and can sometimes cause iss
                             true);
                         actor.Gameworld.ForceOutgoingMessages();
 
-                        List<IGameItem> items = new();
+                        int total;
                         using (new FMDB())
                         {
-                            if (includeOffline)
+                            if (includeOffline && actor.Gameworld is Futuremud world)
                             {
-                                List<long> dbitems = FMDB
-                                              .Context.GameItems.AsNoTracking()
-                                              .Select(x => x.Id).ToList();
-                                actor.Gameworld.PrimeGameItems();
-                                foreach (long id in dbitems)
-                                {
-                                    items.Add(actor.Gameworld.TryGetItem(id, true));
-                                }
-
-                                actor.Gameworld.ReleasePrimedGameItems();
+                                var ids = FMDB.Context.GameItems.Select(x => x.Id).ToList();
+                                total = ids.Count;
+                                count = world.UpdateOfflineItemRevisions(ids);
                             }
                             else
                             {
-                                items = actor.Gameworld.Items.ToList();
+                                var items = actor.Gameworld.Items.ToList();
+                                total = items.Count;
+                                count = items.Count(item => item.CheckPrototypeForUpdate());
+                                FMDB.Context.SaveChanges();
+                                actor.Gameworld.SaveManager.Flush();
                             }
                         }
 
-                        count = 0;
-                        using (new FMDB())
-                        {
-                            foreach (IGameItem item in items)
-                            {
-                                if (item.CheckPrototypeForUpdate())
-                                {
-                                    count++;
-                                }
-                            }
-
-                            FMDB.Context.SaveChanges();
-                        }
-
-                        actor.Gameworld.SaveManager.Flush();
-                        actor.Gameworld.SystemMessage($"Updated {count} of {items.Count} total items.", true);
+                        actor.Gameworld.SystemMessage($"Updated {count} of {total} total items.", true);
                         actor.Gameworld.SystemMessage(
                             "The long-running maintenance task has now completed.");
                     }, ScheduleType.System,

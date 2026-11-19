@@ -4,6 +4,7 @@
 	ViewData["Title"] = Model.Detail?.Title ?? Model.Title;
 }
 <nav class="docs-navigation" aria-label="Documentation sections">
+	<a href="/docs/builder-guides" aria-current="@(Model.IsBuilderGuideSection ? "page" : null)">Builder guides</a>
 	<a href="/docs/commands" aria-current="@(Model.CollectionUrl == "/docs/commands" ? "page" : null)">Commands</a>
 	<a href="/docs/futureprog/functions" aria-current="@(Model.CollectionUrl == "/docs/futureprog/functions" ? "page" : null)">Functions</a>
 	<a href="/docs/futureprog/types" aria-current="@(Model.CollectionUrl == "/docs/futureprog/types" ? "page" : null)">Types</a>
@@ -19,7 +20,11 @@
 			<h1>@Model.Detail.Title</h1>
 			<p class="tags">@Model.Detail.Category@if (!string.IsNullOrWhiteSpace(Model.Detail.Audience)) { <text><span aria-hidden="true"> · </span>@Model.Detail.Audience</text> }</p>
 		</header>
-		@if (Model.CommandDetail is not null)
+		@if (Model.BuilderGuideHtml is not null)
+		{
+			<div class="prose builder-guide-copy">@Html.Raw(Model.BuilderGuideHtml)</div>
+		}
+		else if (Model.CommandDetail is not null)
 		{
 			<dl class="command-meta">
 				<div>
@@ -140,9 +145,19 @@
 }
 else
 {
-	<header class="page-header"><p class="eyebrow">Engine @Model.EngineVersion</p><h1>@Model.Title</h1><p class="lede">@Model.SectionDescription</p><p class="source-meta">Generated from source revision <code>@Model.SourceRevision</code>.</p></header>
+	<header class="page-header">
+		@if (!Model.IsBuilderGuideSection)
+		{
+			<p class="eyebrow">Engine @Model.EngineVersion</p>
+		}
+		<h1>@Model.Title</h1><p class="lede">@Model.SectionDescription</p>
+		@if (!Model.IsBuilderGuideSection)
+		{
+			<p class="source-meta">Generated from source revision <code>@Model.SourceRevision</code>.</p>
+		}
+	</header>
 	<form class="filter-bar" method="get" role="search">
-		<label>Search <input type="search" name="q" value="@Model.Query" placeholder="Name or help text" /></label>
+		<label>Search <input type="search" name="q" value="@Model.Query" placeholder="@(Model.IsBuilderGuideSection ? "Title or guide text" : "Name or help text")" /></label>
 		@if (Model.Audiences.Count > 0)
 		{
 			<label>Audience <select name="audience"><option value="">All</option>@foreach (var value in Model.Audiences) { <option value="@value" selected="@(value == Model.Audience)">@value</option> }</select></label>

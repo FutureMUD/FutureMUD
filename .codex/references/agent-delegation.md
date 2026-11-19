@@ -51,7 +51,7 @@ Before assigning Luna, establish all of these. Terra can help fill legitimate fi
 
 This contract describes in-game scenarios; automated unit-test dispatch uses [test execution](test-execution.md). If there is no machine-checkable in-game scenario, use Terra or have the coordinator first specify one; do not give Luna a prose runbook and call it deterministic.
 
-For example, `Design Documents/Vehicle_System_Fresh_MUD_Test_Runbook.md` has fixture choices, dynamic IDs, editor transitions and expected state changes. Assign a bounded section to Terra by default. Luna is suitable after those decisions and extraction/assertion rules have been made explicit, or for a mature automated replay of that section.
+For example, `Design Documents/World/Vehicle_System_Test_Runbook.md` has fixture choices, dynamic IDs, editor transitions and expected state changes. Assign a bounded section to Terra by default. Luna is suitable after those decisions and extraction/assertion rules have been made explicit, or for a mature automated replay of that section.
 
 ## Resource ownership and evidence integrity
 

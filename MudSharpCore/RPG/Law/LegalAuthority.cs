@@ -244,7 +244,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public TimeSpan AutomaticConvictionTime { get; set; }
 
     #region Calculation Helpers
-    private void CalculateLawLookup()
+    internal void CalculateLawLookup()
     {
         _lawLookup.Clear();
         foreach (ILaw law in _laws)
@@ -578,7 +578,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 criminal)));
         criminal.Location.Leave(criminal);
         criminal.RoomLayer = RoomLayer.GroundLevel;
-        PrisonLocation.Enter(criminal);
+        (JailLocation ?? PrisonLocation).Enter(criminal);
         OnPrisonerImprisoned?.Execute(criminal);
         criminal.OutputHandler.Handle(new EmoteOutput(
             new Emote(Gameworld.GetStaticString("SendCharacterToPrisonEmoteDestination"), criminal, criminal),
@@ -841,7 +841,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public ILegalClass GetLegalClass(ICharacter character)
     {
-        return _legalClasses.First(x => x.IsMemberOfClass(character));
+        return _legalClasses.OrderByDescending(x => x.LegalClassPriority)
+                            .ThenBy(x => x.Id)
+                            .First(x => x.IsMemberOfClass(character));
     }
 
     public IEnforcementAuthority GetEnforcementAuthority(ICharacter character)
@@ -964,6 +966,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     #region Laws
     public void AddLaw(ILaw law)
     {
+        Gameworld.Add(law);
         _laws.Add(law);
         Changed = true;
         CalculateLawLookup();
@@ -971,7 +974,12 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public void RemoveLaw(ILaw law)
     {
-        _laws.Remove(law);
+        if (!_laws.Remove(law))
+        {
+            return;
+        }
+
+        Gameworld.Destroy(law);
         Changed = true;
         CalculateLawLookup();
     }
@@ -1020,13 +1028,19 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public void AddLegalClass(ILegalClass item)
     {
+        Gameworld.Add(item);
         _legalClasses.Add(item);
         Changed = true;
     }
 
     public void RemoveLegalClass(ILegalClass item)
     {
-        _legalClasses.Remove(item);
+        if (!_legalClasses.Remove(item))
+        {
+            return;
+        }
+
+        Gameworld.Destroy(item);
         Changed = true;
     }
     #endregion

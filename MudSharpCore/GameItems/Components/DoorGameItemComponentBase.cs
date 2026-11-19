@@ -256,16 +256,15 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		if (newItemDoor is not null)
 		{
 			newItemDoor.State = State;
-			newItemDoor.InstalledExit = InstalledExit;
-			newItemDoor.HingeRoom = HingeRoom;
-			newItemDoor.OpenDirectionRoom = OpenDirectionRoom;
-			if (InstalledExit is not null)
+			if (InstalledExit is not null && ComponentItemTransfer.IsDetached(newItem) && newItemDoor.InstalledExit is null)
 			{
+				newItemDoor.InstalledExit = InstalledExit;
+				newItemDoor.HingeRoom = HingeRoom;
+				newItemDoor.OpenDirectionRoom = OpenDirectionRoom;
 				InstalledExit.Door = newItemDoor;
 				InstalledExit.Changed = true;
+				return true;
 			}
-
-			return true;
 		}
 
 		if (InstalledExit is not null)

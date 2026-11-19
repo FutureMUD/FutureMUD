@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 
@@ -212,7 +212,8 @@ public class ConnectableGameItemComponentProto : GameItemComponentProto, IConnec
                     new XElement("Connection",
                         new XAttribute("gender", (short)connector.Gender),
                         new XAttribute("type", connector.ConnectionType),
-                        new XAttribute("powered", connector.Powered)
+                        new XAttribute("powered", connector.Powered),
+                    new XAttribute("id", connector.PortId)
                     )
             )
         ).ToString();

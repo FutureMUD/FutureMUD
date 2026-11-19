@@ -22,7 +22,7 @@ The authority is [Catalogue](../../../ItemSeeder/Seeders/ItemSeeder/Catalogue). 
 | Industrial technology, food and clothing research | `Assemblies/IndustrialGraphs*`, typed graph records | Existing profile, dependency and readiness validators; migration does not activate developmental data |
 | Planning and research metadata | `Assemblies/ProductionPlans/Content` and explicit research definitions | Inspection/audit only unless explicitly admitted |
 
-Use the [item authoring guidelines](../../Items/Item_Authoring_Guidelines.md), [item content workflows](../../Items/Item_System_Content_Workflows.md), and [craft guide](../../Items/ItemSeeder_AddCraft_Guide.md) for narrative and runtime contracts. The craft guide's compact-string API remains an importer/developer compatibility surface; stock catalogue recipes author typed inputs, tools, phases and success/failure products.
+Use the [item authoring guidelines](../../Builder%20Guides/Item_Authoring_Guidelines.md), [item content workflows](../../Items/Item_System_Content_Workflows.md), and [craft guide](../../Items/ItemSeeder_AddCraft_Guide.md) for narrative and runtime contracts. The craft guide's compact-string API remains an importer/developer compatibility surface; stock catalogue recipes author typed inputs, tools, phases and success/failure products.
 
 For a new record:
 
@@ -94,3 +94,7 @@ The comparison on 8 November 2026 used the bundled revision `7c92ff07d` and the 
 | Framework-dependent single-file win-x64 ZIP, bytes | 108,918,851 | 74,257,987 |
 
 The normal Engine filter, Database Seeder unit-test dependency graph, and Database Seeder publication contained zero item catalogue assemblies or projects. The separate item manifest reproduced all 43,825 bundled entries in order, including their per-entry fingerprints. On MySQL the standalone and bundled item reruns of the same old-world fixture produced identical ownership records for all 14,321 managed item-package aggregates.
+
+## Consolidated catalogue design
+
+This guide supersedes the completed unified-catalogue implementation proposal. Typed compiled definitions, admission metadata, shared writer/ownership contracts and the standalone installer boundary above are the maintained design. Keep the linked completion and stage receipts for measurements, native comparisons and stated platform/remaining admission limits; their old source layouts and test counts are historical evidence rather than current authoring instructions.

@@ -7,16 +7,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="11.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
 		<PackageReference Include="Moq" Version="4.21.0" />
-		<PackageReference Include="MSTest.TestAdapter" Version="4.5.1" />
-		<PackageReference Include="MSTest.TestFramework" Version="4.5.1" />
-		<PackageReference Include="System.Diagnostics.EventLog" Version="10.0.13" />
+		<PackageReference Include="MSTest.TestAdapter" Version="4.5.3" />
+		<PackageReference Include="MSTest.TestFramework" Version="4.5.3" />
+		<PackageReference Include="System.Diagnostics.EventLog" Version="11.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.12.0" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>

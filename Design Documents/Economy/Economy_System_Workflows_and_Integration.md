@@ -1,6 +1,6 @@
 # FutureMUD Economy System: Workflows and Integration
 
-`builderrefs banktype <id|name>` reports loaded accounts using an account type; `builderrefs prog <id|name>` includes concrete bank account closing progs among its stated providers. These partial reports do not enable account-type deletion or replace account/transaction lifecycle checks. Bank/property/auction helper `capabilities` now reports actual supported operations, and helper lists accept page/limit/count/sort/CSV output options. See the [shared builder guide](../Building/Generic_Editable_Item_Builder_Workflows.md).
+`builderrefs banktype <id|name>` reports loaded accounts using an account type; `builderrefs prog <id|name>` includes concrete bank account closing progs among its stated providers. These partial reports do not enable account-type deletion or replace account/transaction lifecycle checks. Bank/property/auction helper `capabilities` now reports actual supported operations, and helper lists accept page/limit/count/sort/CSV output options. See the [shared builder guide](../Builder%20Guides/Generic_Editable_Item_Builder_Workflows.md).
 
 ## Scope
 This document explains how builders and engine contributors work with the current economy system in practice.
@@ -63,7 +63,7 @@ Employment analytics remove terminal control characters from legacy player-autho
 
 ### Practical implication
 
-See the [common builder workflow](../Building/Generic_Editable_Item_Builder_Workflows.md) for selection, persistence, revision review and catalogue filtering. Market lists accept IDs and positive/negative keywords; `market list zone <id|name>` and `mi list market <id|name>` / `template <id|name>` narrow related records. Bank/property/auction lists reject unsupported custom filters instead of silently ignoring them.
+See the [common builder workflow](../Builder%20Guides/Generic_Editable_Item_Builder_Workflows.md) for selection, persistence, revision review and catalogue filtering. Market lists accept IDs and positive/negative keywords; `market list zone <id|name>` and `mi list market <id|name>` / `template <id|name>` narrow related records. Bank/property/auction lists reject unsupported custom filters instead of silently ignoring them.
 
 Bank account inspection uses operational bank commands at a branch, not `bank set accounts` or `bank set account`: `bank accounts` lists accessible accounts; authorised managers can use `bank manager accounts` and `bank manager account <account>`. Bank account-type deletion remains unsupported because accounts and transaction history refer to their types. Property declared tenants currently support individual characters; clan/shop tenant addition is unsupported and reports that limitation with the individual-tenant alternative.
 
@@ -260,7 +260,7 @@ Current builder steps usually include:
 - create one or more markets per economic region
 - add market influence templates or live influences
 - define or tune market populations and their spending needs, base income factor, current savings, savings cap, and stress flicker threshold
-- create or tune shoppers, usually `SimpleShopper`, with scripted selection behavior
+- create or tune shoppers, usually `SimpleShopper`, with scripted selection behavior. For item selection and weighting, author Item first and optionally add Merchandise and Number (price). Older saved item callbacks with a Shop first parameter receive the selected shop.
 - point relevant shops at a market for pricing purposes
 
 The population and shopper layers are where FutureProg dependence becomes especially important.
@@ -387,6 +387,9 @@ Contributor note:
 - boot-time auction reconstruction now resolves seller and payout references in a post-character finalisation pass rather than in the constructor path
 
 ### Property and Employment
+
+Employment host task approvals survive restart as versioned, plan-bound provenance and scoped grants. Managers can inspect them with `tasks approval show <task>`, then use the exact task ID, grant ID and revision shown for `revoke`, `replace` or evidence-backed `reconcile`. Mutations require task assignment authority and all authority required by the original plan, plus a reason. A replaced approval does not run work; uncertain financial steps remain held until reconciled against native records. Reconciliation with remaining work persists an explicit-retry requirement; use `tasks retry <task> <reason>` or `tasks requeue <task> <reason>` with task assignment authority after all holds are resolved. This decision survives server restart and cannot be acknowledged by assignment auditing, worker claiming or manual assignment. The commands preserve approval limits and completed steps. Diagnostics show the actual task-bound approval/recovery blocker and the interrupted step number. Missing legacy task approvals and pre-migration rule/goal issuers are never inferred: re-author old automation under an authorised manager for future financial tasks or explicitly approve an already spawned legacy task. Executed purchase/physical-float steps missing durable `SelectedResources`/`LoadedAssets` custody evidence cannot be cleared by native inventory/cash repair; current commands cannot attach the missing evidence or waive its guard. See [Employment task restart and recovery](Employment_Restart_and_Recovery.md) for syntax, scoped verification and remaining migration/provider limits.
+
 Property, legacy jobs, and unified employment all depend strongly on world layout and institutions.
 
 Property builders need:

@@ -2,7 +2,7 @@
 
 ## Magical writing components
 
-Use `spellbook` and `spellscroll` with the normal component editor. Configure capacity, eligibility/usability progs, optional readable-writing requirements, duration, inventory plans and emotes; `check` reports invalid references/configuration. Instance formula/charge data cannot be authored as reusable prototype payloads. Scrolls cannot coexist with container, stackable or spellbook components; the shared prototype-exclusivity helper reports the conflict in either attachment order. The [Vancian builder guide](../Magic/Vancian_Magic_Builder_Guide.md) supplies exact commands and signatures.
+Use `spellbook` and `spellscroll` with the normal component editor. Configure capacity, eligibility/usability progs, optional readable-writing requirements, duration, inventory plans and emotes; `check` reports invalid references/configuration. Instance formula/charge data cannot be authored as reusable prototype payloads. Scrolls cannot coexist with container, stackable or spellbook components; the shared prototype-exclusivity helper reports the conflict in either attachment order. The [Vancian builder guide](../Builder%20Guides/Vancian_Magic_Builder_Guide.md) supplies exact commands and signatures.
 
 For stock modern firearm, attachment, ammunition, explosive, and artillery compositions, see [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
@@ -10,6 +10,8 @@ For stock modern firearm, attachment, ammunition, explosive, and artillery compo
 This document explains how to add a new item capability through the component system.
 
 It is the primary implementation guide for creating new item "types" in FutureMUD.
+
+For components that own children, consume power, subscribe to events or advance a timer, choose the durable key, activation phase, clock and teardown owner before implementing the hooks. The lifecycle guide traces the engine calls and lists the cases to exercise. [Item and component lifecycle](Item_Lifecycle.md)
 
 ### Climbing aids and locksmithing bonuses
 
@@ -168,7 +170,7 @@ Put the following here:
 Persist numeric XML values with culture-independent XML conversions on both sides. Wearable layer consumption and damage ratios use `XElement`/`XAttribute` numeric serialization and explicit numeric casts when loading. Default-culture `double.Parse` is not the inverse: a fractional layer weight can fail or change magnitude on a comma-decimal server. Preserve absent-element defaults for legacy revisions and test both load and save/reload under multiple host cultures.
 
 ### Prototype capability markers
-The Armageddon Ember Seed and native Topical Cream dose expose their matching exclusive capability markers together with `IApplyPrototype`. Ordinary Ember copies remain unbound and cannot detonate; the owned seeder prototype is classified as dependency-bound stock. Native one-use binding, committed consumption, callback fences and fever integration are described in [S3 special mechanics](../Magic/Armageddon_S3_Native_Special_Mechanics.md).
+The Armageddon Ember Seed and native Topical Cream dose expose their matching exclusive capability markers together with `IApplyPrototype`. Ordinary Ember copies remain unbound and cannot detonate; the owned seeder prototype is classified as dependency-bound stock. Native one-use binding, committed consumption, callback fences and fever integration are described in [S3 special mechanics](../Armageddon/Magic/S3_Native_Special_Mechanics.md).
 
 When a runtime component implements a public `IGameItemComponent` capability interface, the matching component proto should implement the corresponding marker in `FutureMUDLibrary/GameItems/Prototypes`.
 
@@ -356,6 +358,8 @@ Not every component needs these, but authors should deliberately consider them:
 - `ComponentBuoyancy(...)`
 - `WarnBeforePurge`
 
+`HandleDieOrMorph` runs before the default replacement placement. Check whether the replacement already has a custodian before attaching, equipping or installing it. Return `true` when the hook has placed the replacement. Return `false` when the hook only transfers state or children, or when a destination declines the replacement. Use the captured spatial point for children spilled to the floor. The parent item owns registration, activation and `ItemFinishedLoading`. [Replacement lifecycle](Item_Lifecycle.md#leaving-play-replacement-and-deletion)
+
 Component `Delete` may recursively destroy children, so keep conservation checks at
 the parent orchestration boundary before it invokes components. Removal-authorized
 spell-owned corpses run that check both before and after deletion observers. A held
@@ -365,6 +369,8 @@ side effects. Positive corpse replacement morphs require a verified transfer ada
 and currently hold before replacement construction or activation. Container, lock and
 attachment reachability does not authorize deleting foreign objects. See
 [spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
+For ordinary native items the engine can delete an approved containment graph in a single transaction. Other persisted native items record a checkpoint before callbacks and complete it after teardown and the save flush. Boot can repeat the final row removal from a completed checkpoint. If teardown was interrupted, preserve the item IDs and side-effect evidence for reconciliation. Design new destructive callbacks so they can either commit their owned state together or recognize an already-applied operation. [Item deletion lifecycle](Item_Lifecycle.md#leaving-play-replacement-and-deletion)
 
 ### Runtime state versus proto state
 Use this rule consistently:
@@ -382,6 +388,8 @@ For example:
 
 ### Connectable item patterns
 When a component can join a physical network, treat the connector list as part of the prototype definition and the actual links as runtime state.
+
+Keep each prototype connector's `id` with that physical port when revising or reordering a connector list. Instance connection records use `portid` and `peerportid` to identify the two ends. Use the shared free-port enumeration and compare physical identity when allocating a port. For standard two-sided connectors, use `ConnectPair` after selecting both free ports. It creates link-specific descriptors and queues item connection callbacks until the two records are installed. It skips notifications for a pair that an earlier observer removed or replaced. Compatibility checks continue to use the connector descriptor. Preserve an unresolved legacy descriptor when several physical ports could match it. [Connector lifecycle](Item_Lifecycle.md#relationships-and-power)
 
 That pattern is now used by items such as:
 - telephones and telecommunications feeders
@@ -402,7 +410,7 @@ The telephone and cellular implementation is a good reference when a subsystem h
 - a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
 - an implant telephone also usually implements both roles itself, but it should combine the telecom interfaces with implant-facing ones such as `IImplantReportStatus` and `IImplantRespondToCommands` so the neural command surface stays separate from handheld manipulation
 - a fax machine usually combines telecom endpoint behaviour with machine-style runtime state such as paper storage, ink usage, and an in-memory queue for inbound faxes that arrived before the printer could physically output them
-- if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
+- if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`. New telephone and telecom outlet prototypes use matching powered `TelephoneLine` connectors. Saved connection types are loaded as authored.
 - an answering machine is the reference for a chained endpoint: it can expose both itself and downstream handsets through `ConnectedTelephones`, while still either owning its own number or delegating numbering to an upstream outlet
 - the answering machine also shows how to keep a reusable medium generic: an audio-capable `IMediaStorageMedium` owns immutable recording references, while the machine owns the telecom-specific greeting, message, and `ISelectable` control surface
 - the telecommunications grid creator proto is the reference for exchange-authored defaults: prefix, subscriber digits, maximum rings, hosted-voicemail enablement, and the reserved service access number all belong there and flow into the runtime grid instance

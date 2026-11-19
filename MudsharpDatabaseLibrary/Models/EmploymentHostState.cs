@@ -227,6 +227,7 @@ public partial class EmploymentActionStepRecord
 
 public partial class EmploymentScheduledTaskRuleRecord
 {
+	public string? ApprovalPrincipalJson { get; set; }
 	public EmploymentScheduledTaskRuleRecord()
 	{
 		Conditions = new HashSet<EmploymentTaskConditionRecord>();
@@ -310,6 +311,7 @@ public partial class EmploymentScheduledRuleTemplateRecord
 
 public partial class EmploymentActiveTaskRecord
 {
+	public string? ProvenanceJson { get; set; }
 	public EmploymentActiveTaskRecord()
 	{
 		StepStates = new HashSet<EmploymentActiveTaskStepStateRecord>();
@@ -351,6 +353,7 @@ public partial class EmploymentActiveTaskStepStateRecord
 
 public partial class EmploymentManagerGoalRecord
 {
+	public string? ApprovalConfigurationJson { get; set; }
 	public EmploymentManagerGoalRecord()
 	{
 		Conditions = new HashSet<EmploymentTaskConditionRecord>();

@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 
@@ -6,7 +6,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, IConsumePowerPrototype, ICanConnectToElectricalGridPrototype
+public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto, IPrimaryPowerProducerPrototype, IConsumePowerPrototype, ICanConnectToElectricalGridPrototype
 {
     public override string TypeDescription => "GridPowerSupply";
     public double Wattage { get; set; }

@@ -2,24 +2,24 @@
 
 ## Scope and version selection
 
-The 24 October 2026 upgrade covers `MudSharp.sln`, its project dependencies, and the shared migration-batch props. Separate MudClient/TerrainPlanner solutions, archived `MigrationBackup` projects, and the legacy analyzer test project outside the solution are not part of this inventory. The checked-in project files remain the authoritative version declarations.
+The 18 November 2026 inventory covers the engine, shared migration props, standalone products, developer tools, native harnesses, and test projects. The legacy Configuration Tool uses classic NuGet restore. The historical projects in `MigrationBackup` are retained as archived inputs.
 
-Select the newest **listed stable** NuGet release that supports the consuming framework and provider/host contracts. The flat-container index includes unlisted packages: DSharpPlus 5.0.0 is unlisted, whereas 4.5.3 is the current selection. Keep related package families aligned across production and test projects. Do not add arbitrary direct references solely to force every transitive dependency onto a different major version.
+Select the newest listed stable release that supports the consuming framework and host. Check NuGet registration for deprecation and listing status, then audit the resolved graph, including transitive dependencies. The package download index also contains unlisted releases.
 
 ## Compatibility decisions
 
-- **Entity Framework.** The engine, its migration helpers, EF tooling and in-memory tests use EF Core 10.0.15 on .NET 11. Microting.EntityFrameworkCore.MySql 10.0.14 supplies the MySQL provider and requires MySqlConnector 2.6.2 or later. Use dotnet-ef 10.0.15 when working with engine migrations.
-- **MSTest:** Adapter and framework use 4.5.1 with Microsoft.NET.Test.Sdk and the existing VSTest/TRX reporting flow. Removed `ThrowsException` assertions become `ThrowsExactly`, including asynchronous assertions, retaining exact exception-type semantics. Attribute-based expected exceptions are asserted around the operation itself. Obsolete `DataTestMethod` attributes become `TestMethod`, retaining their data rows.
-- **NCalc:** Custom functions evaluate arguments through `FunctionData.Evaluate(index)` in NCalc 7, preserving evaluation context and nested custom functions. Public FutureMUD expression APIs and error-handling behavior remain unchanged.
-- **Roslyn/Visual Studio:** Roslyn packages use 5.9.0. The verified compiler host is .NET SDK 10.0.401 (Roslyn 5.9), and the installed Visual Studio 2026 18.10 host supplies Roslyn 5.10. The optional VSIX declares 18.10 as its supported baseline instead of claiming compatibility with VS 2015/2017; its managed payload declares both AMD64 and ARM64 installation targets. Older compiler hosts and ARM64 installation have not been verified. This does not change the engine's target framework.
+- **Entity Framework.** Use EF Core 11.0.0, Microting.EntityFrameworkCore.MySql 11.0.0 and MySqlConnector 3.0.0 together. The provider specifies EF Relational 11.0.x. Keep the migration batches, in-memory tests and dotnet-ef tool on the same EF release.
+- **OpenAI and email.** The engine uses OpenAI 2.15.0 and MailKit 5.0.0. Drive, Gmail and OAuth clients use the 1.78.0 Google API libraries.
+- **Discord.** Keep the DSharpPlus family on 4.5.3. The 5.0.0 packages are unlisted. NuGet marks the core package and several extensions as deprecated for critical bugs.
+- **Tests.** MSTest uses adapter and framework 4.5.3 with Microsoft.NET.Test.Sdk 18.12.0. Terrain Planner uses exact exception assertions and data rows on ordinary test methods. MudClient uses xunit.v3.mtp-off 4.0.3 with the Visual Studio adapter to preserve the existing VSTest entry point.
+- **NCalc.** NCalcSync 7.4.0 supplies the expression engine. Custom functions evaluate arguments through `FunctionData.Evaluate(index)` to preserve the calling context.
+- **Roslyn and Visual Studio.** The migration compiler and seeder source tests use Roslyn 5.12.0 with .NET SDK 11.0.100. The analyzer, code fixes and their net48 harness use 5.9.0 so that Visual Studio 18.10, which hosts Roslyn 5.10, can load them. Keep the optional VSIX minimum at 18.10.
 - **Platform libraries:** The net11.0 engine no longer references the separate System.ComponentModel.Annotations, System.Data.DataSetExtensions or System.ValueTuple packages; the framework supplies these APIs.
 - **MySQL client:** Connector/NET removed the deprecated `SslMode=None` value. Local Debug connection templates and smoke harnesses now use `SslMode=Disabled`, preserving their existing no-TLS development setup and compatibility with both MySql.Data and MySqlConnector. The upgrade/backup client boundary also accepts the legacy `None` spelling in existing configuration, parsing connection-string options before translating it to `Disabled`. Other TLS modes, the driver's default, and quoted credentials are preserved; saved configuration is not rewritten.
 - **Upgrade service:** Swashbuckle 10 uses the Microsoft.OpenApi namespace and document-bound security references. OAuth scope requirements are preserved. The unused Microsoft.AspNetCore.OpenApi package was removed; this service uses Swashbuckle's pipeline rather than AddOpenApi/MapOpenApi.
-- **Security:** MailKit/MimeKit upgrades resolve System.Security.Cryptography.Pkcs 10.0.13 transitively. This addresses the advisories found on 10.0.0 without adding a separate version override.
+- **Legacy Configuration Tool.** Its .NET Framework project references Entity Framework 6.5.2. The unused iTextSharp dependency was removed.
 
-Migration batches explicitly reference the same EF Relational patch as the main persistence library. Seeder source-analysis tests reference the Roslyn NuGet package instead of SDK-relative assembly paths, so Visual Studio MSBuild and the CLI resolve the same dependency. The scratch host excludes sources belonging to its nested standalone harness projects and has its own harmless entry point; those harnesses must be built and run through their own project files.
-
-Tests that require the same mocked entity now use `AreSame`, preserving their reference-identity contract under MSTest's updated equality handling. Updating DatabaseSeeder's package references also changes its project-file fingerprint in the generated item manifest. Only that fingerprint is refreshed; all 43,825 entries and the original payload capture time are unchanged.
+Migration batches reference the same EF Relational version as the main persistence library. The optional Item Seeder manifest captures its project and source fingerprint. After this update an in-memory recapture reproduced all 43,825 entries, including their ownership fingerprints.
 
 ## Rechecking security and currency
 
@@ -27,7 +27,16 @@ Restore with `NuGetAudit=true` and `NuGetAuditMode=all`, then inspect both direc
 
 The website security workflow also pins the approved BouncyCastle.Cryptography version in its dependency-boundary check. Update that exact-version approval alongside the website package reference; it now permits 2.7.0. The engine/database exclusions and enforced NuGet vulnerability audit remain active.
 
+Open `MudSharpCore.ClimateTests.slnf` for the climate regressions. The filter uses `ArmageddonSeeder.sln` because the suite exercises the optional Armageddon weather installer alongside the shared climate models. Both climate test scripts still target the same project.
+
 The classic VSIX project needs Visual Studio's MSBuild and installed VSSDK targets. For CLI package inventory, use an equivalent temporary solution containing the SDK projects; the VSIX project itself has no NuGet references. On a restricted Windows account, a writable per-run `NUGET_HTTP_CACHE_PATH` can avoid HTTP-cache access failures without changing package sources or credentials.
+
+## Verification, 18 November 2026
+
+- All 168 active SDK projects built in Debug on Windows. NuGet's direct and transitive vulnerability check reported no findings across that inventory. The classic Configuration Tool restored EF 6.5.2; its missing legacy common-library project and existing XAML code-behind compilation errors still prevent building the application.
+- EF reported no pending model changes and generated idempotent SQL containing all 298 historical migrations. A disposable MySQL 8.0.45 instance imported the committed blank snapshot. EF then rolled back the latest migration, reapplied it, and repeated the update. The migration history matched the expected IDs after every step.
+- The existing climate filter ran all 12 Armageddon weather regression cases successfully. The extended persistence suite passed 368 tests. MudClient passed 136, Terrain Planner passed 39, and the opt-in reporting process tests passed 32. The Item Seeder fast suite passed 499 tests. The Armageddon Seeder fast suite passed 435 and skipped 98.
+- Live OpenAI, Google, email, and Discord service calls were outside this verification.
 
 ## Verification, 24 October 2026
 
@@ -42,7 +51,7 @@ This verification used Windows and native Visual Studio MSBuild, not an interact
 
 ## Sources
 
-- [Microting MySQL provider dependencies](https://www.nuget.org/packages/Microting.EntityFrameworkCore.MySql/10.0.14)
+- [Microting MySQL provider dependencies](https://www.nuget.org/packages/Microting.EntityFrameworkCore.MySql/11.0.0)
 - [MSTest v4 migration](https://learn.microsoft.com/dotnet/core/testing/unit-testing-mstest-migration-v3-v4)
 - [NCalc v7 migration](https://github.com/ncalc/ncalc/blob/master/docs/articles/project/migrate_v6_to_v7.md)
 - [Swashbuckle v10 migration](https://github.com/domaindrivendev/Swashbuckle.AspNetCore/blob/master/docs/migrating-to-v10.md)

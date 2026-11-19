@@ -1493,8 +1493,13 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		if (_cachedActors.Has(npc)) _cachedActors.Remove(npc);
 	}
 
+    internal bool ContainsExactItem(IGameItem item) => item is ILateInitialisingItem { IdHasBeenRegistered: false }
+        ? _items.Values.Any(x => ReferenceEquals(x, item))
+        : ReferenceEquals(_items.Get(item.Id), item);
+
     public void Add(IGameItem item)
     {
+        if (ContainsExactItem(item)) return;
         _items.Add(item);
 		Character.PossessionEffectIndex.For(this).RegisterOwner(item);
 		(MediaChannelService as MediaChannelService)?.RegisterItem(item);
@@ -1858,75 +1863,94 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         }
     }
 
-    public IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld)
-    {
-        if (dbitem == null)
-        {
-            return null;
-        }
+	private readonly HashSet<long> _loadingItemIds = [];
+	private Dictionary<long, GameItem> _offlineMaintenanceItems;
 
-        if (dbitem.Id == 0)
-        {
-            return null;
-        }
+	internal bool LoadingOfflineMaintenanceItems => _offlineMaintenanceItems is not null;
+
+	internal bool IsOfflineMaintenanceItem(GameItem item) => _offlineMaintenanceItems is not null &&
+		ReferenceEquals(_offlineMaintenanceItems.GetValueOrDefault(item.Id), item);
+
+	internal int UpdateOfflineItemRevisions(IEnumerable<long> ids)
+	{
+		_offlineMaintenanceItems = new Dictionary<long, GameItem>();
+		try
+		{
+			PrimeGameItems();
+			var items = ids.Select(id => TryGetItem(id, true)).OfType<GameItem>().ToArray();
+			var updated = items.Count(item => item.CheckPrototypeForUpdate());
+			FMDB.Context.SaveChanges();
+			SaveManager.Flush();
+			return updated;
+		}
+		finally
+		{
+			foreach (var item in _offlineMaintenanceItems.Values) SaveManager.Abort(item);
+			_offlineMaintenanceItems = null;
+			ReleasePrimedGameItems();
+		}
+	}
+	private Dictionary<long, Models.GameItem> _bootTimeCachedGameItems = new();
+	internal void ForgetPrimedDeletedItem(long itemId) => _bootTimeCachedGameItems.Remove(itemId);
+	private IReadOnlySet<long> _ambiguousLegacyItemCustody = new HashSet<long>();
+
+	internal bool HasAmbiguousLegacyItemCustody(long childId) => _ambiguousLegacyItemCustody.Contains(childId);
+
+	internal void IndexLegacyItemCustodyClaims(IEnumerable<Models.GameItem> items,
+		IReadOnlyDictionary<(long Id, int Revision), string> types) =>
+		_ambiguousLegacyItemCustody = LegacyItemCustody.FindAmbiguousChildren(items, types, DebugMessage);
+
+	public IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld)
+	{
+		if (dbitem is null || dbitem.Id == 0) return null;
+		if (_items.TryGet(dbitem.Id, out var existing)) return existing;
+		if (_offlineMaintenanceItems?.TryGetValue(dbitem.Id, out var detached) == true) return detached;
 		if (SpellOwnedItems.IsActivationPending(dbitem.Id)) return null;
+		if (!_loadingItemIds.Add(dbitem.Id))
+		{
+			DebugMessage($"Recursive load for item {dbitem.Id:N0}; the requested item is still being constructed.");
+			return null;
+		}
 
-        if (_items.Has(dbitem.Id))
-        {
-            return _items.Get(dbitem.Id);
-        }
+		try
+		{
+			var item = new GameItem(dbitem, this);
+			if (_offlineMaintenanceItems is not null) _offlineMaintenanceItems.Add(dbitem.Id, item);
+			else if (addToGameworld) Add(item);
+			return item;
+		}
+		finally
+		{
+			_loadingItemIds.Remove(dbitem.Id);
+		}
+	}
 
-        GameItem newItem = new(dbitem, this);
-        if (addToGameworld)
-        {
-            _items.Add(newItem);
-            Character.PossessionEffectIndex.For(this).RegisterOwner(newItem);
-            (MediaChannelService as MediaChannelService)?.RegisterItem(newItem);
-        }
+	public IGameItem TryGetItem(long id, bool addToGameworld = false)
+	{
+		if (id == 0) return null;
+		if (_items.TryGet(id, out var existing)) return existing;
+		if (_offlineMaintenanceItems?.TryGetValue(id, out var detached) == true) return detached;
+		if (_bootTimeCachedGameItems.TryGetValue(id, out var cached)) return TryGetItem(cached, addToGameworld);
+		using (new FMDB())
+		{
+			var row = FMDB.Context.GameItems
+				.Include(x => x.WoundsGameItem)
+				.Include(x => x.GameItemComponents)
+				.Include(x => x.HooksPerceivables)
+				.Include(x => x.GameItemsMagicResources)
+				.Include(x => x.RoomsGameItems)
+				.Include(x => x.BodiesGameItems)
+				.Include(x => x.BodiesImplants)
+				.Include(x => x.BodiesProsthetics)
+				.Include(x => x.WoundsLodgedItem)
+				.AsSplitQuery()
+				.SingleOrDefault(x => x.Id == id);
+			return TryGetItem(row, addToGameworld);
+		}
+	}
 
-        return newItem;
-    }
-
-    private Dictionary<long, Models.GameItem> _bootTimeCachedGameItems;
-
-    public IGameItem TryGetItem(long id, bool addToGameworld = false)
-    {
-        if (id == 0)
-        {
-            return null;
-        }
-
-        if (_items.Has(id))
-        {
-            return _items.Get(id);
-        }
-
-        Models.GameItem dbitem = _bootTimeCachedGameItems.ContainsKey(id) ? _bootTimeCachedGameItems[id] : null;
-        if (dbitem != null)
-        {
-            return TryGetItem(dbitem, addToGameworld);
-        }
-
-        using (new FMDB())
-        {
-            dbitem = FMDB.Context.GameItems.Find(id);
-            if (dbitem == null)
-            {
-                return null;
-            }
-			if (SpellOwnedItems.IsActivationPending(id)) return null;
-
-            GameItem newItem = new(dbitem, this);
-            if (addToGameworld)
-            {
-                _items.Add(newItem);
-            Character.PossessionEffectIndex.For(this).RegisterOwner(newItem);
-            (MediaChannelService as MediaChannelService)?.RegisterItem(newItem);
-            }
-
-            return newItem;
-        }
-    }
+	internal bool HasDifferentItemInstance(GameItem item) => item.IdHasBeenRegistered &&
+		_items.Get(item.Id) is { } current && !ReferenceEquals(item, current);
 
     public IVehicle TryGetVehicle(long id)
     {
@@ -2058,6 +2082,16 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(ICrime crime)
     {
         _crimes.Remove(crime);
+    }
+
+    public void Destroy(ILaw law)
+    {
+        _laws.Remove(law);
+    }
+
+    public void Destroy(ILegalClass legalClass)
+    {
+        _legalClasses.Remove(legalClass);
     }
 
     public void Destroy(INPCSpawner spawner)
@@ -2518,7 +2552,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(IGameItem item)
     {
 		MudSharp.Form.Material.EnvironmentalExposureService.ForgetExisting(this, item);
-        _items.Remove(item);
+        _items.RemoveExact(item);
 		Character.PossessionEffectIndex.For(this).UnregisterOwner(item);
 		(MediaChannelService as MediaChannelService)?.UnregisterItem(item);
         DestroyListeners(item);

@@ -78,8 +78,8 @@ public class PlannerStackTests
 	{
 		var stack = Pair();
 		stack.Levels[-1].PaintTag([new(0, 0)], 9, true);
-		Assert.ThrowsException<InvalidDataException>(() => stack.Export(new HashSet<long> { 1 }, new HashSet<long>()));
-		Assert.ThrowsException<InvalidDataException>(() => stack.Export(new HashSet<long>(), new HashSet<long> { 9 }));
+		Assert.ThrowsExactly<InvalidDataException>(() => stack.Export(new HashSet<long> { 1 }, new HashSet<long>()));
+		Assert.ThrowsExactly<InvalidDataException>(() => stack.Export(new HashSet<long>(), new HashSet<long> { 9 }));
 		var token = PlannerStackExport.Encode(stack.Export(new HashSet<long> { 1 }, new HashSet<long> { 9 }));
 		var decoded = TerrainStackCodec.Decode(TerrainStackCodec.WrapForEditor(token));
 		Assert.AreEqual(4, decoded.Rooms.Length);
@@ -90,10 +90,10 @@ public class PlannerStackTests
 	public void Levels_DuplicateAndLimits_RejectWithoutChangingStack()
 	{
 		var stack = Pair();
-		Assert.ThrowsException<InvalidDataException>(() => stack.AddLevel(-1));
-		Assert.ThrowsException<InvalidDataException>(() => stack.RenumberLevel(-1, 0));
-		Assert.ThrowsException<InvalidDataException>(() => stack.Resize(201, 2));
-		Assert.ThrowsException<InvalidDataException>(() => PlannerStack.ValidateSize(200, 200, 6));
+		Assert.ThrowsExactly<InvalidDataException>(() => stack.AddLevel(-1));
+		Assert.ThrowsExactly<InvalidDataException>(() => stack.RenumberLevel(-1, 0));
+		Assert.ThrowsExactly<InvalidDataException>(() => stack.Resize(201, 2));
+		Assert.ThrowsExactly<InvalidDataException>(() => PlannerStack.ValidateSize(200, 200, 6));
 		Assert.AreEqual(2, stack.Levels.Count);
 		Assert.AreEqual(2, stack.Width);
 		Assert.IsFalse(stack.HasConnection(0, 0, int.MaxValue));

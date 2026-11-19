@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 #nullable enable
 
 using MudSharp.Computers;
@@ -105,13 +105,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 	{
 		get
 		{
-			var remaining = new List<ConnectorType>(Connections);
-			foreach (var item in ConnectedItems)
-			{
-				remaining.Remove(item.Item1);
-			}
-
-			return remaining;
+			return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
 		}
 	}
 
@@ -158,61 +152,28 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 	protected override XElement SaveToXml(XElement root)
 	{
 		root.Add(new XElement("Grid", _directTelecommunicationsGrid?.Id ?? 0));
-		root.Add(new XElement("ConnectedItems",
-			from item in ConnectedItems
-			select new XElement("Item",
-				new XAttribute("id", item.Item2.Parent.Id),
-				new XAttribute("connectiontype", item.Item1),
-				new XAttribute("independent", item.Item2.Independent))));
+		root.Add(SaveConnections(this, ConnectedItems, _pendingLoadTimeConnections, _pendingDependentLoadTimeConnections));
 		return root;
 	}
+
+	internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+		(independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+		.Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
+	internal override bool CanRestoreConnectionFrom(IConnectable peer) =>
+		CanBeConnectedTo(peer) && peer.CanBeConnectedTo(this);
 
 	public override void FinaliseLoad()
 	{
 		base.FinaliseLoad();
-		foreach (var item in _pendingLoadTimeConnections.ToList())
-		{
-			var gitem = Gameworld.Items.Get(item.Item1);
-			if (gitem == null || !Parent.ColocatedWith(gitem))
-			{
-				continue;
-			}
+		RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+		RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
+	}
 
-			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
-			{
-				if (!connectable.CanConnect(null, this))
-				{
-					continue;
-				}
-
-				Connect(null, connectable);
-				break;
-			}
-		}
-
-		_pendingLoadTimeConnections.Clear();
-		foreach (var item in _pendingDependentLoadTimeConnections.ToList())
-		{
-			var gitem = Gameworld.Items.Get(item.Item1) ?? Gameworld.TryGetItem(item.Item1, true);
-			if (gitem == null)
-			{
-				continue;
-			}
-
-			gitem.FinaliseLoadTimeTasks();
-			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
-			{
-				if (!CanConnect(null, connectable))
-				{
-					continue;
-				}
-
-				Connect(null, connectable);
-				break;
-			}
-		}
-
-		_pendingDependentLoadTimeConnections.Clear();
+	public override void Login()
+	{
+		FinaliseLoad();
+		base.Login();
 	}
 
 	public override void Delete()
@@ -272,9 +233,9 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 			return;
 		}
 
-		RawConnect(other, connection);
-		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
-		Parent.ConnectedItem(other, connection);
+		var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+		ConnectPair(this, connection, other, otherConnection);
 	}
 
 	public void RawConnect(IConnectable other, ConnectorType type)
@@ -286,8 +247,9 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 			_connectedInfrastructure = infrastructure;
 		}
 
-		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		ConsumeSavedConnection(this, other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections,
+			other.Parent.Id, type);
+		Parent.ConnectedItem(other, type);
 		NotifyConnectedAdaptersTopologyChanged();
 		Changed = true;
 	}
@@ -428,7 +390,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		{
 			var tuple = Tuple.Create(
 				long.Parse(item.Attribute("id")!.Value),
-				new ConnectorType(item.Attribute("connectiontype")!.Value));
+				LoadSavedConnector(item));
 			if (item.Attribute("independent")?.Value == "false")
 			{
 				_pendingDependentLoadTimeConnections.Add(tuple);

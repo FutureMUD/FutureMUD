@@ -44,7 +44,8 @@ public class RcsThrusterGameItemComponentProto : GameItemComponentProto, IConnec
 			new XElement("Connector",
 				new XAttribute("gender", (sbyte)Connector.Gender),
 				new XAttribute("type", Connector.ConnectionType),
-				new XAttribute("powered", Connector.Powered))
+				new XAttribute("powered", Connector.Powered),
+				new XAttribute("id", Connector.PortId))
 		).ToString();
 	}
 
@@ -98,7 +99,7 @@ public class RcsThrusterGameItemComponentProto : GameItemComponentProto, IConnec
 			return false;
 		}
 
-		Connector = new ConnectorType(Connector.Gender, command.SafeRemainingArgument, Connector.Powered);
+		Connector = new ConnectorType(Connector.Gender, command.SafeRemainingArgument, Connector.Powered, portId: Connector.PortId);
 		Changed = true;
 		actor.OutputHandler.Send($"This thruster now uses connector type {Connector.ConnectionType.ColourName()}.");
 		return true;
@@ -119,7 +120,7 @@ public class RcsThrusterGameItemComponentProto : GameItemComponentProto, IConnec
 			return false;
 		}
 
-		Connector = new ConnectorType(gender.Enum, Connector.ConnectionType, Connector.Powered);
+        Connector = new ConnectorType(gender.Enum, Connector.ConnectionType, Connector.Powered, portId: Connector.PortId);
 		Changed = true;
 		actor.OutputHandler.Send($"This thruster now has a {gender.Enum.ToString().ToLowerInvariant()} connector.");
 		return true;

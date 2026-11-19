@@ -165,12 +165,10 @@ def main(root: Path) -> int:
     for row in literacy['automatic_backgrounds']:check('Learned script references '+row['culture'],row['culture']in ck and set(row['fixed_script_keys'])<=sk)
     stats=load('data/catalogue_statistics.json')
     check('Actual statistics',stats['social_culture_count']==len(cultures)and stats['language_specification_count']==len(lk)and stats['targeted_given_name_entry_count']==len(all_entries)and stats['source_count']==len(sources)and stats['generic_derived_group_recipe_count']==0)
-    docs=['README.md','AGENT_TASK.md','01_DESIGN_DECISIONS.md','02_IMPLEMENTATION_BRIEF.md','03_SOCIAL_CULTURE_CATALOGUE.md','04_LANGUAGE_AND_SCRIPT_CATALOGUE.md','05_NAMING_AND_ETHNICITY_PLAN.md','06_RESEARCH_AND_REVIEW_REGISTER.md']
+    docs=['README.md','01_DESIGN_DECISIONS.md','03_SOCIAL_CULTURE_CATALOGUE.md','04_LANGUAGE_AND_SCRIPT_CATALOGUE.md','Naming_and_Ethnicity_Reference.md','06_RESEARCH_AND_REVIEW_REGISTER.md']
     for file in docs:
         text=(root/file).read_text(encoding='utf-8');check('Document '+file,len(text)>300)
         for target in re.findall(r'`((?:data|research|tools)/[^`]+\.(?:json|py))`',text):check('Document file ref '+target,(root/target).is_file())
-    text=(root/'02_IMPLEMENTATION_BRIEF.md').read_text()
-    check('Obsolete builder implementation removed','### 2.10.1 Scope and schema'not in text and 'home-language selection, persisted'not in text)
     warnings+=['Old Prussian feminine forms are approved playable reconstructions, not newly attested names.','Dates and sources are research metadata; this validator does not establish historical attestation or demographics.','C# tests, generated FutureProg compilation, live MySQL and telnet/editor execution were not run by this validator.','Source-qualified legacy references must be resolved against the actual repository/database during implementation.']
     report={'revision':'2026-09-07-final-decisions','status':'passed-with-disclosed-evidence-limitations'if not errors else 'failed','check_count':len(checks),'passed':sum(x['passed']for x in checks),'failed':len(errors),'errors':errors,'warnings':warnings,'counts':stats,'scope':'Handoff data/reference/policy checks, not engine or historical-attestation verification.','checks':checks}
     (root/'validation_report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

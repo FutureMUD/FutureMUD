@@ -40,28 +40,15 @@ public class HoldableGameItemComponent : GameItemComponent, IHoldable
 
     public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
-        if (HeldBy == null)
-        {
-            return false;
-        }
+        if (HeldBy is not { } holder) return false;
 
-        IHoldable newItemHoldable = newItem?.GetItemType<IHoldable>();
-        if (newItemHoldable != null)
-        {
-            newItem.Get(HeldBy);
-            HeldBy.SwapInPlace(Parent, newItem);
-        }
+        var placed = ComponentItemTransfer.IsDetached(newItem) &&
+            newItem.GetItemType<IHoldable>()?.IsHoldable == true && holder.SwapInPlace(Parent, newItem);
 
-        else if (newItem != null)
-        {
-            InsertAtParentSpatialLocation(newItem, location);
-        }
-
-
-        HeldBy.Take(Parent);
-        HeldBy = null;
-        CurrentInventoryDescription = "";
-        return false;
+        if (ReferenceEquals(HeldBy, holder)) holder.Take(Parent);
+        if (ReferenceEquals(HeldBy, holder)) HeldBy = null;
+        if (HeldBy is null) CurrentInventoryDescription = "";
+        return placed;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)

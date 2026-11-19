@@ -106,7 +106,7 @@ Build butchery data in this order:
 
 Use `butcheryproduct edit new <name> <body> <bodypart> <proto> [quantity]` to create a product, then refine it with `butcheryproduct set`.
 
-Quote multiword names and supply all four required operands; quantity defaults to 1. See the [common builder workflow](../Building/Generic_Editable_Item_Builder_Workflows.md) for selection, inspection and closing.
+Quote multiword names and supply all four required operands; quantity defaults to 1. See the [common builder workflow](../Builder%20Guides/Generic_Editable_Item_Builder_Workflows.md) for selection, inspection and closing.
 
 Important settings:
 

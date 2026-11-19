@@ -56,3 +56,11 @@ See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), [cove
 ## Whole-body sweat defaults
 
 New-race sweat data and its inheritance, exertion output, source justification and preservation boundary are documented in [Seeded Sweat Rates](../Seeded_Sweat_Rates.md). These changes do not repair existing-world sweat values or authorise a live seeder rerun.
+
+## Naming evidence and preserved authored content
+
+Preserve original naming corpus entries field-for-field. Label additions by evidence class and reconstruction/borrowing status: a playable reconstruction is not historical attestation or proof of a productive naming rule. Retain era/gender eligibility in the targeted catalogue. Authored-stock floors apply before builder customisation; reruns preserve builder deletions and custom entries rather than restoring a count floor.
+
+Native language binding is source-qualified. Unresolved retained native identities stay unavailable; do not substitute a modern language stage or infer mutual/transitive intelligibility. The round-two correction supersedes earlier endpoint/accent and activation-count instructions. Its implementation receipts, rather than handoff validators, establish the delivered boundary.
+
+The completed implementation/task handoffs are retired. Their JSON and research/catalogue assets remain at the embedded resource paths; do not delete them as leftover planning files. Evidence: [initial implementation](../../Verification/CultureSeeder_Redesign_Implementation.md), [round-two implementation](../../Verification/CultureSeeder_Round2_Implementation.md), [round-two verification](../../Verification/CultureSeeder_Round2_Verification.md), [original content receipt](../../Verification/CultureSeeder_Redesign_Content_Receipt.md) and [round-two content receipt](../../Verification/CultureSeeder_Round2_Content_Receipt.md). These are dated receipts, not newly executed installer tests.

@@ -8,42 +8,39 @@ Tests should normally exercise a public or internal behavioral seam. Direct insp
 
 ## Test Gates
 
-Run a single-node restore before either gate:
+Use the paired repository entry points; they restore/build the selected graph before no-build/no-restore test execution. A whole-solution restore is not a prerequisite for a targeted run.
 
 ```powershell
-dotnet restore MudSharp.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false
+& .\scripts\test-unit.ps1 -OutputMode Compact
 ```
 
-The default gate is:
-
-```powershell
-& .\scripts\test-unit.ps1
+```bash
+bash ./scripts/test-unit.sh --output-mode compact
 ```
 
-`scripts/unit-test-projects.txt` is the canonical default-project manifest consumed by both `test-unit.ps1` and `test-unit.sh`. Both runners build projects sequentially to avoid shared-output locks and then run the already-built, process-isolated test hosts in parallel. Any project failure makes the overall runner fail.
+`scripts/unit-test-projects.txt` is the canonical default-project manifest. The default suite currently selects library, expression, database seeder, runtime, persistence, Discord, converter, website, TerrainPlanner and TestReporting projects. ItemSeeder and ArmageddonSeeder have separate product gates/solutions. MudClient has release qualification and can be selected explicitly; the separate ordinary PR gate is recorded in [PR 869](https://github.com/FutureMUD/FutureMUD/pull/869), which is not part of this document's base revision.
 
-It runs every fast, meaningful test project:
+Select one project with `-Project '<path>.csproj'` / `--project '<path>.csproj'`. Builds are serial; a project failure must make the gate fail. The fast suite excludes Integration, Benchmark, ClimateSeeder and PsychicBenchmark. Extended coverage requires explicit opt-in; the dedicated climate workflow keeps multi-year simulation outside the normal pass. Do not treat historical case counts below as a current inventory or coverage percentage.
 
-| Project | Responsibility | Tests after the July 2026 review |
-| --- | --- | ---: |
-| `FutureMUDLibrary Unit Tests` | Shared abstractions, extension methods, utilities, and value objects | 396 |
-| `ExpressionEngine Unit Tests` | Expression parsing, evaluation, custom functions, and failure semantics | 21 |
-| `DatabaseSeeder Unit Tests` | Seeder behavior, repeatability, content contracts, and maintained catalogues | 539 |
-| `MudSharpCore Unit Tests` | Engine runtime and gameplay behavior | 1,672 |
-| `MudsharpDatabaseLibrary Unit Tests` | Upgrade coordination, model compatibility, and persistence helpers | 27 |
-| `DiscordBotCore Unit Tests` | Discord protocol parsing and bot integration glue | 22 |
-| `RPI Engine Worldfile Converter Tests` | Legacy parsing and conversion compatibility | 43 |
-| `FutureMUD.Web.Tests` | Website endpoints, publishing, documentation transport, and security | 49 |
+### Test execution and source evidence
 
-The extended climate gate remains separate because it performs deterministic multi-year simulations:
+The [reporter contract](../../scripts/TestReporting/README.md) owns receipt/status semantics, source fingerprints and subprocess handling. Git stdout/stderr are drained concurrently, preserving complete stdout for hashing while bounding surfaced diagnostics. Each Git operation has a 60-second ceiling linked to the original run deadline; cancellation does not begin a fresh fingerprint or extend the deadline. Cleanup targets only the owned process tree, with bounded drain/reap waits.
 
-```powershell
-& .\scripts\test-unit-climate.ps1
-```
-
-It currently contains 34 resolved test cases and takes roughly 42 seconds on the July 2026 Windows development environment.
+A missing initial Git prerequisite is BLOCKED; incomplete or unavailable source evidence cannot produce a stable-source PASS. Two complete captures are required to establish stability. Confirmed build/test failure retains precedence, and uncertain cleanup remains visible. The implemented helper and compiled FakeGit regressions supersede the completed Git-process fix brief. Tests of pipe saturation, NUL/tail preservation, operation/caller timeout, inherited pipes and owned descendants remain durable requirements, rather than source-text snapshots.
 
 ## Test Design Rules
+
+### Employment approval and restart tests, 17 November 2026
+
+The initial employment restart change added 15 fast cases covering approval identity/plan binding, malformed security fields, live issuer authority, revocation/expiry, cross-task approval isolation, reconciliation and cumulative spending, uncertain cancellation, execute/flush failures, ordinary retry and invalid persisted statuses. These are permanent behavioral/security requirements. They exercise small runtime/serialization seams without constructing the EF provider model. In the final full default run, the added cases took approximately 64 ms combined; the slowest took 35 ms, and none exceeded one second. Retain them in the default suite rather than adding a parallel set of full-EF in-memory mirrors.
+
+The existing `EmploymentPersistence_RoundTripsCoreEmploymentTasksGoalsAndAuditRows` fixture was extended to verify scheduled-rule issuers/issuance authority and manager-goal issuer, expression, currency budgets and risk limits. Its isolated cold run took 3.356 seconds, including EF model initialization; a new model-heavy test would duplicate that cost. Retain these assertions in the existing case because they catch actual save/load omissions that a serializer-only test cannot establish. In the final broad run the same case took 247 ms, below the one-second review threshold. Its additional assertions protect automation approval persistence without adding another EF model initialization.
+
+The single `EmploymentRestartNative_IndependentProcessesPreserveApprovalsAndNeverReplayTransfers` case is classified `Integration` and excluded from the default gate. Its two independent test-host processes use real MySQL migrations, durable approvals and native bank-account transactions. Provider startup, legacy upgrade and process restart are essential to that compatibility requirement and cannot be established by fast mocks. Keep those related assertions consolidated in the existing disposable-world harness; do not add a full-world startup or a separate provider fixture per assertion. See [the reproducible provider scenario](../../scripts/EmploymentRestartSmoke/README.md) for execution and evidence. The final writer/reader cases passed against real MySQL in 8.772 and 6.325 seconds respectively. Those costs are justified only in the opt-in tier; they must not enter the default unit gate. The full default gate passed 11,248 cases with three expected Windows skips; the 14 focused snapshot checks passed separately. Local receipts are in `.artifacts/employment-restart/fast-final/20261117T041429Z-81e17d8c2bb8/`, `snapshot-final/20261117T042654Z-2ad0a20d1011/`, and the owned native attempt `employment-attempt-a32792ee6f72`.
+
+The live Telnet follow-up adds eight permanent fast cases: five task-bound diagnostic blocker previews, two public retry/requeue command cases covering authority/reason/hold requirements, and one manual-assignment case for a reconciled payment followed by nonfinancial work. They protect the actual diagnostic and recovery bypasses found during qualification and focused review. Keep them because they exercise distinct public entry paths that the policy-only cases do not establish. Extend the existing two-outcome reconciliation case to invoke the command service, catching the documented `not-executed` spelling, and the existing JSON round-trip to check the durable explicit-retry flag; do not add duplicate parser or EF fixtures.
+
+In the final affected core/library run, all 10,240 tests passed with no failures/skips and stable source. All 23 approval cases took 250 ms combined (172 ms maximum); the eight new cases took 186 ms combined. None exceeded one second. The existing persistence round-trip took 402 ms. These measurements support retaining the focused cases in the default suite. The live server/crash/restart operator is separate opt-in acceptance, consolidated around one preserved disposable world; it must not become a default unit test or an additional full-provider fixture per assertion. The dated [recovery guide](../Economy/Employment_Restart_and_Recovery.md#live-telnet-follow-up-17-november-2026) records its scope, observed failures/corrections and receipts.
 
 ### Durable requirements
 
@@ -73,7 +70,15 @@ Do not add phase-completion tests whose only assertion is that named methods, da
 
 Random helpers should be checked with bounded samples and deterministic invariants. Tests must not require a random run to produce more than one distinct value; that is probabilistic and does not define correct behavior.
 
-Database-backed fixtures may be shared only when they are read-only, the class is not parallelized, and mutation/idempotence cases keep isolated contexts. Expensive climate simulations remain in the dedicated opt-in project.
+An existing class that shares a live EF context must use it read-only and execute serially. Mutation and idempotence cases need an isolated store. Expensive climate simulations remain in the dedicated opt-in project.
+
+### Sharing expensive test setup
+
+Start with the smallest fixture that exercises the contract. Several cheap examples can use the same builder while still constructing fresh state. When many cases pay to install the same prerequisites, use the narrowest fixture scope that covers those consumers. Key variants by the choices that affect persisted data or behaviour. Lazy creation keeps a filtered run from paying for unused variants.
+
+Read-only inputs can be reused directly. For tests that write, a persisted baseline can be captured once and restored into a uniquely owned store per case. A fresh EF context over a writable shared database still sees other tests' writes. Preserve provider options, generated identities, shadow keys, join rows and any tracked-versus-reloaded behaviour the case exercises. Dispose the owner after its borrowers and release the temporary store. Keep clocks, random streams, mock callbacks, event subscribers and temporary directories local when their state can change. Tests that override process-wide registries must restore their changes even on failure.
+
+Use case timings to find candidates, then measure the prerequisite separately. Compare fresh setup with building the baseline, making every copy and releasing it, including the first consumer. Check both execution time and resource cost, such as managed allocations or peak process memory. Run the same assertions and DataRows separately and together, including a pair where one case edits data the other expects to be pristine. The [November fixture review](../../scripts/TestReporting/shared-fixture-review-2026-11-17.md) gives measured examples and an implementation sequence.
 
 ## July 2026 Review Findings
 
@@ -103,7 +108,7 @@ The Discord suite grew from 5 to 22 cases. It now covers framing, size limits wi
 
 The database-library suite grew from 12 to 27 cases. It now covers request validation, settings repair, migration progress and ordering, attempted-state persistence, recovery matching, rollback failures, disabled backups, snapshot exception cleanup, and pruning. It exposed malformed backup-settings JSON as a permanent startup failure; loading now replaces damaged JSON with defaults. The lifecycle is documented in `Database_Upgrade_Coordination.md`.
 
-Normal CI is defined in `.github/workflows/unit-tests.yml` and runs the canonical default gate on .NET 10 for Windows and Linux in parallel matrix jobs. `.github/workflows/climate-tests.yml` keeps the unchanged multi-year climate suite separate on a weekly and manual schedule. Neither workflow collects coverage or runs mutation testing.
+Normal CI is defined in `.github/workflows/unit-tests.yml` and runs the canonical default gate using the checked-out SDK/toolchain for Windows and Linux in parallel matrix jobs. `.github/workflows/climate-tests.yml` keeps the unchanged multi-year climate suite separate on a weekly and manual schedule. Neither workflow collects coverage or runs mutation testing.
 ## Remaining Risks and Priorities
 
 The suite is broad but not demonstrably complete because this branch intentionally does not add line/branch coverage or mutation tooling. Raw coverage percentage should not become a target by itself.

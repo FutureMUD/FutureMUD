@@ -100,6 +100,7 @@ public class ProgPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
     public void BeginDrawdown(IConsumePower item)
     {
+        if (_connectedConsumers.Contains(item)) return;
         _connectedConsumers.Add(item);
 
         if (ProducingPower)
@@ -112,12 +113,7 @@ public class ProgPowerSupplyGameItemComponent : GameItemComponent, IProducePower
     public void EndDrawdown(IConsumePower item)
     {
         _connectedConsumers.Remove(item);
-        if (_powerUsers.Contains(item))
-        {
-            item.OnPowerCutOut();
-        }
-
-        _powerUsers.Remove(item);
+        if (_powerUsers.Remove(item)) item.OnPowerCutOut();
     }
 
     public bool CanBeginDrawDown(double wattage)

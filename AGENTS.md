@@ -58,7 +58,7 @@ For commands, apply `MudSharpCore/Commands/AGENTS.md` as well; command uniquenes
 | Character description markup | [Character descriptions](Design%20Documents/Markup/Character_Description_System.md) |
 | Human seeder description patterns | [Human seeder patterns](Design%20Documents/Markup/Human_Seeder_Description_Patterns.md) |
 | Room/cell description markup | [Room description markup](Design%20Documents/Markup/Room_Description_Markup.md) |
-| Room-building commands/workflows | [Room building guide](Design%20Documents/Building/Room_Building_Builder_Guide.md) |
+| Room-building commands/workflows | [Room building guide](Design%20Documents/Builder%20Guides/Room_Building_Builder_Guide.md) |
 | Subsystem design or changed behaviour | Relevant document in `Design Documents/`; use [the index](Design%20Documents/README.md) when its location is unknown. |
 | Test selection, sandbox build issues, item/economy document routing | [Verification and documentation map](.codex/references/verification-and-docs.md), only the relevant section. |
 
@@ -69,6 +69,8 @@ Repository skills are stored under `.codex/skills/`. Use a skill when its descri
 ## Verification
 
 Choose checks from the changed behaviour and its dependants, not merely the repository name. Shared-library, expression, seeder, runtime, persistence-library, bot, converter, and website tests have separate owning suites. Long-running weather regressions belong in `MudSharpCore Climate Tests`, not the default core suite.
+
+When adding cases or DataRows with expensive prerequisites, check how neighbouring tests build the same state. Reuse an existing immutable input or a lazily built baseline where it pays for itself. Give each writer its own store and context or its own mutable world. Keep the installation, rerun, cold start or restart being asserted inside the scenario. For a new shared fixture, compare setup, copy and cleanup costs across its actual consumers. Verify a representative case alone and the consumers together, including isolation after a write. See [fixture design and measurements](Design%20Documents/Core/Unit_Test_Suite_Quality_and_Maintenance.md#sharing-expensive-test-setup).
 
 Use the paired repository scripts (`.ps1` on Windows, `.sh` on POSIX) where practical. For direct .NET commands, use `-m:1`; restore only when needed and use `--no-restore` for subsequent builds/tests. A full solution build is not the default: the VSIX project may require Visual Studio SDK targets absent from the environment. See the verification reference for exact commands and sandbox-specific exceptions.
 

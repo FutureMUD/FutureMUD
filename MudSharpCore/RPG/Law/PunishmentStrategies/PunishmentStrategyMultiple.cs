@@ -38,7 +38,7 @@ public class PunishmentStrategyMultiple : PunishmentStrategyBase
             case "del":
                 return BuildingCommandDelete(actor, command);
             default:
-                if (int.TryParse(command.Last, out int index) && index > 0 && index < _strategies.Count)
+                if (int.TryParse(command.Last, out int index) && index > 0 && index <= _strategies.Count)
                 {
                     return _strategies[index - 1].BuildingCommand(actor, authority, command);
                 }

@@ -87,17 +87,13 @@ public class ChairGameItemComponent : GameItemComponent, IChair
 
     public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
-        ChairGameItemComponent newItemChair = newItem?.GetItemType<ChairGameItemComponent>();
-        if (newItemChair == null)
-        {
-            SetTable(null);
-            return false;
-        }
-
-        ITable table = Table;
+        if (Table is not { } table) return false;
         SetTable(null);
+        if (!ComponentItemTransfer.IsDetached(newItem) ||
+            newItem.GetItemType<ChairGameItemComponent>() is not { } newItemChair) return false;
+
         newItemChair.SetTable(table);
-        return true;
+        return ReferenceEquals(newItemChair.Table, table);
     }
 
     public override bool AffectsLocationOnDestruction => true;

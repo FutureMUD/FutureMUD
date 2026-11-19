@@ -745,7 +745,8 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
                GameItemProtoLookupExtensions.IsValidUniqueName(UniqueName) &&
                Gameworld.ItemProtos.GetActiveUniqueNameConflict(UniqueName, Id) is null &&
                !GameItemComponentPrototypeExclusivity.FindConflicts(_components).Any() &&
-               !GameItemComponentPrototypeRequirements.FindMissingRequirements(_components).Any();
+               !GameItemComponentPrototypeRequirements.FindMissingRequirements(_components).Any() &&
+               PowerSocketConfigurationError() is null;
     }
 
     public override string WhyCannotSubmit()
@@ -780,7 +781,14 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
             return DescribeMissingComponentRequirement(missingRequirement);
         }
 
-        return base.WhyCannotSubmit();
+        return PowerSocketConfigurationError() ?? base.WhyCannotSubmit();
+    }
+
+    private string? PowerSocketConfigurationError()
+    {
+        if (!_components.OfType<PowerSocketGameItemComponentProto>().Any()) return null;
+        var count = _components.OfType<IPrimaryPowerProducerPrototype>().Count();
+        return count == 1 ? null : $"A power socket requires exactly one primary power producer on the same item (found {count}).";
     }
 
     private void LoadFromDatabase(MudSharp.Models.GameItemProto proto, IFuturemud gameworld)

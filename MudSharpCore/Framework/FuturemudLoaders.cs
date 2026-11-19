@@ -291,6 +291,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 			// Keep EF's pooled connection for this bounded load rather than resetting a
 			// session on every navigation query. Disposing FMDB still owns its lifetime.
 			FMDB.Context.Database.OpenConnection();
+			bootTimings.Measure("RecoverNativeItemDeletions", () => MudSharp.GameItems.GameItem.RecoverCheckpointedNativeDeletions(FMDB.Context));
 
             ConsoleUtilities.WriteLine("\n#ESetting up Email Server...#0");
             ConsoleUtilities.WriteLine(EmailHelper.SetupEmailClient()
@@ -4854,6 +4855,10 @@ For information on the syntax to use in emotes (such as those included in bracke
                         .Include(x => x.GameItemComponents)
                         .Include(x => x.HooksPerceivables)
                         .Include(x => x.GameItemsMagicResources)
+                        .Include(x => x.BodiesGameItems)
+                        .Include(x => x.BodiesImplants)
+                        .Include(x => x.BodiesProsthetics)
+                        .Include(x => x.WoundsLodgedItem)
                         .Include(x => x.RoomsGameItems)
                         .ThenInclude(x => x.Room)
                         .AsSplitQuery()
@@ -4862,6 +4867,18 @@ For information on the syntax to use in emotes (such as those included in bracke
         {
             _bootTimeCachedGameItems.Add(item.Id, item);
         }
+        var custodyTypes = FMDB.Context.GameItemComponentProtos.AsNoTracking()
+			.Where(x => x.Type == "Container" || x.Type == "LockingContainer" || x.Type == "Automation Housing" || x.Type == "AmmoClip" ||
+			            x.Type == "Pile" || x.Type == "BatteryPowered" || x.Type == "Bodypart" ||
+			            x.Type == "Gun" || x.Type == "BoltAction" || x.Type == "InternalMagazineGun" ||
+			            x.Type == "Sheath" || x.Type == "Belt" || x.Type == "Table" ||
+			            x.Type == "BatteryCharger" || x.Type == "Fuel Generator" || x.Type == "ImplantContainer" ||
+			            x.Type == "ImplantRefrigerator" || x.Type == "Refrigerator" || x.Type == "Dryer" || x.Type == "FoldedPocket" ||
+			            x.Type == "CashRegister" || x.Type == "LockingCashRegister" || x.Type == "WashingMachine" || x.Type == "FaxMachine" ||
+			            x.Type == "Photocopier" || x.Type == "ShopStall")
+            .Select(x => new { x.Id, x.RevisionNumber, x.Type })
+            .ToDictionary(x => (x.Id, x.RevisionNumber), x => x.Type);
+        IndexLegacyItemCustodyClaims(_bootTimeCachedGameItems.Values, custodyTypes);
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

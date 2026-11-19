@@ -25,7 +25,7 @@ Loan advances, confirmed repayments, surplus and sale-proceeds withdrawals, purc
 
 The zone calendar drives simple interest and due dates. A balloon has no interim minimum. Other products can require interest alone or interest plus a fixed principal amount. Each missed instalment keeps its due date and grace deadline. The borrower must accept a proposed pause or replacement schedule.
 
-The bank balance sheet includes loan principal and interest receivable. Economy holdings distinguish receivables, debt and surplus. Advances and repayments are transfer activity. Realised shop interest enters net profit at financial close. A zone can configure the `bankinterest` profit tax to withhold a percentage of realised bank interest. See the [lending design and worked examples](Loans_and_Secured_Lending_Design.md).
+The bank balance sheet includes loan principal and interest receivable. Economy holdings distinguish receivables, debt and surplus. Advances and repayments are transfer activity. Realised shop interest enters net profit at financial close. A zone can configure the `bankinterest` profit tax to withhold a percentage of realised bank interest. See the [lending design and worked examples](Lending_System.md).
 
 Cash-funded shops can use their virtual float and physical register coins. Account-funded products use the shop's nominated bank account. A foreclosure is held if a pledged property has acquired a hosted business. An estate is created for a deceased borrower whose only remaining asset is collateral already at recovery auction, and finalisation waits for that auction.
 
@@ -264,6 +264,8 @@ Partial stack and commodity retrieval preserve shop display identity. Stock remo
 `IShop.RegisterStockItemSplit` indexes another portion of existing displayed goods without a stock transaction. Stack quantity remains conserved; commodity splitting adds one pile. `RegisterStockItemMerge` removes absorbed pile identities without recording lost goods, including repeated pickup into a held display pile. Commodity purchases reconcile the indexed pile count they remove, so a held display split does not appear as newly acquired stock.
 
 ### Markets, Influences, Populations, and Shoppers
+
+Market category elasticity uses the oversupply setting when supply exceeds demand and the undersupply setting otherwise. The builder commands update those respective fields. Saved field values retain their existing runtime meanings.
 The market subsystem models macroeconomic pressure rather than only local shop stock.
 
 Verified current parts:
@@ -437,6 +439,8 @@ Current verified runtime characteristics:
 - winning property-share bids transfer the sold share directly at auction completion without requiring a fixed-price property sale order
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available
 
+Item lots stay suspended through listing and, when applicable, until the winner claims them. Active-time clocks pause and absolute deadlines are retained. Auction-only items structurally finalise after materialisation. Claim and cancellation place the item before resuming its active interval. See [item lifecycle and clocks](../Items/Item_Lifecycle.md#effects-decay-and-time).
+
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.
 
 ### Legacy PC-Facing Jobs
@@ -479,6 +483,7 @@ Current operational boundaries:
 - task routing uses `IEmploymentTaskBoard`; the staff `IBoard` is only an employee/manager communication surface
 - item-backed craft station reservations track capacity without blocking normal pickup or merging. Craft start/resume rechecks the saved station item's accessibility; only current craft inputs and tools receive pickup locks, which cease when their resource phase ends.
 - financial actions require delegated authority plus explicit authorisation/reservation state and write employment audit evidence while reusing native finance records where available. Linked-bank transfer tasks require `WithdrawBusinessCash`; `UseStoreAccount` alone cannot debit the employer's bank account. The finance operation rechecks withdrawal authority before moving funds.
+- active-task provenance and scoped approval grants persist in a versioned document bound to task, host, correlation and ordered plan. Legacy task approvals and pre-migration rule/goal issuers are not inferred; re-author old automation under an authorised manager for future financial tasks or explicitly approve an already spawned legacy task. Malformed or mismatched approval/step evidence is quarantined. Financial execution rechecks issuer authority and grant expiry/revocation. Managers can inspect, revoke or replace a grant and reconcile uncertain interrupted financial steps through audited commands; reconciliation records an evidence-backed outcome and never repeats the native operation or retries the task. Remaining work persists an explicit-retry requirement across restarts; assignment auditing, worker claims and manual assignment cannot bypass it. An authorised `tasks retry` or `tasks requeue` with a reason acknowledges recovery after all holds are resolved. Executed purchase/physical-float attempts missing durable `SelectedResources`/`LoadedAssets` evidence stay held: native inventory/cash repair cannot clear the task-custody guard, and current commands cannot attach or waive that evidence. See [Employment task restart and recovery](Employment_Restart_and_Recovery.md) for scoped verification and remaining migration/provider limits.
 - executable shop-purchase tasks must be completed at a supplier shop location; commodity merchandise stays on the weighted purchase path and is not eligible for count-priced merchandise or item-selector purchases
 - payroll accrual expires fixed-term contracts before evaluation, uses explicit schedule windows for hourly guaranteed-hours contracts, rejects unsupported paid cadences until explicit earning records exist, worker resignation uses employee-specific arrears, and settlement validates every accrued payable destination before funds move, debits backed employer funds before cash payables become claimable, and credits employee or specified bank-account payables through native bank transactions; hosts without a native finance adapter must explicitly expose a currency-backed finance surface
 - item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly; physical employment logistics are constrained to the host's work locations and physical cash steps only consume task-custody currency piles

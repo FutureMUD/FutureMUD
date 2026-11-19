@@ -31,6 +31,10 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             select item.SaveToXml(AuctionBids[item]),
             from item in UnclaimedItems
             select item.SaveToXml(AuctionBids[item.AuctionItem]),
+            from pending in _pendingAuctionItemLoads
+            select pending.IsUnclaimed
+                ? new XElement("Unclaimed", new XElement(pending.Item), pending.WinningBid?.SaveToXml() ?? new XElement("NoBids"))
+                : new XElement(pending.Item),
             from item in BidderRefundsOwed
             select new XElement("Refund", new XAttribute("character", item.Key),
                 new XAttribute("amount", item.Value)),
@@ -104,9 +108,13 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             : Gameworld.TryGetItem(assetId, true);
         IFrameworkItem seller = LoadFrameworkItem(Gameworld, sellerId, sellerType);
         IFrameworkItem payoutTarget = LoadFrameworkItem(Gameworld, payoutId, payoutType);
-        if (asset == null || seller == null)
+        if (asset == null || seller == null) return null;
+        if (asset is GameItem goods)
         {
-            return null;
+            if (goods.HadDirectCustodyAtLoad || goods.ContainerIdAtLoad is not null || !goods.SuspendForAuctionEscrow())
+                return null;
+            goods.FinaliseLoadTimeTasks();
+            if (goods.Deleted) return null;
         }
 
         return new AuctionItem
@@ -658,7 +666,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             return;
         }
 
-        foreach (PendingAuctionItemLoad pending in _pendingAuctionItemLoads)
+        foreach (PendingAuctionItemLoad pending in _pendingAuctionItemLoads.ToArray())
         {
             AuctionItem auctionItem = LoadAuctionItem(pending.Item);
             if (auctionItem == null)
@@ -667,6 +675,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
                 continue;
             }
 
+            _pendingAuctionItemLoads.Remove(pending);
             if (pending.IsUnclaimed)
             {
                 AddLoadedUnclaimedAuctionItem(auctionItem, pending.Item.Elements("Bid"), pending.WinningBid);
@@ -676,7 +685,6 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             AddLoadedAuctionItem(auctionItem, pending.Item.Elements("Bid"));
         }
 
-        _pendingAuctionItemLoads.Clear();
     }
 
     #region Overrides of FrameworkItem
@@ -772,6 +780,9 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
     {
         EnlistLendingRollback();
 		if (item.Item is { } goods) SpellOwnedItemValuePolicy.RequireOrdinaryValue(goods, "auction listing");
+        if (item.Item is GameItem native && (native.Deleted || _activeAuctionItems.Any(x => x.Item?.Id == native.Id) ||
+            _unclaimedItems.Any(x => x.AuctionItem.Item?.Id == native.Id) || !native.SuspendForAuctionEscrow()))
+            throw new InvalidOperationException($"Item {native.Id} could not enter auction escrow.");
         _activeAuctionItems.Add(item);
         Changed = true;
     }
@@ -800,7 +811,8 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     public void ClaimItem(AuctionItem item)
     {
-        _unclaimedItems.RemoveAll(x => x.AuctionItem == item);
+        if (_unclaimedItems.RemoveAll(x => x.AuctionItem == item) > 0 && item.Item is GameItem native)
+            native.ReleaseFromAuctionEscrow();
         Changed = true;
     }
 
@@ -860,7 +872,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
     public void CancelItem(AuctionItem item)
     {
         EnlistLendingRollback();
-        _activeAuctionItems.Remove(item);
+        if (_activeAuctionItems.Remove(item) && item.Item is GameItem native) native.ReleaseFromAuctionEscrow();
         Changed = true;
         AuctionBid highestExistingBid = AuctionBids[item].FirstMax(x => x.Bid);
         if (highestExistingBid != null)

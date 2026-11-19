@@ -56,42 +56,18 @@ namespace MudSharp.GameItems.Components
             XElement lockelem = root.Element("Locks");
             if (lockelem != null)
             {
-                foreach (
-                    IGameItem item in
-                    lockelem.Elements("Lock")
-                            .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                            .Where(item => item?.IsItemType<ILock>() == true))
+                foreach (var reference in lockelem.Elements("Lock"))
                 {
-                    if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
-                    {
-                        Changed = true;
-                        Gameworld.SystemMessage(
-                            $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                            true);
-                        continue;
-                    }
-
-                    InstallLock(item.GetItemType<ILock>());
+                    if (RestoreOwnedChild(reference)?.GetItemType<ILock>() is { } itemLock) InstallLock(itemLock);
                 }
             }
 
-            foreach (
-                IGameItem item in
-                root.Elements("Contained")
-                    .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                    .Where(item => item != null))
+            foreach (var reference in root.Elements("Contained"))
             {
-                if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
-                {
-                    Changed = true;
-                    Gameworld.SystemMessage(
-                        $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                        true);
-                    continue;
-                }
+                var item = RestoreOwnedChild(reference);
+                if (item is null) continue;
 
                 _contents.Add(item);
-                item.Get(null);
                 item.LoadTimeSetContainedIn(Parent);
             }
 
@@ -137,8 +113,10 @@ namespace MudSharp.GameItems.Components
                         new XElement("Pattern", Pattern),
                         new XElement("IsLocked", IsLocked),
                         new XElement("IsTrading", IsTrading),
-                        new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
-                        from content in Contents select new XElement("Contained", content.Id)
+                        new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id),
+                            AmbiguousLegacyChildClaims("Lock")),
+                        from content in Contents select new XElement("Contained", content.Id),
+                        AmbiguousLegacyChildClaims("Contained")
                     ).ToString();
         }
 
@@ -152,14 +130,14 @@ namespace MudSharp.GameItems.Components
 
         public override void Login()
         {
-            foreach (IGameItem item in Contents)
+            foreach (IGameItem item in Contents.ToArray())
             {
-                item.Login();
+                if (Contents.Contains(item) && !item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, Parent)) item.Login();
             }
 
-            foreach (ILock item in Locks)
+            foreach (ILock item in Locks.ToArray())
             {
-                item.Login();
+                if (Locks.Contains(item) && !item.Parent.Deleted && !item.Parent.Destroyed && ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Login();
             }
 
             Shop?.CurrentStall = this;
@@ -172,33 +150,32 @@ namespace MudSharp.GameItems.Components
             base.Delete();
             foreach (IGameItem item in Contents.ToList())
             {
+                DeleteOwnedContainedChild(item);
                 _contents.Remove(item);
-                item.ContainedIn = null;
-                item.Delete();
             }
 
             foreach (ILock item in Locks.ToList())
             {
+                DeleteOwnedContainedChild(item.Parent);
                 _locks.Remove(item);
-                item.Parent.Delete();
             }
 
-            Shop?.CurrentStall = null;
+            if (Shop?.CurrentStall == this) Shop.CurrentStall = null;
         }
 
         public override void Quit()
         {
             foreach (IGameItem item in Contents.ToArray())
             {
-                item.Quit();
+                if (Contents.Contains(item) && !item.Deleted && !item.Destroyed && ReferenceEquals(item.ContainedIn, Parent)) item.Quit();
             }
 
             foreach (ILock item in Locks.ToArray())
             {
-                item.Quit();
+                if (Locks.Contains(item) && !item.Parent.Deleted && !item.Parent.Destroyed && ReferenceEquals(item.Parent.ContainedIn, Parent)) item.Parent.Quit();
             }
 
-            Shop?.CurrentStall = null;
+            if (Shop?.CurrentStall == this) Shop.CurrentStall = null;
         }
 
         public override bool Take(IGameItem item)

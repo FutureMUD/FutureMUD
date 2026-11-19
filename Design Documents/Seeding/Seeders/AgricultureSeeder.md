@@ -30,7 +30,7 @@ All named fields and calls above are authored source. The addition steps are sta
 
 **Worked addition.** For a worked `Example Bread Wheat`, add a Crops entry using Wheat as the complete CropSeed signature, author climate/growth/planting values and Yield material/weight quantities, and ensure those commodities exist. Crops is enumerated by SeedData/readiness, so no manual menu registration is needed. Check AgricultureCropDefinitions XML and exact output materials/weights; the example is not agronomic calibration. These instructions were source-checked but not executed.
 
-Detailed runtime/builder contracts: [Agriculture System Overview](../../Agriculture/Agriculture_System_Overview.md), [Agriculture Runtime Model](../../Agriculture/Agriculture_Runtime_Model.md), [Agriculture Builder Workflows](../../Agriculture/Agriculture_Builder_Workflows.md).
+Detailed runtime/builder contracts: [Agriculture System Overview](../../Agriculture/Agriculture_System_Overview.md), [Agriculture Runtime Model](../../Agriculture/Agriculture_Runtime_Model.md), [Agriculture Builder Workflows](../../Builder%20Guides/Agriculture_Builder_Workflows.md).
 
 ## Declared rerun and ownership contract
 

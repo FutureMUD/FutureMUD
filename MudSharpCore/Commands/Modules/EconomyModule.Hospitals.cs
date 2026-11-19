@@ -76,6 +76,8 @@ Hospital employment tasks:
 	#3hospital tasks#0 - lists scheduled rules and active tasks
 	#3hospital tasks show <##|name>#0 - shows an active task
 	#3hospital tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
+	#3hospital tasks approval show|revoke|replace|reconcile ...#0 - inspects or explicitly recovers task approvals
+	#3hospital tasks retry|requeue <task> <reason>#0 - explicitly requeues eligible work after recovery holds are resolved
 	#3hospital tasks cancel <##|name> [reason]#0 - cancels a pending, assigned, in-progress, or blocked active task
 	#3hospital tasks rule show <##|name>#0 - shows a scheduled rule
 	#3hospital tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task

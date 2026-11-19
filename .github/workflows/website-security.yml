@@ -6,6 +6,7 @@ on:
       - "FutureMUD.Web/**"
       - "FutureMUD.Web.Tests/**"
       - "FutureMUDLibrary/Documentation/**"
+      - "Design Documents/Builder Guides/*.md"
       - ".github/dependabot.yml"
       - ".github/workflows/website-security.yml"
   push:
@@ -15,6 +16,7 @@ on:
       - "FutureMUD.Web/**"
       - "FutureMUD.Web.Tests/**"
       - "FutureMUDLibrary/Documentation/**"
+      - "Design Documents/Builder Guides/*.md"
       - ".github/dependabot.yml"
       - ".github/workflows/website-security.yml"
   schedule:

@@ -98,7 +98,7 @@ Phase3B1 adds the conservative canonical NPC archival boundary described below. 
 connects explicit `createnpc` lifecycle provenance to native simple-template construction and
 persisted death/remains recovery. Phase3B2B connects bounded simple-NPC retirement to
 native death, ordinary corpse deletion/decay, conserved foreign custody and canonical
-archival. The bounded builder-installed [N14 guardian checkpoint](Armageddon_Guardian_Early_Death_Checkpoint_20261009.md) now qualifies early death, remains/custody, restart/decay and default dissipation. The bounded builder-installed [N15 lifecycle modes checkpoint](Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.md) also qualifies permanent no-expiry persistence and both temporary modes with stable terminal state across cold restart. The bounded builder-installed [N16 churn checkpoint](Armageddon_Guardian_Churn_Checkpoint_20261009.md) qualifies 32 paid cycles with cleanup before every cold restart and a separate continuous 128-output batch. Full catalogue parity and the other creation adapters remain outstanding.
+archival. The bounded builder-installed [N14 guardian checkpoint](../Armageddon/Magic/Verification/Guardian_Early_Death_Checkpoint_20261009.md) now qualifies early death, remains/custody, restart/decay and default dissipation. The bounded builder-installed [N15 lifecycle modes checkpoint](../Armageddon/Magic/Verification/Guardian_Lifecycle_Modes_Checkpoint_20261009.md) also qualifies permanent no-expiry persistence and both temporary modes with stable terminal state across cold restart. The bounded builder-installed [N16 churn checkpoint](../Armageddon/Magic/Verification/Guardian_Churn_Checkpoint_20261009.md) qualifies 32 paid cycles with cleanup before every cold restart and a separate continuous 128-output batch. Full catalogue parity and the other creation adapters remain outstanding.
 
 ## Native NPC creation and death recovery
 
@@ -152,7 +152,7 @@ fixes both seeded chopping defaults and qualifies their exact owned-world correc
 1,613 Seeder and 102 focused Core passes plus native transaction/preservation checks.
 The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) is historical
 classification evidence; its native Autobuilder hold is superseded by the
-[code-proven reference implementation](Armageddon_Typed_Reference_Implementation_20261009.md).
+[code-proven reference implementation](../Armageddon/Magic/Typed_Reference_Implementation_20261009.md).
 The replacement removes numeric text searches, guessed Id fields and archive-only static
 classifiers across archival, earlier body cleanup, remains recovery and corpse provenance.
 The [fresh checkpoint](Armageddon_Typed_Reference_Checkpoint_20261009.json) records 6,606 full
@@ -412,7 +412,7 @@ archive-only validators are removed. Recorded history, audience/access identity 
 IDs have explicit consumer-based exclusions. WitnessedClanMemberDeath's Member remains a
 hold because its current display resolves/caches a live clan member. PossessedBody source
 character/instance fields remain lifecycle links used by death and quit. See the
-[coverage and exclusion ledger](Armageddon_Typed_Reference_Implementation_20261009.md).
+[coverage and exclusion ledger](../Armageddon/Magic/Typed_Reference_Implementation_20261009.md).
 New physical relationships must declare their live provider and persisted codec fields;
 there is no generic numeric-text or guessed-property fallback.
 
@@ -788,7 +788,7 @@ receipt tables currently retain ownership evidence rather than purging it automa
 
 N14 and N15 have the bounded controlled native coverage described above. Earlier N16
 support covered sixteen native steady-state cycles and separate fault/decay readers.
-The [installed N16 checkpoint](Armageddon_Guardian_Churn_Checkpoint_20261009.md) now qualifies 32 paid cycles with
+The [installed N16 checkpoint](../Armageddon/Magic/Verification/Guardian_Churn_Checkpoint_20261009.md) now qualifies 32 paid cycles with
 cleanup before a cold restart on every cycle, plus 128 outputs cleaned up in one
 continuous process. Earlier Phase3A persistence/body checks remain supporting evidence.
 
@@ -1091,7 +1091,7 @@ The bounded queued-order repair binds accepted SelectedCombatAction to its exact
 
 Control expiry preserves animation and its independent native follower link. Selected actions and accepted grants are ephemeral; fresh readers inspect durable origin/deadlines without materializing or replaying actors/orders. Diagnostic journal version updates alone do not constitute a new grant. No transfer/regrant API or PC-charm implementation is introduced. Spell catalogue, eight feature packages, devices, acquisition/installer and complete native release gates remain open; checkpoint receipts qualify the tested scope.
 
-Parent review rejected the original queued-authority checkpoint because internal ResolveMove callbacks could run after its outer gates. The bounded correction revalidates retrieve and three posture paths after their internal responses, before native inventory/posture mutation, and suppresses rejected action stamina. Controlled paid-stock native retrieval proves a valid outer response followed by actual internal control expiry or combat departure, with independent animation/following preserved. Remaining attack/manual/message/defence-Prog callbacks are [open audit findings](Armageddon_QueuedCommand_Callback_Audit.md), rather than cleared lifecycle guarantees. N13 PC charm remains not_run.
+Parent review rejected the original queued-authority checkpoint because internal ResolveMove callbacks could run after its outer gates. The bounded correction revalidates retrieve and three posture paths after their internal responses, before native inventory/posture mutation, and suppresses rejected action stamina. Controlled paid-stock native retrieval proves a valid outer response followed by actual internal control expiry or combat departure, with independent animation/following preserved. Remaining attack/manual/message/defence-Prog callbacks are [open audit findings](../Armageddon/Magic/QueuedCommand_Callback_Audit.md), rather than cleared lifecycle guarantees. N13 PC charm remains not_run.
 
 ## Native spell companion control
 
@@ -1200,4 +1200,4 @@ physical, location, focus, range, manipulation and ownership checks still apply.
 
 Restorative Mud is a permanent topical item whose committed creation lifecycle is Completed, with no deadline. Consumption recognises only its exact bound native topical component, `restorative-mud` family, creator/spell/grade and single persisted item claim. Other permanent items do not gain consumption authority. Temporary consumables retain the Active-state and future-expiry requirements.
 
-The component latches its spent state before healing. Origin admission therefore recognises that valid in-memory latch, while the transaction still requires durable `Spent=false`, saves `Spent=true` and confirms commitment before applying the wound budget. Ambiguous consumption gives no healing. All seven managed grades cap a single gram at10*grade; the [S5 checkpoint](Armageddon_S5_Qualification_Checkpoint_20261015.md) records the paid grade-one native first/cold sample and its controlled injury, ownership and qualification limits. No stock availability, new substance policy or generic permanent-item consumption is enabled.
+The component latches its spent state before healing. Origin admission therefore recognises that valid in-memory latch, while the transaction still requires durable `Spent=false`, saves `Spent=true` and confirms commitment before applying the wound budget. Ambiguous consumption gives no healing. All seven managed grades cap a single gram at10*grade; the [S5 checkpoint](../Armageddon/Magic/Verification/S5_Qualification_Checkpoint_20261015.md) records the paid grade-one native first/cold sample and its controlled injury, ownership and qualification limits. No stock availability, new substance policy or generic permanent-item consumption is enabled.

@@ -35,6 +35,7 @@ public class ImplantBaseGameItemComponent : GameItemComponent, IImplant
         base(rhs, newParent, temporary)
     {
         _implantPrototype = rhs._implantPrototype;
+        OverridenBodypart = rhs.OverridenBodypart;
     }
 
     protected virtual void LoadFromXml(XElement root)

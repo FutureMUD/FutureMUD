@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261116104103_HardenAccountCredentialRecovery",
-  "GeneratedUtc": "2026-11-16T11:09:37.07909Z"
+  "LatestMigrationId": "20261118024538_PersistNativeItemDeletionCheckpoint",
+  "GeneratedUtc": "2026-11-18T02:45:38Z"
 }

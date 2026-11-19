@@ -64,7 +64,8 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
             new XElement("Connector",
                 new XAttribute("gender", (short)Connector.Gender),
                 new XAttribute("type", Connector.ConnectionType),
-                new XAttribute("powered", Connector.Powered)))).ToString();
+                new XAttribute("powered", Connector.Powered),
+                new XAttribute("id", Connector.PortId)))).ToString();
     }
 
     public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
@@ -246,7 +247,7 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
             return false;
         }
 
-        Connector = new ConnectorType(gender.Enum, command.SafeRemainingArgument, false);
+        Connector = new ConnectorType(gender.Enum, command.SafeRemainingArgument, false, portId: Connector.PortId);
         Changed = true;
         actor.OutputHandler.Send(
             $"This heater/cooler now uses a {Gendering.Get(Connector.Gender).GenderClass(true).ColourName()} {Connector.ConnectionType.ColourName()} connector.");

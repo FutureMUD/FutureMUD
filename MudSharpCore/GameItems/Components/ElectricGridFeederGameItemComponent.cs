@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction.Grids;
 using MudSharp.GameItems.Prototypes;
 
@@ -23,8 +23,6 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
         bool temporary = false) : base(parent, proto, temporary)
     {
         _prototype = proto;
-        parent.OnConnected += Parent_OnConnected;
-        parent.OnDisconnected += Parent_OnDisconnected;
     }
 
     public ElectricGridFeederGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -34,21 +32,29 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
         _noSave = true;
         LoadFromXml(XElement.Parse(component.Definition));
         _noSave = false;
-        parent.OnConnected += Parent_OnConnected;
-        parent.OnDisconnected += Parent_OnDisconnected;
     }
 
     public ElectricGridFeederGameItemComponent(ElectricGridFeederGameItemComponent rhs, IGameItem newParent,
         bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
-        newParent.OnConnected += Parent_OnConnected;
-        newParent.OnDisconnected += Parent_OnDisconnected;
     }
 
     protected void LoadFromXml(XElement root)
     {
         ElectricalGrid = Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as IElectricalGrid;
+        foreach (var entry in root.Element("ConnectedItems")?.Elements("Item") ?? [])
+        {
+            if (!long.TryParse(entry.Attribute("id")?.Value, out var id) || id <= 0 ||
+                entry.Attribute("connectiontype")?.Value is not { } descriptor) continue;
+            var pending = entry.Attribute("independent")?.Value == "false"
+                ? _pendingDependentLoadTimeConnections
+                : _pendingLoadTimeConnections;
+            pending.Add(Tuple.Create(id, new ConnectorType(descriptor,
+                int.TryParse(entry.Attribute("portindex")?.Value, out var portIndex) ? portIndex : null,
+                int.TryParse(entry.Attribute("peerportindex")?.Value, out var peerPortIndex) ? peerPortIndex : null,
+                entry.Attribute("portid")?.Value, entry.Attribute("peerportid")?.Value)));
+        }
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -62,7 +68,8 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     protected override string SaveToXml()
     {
-        return new XElement("Definition", new XElement("Grid", ElectricalGrid?.Id ?? 0)).ToString();
+        return new XElement("Definition", new XElement("Grid", ElectricalGrid?.Id ?? 0),
+            SaveConnections(this, ConnectedItems, _pendingLoadTimeConnections, _pendingDependentLoadTimeConnections)).ToString();
     }
 
     #endregion
@@ -101,21 +108,63 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
     #region ICanConnectToElectricalGrid Implementation
 
     private IElectricalGrid _grid;
+    private bool _gridActive;
 
     public IElectricalGrid ElectricalGrid
     {
         get => _grid;
         set
         {
-            _grid?.LeaveGrid((IProducePower)this);
-
+            if (ReferenceEquals(_grid, value)) return;
+            if (_gridActive) _grid?.LeaveGrid((IProducePower)this);
             _grid = value;
-            _grid?.JoinGrid((IProducePower)this);
-
+            if (_gridActive) _grid?.JoinGrid((IProducePower)this);
             Changed = true;
         }
     }
 
+    public override void Login()
+    {
+        base.Login();
+        if (_gridActive) return;
+        FinaliseLoad();
+        if (Parent.Deleted) return;
+        _gridActive = true;
+        Parent.OnConnected += Parent_OnConnected;
+        Parent.OnDisconnected += Parent_OnDisconnected;
+        _grid?.JoinGrid((IProducePower)this);
+        foreach (var (port, peer) in _connectedItems.ToArray()) Parent_OnConnected(peer, port);
+        _grid?.RecalculateGrid();
+    }
+
+    public override void Quit()
+    {
+        if (!_gridActive) return;
+        _gridActive = false;
+        Parent.OnConnected -= Parent_OnConnected;
+        Parent.OnDisconnected -= Parent_OnDisconnected;
+        _grid?.LeaveGrid((IProducePower)this);
+        ReleaseSource();
+        base.Quit();
+    }
+
+    public override void Delete()
+    {
+        Quit();
+        foreach (var peer in _connectedItems.Select(x => x.Item2).Distinct().ToArray()) RawDisconnect(peer, true);
+        ElectricalGrid = null;
+        base.Delete();
+    }
+
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        (independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+        .Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
+    public override void FinaliseLoad()
+    {
+        RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+        RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
+    }
     #endregion
 
     #region Implementation of IConnectable
@@ -136,13 +185,7 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
     {
         get
         {
-            List<ConnectorType> rvar = new(Connections);
-            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
-            {
-                rvar.Remove(item.Item1);
-            }
-
-            return rvar;
+            return ConnectableGameItemComponent.GetFreeConnections(Connections, ConnectedItems);
         }
     }
 
@@ -188,15 +231,17 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
             return;
         }
 
-        RawConnect(other, connection);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+        ConnectPair(this, connection, other, otherConnection);
         Changed = true;
     }
 
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItems.Add(Tuple.Create(type, other));
-        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        ConsumeSavedConnection(this, other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections,
+            other.Parent.Id, type);
         Parent.ConnectedItem(other, type);
         Changed = true;
     }
@@ -332,13 +377,13 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     private void Parent_OnConnected(IConnectable other, ConnectorType type)
     {
-        if (!type.Powered)
+        if (!_gridActive || !type.Powered || _connectedPowerSource is not null)
         {
             return;
         }
 
         IProducePower power = other.Parent.GetItemTypes<IProducePower>()
-                         .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer);
+                         .FirstOrDefault(x => !ReferenceEquals(x, this) && x.PrimaryExternalConnectionPowerProducer);
         if (power == null)
         {
             return;
@@ -351,17 +396,20 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
     {
-        if (other.Parent == _connectedPowerSource?.Parent && type.Equals(_connectedPowerSourceConnector))
+        if (other.Parent == _connectedPowerSource?.Parent &&
+            (type.Equals(_connectedPowerSourceConnector) || type.CompatibleWith(_connectedPowerSourceConnector)))
         {
-            if (_connectedPowerSource.ProducingPower)
-            {
-                OnPowerCutOut();
-            }
-
-            _connectedPowerSource.EndDrawdown(this);
-            _connectedPowerSource = null;
-            _connectedPowerSourceConnector = null;
+            ReleaseSource();
+            _grid?.RecalculateGrid();
         }
+    }
+
+    private void ReleaseSource()
+    {
+        var source = _connectedPowerSource;
+        _connectedPowerSource = null;
+        _connectedPowerSourceConnector = null;
+        source?.EndDrawdown(this);
     }
 
     #endregion

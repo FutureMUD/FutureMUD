@@ -62,6 +62,7 @@ builder.Services.AddOptions<FutureMudWebOptions>()
 	.ValidateOnStart();
 builder.Services.AddSingleton<MarkdownContentService>();
 builder.Services.AddSingleton<DocumentationService>();
+builder.Services.AddSingleton<BuilderGuideCatalogue>();
 builder.Services.AddSingleton<ReleaseProductCatalogue>();
 builder.Services.AddSingleton<ReleaseStore>();
 builder.Services.AddSingleton<PublishingAuthentication>();

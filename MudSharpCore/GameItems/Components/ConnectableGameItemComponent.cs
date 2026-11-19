@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
@@ -54,6 +54,12 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
         }
 
         return false;
+    }
+
+    public override void Delete()
+    {
+        foreach (var peer in _connectedItems.Select(x => x.Item2).Distinct().ToArray()) RawDisconnect(peer, true);
+        base.Delete();
     }
 
     public override bool AffectsLocationOnDestruction => true;
@@ -150,14 +156,28 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
     {
         get
         {
-            List<ConnectorType> rvar = new(Connections);
-            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
+            return GetFreeConnections(Connections, ConnectedItems);
+        }
+    }
+
+    internal static IEnumerable<ConnectorType> GetFreeConnections(IEnumerable<ConnectorType> connections,
+        IEnumerable<Tuple<ConnectorType, IConnectable>> connected)
+    {
+        var free = connections.ToList();
+        foreach (var (port, _) in connected)
+        {
+            var index = free.FindIndex(x => ReferenceEquals(x, port));
+            if (index < 0 && port.PortId is not null)
             {
-                rvar.Remove(item.Item1);
+                index = free.FindIndex(x => x.PortId == port.PortId);
+                if (index < 0) continue;
             }
 
-            return rvar;
+            if (index < 0) index = free.FindIndex(x => x.Equals(port));
+            if (index >= 0) free.RemoveAt(index);
         }
+
+        return free;
     }
 
     public bool Independent => true;
@@ -208,15 +228,17 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
             return;
         }
 
-        RawConnect(other, connection);
-        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        var otherConnection = other.FreeConnections.First(x => x.CompatibleWith(connection));
+
+        ConnectPair(this, connection, other, otherConnection);
         Changed = true;
     }
 
     public void RawConnect(IConnectable other, ConnectorType type)
     {
         _connectedItems.Add(Tuple.Create(type, other));
-        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        var pending = other.Independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections;
+        ConsumeSavedConnection(this, pending, other.Parent.Id, type);
         Parent.ConnectedItem(other, type);
         Changed = true;
     }
@@ -282,11 +304,12 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
     {
         if (handleEvents)
         {
+            var connections = GetConnectedPortPairs(this, other);
             other.RawDisconnect(this, false);
-            foreach (Tuple<ConnectorType, IConnectable> connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+            foreach (var connection in connections)
             {
-                Parent.DisconnectedItem(other, connection.Item1);
-                other.Parent.DisconnectedItem(this, connection.Item1);
+                Parent.DisconnectedItem(other, connection.Local);
+                other.Parent.DisconnectedItem(this, connection.Peer ?? connection.Local);
             }
         }
 
@@ -319,13 +342,8 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("ConnectedItems",
-                from item in ConnectedItems
-                select
-                    new XElement("Item", new XAttribute("id", item.Item2.Parent.Id),
-                        new XAttribute("connectiontype", item.Item1),
-                        new XAttribute("independent", item.Item2.Independent)))
-        ).ToString();
+            SaveConnections(this, ConnectedItems, _pendingLoadTimeConnections, _pendingDependentLoadTimeConnections))
+            .ToString();
     }
 
     #region Constructors
@@ -357,14 +375,12 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
                 if (item.Attribute("independent")?.Value == "false")
                 {
                     _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
                 else
                 {
                     _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id").Value),
-                        new ConnectorType(
-                            item.Attribute("connectiontype").Value)));
+                        LoadSavedConnector(item)));
                 }
             }
         }
@@ -378,74 +394,22 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
 		_connectedItems = new List<Tuple<ConnectorType, IConnectable>>();
     }
 
+    internal static ConnectorType? FindExactFreeConnector(IEnumerable<ConnectorType> available, ConnectorType saved)
+    {
+        var matches = available.Where(x => x.Equals(saved)).Take(2).ToArray();
+        return matches.Length == 1 ? matches[0] : null;
+    }
+
+    internal override IEnumerable<ConnectorType> PendingPorts(long peerId, bool independent) =>
+        (independent ? _pendingLoadTimeConnections : _pendingDependentLoadTimeConnections)
+        .Where(x => x.Item1 == peerId).Select(x => x.Item2);
+
+    public override void Login() => FinaliseLoad();
+
     public override void FinaliseLoad()
     {
-        foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                continue;
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            if (!Parent.ColocatedWith(gitem))
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (!connectable.CanConnect(null, this))
-                {
-                    continue;
-                }
-
-                RestorePersistedConnection(connectable, () => Connect(null, connectable));
-                break;
-            }
-        }
-
-        _pendingLoadTimeConnections.Clear();
-
-        foreach (Tuple<long, ConnectorType> item in _pendingDependentLoadTimeConnections.ToList())
-        {
-            IGameItem gitem = Gameworld.Items.Get(item.Item1);
-            if (gitem == null)
-            {
-                gitem = Gameworld.TryGetItem(item.Item1, true);
-                if (gitem == null)
-                {
-                    continue;
-                }
-
-                gitem.FinaliseLoadTimeTasks();
-            }
-
-            List<IConnectable> connectables = gitem.GetItemTypes<IConnectable>().ToList();
-            if (!connectables.Any())
-            {
-                continue;
-            }
-
-            foreach (IConnectable connectable in connectables)
-            {
-                if (connectable == null)
-                {
-                    continue;
-                }
-
-                RestorePersistedConnection(connectable, () => Connect(null, connectable));
-                break;
-            }
-        }
-
-        _pendingDependentLoadTimeConnections.Clear();
+        RestorePendingConnections(this, _pendingLoadTimeConnections, loadMissingItems: false);
+        RestorePendingConnections(this, _pendingDependentLoadTimeConnections, loadMissingItems: true);
     }
 
     #endregion

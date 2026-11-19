@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
@@ -8,7 +8,7 @@ using MudSharp.GameItems.Components;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class FuelGeneratorGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, ISwitchablePrototype, ILiquidContainerPrototype, ILockablePrototype, IOnOffPrototype
+public class FuelGeneratorGameItemComponentProto : GameItemComponentProto, IPrimaryPowerProducerPrototype, ISwitchablePrototype, ILiquidContainerPrototype, ILockablePrototype, IOnOffPrototype
 {
     protected FuelGeneratorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Fuel Generator")

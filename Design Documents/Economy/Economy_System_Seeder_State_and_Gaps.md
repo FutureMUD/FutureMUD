@@ -20,6 +20,11 @@ This document deliberately separates verified current state from recommended fut
 Industrialised ItemSeeder content pricing is governed separately by the [historical pricing methodology](../Seeding/FutureMUD_Industrialised_Historical_Pricing_Methodology.md) and [clothing production specification](../Seeding/FutureMUD_Industrialised_Clothing_Footwear_Uniforms_Design_Reference.md). Those are approved authoring requirements, not new economy runtime behaviour or certification of existing draft prices. They require local-labour value evidence and independent production-route/period quality reasoning; skins do not introduce a separate inherent price or an automatic repricing system.
 
 ## Current Seeder Reality
+
+### Employment task approval persistence
+
+Employment approval provenance is runtime persistence, not seeded world content. Migration `20261117030326_PersistEmploymentTaskApprovals` adds task provenance, scheduled-rule approver, and manager-goal approval-configuration columns; it does not add economy packages or require setting-specific seed data. The later explicit-retry requirement is an optional field in the existing provenance JSON document and needs no additional schema or seeder change. Existing task rows without provenance and pre-migration rule/goal issuer identities do not gain inferred approval. Re-author legacy automation under an authorised manager for future financial tasks, or explicitly approve an already spawned legacy task. Executed purchase/physical-float steps missing durable `SelectedResources`/`LoadedAssets` custody evidence remain held; native inventory/cash repair alone cannot clear this task-evidence guard. See [Employment task restart and recovery](Employment_Restart_and_Recovery.md) for dated scoped verification and remaining migration/provider limits.
+
 ### Verified current state
 The economy analytics migration supplies three static configuration defaults, which are also included in the blank database snapshot. Core bootstrap preserves existing mandatory settings and adds missing defaults, so these migration-provided rows do not collide with Core installation.
 
@@ -49,7 +54,7 @@ The current repository has two dedicated economy seeders:
 - era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
 - explicit population income factors and non-zero savings caps so seeded households can accumulate reserves before becoming stressed
 - population-stress influence templates and their helper FutureProgs, with stress now reducing lower-priority demand while also contracting supply in the sectors that stressed populations plausibly sustain
-- one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures now scaled by both era assumptions and the chosen currency package
+- one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures scaled by both era assumptions and the chosen currency package. The seeded item callbacks already use Item, Merchandise and Number (price).
 
 The current stock eras are:
 

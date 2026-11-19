@@ -19,9 +19,26 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonHeritageTests
 {
-	internal static FuturemudDatabaseContext Fixture()
+	private static readonly Lazy<InMemorySeederSnapshot> Prerequisites = new(BuildPrerequisites);
+
+	internal static FuturemudDatabaseContext Fixture() => Prerequisites.Value.Create();
+
+	private static InMemorySeederSnapshot BuildPrerequisites()
 	{
-		var db = ArmageddonSettingPackageTests.Fixture();
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		try
+		{
+			SeedHeritageScaffold(db);
+			return InMemorySeederSnapshot.Capture(db);
+		}
+		finally
+		{
+			db.Database.EnsureDeleted();
+		}
+	}
+
+	private static void SeedHeritageScaffold(FuturemudDatabaseContext db)
+	{
 		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
 		foreach (var prog in db.FutureProgs.Where(x => x.FunctionName == "AlwaysTrue" || x.FunctionName == "AlwaysFalse"))
 		{
@@ -76,7 +93,7 @@ public class ArmageddonHeritageTests
 			db.CharacteristicProfiles.Add(new CharacteristicProfile { Id = id, Name = "Shared " + name, TargetDefinitionId = id, Type = "Standard", Definition = $"<Definition><Value>{id}</Value></Definition>" });
 			db.EthnicitiesCharacteristics.Add(new EthnicitiesCharacteristics { EthnicityId = 100, CharacteristicDefinitionId = id, CharacteristicProfileId = id });
 		}
-		db.SaveChanges(); return db;
+		db.SaveChanges();
 	}
 
 	[TestMethod]

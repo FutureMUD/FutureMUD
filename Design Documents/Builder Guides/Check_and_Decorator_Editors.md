@@ -1,0 +1,51 @@
+---
+slug: checks-and-decorators
+category: Builder tools
+summary: Configure check templates, trait expressions and display decorators, and activate the edits after restart.
+---
+
+# Check and Decorator Editors
+
+See the [common builder workflow](Generic_Editable_Item_Builder_Workflows.md) for help discovery, selection and closing. The restart activation rule below is specific to these editors.
+
+The `checktemplate`, `traitdecorator`, and `stackdecorator` commands edit existing database-backed runtime definitions. They preserve each row's numeric identity. These commands configure definitions used by the engine; they do not add C# check types or decorator implementations.
+
+## Check templates
+
+`PoisonResistanceCheck` (244) uses the seeded **Poison Resistance Check** standard template with improvement disabled. Stock formulas use Endurance/Constitution times five. Inspect and tune its difficulties with the normal template editor; its formula/attribute binding remains ordinary trait-expression data. Skill seeders, runtime missing-check bootstrap and the Armageddon worldfile importer preserve existing configured checks. A custom setting without a recognised endurance attribute receives a zero formula that needs explicit binding. FutureProg's `resistpoison(character, difficulty)` invokes this check without dosing; exposure progs decide which routes permit a save.
+
+Use `checktemplate list [+keyword]` to find templates and `checktemplate show <id|name>` to inspect the saved method, complete XML definition, difficulty modifiers, missing-trait policy, improvement and branching flags, and assigned check types. `checktemplate new <name> [method]` creates a template with zero modifiers for every difficulty. `checktemplate clone <id|name> <new name>` copies the definition and modifiers. `checktemplate edit <id|name>` selects a row for changes.
+
+Use typed settings to save common method data. Set Timebound values with `checktemplate set maximum_time 8` followed by `checktemplate set minimum_time 2`. PassivePerception shares the same time settings. Set its formula and fuzziness with `checktemplate set core_expression "awareness + perception"` and `checktemplate set passive_fuzziness 0.15`. Limb requirements support `checktemplate set limb list`, `limb add <LimbType> <minimum>`, `limb set <index> <LimbType> <minimum>`, and `limb remove <index>`. Limb indexes are one-based. Timebound seconds must be non-negative, and maximum must be at least minimum. PassivePerception requires a valid `CoreTraitExpression` formula and finite `PassiveFuzziness` from 0 up to (but not including) 1. Limb requirements use defined `LimbType` values and non-negative minimum counts.
+
+Other template fields are `name`, `method`, `improve`, `branch`, `missing`, and `difficulty`. Boolean fields accept `true`/`false`, `yes`/`no`, or `1`/`0`; `missing` accepts a `FailIfTraitMissingType` name. Set a difficulty with its `Difficulty` enum name and a finite numeric modifier, for example `checktemplate set difficulty Difficult -2.5`. Every difficulty must have a modifier before a save succeeds. `checktemplate set definition <xml>` is an advanced override when a specialized definition needs direct XML editing. A method change resets method XML to factory-compatible defaults so the editor remains valid.
+
+The supported method names are `Standard`, `OGL`, `Timebound`, `Limb`, `Static`, `Branch`, `PassivePerception`, and `BonusAbsent`. These are the existing runtime factories. Use `checktemplate assign <id|name> <CheckType>` to attach a template to an already defined enum-backed check row. The command refuses unknown enum values and missing rows; it does not manufacture check identities. Assignment affects that check type's existing row and may change every caller of that check.
+
+## Trait-expression target references
+
+Trait-expression formulas retain the existing `name:id` syntax for a trait belonging to the character making the check. Use `name:!id` to read the supplied target's effective trait value instead. For example, `perception:51 - concealment:!52` reads trait 51 from the checkee and trait 52 from the target. Use distinct parameter names for distinct bindings. The readable name is a formula parameter label; the numerical ID selects the trait. Existing `{noimprove,nobranch}` flags and the owner-bound `variable` parameter retain their meaning.
+
+Target references are read-only. They do not require the checkee to possess the referenced trait, cannot improve or branch it, and cannot be toggled into learning parameters. An absent target or a target without trait support contributes zero. Otherwise the target's normal effective trait lookup applies, including its native modifiers. Ordinary targeted check calls, target-number previews and the standard multi-difficulty/opposed-check paths supply the target automatically. The formula changes nothing unless a builder explicitly uses target syntax; there is no automatic subtraction of an opponent's traits.
+
+The optional `{raw}` flag reads the native stored value without trait modifiers: `baseline:51{raw,noimprove,nobranch}` reads the owner's fixed baseline, and `baseline:!51{raw}` reads the target's stored baseline. Effective values remain the default. This is useful for identity/presence markers and imported baselines which must not acquire an all-skills merit or an unrelated skill effect. The flag does not bypass the check's ordinary difficulty, situational or equipment-check modifiers. It survives inline parsing, builder edits, saving/loading, cloning and owner-only numerical capture.
+
+Use the existing trait-expression formula editor, for example `traitexpression set formula variable + perception:51 - concealment:!52`. Builder show output marks target parameters with `[target]`. Parameter/trait editing accepts an `!` prefix on the trait ID or name; editing an existing target's trait preserves its target scope. Target scope is saved in the inline formula text and survives normal save/load and cloning without a schema change. Evaluation without a target, including maximum-value evaluation and creator-only numerical capture, uses zero for target bindings.
+
+When adding a target binding with the parameter/trait editor, the parameter must already appear in the formula; otherwise the editor refuses the change. Inline `name:!id` syntax supplies both at once. Removing a target parameter from the formula removes its unused binding. Reusing its bare name in a formula preserves and saves its existing target scope.
+
+Runtime callers outside checks can supply an explicit `IHaveTraits` target through `ITraitExpression.EvaluateWithTarget`. Existing `Evaluate`, `EvaluateWith` and `EvaluateMax` calls retain their signatures and have no target. The check engine forwards the existing check target; no combat-specific rating implementation is required to expose opponent traits.
+
+## Trait decorators
+
+Use `traitdecorator list [+keyword]`, `show <id|name>`, `new <name> <type>`, `clone <id|name> <new name>`, and `edit <id|name>`. The supported factory types are `SimpleNumeric`, `CurrentMax`, `Percentage`, and `Range`. `show` prints the runtime description, stored contents, and trait definitions that reference the decorator. For a Range decorator, set `name`, `prefix`, `suffix`, and each of `colour_capped`, `colour_buffed`, and `colour_default`. Range descriptors are managed with `traitdecorator set ranges list`, `ranges add <low> <high> <descriptor>`, `ranges set <index> <low> <high> <descriptor>`, and `ranges remove <index>`. Indexes are one-based. Each descriptor uses integer bounds and non-empty text. Ranges must meet exactly at adjacent boundaries, as required by the runtime `RankedRange` factory; they cannot overlap or leave gaps. New Range definitions start with a usable 0–100 descriptor. `traitdecorator set definition <xml>` remains available as an advanced override. The existing factory is invoked after structural validation and before each save.
+
+## Stack decorators
+
+Use `stackdecorator list [+keyword]`, `show <id|name>`, `new <name> <type>`, `clone <id|name> <new name>`, and `edit <id|name>`. The supported factory types are `Suffix`, `Pile`, `Bites`, and `Range`. `show` prints the stored description and full XML, component prototypes whose definition XML references this decorator ID, and stack-decorator static configuration settings that reference the ID. Set `name`, `type`, and `description` directly. Pile, Bites, and Range quantity bands use `stackdecorator set ranges list`, `ranges add <min> <max> <item text>`, `ranges set <index> <min> <max> <item text>`, and `ranges remove <index>`. Indexes are one-based. Pile and Bites use integer bounds; Range uses finite invariant-culture numeric bounds. Ranges must meet exactly at adjacent boundaries, as required by the runtime `RankedRange` factory, without gaps or overlap. Bites item text is a format string with an item-description placeholder, for example `"a bite of {0}"`. New ranged decorators get a valid factory default. `stackdecorator set definition <xml>` is available as an advanced override for Pile, Bites, and Range. The runtime factory is invoked after typed validation and before saving.
+
+## Editing and activation
+
+Each `new`, `clone`, or `edit` selection becomes the caller's active editor for that command family. Typed setters work on a candidate copy, validate the complete definition, and save immediately. A rejected value leaves both the saved record and selected draft unchanged. `close` clears the active editor. Closing does not roll back earlier successful `set` operations.
+
+The runtime loads checks and decorators into gameworld caches during server startup. Database edits therefore become active after a server restart. The editor does not change loaded cache objects; this prevents an unsaved in-memory definition from being mistaken for a durable update or later overwritten by a reload.

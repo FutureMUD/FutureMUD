@@ -1,0 +1,1355 @@
+---
+slug: rooms
+category: World building
+summary: Build and review rooms, exits, terrain, overlay packages, landmarks and linear routes.
+---
+
+# Room Building Builder Guide
+
+The canonical administrative building command is `room`; `cell` remains an alias with identical permissions and dispatch. The live internal and database concept is Room, retaining the former Cell ID. Legacy containing Rooms are removed rather than renamed into playable locations. All examples use the canonical command; existing `cell` commands retain identical dispatch. Optional unique names remain room-wide, case-insensitively unique, and independent of overlays; numeric IDs and FutureProg Location values retain their established meaning.
+
+Gameplay commands that target exits use the shared `IRoom.GetExitKeyword` resolver, including door and lock manipulation, door smashing/destruction, directional socials, tollkeeper mode, and exit-targeted spell casting. Cardinal aliases resolve exactly (`n`/`north`, `ne`/`northeast`/`north-east`, `nw`/`northwest`/`north-west`), independently of exit ordering. Non-cardinal exits retain their configured keyword matching. Forced movement also uses exit-specific keyword matching when considering exits across layers. Builder exit editing retains its separate exact-direction, exit-ID, and exact named-keyword lookup. These lookup changes require no database migration or world-data repair.
+
+This guide explains the FutureMUD room-building model for engine users, world builders, and AI agents helping them. It focuses on the builder-facing workflow and command surface rather than the internal persistence model.
+
+A Room is the playable location. The `cell` command is a compatibility alias for `room`.
+
+## Stable room identifiers
+
+`room set uniquename <name>` (also `room set unique`) assigns an optional global room identifier. This edits the room immediately and does not require an overlay package. `none`, `clear`, `delete` and `remove` clear it. `room show` and `rooms` display identifiers. Existing rooms, newly built rooms and template clones start unnamed; combat simulation rooms cannot be named. Persistent dwelling and vehicle interiors share the same global namespace.
+
+Identifiers follow item prototype conventions: trim outer whitespace, preserve internal spaces and case, compare exact keys case-insensitively, reject values parsed as a signed 64-bit numeric ID, and limit length to 255 characters. No prefix, punctuation or ASCII-only format is required. A rename removes the old key immediately; it creates no alias and rewrites no saved script text or numeric reference.
+
+`goto <identifier>` keeps living-character targeting precedence. `goto #<identifier>` forces a room target; numeric room IDs, legacy display-name matching, `here`, `@N` and route `at` syntax remain available. Existing name-based starting-location, hospital, restaurant, scheduled-employment and combat-scene selectors also accept exact room keys before their original name fallback. Other numeric protocols and item/staged-room selectors keep their existing grammar.
+
+FutureProg `tolocation(number)` continues to use room IDs. `tolocation(text)` resolves numeric IDs, `@N`, exact keys, then legacy names. `locationbyuniquename(text)` resolves only an exact key and returns null when absent; `room.uniquename` returns text (empty when unset). Special command syntax can shadow permissive keys such as `here`, `@1`, or a key containing ` at `; use the strict function or numeric ID to address these. Startup refuses duplicate or malformed nonblank persisted keys with a diagnostic; administrators must explicitly resolve them, rather than letting startup choose a winner.
+
+The additive `CellUniqueNames` migration adds nullable `utf8mb4` storage and a nonunique lookup index. The new column supports supplementary Unicode (including emoji), which the older prototype `utf8` columns cannot store; application comparison still follows prototype conventions. It performs no backfill or spatial restructuring and preserves numeric identities and references. Back up before upgrading. Downgrading drops assigned keys; export them by room ID first if needed. The later spatial ownership and Room terminology migrations remove the legacy containing Room and rename the surviving location.
+
+## Quick Mental Model
+
+The [staged spatial migration](../Building/Cell_Spatial_Ownership_Migration.md) removes the legacy containing Room entity. Surviving Rooms directly own their zone, stored integer XYZ coordinates and Area memberships. Familiar room vocabulary and FutureProg location functions remain. Rezone and Area editing affect the selected Room directly. Hosted interiors still project their exterior environment while their stored ownership remains independent.
+
+FutureMUD locations are built from a small set of concepts:
+
+| Concept | What it means to a builder |
+| --- | --- |
+| Shard | The highest location container. A shard represents a broad world, plane, planet, region of reality, or other top-level space. It owns sky, clocks, calendars, celestial objects, and minimum light settings. |
+| Zone | A geographic or operational region inside a shard. Zones own latitude, longitude, elevation, weather controller, clock time zones, light multiplier, and the default room created for the zone. |
+| Room | The place characters stand, look, move, forage, hear, quit safely, and interact. Rooms have names, descriptions, terrain, outdoors type, atmosphere, light settings, exits, and overlays. |
+| Area | A cross-cutting grouping of rooms. Areas are not a strict layer between zones and rooms. They can span zones, and rooms may belong to more than one area. |
+| Overlay | A versioned set of room presentation and exit data. Builders edit overlays rather than directly overwriting live room state. |
+| Overlay Package | A named collection of overlays that move through review, approval, and swap workflows together. |
+| Terrain | The mechanical and presentation baseline for a room: movement, layers, natural light expectations, atmosphere, tracks, weather override, forage defaults, and editor display. |
+| Agriculture Field | Optional field state attached to a room for crops, pasture, herds, or managed woodland. A room can have at most one field. |
+| Exit | A connection between rooms. Exits can be cardinal, non-cardinal, door-capable, climbable, fall exits, layer-blocking, hidden by prog, or limited by character size/posture. |
+
+Most building sessions follow this shape:
+
+1. Open or create an overlay package.
+2. Create, revise, or adopt rooms in that package.
+3. Set room names, descriptions, terrain, outdoors type, light, atmosphere, exits, and landmark data.
+4. Submit the package for review.
+5. Accept, decline, swap, or obsolete the package depending on builder permissions and world workflow.
+
+## Location Hierarchy
+
+### Shards
+
+Shards are the highest organisational unit. A shard usually represents a separate world-scale context: a continent-scale campaign map, a planet, a plane, a starship interior shard, an underworld shard, or any other major separation that should have its own sky and time model.
+
+Shards hold:
+
+- Sky template.
+- Clocks and calendars.
+- Celestial objects.
+- Minimum outdoor lux.
+
+Key commands:
+
+```text
+shard list
+shard new <name> <sky template>
+shard set <shard> name <name>
+shard set <shard> clocks <clock...>
+shard set <shard> calendars <calendar...>
+shard set <shard> celestials <celestial...>
+shard set <shard> sky <sky template>
+shard set <shard> lux <minimum lux>
+```
+
+Use shards when the world boundary matters mechanically. If the only difference is neighbourhood, climate, or staff organisation, use zones or areas instead.
+
+### Zones
+
+Zones are the normal geographic or operational unit under a shard. A zone might be a city district, wilderness region, mine complex, ship deck, island, dungeon level, or road network. Zones are especially important because they carry weather, time-zone, light, elevation, and forage defaults.
+
+Zones hold:
+
+- Name.
+- Shard membership.
+- Latitude, longitude, and elevation.
+- Ambient light multiplier.
+- Per-clock time zone.
+- Weather controller.
+- Foragable profile.
+- A default room.
+
+Creating a zone requires an open `Under Design` overlay package. The command creates the zone and a default room in the current package.
+
+Key commands:
+
+```text
+zone new <name> <shard> <timezones...>
+zone show <zone>
+zone set <zone> name <name>
+zone set <zone> latitude <decimal>
+zone set <zone> longitude <decimal>
+zone set <zone> elevation <metres>
+zone set <zone> light <multiplier>
+zone set <zone> timezone <clock> <timezone>
+zone set <zone> fp <foragable profile>
+zone set <zone> fp clear
+zone set <zone> weather <weather controller>
+zone set <zone> weather none
+zones
+rooms <zone id|name> [+keyword] [-keyword]
+rezone <zone>
+```
+
+The `rooms` command can filter by zone and by keywords. Use `+keyword` to require text and `-keyword` to exclude text.
+
+### Moving a Zone Between Installations
+
+Senior administrators can export one or more zones to a versioned spatial-area package and import them into another FutureMUD installation:
+
+```text
+spatialpackage export zone "Harbour Ward" harbour-ward
+spatialpackage export zones harbour-district "Harbour Ward" "Warehouse Quarter"
+spatialpackage validate harbour-ward "Prime Material" "Imported Harbour Ward"
+spatialpackage import harbour-ward "Prime Material" confirm "Imported Harbour Ward"
+```
+
+Copy the generated `.fmsa.json` file from the source server's `Spatial Packages` directory into the same directory on the target server. On the target installation, open or create an `Under Design` room overlay package before validation or import.
+
+An import creates new zones and assigns new IDs to Rooms, overlays, route metadata and exits. It never merges into an existing zone or overwrites unrelated content. A name override is only available for a single-zone package. Validation checks package integrity, all internal references, the target shard's clocks and timezones, and named dependencies such as terrain, atmosphere, hearing profiles, weather controllers, forage profiles, tags, covers, and magic resources.
+
+Current package version 5 preserves route-room geometry, landmarks, exit anchors, multiple zones, exits linking selected zones, and any `AREA` group whose complete room membership is selected. Links to unselected zones, partially selected `AREA` groups, hooks, characters, items, and installed door items are omitted and shown as an enumerated list by export, validation, and import. Temporary dwelling Rooms and their links are skipped. Historical packages with empty containing Rooms report omissions while preserving their archive provenance. An exit with an installed door imports as a door-capable exit without that physical door. The exporter refuses rooms whose faithful transfer requires data it does not carry: hosted vehicle interiors, agriculture fields, persisted room effects, surface-liquid state, and fall exits that lead outside the selection. Versions 1 through 4 remain importable through checksum-validated compatibility readers.
+
+See [Spatial Area Transfer Packages](../World/Spatial_Area_Transfer_Packages.md) for format, validation, remapping, and extension details.
+
+### Rooms
+
+A Room is the concrete playable location. It retains the numeric identity and mechanics of the former Cell; the containing layer is removed.
+
+A room has:
+
+- A parent room identity and zone.
+- A current overlay.
+- Name and description.
+- Terrain.
+- Outdoors type.
+- Hearing profile.
+- Ambient light multiplier.
+- Added light.
+- Atmosphere override.
+- Forage override.
+- Safe quit flag.
+- Exits.
+- Variable register values for progs.
+- Optional agriculture field.
+- Optional landmark or meeting-place effect.
+
+Key inspection commands:
+
+```text
+room show
+room overlay <id|name> [revision]
+room overlay clear
+rooms <zone id|name> [+keyword] [-keyword]
+show terrain [+keyword] [-keyword] [*keyword]
+show overlays
+show exittemplates
+```
+
+`room overlay` is a builder view/edit helper. It lets you view a specific overlay revision for your current room. `room overlay clear` returns you to the default current overlay. You will see the information associated with your current overlay when you look at the room, but others will still see the room's default current. This way, you can be working on changes to an area live without impacting on what others are seeing.
+
+Agriculture note:
+
+- agriculture fields are live room state, not overlay text
+- terrain can define a default agriculture profile with `terrain set agriculture <profile|none>`
+- builders create and maintain actual fields with `field create`, `field set`, `field reset`, and `field tick`
+- see [Agriculture Builder Workflows](Agriculture_Builder_Workflows.md) for the full field workflow
+
+### Areas
+
+Areas are independent room groupings. They are not a strict parent of rooms, and they are not a required step between zones and rooms. A room can be in more than one area, and an area can include rooms across multiple zones.
+
+Use areas when you need a named collection of rooms for:
+
+- Weather overrides.
+- Builder organisation.
+- Scripts and effects.
+- Shared descriptions or ambient logic.
+- Administrative grouping.
+
+Key commands:
+
+```text
+area list [zone]
+area show <id|name>
+area new <name>
+area edit <id|name>
+area edit
+area close
+area rename <name>
+area add
+area remove
+area weather <id|name>
+area weather clear
+```
+
+`area edit` selects the area you are changing. `area add` adds the current room to the open area, and `area remove` removes it.
+
+## Overlay Packages
+
+FutureMUD room building is package-based. You usually do not directly mutate live room presentation. Instead, you work in an overlay package, submit it, and then review or swap it.
+
+Overlay package creation and renaming reject names longer than 4,000 characters before inserting or changing a package. Names within the existing database limit retain the normal title casing and uniqueness checks.
+
+Package statuses you will see:
+
+| Status | Meaning |
+| --- | --- |
+| Under Design | Editable draft. Normal building commands require this. |
+| Pending Revision | Submitted for review. Some prog and link operations can still target this status, but normal builder editing should happen before submission. |
+| Current | Approved and available as live/current overlay data. |
+| Rejected | Declined package revision. Can be revised. |
+| Obsolete | Retired package. |
+
+Key commands:
+
+```text
+room package list [all|by <builder>|mine]
+room package new <name>
+room package open <id|name>
+room package close
+room package show [<id|name>]
+room package rename <name>
+room package revise <id|name>
+room package submit <comment>
+room package review list
+room package review all
+room package review <id>
+accept edit <comments>
+decline edit <comments>
+room package history <id|name>
+room package swap <id|name>
+room package delete
+room package obsolete
+```
+
+Common package workflow:
+
+```text
+room package new "North Road Expansion"
+room new
+room set name "A Packed-Dirt Road"
+room set terrain "Dirt Road"
+room set type outdoors
+room set desc
+room package submit "Adds the first road room north of the gate."
+room package review list
+room package review 42
+accept edit "Looks good."
+room package swap 42
+```
+
+Use `room package revise` for an existing current or rejected package when you want a new revision. Use `room package delete` only for an open `Under Design` package you really want to discard.
+
+Deletion is blocked while any room uses that package revision as its active overlay. The refusal lists the affected room IDs. Activate another approved package for those rooms before discarding the draft. This also protects newly created rooms whose only overlay belongs to the draft; deleting a package is not a way to delete those rooms.
+
+`room package review <id>` and `room package review all` open a temporary review proposal. Type `accept edit <comments>` or `decline edit <comments>` as the follow-up response before the proposal times out.
+
+## Terrain, Outdoors Type, and Environment
+
+Ordinary up/down exits (such as stairs) are available on terrain layers shared by both rooms, excluding blocked layers, just like horizontal exits. An ordinary up exit does not require reaching a terrain's rooftops or highest flight layer. Climb/fall/fly up/down exits retain their highest/lowest terrain-boundary behaviour.
+
+Terrain is the main mechanical profile for a room. It is not only display text. Terrain affects movement, stamina, infection risk, weather behaviour, forage defaults, available room layers, natural light expectations, tracks, atmosphere, and map/editor presentation.
+
+Useful terrain commands:
+
+```text
+terrain list [+keyword] [-keyword] [*keyword]
+terrain new <name>
+terrain clone <terrain> <new name>
+terrain edit <terrain>
+terrain edit
+terrain show <terrain>
+terrain close
+terrain set name <name>
+terrain set atmosphere none
+terrain set atmosphere gas <gas>
+terrain set atmosphere liquid <liquid>
+terrain set movement <percentage>
+terrain set stamina <cost>
+terrain set hide <difficulty>
+terrain set spot <difficulty>
+terrain set forage none
+terrain set forage <profile>
+terrain set environment <environmental regenerator|none>
+terrain set weather none
+terrain set weather <weather controller>
+terrain set cover <cover>
+terrain set default
+terrain set infection <type> <difficulty> <virulence>
+terrain set outdoors
+terrain set indoors
+terrain set exposed
+terrain set cave
+terrain set windows
+terrain set model <model>
+terrain set gravity normal
+terrain set gravity zerog
+terrain set tag <tag>
+terrain set tracks
+terrain set trackvisual <percentage>
+terrain set tracksmell <percentage>
+terrain set mapcolour <0-255>
+terrain set editorcolour <#AARRGGBB>
+terrain set editortext <one or two letters>
+terrain override <terrain> [<prog>]
+terrain reset
+terrain planner
+```
+
+Terrain models control room layers. Common model names include:
+
+- `outdoors`: ground plus air layers.
+- `indoors`: ground only.
+- `cave`: ground plus limited air.
+- `cliff`: air levels only.
+- `rooftops`: ground, rooftops, and air layers.
+- `rooftopsonly`: rooftops and air layers, with the roof as the lowest supported surface.
+- `trees`: ground, trees, and air.
+- `talltrees`: ground, multiple tree layers, and air.
+- `cavetrees`: cave-like tree layers.
+- `shallowwater`, `deepwater`, `verydeepwater`: water plus surface/air layers.
+- `underwater`, `deepunderwater`, `verydeepunderwater`: submerged layers only.
+- `shallowwatertrees`, `shallowwatercave`, `deepwatercave`, `verydeepwatercave`: water variants with tree or cave layers.
+
+See the [Room Layer System Primer](../World/Room_Layer_System_Primer.md) for the complete model table, exit intersection rules, movement and perception interactions, and worked rooftop, underwater, climbing, and flying patterns.
+
+Room-level environment commands:
+
+```text
+room set terrain <terrain>
+room set type outdoors
+room set type indoors
+room set type cave
+room set type windows
+room set type exposed
+room set hearing <hearing profile>
+room set lightmultiplier <multiplier>
+room set lightlevel <lux>
+room set forage clear
+room set forage <profile>
+room set atmosphere gas <gas>
+room set atmosphere liquid <liquid>
+room set atmosphere none
+room set safequit
+```
+
+An explicit `room set forage <profile>` override is stored on the Room and takes precedence over Zone and Terrain forage defaults. On startup, Rooms, Zones, and Terrains retain their configured profile identity until forage profiles have loaded, then Rooms restore compatible persisted yield pools without resetting partly depleted values. Persisted pools are constrained to the active profile's valid yield types and maximums. Fractional hourly recovery remains stored across restarts. Item and commodity forage results default to consuming 100% of one yield point; their consumption setting accepts a finite percentage from 0% to 100%. A 50% result requires and consumes half a point atomically. A 0% result bypasses stock availability and depletion, including at zero stock, while retaining skill checks, profile/type eligibility, quantity and output rules, hooks and completion-time profile validation. Direct edible and grazing yields retain their separate fractional consumption rules. `room set forage clear` removes the override and returns the Room to normal Zone/Terrain inheritance.
+
+Environmental magic resources use a separate explicit binding. Create an `environmental` regenerator with `magic regenerator edit new environmental <resource> <name>`, then set `terrain set environment <profile>` or `magic environment terrain <terrain> <profile>`. Use `magic environment room <here|room id> <profile|inherit|disabled>` for the physical room's override. `disabled` suppresses the terrain default; `inherit` restores it. Balances and persistent scar damage survive overlay/profile changes and restart. A new output starts empty, and a higher cap never refills discarded energy.
+
+`magic environment show [here|room id]` purely inspects inputs, resources and damage. Staff damage/repair, FutureProg helpers, explicit input scaling and disposable examples are documented in the [Environmental Magic Builder Guide](Environmental_Magic_Builder_Guide.md). Environmental reads do not consume forage or agriculture yields.
+
+Outdoors type:
+
+| Command value | Runtime meaning | Typical use |
+| --- | --- | --- |
+| `outdoors` | Outdoors | Streets, fields, rooftops open to sky. |
+| `indoors` | Indoors | Rooms with no direct weather exposure. |
+| `windows` | Indoors with view of outside | Buildings with natural light through windows. |
+| `cave` | Indoors with no natural light | Caves, tunnels, sealed vaults. |
+| `exposed` | Indoors exposed to climate | Sheds, ruins, covered verandas, open-sided shelters. |
+
+Changing terrain can also set default light multipliers based on the terrain's default outdoors type. If you need a special case, set terrain first and then adjust `room set type`, `room set lightmultiplier`, or `room set lightlevel`.
+
+Rain, ordinary liquid overflow, and pouring liquid onto the ground no longer create saved puddle items by default. Outdoor rooms lazily resolve weather exposure when they are observed or interacted with, storing bounded per-layer virtual liquid state on the room. If `PuddlesEnabled` is true, virtual puddles can appear as complete sentence-cased lines in room descriptions; if it is false, overflow soaks exposed items and bodies but does not accumulate room-level puddles. Existing saved puddle items remain load-compatible, but the room folds them into its virtual surface state and removes the legacy items before presenting room contents so old and new puddles cannot be shown together.
+
+## Exits
+
+Exits are directional or named connections between rooms. They carry both movement behaviour and builder-facing presentation.
+
+### Cardinal Exits
+
+Cardinal exits use standard map directions such as north, south, east, west, up, down, and diagonals.
+
+Create a new room in a cardinal direction:
+
+```text
+room dig <direction>
+```
+
+Link the current room to an existing room:
+
+```text
+room link <direction> <room id|@n>
+room set link <direction> <room id|@n>
+```
+
+`room dig` creates a new room and transfers you into it. `room link` connects to an existing room and creates the reverse exit as well.
+
+### Non-Cardinal Exits
+
+Non-cardinal exits use templates such as seeded `Enter`, `Leave`, `Climb`, `Descend`, `StairsUp`, and `StairsDown`. These are useful for doors, gates, ladders, stairs, portals, hatches, gangways, alleys, and other connections that are better described by words than compass directions.
+
+Inspect templates:
+
+```text
+show exittemplates
+```
+
+Create a new room through a non-cardinal exit:
+
+```text
+room ndig <template> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+```
+
+Link to an existing room through a non-cardinal exit:
+
+```text
+room nlink <template> <room id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room set nlink <template> <room id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+```
+
+Example:
+
+```text
+show exittemplates
+room ndig Enter doorway street "a narrow oak doorway" "the street outside"
+room set name "Inside the Old Shop"
+room set terrain "Shopfront"
+room set type indoors
+```
+
+From the street, the outbound keyword is `doorway`. From inside, the inbound keyword is `street`.
+
+### Editing Existing Exits
+
+List exits:
+
+```text
+room exit list
+room exit list <direction|keyword>
+room exit list all
+```
+
+Add or remove overlay exits:
+
+```text
+room exit add <direction|keyword>
+room exit remove <direction|keyword>
+```
+
+Configure exit size and posture:
+
+```text
+room exit size <exit> <size>
+room exit upright <exit> <size>
+room exit reset <exit>
+```
+
+Door support:
+
+```text
+room set door <exit> <size>
+room set door <exit> clear
+```
+
+`room set door` controls whether an exit accepts a door and, if so, what size. It does not by itself install a specific door item.
+Player `look` and `exits` output shows door-capable exits without an installed door in bold white; installed doors still show their door state and description directly on the exit.
+Cardinal exit arguments accept the whitelisted short and common forms: `n`, `north`, `nw`, `northwest`, `north-west`, and `north west` (and the equivalent forms for other directions). They do not use arbitrary prefixes, so `north` targets the north exit even if a north-west exit also exists.
+
+Climb and fall:
+
+```text
+room exit climb <exit> <difficulty>
+room exit climb <exit>
+room exit fall <exit>
+```
+
+`room exit climb <exit>` without a difficulty toggles climb off if the exit is already climbable. Fall exits are only valid for up/down movement and are used for vertical exits where falling or flying matters.
+
+Layer blocking:
+
+```text
+room exit block <exit> <layer>
+room exit unblock <exit> <layer>
+```
+
+Common layers include `GroundLevel`, `Underwater`, `DeepUnderwater`, `VeryDeepUnderwater`, `InTrees`, `HighInTrees`, `InAir`, `HighInAir`, and `OnRooftops`. Terrain controls which layers are available in a room.
+For the exact horizontal-intersection and up/down endpoint rules, see the [Room Layer System Primer](../World/Room_Layer_System_Primer.md).
+
+Hidden exits:
+
+```text
+room exit hide <exit> <prog>
+room exit unhide <exit>
+```
+
+The hide prog must return boolean and accept a location and character. Hidden exits are still real exits; the prog controls whether a character perceives them.
+
+When an exit is shared by other overlays, edit commands copy it into the current overlay package before changing it. This lets a new package adjust exit behaviour without accidentally mutating live or unrelated overlay data.
+
+## Linear RouteRooms
+
+A RouteRoom is one long, linear room with exact metre coordinates. Use it for a road, railway, river, tunnel, or other corridor whose scale would otherwise require thousands of ordinary rooms. It is not a vehicle timetable: scheduled operational itineraries are authored separately with `vehicleroute`, then attached to recurring operations with `vehicleservice`. See [RouteRoom Spatial System](../World/Route_Cell_System.md) and [Vehicle System](../World/Vehicle_System.md).
+
+Create and inspect the geometry:
+
+```text
+room set route create <length>
+room set route show
+room set route map
+room set route validate
+room set route length <length>
+room set route default <distance|landmark>
+room set route direction positive <name>
+room set route direction negative <name>
+room set route roomequivalent <length|default>
+room set route clear
+```
+
+Lengths and coordinates accept the normal localised unit syntax. Coordinates run inclusively from `0` to the room length. The default coordinate is used only when entry has no more specific inherited or exit-authored coordinate. The room-equivalent controls compatibility with systems whose range is still expressed as a number of rooms; the global default is 100 metres.
+
+Add navigation landmarks:
+
+```text
+room set route landmark add <distance> <name>
+room set route landmark rename <landmark> <name>
+room set route landmark keywords <landmark> <keywords>
+room set route landmark distance <landmark> <distance>
+room set route landmark description <landmark>
+room set route landmark delete <landmark>
+```
+
+Route landmarks are points inside one RouteRoom, distinct from the older whole-room `room landmark`/meeting-place system described later in this guide. Players can use RouteRoom landmarks with `travel to`, and vehicle routes can bind stops to their exact coordinates.
+
+Anchor each route-side exit:
+
+```text
+room set route exit <exit> band <minimum> <maximum> arrival <distance>
+```
+
+The band is inclusive. An actor can use that exit only while inside the band. Merely travelling past it never takes it automatically. `arrival` is the deterministic coordinate assigned when entering this RouteRoom through that exit. Route-to-route exits require a valid anchor on each side.
+
+For example, on a ten-kilometre road with a turn-off accessible from 7,100 through 7,200 metres:
+
+```text
+room set route create 10km
+room set route direction positive eastbound
+room set route direction negative westbound
+room set route landmark add 7150m "Old Quarry Turn-Off"
+room set route exit quarry band 7100m 7200m arrival 7150m
+room set route validate
+```
+
+Conversion is intentionally guarded. The room must not contain other live or persisted character instances, top-level items, vehicles, projects, tracks, coordinate-bound surface liquid, or any exits; remove exits first, convert the room, then relink and anchor each route-side exit. The audit includes offline character/instance rows and dormant top-level item rows, not only objects currently materialised in memory. Shortening or clearing fails if it would strand an entity, track, point spill, landmark, exit anchor, stop, route, service, or active journey. The geometry mutation and the builder's resulting coordinate are committed together. A geometry change increments topology version and invalidates dependent route compilation; it never silently clamps existing data.
+
+## Ways to Make Rooms
+
+### Manual Room Creation
+
+Create a blank room in your current zone and current overlay package:
+
+```text
+room new
+```
+
+Create a room from an area autobuilder template:
+
+```text
+room new <area template> <arguments...>
+```
+
+Dig one room in a direction:
+
+```text
+room dig north
+room set name "A Bend in the Road"
+room set terrain "Dirt Road"
+room set type outdoors
+room set desc
+```
+
+Dig using a non-cardinal exit:
+
+```text
+room ndig StairsUp stairs landing "a flight of wooden stairs" "the lower landing"
+room set name "An Upper Landing"
+room set terrain "Hallway"
+room set type indoors
+```
+
+Link to existing rooms:
+
+```text
+room link east 12345
+room nlink Enter 12346 gate courtyard "an iron garden gate" "the courtyard behind the gate"
+```
+
+### The `@n` Room Syntax
+
+FutureMUD tracks recently built rooms since the last reboot. Builders can refer to these rooms with `@n`:
+
+- `@1`: the most recently created room.
+- `@2`: the second most recently created room.
+- `@3`: the third most recently created room.
+
+This is especially useful for paste-able build scripts where you do not yet know the database IDs.
+
+Example:
+
+```text
+room package new "Gatehouse Chain"
+room new
+room set name "Before the Gatehouse"
+room set terrain "Dirt Road"
+room set type outdoors
+room dig north
+room set name "Inside the Gatehouse"
+room set terrain "Gatehouse"
+room set type indoors
+room ndig StairsUp stairs lower "a tight stairwell" "the gatehouse floor below"
+room set name "On the Gatehouse Stair"
+room set terrain "Gatehouse"
+room set type indoors
+room link south @2
+```
+
+In this example, `@1` is the stair room after `ndig`, and `@2` is the room inside the gatehouse. The exact numbering depends on what was created most recently, so keep command chains compact and avoid mixing manual building from multiple builders into the same paste sequence.
+
+### Autobuilders
+
+Autobuilders combine an **area template** with a **room template**:
+
+- Area templates create topology: rectangles, diagonal rectangles, terrain masks, feature masks, cylinders, and other shapes.
+- Room templates create presentation: room names, descriptions, terrain-specific text, random feature descriptions, lighting, outdoors type, and forage defaults.
+
+Inspect templates:
+
+```text
+show autoareas
+show autoarea <id|name>
+show autorooms
+show autoroom <id|name>
+autoarea show <id|name>
+autoroom show <id|name>
+```
+
+Common seeded area templates include:
+
+```text
+Rectangle
+Rectangle Diagonals
+Terrain Rectangle
+Terrain Rectangle Diagonals
+Feature Rectangle
+Feature Rectangle Diagonals
+Seeded Terrain Wilderness Grouped Features
+```
+
+The diagonal rectangle variants connect every pair of corner-adjacent generated rooms. In terrain-mask templates,
+`0` holes simply prevent any cardinal or diagonal exit that would otherwise lead into that position.
+
+Common seeded room templates include:
+
+```text
+Blank
+Seeded Terrain Wilderness Grouped Description
+```
+
+Basic rectangle:
+
+```text
+room new Rectangle 3 4 Blank "Grasslands"
+```
+
+Terrain mask rectangle:
+
+For multilayer maps, create an auto-area with type `terrain stack`, then use `room new <area> [prog=<prog>] <room-template> <FMS1:token|editor>`. Terrain Planner supplies the compressed token or a wrapped editor paste. Submit editor input with `@`; cancel with `*cancel`. The stack supports signed Z levels, ordinary up/down exits by default, and per-connection suppression/climb/fall settings. See [stacked terrain plans](Autobuilder_Builder_How_To.md#stacked-terrain-plans) for the complete workflow and limits. Existing rectangle masks retain their syntax.
+
+```text
+room new "Terrain Rectangle" 3 4 Blank 12,12,13,13,12,0,13,14,12,12,14,14
+```
+
+The terrain mask is row-major from the bottom-left `(0,0)` room. It proceeds east across each row and then north to
+the next row. It must contain exactly `height * width` entries. Use terrain IDs for rooms and `0` for no room.
+
+Seeded wilderness example:
+
+```text
+terrain planner
+room package new "Western Woods"
+room new "Seeded Terrain Wilderness Grouped Features" 3 4 "Seeded Terrain Wilderness Grouped Description" 12,12,13,13,12,0,13,14,12,12,14,14
+```
+
+The IDs above are examples. Use `terrain planner` or `show terrain` to get the correct terrain IDs in your world.
+
+Feature mask example:
+
+```text
+room new "Feature Rectangle" 2 3 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15 "101|102,103,104,,105,101"
+```
+
+Feature masks use the same bottom-left row-major order. Separate rooms with commas and multiple features in one room
+with `|`. Use the numeric IDs from `tag list` or the hosted Terrain Planner; the IDs are resolved to the exact
+framework tags, and their names are supplied to the room template's descriptive feature rules. The IDs above are
+examples only.
+
+Area template editing:
+
+```text
+autoarea list
+autoarea edit new <name> <type>
+autoarea clone <old> <new>
+autoarea edit <id|name>
+autoarea close
+autoarea show <id|name>
+autoarea show
+autoarea set <template-specific setting>
+```
+
+Room template editing:
+
+```text
+autoroom list
+autoroom edit new <name> <type>
+autoroom clone <old> <new>
+autoroom edit <id|name>
+autoroom close
+autoroom show <id|name>
+autoroom show
+autoroom set <template-specific setting>
+```
+
+Important room-template concepts:
+
+- `simple` room templates define one default name, description, terrain, light, outdoors type, and forage profile.
+- `room by terrain` templates define different names and descriptions per terrain.
+- `room random description` templates combine weighted description elements, mandatory elements, fixed positions, terrain restrictions, and feature tags.
+- UsefulSeeder wilderness templates use grouped description elements and terrain/feature tags seeded by the installer.
+
+### Post-Build Progs
+
+`room new <area template>` can run one or more progs on every generated room. Put `prog=<prog>` arguments before the area template name.
+
+```text
+room new prog=DecorateRoad prog=AddDistrictRegisters "Terrain Rectangle" 2 3 Blank 12,12,12,12,12,12
+```
+
+The prog must accept either a single location or a collection of locations. This is useful for adding variable register values, applying stock effects, placing signs, or doing post-generation cleanup.
+
+FutureProg also exposes room-building functions for scripted workflows. Useful examples include:
+
+- `CreateCell(package, zone)` and `CreateRoom(package, zone)`.
+- `CreateCell(package, zone, template)` and `CreateRoom(package, zone, template)`.
+- `NameCell(room, package, name)` and `NameRoom(...)`.
+- `DescribeCell(room, package, description)` and `DescribeRoom(...)`.
+- `SetTerrain(room, package, terrain)`.
+- `SetHearingProfile(room, package, profile)`.
+- `SetCellLightMultiplier(room, package, multiplier)`.
+- `SetCellAddedLight(room, package, lux)`.
+- `SetAtmosphere(room, package, ...)`.
+- `SetIndoors`, `SetOutdoors`, `SetCave`, `SetWindows`, and `SetExposed`.
+- `LinkCells(location, location, package, direction)`.
+- `CreateOverlay`, `ReviseOverlay`, `ApproveOverlay`, and `SwapOverlay`.
+
+Use prog-based building when the build is procedural, event-driven, or must be repeated in-world. Use manual commands or autobuilders when a builder needs tight control and readable command history. For non-cardinal scripted links, prefer a tested helper prog or the normal `room ndig`/`room nlink` workflow before bulk-generating content.
+
+## Landmarks and Meeting Places
+
+Landmarks help players orient themselves. Meeting places are landmarks that also help group characters in player-facing location summaries such as `who`.
+
+Key commands:
+
+```text
+room landmark [<prog>] [<sphere>]
+room meeting [<prog>] [<sphere>]
+room landmarktext
+room landmarktext add <prog>
+room landmarktext prog <number> <prog>
+room landmarktext text <number>
+room landmarktext swap <number> <number>
+room landmarktext delete <number>
+landmarks
+landmarks <landmark>
+```
+
+`room landmark` toggles a landmark on or off. If the room is currently a meeting place, it changes it back to a landmark-only room.
+
+`room meeting` toggles a meeting place on or off. If the room is currently a landmark-only room, it upgrades it into a meeting place.
+
+Optional landmark progs must return boolean and accept either:
+
+- `Location`
+- `Location, Character`
+
+Optional landmark text progs must return boolean and accept `Character`. These extra texts let a landmark display different details based on character knowledge, perception, allegiance, or story state.
+
+The optional sphere lets you segment landmarks. A city can have public landmarks, clan-specific landmarks, staff-only landmarks, or any other sphere convention your game uses.
+
+Example:
+
+```text
+room landmark AlwaysTrue Public
+room landmarktext add CanReadOldImperial
+room landmarktext text 1
+This is a common public meeting place for traders and townsfolk. There are signs and posters in old imperial all over the city that describe this as the place to be.
+@
+room meeting AlwaysTrue Public
+```
+
+## Room Descriptions and Markup
+
+Room names and descriptions support runtime substitutions. These are resolved when a character sees the room.
+
+For deeper markup details, see [Room Description Markup](../Markup/Room_Description_Markup.md).
+
+Substitution order:
+
+1. `environment{...}` blocks.
+2. ANSI colour substitution.
+3. `@shop`.
+4. `check{...}` blocks.
+5. `writing{...}` blocks.
+
+### Environment Blocks
+
+Environment blocks allow weather, time, light, and season-aware text.
+
+General form:
+
+```text
+environment{qualifiers=text}{qualifiers=text}{fallback}
+```
+
+Each conditional branch can have one or more comma-separated qualifiers. All qualifiers in a branch must match for that branch to display. You can supply up to eight conditional branches, followed by an optional fallback branch with no `=`.
+
+Examples:
+
+```text
+environment{night=The square lies in darkness.}{dawn=Grey light gathers across the stones.}{The square is open to the sky.}
+environment{rain=Rainwater runs along the gutter.}{snow=Snow softens the street.}{Dust gathers along the gutter.}
+environment{night,>rain=Black rain shines on the cobbles.}{day,!rain=Sunlight warms the cobbles.}{The cobbles stretch east and west.}
+```
+
+Time qualifiers include:
+
+```text
+day
+night
+morning
+afternoon
+dusk
+dawn
+notnight
+```
+
+Precipitation qualifiers include:
+
+```text
+parched
+dry
+humid
+lightrain
+lrain
+rain
+heavyrain
+hrain
+torrentialrain
+torrential
+torrent
+train
+lightsnow
+lsnow
+snow
+heavysnow
+hsnow
+blizzard
+sleet
+```
+
+Prefix precipitation with `*` to use recent maximum precipitation instead of current precipitation. Prefix any qualifier with `!` to negate it. Prefix light or precipitation with `>` or `<` to compare against a threshold. Current comparison semantics are `>` for greater than or equal to the threshold, and `<` for less than the threshold.
+
+Light qualifiers come from the active light model. Common stock descriptions include:
+
+```text
+pitch black
+almost completely dark
+extremely dark
+very dark
+dark
+dim
+soft
+normal
+bright
+very bright
+extremely bright
+```
+
+Season qualifiers use the current regional climate season names. Do not assume that all games use the same seasons.
+
+### Writing Blocks
+
+Writing blocks let room descriptions include readable text that depends on language, script, and skill.
+
+General form:
+
+```text
+writing{language,script,minskill=<value>,style=<style>,colour=<colour>}{readable text}{unreadable text}
+```
+
+`skill` and `minskill` are both accepted. `colour` and `color` are both accepted.
+
+Examples:
+
+```text
+writing{English,Latin,minskill=30}{The sign reads "Staff Only."}{A painted sign hangs beside the door.}
+writing{Aelvish,Runes,skill=60,colour=green}{The lintel names the old gate.}{Green runes mark the lintel.}
+```
+
+### Trait Checks
+
+Trait checks let descriptions show different text based on a character trait threshold.
+
+```text
+check{Observation,35}{A narrow drainage channel runs beneath the grate.}{}
+check{Foraging,50}{You notice edible leaves growing near the wall.}{The wall is lined with climbing plants.}
+```
+
+### Shop Substitution
+
+`@shop` substitutes the current room's shop name, or `An Empty Shop` if there is no shop. This is especially helpful in room names where the shop might be leased or sold to players who could rename the shop at a later date.
+
+```text
+The sign above the counter reads @shop.
+```
+
+### Colour Markup
+
+Room descriptions pass through ANSI colour substitution. Use existing colour markup conventions from the emote and room markup documentation, and keep descriptions readable without colour as a fallback.
+
+## Complete Key Command Rundown
+
+This section gathers the room-building commands most builders need.
+
+### Discovery
+
+```text
+room show
+room overlay <id|name> [revision]
+room overlay clear
+rooms <zone id|name> [+keyword] [-keyword]
+zones
+shards
+area list [zone]
+show terrain [+keyword] [-keyword] [*keyword]
+show overlays
+show exittemplates
+show autoareas
+show autoarea <id|name>
+show autorooms
+show autoroom <id|name>
+```
+
+### Shards
+
+```text
+shard list
+shard new <name> <sky template>
+shard set <shard> name <name>
+shard set <shard> clocks <clock...>
+shard set <shard> calendars <calendar...>
+shard set <shard> celestials <celestial...>
+shard set <shard> sky <sky template>
+shard set <shard> lux <minimum lux>
+```
+
+### Zones
+
+```text
+zone new <name> <shard> <timezones...>
+zone show <zone>
+zone set <zone> name <name>
+zone set <zone> latitude <decimal>
+zone set <zone> longitude <decimal>
+zone set <zone> elevation <metres>
+zone set <zone> light <multiplier>
+zone set <zone> timezone <clock> <timezone>
+zone set <zone> fp <foragable profile>
+zone set <zone> fp clear
+zone set <zone> weather <weather controller>
+zone set <zone> weather none
+zones
+rooms <zone id|name> [+keyword] [-keyword]
+rezone <zone>
+```
+
+### Areas
+
+```text
+area list [zone]
+area show <id|name>
+area new <name>
+area edit <id|name>
+area edit
+area close
+area rename <name>
+area add
+area remove
+area weather <id|name>
+area weather clear
+```
+
+### Overlay Packages
+
+```text
+room package list [all|by <builder>|mine]
+room package new <name>
+room package open <id|name>
+room package close
+room package show [<id|name>]
+room package rename <name>
+room package revise <id|name>
+room package submit <comment>
+room package review list
+room package review all
+room package review <id>
+accept edit <comments>
+decline edit <comments>
+room package history <id|name>
+room package swap <id|name>
+room package delete
+room package obsolete
+```
+
+### Room Creation and Editing
+
+```text
+room new
+room new <area template> <arguments...>
+room new prog=<prog> <area template> <arguments...>
+room dig <direction>
+room ndig <template> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room link <direction> <room id|@n>
+room nlink <template> <room id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room set name <name>
+room set desc
+room set description
+room set suggestdesc
+room set terrain <terrain>
+room set hearing <hearing profile>
+room set lightmultiplier <multiplier>
+room set lightlevel <lux>
+room set type outdoors
+room set type indoors
+room set type cave
+room set type windows
+room set type exposed
+room set door <exit> <size>
+room set door <exit> clear
+room set forage clear
+room set forage <profile>
+room set atmosphere gas <gas>
+room set atmosphere liquid <liquid>
+room set atmosphere none
+room set safequit
+room set register <variable> <value>
+room set register delete <variable>
+room delete
+```
+
+`room set suggestdesc [<optional extra context>]` uses configured AI description generation if the game has an OpenAI or Anthropic API key configured. The request runs in the background and does not change the room until you choose a returned option with `accept desc <n>`. OpenAI failures and timeouts are returned to the builder with a request reference; administrators can use that reference to find full details in the server console.
+
+`room delete` is restricted to high administrators, asks for confirmation, and permanently deletes the current room if the engine can find a fallback destination. Treat it as a repair tool, not a normal building command.
+
+### Exits
+
+```text
+room exit list
+room exit list <exit>
+room exit list all
+room exit add <exit>
+room exit remove <exit>
+room exit size <exit> <size>
+room exit upright <exit> <size>
+room exit reset <exit>
+room exit fall <exit>
+room exit climb <exit> <difficulty>
+room exit climb <exit>
+room exit block <exit> <layer>
+room exit unblock <exit> <layer>
+room exit hide <exit> <prog>
+room exit unhide <exit>
+```
+
+### Terrain
+
+```text
+terrain list [+keyword] [-keyword] [*keyword]
+terrain new <name>
+terrain clone <terrain> <new name>
+terrain edit <terrain>
+terrain edit
+terrain show <terrain>
+terrain close
+terrain set <setting> <value>
+terrain override <terrain> [<prog>]
+terrain reset
+terrain planner
+```
+
+### Autobuilder Templates
+
+```text
+autoroom list
+autoroom edit new <name> <type>
+autoroom clone <old> <new>
+autoroom edit <id|name>
+autoroom close
+autoroom show <id|name>
+autoroom show
+autoroom set <template-specific setting>
+
+autoarea list
+autoarea edit new <name> <type>
+autoarea clone <old> <new>
+autoarea edit <id|name>
+autoarea close
+autoarea show <id|name>
+autoarea show
+autoarea set <template-specific setting>
+```
+
+### Landmarks
+
+```text
+room landmark [<prog>] [<sphere>]
+room meeting [<prog>] [<sphere>]
+room landmarktext
+room landmarktext add <prog>
+room landmarktext prog <number> <prog>
+room landmarktext text <number>
+room landmarktext swap <number> <number>
+room landmarktext delete <number>
+landmarks
+landmarks <landmark>
+```
+
+## Workflow Examples
+
+### Example: First Room in a New Package
+
+```text
+room package new "Harbour Starter"
+room new
+room set name "At the Harbour Gate"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room set desc
+room set lightmultiplier 1.0
+room set safequit
+room package submit "Adds the initial harbour gate room."
+```
+
+Use this for a carefully authored first room, tutorial entry, or anchor location.
+
+### Example: Road With Side Alley
+
+```text
+room package new "Harbour Road"
+room new
+room set name "The South End of Harbour Road"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room dig north
+room set name "Harbour Road Beside the Market"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room new
+room set name "A Narrow Market Alley"
+room set terrain "Alleyway"
+room set type outdoors
+room link west @2
+```
+
+After the alley room is created, `@1` is the alley, `@2` is the market road room, and `@3` is the south road room. The final command links the alley west to the market road without needing to know the market room's database ID.
+
+### Example: Building Interior Through a Doorway
+
+```text
+room package new "Old Shop Interior"
+room new
+room set name "Outside the Old Shop"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room ndig Enter doorway street "a narrow oak doorway" "the street outside"
+room set name "Inside the Old Shop"
+room set terrain "Shopfront"
+room set type indoors
+room set door street Normal
+room set desc
+```
+
+Use non-cardinal exits when movement should read as `enter doorway`, `leave street`, `climb ladder`, or another natural phrase.
+
+### Example: Stairs and Climb Difficulty
+
+```text
+room ndig StairsUp stairs hall "a steep stone stair" "the lower hall"
+room set name "At the Top of the Stone Stair"
+room set terrain "Hallway"
+room set type indoors
+room exit climb stairs Easy
+room exit upright stairs Small
+```
+
+This creates a stairs exit and then marks it as climbable and cramped for upright posture.
+
+### Example: Hidden Cellar Hatch
+
+```text
+room ndig Descend hatch pantry "a concealed cellar hatch" "the pantry above"
+room set name "A Low Cellar"
+room set terrain "Cellar"
+room set type cave
+room exit hide pantry CanFindCellarHatch
+```
+
+The hide prog controls whether a character sees the exit. The exit can still exist in topology even when many characters do not perceive it.
+
+### Example: Weather-Aware Square Description
+
+```text
+room set name "Fountain Square"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room set desc
+```
+
+Description body:
+
+```text
+environment{night=The fountain square lies under a dark sky.}{dawn=Grey dawn light spills across the fountain square.}{The fountain square opens around a broad stone basin.}
+
+environment{rain=Rainwater ripples across the fountain basin.}{snow=Snow gathers along the rim of the fountain.}{Clear water moves quietly in the basin.}
+
+writing{English,Latin,minskill=25}{A bronze plaque reads "Founders' Square."}{A bronze plaque is fixed to the fountain.}
+```
+
+### Example: Creating a New Zone
+
+```text
+room package new "Harbour Zone"
+zone new "Harbour Ward" "Prime Material" local
+zone set "Harbour Ward" latitude -33.86
+zone set "Harbour Ward" longitude 151.21
+zone set "Harbour Ward" elevation 5
+zone set "Harbour Ward" weather "Coastal Weather"
+room show
+```
+
+The number of time-zone arguments depends on the shard's clocks. Use `shard list`, `zone show`, and command feedback to confirm the expected clocks in your world.
+
+### Example: Area Grouping
+
+```text
+area new "Dockside Market"
+area edit "Dockside Market"
+area add
+area weather "Coastal Weather"
+area close
+```
+
+Add each relevant room while the area is open. Use areas for logical groupings that do not need to be strict geography.
+
+### Example: Terrain Mask Build
+
+```text
+terrain planner
+room package new "Western Woods"
+room new "Terrain Rectangle" 4 5 Blank 12,12,12,13,13,12,0,12,13,14,12,12,12,14,14,15,15,12,12,12
+```
+
+This creates a 4 by 5 grid. The `0` entry leaves a hole in the second row.
+
+### Example: Seeded Wilderness Package
+
+```text
+room package new "Western Woods Detail"
+room new "Seeded Terrain Wilderness Grouped Features" 4 5 "Seeded Terrain Wilderness Grouped Description" 12,12,12,13,13,12,0,12,13,14,12,12,12,14,14,15,15,12,12,12
+```
+
+This assumes the UsefulSeeder stock wilderness autobuilder package has been installed. The generated rooms use terrain-aware grouped descriptions and seeded feature options.
+
+### Example: Landmark and Meeting Place
+
+```text
+room landmark AlwaysTrue Public
+room landmarktext add CanReadOldImperial
+room landmarktext text 1
+room meeting AlwaysTrue Public
+landmarks
+```
+
+Use a plain landmark for orientation. Use a meeting place when the room should appear as a social gathering location.
+
+### Example: Private Property
+
+```text
+room private property "Dockside Warehouse"
+room private host shop "Copper Kettle"
+room private show
+room private clear
+```
+
+A room can have one private-property controller. Property controllers require the room to already belong to the property; employment-host controllers require it to be one of the host's configured work locations. Replacing an existing controller requires confirmation. This marker supplies access and potential-trespass policy, while the local legal authority still decides whether unauthorised entry is a crime.
+
+## Guidance for AI Agents
+
+When assisting a builder:
+
+- Start by discovering live IDs and template names with `room show`, `show terrain`, `show exittemplates`, `show autoareas`, and `show autorooms`.
+- Do not assume terrain IDs from examples. Use the target world's seeded data.
+- Keep an overlay package open before issuing creation or edit commands.
+- Prefer compact paste chains with `@n` when creating connected rooms.
+- Use quoted names for multi-word package, zone, area, terrain, and room names.
+- Do not submit, review, swap, delete, or obsolete a package unless the user explicitly wants that workflow step.
+- Use the hosted Terrain Planner's terrain mask for `Terrain Rectangle` grids and its numeric tag-ID mask for `Feature Rectangle`. Remember that `0` means no room and therefore no tags.
+- Set terrain before adjusting outdoors type and light special cases.
+- For non-cardinal exits, inspect `show exittemplates` first and choose the template whose verbs match the player's command.
+- Verify important builds with `room show`, `room exit list all`, `rooms <zone>`, and `landmarks`.
+- Keep room descriptions readable without colour and without successful markup substitutions.
+
+The best build scripts are readable command histories. A future builder should be able to paste them into a test world, understand the intended topology, and revise the result without knowing C#.
+
+## Manual register values
+
+`room set register <variable> <value>` shares typed value parsing with `register default`, `setregister` and `prog execute`; see `prog help arguments`. Quoted collection elements and dictionary values retain their boundaries. Missing references and failed writes report errors, while explicit `null` is valid for reference values. `room set register delete` continues to remove the override and restore the default.
+
+## Persistent room policies and visual communication
+
+`room set policy` lists static policies. Toggle `vehicles`, `mounts`, `flight`, `climbing`, `npcwandering`, `magic` or `lethal`. `room set policy capacity <count>` sets capacity (0 means unlimited); `room set policy cost <number prog(character)|clear>` changes occupant cost. `room set policy clear` removes static policies. These effects persist independently of overlay editing; lethality kills ordinary entrants.
+
+`room set access <direction> [opening] <deny|flying|access prog> <denial message>` configures passage admission; optional `opening` also applies it when opening that direction's door. The boolean prog receives character, origin and destination. `room set access <direction> clear` removes it. Do not use a passage policy solely to restrict operating a gate.
+
+`room set accessattempt <direction> <boolean prog|clear>` attaches an action to an existing static access policy. It receives character, origin and destination, and executes only when an actual movement request is refused by that policy. Pure admission, path planning and opening checks do not execute it. A prog can inflict a native hazard or provide additional echoes; editing the access rule retains its attempt prog, while clearing the access rule removes both.
+
+From the watched room, `room set observation <observer room> <prefix>` creates a visual communication link; replace the prefix with `clear` to remove it. Observers see visible speech gestures, not words. Neither endpoint may be a route room. Interior cloning remaps links within the same graph.
+
+Room input hooks can call ordinary progs for explicit departure/jump interactions. Character dot properties `canmove`, `currentspeed` and `issneaking` expose native general action admission, gait name and Sneak status. `canmove` requires an Able state and no active movement before checking normal movement blockers; it does not inspect a destination or begin movement. `isincorporeal(perceivable)` exposes the native planar suspension of physical contact.

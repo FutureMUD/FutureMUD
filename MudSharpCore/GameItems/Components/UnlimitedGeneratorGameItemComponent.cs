@@ -19,30 +19,18 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
     #region IOnOff Implementation
 
     private bool _switchedOn;
+    private bool _active;
 
     public bool SwitchedOn
     {
         get => _switchedOn;
         set
         {
+            if (_switchedOn == value) return;
             _switchedOn = value;
             Changed = true;
-            if (value)
-            {
-                CheckOn();
-            }
-            else
-            {
-                foreach (IConsumePower item in _powerUsers.ToList())
-                {
-                    item.OnPowerCutOut();
-                }
-
-                _spikeDrawdown = 0.0;
-                _powerUsers.Clear();
-                Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
-                _heartbeatOn = false;
-            }
+            if (value) CheckOn();
+            else SuspendOutput();
         }
     }
 
@@ -69,16 +57,12 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
         bool temporary = false) : base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
-        SwitchedOn = rhs.SwitchedOn;
+        _switchedOn = rhs.SwitchedOn;
     }
 
     protected void LoadFromXml(XElement root)
     {
-        XAttribute attr = root.Attribute("On");
-        if (attr != null)
-        {
-            SwitchedOn = bool.Parse(attr.Value);
-        }
+        _switchedOn = (bool?)root.Attribute("On") ?? false;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -86,12 +70,24 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
         return new UnlimitedGeneratorGameItemComponent(this, newParent, temporary);
     }
 
-    public override void FinaliseLoad()
+    public override void Login()
     {
-        if (SwitchedOn)
-        {
-            Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
-        }
+        if (_active) return;
+        _active = true;
+        CheckOn();
+    }
+
+    public override void Quit()
+    {
+        _active = false;
+        SuspendOutput();
+    }
+
+    public override void Delete()
+    {
+        Quit();
+        _connectedConsumers.Clear();
+        base.Delete();
     }
 
     #endregion
@@ -147,7 +143,7 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
     public bool PrimaryLoadTimePowerProducer => true;
     public bool PrimaryExternalConnectionPowerProducer => false;
     public double FuelLevel => 1.0;
-    public bool ProducingPower => SwitchedOn;
+    public bool ProducingPower => _active && SwitchedOn;
 
     public double MaximumPowerInWatts => ProducingPower
         ? _prototype.WattageProvided * Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x =>
@@ -192,7 +188,7 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
         {
             _connectedConsumers.Add(item);
 
-            if (SwitchedOn &&
+            if (ProducingPower &&
                 _powerUsers.Sum(x => x.PowerConsumptionInWatts) + item.PowerConsumptionInWatts <=
                 MaximumPowerInWatts)
             {
@@ -205,12 +201,7 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
     public void EndDrawdown(IConsumePower item)
     {
         _connectedConsumers.Remove(item);
-        if (_powerUsers.Contains(item))
-        {
-            item.OnPowerCutOut();
-        }
-
-        _powerUsers.Remove(item);
+        if (_powerUsers.Remove(item)) item.OnPowerCutOut();
     }
 
     #endregion
@@ -279,23 +270,34 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
 
     private void CheckOn()
     {
-        if (!_heartbeatOn && SwitchedOn)
-        {
-            _spikeDrawdown = 0.0;
-            double cumulativeDraw = 0.0;
-            foreach (IConsumePower item in _connectedConsumers)
-            {
-                if (MaximumPowerInWatts - cumulativeDraw >= item.PowerConsumptionInWatts)
-                {
-                    _powerUsers.Add(item);
-                    item.OnPowerCutIn();
-                    cumulativeDraw += item.PowerConsumptionInWatts;
-                }
-            }
+        if (!ProducingPower || _heartbeatOn) return;
 
-            Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
-            _heartbeatOn = true;
+        _spikeDrawdown = 0.0;
+        _heartbeatOn = true;
+        Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
+        foreach (var item in _connectedConsumers.ToArray())
+        {
+            if (!ProducingPower) break;
+            if (!_connectedConsumers.Contains(item) || _powerUsers.Contains(item) ||
+                _powerUsers.Sum(x => x.PowerConsumptionInWatts) + item.PowerConsumptionInWatts + _spikeDrawdown >
+                MaximumPowerInWatts) continue;
+            _powerUsers.Add(item);
+            item.OnPowerCutIn();
         }
+    }
+
+    private void SuspendOutput()
+    {
+        if (_heartbeatOn)
+        {
+            _heartbeatOn = false;
+            Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
+        }
+
+        _spikeDrawdown = 0.0;
+        var powered = _powerUsers.ToArray();
+        _powerUsers.Clear();
+        foreach (var consumer in powered) consumer.OnPowerCutOut();
     }
 
     private void HeartbeatManager_SecondHeartbeat()

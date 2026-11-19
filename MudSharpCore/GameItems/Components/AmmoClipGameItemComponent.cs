@@ -240,15 +240,11 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
 
     protected void LoadFromXml(XElement root)
     {
-        foreach (XElement item in root.Element("Contents").Elements("Item"))
+        foreach (var reference in root.Element("Contents")?.Elements("Item") ?? [])
         {
-            IGameItem content = Gameworld.TryGetItem(long.Parse(item.Value), true);
-            if (content != null)
-            {
-                content.Get(null);
-                _contents.Add(content);
-                content.LoadTimeSetContainedIn(Parent);
-            }
+            if (RestoreOwnedChild(reference) is not { } item) continue;
+            _contents.Add(item);
+            item.LoadTimeSetContainedIn(Parent);
         }
     }
 
@@ -265,8 +261,8 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
     {
         return new XElement("Definition",
             new XElement("Contents",
-                from item in _contents
-                select new XElement("Item", item.Id)
+                _contents.Select(x => new XElement("Item", x.Id)),
+                AmbiguousLegacyChildClaims("Item")
             )
         ).ToString();
     }
@@ -398,9 +394,8 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
         base.Delete();
         foreach (IGameItem item in Contents.ToList())
         {
+            DeleteOwnedContainedChild(item);
             _contents.Remove(item);
-            item.ContainedIn = null;
-            item.Delete();
         }
     }
 
@@ -408,15 +403,15 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
     {
         foreach (IGameItem item in Contents.ToArray())
         {
-            item.Quit();
+            if (ReferenceEquals(item.ContainedIn, Parent)) item.Quit();
         }
     }
 
     public override void Login()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
-            item.Login();
+            if (ReferenceEquals(item.ContainedIn, Parent)) item.Login();
         }
     }
 

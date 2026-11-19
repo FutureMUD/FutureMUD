@@ -1,16 +1,18 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PowerSocketGameItemComponentProto : GameItemComponentProto, IConnectablePrototype, IProducePowerPrototype, IConsumePowerPrototype
+public class PowerSocketGameItemComponentProto : GameItemComponentProto, IConnectablePrototype, IProducePowerPrototype, IConsumePowerPrototype, IConnectableItemProto
 {
     public override string TypeDescription => "PowerSocket";
 
     public List<ConnectorType> Connections { get; } = new();
+    IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
     #region Constructors
 
@@ -54,7 +56,8 @@ public class PowerSocketGameItemComponentProto : GameItemComponentProto, IConnec
                     new XElement("Connection",
                         new XAttribute("gender", (short)connector.Gender),
                         new XAttribute("type", connector.ConnectionType),
-                        new XAttribute("powered", connector.Powered)
+                        new XAttribute("powered", connector.Powered),
+                    new XAttribute("id", connector.PortId)
                     )
             )
         ).ToString();

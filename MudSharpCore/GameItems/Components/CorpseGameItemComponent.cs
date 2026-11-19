@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Construction;
@@ -131,10 +131,6 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         _prototype = proto;
         Decay = DecayState.Fresh;
         TimeOfDeath = DateTime.UtcNow;
-        if (!temporary)
-        {
-            SetupDecayListener();
-        }
     }
 
     public CorpseGameItemComponent(MudSharp.Models.GameItemComponent component, CorpseGameItemComponentProto proto,
@@ -143,12 +139,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         _prototype = proto;
         _noSave = true;
         LoadFromXml(XElement.Parse(component.Definition));
-        if (RepresentsFinalCharacterDeath)
+        if (RepresentsFinalCharacterDeath && Gameworld is not Futuremud { LoadingOfflineMaintenanceItems: true })
         {
             Gameworld.SaveManager.AddLazyLoad(this);
         }
         _noSave = false;
-        SetupDecayListener();
     }
 
     public CorpseGameItemComponent(CorpseGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
@@ -166,10 +161,6 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         TimeOfDeath = rhs.TimeOfDeath;
         Skinned = rhs.Skinned;
         _butcheredSubcategories.AddRange(rhs._butcheredSubcategories);
-        if (!temporary)
-        {
-            SetupDecayListener();
-        }
     }
 
     private void SetupDecayListener()
@@ -252,7 +243,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         {
             foreach (IGameItem item in originalBody.ExternalItems.ToList())
             {
+                if (!ReferenceEquals(item.InInventoryOf, originalBody) || item.ContainedIn is not null ||
+                    ComponentItemTransfer.DirectLocationOf(item) is not null) continue;
                 item.Delete();
+                if (!item.Deleted && ReferenceEquals(item.InInventoryOf, originalBody))
+                    throw new InvalidOperationException($"Remains #{Parent.Id} still own item #{item.Id} after deletion.");
             }
         }
 

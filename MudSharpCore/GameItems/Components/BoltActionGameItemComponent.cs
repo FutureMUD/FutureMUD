@@ -52,10 +52,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
     protected override void LoadFromXml(XElement root)
     {
         base.LoadFromXml(root);
-        Magazine = Gameworld.TryGetItem(long.Parse(root.Element("Magazine").Value), true)
-                            ?.GetItemType<IContainer>();
-
-        ChamberedCasing = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedCasing")?.Value ?? "0"), true);
+        Magazine = RestoreOwnedChildSlot(root, "Magazine")?.GetItemType<IContainer>();
+        Magazine?.Parent.LoadTimeSetContainedIn(Parent);
+        ChamberedCasing = RestoreOwnedChildSlot(root, "ChamberedCasing");
+        ChamberedCasing?.LoadTimeSetContainedIn(Parent);
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -70,11 +70,11 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("Magazine", Magazine?.Parent.Id ?? 0),
-            new XElement("ChamberedRound", ChamberedRound?.Parent.Id ?? 0),
+            SaveOwnedChildSlot("Magazine", Magazine?.Parent.Id),
+            SaveOwnedChildSlot("ChamberedRound", ChamberedRound?.Parent.Id),
             new XElement("Wielded", PrimaryWieldedLocation?.Id ?? 0),
             new XElement("Safety", Safety ? "true" : "false"),
-            new XElement("ChamberedCasing", ChamberedCasing?.Id ?? 0),
+            SaveOwnedChildSlot("ChamberedCasing", ChamberedCasing?.Id),
             SaveFirearmState()
         ).ToString();
     }
@@ -511,16 +511,9 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
     public override void Delete()
     {
         base.Delete();
-        ChamberedRound?.Parent.ContainedIn = null;
-        ChamberedRound?.Parent.Delete();
-
-        ChamberedCasing?.ContainedIn = null;
-        ChamberedCasing?.Delete();
-
-
-        Magazine?.Parent.ContainedIn = null;
-        Magazine?.Parent.Delete();
-
+        DeleteOwnedContainedChild(ChamberedRound?.Parent);
+        DeleteOwnedContainedChild(ChamberedCasing);
+        DeleteOwnedContainedChild(Magazine?.Parent);
     }
 
     public override void Login()

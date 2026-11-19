@@ -54,7 +54,8 @@ public class RebreatherGameItemComponentProto : GameItemComponentProto, IConnect
             new XElement("Connection",
                 new XAttribute("gender", (short)Connector.Gender),
                 new XAttribute("type", Connector.ConnectionType),
-                new XAttribute("powered", false)
+                new XAttribute("powered", false),
+                new XAttribute("id", Connector.PortId)
             )
         ).ToString();
     }
@@ -145,7 +146,7 @@ public class RebreatherGameItemComponentProto : GameItemComponentProto, IConnect
                      .SelectMany(x => x.Connections.Select(y => y.ConnectionType))
                      .FirstOrDefault(x => x.EqualTo(type) && !x.Equals(type, StringComparison.InvariantCulture)) ??
             type;
-        Connector = new ConnectorType(Form.Shape.Gender.Male, type, false);
+        Connector = new ConnectorType(Form.Shape.Gender.Male, type, false, portId: Connector.PortId);
         Changed = true;
         actor.OutputHandler.Send($"This item will now have a male connection of type {type.ColourValue()}.");
         return true;

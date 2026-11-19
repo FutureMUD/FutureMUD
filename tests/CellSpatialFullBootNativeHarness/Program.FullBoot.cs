@@ -101,13 +101,15 @@ internal static partial class GNHProgram
 			var select = columns.Select(x => replacements.GetValueOrDefault(x, "`" + x + "`"));
 			Require(new MySqlCommand($"INSERT INTO `{table}` ({string.Join(',', columns.Select(x => "`" + x + "`"))}) SELECT {string.Join(',', select)} FROM `{table}` WHERE {where}", c).ExecuteNonQuery() == 1, "Fixture clone did not copy exactly one row: " + table);
 		}
-		var stockRoom = Scalar("SELECT MIN(Id) FROM cells"); var stockRoom = Scalar($"SELECT RoomId FROM cells WHERE Id={stockRoom}"); var zone = Scalar($"SELECT ZoneId FROM rooms WHERE Id={stockRoom}");
+		var stockCell = Scalar("SELECT MIN(Id) FROM cells");
+		var stockRoom = Scalar($"SELECT RoomId FROM cells WHERE Id={stockCell}");
+		var zone = Scalar($"SELECT ZoneId FROM rooms WHERE Id={stockRoom}");
 		CloneRow("zones", $"Id={zone}", new() { ["Id"] = "9000", ["Name"] = "'Qualification destination'", ["DefaultCellId"] = "NULL" });
 		for (var i = 1; i <= 4; i++)
 		{
 			CloneRow("rooms", $"Id={stockRoom}", new() { ["Id"] = (9100 + i).ToString(), ["X"] = i <= 2 ? "17" : (17 + i).ToString(), ["Y"] = "-2", ["Z"] = "4" });
-			CloneRow("cells", $"Id={stockRoom}", new() { ["Id"] = (8100 + i).ToString(), ["RoomId"] = (9100 + i).ToString(), ["CurrentOverlayId"] = "NULL", ["Temporary"] = i >= 3 ? "1" : "0", ["UniqueName"] = $"'acceptance_cell_{i}'", ["EffectData"] = "'<Effects/>'" });
-			CloneRow("celloverlays", $"Id=(SELECT CurrentOverlayId FROM cells WHERE Id={stockRoom})", new() { ["Id"] = (8200 + i).ToString(), ["CellId"] = (8100 + i).ToString(), ["CellName"] = $"'Qualification cell {i}'" });
+			CloneRow("cells", $"Id={stockCell}", new() { ["Id"] = (8100 + i).ToString(), ["RoomId"] = (9100 + i).ToString(), ["CurrentOverlayId"] = "NULL", ["Temporary"] = i >= 3 ? "1" : "0", ["UniqueName"] = $"'acceptance_cell_{i}'", ["EffectData"] = "'<Effects/>'" });
+			CloneRow("celloverlays", $"Id=(SELECT CurrentOverlayId FROM cells WHERE Id={stockCell})", new() { ["Id"] = (8200 + i).ToString(), ["CellId"] = (8100 + i).ToString(), ["CellName"] = $"'Qualification cell {i}'" });
 			Sql($"UPDATE cells SET CurrentOverlayId={8200 + i} WHERE Id={8100 + i}");
 		}
 		Sql($"UPDATE zones SET DefaultCellId=8102 WHERE Id={zone}; INSERT INTO areas(Id,Name) VALUES(9000,'Qualification main'),(9001,'Qualification overlap'),(9002,'Qualification dwelling'); INSERT INTO areas_rooms(AreaId,RoomId) VALUES(9000,9101),(9000,9102),(9001,9102),(9002,9103),(9002,9104)");

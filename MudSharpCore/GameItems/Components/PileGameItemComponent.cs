@@ -22,9 +22,8 @@ public class PileGameItemComponent : GameItemComponent, IContainer
         base.Delete();
         foreach (IGameItem item in Contents.ToList())
         {
+            DeleteOwnedContainedChild(item);
             _contents.Remove(item);
-            item.ContainedIn = null;
-            item.Delete();
         }
     }
 
@@ -32,15 +31,15 @@ public class PileGameItemComponent : GameItemComponent, IContainer
     {
         foreach (IGameItem item in Contents.ToArray())
         {
-            item.Quit();
+            if (ReferenceEquals(item.ContainedIn, Parent)) item.Quit();
         }
     }
 
     public override void Login()
     {
-        foreach (IGameItem item in Contents)
+        foreach (IGameItem item in Contents.ToArray())
         {
-            item.Login();
+            if (ReferenceEquals(item.ContainedIn, Parent)) item.Login();
         }
     }
 
@@ -180,22 +179,9 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
     protected void LoadFromXml(XElement root)
     {
-        foreach (
-            IGameItem item in
-            root.Elements("Contained")
-                .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-                .Where(item => item != null))
+        foreach (var reference in root.Elements("Contained"))
         {
-            if ((item.ContainedIn != null && item.ContainedIn != Parent) || item.Location != null ||
-                item.InInventoryOf != null)
-            {
-                Changed = true;
-                Gameworld.SystemMessage(
-                    $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
-                    true);
-                continue;
-            }
-
+            if (RestoreOwnedChild(reference) is not { } item) continue;
             _contents.Add(item);
             item.Get(null);
             item.LoadTimeSetContainedIn(Parent);
@@ -221,7 +207,8 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
     protected override string SaveToXml()
     {
-        return new XElement("Definition", from content in Contents select new XElement("Contained", content.Id))
+        return new XElement("Definition", Contents.Select(x => new XElement("Contained", x.Id)),
+                AmbiguousLegacyChildClaims("Contained"))
             .ToString();
     }
 
@@ -329,6 +316,11 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
     private bool CheckPileEmpty()
     {
+        if (Parent is GameItem { NativeDeletionInProgress: true } || AmbiguousLegacyChildClaims("Contained").Any())
+        {
+            return false;
+        }
+
         if (_contents.Count == 1)
         {
             IGameItem content = _contents.Single();

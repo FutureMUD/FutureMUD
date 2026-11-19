@@ -150,6 +150,7 @@ return @togglevalue");
 		var component = new FileSignalGeneratorGameItemComponent(proto, item.Object, true);
 
 		component.SwitchedOn = true;
+		component.Login();
 		component.OnPowerCutIn();
 
 		Assert.AreEqual(0.0, component.CurrentValue, 0.001);
@@ -970,6 +971,7 @@ return @togglevalue");
 		sensor.HandleEvent(EventType.CharacterEnterRoomWitness, mover.Object);
 		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
 
+		sensor.Login();
 		sensor.OnPowerCutIn();
 		sensor.HandleEvent(EventType.CharacterEnterRoomWitness, mover.Object);
 		Assert.AreEqual(1.0, sensor.CurrentValue, 0.0001);
@@ -1052,6 +1054,7 @@ return @togglevalue");
 		mover.SetupGet(x => x.Size).Returns(SizeCategory.Normal);
 		mover.Setup(x => x.CombinedEffectsOfType<IImmwalkEffect>()).Returns([Mock.Of<IImmwalkEffect>()]);
 
+		sensor.Login();
 		sensor.OnPowerCutIn();
 		sensor.HandleEvent(EventType.CharacterEnterRoomWitness, mover.Object);
 
@@ -1071,6 +1074,7 @@ return @togglevalue");
 			SwitchedOn = true
 		};
 
+		sensor.Login();
 		sensor.OnPowerCutIn();
 		Assert.AreEqual(37.5, sensor.CurrentValue, 0.0001);
 
@@ -1099,6 +1103,7 @@ return @togglevalue");
 			SwitchedOn = true
 		};
 
+		sensor.Login();
 		sensor.OnPowerCutIn();
 		Assert.AreEqual(2.0, sensor.CurrentValue, 0.0001);
 
@@ -1126,6 +1131,7 @@ return @togglevalue");
 			SwitchedOn = true
 		};
 
+		sensor.Login();
 		sensor.OnPowerCutIn();
 
 		Assert.AreEqual(21.5, sensor.CurrentValue, 0.0001);
@@ -1143,6 +1149,7 @@ return @togglevalue");
 		var actor = new Mock<ICharacter>();
 		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
 
+		sensor.Login();
 		sensor.OnPowerCutIn();
 		Assert.IsFalse(sensor.Select(actor.Object, "9999", Mock.Of<IEmote>(), true));
 		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
@@ -1160,6 +1167,7 @@ return @togglevalue");
 		{
 			SwitchedOn = true
 		};
+		keypad.Login();
 		keypad.OnPowerCutIn();
 
 		Assert.IsTrue(keypad.TrySetCode("5678", out var error), error);
@@ -1189,6 +1197,7 @@ return @togglevalue");
 			SwitchedOn = true
 		};
 		Assert.IsTrue(keypad.TrySetSelfTarget(targetLock.Object, out var error), error);
+		keypad.Login();
 		keypad.OnPowerCutIn();
 
 		Assert.IsTrue(keypad.TryCode("1234", out error), error);
@@ -1216,6 +1225,7 @@ return @togglevalue");
 		{
 			SwitchedOn = true
 		};
+		reader.Login();
 		reader.OnPowerCutIn();
 
 		Assert.IsTrue(card.AddCode("Zone-A", out var error), error);
@@ -1257,6 +1267,7 @@ return @togglevalue");
 		Assert.IsFalse(writer.CanWrite(out _));
 		writer.SwitchedOn = true;
 		Assert.IsFalse(writer.CanWrite(out _));
+		writer.Login();
 		writer.OnPowerCutIn();
 		Assert.IsTrue(writer.CanWrite(out var error), error);
 	}
@@ -1277,6 +1288,7 @@ return @togglevalue");
 		{
 			SwitchedOn = true
 		};
+		scanner.Login();
 		scanner.OnPowerCutIn();
 		var enrolled = new Mock<ICharacter>();
 		enrolled.SetupGet(x => x.Id).Returns(42L);

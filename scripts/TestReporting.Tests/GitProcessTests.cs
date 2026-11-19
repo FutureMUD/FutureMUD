@@ -64,7 +64,7 @@ public class GitProcessTests
 		foreach (var arg in new[] { "probe", "quiet", control.DirectoryPath }) start.ArgumentList.Add(arg);
 		using var process = Process.Start(start)!;
 		await Ready(Path.Combine(control.DirectoryPath, "ready"));
-		Assert.ThrowsException<AssertFailedException>(() => AssertExited(process.Id, 50));
+		Assert.ThrowsExactly<AssertFailedException>(() => AssertExited(process.Id, 50));
 		Assert.IsFalse(process.HasExited, "The exit assertion must not terminate the fixture itself.");
 	}
 
@@ -77,7 +77,7 @@ public class GitProcessTests
 	private static Task<string> Read(Control control, string scenario, CancellationToken token = default, TimeSpan? ceiling = null,
 		TimeSpan? drain = null) => GitProcess.Read(control.DirectoryPath, ["probe", scenario, control.DirectoryPath], token, Fake, ceiling, drain);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("stderr-first")]
 	[DataRow("stdout-first")]
 	[DataRow("alternating")]
@@ -104,7 +104,7 @@ public class GitProcessTests
 		try
 		{
 			await Ready(Path.Combine(control.DirectoryPath, "ready"));
-			await Assert.ThrowsExceptionAsync<TimeoutException>(() => stdout.WaitAsync(TimeSpan.FromSeconds(1)));
+			await Assert.ThrowsExactlyAsync<TimeoutException>(() => stdout.WaitAsync(TimeSpan.FromSeconds(1)));
 			Assert.IsFalse(process.HasExited, "Serial reader unexpectedly completed saturation fixture.");
 		}
 		finally
@@ -121,7 +121,7 @@ public class GitProcessTests
 	public async Task NonzeroExitRejectsPartialOutputAndSanitizesDiagnostics()
 	{
 		using var control = new Control();
-		var error = await Assert.ThrowsExceptionAsync<IOException>(() => Read(control, "failure").WaitAsync(TimeSpan.FromSeconds(60)));
+		var error = await Assert.ThrowsExactlyAsync<IOException>(() => Read(control, "failure").WaitAsync(TimeSpan.FromSeconds(60)));
 		StringAssert.Contains(error.Message, "exited 7");
 		StringAssert.Contains(error.Message, "probe failure");
 		Assert.IsFalse(error.Message.Contains("fixture-sensitive-value", StringComparison.Ordinal));
@@ -134,13 +134,13 @@ public class GitProcessTests
 	public async Task MissingExecutableIsPrerequisiteUnavailable()
 	{
 		using var control = new Control();
-		var error = await Assert.ThrowsExceptionAsync<PrerequisiteException>(() => GitProcess.Read(control.DirectoryPath,
+		var error = await Assert.ThrowsExactlyAsync<PrerequisiteException>(() => GitProcess.Read(control.DirectoryPath,
 			["rev-parse", "HEAD"], default, Path.Combine(control.DirectoryPath, "no-such-git")));
 		StringAssert.Contains(error.Message, "could not start");
 		Assert.IsFalse(File.Exists(Path.Combine(control.DirectoryPath, "pid")));
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("quiet", false)]
 	[DataRow("output", false)]
 	[DataRow("quiet", true)]
@@ -154,7 +154,7 @@ public class GitProcessTests
 		var read = Read(control, scenario, cancellation.Token, TimeSpan.FromSeconds(callerCancellation ? 30 : 5));
 		await Ready(Path.Combine(control.DirectoryPath, "ready"));
 		if (callerCancellation) cancellation.Cancel();
-		var error = await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => read.WaitAsync(TimeSpan.FromSeconds(30)));
+		var error = await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => read.WaitAsync(TimeSpan.FromSeconds(30)));
 		StringAssert.Contains(error.Message, callerCancellation ? "cancelled" : "Git operation ceiling");
 		Assert.IsFalse(error.Message.Contains("cleanup", StringComparison.Ordinal), error.Message);
 		Assert.IsTrue(elapsed.Elapsed < TimeSpan.FromSeconds(25));
@@ -168,7 +168,7 @@ public class GitProcessTests
 		using var control = new Control();
 		using var cancellation = new CancellationTokenSource();
 		cancellation.Cancel();
-		await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => Read(control, "quiet", cancellation.Token));
+		await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => Read(control, "quiet", cancellation.Token));
 		Assert.IsFalse(File.Exists(Path.Combine(control.DirectoryPath, "invocations")));
 	}
 
@@ -177,7 +177,7 @@ public class GitProcessTests
 	{
 		using var control = new Control();
 		var elapsed = Stopwatch.StartNew();
-		var error = await Assert.ThrowsExceptionAsync<IOException>(() => Read(control, "inherited", drain: TimeSpan.FromMilliseconds(300))
+		var error = await Assert.ThrowsExactlyAsync<IOException>(() => Read(control, "inherited", drain: TimeSpan.FromMilliseconds(300))
 			.WaitAsync(TimeSpan.FromSeconds(30)));
 		StringAssert.Contains(error.Message, "output drain incomplete");
 		StringAssert.Contains(error.Message, "cleanup");

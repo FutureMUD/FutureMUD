@@ -1,6 +1,6 @@
 # Seeded clan forms of address
 
-This review covers the 50 non-Catholic templates in `ClanSeeder.cs` and `ClanSeeder.Templates.cs`. The Catholic suite has its own address content. All rules use the generic [clan forms-of-address system](../Economy/Clan_Forms_of_Address_Design.md); this change adds no engine commands, comparison policies or schema.
+This review covers the 50 non-Catholic templates in `ClanSeeder.cs` and `ClanSeeder.Templates.cs`. The Catholic suite has its own address content. All rules use the generic [clan forms-of-address system](../Economy/Clan_Forms_of_Address.md); this change adds no engine commands, comparison policies or schema.
 
 ## Authoring policy
 

@@ -19,6 +19,10 @@ Weighted `drop` requires a positive finite amount and checks lawful-action prote
 
 Splits preserve `ItemOnDisplayInShop` for existing shoplifting hooks. Shop split and merge notifications preserve the stock index without recording newly acquired or lost goods. Stock loss values the portion removed and preserves the count of a residual commodity pile; purchases reconcile the actual number of indexed piles removed. Covert transfers retain their intentional consent bypass and crime handling; ordinary manipulation still requires the inventory owner's permission. This audit does not introduce new crime categories. See [the full ledger](../Items/Physical_Manipulation_Audit.md).
 
+## Authoring a new jurisdiction
+
+See [Building the justice system](../Builder%20Guides/Justice_System_Builder_Guide.md) for the Alderbridge walkthrough. Create a legal class with `legalauthority set class add <name> <prog>`. Quote a class name containing spaces, and supply a Boolean prog that accepts one Character. New laws start with no punishment, no active enforcement and automatic application disabled. Choose and inspect the law's punishment strategy before enabling the law in play. Newly created laws and legal classes are immediately available to global lookups. Changing a law's crime type refreshes the authority's automatic crime lookup immediately. Membership evaluates higher-priority legal classes first and uses ascending ID for ties.
+
 ## Automatic Crime Application
 
 Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window. Violent victim-targeted automatic crimes are additionally treated as encounter repeats for the same offender and victim during that window, so a single fight does not create fresh assault or grievous-bodily-harm counts for every blow, weapon, or room transition.
@@ -47,7 +51,7 @@ Characters are added to `Crime.WitnessIds` when they actually view that video ev
 
 ## Death Sentences
 
-Automatic conviction snapshots the eligible criminal list before resolving crimes. After the last sentence, execution cases remain in custody, custodial cases transfer to prison and fine/bond-only cases use the normal release path, returning belongings. Fine severity interpolates from the configured standard amount at severity zero to the maximum at severity one; equal amounts give a fixed fine, including for automatic conviction.
+Automatic conviction snapshots the eligible criminal list before resolving crimes. After the last sentence, execution cases remain in custody, custodial cases transfer to `jailentry` (or `prison` if no jail entry is set), and fine/bond-only cases use the normal release path, returning belongings. Fine severity interpolates from the configured standard amount at severity zero to the maximum at severity one; equal amounts give a fixed fine, including for automatic conviction.
 
 Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.
 

@@ -2,6 +2,7 @@ using MudSharp.Body;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -46,7 +47,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 
     public BoneFracture(IHaveWounds parent, Wound wound, IFuturemud gameworld, IBody ownerBody = null) : this(gameworld)
     {
-        _parent = parent as ICharacter;
+        _parent = parent;
         _ownerBody = ownerBody ?? (parent as ICharacter)?.Body;
         LoadFromDb(wound);
     }
@@ -56,7 +57,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         ICharacter actorOrigin, IBody ownerBody = null) : this(gameworld)
     {
         _parent = (ICharacter)owner ?? throw new ArgumentNullException(nameof(owner));
-        _ownerBody = ownerBody ?? _parent.Body;
+        _ownerBody = ownerBody ?? CharacterParent.Body;
         CurrentDamage = Math.Min(damage * bodypart.DamageModifier, _ownerBody.HitpointsForBodypart(bodypart));
         OriginalDamage = Math.Min(damage * bodypart.DamageModifier, _ownerBody.HitpointsForBodypart(bodypart));
         CurrentPain = pain * bodypart.PainModifier;
@@ -77,7 +78,8 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
     private void LoadFromDb(Wound wound)
     {
         _id = wound.Id;
-        IdInitialised = true;
+        IdInitialised = wound.Id != 0;
+        _noSave = !IdInitialised;
         _name = string.Empty;
         CurrentDamage = wound.CurrentDamage;
         OriginalDamage = wound.OriginalDamage;
@@ -220,7 +222,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 
             }
 
-            if (_parent?.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart) == true)
+            if (CharacterParent?.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart) == true)
             {
                 sb.Append(", ");
                 sb.Append("Anti-Inflammatory".Colour(Telnet.BoldGreen));
@@ -379,10 +381,15 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         return dbitem;
     }
 
+    public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
+
     public override void SetIDFromDatabase(object dbitem)
     {
         _id = ((Wound)dbitem)?.Id ?? 0;
     }
+
+    internal long? StoredActorOriginId => _actorOriginId == 0 ? null : _actorOriginId;
+    internal long? StoredToolOriginId => _toolOriginId == 0 ? null : _toolOriginId;
 
     public string SaveExtras()
     {
@@ -451,7 +458,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 
     public double CurrentPain
     {
-        get => _parent != null ? this.ApplyPainReduction(_parent, _currentPain) : _currentPain;
+        get => CharacterParent is { } character ? this.ApplyPainReduction(character, _currentPain) : _currentPain;
         set => _currentPain = value;
     }
 
@@ -475,7 +482,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 		set
 		{
 			if (value < _currentDamage && Parent?.HealthStrategy is IHitPointHealingCeiling ceiling &&
-				(_ownerBody is null || ReferenceEquals(_parent?.Body, _ownerBody)))
+				(_ownerBody is null || ReferenceEquals(CharacterParent?.Body, _ownerBody)))
 				value = ceiling.ConstrainHealedDamage(this, Math.Max(0.0, value));
 			_currentDamage = value;
 		}
@@ -489,12 +496,13 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
     /// </summary>
     public bool Internal => false;
 
-    private ICharacter _parent;
+    private IHaveWounds _parent;
+    private ICharacter CharacterParent => _parent as ICharacter;
 
     public IHaveWounds Parent
     {
         get => _parent;
-        set => _parent = value as ICharacter;
+        set => _parent = value;
     }
 
     public void SetNewOwner(IHaveWounds newOwner)
@@ -512,14 +520,14 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
             FMDB.Context.SaveChanges();
         }
 
-        _parent = newOwner as ICharacter;
-        _ownerBody = _parent?.Body;
+        _parent = newOwner;
+        _ownerBody = CharacterParent?.Body;
     }
 
     public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
     {
-        _parent = newOwner as ICharacter;
-        _ownerBody = _parent?.Body;
+        _parent = newOwner;
+        _ownerBody = CharacterParent?.Body;
         Bodypart = newBodypart;
         SeveredBodypart = newSeveredBodypart;
         Infection?.RemapTo(_ownerBody, this, newBodypart);
@@ -1022,7 +1030,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                     }
 
                     CurrentDamage = Parent.GetSeverityFloor(Severity.StageDown(testOutcome.SuccessDegrees()), true) *
-                                    (_ownerBody ?? _parent?.Body).HitpointsForBodypart(Bone);
+                                    (_ownerBody ?? CharacterParent?.Body).HitpointsForBodypart(Bone);
                     _currentPain = Math.Min(_currentPain, CurrentDamage);
                     CurrentStun = Math.Min(CurrentStun, CurrentDamage);
 
@@ -1067,7 +1075,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                         return;
                     }
 
-                    AntiInflammatoryTreatment.ApplyOrUpdate(_ownerBody ?? _parent?.Body, Bodypart,
+                    AntiInflammatoryTreatment.ApplyOrUpdate(_ownerBody ?? CharacterParent?.Body, Bodypart,
                         Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumPainMultiplier"),
                             1.0 - strength * Gameworld.GetStaticDouble("AntiInflammatoryPainMultiplierReductionPerStrength")),
                         Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumFlatReduction"),
@@ -1106,9 +1114,9 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                                 $"$0's efforts to relocate {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
                                 treater, treater)));
                         }
-                        else
+                        else if (CharacterParent is { } character)
                         {
-                            Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"{Describe(WoundExaminationType.Look, Outcome.MajorPass).Strip_A_An().The(true).Colour(Telnet.Cyan)} on $0's {Bodypart.FullDescription()} straightens up and re-sets itself.", _parent, _parent)));
+                            character.OutputHandler.Handle(new EmoteOutput(new Emote($"{Describe(WoundExaminationType.Look, Outcome.MajorPass).Strip_A_An().The(true).Colour(Telnet.Cyan)} on $0's {Bodypart.FullDescription()} straightens up and re-sets itself.", character, character)));
                         }
 
                     }
@@ -1243,7 +1251,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 
     public bool EligableForInfection()
     {
-        if (_parent == null)
+        if (CharacterParent == null)
         {
             return false;
         }
@@ -1263,7 +1271,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
             return false;
         }
 
-        return (_ownerBody ?? _parent?.Body).EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
+        return (_ownerBody ?? CharacterParent?.Body).EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
     }
 
     private double GetInfectionChanceDamageMultiplier()
@@ -1302,7 +1310,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
     /// </summary>
     private void CheckInfection()
     {
-        if (_parent == null)
+        if (CharacterParent == null)
         {
             return;
         }
@@ -1323,7 +1331,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         double chance = Gameworld.GetStaticDouble("BaseInfectionChanceBoneFractures");
         chance *= GetInfectionChanceDamageMultiplier();
 
-        Construction.ITerrain terrain = _parent.Location.Terrain(_parent);
+        Construction.ITerrain terrain = CharacterParent.Location.Terrain(CharacterParent);
         chance *= terrain.InfectionMultiplier;
 
         if (Severity <= WoundSeverity.Severe)
@@ -1353,12 +1361,12 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         }
 #endif
         Infection = Infections.Infection.LoadNewInfection(terrain.PrimaryInfection, virulence,
-            Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), _ownerBody ?? _parent?.Body, this, Bodypart,
+            Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), _ownerBody ?? CharacterParent?.Body, this, Bodypart,
             terrain.InfectionMultiplier);
         Changed = true;
 #if DEBUG
         Console.WriteLine(
-            $"{_parent.HowSeen(_parent, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} has become infected with {terrain.PrimaryInfection} {terrain.InfectionVirulence}.");
+            $"{CharacterParent.HowSeen(CharacterParent, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} has become infected with {terrain.PrimaryInfection} {terrain.InfectionVirulence}.");
 #endif
     }
 

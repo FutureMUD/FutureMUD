@@ -35,9 +35,9 @@ internal class GPTRequest : BuiltInFunction
                     "The message to send to GPT",
                     "The user whose history is being invoked",
                     "The maximum history entries",
-                    "A Prog to call with the results of this request"
+                    "A Prog to call with the successful response"
                 }, // parameter help text
-                "This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
+                "This function schedules a call to GPT with thread history. Returns true if queued and calls the specified prog only when a successful response arrives.", // help text for the function,
                 "OpenAI", // the category to which this function belongs,
                 ProgVariableTypes.Boolean // the return type of the function
             )
@@ -66,9 +66,9 @@ internal class GPTRequest : BuiltInFunction
                     "The message to send to GPT",
                     "The user whose history is being invoked",
                     "The maximum history entries",
-                    "A Prog to call with the results of this request"
+                    "A Prog to call with the successful response"
                 }, // parameter help text
-                "This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
+                "This function schedules a call to GPT with thread history. Returns true if queued and calls the specified prog only when a successful response arrives.", // help text for the function,
                 "OpenAI", // the category to which this function belongs,
                 ProgVariableTypes.Boolean // the return type of the function
             )
@@ -139,14 +139,13 @@ internal class GPTRequest : BuiltInFunction
                 return StatementResult.Normal;
             }
 
-            MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(thread, messageText, character, text =>
+            bool queued = MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(Gameworld, thread, messageText, character, text =>
             {
                 prog.Execute(text, character);
             }, history);
-
+            Result = new BooleanVariable(queued);
         }
 
-        Result = new BooleanVariable(true);
         return StatementResult.Normal;
     }
 }

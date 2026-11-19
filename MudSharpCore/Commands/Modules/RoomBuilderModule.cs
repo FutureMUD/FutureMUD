@@ -2129,8 +2129,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         switch (actor.Gameworld.GetStaticConfiguration("DescSuggestionAIModel").ToLowerInvariant())
         {
             case "openai":
-                string descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
-                if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_RoomSuggestionFinalWord"), GPTCallback, descModel,
+                string descModel = actor.Gameworld.GetStaticConfiguration("GPT_DescSuggestion_Model");
+                if (!OpenAIHandler.MakeGPTRequest(actor.Gameworld, sb.ToString(), actor.Gameworld.GetStaticString("GPT_RoomSuggestionFinalWord"), GPTCallback, descModel,
 						error => actor.OutputHandler.Send(error.ColourError())))
                 {
                     actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");

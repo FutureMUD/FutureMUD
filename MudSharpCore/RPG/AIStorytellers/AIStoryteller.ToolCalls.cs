@@ -661,12 +661,13 @@ public partial class AIStoryteller
     private void LogStorytellerException(Exception e)
     {
         ExceptionLoggerOverride?.Invoke(e);
-        DebugAIMessaging("Storyteller Exception", e.ToString());
-        e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
+        string message = MudSharp.OpenAI.OpenAIHandler.DescribeGptFailure(e);
+        DebugAIMessaging("Storyteller Exception", message, false);
+        $"#2GPT Error#0 Storyteller {Id:N0}: {message} ({e.GetType().Name})\n{e.StackTrace}".WriteLineConsole();
 		try
 		{
 			Futuremud.Games.FirstOrDefault()?.DiscordConnection?.NotifyAdmins(
-				ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(e, $"Storyteller {Id:N0}"));
+				ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(e, $"Storyteller {Id:N0}: {message}"));
 		}
         catch
         {

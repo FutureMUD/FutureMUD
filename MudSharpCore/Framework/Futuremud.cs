@@ -350,6 +350,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 				sw.Restart();
 				MudSharp.Server.ExceptionReporter.Operation = "Game loop: PendingCommands";
 				AccountSecurityWorkQueue.ProcessCompleted(this);
+				MudSharp.OpenAI.OpenAIHandler.ProcessGptCompletions(this);
 				ProcessPendingCommands();
 				RecordLoopPhase(RuntimeLoopPhase.PendingCommands, sw, collectPerformance, phaseAllocatedBefore);
                 if (sw.ElapsedMilliseconds > 250)

@@ -24,6 +24,40 @@ namespace MudSharp_Unit_Tests;
 public class MarketEconomyTests
 {
 	[TestMethod]
+	[DataRow(0.25, 0.0, 20)]
+	[DataRow(0.0, 0.25, 60)]
+	public void BuildingCommand_ElasticityAppliesToTheNamedMarketCondition(double supply, double demand,
+		int expectedPercent)
+	{
+		var world = new Mock<IFuturemud>();
+		var account = Mock.Of<IAccount>(x => x.Culture == CultureInfo.InvariantCulture);
+		var actor = Mock.Of<ICharacter>(x => x.Account == account &&
+		                                     x.OutputHandler == Mock.Of<MudSharp.PerceptionEngine.IOutputHandler>());
+		var category = new MarketCategory(world.Object, new MudSharp.Models.MarketCategory
+		{
+			Id = 5L,
+			Name = "Grain",
+			Tags = "<Tags />"
+		});
+		world.SetupGet(x => x.SaveManager).Returns(Mock.Of<MudSharp.Framework.Save.ISaveManager>());
+		var influence = CreateApplicableInfluence(new MarketImpact
+		{
+			MarketCategory = category,
+			SupplyImpact = supply,
+			DemandImpact = demand,
+			FlatPriceImpact = 0
+		});
+		var market = CreateMarket(new Expression("elasticity"), [category], influence.Object);
+		market.Id = 1;
+		world.SetupGet(x => x.Markets).Returns(new All<IMarket> { market });
+
+		Assert.IsTrue(category.BuildingCommand(actor, new StringStack("eover 20%")));
+		Assert.IsTrue(category.BuildingCommand(actor, new StringStack("eunder 60%")));
+
+		Assert.AreEqual(expectedPercent / 100m, market.PriceMultiplierForCategory(category));
+	}
+
+	[TestMethod]
 	public void PriceMultiplierForCategory_AddsFlatPricePressureToFormulaResult()
 	{
 		var category = CreateCategory(5L, "Staple Food");

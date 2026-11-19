@@ -2030,6 +2030,36 @@ public class GridSystemTests
                .Invoke([model, gameworld]);
     }
 
+    [TestMethod]
+    public void ComponentBuilder_DefaultTelephoneAndOutletConnectorsAreCompatibleAfterSaving()
+    {
+        using var database = new InMemoryDatabaseTestScope();
+        var world = new Mock<IFuturemud>();
+        var prototypes = new RevisableAll<IGameItemComponentProto>();
+        world.SetupGet(x => x.ItemComponentProtos).Returns(prototypes);
+        world.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
+        var components = new GameItemComponentManager();
+        var account = Mock.Of<MudSharp.Accounts.IAccount>(x => x.Id == 1);
+        var telephone = (TelephoneGameItemComponentProto)components.GetProto("Telephone", world.Object, account)!;
+        prototypes.Add(telephone);
+        var outlet = (TelecommunicationsGridOutletGameItemComponentProto)components.GetProto(
+            "TelecommunicationsGridOutlet", world.Object, account)!;
+
+        Assert.IsTrue(telephone.Connections.Single().CompatibleWith(outlet.Connections.Single()));
+        telephone.Save();
+        outlet.Save();
+
+        var savedOutlet = database.Context.GameItemComponentProtos.Find(outlet.Id, outlet.RevisionNumber)!;
+        var reloadedOutlet = (TelecommunicationsGridOutletGameItemComponentProto)components.GetProto(savedOutlet,
+            world.Object)!;
+        Assert.IsTrue(telephone.Connections.Single().CompatibleWith(reloadedOutlet.Connections.Single()));
+
+        savedOutlet.Definition = savedOutlet.Definition.Replace("TelephoneLine", "LegacyPhone", StringComparison.Ordinal);
+        var olderOutlet = (TelecommunicationsGridOutletGameItemComponentProto)components.GetProto(savedOutlet,
+            world.Object)!;
+        Assert.AreEqual("LegacyPhone", olderOutlet.Connections.Single().ConnectionType);
+    }
+
     private static TelephoneGameItemComponentProto CreateTelephoneProto(IFuturemud gameworld, double wattage)
     {
         MudSharp.Models.GameItemComponentProto model = new()

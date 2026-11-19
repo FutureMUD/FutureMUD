@@ -45,7 +45,7 @@ market show Harbour Market
 
 The three percentages are changes to supply, demand and the flat price adjustment, in that order. Here supply becomes 0.80 and demand stays 1.00. Under the default formula and the two 50% elasticity settings, the multiplier is **1.125**. The shortage relative to the smaller quantity is `(1.00 - 0.80) / 0.80 = 0.25`, then `1 + 0.50 × 0.25 = 1.125`. For a base price of 80, expect 90 before taxes, deals and currency rounding. Compare customer quotes on a tagged product and an untagged control.
 
-The current pricing calculation selects the value set by `eover` when demand exceeds supply and the value set by `eunder` when supply exceeds demand. The editor labels describe the reverse. The equal settings above keep the first experiment predictable. Test both a shortage and a glut before tuning those values separately.
+Use `eunder` for shortages, when demand exceeds supply, and `eover` for gluts, when supply exceeds demand. If you tuned the values in an older build, inspect `mc show <category-id>` and use the reported oversupply and undersupply values to decide whether to retune the category.
 
 A flat price impact adds to the computed multiplier. For example, `mit set impact "Harbour Staples" 0% 0% 10%` describes a ten-percentage-point adjustment with neutral supply and demand. Each setting replaces the impact row for that category. Use distinct templates for events you want to overlap. Check the market's actual `formula` before using the example arithmetic in a customised economy.
 
@@ -85,7 +85,7 @@ shopper show "Harbour Weekly Buyer"
 shopper close
 ```
 
-Choose a budget at least as large as the quoted price, and set the next trip a little ahead of the local game clock. New simple shoppers start with a zero budget, accept-all selection progs, equal weighting, and empty-shop skipping enabled. The `shop` and `item` progs decide eligibility. `shopweight` and `itemweight` return numbers for weighted random selection. Start with the default item progs. The item-prog editor currently checks for a Shop first parameter while the buying routine passes the stock Item first. Use constant item progs for this example and verify custom item filters on disposable stock.
+Choose a budget at least as large as the quoted price, and set the next trip a little ahead of the local game clock. New simple shoppers start with a zero budget, accept-all selection progs, equal weighting, and empty-shop skipping enabled. The `shop` and `item` progs decide eligibility. `shopweight` and `itemweight` return numbers for weighted random selection. Start with the default item progs. For a custom item filter, use a Boolean prog taking Item. For an item weight, use a Number prog taking Item. Both can also take Merchandise as the second parameter and the quoted price as a Number third parameter. Older saved item progs declared with Shop first receive the selected shop until you replace them.
 
 After the trip, run `shopper log "Harbour Weekly Buyer"`. Look for the selected shop, a `buy` line for the item, and `finish`. Check the shop's sale record, stock count and proceeds. A virtual purchase consumes the sold item or reduces a stack, and the native sale can trigger merchandise auto-reorder. With reorder enabled, a full shelf after the trip can coexist with a completed sale.
 

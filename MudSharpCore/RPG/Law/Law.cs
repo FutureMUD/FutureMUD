@@ -693,6 +693,11 @@ public class Law : SaveableItem, ILaw
         actor.OutputHandler.Send(
             $"You change the type of coded crime controlled by the {Name.Colour(Telnet.Cyan)} law from {CrimeType.DescribeEnum().ColourValue()} to {value.DescribeEnum().ColourValue()}.");
         CrimeType = value;
+        if (Authority is LegalAuthority authority)
+        {
+            authority.CalculateLawLookup();
+        }
+
         Changed = true;
         return true;
     }

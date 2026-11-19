@@ -488,6 +488,10 @@ Why this fits the current design:
 - economic zones already create taxes by registered type name
 - taxes are already treated as policy objects rather than hard-coded branches
 
+### Shopkeeper display restocking
+
+A paid or virtual shopper sale can request that an on-duty Shopkeeper AI move already-stocked goods from a permanent shop stockroom to a display. Native pathing and inventory operations handle pickup and delivery. The route carrying merchandise must stay within shop rooms. Inaccessible stock or a temporarily blocked route leaves the request available to retry. An empty stockroom releases the shopkeeper to handle later sales. This movement is separate from the reorder and employment systems that acquire or produce stock.
+
 ### Adding a New Shopper Type
 Safest current pattern:
 

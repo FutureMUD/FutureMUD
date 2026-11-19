@@ -101,7 +101,7 @@ public class PunishmentStrategyFine : PunishmentStrategyBase
             $"a fine of between {Currency.Describe(FineAmount, CurrencyDescriptionPatternType.Short).ColourValue()} and {Currency.Describe(MaximumFineAmount, CurrencyDescriptionPatternType.Short).ColourValue()}";
     }
 
-    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    protected override PunishmentResult GetResultCore(ICharacter actor, ICrime crime, double severity)
     {
         return new PunishmentResult
         {
@@ -110,7 +110,7 @@ public class PunishmentStrategyFine : PunishmentStrategyBase
     }
 
     /// <inheritdoc />
-    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    protected override PunishmentOptions GetOptionsCore(ICharacter actor, ICrime crime)
     {
         return new PunishmentOptions
         {

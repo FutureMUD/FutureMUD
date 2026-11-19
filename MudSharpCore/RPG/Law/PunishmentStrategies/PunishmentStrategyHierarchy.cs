@@ -235,7 +235,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
         return $"a hierarchy of{(strategies.Count == 2 ? " either" : " one of")} {strategies.ListToString(conjunction: "or ")}";
     }
 
-    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    protected override PunishmentResult GetResultCore(ICharacter actor, ICrime crime, double severity)
     {
         foreach ((IFutureProg Prog, IPunishmentStrategy Strategy) strategy in _strategyHierarchy)
         {
@@ -249,7 +249,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
     }
 
     /// <inheritdoc />
-    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    protected override PunishmentOptions GetOptionsCore(ICharacter actor, ICrime crime)
     {
         foreach ((IFutureProg Prog, IPunishmentStrategy Strategy) strategy in _strategyHierarchy)
         {

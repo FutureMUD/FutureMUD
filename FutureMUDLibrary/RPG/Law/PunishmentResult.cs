@@ -15,6 +15,14 @@ public class PunishmentResult
     public MudTimeSpan CustodialSentence { get; init; } = TimeAndDate.MudTimeSpan.Zero;
     public MudTimeSpan GoodBehaviourBondLength { get; init; } = TimeAndDate.MudTimeSpan.Zero;
     public bool Execution { get; set; } = false;
+    public List<long> OnPunishProgIds { get; init; } = [];
+    public PunishmentKind BelowMinimumOverride { get; set; }
+
+    public PunishmentKind Kinds =>
+        (Fine > 0.0m ? PunishmentKind.Fine : PunishmentKind.None) |
+        (CustodialSentence > MudTimeSpan.Zero ? PunishmentKind.Custody : PunishmentKind.None) |
+        (GoodBehaviourBondLength > MudTimeSpan.Zero ? PunishmentKind.GoodBehaviourBond : PunishmentKind.None) |
+        (Execution ? PunishmentKind.Execution : PunishmentKind.None);
 
     public static PunishmentResult operator +(PunishmentResult r1, PunishmentResult r2)
     {
@@ -23,7 +31,9 @@ public class PunishmentResult
             Fine = r1.Fine + r2.Fine,
             CustodialSentence = r1.CustodialSentence + r2.CustodialSentence,
             GoodBehaviourBondLength = r1.GoodBehaviourBondLength + r2.GoodBehaviourBondLength,
-            Execution = r1.Execution || r2.Execution
+            Execution = r1.Execution || r2.Execution,
+            OnPunishProgIds = [.. r1.OnPunishProgIds, .. r2.OnPunishProgIds],
+            BelowMinimumOverride = r1.BelowMinimumOverride | r2.BelowMinimumOverride
         };
     }
 

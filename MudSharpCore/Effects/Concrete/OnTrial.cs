@@ -399,7 +399,8 @@ public class OnTrial : Effect, IEffect, INoQuitEffect
             new XElement("Execution", result.Execution),
             new XElement("Fine", result.Fine.ToString(CultureInfo.InvariantCulture)),
             new XElement("CustodialSentence", new XCData(result.CustodialSentence.GetRoundTripParseText)),
-            new XElement("GoodBehaviourBond", new XCData(result.GoodBehaviourBondLength.GetRoundTripParseText))
+            new XElement("GoodBehaviourBond", new XCData(result.GoodBehaviourBondLength.GetRoundTripParseText)),
+            result.OnPunishProgIds.Select(id => new XElement("OnPunishProg", id))
         );
     }
 
@@ -410,7 +411,8 @@ public class OnTrial : Effect, IEffect, INoQuitEffect
             Execution = bool.Parse(punishment.Element("Execution")?.Value ?? "false"),
             Fine = decimal.Parse(punishment.Element("Fine")?.Value ?? "0.0", CultureInfo.InvariantCulture),
             CustodialSentence = LoadMudTimeSpan(punishment.Element("CustodialSentence")?.Value),
-            GoodBehaviourBondLength = LoadMudTimeSpan(punishment.Element("GoodBehaviourBond")?.Value)
+            GoodBehaviourBondLength = LoadMudTimeSpan(punishment.Element("GoodBehaviourBond")?.Value),
+            OnPunishProgIds = punishment.Elements("OnPunishProg").Select(x => (long)x).ToList()
         };
     }
 

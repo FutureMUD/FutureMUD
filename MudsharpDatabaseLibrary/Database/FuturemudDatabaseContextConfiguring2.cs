@@ -1077,6 +1077,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.CalculatedBail).HasColumnType("decimal(58,29)").HasDefaultValue(0.0M);
                 entity.Property(e => e.FineRecorded).HasColumnType("decimal(58,29)").HasDefaultValue(0.0M);
                 entity.Property(e => e.CustodialSentenceLength).HasColumnType("double").HasDefaultValue(0.0);
+                entity.Property(e => e.ManualSentenceMinimumOverride).HasColumnType("int(11)").HasDefaultValue(0);
 
                 entity.Property(e => e.TimeOfCrime)
                     .IsRequired()

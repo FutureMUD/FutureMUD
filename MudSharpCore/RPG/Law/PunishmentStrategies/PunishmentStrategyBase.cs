@@ -13,14 +13,14 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
     protected PunishmentStrategyBase(IFuturemud gameworld, XElement root)
     {
         Gameworld = gameworld;
-        OnPunishProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnPunish")?.Value ?? "0"));
+        OnPunishProg = Gameworld.FutureProgs.Get(long.Parse((root.Element("onpunish") ?? root.Element("OnPunish"))?.Value ?? "0"));
     }
 
     public abstract string TypeSpecificHelpText { get; }
 
     public string HelpText => $@"You can use the following options with this punishment strategy:
 
-	onpunish <prog>|none - sets a prog that fires when this punishment is chosen{TypeSpecificHelpText}";
+	onpunish <prog>|none - sets a prog run when a sentence applies this punishment, taking Character and optionally the law name (Text){TypeSpecificHelpText}";
 
     public virtual bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
     {
@@ -73,8 +73,30 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
     }
 
     public abstract string Describe(IPerceiver voyeur);
-    public abstract PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0);
-    public abstract PunishmentOptions GetOptions(ICharacter actor, ICrime crime);
+    public PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    {
+        var result = GetResultCore(actor, crime, severity);
+        if (OnPunishProg is not null && result.Kinds != PunishmentKind.None)
+        {
+            result.OnPunishProgIds.Add(OnPunishProg.Id);
+        }
+
+        return result;
+    }
+
+    public PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    {
+        var options = GetOptionsCore(actor, crime);
+        if (OnPunishProg is not null && options.Kinds != PunishmentKind.None)
+        {
+            options.OnPunishHooks.Add((OnPunishProg.Id, options.Kinds));
+        }
+
+        return options;
+    }
+
+    protected abstract PunishmentResult GetResultCore(ICharacter actor, ICrime crime, double severity);
+    protected abstract PunishmentOptions GetOptionsCore(ICharacter actor, ICrime crime);
     public string SaveResult()
     {
         return SaveResultXElement().ToString();

@@ -1267,7 +1267,7 @@ With each of the emotes, you can use the following tokens:
                 List<(INPC NPC, LawyerAI AI)> courtLawyers = Gameworld.Characters
                                             .OfType<INPC>()
                                             .Select(x => (NPC: x, AI: x.AIs.OfType<LawyerAI>().FirstOrDefault()))
-                                            .Where(x => x.AI?.AvailableToHire(x.NPC, trialEffect.LegalAuthority, true) == true)
+                                            .Where(x => x.AI?.AvailableForCourtAppointment(x.NPC, trialEffect.LegalAuthority) == true)
                                             .ToList();
                 if (courtLawyers.Count == 0)
                 {

@@ -53,7 +53,11 @@ Characters are added to `Crime.WitnessIds` when they actually view that video ev
 
 Automatic conviction snapshots the eligible criminal list before resolving crimes. After the last sentence, execution cases remain in custody, custodial cases transfer to `jailentry` (or `prison` if no jail entry is set), and fine/bond-only cases use the normal release path, returning belongings. Fine severity interpolates from the configured standard amount at severity zero to the maximum at severity one; equal amounts give a fixed fine, including for automatic conviction.
 
-Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.
+Manual sentencing prompts for `accept sentence` when an explicitly selected fine or jail term is below the displayed minimum. Acceptance rechecks jurisdiction, authority, the pending charge and sentencing options. The crime record retains which minimums were overridden so `crimeinfo` can show the decision after restart or edits to the law. Same-kind fine and jail ranges are additive in compound strategies. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.
+
+Punishment strategies may bind a Void `onpunish` callback taking the defendant Character and optionally the law name as Text. Conviction runs the applied children and parent once per charge, after the sentence is recorded. Automated trials persist selected hook IDs with their otherwise-pending results. Previewing a sentence only calculates its options.
+
+Death sentences are represented by `PunishmentResult.Execution`.
 
 When a legal authority applies a result with `Execution = true`, the condemned character receives an `AwaitingExecution` effect for that authority. The existing sentencing path sets the execution date one in-game day after sentence application. Execution patrols only select loaded, living characters whose execution date has arrived. A condemned character who is physically held in a remand cell can use `requestexecution` to bring their execution date forward to the current legal time and request an immediate execution-patrol dispatch.
 

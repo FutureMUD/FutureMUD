@@ -103,7 +103,7 @@ public class PunishmentStrategyMultiple : PunishmentStrategyBase
         return $"{_strategies.Select(x => x.Describe(voyeur)).ListToString()}";
     }
 
-    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    protected override PunishmentResult GetResultCore(ICharacter actor, ICrime crime, double severity)
     {
         PunishmentResult result = new();
         foreach (IPunishmentStrategy strategy in _strategies)
@@ -115,7 +115,7 @@ public class PunishmentStrategyMultiple : PunishmentStrategyBase
     }
 
     /// <inheritdoc />
-    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    protected override PunishmentOptions GetOptionsCore(ICharacter actor, ICrime crime)
     {
         PunishmentOptions result = new();
         foreach (IPunishmentStrategy strategy in _strategies)

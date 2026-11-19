@@ -77,6 +77,7 @@ public partial class Crime : LateInitialisingItem, ICrime
         AdditionalInformation = dbitem.AdditionalInformation;
         _fineRecorded = dbitem.FineRecorded;
         _custodialSentenceLength = TimeSpan.FromSeconds(dbitem.CustodialSentenceLength);
+        ManualSentenceMinimumOverride = (PunishmentKind)dbitem.ManualSentenceMinimumOverride;
         _calculatedBail = dbitem.CalculatedBail;
         _hasBeenFinalised = dbitem.IsFinalised;
         _executionPunishment = dbitem.ExecutionPunishment;
@@ -137,6 +138,7 @@ public partial class Crime : LateInitialisingItem, ICrime
         dbitem.CalculatedBail = CalculatedBail;
         dbitem.FineRecorded = FineRecorded;
         dbitem.CustodialSentenceLength = CustodialSentenceLength.TotalSeconds;
+        dbitem.ManualSentenceMinimumOverride = (int)ManualSentenceMinimumOverride;
         dbitem.FineHasBeenPaid = FineHasBeenPaid;
         dbitem.ExecutionPunishment = ExecutionPunishment;
         dbitem.SentenceHasBeenServed = SentenceHasBeenServed;
@@ -175,6 +177,7 @@ public partial class Crime : LateInitialisingItem, ICrime
             CalculatedBail = CalculatedBail,
             FineRecorded = FineRecorded,
             CustodialSentenceLength = CustodialSentenceLength.TotalSeconds,
+            ManualSentenceMinimumOverride = (int)ManualSentenceMinimumOverride,
             FineHasBeenPaid = FineHasBeenPaid,
             ExecutionPunishment = ExecutionPunishment,
             SentenceHasBeenServed = SentenceHasBeenServed,
@@ -194,6 +197,7 @@ public partial class Crime : LateInitialisingItem, ICrime
     /// <inheritdoc />
     public override string Name => Law.Name;
     public ILaw Law { get; }
+    public PunishmentKind ManualSentenceMinimumOverride { get; private set; }
     public ILegalAuthority LegalAuthority => Law.Authority;
     public MudDateTime TimeOfCrime { get; }
 
@@ -877,6 +881,10 @@ public partial class Crime : LateInitialisingItem, ICrime
             {
                 sb.AppendLine();
                 sb.AppendLine("Sentence".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+                if (ManualSentenceMinimumOverride != PunishmentKind.None)
+                {
+                    sb.AppendLine($"Below-minimum sentence confirmed by the judge ({ManualSentenceMinimumOverride.DescribeEnum()}).".ColourError());
+                }
                 sb.AppendLine();
                 sb.AppendLine($"Death: {ExecutionPunishment.ToColouredString()}");
                 sb.AppendLine($"Prison: {(CustodialSentenceLength > TimeSpan.Zero ? CustodialSentenceLength.DescribePreciseBrief(enforcer).ColourValue() : "False".Colour(Telnet.Red))}");
@@ -923,15 +931,25 @@ public partial class Crime : LateInitialisingItem, ICrime
 
     public void Convict(ICharacter? enforcer, PunishmentResult result, string reason)
     {
+        if (HasBeenFinalised)
+        {
+            return;
+        }
+
         FineRecorded = result.Fine;
         CustodialSentenceLength = result.CustodialSentence;
         ExecutionPunishment = result.Execution;
         GoodBehaviourBond = result.GoodBehaviourBondLength;
+        ManualSentenceMinimumOverride = result.BelowMinimumOverride;
         // TODO - log
         HasBeenConvicted = true;
         HasBeenFinalised = true;
         LegalAuthority.HandleDiscordNotificationOfConviction(Criminal, this, result, enforcer);
         LegalAuthority.ConvictCrime(Criminal, this, result);
+        foreach (long progId in result.OnPunishProgIds)
+        {
+            Gameworld.FutureProgs.Get(progId)?.Execute(Criminal, Law.Name);
+        }
         // TODO - echo to enforcers
     }
 

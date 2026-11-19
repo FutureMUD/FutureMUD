@@ -6,8 +6,7 @@ using MudSharp.Economy;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.GameItems;
-using MudSharp.GameItems.Inventory;
-using MudSharp.GameItems.Inventory.Plans;
+using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.NPC.AI;
 
@@ -30,7 +29,7 @@ public class ShopkeeperAI : PathingAIBase
     {
         return new XElement("Definition",
             new XElement("OnSomeoneEntersProg", _onSomeoneEntersProg?.Id ?? 0L),
-            new XElement("EngageEmote", _restockStartDelay.TotalMilliseconds),
+            new XElement("RestockStartDelay", _restockStartDelay.TotalMilliseconds),
             new XElement("OnSomeoneUnwelcomeEntersProg", _onSomeoneUnwelcomeEntersProg?.Id ?? 0L),
             new XElement("OnSomeoneBuysProg", _onSomeoneBuysProg?.Id ?? 0L),
             new XElement("OnLeaveForRestockProg", _onLeaveForRestockProg?.Id ?? 0L),
@@ -85,7 +84,7 @@ public class ShopkeeperAI : PathingAIBase
                 ? gameworld.FutureProgs.Get(value)
                 : gameworld.FutureProgs.GetByName(root.Element("OnArriveBackFromRestockProg").Value);
         _restockStartDelay =
-            TimeSpan.FromMilliseconds(double.Parse(root.Element("RestockStartDelay")?.Value ?? "2000"));
+            TimeSpan.FromMilliseconds(double.Parse(root.Element("RestockStartDelay")?.Value ?? root.Element("EngageEmote")?.Value ?? "2000"));
     }
 
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
@@ -93,19 +92,19 @@ public class ShopkeeperAI : PathingAIBase
         switch (type)
         {
             case EventType.CharacterEnterRoomFinish:
-                return HandleCharacterEnterRoom((ICharacter)arguments[0], (IRoom)arguments[1]) ||
-                       base.HandleEvent(type, arguments);
+                return base.HandleEvent(type, arguments) || ProgressRestock((ICharacter)arguments[0]);
             case EventType.CharacterEnterRoomFinishWitness:
                 return HandleWitnessCharacterEnterRoom((ICharacter)arguments[0], (IRoom)arguments[1],
                     (IRoomExit)arguments[2], (ICharacter)arguments[3]);
             case EventType.WitnessBuyItemInShop:
-                return HandleWitnessBuyItem((ICharacter)arguments[0], (ICharacter)arguments[1], (IPermanentShop)arguments[2],
+                return HandleWitnessBuyItem((ICharacter)arguments[0], (ICharacter)arguments[1], (IShop)arguments[2],
                     (IMerchandise)arguments[3], (IEnumerable<IGameItem>)arguments[4]);
             case EventType.ItemRequiresRestocking:
-                return HandleItemRequiresRestocking((ICharacter)arguments[0], (IPermanentShop)arguments[1],
-                    (IMerchandise)arguments[2], (int)arguments[3]);
+                return arguments[1] is IPermanentShop permanentShop &&
+                       HandleItemRequiresRestocking((ICharacter)arguments[0], permanentShop,
+                           (IMerchandise)arguments[2], (int)arguments[3]);
             case EventType.MinuteTick:
-                return HandleMinuteTick((ICharacter)arguments[0]) || base.HandleEvent(type, arguments);
+                return ProgressRestock((ICharacter)arguments[0]) || base.HandleEvent(type, arguments);
             case EventType.HourTick:
                 return HandleHourTick((ICharacter)arguments[0]);
             default:
@@ -115,7 +114,7 @@ public class ShopkeeperAI : PathingAIBase
 
     private bool HandleHourTick(ICharacter employee)
     {
-        if (employee.Location.Shop?.IsClockedIn(employee) == true)
+        if (!employee.AffectedBy<RestockingMerchandise>() && employee.Location.Shop?.IsClockedIn(employee) == true)
         {
             List<IGameItem> stockInRoom = employee.Body.HeldItems
                                       .Concat(employee.Location.GameItems.SelectMany(x => x.ShallowItems))
@@ -124,13 +123,12 @@ public class ShopkeeperAI : PathingAIBase
             foreach (IGameItem item in stockInRoom)
             {
                 ItemOnDisplayInShop effect = item.EffectsOfType<ItemOnDisplayInShop>().First();
-                if (effect.Merchandise.PreferredDisplayContainer != null &&
-                    item.ContainedIn != effect.Merchandise.PreferredDisplayContainer &&
-                    employee.Body.CanPut(item, effect.Merchandise.PreferredDisplayContainer, null, 0, true) &&
-                    item.ContainedIn != null
+                var preferred = effect.Merchandise.PreferredDisplayContainer;
+                if (preferred is not null && preferred.Location == employee.Location && item.ContainedIn != preferred &&
+                    employee.Body.CanPut(item, preferred, null, 0, true) &&
+                    (item.ContainedIn is not null
                         ? employee.Body.CanGet(item, item.ContainedIn, 0)
-                        : employee.Body.CanGet(item, 0)
-                   )
+                        : employee.Body.CanGet(item, 0)))
                 {
                     if (item.ContainedIn != null)
                     {
@@ -141,7 +139,7 @@ public class ShopkeeperAI : PathingAIBase
                         employee.Body.Get(item);
                     }
 
-                    employee.Body.Put(item, effect.Merchandise.PreferredDisplayContainer, null);
+                    employee.Body.Put(item, preferred, null);
                     continue;
                 }
 
@@ -162,19 +160,20 @@ public class ShopkeeperAI : PathingAIBase
         return false;
     }
 
-    private bool HandleMinuteTick(ICharacter employee)
-    {
-        // TODO - check restocks that couldn't happen before
-        return false;
-    }
-
     private bool HandleItemRequiresRestocking(ICharacter employee, IPermanentShop shop, IMerchandise merchandise, int quantity)
     {
-        if (employee.AffectedBy<RestockingMerchandise>())
+        if (quantity <= 0 || shop.StockroomRoom is null || !shop.IsClockedIn(employee) ||
+            !ReferenceEquals(shop, merchandise.Shop))
         {
-            if (employee.EffectsOfType<RestockingMerchandise>().First().TargetMerchandise == merchandise)
+            return false;
+        }
+
+        var pending = employee.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
+        if (pending is not null)
+        {
+            if (pending.TargetMerchandise == merchandise)
             {
-                employee.EffectsOfType<RestockingMerchandise>().First().QuantityToRestock += quantity;
+                pending.QuantityToRestock += quantity;
                 return true;
             }
 
@@ -190,12 +189,16 @@ public class ShopkeeperAI : PathingAIBase
         RestockingMerchandise effect = new(employee, merchandise, quantity, _onLeaveForRestockProg);
         employee.AddEffect(effect);
         employee.AddEffect(
-            new DelayedAction(employee, perc => CheckPathingEffect(employee, true), "Getting ready to restock"),
+            new DelayedAction(employee, _ =>
+            {
+                effect.Ready = true;
+                ProgressRestock(employee);
+            }, "Getting ready to restock"),
             _restockStartDelay);
         return true;
     }
 
-    private bool HandleWitnessBuyItem(ICharacter customer, ICharacter employee, IPermanentShop shop, IMerchandise merchandise,
+    private bool HandleWitnessBuyItem(ICharacter customer, ICharacter employee, IShop shop, IMerchandise merchandise,
         IEnumerable<IGameItem> items)
     {
         _onSomeoneBuysProg?.Execute(employee, customer, shop, merchandise, items);
@@ -227,93 +230,177 @@ public class ShopkeeperAI : PathingAIBase
         return false;
     }
 
-    private bool HandleCharacterEnterRoom(ICharacter employee, IRoom room)
+    private bool ProgressRestock(ICharacter employee)
     {
-        RestockingMerchandise effect = employee.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
-        if (effect == null)
+        var request = employee.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
+        if (request?.Ready != true || !employee.State.IsAble() || employee.State.IsInStatis() ||
+            employee.Movement is not null ||
+            employee.Combat is not null || employee.AffectedBy<FollowingPath>() ||
+            employee.Effects.Any(x => x.IsBlockingEffect("movement") || x.IsBlockingEffect("combat-engage")))
         {
             return false;
         }
 
-        IPermanentShop shop = effect.TargetMerchandise.Shop as IPermanentShop;
-
-        if (effect.CurrentGameItems.Any())
+        if (request.TargetMerchandise.Shop is not IPermanentShop shop)
         {
-            if (employee.AffectedBy<FollowingPath>())
+            employee.RemoveEffect(request);
+            return false;
+        }
+
+        if (request.CarriedItem is { } item && !employee.Body.HeldItems.Any(x => ReferenceEquals(x, item)))
+        {
+            request.CarriedItem = null;
+            request.CarriedQuantity = 0;
+        }
+
+        // Finish delivering anything already in hand, even if the shift ended.
+        if (request.CarriedItem is null && (!shop.IsClockedIn(employee) || shop.StockroomRoom is null))
+        {
+            employee.RemoveEffect(request);
+            return false;
+        }
+
+        if (request.CarriedItem is not null)
+        {
+            if (employee.Location == request.DisplayRoom && shop.ShopfrontRooms.Contains(employee.Location))
+            {
+                if (!DeliverStock(employee, request, shop))
+                {
+                    return false;
+                }
+
+                if (request.QuantityToRestock <= 0 || !shop.IsClockedIn(employee) || shop.StockroomRoom is null)
+                {
+                    employee.RemoveEffect(request);
+                    return true;
+                }
+            }
+        }
+        else if (employee.Location == shop.StockroomRoom)
+        {
+            var stock = StockroomItems(request.TargetMerchandise, shop).ToList();
+            if (stock.Count == 0)
+            {
+                employee.RemoveEffect(request);
+                return true;
+            }
+
+            var route = FindDisplayPath(employee, request.TargetMerchandise, shop);
+            if (route is null)
             {
                 return false;
             }
 
-            foreach (IGameItem item in employee.Body.HeldItems.Where(
-                         x => x.AffectedBy<ItemOnDisplayInShop>(effect.TargetMerchandise)).ToList())
+            request.DisplayRoom = route.Room;
+            if (!PickUpStock(employee, request, stock))
             {
-                if (effect.TargetMerchandise.PreferredDisplayContainer != null &&
-                    effect.TargetMerchandise.PreferredDisplayContainer.Location == employee.Location &&
-                    employee.Body.CanPut(item, effect.TargetMerchandise.PreferredDisplayContainer, null, 0, false))
-                {
-                    employee.Body.Put(item, effect.TargetMerchandise.PreferredDisplayContainer, null);
-                    continue;
-                }
-
-                if (shop.DisplayContainers.FirstOrDefault(
-                        x => x.Location == employee.Location && employee.Body.CanPut(item, x, null, 0, false)) is
-                    IGameItem container)
-                {
-                    employee.Body.Put(item, container, null);
-                    continue;
-                }
-
-                effect.QuantityToRestock -= item.Quantity;
-                employee.Body.Drop(item);
-                effect.CurrentGameItems.Remove(item);
+                return false;
             }
 
-            if (effect.QuantityToRestock > 0)
+            if (employee.Location == route.Room)
             {
-                CheckPathingEffect(employee, true);
+                DeliverStock(employee, request, shop);
+                if (request.QuantityToRestock <= 0)
+                {
+                    employee.RemoveEffect(request);
+                }
+
                 return true;
             }
+        }
 
-            employee.RemoveEffect(effect);
+        CheckPathingEffect(employee, true);
+        return true;
+    }
+
+    private static IEnumerable<IGameItem> StockroomItems(IMerchandise merchandise, IPermanentShop shop)
+    {
+        var stockroom = shop.StockroomRoom;
+        var displayContainers = shop.DisplayContainers.ToHashSet();
+        if (merchandise.PreferredDisplayContainer is { } preferred)
+        {
+            displayContainers.Add(preferred);
+        }
+
+        return stockroom.GameItems.SelectMany(x => x.DeepItems)
+            .Where(x => x.Quantity > 0 && x.AffectedBy<ItemOnDisplayInShop>(merchandise))
+            .Where(x => x.ContainedIn is null || !displayContainers.Contains(x.ContainedIn))
+            .Distinct();
+    }
+
+    private static bool PickUpStock(ICharacter employee, RestockingMerchandise request, IEnumerable<IGameItem> stock)
+    {
+        foreach (var item in stock)
+        {
+            int quantity = Math.Min(request.QuantityToRestock, item.Quantity);
+            if (quantity <= 0)
+            {
+                continue;
+            }
+
+            var held = item.ContainedIn is { } container
+                ? employee.Body.Get(item, container, quantity, null, false, ItemCanGetIgnore.None, null)
+                : employee.Body.Get(item, quantity, null, false, ItemCanGetIgnore.None, null);
+            if (held is null || !employee.Body.HeldItems.Any(x => ReferenceEquals(x, held)))
+            {
+                continue;
+            }
+
+            request.CarriedItem = held;
+            request.CarriedQuantity = quantity;
             return true;
         }
 
-        if (room != shop.StockroomRoom)
+        return false;
+    }
+
+    private static bool DeliverStock(ICharacter employee, RestockingMerchandise request, IPermanentShop shop)
+    {
+        var item = request.CarriedItem;
+        if (item is null)
         {
             return false;
         }
 
-        IInventoryPlan plan = new InventoryPlanTemplate(Gameworld, new[]
+        int quantity = Math.Min(item.Quantity, request.CarriedQuantity);
+        var preferred = request.TargetMerchandise.PreferredDisplayContainer;
+        var containers = shop.DisplayContainers.Where(x => x != preferred);
+        if (preferred is not null)
         {
-            new InventoryPlanPhaseTemplate(1, new[]
-                {
-                    new InventoryPlanActionHold(Gameworld, 0, 0,
-                        item => item.AffectedBy<ItemOnDisplayInShop>(
-                            effect.TargetMerchandise), null, 1)
-                    {
-                        ItemsAlreadyInPlaceMultiplier = 0.0,
-                        OriginalReference = "target"
-                    }
-                }
-            )
-        }).CreatePlan(employee);
+            containers = containers.Prepend(preferred);
+        }
 
-        int quantity = 0;
-        while (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        foreach (var container in containers.Where(x => x.Location == employee.Location))
         {
-            IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
-            IGameItem item = results.First(x => x.OriginalReference.Equals("target")).PrimaryTarget;
-            quantity += item.Quantity;
-            effect.CurrentGameItems.Add(item);
-            if (quantity >= effect.QuantityToRestock)
+            if (employee.Body.CanPut(item, container, null, quantity, false) &&
+                employee.Body.Put(item, container, null, quantity, null, false, false, null) is not null)
             {
-                break;
+                FinishDelivery(request, quantity);
+                return true;
             }
         }
 
-        plan.FinalisePlanNoRestore();
-        CreatePathingEffectIfPathExists(employee);
+        if (!employee.Body.CanDrop(item, quantity))
+        {
+            return false;
+        }
+
+        int beforeDrop = item.Quantity;
+        employee.Body.Drop(item, quantity);
+        if (employee.Body.HeldItems.Any(x => ReferenceEquals(x, item)) && item.Quantity > beforeDrop - quantity)
+        {
+            return false;
+        }
+
+        FinishDelivery(request, quantity);
         return true;
+    }
+
+    private static void FinishDelivery(RestockingMerchandise request, int quantity)
+    {
+        request.QuantityToRestock -= quantity;
+        request.CarriedItem = null;
+        request.CarriedQuantity = 0;
     }
 
     public override bool HandlesEvent(params EventType[] types)
@@ -335,53 +422,78 @@ public class ShopkeeperAI : PathingAIBase
         }) || base.HandlesEvent(types);
     }
 
-    #region Overrides of PathingAIBase
-
     protected override bool IsPathingEnabled(ICharacter character)
     {
-        RestockingMerchandise effect = character.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
-        if (effect == null)
-        {
-            return false;
-        }
-
-        return effect.RoomExitQueue.Count > 0;
+        var request = character.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
+        return request?.Ready == true && request.TargetMerchandise.Shop is IPermanentShop shop &&
+               (request.CarriedItem is not null || (shop.IsClockedIn(character) && shop.StockroomRoom is not null));
     }
-
-    #endregion
 
     protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
-        RestockingMerchandise effect = ch.EffectsOfType<RestockingMerchandise>().First();
-        IPermanentShop shop = effect.TargetMerchandise.Shop as IPermanentShop;
-        if (shop is null)
+        var request = ch.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
+        if (request?.Ready != true || request.TargetMerchandise.Shop is not IPermanentShop shop)
         {
-            return (null, Enumerable.Empty<IRoomExit>());
+            return (null, []);
         }
 
-        if (effect.CurrentGameItems.Any())
+        if (request.CarriedItem is not null)
         {
-            if (effect.TargetMerchandise.PreferredDisplayContainer != null)
+            var route = FindDisplayPath(ch, request.TargetMerchandise, shop);
+            request.DisplayRoom = route?.Room;
+            return route is null || route.SpatialPath is not null
+                ? (null, [])
+                : (route.Room, route.Exits);
+        }
+
+        return shop.StockroomRoom is { } stockroom && stockroom != ch.Location
+            ? (stockroom, ch.PathBetween(stockroom, 10, GetSuitabilityFunction(ch)))
+            : (null, []);
+    }
+
+    protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+    {
+        var request = ch.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
+        if (request?.CarriedItem is null || request.TargetMerchandise.Shop is not IPermanentShop shop)
+        {
+            return (null, null);
+        }
+
+        var route = FindDisplayPath(ch, request.TargetMerchandise, shop);
+        return (route?.Room, route?.SpatialPath);
+    }
+
+    private sealed record DisplayRoute(IRoom Room, IReadOnlyList<IRoomExit> Exits, ISpatialPath? SpatialPath = null);
+
+    private DisplayRoute? FindDisplayPath(ICharacter employee, IMerchandise merchandise, IPermanentShop shop)
+    {
+        var shopRooms = shop.AllShopRooms.ToHashSet();
+        var canUseExit = GetSuitabilityFunction(employee);
+        var preferred = merchandise.PreferredDisplayContainer?.LocationLevelPerceivable?.Location;
+        bool ShopExit(IRoomExit exit) => shopRooms.Contains(exit.Destination) && canUseExit(exit);
+        bool hasRouteRooms = shopRooms.Any(x => x.RouteDefinition is not null);
+        foreach (var room in shop.ShopfrontRooms
+                     .OrderByDescending(x => x == preferred)
+                     .ThenBy(x => x.Characters.Count(shop.IsClockedIn)))
+        {
+            if (room == employee.Location)
             {
-                List<IRoomExit> path = ch.PathBetween(
-                    effect.TargetMerchandise.PreferredDisplayContainer.LocationLevelPerceivable, 10,
-                    GetSuitabilityFunction(ch)).ToList();
-                if (path.Any())
-                {
-                    return (effect.TargetMerchandise.PreferredDisplayContainer.LocationLevelPerceivable.Location, path);
-                }
+                return new DisplayRoute(room, []);
             }
 
-            IRoom target = shop.ShopfrontRooms.WhereMin(x => x.Characters.Count(y => shop.IsClockedIn(y))).GetRandomElement();
-            return (target, ch.PathBetween(target, 10, GetSuitabilityFunction(ch)));
+            var route = employee.PathBetween(room, 10, ShopExit).ToList();
+            if (route.Count > 0)
+            {
+                return new DisplayRoute(room, route);
+            }
+
+            if (hasRouteRooms && TryFindSpatialPath(employee, room, 10.0, ShopExit, out var spatial) &&
+                spatial is not null && RequiresSpatialFollowing(spatial))
+            {
+                return new DisplayRoute(room, [], spatial);
+            }
         }
 
-        if (shop?.StockroomRoom == null || ch.Location == shop.StockroomRoom)
-        {
-            return (null, Enumerable.Empty<IRoomExit>());
-        }
-
-        return (shop.StockroomRoom, ch.PathBetween(shop.StockroomRoom, 10, GetSuitabilityFunction(ch))
-                 .ToList());
+        return null;
     }
 }

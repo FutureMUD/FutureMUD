@@ -101,7 +101,8 @@ public class LegalTrialFlowTests
 			Fine = 12.5M,
 			CustodialSentence = MudTimeSpan.FromDays(3.0),
 			GoodBehaviourBondLength = MudTimeSpan.FromDays(30.0),
-			Execution = true
+			Execution = true,
+			OnPunishProgIds = [101, 102]
 		};
 		trial.Punishments[secondCrime.Object] = new PunishmentResult();
 		Assert.AreSame(firstCrime.Object, trial.NextCrime());
@@ -115,6 +116,8 @@ public class LegalTrialFlowTests
 		Assert.AreEqual(MudTimeSpan.FromDays(3.0), loaded.Punishments[firstCrime.Object].CustodialSentence);
 		Assert.AreEqual(MudTimeSpan.FromDays(30.0), loaded.Punishments[firstCrime.Object].GoodBehaviourBondLength);
 		Assert.IsTrue(loaded.Punishments[firstCrime.Object].Execution);
+		CollectionAssert.AreEqual(new long[] { 101, 102 }, loaded.Punishments[firstCrime.Object].OnPunishProgIds);
+		Assert.IsEmpty(loaded.Punishments[secondCrime.Object].OnPunishProgIds);
 		Assert.IsTrue(loaded.HasSentenceBeenAnnounced(firstCrime.Object));
 		Assert.IsFalse(loaded.HasSentenceBeenAnnounced(secondCrime.Object));
 		Assert.AreSame(secondCrime.Object, loaded.NextCrime());

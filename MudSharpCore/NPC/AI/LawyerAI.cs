@@ -86,11 +86,31 @@ public class LawyerAI : PathingAIBase
         return character.CombinedEffectsOfType<PatrolMemberEffect>().Any(x => x.Patrol is not null);
     }
 
-    public bool AvailableToHire(ICharacter ch, ILegalAuthority authority, bool courtAppointed)
+    public bool AvailableForPrivateHire(ICharacter lawyer, ILegalAuthority authority, ICharacter defendant)
     {
-        if (ch.AffectedBy<Lawyering>())
+        return IsAvailable(lawyer, authority) && AcceptsPrivateClient(defendant, lawyer);
+    }
+
+    public bool AvailableForCourtAppointment(ICharacter lawyer, ILegalAuthority authority)
+    {
+        return CanBeEngagedAsCourtAppointedLawyer && IsAvailable(lawyer, authority);
+    }
+
+    internal bool AcceptsPrivateClient(ICharacter defendant, ICharacter lawyer)
+    {
+        return CanBeHiredProg?.ExecuteBool(defendant, lawyer) == true;
+    }
+
+    private bool IsAvailable(ICharacter ch, ILegalAuthority authority)
+    {
+        if (authority.CourtLocation is null || ch.AffectedBy<Lawyering>())
         {
             return false;
+        }
+
+        if (ch.Location == authority.CourtLocation)
+        {
+            return true;
         }
 
         if (!ch.PathBetween(authority.CourtLocation, 50, GetSuitabilityFunction(ch)).Any() &&
@@ -107,11 +127,6 @@ public class LawyerAI : PathingAIBase
                 50.0,
                 GetSuitabilityFunction(ch),
                 out _))
-        {
-            return false;
-        }
-
-        if (courtAppointed && !CanBeEngagedAsCourtAppointedLawyer)
         {
             return false;
         }
@@ -342,7 +357,7 @@ public class LawyerAI : PathingAIBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which prog do you want to use to determine whether someone can hire this AI?");
+            actor.OutputHandler.Send("Which prog do you want to use to determine whether this AI accepts a private client (defendant, optionally lawyer)?");
             return false;
         }
 
@@ -359,7 +374,7 @@ public class LawyerAI : PathingAIBase
 
         CanBeHiredProg = prog;
         Changed = true;
-        actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to determine whether someone can hire it.");
+        actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to determine whether it will accept a private client.");
         return true;
     }
 

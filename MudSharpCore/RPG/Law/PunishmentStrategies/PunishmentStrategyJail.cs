@@ -58,7 +58,7 @@ internal class PunishmentStrategyJail : PunishmentStrategyBase
         }
 
         MaximumSentenceLength = ts;
-        if (MinimumSentenceLength < MaximumSentenceLength)
+        if (MinimumSentenceLength > MaximumSentenceLength)
         {
             MinimumSentenceLength = MaximumSentenceLength;
         }
@@ -97,14 +97,14 @@ internal class PunishmentStrategyJail : PunishmentStrategyBase
             : $"a custodial prison sentence of between {MinimumSentenceLength.Describe(voyeur).ColourValue()} and {MaximumSentenceLength.Describe(voyeur).ColourValue()}";
     }
 
-    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    protected override PunishmentResult GetResultCore(ICharacter actor, ICrime crime, double severity)
     {
         // TODO - some 
         return new PunishmentResult { CustodialSentence = MinimumSentenceLength + MudTimeSpan.FromDays(severity * (MaximumSentenceLength - MinimumSentenceLength).TotalDays) };
     }
 
     /// <inheritdoc />
-    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    protected override PunishmentOptions GetOptionsCore(ICharacter actor, ICrime crime)
     {
         return new PunishmentOptions
         {

@@ -908,6 +908,8 @@ Both you and the criminal need to be in the court room of the legal jurisdiction
 
 Note also the #3acquit#0 command which is used to register a finding of not guilty.
 
+A selected fine or jail term below the displayed minimum requires #3accept sentence#0. The confirmed override appears in #3crimeinfo#0.
+
 When the last known charge is finalised in a PC-held trial, the defendant will be released, sent to prison, or sent to holding for execution according to the recorded sentences.
 
 There are the following syntaxes for this command:
@@ -1052,6 +1054,7 @@ You can use the following options for punishments, can can include multiples in 
         }
 
         PunishmentResult punishment = new();
+        PunishmentKind selected = PunishmentKind.None;
         while (!ss.IsFinished)
         {
             switch (ss.PopForSwitch())
@@ -1077,6 +1080,13 @@ You can use the following options for punishments, can can include multiples in 
                         return;
                     }
 
+                    if (amount < 0.0m)
+                    {
+                        actor.OutputHandler.Send("The fine must be zero or greater.");
+                        return;
+                    }
+
+                    selected |= PunishmentKind.Fine;
                     punishment += new PunishmentResult { Fine = amount };
                     break;
                 case "behaviour":
@@ -1102,6 +1112,13 @@ You can use the following options for punishments, can can include multiples in 
                         return;
                     }
 
+                    if (ts < MudTimeSpan.Zero)
+                    {
+                        actor.OutputHandler.Send("The jail term must be zero or greater.");
+                        return;
+                    }
+
+                    selected |= PunishmentKind.Custody;
                     punishment += new PunishmentResult { CustodialSentence = ts };
                     break;
                 default:
@@ -1110,22 +1127,128 @@ You can use the following options for punishments, can can include multiples in 
             }
         }
 
+        if (!ValidateManualSentence(actor, jurisdiction, options, punishment))
+        {
+            return;
+        }
+
+        var belowMinimum = ManualSentenceBelowMinimum(options, punishment, selected);
+        if (belowMinimum == PunishmentKind.None)
+        {
+            ApplyManualSentence(actor, target, jurisdiction, targetCrime, punishment, options);
+            return;
+        }
+
+        var warnings = new List<string>();
+        if (belowMinimum.HasFlag(PunishmentKind.Fine))
+        {
+            warnings.Add($"the minimum fine of {jurisdiction.Currency.Describe(options.MinimumFine, CurrencyDescriptionPatternType.ShortDecimal)}");
+        }
+
+        if (belowMinimum.HasFlag(PunishmentKind.Custody))
+        {
+            warnings.Add($"the minimum jail term of {options.MinimumCustodialSentence.Describe(actor)}");
+        }
+
+        actor.OutputHandler.Send(
+            $"This sentence falls below {warnings.ListToString()}. Use {"accept sentence".ColourCommand()} within 60 seconds to impose it and record the override, or {"reject sentence".ColourCommand()} to cancel.");
+        actor.RemoveAllEffects<Accept>(x => x.Keywords.Contains("sentence"), false);
+        actor.AddEffect(new Accept(actor, new GenericProposal
+        {
+            DescriptionString = $"Confirming a below-minimum sentence for {targetCrime.Name}",
+            Keywords = ["sentence", "conviction"],
+            AcceptAction = _ =>
+            {
+                if (!actor.State.IsAble() || actor.Location != jurisdiction.CourtLocation ||
+                    !target.ColocatedWith(actor) || targetCrime.HasBeenFinalised ||
+                    !jurisdiction.KnownCrimesForIndividual(target).Contains(targetCrime))
+                {
+                    actor.OutputHandler.Send("The charge can no longer be judged here. Review the case before sentencing again.");
+                    return;
+                }
+
+                if (!CanManuallyJudge(actor, target, jurisdiction, out string error))
+                {
+                    actor.OutputHandler.Send(error);
+                    return;
+                }
+
+                if (!CanRecordManualJudgement(actor, target, jurisdiction))
+                {
+                    return;
+                }
+
+                var currentOptions = targetCrime.Law.PunishmentStrategy.GetOptions(target, targetCrime);
+                if (options.MinimumFine != currentOptions.MinimumFine ||
+                    options.MinimumCustodialSentence != currentOptions.MinimumCustodialSentence ||
+                    options.MaximumFine != currentOptions.MaximumFine ||
+                    options.MaximumCustodialSentence != currentOptions.MaximumCustodialSentence ||
+                    options.CanBeExecuted != currentOptions.CanBeExecuted ||
+                    options.GoodBehaviourBondLength != currentOptions.GoodBehaviourBondLength ||
+                    !options.OnPunishHooks.SequenceEqual(currentOptions.OnPunishHooks))
+                {
+                    actor.OutputHandler.Send("The sentencing options changed. Enter the conviction command again to review the current terms.");
+                    return;
+                }
+
+                punishment.BelowMinimumOverride = belowMinimum;
+                ApplyManualSentence(actor, target, jurisdiction, targetCrime, punishment, currentOptions);
+            },
+            RejectAction = _ => actor.OutputHandler.Send("You withdraw the proposed sentence."),
+            ExpireAction = () => actor.OutputHandler.Send("The proposed below-minimum sentence has expired.")
+        }), TimeSpan.FromSeconds(60));
+    }
+
+    internal static PunishmentKind ManualSentenceBelowMinimum(PunishmentOptions options, PunishmentResult punishment,
+        PunishmentKind selected)
+    {
+        var belowMinimum = PunishmentKind.None;
+        if (selected.HasFlag(PunishmentKind.Fine) && punishment.Fine < options.MinimumFine)
+        {
+            belowMinimum |= PunishmentKind.Fine;
+        }
+
+        if (selected.HasFlag(PunishmentKind.Custody) && punishment.CustodialSentence < options.MinimumCustodialSentence)
+        {
+            belowMinimum |= PunishmentKind.Custody;
+        }
+
+        return belowMinimum;
+    }
+
+    private static bool ValidateManualSentence(ICharacter actor, ILegalAuthority jurisdiction, PunishmentOptions options,
+        PunishmentResult punishment)
+    {
         if (!options.CanBeExecuted && punishment.Execution)
         {
             actor.OutputHandler.Send("That crime does not permit the possibility of a death sentence.");
-            return;
+            return false;
         }
 
         if (options.MaximumCustodialSentence < punishment.CustodialSentence)
         {
-            actor.OutputHandler.Send($"That crimes has a maximum custodial sentence length of {options.MaximumCustodialSentence.Describe(actor).ColourValue()}.");
-            return;
+            actor.OutputHandler.Send($"That crime has a maximum custodial sentence length of {options.MaximumCustodialSentence.Describe(actor).ColourValue()}.");
+            return false;
         }
 
         if (options.MaximumFine < punishment.Fine)
         {
             actor.OutputHandler.Send($"The maximum fine for that crime is {jurisdiction.Currency.Describe(options.MaximumFine, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
-            return;
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void ApplyManualSentence(ICharacter actor, ICharacter target, ILegalAuthority jurisdiction,
+        ICrime targetCrime, PunishmentResult punishment, PunishmentOptions options)
+    {
+        foreach (var hook in options.OnPunishHooks)
+        {
+            if ((hook.Kinds & punishment.Kinds) != PunishmentKind.None)
+            {
+                punishment.OnPunishProgIds.Add(hook.ProgId);
+            }
         }
 
         actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ convict|convicts $1 of the charge that #1 $2, and sentences &1 to $3", actor,
@@ -2296,7 +2419,7 @@ The syntax is as follows:
             }
         }
 
-        List<(INPC NPC, LawyerAI AI)> availableLawyers = courtLawyers.Where(x => x.AI.AvailableToHire(x.NPC, jurisdiction, false)).ToList();
+        List<(INPC NPC, LawyerAI AI)> availableLawyers = courtLawyers.Where(x => x.AI.AvailableForPrivateHire(x.NPC, jurisdiction, who)).ToList();
         if (ss.IsFinished || ss.SafeRemainingArgument.EqualTo("list"))
         {
             if (availableLawyers.Count == 0)
@@ -2366,6 +2489,12 @@ The syntax is as follows:
                 return;
             }
 
+            if (!ai.AvailableForPrivateHire(target, jurisdiction, who))
+            {
+                actor.OutputHandler.Send("That lawyer is no longer available to take this private case.");
+                return;
+            }
+
             account.WithdrawFromTransaction(fee, "Paying for a lawyer");
             lawyerBankAccount?.DepositFromTransaction(fee, $"Lawyer fee for {who.PersonalName.GetName(NameStyle.FullName)}");
             actionText = $"with funds from the bank account {account.AccountReference.ColourValue()}";
@@ -2384,6 +2513,12 @@ The syntax is as follows:
                     : "holding";
                 actor.OutputHandler.Send(
                     $"You don't have enough money to pay {jurisdiction.Currency.Describe(fee, CurrencyDescriptionPatternType.Short).ColourValue()} in legal fees.\nYou are only {availableText} {jurisdiction.Currency.Describe(accessible, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                return;
+            }
+
+            if (!ai.AvailableForPrivateHire(target, jurisdiction, who))
+            {
+                actor.OutputHandler.Send("That lawyer is no longer available to take this private case.");
                 return;
             }
 

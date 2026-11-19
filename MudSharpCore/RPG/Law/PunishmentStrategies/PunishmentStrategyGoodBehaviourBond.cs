@@ -65,13 +65,13 @@ public class PunishmentStrategyGoodBehaviourBond : PunishmentStrategyBase
         return sb.ToString();
     }
 
-    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    protected override PunishmentResult GetResultCore(ICharacter actor, ICrime crime, double severity)
     {
         return new PunishmentResult { GoodBehaviourBondLength = GoodBehaviourBondLength };
     }
 
     /// <inheritdoc />
-    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    protected override PunishmentOptions GetOptionsCore(ICharacter actor, ICrime crime)
     {
         return new PunishmentOptions
         {

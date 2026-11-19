@@ -229,7 +229,7 @@ This configures one live test NPC. To add it to future copies, use `npc set ai a
 
 First, stock a scarf near the cabinet and observe whether the employed NPC can put it on display. Check that the NPC can reach, hold and place the item, and that the container has space. Hourly display placement uses the employee's current room.
 
-**Stockroom restocking has a current engine defect.** A sale can request a trip, but the shopkeeper reads a route queue the restocking effect never initialises. Treat AI-driven trips as unverified and keep this setup in a test shop. For day-to-day stocking, use the manual or automatic reorder workflows above. If a shopkeeper stops after a sale, check the restocking effect and server log as well as stock, access and the employee contract.
+After a sale the shopkeeper takes the sold quantity from stocked merchandise in the stockroom and brings it to a shopfront. It prefers the merchandise's display container, then another usable display container in that room, then the shopfront floor. Give it a route between those rooms that stays within the shop so it can carry the stock without leaving the premises. If the trip pauses, check the employee's hands, the stockroom's available stock and the doors on the route. A blocked trip can resume when access is restored. If the stockroom is empty, another sale can request a new trip after you replenish it.
 
 ## Run a shop with employment hosts
 

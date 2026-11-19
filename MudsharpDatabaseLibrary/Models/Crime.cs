@@ -32,6 +32,7 @@ namespace MudSharp.Models
         public decimal CalculatedBail { get; set; }
         public decimal FineRecorded { get; set; }
         public double CustodialSentenceLength { get; set; }
+        public int ManualSentenceMinimumOverride { get; set; }
         public string WitnessIds { get; set; } = null!;
 		public string? WitnessMemory { get; set; }
         public bool ExecutionPunishment { get; set; }

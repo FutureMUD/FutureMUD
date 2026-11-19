@@ -207,7 +207,7 @@ ai close
 ai add AlderCounselAI <lawyer-npc>
 ```
 
-The AI's `court` switch controls whether the NPC may also be appointed by an automated court. Fresh Lawyer AIs allow it. Use a second eligible NPC if you want to test public defence while the private lawyer is occupied. `ai set home <prog>` takes a Location-returning prog with one Character, and `ai set bank <prog>` takes a BankAccount-returning prog with one Character, the lawyer. Bind a bank destination if fees should pay into the lawyer's account. The `hire` setter stores an eligibility prog, but this version's availability check does not consult it. Use the actual offered list to verify who can be hired.
+The AI's `court` switch controls whether the NPC may also be appointed by an automated court. Fresh Lawyer AIs allow it. Use a second eligible NPC if you want to test public defence while the private lawyer is occupied. `ai set home <prog>` takes a Location-returning prog with one Character, and `ai set bank <prog>` takes a BankAccount-returning prog with one Character, the lawyer. Bind a bank destination if fees should pay into the lawyer's account. Use `ai set hire <prog>` to screen paid engagements. The Boolean prog takes the defendant and can also take the lawyer. If someone else pays, eligibility is still evaluated for the defendant. Court appointments use the `court` switch and normal availability.
 
 As a remand prisoner, run `engagelawyer me` to see available lawyers and `engagelawyer me <lawyer>` to pay for representation. An advocate can use `engagelawyer list` at the prison desk and `engagelawyer <defendant> <lawyer> [<bank-account>]`. A prisoner hiring themselves from remand can draw cash from their belongings bundle. Verify the fee, the counsel assignment and the NPC's travel to court. The automated judge may appoint an available court-approved lawyer for a defendant without counsel. A player-run hearing can roleplay counsel and witnesses directly.
 
@@ -225,11 +225,13 @@ crimeinfo <crime-id>
 convict <defendant> <crime-id>
 ```
 
-The last line previews available punishments. Hear the plea, witnesses and arguments in roleplay. Then use `convict <defendant> <crime-id> fine 5cr` or `acquit <defendant> <crime-id>` to record the decision. Decide each charge separately. Finalising the last known charge closes the session and applies release or custody according to the result.
+The last line previews available punishments. Hear the plea, witnesses and arguments in roleplay. A selected fine or jail term below the displayed minimum prompts the judge to confirm it with `accept sentence` within 60 seconds. For example, the magistrate can shorten a two-day minimum jail term to one day after restitution. Use `crimeinfo <crime-id>` to review the confirmed override alongside the sentence. Then use `convict <defendant> <crime-id> fine 5cr` or `acquit <defendant> <crime-id>` to record the decision. Decide each charge separately. Finalising the last known charge closes the session and applies release or custody according to the result.
 
 For a fine-only outcome, check release, returned belongings and the outstanding amount. The defendant can use `payfine` at the Watch House and settle with `payfine <crime-id> [<bank-account>]` or `payfine all`. An administrator can link a suitable account with `legalauthority set bankaccount <bankcode>:<account>` or use `none` for virtual revenue. Inspect the destination and `legalauthority set revenue ledger`. This revenue belongs to the authority's collection path. Link the intended account if fines should reach the town treasury.
 
 For a separate custody test, configure a jail punishment on the test law before creating a fresh case. Read the options with `convict <defendant> <crime-id>`, then exercise a suitable sentence with `convict <defendant> <crime-id> jail "1 day"`. Check the convicted character's `score`, the room used for the sentence, and the eventual release location and belongings. Compare with acquittal and the fine-only case. Keep administrative holds and events off during these checks so you can observe what the sentencing path does.
+
+Use `punishment onpunish <prog>` on a law or child punishment to run a Void prog when that penalty takes effect. The prog receives the defendant and can optionally receive the law name as Text. A compound sentence runs the hooks on the parent and the penalties it applies, once per charge. A hierarchy uses the selected branch. A sentence of `nothing` applies no penalty.
 
 ### An automated hearing
 

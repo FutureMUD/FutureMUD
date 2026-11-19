@@ -109,6 +109,13 @@ public class BlankDatabaseSnapshotTests
     }
 
 	[TestMethod]
+	public void CommittedBlankSnapshot_StoresConfirmedManualSentenceOverrides()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "crimes"), "`ManualSentenceMinimumOverride` int(11) NOT NULL DEFAULT 0");
+	}
+
+	[TestMethod]
 	public void CommittedBlankSnapshot_RecordsLatestMigrationInHistory()
 	{
 		string assetDirectory = GetDatabaseSeederProjectDirectory();

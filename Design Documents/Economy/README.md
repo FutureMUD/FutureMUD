@@ -16,6 +16,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 - [Building the justice system](../Builder%20Guides/Justice_System_Builder_Guide.md)
 - [Shops, currencies and banking builder guide](../Builder%20Guides/Shop_and_Banking_Builder_Guide.md)
 - [Loans, mortgages and pawnbroking builder guide](../Builder%20Guides/Lending_Builder_Guide.md)
+- [Hotels, restaurants and stables builder guide](../Builder%20Guides/Hospitality_Builder_Guide.md)
 - [Employment hosts builder guide](../Builder%20Guides/Employment_Hosts_Builder_Guide.md)
 - [Building clans and town government](../Builder%20Guides/Clan_Builder_Guide.md)
 - [Clan Command Surface and Permissions](Clan_Command_Surface_and_Permissions.md)

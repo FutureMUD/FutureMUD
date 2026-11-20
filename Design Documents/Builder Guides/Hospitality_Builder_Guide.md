@@ -67,7 +67,7 @@ roomrent key add "Wayfarer Inn" "River Room" River Room Key
 roomrent key add "Wayfarer Inn" "Willow Room" Willow Room Key
 ```
 
-The property entry records the physical key and replacement charge. Assigning it to the guestroom tells the hotel to issue it at check-in. The physical lock controls access. Give each room a different key so the inn can let both rooms independently.
+The property entry records the physical key and replacement charge. Assigning it to the guestroom tells the hotel to issue it at check-in. The physical lock controls access. Give each room a different key so the inn can let both rooms independently. [Build and install the guest-room door](Item_Authoring_Guidelines.md#install-the-river-rooms-lockable-door)
 
 Place a bed and washbasin in the River Room. From inside the room, mark the actual items that the inn expects to find at checkout. Repeat for the Willow Room. The optional value is the replacement charge in the zone currency.
 
@@ -175,7 +175,7 @@ Use `unaltered` for stock served as it is, `open` for stock with an openable com
 
 ### Serve cider by the mug
 
-The Wayfarer sells a `250ml` serving of cider for `2cr`. Use a holdable mug prototype with a `LiquidContainer` component, capacity of at least `250ml` and no default liquid. The cider merchandise profile points to the mug prototype. Each order counts filled mugs, so `order cider 2` asks for two servings. The innkeeper keeps this drink dine-in only so the mugs can be collected from the tables. [Building items and equipment](Item_Authoring_Guidelines.md)
+The Wayfarer sells a `250ml` serving of cider for `2cr`. Use a holdable mug prototype with a `LiquidContainer` component, capacity of at least `250ml` and no default liquid. The cider merchandise profile points to the mug prototype. Each order counts filled mugs, so `order cider 2` asks for two servings. The innkeeper keeps this drink dine-in only so the mugs can be collected from the tables. [Build the cider mug](Item_Authoring_Guidelines.md#build-the-wayfarer-cider-mug)
 
 ```text
 shop merch new cider <cider-mug-prototype> 2cr

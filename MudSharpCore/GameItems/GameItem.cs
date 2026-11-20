@@ -626,7 +626,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         if (alteredldesc)
         {
-            ldesc = (this as IHaveCharacteristics).ParseCharacteristics(ldesc, voyeur)
+            ldesc = (this as IHaveCharacteristics)
+                                                   .ParseCharacteristics(ldesc.SubstituteCheckTrait(voyeur, Gameworld), voyeur)
                                                    .AppendRemoteObservationTag(voyeur, this, colour, flags);
         }
 
@@ -665,8 +666,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         description = description.SubstituteANSIColour();
-        string text = description;
-        text = text.SubstituteWrittenLanguage(voyeur, Gameworld);
+        string text = description.SubstituteCheckTrait(voyeur, Gameworld)
+                                 .SubstituteWrittenLanguage(voyeur, Gameworld);
         text = (this as IHaveCharacteristics).ParseCharacteristics(text, voyeur);
         text = ParseDescription(voyeur, text, DescriptionType.Short,
             colour ? Prototype.CustomColour ?? Telnet.Green : null, flags, false);
@@ -796,7 +797,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         string text = ParseDescription(voyeur, description, DescriptionType.Full, colour, flags, excludeComponents);
 
-        text = text.SubstituteWrittenLanguage(voyeur, Gameworld);
+        text = text.SubstituteCheckTrait(voyeur, Gameworld)
+                   .SubstituteWrittenLanguage(voyeur, Gameworld);
 
         text = (this as IHaveCharacteristics).ParseCharacteristics(text, voyeur);
 
@@ -902,7 +904,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         string text = ParseDescription(voyeur, description, DescriptionType.Full, colour, flags, true);
 
-        text = text.SubstituteWrittenLanguage(voyeur, Gameworld);
+        text = text.SubstituteCheckTrait(voyeur, Gameworld)
+                   .SubstituteWrittenLanguage(voyeur, Gameworld);
 
         text = (this as IHaveCharacteristics).ParseCharacteristics(text, voyeur);
 

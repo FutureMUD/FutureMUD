@@ -311,7 +311,9 @@ public class StringUtilitiesTests
     }
 
     [TestMethod]
-    public void SubstituteCheckTrait_AlternateMissing_ReturnsEmpty()
+    [DataRow("check{strength,5}{pass}")]
+    [DataRow("check{strength,5}{pass}{}")]
+    public void SubstituteCheckTrait_AlternateOmittedOrEmpty_ReturnsEmpty(string input)
     {
         Mock<ITraitDefinition> traitDef = new();
         traitDef.Setup(x => x.Name).Returns("strength");
@@ -325,7 +327,6 @@ public class StringUtilitiesTests
             .Setup(x => x.TraitValue(traitDef.Object, TraitBonusContext.None))
             .Returns(1);
 
-        const string input = "check{strength,5}{pass}";
         Assert.AreEqual(string.Empty, input.SubstituteCheckTrait(perceiver.Object, game.Object));
     }
 

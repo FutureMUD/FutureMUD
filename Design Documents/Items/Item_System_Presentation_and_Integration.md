@@ -67,6 +67,8 @@ Live items can also store nullable `OverrideSdesc` and `OverrideDesc` values. Sh
 
 `item show` displays the prototype's unique name and builder comment alongside the runtime-facing description fields. `item list` and item review tables include the unique name to make active templates easier to distinguish when nouns are intentionally generic. Builder comments are intentionally visible only in builder/admin workflows and are searchable with `comment:<text>` or the normal item-list text filters.
 
+Item short, long, full and contents descriptions resolve `check{trait,minvalue}{pass}{fallback}` using the viewer's trait value. Short, full and contents descriptions resolve trait checks before writing and Characteristic markup. A generated long description inherits the rendered short description. For an explicit long description, the trait check runs before Characteristic substitution. The full-description editor shows example tokens for the ordinary, `fancy` and `basic` forms of each configured Characteristic.
+
 `item show` also presents component composition warnings. Attaching a component with unmet sibling-capability requirements, or detaching a component that previously satisfied one, emits the same warning immediately. These warnings do not impose a component attachment order, but unresolved requirements block submission and review approval.
 
 ### Component-driven description decoration

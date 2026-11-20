@@ -34,7 +34,7 @@ namespace MudSharp.Framework
         private static readonly Regex LanguageReplacementRegex = new(@"writing\{(?<details>[a-z0-9 ,><=\.\-]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
 		private static readonly Regex SignedLanguageReplacementRegex = new(@"sign\{(?<details>[a-z0-9 ,><=\.\-]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
         private static readonly Regex LanguageReplacementAttributeRegex = new(@"(?<attr>[a-z0-9 \-]+)(?<operator>[=><]+)(?<value>[a-z0-9 -]+)", RegexOptions.IgnoreCase);
-        private static readonly Regex CheckReplacementRegex = new(@"check\{(?<trait>[^,]+),(?<difficulty>[0-9\.\,]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
+        private static readonly Regex CheckReplacementRegex = new(@"check\{(?<trait>[^,]+),(?<difficulty>[0-9\.\,]+)\}\{(?<text>[^}]*)\}(?:\{(?<alt>[^}]*)\})?", RegexOptions.IgnoreCase);
         /// <summary>
         /// This function produces an ascii-text table surrounding the supplied data
         /// </summary>

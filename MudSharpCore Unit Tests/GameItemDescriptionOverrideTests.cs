@@ -2,11 +2,14 @@
 
 using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -79,6 +82,54 @@ public class GameItemDescriptionOverrideTests
 		item.OverrideDesc = "A token made of @material.";
 		Assert.AreEqual("a brass token", Describe(item, viewer.Object, DescriptionType.Short));
 		Assert.AreEqual("A token made of brass.", Describe(item, viewer.Object, DescriptionType.Full));
+	}
+
+	[TestMethod]
+	[DataRow(DescriptionType.Short)]
+	[DataRow(DescriptionType.Long)]
+	[DataRow(DescriptionType.Full)]
+	[DataRow(DescriptionType.Contents)]
+	public void HowSeen_TraitCheckMarkup_SelectsBranchForTheViewer(DescriptionType type)
+	{
+		var (item, proto, _, viewer) = CreateItem();
+		const string description = "check{Appraisal,35}{A maker's mark is visible.}{There is an unfamiliar stamp.}";
+		proto.SetupGet(x => x.ShortDescription).Returns(description);
+		proto.SetupGet(x => x.FullDescription).Returns(description);
+		proto.SetupGet(x => x.OverridesLongDescription).Returns(true);
+		proto.SetupGet(x => x.LongDescription).Returns(description);
+		proto.SetupGet(x => x.CustomColour).Returns(Telnet.Green);
+		var appraisal = Mock.Of<ITraitDefinition>();
+		Mock.Get(item.Gameworld).Setup(x => x.Traits.GetByIdOrName("Appraisal", true)).Returns(appraisal);
+		var viewerTraits = viewer.As<IPerceivableHaveTraits>();
+
+		viewerTraits.Setup(x => x.TraitValue(appraisal, TraitBonusContext.None)).Returns(35);
+		Assert.AreEqual("A maker's mark is visible.", Describe(item, viewer.Object, type));
+
+		viewerTraits.Setup(x => x.TraitValue(appraisal, TraitBonusContext.None)).Returns(34);
+		Assert.AreEqual("There is an unfamiliar stamp.", Describe(item, viewer.Object, type));
+	}
+
+	[TestMethod]
+	public void BuildingCommand_DescriptionEditor_ShowsUsableCharacteristicTokens()
+	{
+		var (item, _, _, viewer) = CreateItem();
+		var world = Mock.Get(item.Gameworld);
+		var definition = Mock.Of<ICharacteristicDefinition>(x => x.Pattern == new Regex("^glaze$"));
+		world.Setup(x => x.Characteristics.Get(1L)).Returns(definition);
+		world.Setup(x => x.CharacteristicProfiles.Get(2L)).Returns(Mock.Of<ICharacteristicProfile>());
+		var component = new TestVariablePrototype(world.Object);
+		var proto = new GameItemProto(new MudSharp.Models.GameItemProto
+		{
+			EditableItem = new MudSharp.Models.EditableItem()
+		}, world.Object);
+		proto.AddComponent(component);
+		var output = new Mock<IOutputHandler>();
+		viewer.SetupGet(x => x.OutputHandler).Returns(output.Object);
+
+		Assert.IsTrue(proto.BuildingCommand(viewer.Object, new StringStack("desc")));
+
+		output.Verify(x => x.Send(It.Is<string>(s => s.Contains("$glaze / $glazefancy / $glazebasic")),
+			true, false), Times.Once);
 	}
 
 	[TestMethod]
@@ -207,7 +258,15 @@ public class GameItemDescriptionOverrideTests
 	}
 
 	private static string Describe(GameItem item, ICharacter viewer, DescriptionType type) =>
-		item.HowSeen(viewer, false, type, false, PerceiveIgnoreFlags.IgnoreLiquidsAndFlags).Trim();
+		item.HowSeen(viewer, false, type, false,
+			PerceiveIgnoreFlags.IgnoreLiquidsAndFlags | PerceiveIgnoreFlags.IgnorePlanes).Trim();
+
+	private sealed class TestVariablePrototype(IFuturemud world) : VariableGameItemComponentProto(
+		new MudSharp.Models.GameItemComponentProto
+		{
+			EditableItem = new MudSharp.Models.EditableItem(),
+			Definition = """<Definition><Characteristic Value="1" Profile="2" /></Definition>"""
+		}, world);
 
 	private static (GameItem Item, Mock<IGameItemProto> Proto, Mock<IGameItemSkin> Skin, Mock<ICharacter> Viewer) CreateItem()
 	{

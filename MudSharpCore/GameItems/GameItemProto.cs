@@ -2492,7 +2492,8 @@ writing{{{exampleLanguage.Name},{exampleScript.Name},style=childish,minskill=30}
         {
             foreach (ICharacteristicDefinition variable in variableComp.CharacteristicDefinitions)
             {
-                sb.AppendLine($"\t${variable.Pattern} / ${variable.Pattern}fancy / ${variable.Pattern}brief"
+                var pattern = variable.Pattern.TransformRegexIntoPattern();
+                sb.AppendLine($"\t${pattern} / ${pattern}fancy / ${pattern}basic"
                     .ColourCommand());
             }
         }

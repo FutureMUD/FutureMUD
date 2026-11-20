@@ -234,7 +234,7 @@ Current runtime behaviour:
 - if the difficulty value cannot be parsed, the pass text is returned
 - if the viewer's trait value is `>= minvalue`, the pass text is returned
 - otherwise the fail text is returned
-- if the fail text is omitted, the failed branch becomes blank
+- if the fail text is omitted or empty, the failed branch becomes blank
 
 Example:
 

@@ -2,7 +2,6 @@
 using MudSharp.Database;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Work.Agriculture;
-using MudSharp.Work.Projects.ConcreteTypes;
 
 namespace MudSharp.FutureProg.Functions.Agriculture;
 
@@ -27,45 +26,6 @@ internal static class AgricultureFunctionHelpers
 			AgricultureTargetType.Woodland => gameworld.AgricultureWoodlandDefinitions.GetByIdOrName(targetText),
 			_ => null
 		};
-	}
-
-	public static bool StartProject(ICharacter actor, IAgricultureField field, IAgricultureOperation operation, IFrameworkItem target)
-	{
-		if (actor == null || field == null || operation == null || operation.Project == null)
-		{
-			return false;
-		}
-
-		if (!field.CanBeginOperation(actor, operation, target, out _))
-		{
-			return false;
-		}
-
-		if (!operation.Project.CanInitiateProject(actor))
-		{
-			return false;
-		}
-
-		var active = new ActiveLocalProject(operation.Project, actor);
-		actor.Gameworld.Add(active);
-		actor.Gameworld.SaveManager.Flush();
-		using (new FMDB())
-		{
-			FMDB.Context.AgricultureProjectContexts.Add(new MudSharp.Models.AgricultureProjectContext
-			{
-				ActiveProjectId = active.Id,
-				AgricultureFieldId = field.Id,
-				OperationId = operation.Id,
-				TargetType = (int)operation.TargetType,
-				TargetId = target?.Id,
-				TargetText = target?.Name ?? string.Empty,
-				ActorId = CharacterInstanceIdentityComparer.IdentityId(actor),
-				Definition = "<Context />"
-			});
-			FMDB.Context.SaveChanges();
-		}
-
-		return true;
 	}
 }
 
@@ -408,7 +368,7 @@ internal class StartFieldProjectFunction : BuiltInFunction
 				  : AgricultureFunctionHelpers.ResolveTarget(_gameworld, operation,
 					  (string)ParameterFunctions[3].Result?.GetObject ?? string.Empty))
 			: null;
-		Result = new BooleanVariable(AgricultureFunctionHelpers.StartProject(actor, field, operation, target));
+		Result = new BooleanVariable(AgricultureProjectStarter.TryStart(actor, field, operation, target, out _));
 		return StatementResult.Normal;
 	}
 
@@ -420,7 +380,7 @@ internal class StartFieldProjectFunction : BuiltInFunction
 			(pars, gameworld) => new StartFieldProjectFunction(pars, gameworld),
 			new[] { "actor", "field", "operation" },
 			new[] { "The character starting the project", "The field", "The operation name or ID" },
-			"Starts an agriculture project with no target.",
+			"Starts an agriculture project in the field where the character is present, with no target.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -429,7 +389,7 @@ internal class StartFieldProjectFunction : BuiltInFunction
 			(pars, gameworld) => new StartFieldProjectFunction(pars, gameworld),
 			new[] { "actor", "field", "operation", "target" },
 			new[] { "The character starting the project", "The field", "The operation name or ID", "The crop, herd, or woodland target name or ID" },
-			"Starts an agriculture project with a dynamic target.",
+			"Starts an agriculture project in the field where the character is present, with a dynamic target.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -438,7 +398,7 @@ internal class StartFieldProjectFunction : BuiltInFunction
 			(pars, gameworld) => new StartFieldProjectFunction(pars, gameworld),
 			["actor", "field", "operation"],
 			["The character starting the project", "The field", "The resolved agriculture operation"],
-			"Starts an agriculture project with no target.",
+			"Starts an agriculture project in the field where the character is present, with no target.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));
 		RegisterTypedTarget(ProgVariableTypes.AgricultureCropDefinition, "crop");
@@ -454,7 +414,7 @@ internal class StartFieldProjectFunction : BuiltInFunction
 			(pars, gameworld) => new StartFieldProjectFunction(pars, gameworld),
 			["actor", "field", "operation", "target"],
 			["The character starting the project", "The field", "The resolved agriculture operation", $"The resolved {targetName} target"],
-			"Starts an agriculture project with a resolved target.",
+			"Starts an agriculture project in the field where the character is present, with a resolved target.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));
 	}

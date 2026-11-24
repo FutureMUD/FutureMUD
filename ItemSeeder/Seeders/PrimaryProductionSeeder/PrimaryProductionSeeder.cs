@@ -50,7 +50,8 @@ public sealed class PrimaryProductionSeeder : IDatabaseSeeder
 		string? DuplicatePreventionTag,
 		string Echo,
 		string? AlreadyPresentEcho = null,
-		string? FailureEcho = null);
+		string? FailureEcho = null,
+		string? RequiredDiscoveryMarkerStableReference = null);
 
 	private sealed record ProjectInitiationGateSeed(
 		string CanInitiateProgName,
@@ -735,7 +736,9 @@ public sealed class PrimaryProductionSeeder : IDatabaseSeeder
 		};
 		if (extraActions is not null)
 		{
-			actions.AddRange(extraActions);
+			actions.AddRange(extraActions.Select(action => action.Type == ProjectActionSeedType.CommodityOutput
+				? action with { RequiredDiscoveryMarkerStableReference = outputStableReference }
+				: action));
 		}
 
 		return new ProjectSeed(
@@ -1128,6 +1131,9 @@ public sealed class PrimaryProductionSeeder : IDatabaseSeeder
 				new XElement("MaterialId", ResolveMaterial(context, action.Material!).Id),
 				new XElement("Weight", action.Weight.ToString("R", System.Globalization.CultureInfo.InvariantCulture)),
 				new XElement("TagId", string.IsNullOrWhiteSpace(action.CommodityTag) ? 0 : ResolveTag(context, action.CommodityTag).Id),
+				new XElement("RequiredDiscoveryMarkerPrototypeId", action.RequiredDiscoveryMarkerStableReference is null
+					? 0
+					: ResolveItemPrototype(context, action.RequiredDiscoveryMarkerStableReference).Id),
 				new XElement("UseIndirectDescription", false),
 				new XElement("Echo", action.Echo),
 				new XElement("Characteristics")).ToString(),

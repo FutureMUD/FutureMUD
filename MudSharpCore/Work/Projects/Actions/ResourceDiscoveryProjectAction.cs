@@ -96,6 +96,11 @@ public class ResourceDiscoveryProjectAction : BaseAction
 
 	public override void CompleteAction(IActiveProject project)
 	{
+		CompleteAction(project, null);
+	}
+
+	internal void CompleteAction(IActiveProject project, ISet<long>? successfulResourceMarkers)
+	{
 		var (valid, _) = CanSubmit();
 		if (!valid || OutputItemPrototype is null)
 		{
@@ -158,6 +163,7 @@ public class ResourceDiscoveryProjectAction : BaseAction
 				location.Insert(item, true);
 			}
 		}
+		successfulResourceMarkers?.Add(OutputItemPrototype.Id);
 
 		HandleProjectEcho(project, location,
 			Echo ?? $"Signs of {OutputItemPrototype.ShortDescription} are revealed by the project.", roomLayer);

@@ -1,6 +1,6 @@
 # Primary production and agriculture runtime review
 
-Reviewed 24 November 2026 against engine revision `f01273ca2`. This record follows production from the player or script entry point to its output and saved state. It records defects separately from world design choices.
+Reviewed 24 November 2026 against engine revision `f01273ca2`. This record follows production from the player or script entry point to its output and saved state. It records the subsequent engine repairs separately from world design choices.
 
 ## What owns each resource
 
@@ -32,14 +32,14 @@ A short individual activity such as gathering weaving rods from managed coppice 
 
 Seed requirements displayed on a crop are descriptive metadata. The sowing project's material requirement controls what is actually supplied. Stock sowing uses a material tag and the secondary seed-stock tag. It can therefore accept seed of another qualifying material regardless of the chosen crop. Crop-specific seed consumption is an authoring limitation of the shared template. Ordinary project progress, payment rates and the work site are saved on the active project. Agriculture separately saves the selected field, target and worker skill contribution against the active project ID. [Stock seed requirement](../../DatabaseSeeder/Seeders/AgricultureSeeder/AgricultureSeeder.cs) · [Active project](../../MudSharpCore/Work/Projects/ConcreteTypes/ActiveProject.cs)
 
-## Findings that affect a builder workflow
+## Defect resolutions
 
-| Finding | What establishes it | Consequence |
-| --- | --- | --- |
-| An inherited grazing diet can throw when an animal bites. | A child race with a yield defined only on its parent passes `CanEatForagableYield`. The AI sees the inherited entry. `Race.BiteYield` calls `First` on the child's private list, and `Body.Eat` calls it to size the bite. [Race](../../MudSharpCore/Character/Heritage/Race.cs) · [Body needs](../../MudSharpCore/Body/Implementations/BodyNeeds.cs) | An otherwise valid grazing animal can fail to feed. Fix the lookup and cover parent-only diets before relying on them in the hunting example. |
-| The stock farming project can start without a field context. | The stock templates expose always-true catalogue and initiation progs. Ordinary `project start` creates an active local project. Only the field command and agriculture FutureProg start path write its field/operation/target context. The agriculture completion action reports missing context and returns, after which the local project can finish. [Stock templates](../../DatabaseSeeder/Seeders/AgricultureSeeder/AgricultureSeeder.cs) · [Project entry](../../MudSharpCore/Commands/Modules/CraftModule.cs) · [Completion](../../MudSharpCore/Work/Projects/Actions/AgricultureOperationAction.cs) | Workers can supply materials and finish the work with no field change or harvest. The generic start path should reject the template or obtain a valid operation context. |
-| A scripted field project can place the workforce in the wrong room. | `StartFieldProject(actor, field, ...)` accepts a field in another room. The helper checks the supplied field but creates the local project at the actor's location. Completion resolves the independently saved field ID. [FutureProg entry](../../MudSharpCore/FutureProg/Functions/Agriculture/AgricultureFunctions.cs) · [Site capture](../../MudSharpCore/Work/Projects/ConcreteTypes/ActiveLocalProject.cs) | Workers can labour in one room while the crop changes and the goods appear in another. A remote commission needs an explicit work site, or an onsite requirement should reject the start. |
-| Prospecting can produce a sample on a barren site. | The optional stock iron prospect template adds a discovery action followed by an independent hematite commodity action. The first returns on a missing tag or existing marker. Phase processing still runs the second. [Stock definition](../../ItemSeeder/Seeders/PrimaryProductionSeeder/PrimaryProductionSeeder.cs) · [Discovery](../../MudSharpCore/Work/Projects/Actions/ResourceDiscoveryProjectAction.cs) · [Phase completion](../../MudSharpCore/Work/Projects/ConcreteTypes/ActiveLocalProject.cs) | Workers can receive iron after being told that the site has none. Repeated surveys can also yield samples. This affects copied or installed templates. The Primary Production seeder is disabled by default. |
+| Workflow | Engine behaviour after repair |
+| --- | --- |
+| Inherited grazing diet | Bite size and nutrition both use the effective list of edible forage yields, including yields defined only by a parent race. |
+| Starting field work | The ordinary project start checks all phases for an agriculture completion action and directs players to `field start`. Starting through a field still enforces the template's initiation policy. The field context and active project are inserted together. |
+| Prospecting samples | The stock iron, tin, copper and lead samples require successful placement of the matching new marker earlier in the same phase. The ordinary commodity action can still produce output independently. |
+| Scripted farming | `StartFieldProject` returns false if the actor is away from the supplied field. A successful start uses the actor's local work site in that field's room. |
 
 ## Boundaries for the mine and ruin examples
 
@@ -51,4 +51,4 @@ For ruins, choose the lifetime of the claim explicitly. A persistent room can re
 
 ## Verification scope
 
-The review traced command, FutureProg, AI, project action and persistence paths. The focused core test run covered foraging, butchery helpers, loot definitions, agriculture authoring and operations, native yield accounting, discovery, commodity output and local work sites. It passed 181 tests. The four findings above are source traces. The run did not exercise these four scenarios with live players, simulate a server crash or run a complete shaft-building or dungeon-claim scenario. Butchery also lacks the loot materialiser's staged rollback if an exception occurs partway through creating several products. Partial output on that exceptional path remains an unverified risk, distinct from ordinary cancellation before completion.
+The review traced command, FutureProg, AI, project action and persistence paths. The focused core test run covered foraging, butchery helpers, loot definitions, agriculture authoring and operations, native yield accounting, discovery, commodity output and local work sites. It passed 181 tests. That run preceded the fixes. After the repairs, 169 focused core tests passed. They cover inherited bite size and nutrition, catalogue refusal, onsite field-context persistence, remote-start rejection and prospecting outcomes for new, legacy and custom projects. The review and repair tests did not simulate a server crash or run a complete shaft-building or dungeon-claim scenario. Butchery also lacks the loot materialiser's staged rollback if an exception occurs partway through creating several products. Partial output on that exceptional path remains an unverified risk, distinct from ordinary cancellation before completion.

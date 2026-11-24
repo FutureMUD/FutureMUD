@@ -6,8 +6,11 @@ namespace MudSharp.Work.Projects.ConcreteTypes;
 
 public class ActiveLocalProject : ActiveProject, ILocalProject
 {
-    public ActiveLocalProject(IProject project, ICharacter owner) : base(project)
+    private readonly Models.AgricultureProjectContext _initialFieldContext;
+
+    public ActiveLocalProject(IProject project, ICharacter owner, Models.AgricultureProjectContext fieldContext = null) : base(project)
     {
+        _initialFieldContext = fieldContext;
         _characterOwner = owner.Identity as ICharacter ?? owner;
         _characterOwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
         Location = owner.Location;
@@ -88,10 +91,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
     {
         if (AreCurrentPhaseCompletionRequirementsMet())
         {
-            foreach (IProjectAction action in OrderedCompletionActions())
-            {
-                action.CompleteAction(this);
-            }
+            CompletePhaseActions(this, CurrentPhase.CompletionActions);
 
             IProjectPhase nextPhase =
                 ProjectDefinition.Phases.ElementAtOrDefault(ProjectDefinition.Phases.ToList().IndexOf(CurrentPhase) +
@@ -230,6 +230,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
     {
         project.CharacterId = _characterOwnerId;
         project.RoomId = Location?.Id;
+        project.AgricultureProjectContext = _initialFieldContext;
 		project.RoomLayer = (int)RoomLayer;
 		project.RoutePosition = RoutePositionMetres.HasValue
 			? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)

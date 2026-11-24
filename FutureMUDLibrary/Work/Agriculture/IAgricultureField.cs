@@ -50,7 +50,7 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	void AdjustScore(AgricultureScoreType score, int delta);
 	string DescribeTo(ICharacter voyeur, bool exact);
 	void DailyTick();
-	bool CanBeginOperation(ICharacter actor, IAgricultureOperation operation, IFrameworkItem target, out string reason);
+	bool CanBeginOperation(ICharacter actor, IAgricultureOperation operation, IFrameworkItem? target, out string reason);
 	bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, out string result);
 	bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, bool enforceActorAccess, out string result);
 	bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, bool enforceActorAccess,

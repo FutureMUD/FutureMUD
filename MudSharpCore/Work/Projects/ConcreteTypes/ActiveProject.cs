@@ -8,6 +8,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects.Impacts;
+using MudSharp.Work.Projects.Actions;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
@@ -685,11 +686,24 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
                AreMandatoryMaterialRequirementsComplete();
     }
 
-    protected IEnumerable<IProjectAction> OrderedCompletionActions()
+    internal static void CompletePhaseActions(IActiveProject project, IEnumerable<IProjectAction> actions)
     {
-        return CurrentPhase.CompletionActions
-            .OrderBy(x => x.SortOrder)
-            .ThenBy(x => x.Id);
+        var successfulResourceMarkers = new HashSet<long>();
+        foreach (var action in actions.OrderBy(x => x.SortOrder).ThenBy(x => x.Id))
+        {
+            switch (action)
+            {
+                case ResourceDiscoveryProjectAction discovery:
+                    discovery.CompleteAction(project, successfulResourceMarkers);
+                    break;
+                case CommodityOutputProjectAction output:
+                    output.CompleteAction(project, successfulResourceMarkers);
+                    break;
+                default:
+                    action.CompleteAction(project);
+                    break;
+            }
+        }
     }
 
 	protected void TryJoinQueuedProjectLabourFor(IEnumerable<ICharacter> characters)

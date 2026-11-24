@@ -1,11 +1,12 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework.Save;
+using MudSharp.Work.Projects.Actions;
 
 namespace MudSharp.Work.Projects.ConcreteTypes;
 
 public class ProjectPhase : SaveableItem, IProjectPhase
 {
-    public ProjectPhase(MudSharp.Models.ProjectPhase phase, IFuturemud gameworld)
+    public ProjectPhase(MudSharp.Models.ProjectPhase phase, IFuturemud gameworld, string projectName = null)
     {
         Gameworld = gameworld;
         _id = phase.Id;
@@ -25,6 +26,11 @@ public class ProjectPhase : SaveableItem, IProjectPhase
         foreach (Models.ProjectAction action in phase.ProjectActions)
         {
             _completionActions.Add(ProjectFactory.LoadAction(action, gameworld));
+        }
+
+        foreach (var output in _completionActions.OfType<CommodityOutputProjectAction>())
+        {
+            output.RestoreLegacyStockDiscoveryRequirement(projectName ?? phase.Project?.Name, _completionActions);
         }
     }
 

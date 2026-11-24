@@ -2,6 +2,7 @@
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
+using MudSharp.Work.Projects.Actions;
 
 namespace MudSharp.Work.Projects.ConcreteTypes;
 
@@ -16,7 +17,7 @@ public abstract class Project : EditableItem, IProject
         AppearInJobsList = project.AppearInJobsList;
         foreach (Models.ProjectPhase phase in project.ProjectPhases)
         {
-            _phases.Add(new ProjectPhase(phase, gameworld));
+            _phases.Add(new ProjectPhase(phase, gameworld, Name));
         }
 
         LoadFromXml(XElement.Parse(project.Definition));
@@ -238,18 +239,30 @@ public abstract class Project : EditableItem, IProject
             AppearInProjectListProg.Execute<bool?>(actor) == true;
     }
 
-    public bool CanInitiateProject(ICharacter actor)
+    private bool RequiresFieldContext => Phases.Any(phase => phase.CompletionActions.Any(action => action is AgricultureOperationAction));
+
+    public bool CanInitiateProject(ICharacter actor) => CanInitiateProject(actor, false);
+
+    public bool CanInitiateProject(ICharacter actor, bool hasFieldContext)
     {
         return Status == RevisionStatus.Current &&
+               (hasFieldContext || !RequiresFieldContext) &&
                CanInitiateProg.Execute<bool?>(actor) == true &&
                !actor.PersonalProjects.Any(x => x.ProjectDefinition.Id == Id);
     }
 
-    public string WhyCannotInitiateProject(ICharacter actor)
+    public string WhyCannotInitiateProject(ICharacter actor) => WhyCannotInitiateProject(actor, false);
+
+    public string WhyCannotInitiateProject(ICharacter actor, bool hasFieldContext)
     {
         if (Status != RevisionStatus.Current)
         {
             return "That project is not approved for use.";
+        }
+
+        if (!hasFieldContext && RequiresFieldContext)
+        {
+            return "Start this agriculture operation at its field using FIELD START <operation>.";
         }
 
         if (CanInitiateProg.Execute<bool?>(actor) != true)

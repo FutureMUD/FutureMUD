@@ -81,7 +81,9 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | `commodityoutput` | `CommodityOutputProjectAction` | Creates a commodity pile in the active project location or owner fallback location when the phase completes |
 | `resourcediscovery` | `ResourceDiscoveryProjectAction` | Creates one configured visible resource marker in the active project location, gated by an optional location tag and duplicate-prevention tag |
 
-For local mining and quarrying, `resourcediscovery` checks the required room tag and searches the work site for an existing marker by tag or exact prototype revision. `commodityoutput` creates its configured material, tag and weight independently. Phase actions return `void`. Skipping discovery on an untagged site or finding a duplicate does not suppress a later commodity action. The optional stock iron prospect therefore produces its sample even on an untagged site. Neither action records remaining ore. [Primary production review](../Agriculture/Primary_Production_Runtime_Review.md)
+For mining and quarrying, a `resourcediscovery` action checks the required room tag and searches the work site for an existing marker by tag or exact prototype revision. To award an ore sample, place a `commodityoutput` action later in the same phase and set its `discovery <prototype>` to the marker prototype. The sample is created only if discovery placed a new matching marker during this phase completion. A barren site or a repeat survey yields no sample. Use `discovery none` for an independent output such as quarried stone. The same ordering applies to personal and local projects. Neither action tracks a remaining ore reserve.
+
+The stock iron, tin, copper and lead prospect samples have this dependency. When loading older definitions, the engine recognises each by its original project name, sample action name and marker prototype. A renamed custom prospect can opt in with `discovery <prototype>`. [Primary production review](../Agriculture/Primary_Production_Runtime_Review.md)
 
 ### Labour impact types
 | Builder keyword | Runtime type | Purpose |

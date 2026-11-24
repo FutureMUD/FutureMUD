@@ -17,7 +17,9 @@ namespace MudSharp.Work.Projects
 		IEnumerable<string> ProjectCatalogueColumns(ICharacter actor);
 		bool AppearInProjectList(ICharacter actor);
 		bool CanInitiateProject(ICharacter actor);
+		bool CanInitiateProject(ICharacter actor, bool hasFieldContext);
 		string WhyCannotInitiateProject(ICharacter actor);
+		string WhyCannotInitiateProject(ICharacter actor, bool hasFieldContext);
 		string ShowToPlayer(ICharacter actor);
 		IActiveProject InitiateProject(ICharacter actor);
 		bool CanCancelProject(ICharacter actor, IActiveProject local);

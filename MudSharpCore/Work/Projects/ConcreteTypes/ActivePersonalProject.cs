@@ -75,10 +75,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         if (AreCurrentPhaseCompletionRequirementsMet())
         {
             var resumeList = workersToResume.DistinctBy(x => x.InstanceId).ToList();
-            foreach (IProjectAction action in OrderedCompletionActions())
-            {
-                action.CompleteAction(this);
-            }
+            CompletePhaseActions(this, CurrentPhase.CompletionActions);
 
             IProjectPhase nextPhase =
                 ProjectDefinition.Phases.ElementAtOrDefault(ProjectDefinition.Phases.ToList().IndexOf(CurrentPhase) +

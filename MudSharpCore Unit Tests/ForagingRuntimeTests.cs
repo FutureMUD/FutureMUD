@@ -995,6 +995,27 @@ public class ForagingRuntimeTests
 	}
 
 	[TestMethod]
+	public void Race_InheritedForage_UsesTheSameBiteSizeForStockAndNutrition()
+	{
+		var parent = new Mock<IRace>();
+		parent.SetupGet(x => x.EdibleForagableYields).Returns(new[]
+		{
+			new EdibleForagableYield { YieldType = "browse", YieldPerBite = 0.25, HungerPerYield = 8.0 }
+		});
+		parent.Setup(x => x.CanEatForagableYield("browse")).Returns(true);
+		var child = TestObjectFactory.CreateUninitialized<Race>();
+		typeof(Race).GetProperty(nameof(Race.ParentRace))!.SetValue(child, parent.Object);
+		typeof(Race).GetField("_edibleForagableYields", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(child, new List<EdibleForagableYield>());
+
+		Assert.IsTrue(child.CanEatForagableYield("browse"));
+		Assert.AreEqual(0.25, child.BiteYield("browse"));
+		var (_, nutrition, consumed) = child.EatYield("browse", 2.0);
+		Assert.AreEqual(0.5, consumed);
+		Assert.AreEqual(4.0, nutrition.SatiationPoints);
+	}
+
+	[TestMethod]
 	public void ForagerAI_DirectEdibleYieldRemainsFractional()
 	{
 		var race = new Mock<IRace>();

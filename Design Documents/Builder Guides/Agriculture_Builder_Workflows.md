@@ -6,6 +6,8 @@ summary: Set up terrains, fields, crops, apiaries, pasture and woodland, and aut
 
 # Agriculture Builder Workflows
 
+For a worked tenant farm, orchard and apiary, see [Primary Production and Agriculture](Primary_Production_and_Agriculture_Builder_Guide.md). It follows the grange from its lease through the second season and shows how to match crop outputs to a buyer's recipe.
+
 Use `field crop validate <id|name>`, `field woodland validate <id|name>` and `field operation validate <id|name>` for read-only preflight. Crop and woodland checks inspect timings, ranges and output materials/tags/weights; harvest-apiary checks inspect multiplier, cost and outputs. Unsupported operation validators are reported explicitly. These checks neither activate definitions nor execute preview progs. See the [shared builder guide](Generic_Editable_Item_Builder_Workflows.md) for result semantics.
 
 ## Seed First

@@ -28,4 +28,12 @@ namespace MudSharp.Work.Crafts
         bool RefersToLiquid(ILiquid liquid);
         string InputType { get; }
     }
+
+    /// <summary>
+    /// An input that applies a non-consumptive effect when a craft succeeds.
+    /// </summary>
+    public interface ICraftInputOnSuccessfulCompletion
+    {
+        void CompleteInput(IPerceivable item, ICraftInputData data);
+    }
 }

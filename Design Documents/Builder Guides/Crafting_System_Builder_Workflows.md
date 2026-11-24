@@ -6,7 +6,7 @@ summary: Build a glazed cider mug, bottle cider and forge nails. Choose material
 
 # Crafting System Builder Workflows
 
-A Wayfarer potter brings clay and a measure of slate-blue glaze to the wheel. A few minutes later the inn has an empty slate-blue cider mug for its next guest. Players can see where the colour came from, a cracked firing costs the potter materials, and a better kiln can improve the quality of the next batch. This chapter builds that recipe, then uses the same editor to mend a harness, bottle cider and forge nails.
+A Wayfarer potter brings clay and a measure of slate-blue glaze to the wheel. A few minutes later the inn has an empty slate-blue cider mug for its next guest. Players can see where the colour came from, a cracked firing costs the potter materials, and a better kiln can improve the quality of the next batch. Build the mug first, then use the stable badge, pottery order and mixed glaze to choose a product that fits the commission. The harness, cider bottle and nails show how the same editor handles a service, a liquid and bulk goods.
 
 Choose a **craft** when one maker performs a sequence of tasks with particular materials and tools. Choose a **project** when people need to supply a shared undertaking, take shifts or be paid for labour. A smith can craft nails for a carpenter to deliver to a bridge project. The bridge sponsor does not need to participate in the forging. [Project authoring](Projects_System_Builder_Workflows.md)
 
@@ -107,6 +107,136 @@ For staff-made stock, give the inn an employee who can perform the Current recip
 
 To change the firing time next season, open `craft edit <craft-id>`, edit phase 3 on the new revision and submit it. Put both the echo and the revised time in `phase edit`. Active progress items record the revision they started under. Clone a recipe when both versions should stay available, such as a public plain mug alongside the inn’s commissioned glaze.
 
+## Cast a stable badge from a wax impression
+
+The Wayfarer stable and the town watch commission the same brass badge. Each supplies a wax impression bearing its device. The founder consumes the impression in casting. A finished badge has the same weight, material and fittings for either customer. Its raised device identifies the issuer.
+
+Give the badge prototype a Variable component with a standard Characteristic called `BadgeDevice` and permitted values `waystone` and `town gate`. Use `$badgedevice` in its description, for example “A raised $badgedevice fills the face of the badge.” Make **two distinct wax impression prototypes** and give both the **Badge Impression** item tag. Record their prototype IDs. This recipe reads the impression’s prototype, so two differently described instances of a single prototype would select the same mapping. [Make a Characteristic and attach it to an item](Item_Authoring_Guidelines.md#give-each-mug-a-glaze-with-characteristics)
+
+Open a new recipe using the shell above, name it `Cast a stable badge` and set a local metalworking check. Use a brass badge weighing about 40 g for a 50 g charge. The mould is a reusable room tool. The impression is a consumed item in slot 2.
+
+```text
+craft set input add commodity
+craft set input 1 material <brass-solid-id>
+craft set input 1 weight 50g
+craft set input add tag
+craft set input 2 tag <badge-impression-tag-id>
+craft set input 2 quantity 1
+craft set tool add tag
+craft set tool 1 tag <badge-mould-tag-id>
+craft set tool 1 room
+craft set product add inputvariable
+craft set product 1 item <brass-badge-prototype-id>
+craft set product 1 variable BadgeDevice index 2
+craft set product 1 variable BadgeDevice item <wayfarer-impression-prototype-id> waystone
+craft set product 1 variable BadgeDevice item <watch-impression-prototype-id> town gate
+craft set phase add 45 "@ bed|beds $i2 in $t1 and pour|pours $i1 into the mould."
+craft set phase add 0 "@ draw|draws $p1 from $t1 and polish|polishes the raised device." "@ open|opens $t1 on an incomplete casting."
+craft set failphase 2
+```
+
+A Wayfarer impression now gives a waystone badge. A watch impression gives a town gate badge. Use `craft set product 1 variable` to inspect both rows. When a third client commissions badges, add its value to the definition and profile and map its impression **before** offering it under the shared tag. An unmapped prototype can still satisfy the input. The product then supplies no explicit device, leaving the badge’s ordinary Characteristic selection to choose one.
+
+## Fulfil a pottery order with a prog product
+
+The inn buys kiln batches in a single slate-blue finish. It sends a different order slip according to which shelf needs stock. Each batch uses 1.6 kg of clay and four single-use portions of slate-blue glaze.
+
+| Order slip | Ware on a successful firing | Finished weight |
+| --- | --- | --- |
+| Common room | Four 350 g cider mugs | 1.4 kg |
+| Table service | One 700 g pitcher and two 350 g cider mugs | 1.4 kg |
+
+Make two order-slip prototypes carrying **Pottery Order**, one plain slate-blue glaze portion prototype, and a pitcher with the same `WayfarerGlaze` definition as the mugs. An ordinary paper **kiln query** goes back to the steward if a slip cannot be read. Approve the outputs before using the recipe. In the prog below, substitute your prototype IDs for `8101` (common-room slip), `8102` (table-service slip), `8103` (mug), `8104` (pitcher) and `8105` (kiln query). Substitute your slate-blue **Characteristic value ID** for `9101` inside the load strings.
+
+**`FillWayfarerPotteryOrder(inputs item collection dictionary) → item collection`**
+
+```futureprog
+var ware as item collection
+var slip = collectiondictionarygetfirst(@inputs, "3")
+if (isnull(@slip) == false)
+  if (@slip.proto == 8101)
+    for (cup : 4)
+      additem ware loaditem(8103, "wayfarerglaze=9101")
+    end for
+    return @ware
+  end if
+  if (@slip.proto == 8102)
+    additem ware loaditem(8104, "wayfarerglaze=9101")
+    for (cup : 2)
+      additem ware loaditem(8103, "wayfarerglaze=9101")
+    end for
+    return @ware
+  end if
+end if
+additem ware loaditem(8105)
+return @ware
+```
+
+Create this as a **dynamic** prog. Its dictionary uses the **text** key `"3"` for items consumed from input slot 3. `slip.proto` is a prototype ID shared by copies of that order slip. Each `loaditem` call creates one distinct vessel. Return those items and let the craft deliver them. Passing a quantity to `loaditem` only increases a stackable item’s quantity. The prog product returns the items as generated, so these vessels use their loaded quality. The original mug’s `variable` product applies craft reference quality. [FutureProg editor and types](FutureProg_Builder_Guide.md)
+
+Clone the approved single-mug recipe. Keep the wheel, kiln, failure potsherds, fourth-phase check and appearance rule. On the clone, replace the inherited variable product and the glaze portion input. With one remaining clay input the new glaze goes in slot 2 and the slip in slot 3.
+
+```text
+craft clone <single-mug-craft-id> Fire a Wayfarer pottery order
+craft set blurb Fire a complete slate-blue order for the inn.
+craft set action firing a batch of commissioned pottery
+craft set progress a pottery order in the making
+craft set product remove 1
+craft set input 1 weight 1.6kg
+craft set input remove 2
+craft set input add simple
+craft set input 2 item <slate-blue-glaze-portion-prototype-id>
+craft set input 2 quantity 4
+craft set input add tag
+craft set input 3 tag <pottery-order-tag-id>
+craft set input 3 quantity 1
+craft set product add prog
+craft set product 1 prog FillWayfarerPotteryOrder
+craft set phase edit 1 45 "@ read|reads $i3 and portion|portions $i1 at $t1 for the order."
+craft set phase edit 2 25 "@ coat|coats the shaped ware with $i2."
+craft set phase edit 3 90 "@ load|loads the batch into $t2."
+craft set phase edit 4 0 "@ set|sets $p1 on the dispatch bench beside $t2." "@ clear|clears $f1 from $t2 after the batch cracks."
+craft show
+```
+
+At the wheel, use `materials Fire a Wayfarer pottery order` to check which slip and supplies the plan will take. At unloading, a successful firing runs the normal product once. An unrecognised slip produces the query alone, with the committed materials already spent. Tag only slips the pottery accepts. A failed firing follows the potsherds echo and never calls the order prog.
+
+### Choose the glaze from two ingredients
+
+A different potter sells one mug at a time and mixes the glaze to order. An iron wash with the house ash flux yields **moss green**. With clear flux the same wash yields **slate blue**. A blue slip also makes slate blue with either flux. The mug prototype stays fixed. A `progvariable` selector receives the consumed items together and returns **one numeric Characteristic value ID**.
+
+**`ChooseWayfarerGlaze(ingredients item collection) → number`**
+
+```futureprog
+if (@ingredients.any(i, @i.proto == 8201) and @ingredients.any(i, @i.proto == 8202))
+  return 9102
+end if
+return 9101
+```
+
+Replace `8201` with the iron-wash prototype ID, `8202` with the house ash-flux prototype ID, and `9102` / `9101` with the moss-green / slate-blue value IDs for `WayfarerGlaze`. The final return deliberately specifies the house blue for all other combinations. Keep those IDs current: if a selector returns an unknown ID the engine falls back to a random value for the definition.
+
+Start a separate clone of the **single-mug** recipe. Tag the iron wash and blue slip **Glaze Colourant**, and the ash and clear fluxes **Glaze Flux**. Use one portion of each. Retain the original clay, wheel, kiln and failure route.
+
+```text
+craft clone <single-mug-craft-id> Fire a mixed-glaze cider mug
+craft set product remove 1
+craft set input remove 2
+craft set input add tag
+craft set input 2 tag <glaze-colourant-tag-id>
+craft set input 2 quantity 1
+craft set input add tag
+craft set input 3 tag <glaze-flux-tag-id>
+craft set input 3 quantity 1
+craft set phase edit 2 20 "@ blend|blends $i2 with $i3 and brush|brushes the glaze over the mug."
+craft set product add progvariable
+craft set product 1 item wayfarer_cider_mug
+craft set product 1 variable WayfarerGlaze ChooseWayfarerGlaze
+craft show
+```
+
+Both ingredients are committed in phase 2, so the selector sees them when the normal product is made in phase 4. It looks through the item collection by prototype. Slot numbers belong to the pottery-order dictionary above. Submit and review each finished craft separately.
+
 ## Three smaller workshop recipes
 
 These blocks configure the distinctive parts of three **separate new recipes**. Start each with the same shell workflow as the mug: choose a unique name, category, blurb, action and progress text, set an appearance prog and select a suitable local skill. The slot numbers below start at 1 in each recipe.
@@ -129,7 +259,7 @@ craft set phase add 0 "@ set|sets the seam and hand|hands back $i2." "@ gather|g
 craft set failphase 1
 ```
 
-**Current engine limitation.** The `repair` input selects a damaged tagged item and ordinary completion returns that same item. Its configured `25%` is intended to add 25 percentage points of condition, capped at full condition. The current completion path returns the harness without applying that increase. Keep this recipe out of paid stable services until condition restoration is fixed. Loading a fresh harness as a product would lose the identity this service is meant to preserve.
+The saddler returns the **original harness** with its fittings and identity intact. A successful repair adds 25 percentage points of condition: a harness at 60% comes back at 85%, and one at 90% comes back at 100%. The increase happens once, when the craft finishes successfully. A failed stitch or a cancelled job adds no condition. If an interruptible repair is paused after the target has been reserved, the harness stays with the progress item until the work resumes or is cancelled.
 
 ### Bottle cider for the shop
 
@@ -345,7 +475,7 @@ Use:
 | `commoditytag` | Material-tagged commodity pile input | `material`, `weight`, optional `tag`, `quality` | Uses a material tag rather than one exact solid |
 | `liquid` | Specific liquid input | `liquid`, `amount`, `quality` | Must set liquid and positive amount |
 | `tagliquid` | Input accepting tagged liquids | `tag`, `amount`, `quality` | The liquid itself carries the tag |
-| `repair` | Target item to repair | `tag`, `repair`, `quality` | Reserves a damaged tagged item. See the harness example for the completion limitation. |
+| `repair` | Target item to repair | `tag`, `repair`, `quality` | Returns the original tagged item and adds condition on successful completion, capped at 100%. |
 | `field` | Local agriculture field input | `use`, `crop`, `woodland`, `condition`, `health`, `yield`, `consume` | Requires a matching field in the crafter's current cell and can consume crop or woodland yield |
 
 ## Builder Reference: Tools

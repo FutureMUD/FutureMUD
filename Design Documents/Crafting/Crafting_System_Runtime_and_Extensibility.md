@@ -221,6 +221,7 @@ Current verified behaviour:
 - if the craft is not interruptable, pausing immediately becomes cancellation
 - cancellation releases products, executes `OnUseProgCancel`, and deletes the active craft item
 - interruptable crafts keep the active craft item so they can be resumed later
+- the progress item saves the failure branch alongside the check outcome. Older saves recover that branch from the recorded roll and the original recipe revision's failure threshold
 
 `CanResumeCraft` and `ResumeCraft` then:
 
@@ -232,6 +233,7 @@ Current verified behaviour:
 When the last phase completes:
 
 - stored products are released into the room
+- on successful final completion a reserved repair target gains its configured condition (capped at 100%) before it is returned. Failed completion and cancellation return the target at its existing condition
 - any releasable input-side items are also released
 - `OnUseProgComplete` is executed
 - the active craft item is deleted
@@ -322,7 +324,7 @@ At runtime:
 | `commoditytag` | `CommodityTagInput` | Consume a commodity pile whose material matches a tag | `material`, `weight`, optional `tag`, `characteristic`, `quality` | Uses a material tag instead of one exact solid; characteristic filters work like `commodity` inputs |
 | `liquid` | `LiquidUseInput` | Consume a specific liquid amount | `liquid`, `amount`, `quality` | Valid only with a target liquid and positive amount |
 | `tagliquid` | `LiquidTagUseInput` | Consume liquid from a tagged source item | `tag`, `amount`, `quality` | Useful for containers or apparatus tagged for the craft |
-| `repair` | `ConditionRepairInput` | Target an item to repair by condition percentage | `tag`, `repair`, `quality` | Uses a tagged input item as a repair target rather than raw material |
+| `repair` | `ConditionRepairInput` | Target an item to repair by condition percentage | `tag`, `repair`, `quality` | Holds the original damaged item. Successful completion adds the configured fraction of full condition once |
 | `field` | `AgricultureFieldInput` | Require the agriculture field in the crafter's current cell | `use`, `crop`, `woodland`, `condition`, `health`, `yield`, `consume` | Can require crop or woodland state and consume crop or woodland yield during input reservation |
 
 ### Tools

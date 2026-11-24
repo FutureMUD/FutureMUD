@@ -1,29 +1,323 @@
 ---
 slug: projects
 category: Crafting and projects
-summary: Build projects with phases, labour, materials and actions, including paid work by NPCs.
+summary: Build a town footbridge and a personal apprenticeship. Design paid work, training, quests and PC job performance with phases, labour and completion actions.
 ---
 
 # FutureMUD Projects System Builder Workflows
 
-## Purpose
-This document explains how builders and admins currently create, revise, approve, and operate projects through the in-game command surface.
+The Wayfarer Inn needs its river crossing back. A smith can forge a batch of nails at the anvil this evening. Rebuilding the footbridge gives the town several days of work, an order for those nails, wages for the crew and a new route when the deck opens. The smith can take part without becoming a bridge carpenter. [Forge nails for the bridge crew](Crafting_System_Builder_Workflows.md#forge-nails-for-the-bridge-crew)
 
-This is a builder-facing guide. It describes the command workflows that exist today, including current limitations and implementation quirks.
+## Choose what the player is committing to
 
-Agriculture uses this project system for field labour. See [Agriculture Builder Workflows](Agriculture_Builder_Workflows.md) for the field-facing commands and the extra agriculture project context written when `field start` creates a local project.
+| Design question | Craft | Project |
+| --- | --- | --- |
+| What does a player do? | One maker works through a sequence in person. Tools, the properties of individual inputs, and interruptions can all matter. | Someone sponsors an undertaking. People can supply materials, take a shift, change roles or leave others to finish. A personal project can also represent one character’s sustained commitment. |
+| What does time mean? | The maker sets aside a play session. A job measured in minutes, often ten or fewer, is a good fit. | Work accrues on scheduled ticks while the server is running, including while an assigned player is logged out. A stopped server earns no shifts. |
+| What is the result? | The potter gets a mug whose glaze and quality reflect what went into it. | A bank becomes accessible, an apprentice gets skill practice, or a PC earns performance credit in their employment. The result can change the world without producing an item. |
 
-## Builder Mental Model
-Keep these three layers separate in your head:
-- A catalogue project is the revisioned template that players see in `project catalog`.
-- An active project is the live runtime instance created when someone starts that template.
-- A current labour role is the single task a character is presently assigned to inside one active project.
+Use the *opportunity cost* to decide close cases. A fighter can give up an ongoing conditioning bonus to take a paid bridge shift. A player who merely delivers nails can keep their conditioning assignment. If the drama is whether someone interrupts the smith at the anvil, put that scene in a craft. Ten minutes is a pacing guideline you choose.
 
-Important current behavior:
-- a character can have active personal projects without currently working on one of them
-- a local project can exist in a room with no active workers
-- starting a project does not auto-join labour
-- a character can only have one selected `CurrentProject` labour role at a time
+## How a project lives in the world
+
+A **template** describes the work and has an approved revision. Starting it creates an **active project** with its own ID, owner, phase, progress and reserve. Joining chooses a **labour role** on that instance. A character can own an apprenticeship and a bridge commission at once, but can work only one role at a time. Use `project view <template>` for the design, `project details <active-id>` for the actual site and `projects` for the character’s current assignment and impacts.
+
+Each phase ends when its mandatory labour and materials are complete. Deliveries and labour can proceed in either order within a phase. If the deck crew must wait for the foundations, give them separate phases. A worker leaving does not undo completed work. With the default settings each real quarter hour of assigned work earns a quarter of an hour towards continuity. Progress towards a requirement also depends on the labour check and applicable modifiers. Twelve units of required progress do not promise completion twelve clock hours after the tender opens.
+
+Choose **local** for a fixed worksite. Start it where the crew will actually stand. An ordinary room counts as one site. A route uses the immediate neighbourhood of the site’s layer and position. The engine currently clears a worker’s assignment if they are away at the next tick. Whether stepping away should end the assignment is under assessment. [Worksite assignment assessment](https://github.com/FutureMUD/FutureMUD/issues/903)
+
+Choose **personal** when the assignment should follow its owner. Local crews clear at phase changes. A participating personal owner can carry on in the first eligible role with space in the new phase.
+
+## Rebuild the Wayfarer footbridge
+
+### Commission the crossing
+
+Use the near bank as the worksite. Prepare a dedicated room overlay package containing the bridge deck and its connections to both banks. Review and approve it while leaving it unswapped. The work can then open an inspected crossing on the final shift. Keep unrelated room edits in a separate package because swapping activates every room overlay in the chosen package. [Build, review and swap room overlays](Room_Building_Builder_Guide.md)
+
+Give the town a register on the near bank for the approved package ID and another for the commission. An unmarked room has no tender. A commission value of `-1` opens bidding, a positive value identifies the active crew, and `0` closes the tender. Use a fresh, uniquely identified package for this crossing, and keep it Current until the handover. From the **near bank**, enter:
+
+```text
+register location BridgePlan number
+register location BridgeCommission number
+register default location BridgePlan 0
+register default location BridgeCommission 0
+setregister location here BridgePlan <approved-bridge-package-id>
+setregister location here BridgeCommission -1
+```
+
+Create the following dynamic FutureProgs with the names and parameter types shown. Compile the reason prog before the start check that calls it. [FutureProg editor and compilation](FutureProg_Builder_Guide.md) The reason for refusal does double duty as the start check, so a player who cannot start gets the same explanation the town uses to make the decision.
+
+**`WhyWayfarerBridge(actor character) → text`**
+
+```futureprog
+var site = @actor.location
+if (getregister(@site, "BridgePlan") <= 0)
+  return "The bridge tender is posted on the near bank."
+end if
+if (getregister(@site, "BridgeCommission") != -1)
+  return "The town is not taking bids for this crossing."
+end if
+return ""
+```
+
+**`CanStartWayfarerBridge(actor character) → boolean`**
+
+```futureprog
+return @WhyWayfarerBridge(@actor) == ""
+```
+
+**`ClaimWayfarerBridge(job project) → void`**
+
+```futureprog
+var site = @job.location
+if (getregister(@site, "BridgeCommission") == -1)
+  setregister @site "BridgeCommission" @job.id
+end if
+```
+
+**`ReleaseWayfarerBridge(job project) → void`**
+
+```futureprog
+var site = @job.location
+if (getregister(@site, "BridgeCommission") == @job.id)
+  setregister @site "BridgeCommission" -1
+end if
+```
+
+**`OpenWayfarerBridge(job project) → void`**
+
+```futureprog
+var site = @job.location
+if (getregister(@site, "BridgeCommission") == @job.id)
+  if (SwapOverlay(getregister(@site, "BridgePlan")))
+    setregister @site "BridgeCommission" 0
+    send(@job.owner, "The new crossing is open to travellers.")
+  else
+    send(@job.owner, "The crew has finished. The survey office must release the bridge plans.")
+  end if
+end if
+```
+
+Cancellation before handover reopens this crew’s tender. A completion action cannot veto phase completion. If the planned swap fails, the commission retains the crew ID and prevents a second crew taking the same contract. The survey office can reconcile both ends, use `room package swap <id>` on the correct approved package, and set `BridgeCommission` to `0` at the near bank once the crossing is open.
+
+### Write the two phases
+
+The example uses your world’s Carpentry skill, solid iron, a **Bridge Timber** tag for countable prepared beams and a **Nails** pile tag for wrought fasteners. In the smith’s recipe choose the tagged commodity output if the town orders by weight. If the smith makes 100 individual 20 g nails instead, give those items the Nails tag and use a `simple` requirement for 100 in phase two. An unworked iron pile should never fill a fastener order. [Counted and weighed nail recipes](Crafting_System_Builder_Workflows.md#forge-nails-for-the-bridge-crew)
+
+```text
+project edit new local
+project set name Rebuild the Wayfarer Footbridge
+project set tagline Restore the river crossing by the inn and earn a crew wage.
+project set appear AlwaysTrue
+project set can CanStartWayfarerBridge
+project set why WhyWayfarerBridge
+project set start ClaimWayfarerBridge
+project set cancel ReleaseWayfarerBridge
+project set phase 1 description Set sound timber footings on the near bank.
+project set phase 1 labour add simple Groundcrew
+project set phase 1 labour Groundcrew prog AlwaysTrue
+project set phase 1 labour Groundcrew progress 12
+project set phase 1 labour Groundcrew workers 3
+project set phase 1 material add simple
+project set phase 1 material Material name Timber
+project set phase 1 material Timber tag <bridge-timber-tag>
+project set phase 1 material Timber amount 6
+project set phase add
+project set phase 2 description Frame the deck, fasten the boards and open the span.
+project set phase 2 labour add simple Decking
+project set phase 2 labour Decking trait Carpentry
+project set phase 2 labour Decking minskill 20
+project set phase 2 labour Decking progress 16
+project set phase 2 labour Decking workers 2
+project set phase 2 labour add supervision Foreman
+project set phase 2 labour Foreman trait Carpentry
+project set phase 2 labour Foreman minskill 40
+project set phase 2 labour Foreman multiplier 125%
+project set phase 2 labour Foreman scaled
+project set phase 2 material add commodity
+project set phase 2 material Material name Nails
+project set phase 2 material Nails material <iron-solid-id>
+project set phase 2 material Nails tag <nails-tag>
+project set phase 2 material Nails amount 2kg
+project set phase 2 action add prog
+project set phase 2 action Action name OpenCrossing
+project set phase 2 action OpenCrossing prog OpenWayfarerBridge
+project edit submit
+```
+
+New templates already have phase one. The ground crew has three places and accepts unskilled workers. The decking needs carpenters. The foreman takes a separate place and can increase the carpenters’ output up to the configured multiplier, scaled by the supervisor’s check. A foreman alone cannot lay any decking. A reviewer uses `project review <template-id>` and `accept edit` to make the revision Current. An active commission keeps the revision it started on.
+
+### Run the paid shifts
+
+At the near bank the sponsor starts the Current template. Substitute the ID from `projects` for `<bridge>` below. The money amounts are in the world’s own currency notation. For example, if a ground worker earns four coins an hour, each successful default tick reserves one coin for that worker. Three workers on the same tick cost three coins. Keep money for the six beams and later shifts as well.
+
+```text
+project start wayfarer.footbridge
+projects
+project pay <bridge> currency <town-currency>
+project fund <bridge> <cash-budget>
+project pay <bridge> labour Groundcrew <hourly-wage>
+project pay <bridge> material Timber <price-per-beam>
+project details <bridge>
+```
+
+A labourer uses `project join <bridge> Groundcrew`. A timber merchant brings beams within reach, uses `project preview <bridge> Timber` and then `project supply <bridge> Timber`. Supplying is independent of holding a crew place. The merchant receives the material payment immediately. Crew members accumulate wages and use `project claim` to collect them. An empty reserve stops paid work before the next unpaid contribution. Funding the site again gives workers a reason to return.
+
+When phase two opens, the reserve carries over but the phase-one rates and assignments clear. Set `project pay <bridge> labour Decking <hourly-wage>` and, if wanted, a separate `Foreman` rate. Carpenters join Decking and the smith supplies Nails in this phase. Use `project queue join <bridge> Decking until completion` to wait for the role when eligible. A queue is consulted when the character is free. If a character is assigned to a standing personal regimen, they must leave it to take the shift.
+
+To recruit a local NPC, create a `projectworker` AI, give it the town currency, an hourly floor at or below the advertised wage, and a path from its usual room to the bank. Use `ai show` to inspect the search toggle before changing it. Attach the AI to a present worker with `ai add WayfarerBridgeHand <nearby-npc>`. An unskilled hand can take a footing shift and still be ineligible for a decking shift. A qualified PC can take a full place held by an NPC. [Paid project worker settings](#paid-project-worker-ai)
+
+```text
+ai edit new projectworker WayfarerBridgeHand
+ai set currency <town-currency>
+ai set pay <minimum-hourly-wage>
+ai set range 5
+ai show
+ai close
+```
+
+## A joiner’s apprenticeship
+
+A bridge repair pays for labour and opens a crossing for everyone. The apprenticeship belongs to the joiner. Make it finite so it can lead somewhere. In the example a joiner who already knows basic Carpentry spends time practising mortise joints, then receives three improvement checks. These checks go to the project owner and use the world’s ordinary skill and advancement rules. Three checks need not yield three gains.
+
+Create these two progs for enrolment. Change the skill and threshold together if the joiners’ guild uses a different entry standard.
+
+**`CanBeginJoinery(actor character) → boolean`**
+
+```futureprog
+return GetTrait(@actor, ToTrait("Carpentry")) >= 10
+```
+
+**`WhyJoinery(actor character) → text`**
+
+```futureprog
+return "You need ten points of Carpentry before the joiner can take you on."
+```
+
+```text
+project edit new personal
+project set name Joiner's Apprenticeship
+project set tagline Practise fitted joints under the town joiner's instruction.
+project set appear AlwaysTrue
+project set can CanBeginJoinery
+project set why WhyJoinery
+project set phase 1 description Lay out, cut and fit a set of practice joints.
+project set phase 1 labour add simple Benchwork
+project set phase 1 labour Benchwork trait Carpentry
+project set phase 1 labour Benchwork prog CanBeginJoinery
+project set phase 1 labour Benchwork progress 8
+project set phase 1 action add skilluse
+project set phase 1 action Action trait Carpentry
+project set phase 1 action Action checks 3
+project set phase 1 action Action difficulty Normal
+project edit submit
+```
+
+Once approved, the apprentice uses `project start apprenticeship` followed by `project join <active-id> Benchwork`. They can break off for a bridge shift and resume their accumulated benchwork later. For an enrolment that should award a permanent guild qualification once only, have the finish hook record the qualification and have the start gate check it. Otherwise a completed apprenticeship can be started again.
+
+
+## Four patterns from the original LabMUD projects
+
+These examples come from the original LabMUD catalogue. The project numbers identify those records in that world. When building your own version, select your world’s traits, tags, roles and permissions.
+
+### Give combatants a reason to keep a personal assignment
+
+**Personal Improvement (#1)** offered six alternative endless regimens. Pump Iron improved Strength, Cardio improved Constitution, Yoga improved Dexterity, Studying improved Intelligence, Affirmation improved Willpower, and Mindfulness improved Perception. Each granted **+2 after twelve hours** in its role. The player chose one. A fighter doing bridge work instead gives up the active bonus. Returning to the regimen starts earning its qualifying hours again.
+
+**Rest and Recuperation (#3)** offered another choice. After **three hours** on Rest, it added 0.5 to healing checks, doubled the healing rate and multiplied infection chance by zero. Those were deliberate, generous settings in this world. For a campaign where infection remains a threat even during rest, choose a multiplier between zero and one. This is a change to the chance of infection while resting. It does not cure an existing infection.
+
+To build the first regimen, start a `personal` template, give it its title, tagline and three catalogue progs as above, then add this labour to its initial phase. Leave it mandatory and endless so the regimen stays available. No finish action is needed.
+
+```text
+project set phase 1 labour add endless "Pump Iron"
+project set phase 1 labour "Pump Iron" prog AlwaysTrue
+project set phase 1 labour "Pump Iron" impact add trait Conditioning
+project set phase 1 labour "Pump Iron" impact Conditioning trait Strength
+project set phase 1 labour "Pump Iron" impact Conditioning bonus 2
+project set phase 1 labour "Pump Iron" impact Conditioning hours 12
+project set phase 1 labour "Pump Iron" impact Conditioning scope labour
+```
+
+Add other regimens as sibling roles in the same phase. Use `scope labour` when a change from Cardio to Yoga should restart the wait. `scope project` reads the project continuity counter. A manual role change currently passes through a leave and resets that counter too. Keep a regimen on a single role if its waiting period matters. The worker still receives only the impacts on the role they are doing now. For the recovery project, give its endless Rest role one `healing` impact and configure its `hours`, `bonus`, `multiplier` and `infection`. For the original values, use `hours 3`, `bonus 0.5`, `multiplier 200%` and `infection 0%`. Make these effects visible in the role descriptions so combatants can weigh the lost benefit against a crew wage.
+
+### Dig a room that can become the next worksite
+
+LabMUD’s **Create New Room (#2)** built a fresh underground chamber. The footbridge opens plans that staff have already laid out. This project let eligible players decide where the next room would be from inside the game.
+
+| Stage | What happened in LabMUD | What the design achieves |
+| --- | --- | --- |
+| Commission | The character needed an eligible Rook or King role, a permitted source room and a selected cardinal direction. The start check refused an occupied direction or a site already under construction. The start hook marked the site busy and placed a directional work marker. | No competing projects promising the same room. Someone arriving later can see what the crew is doing. |
+| Excavation | Up to ten diggers shared 2,880 units of work. A Bishop, Rook or King could supervise and the project required two shovels. The phase action changed the visible marker for the fit-out. | A material requirement **consumes** the shovels. If a shovel should come back after each session, use a craft with the shovel as a tool for that portion of the work. |
+| Fit-out | General labour, structural fit-out and foreman roles shared the phase. The site took 200 fasteners, 30 pieces of shoring timber and two roof beams. | Counts work well when the crew needs particular pieces. General labour had two places and structural fit-out had four. The separately qualified foreman supervised them. |
+| Handover | The final action revised an overlay package, made a dark indoor chamber with timber supports, linked it in the selected direction, allowed a door, marked the new room as eligible for later expansion, and approved the package. | The result can itself become a worksite. Set permissions, direction and room presentation as part of the handover. |
+
+Two details matter when adapting the old commission. Its direction command wrote to the character, but its construction progs read from the room. It also had no cancellation hook to clear the marker and busy flag. For a new design, copy the authorised direction to the active project at the start and read that same value in both phase actions. Reserve the site against that project’s ID. On cancellation remove its work marker and release only its reservation. If a draft room already exists, leave it identifiable for the surveyor. Approval and activation are distinct operations in the current engine. For a route to open immediately, check that the link and approval succeeded, then call `SwapOverlay`. For an inspected route, leave the package for the surveyor to review and swap. The north-drift example gives the register declarations, eligibility and refusal progs, completion code and recovery procedure. [Extend the north drift](Primary_Production_and_Agriculture_Builder_Guide.md#extend-the-north-drift)
+
+### Make a personal project one stage of a quest
+
+In **Study Spark (#4)** the character first obtained and ate the Crystal. Its SparkFood component’s OnEat prog set `canstudyspark` if the character had not already completed the study. Both catalogue visibility and permission to start read that flag. The project then took three phases. The numbers below are work requirements, so each phase’s wall-clock duration depends on the participant’s progress.
+
+| Phase | Required work | Cost while assigned |
+| --- | ---: | --- |
+| Study | 48 | −3 Intelligence |
+| Commune | 48 | −4 Willpower |
+| Subdue | 24 | −4 Intelligence and −3 Strength |
+
+The last phase action cleared `canstudyspark` and set `studiedspark`. The Technomancy invocation prog read `studiedspark`. Receiving the item, eating it, starting the project and earning the power were four distinct moments. A character who switched to the bridge during Commune gave up their study time and its penalty together. Completing the quest left the unlock in place after the project disappeared.
+
+To build this pattern, declare two boolean character registers, both defaulting to false. Have your edible item’s consumption hook set the first on the **eater**, unless the second is already true. Spawning, picking up or giving away the item must leave those flags alone. Add three phases with one qualified `simple` labour each (a new project already has its first phase, so add two). Set each labour’s `progress` from the table. On each role add a `trait` impact for each affected attribute with a negative `bonus` and zero minimum `hours`.
+
+```text
+register character CanStudySpark boolean
+register default character CanStudySpark false
+register character StudiedSpark boolean
+register default character StudiedSpark false
+```
+
+**`SparkStudyAvailable(actor character) → boolean`**
+
+```futureprog
+return getregister(@actor, "CanStudySpark") and not(getregister(@actor, "StudiedSpark"))
+```
+
+**`CompleteSparkStudy(job project) → void`**
+
+```futureprog
+var student = @job.owner
+setregister @student "StudiedSpark" true
+setregister @student "CanStudySpark" false
+```
+
+Use `SparkStudyAvailable` for both `project set appear` and `project set can`. Supply a one-character text `why` prog explaining the prerequisite. Give phase three a `prog` completion action and bind `CompleteSparkStudy`. Have the magic eligibility prog read `StudiedSpark`. Cancellation can leave the first flag set if the student should be able to enrol again. Putting the permanent flag in the start hook would let a character unlock the power just by enrolling.
+
+### Tie an ongoing PC job to effort
+
+LabMUD used projects **#5–11** for programming, chemistry, machining, electronics, computers, mechanics and logistics labour. These were personal performance projects supplied through job listings. Each had an endless diligent role giving `variable / 10` effort per tick and an overtime role giving `variable / 5` at the cost of one point of Constitution while working overtime. A programmer could stay employed while doing something else, but their bridge work would not earn programmer effort. The Data Analyst and Robot Programmer listings illustrate the other half of the design: weekly base pay plus a bonus capped at an equal amount when effort reached 1,000.
+
+Here is how to give a PC the same choice as a joiner employed by the inn:
+
+1. Make a `personal` project named **Joinery Shift**. Set `appear` to `AlwaysFalse` so it is obtained through employment. Set `can` to `AlwaysTrue` and give `why` a one-character text prog explaining that the inn assigns this work. Toggle `project set jobs` on. The jobs flag admits it to the employer’s template list independently of public catalogue visibility.
+2. Give phase one the two **mandatory endless** roles below. Add a description to each that states the benefit and cost. The `job` impact turns work into performance for the job that owns this exact active project. The expression’s `variable` is the worker’s role trait. Overtime below uses a one-point Constitution penalty, which you can change to fit the setting.
+3. Submit and approve the template. At the economic zone’s job market, create the **Inn Joiner** job listing, or edit it before employing anyone. Use `job set projects` to check availability and `job set project Joinery Shift` to attach it. Choose a pay currency and interval with `job set currency <currency>` and `job set interval <interval>`, then use `job set easypay "<base pay>" "<maximum bonus>"` for the capped bonus pattern. Fund the listing with `job deposit <amount>` and use `job ready` when it is ready for applicants.
+4. A PC uses `jobs`, `job preview <listing>` and `job apply <listing>` at the job market. Acceptance creates their own active Joinery Shift. In `projects` find that ID and use `project join <active-id> Diligent` or `Overtime`. Payroll uses the job’s effort balance; performance can decay and is reset when pay is calculated. Collect job wages with `job payday`. Reserve `project pay` and `project claim` for a commission paying directly for the shifts.
+5. The employee can switch assignments without resigning. The employer cannot change the listing’s project while it has employees. Finish the employment to retire its personal project. Use a distinct template for each independently held job if a character may hold several.
+
+```text
+project set phase 1 labour add endless Diligent
+project set phase 1 labour Diligent trait Carpentry
+project set phase 1 labour Diligent impact add job Performance
+project set phase 1 labour Diligent impact Performance expression variable / 10
+project set phase 1 labour add endless Overtime
+project set phase 1 labour Overtime trait Carpentry
+project set phase 1 labour Overtime impact add job Performance
+project set phase 1 labour Overtime impact Performance expression variable / 5
+project set phase 1 labour Overtime impact add trait Fatigue
+project set phase 1 labour Overtime impact Fatigue trait Constitution
+project set phase 1 labour Overtime impact Fatigue bonus -1
+```
+
+A PC performance project fits a general employment contract with a base salary and effort bonus. A `projectworker` NPC seeks paid places on local commissions. For an NPC who actually orders timber, runs an inn or delivers goods for an employer, use an employment host with the relevant tasks. Farm labour similarly uses local projects created through `field start` so completion can update the right field. [Employment hosts](Employment_Hosts_Builder_Guide.md) · [Agriculture](Agriculture_Builder_Workflows.md)
+
 
 ## Player-Facing Usage
 ### `projects`
@@ -206,7 +500,7 @@ After opening a project for editing, use `project set ...` against that current 
 Use:
 - `project edit submit`
 - `project review all`
-- `project review mine`
+- `project review list mine`
 
 For a project to appear in the player catalogue, it must end up on a `Current` revision after the normal submit and review workflow.
 
@@ -284,7 +578,7 @@ Qualification is currently trait-or-prog based:
 - builders must set a required trait, or
 - builders must set a qualification prog
 
-If both are missing, the labour requirement cannot be submitted.
+When both are set, the character must satisfy both. A trait labour also needs a positive project-labour check target at its configured difficulty. Without either form of qualification, submission is blocked.
 
 ### Labour type reference
 | Keyword | What it does in play | Builder notes |
@@ -300,9 +594,7 @@ If both are missing, the labour requirement cannot be submitted.
 
 When `scaled` is enabled and the supervision labour has a required trait, the best active supervisor's project-labour check target scales the multiplier between `100%` and the configured multiplier. This lets a skilled foreman improve lower-skilled labour without making an unskilled supervisor grant the full bonus.
 
-Current compatibility note:
-- the multiplier now persists correctly
-- older supervision definitions that were saved before this fix load missing multiplier data as `100%`
+Set a multiplier above 100% for a foreman who should improve a crew’s output.
 
 ### 5. Add labour impacts
 Use:
@@ -317,7 +609,7 @@ Shared impact settings:
 - `project set phase <phase> labour <labour> impact <impact> hours <hours>`
 - `project set phase <phase> labour <labour> impact <impact> scope labour|project`
 
-Impact hours control when the effect begins. `scope labour` keys off continuity on the exact current labour role; `scope project` keys off continuity on the current active project even if the worker changes labour roles inside that project.
+Impact hours control when the effect begins. `scope labour` keys off continuity on the exact current labour role; `scope project` reads continuity on the active project. A manual `project join` on a different role leaves the old one first and resets both counters. Trait, cap and healing impacts check their hour threshold. The `job` impact currently credits effort on every successful work tick. [Impact hour tracking](https://github.com/FutureMUD/FutureMUD/issues/904)
 
 ### Impact type reference
 | Keyword | What it does in play | Common extra commands |
@@ -368,12 +660,12 @@ Use:
 | Keyword | What it does in play | Common extra commands |
 | --- | --- | --- |
 | `prog` | Executes a FutureProg when the phase completes | `prog <prog>` |
-| `skilluse` | Grants free checks against a trait when the phase completes | `trait`, `checks`, `difficulty` |
+| `skilluse` | Grants the project owner free checks against a trait when the phase completes | `trait`, `checks`, `difficulty` |
 | `agriculture` | Applies a field operation linked through `AgricultureProjectContext` | normally created through `field start` |
 | `commodityoutput` | Creates a commodity pile in the active project location or owner fallback location | `material`, `weight`, `tag`, `indirect`, `echo`, `characteristic` |
 | `resourcediscovery` | Reveals a configured visible resource marker in the active local-project location, with optional required location tag and duplicate prevention | `locationtag`, `item`, `duplicate`, `echo`, `alreadyecho`, `failureecho` |
 
-Current implementation warning:
+When combining actions on a phase:
 - actions execute in ascending `sort` order
 - ties fall back to stable id order
 - `commodityoutput` requires a solid material and positive mass before submit; optional characteristics are fixed output values, not wildcard input filters
@@ -394,14 +686,14 @@ Relevant room-building FutureProg helpers include:
 - `NameCell(cell, package, name)` and `DescribeCell(cell, package, description)` to set presentation
 - `SetIndoorsNoLight(cell, package)` and `SetTerrain(cell, package, terrain)` to configure mine-like interiors
 - `LinkCells(origin, destination, package, direction)` to connect the project location to the new cell
-- `ApproveOverlay(package, builder, comment)` to approve the package when the workflow should publish immediately
+- `ApproveOverlay(package, builder, comment)` to mark a package approved; `SwapOverlay(package)` activates its rooms and exits
 
 Recommended workflow:
 1. Clone or author a local project that represents the work.
 2. Add commodity outputs and byproducts first, so material rewards are independent of world topology.
 3. Add a final `prog` action with a higher sort order.
 4. In the prog, resolve the builder-chosen overlay package, zone, template room, direction, and approval policy explicitly.
-5. Leave the overlay under design if the game requires normal builder review before topology changes enter play.
+5. For a reviewed expansion, leave the package under design, then approve and swap it after inspection. For immediate opening, check the result of both operations before announcing success. [Extend the north drift](Primary_Production_and_Agriculture_Builder_Guide.md#extend-the-north-drift)
 
 This is intentionally not seeded as a generic stock project. Overlay package names, template rooms, exit directions, terrain choices, and approval policy are world-specific, and a setting-neutral seeder cannot infer them safely.
 
@@ -459,7 +751,7 @@ Check:
 - if the labour is full, whether at least one current worker is an NPC; qualified players can displace NPC workers, but NPCs cannot displace each other
 
 ### Personal-project cancellation fails
-Current behavior blocks cancellation when an unfinished active ongoing job depends on that exact active personal-project instance. If you have also configured `cancancel` / `whycancel`, those run only after this hard engine invariant.
+Check whether an ongoing job owns that employee’s project. It belongs to the employment until the job ends, even if the project’s usual cancellation prog allows the owner to cancel.
 
 ### Material supply is choosing the "wrong" item
 `project preview` and `project supply` use the requirement's inventory plan and then take the first feasible target it scouts.
@@ -482,8 +774,8 @@ The same applies after some phase transitions, especially for local projects, wh
 Check:
 - the queued labour is still part of the active project's current phase
 - you are idle; the queue does not activate while you already have a `CurrentProject`
-- for local projects, you are in the same cell when the queue entry reaches the front
-- the queued labour still has a free worker slot
+- for local projects, you are in the worksite room (within reach of the site on a route)
+- the queued labour has a free place or a place the player can take over from an NPC
 - you still qualify for that labour
 
 ### Paid project labour is not paying

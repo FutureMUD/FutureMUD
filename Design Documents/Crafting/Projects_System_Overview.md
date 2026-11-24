@@ -10,12 +10,11 @@ The intended audience is engine developers, maintainers, and agents working on t
 - [Agriculture Runtime Model](../Agriculture/Agriculture_Runtime_Model.md) explains how farming operations use normal local projects plus `AgricultureProjectContext` and the `agriculture` completion action.
 
 ## Core Idea
-Projects model long-running, mostly off-screen work.
+Projects model a sustained commitment. Use a craft for a single maker’s foreground activity, especially where interruption, specific tools, or the properties of individual inputs determine the result. A short session (often under ten minutes) is a design guideline for a craft. Projects suit shared construction, paid shifts, training and delayed changes to the world. A craft can produce the fasteners a project consumes.
 
-They differ from short-lived craft actions in three important ways:
-- project definitions are revisioned builder content, not ad hoc runtime state
-- active projects persist over time and advance on a scheduled tick
-- a character can have multiple active projects available, but only one currently selected labour role in `CurrentProject`
+Project work continues for assigned characters across player logout on the running server’s scheduler. Server downtime does not accrue project ticks. Local labour currently removes an absent worker before the tick awards wages or progress. Whether the assignment should survive absence is open for assessment. [Worksite assignment assessment](https://github.com/FutureMUD/FutureMUD/issues/903)
+
+Templates are revisioned, each active instance tracks its own work, and a character has only one selected labour role. This gives personal projects an opportunity cost. Someone assigned to a standing conditioning regimen can benefit during ordinary play, but moving to a paid assignment gives up the regimen’s active impacts. A role impact represents a condition of working; a permanent unlock belongs in a completion action or finish hook.
 
 The system is composed from five layers:
 - `IProject` is the revisioned template that builders approve and players browse from the catalogue
@@ -470,7 +469,8 @@ For every new family member, the expected minimum implementation work is:
 - any required integration consumers
 
 ## Known Quirks And Edge Cases
-- Queue entries are intentionally current-phase-only. If a local project advances phase, old queued labour entries for the previous phase become stale and are removed rather than being remapped.
+- A queue entry configured for `until phase` completes at the boundary. An `until completion` entry stays linked to the active project and rechecks role availability in the new phase.
+- Manual role changes call `Leave` before `Join`, so both continuity counters reset even when switching roles on the same project. Passive trait, cap and healing impacts consult `Applies`. The per-tick job-effort dispatch does not consult that threshold. [Impact hour tracking](https://github.com/FutureMUD/FutureMUD/issues/904)
 - For backwards compatibility, characters loaded from worlds that predate `CurrentProjectProjectHours` bootstrap that value from `CurrentProjectHours` if they are already assigned to a current project.
 - Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior. Older definitions also default to non-scaled supervision until a builder enables the `scaled` option.
 - `JobEffortImpact` is created from the builder keyword `job`, but its concrete type stores and loads using the runtime type string `JobEffort`. Treat the builder keyword list in `ProjectFactory` as the source of truth for authoring.

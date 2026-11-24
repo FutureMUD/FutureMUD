@@ -280,8 +280,8 @@ Important editing commands include:
 ### Installing and Removing Hooks
 Builders attach hooks to targets with:
 
-- `hook install <hook> <target>`
-- `hook remove <hook> <target>`
+- `hook install <target> <hook>`
+- `hook remove <target> <hook>`
 - `npc set hook add <hook>` for hooks that should be installed on newly created NPCs from a template
 
 Targets are usually:

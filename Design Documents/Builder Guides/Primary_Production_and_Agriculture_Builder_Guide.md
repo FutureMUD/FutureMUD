@@ -115,6 +115,8 @@ A single flint or a walking stick makes sense as an item. For leaves traded by w
 
 **Give the herd a reason to move.** Put the same vegetation pool in two reachable clearings in terrain the wildlife group will enter. For this wood use `greens` so villagers and animals can deplete the same food supply. On the boar race, inspect its existing diet, including inherited entries. If it lacks greens, an example addition is `race set yield add greens 2 0 $0 noses through the low growth.` The numbers are hours of hunger and thirst satisfied per yield point. For a smaller bite use `race set yield greens bite 0.25`. Give the boar template the resulting race and choose its spawner's monitored zone and population limits. Use `gait list` to find a Wildlife template whose preferred habitat includes these clearings. Create the live group with `group new <template> "Wayfarer Sounder"` and add each live boar with `group addmember "Wayfarer Sounder" <boar>`. A compatible Animal AI and Wildlife group policy let hungry members move between feeding sites. A hunter who leaves the back clearing untouched preserves a feeding opportunity there. A thirsty group, a satiated boar, an impassable route or another food source can change where the animals go. Cutting a managed woodland field draws on a different balance. [NPC templates and spawners](NPC_Builder_Guide.md)
 
+**Replace animals after a hunt.** Give the boars their own `npcspawner` with strategy `Simple`, the boar template, the hunting zone and a spawn room in cover. For a sounder of four, set `npcspawner set target 4` and then `npcspawner set minimum 3`. Three survivors can remain undisturbed. At the next population check after the count falls to two, the spawner can bring it back to four. It counts matching NPCs in the monitored zone, including animals outside the sounder. Use `npc instances <boar-template-id>` and `group show "Wayfarer Sounder"` to identify newly arrived boars, then add each locally with `group addmember "Wayfarer Sounder" <boar>`. Population replenishment and membership are separate. The spawner offers an on-spawn prog, but the engine has no native FutureProg operation to join a live wildlife group. For a hands-off population use individually configured animals; for this named sounder assign the replacements as part of managing the wood.
+
 **Build the carcass from the inn's order backwards.** The tanner wants a hide, the carver wants tusks and the kitchen wants a shoulder. Author those as explicit item prototypes. Tag the shoulder **Pork Primal** so a later cooking craft can accept suitable shoulders from several boar races. Tag each eligible knife **Skinning Tool**. On the boar's actual body plan, identify the surviving parts each output needs.
 
 ```text
@@ -140,12 +142,30 @@ The inn offers to buy rye, apples and honey. Give the tenant a bread field and a
 1. **Lay out the holding.** Open the property with `property edit <grange>`. Stand in each missing plot and use `property set room` once. It toggles membership. Have the owner advertise the lease and the tenant take it through the conveyancing office. A field on owned land checks that the initiator is an authorised owner or leaseholder (or an administrator). Other workers can contribute labour to the active local project. A game with common land can leave its fields outside property ownership. [Property and leasing commands](Clan_Builder_Guide.md)
 2. **Create the fields.** As a builder stand in the bread field and use `field create Arable Field`, then in the orchard use `field create Orchard Grove`. These are stock profiles. Use `field profile list` to find equivalents in your world. `terrain set agriculture <profile>` supplies a default for future `field create` calls. Each room still needs a field created in it.
 3. **Decide what the mill and orchard buy.** Inspect `field crop show Rye` and `field crop show Apples`. Rye can yield both grain and straw. Give each output the solid and pile tag its buyer expects. Use `field crop set <crop> output list` before editing a numbered output. Crop outputs use grams. Set a local planting window on your crop if appropriate, e.g. `field crop set Rye planting group Autumn Spring`. A long sowing project must still be eligible when it finishes.
-4. **Start the tenant's work in the right room.** In the bread field the tenant uses `field start "Sow Crop" Rye`. In the orchard they use `field start "Plant Orchard" Apples`. These commands capture the intended field, operation and target. A scripted steward uses `StartFieldProject` with the initiator onsite. Use `project preview <project>` to see which supply the project will take, `project supply <project>` to contribute it and `project join <project> <labour>` to join a role. Starting a project does not put the tenant to work automatically.
+4. **Start the tenant's work in the right room.** In the bread field the tenant uses `field start "Sow Crop" Rye`. In the orchard they use `field start "Plant Orchard" Apples`. These commands capture the intended field, operation and target. A scripted steward uses `StartFieldProject` with the initiator onsite. Run `project supply <project>` on its own to list the material requirements. For the stock sowing project, use `project preview <project> "Seed Stock"` to see which pile will be taken, `project supply <project> "Seed Stock"` to contribute it and `project join <project> <labour>` to join a role. Starting a project does not put the tenant to work automatically.
 5. **Make seed policy match the story.** Stock sowing accepts a mass of an eligible seedable material carrying the **Seeds** pile tag. Rye listed on a crop's descriptive seed requirement does not enforce a rye-only payment. If the grange contract requires rye seed, make a dedicated sowing operation and project with an exact rye `commodity` material requirement, a Seeds pile tag and the desired `amount`. That fixes the required delivery for this project. The generic sowing template does not bind the chosen crop to the supplied solid, so a mixed-crop farm needs a separate authoring decision if it promises that guarantee. For a village that exchanges seed freely, the shared requirement is simpler.
 6. **Bring in the harvest.** `field look` shows the plot's use and condition. Use `field harvest` when the crop is ready, then supply the harvest labour. Weather, field health, work outcome and configured base output affect the pile the team brings home. A skilled supervisor can improve the work of several labourers. To hire NPCs for a paid job, fund the project's reserve and set the role's hourly rate. [Project labour and pay](Projects_System_Builder_Workflows.md)
 7. **Keep bees alongside the apples.** Once the orchard is established, `field start "Install Apiary"` uses the same land. The stock project needs two hive items and a stand. Set the crop's pollination response, for example `field crop set Apples pollination Strong 1 2`. Healthy hives within range support the growing and setting fruit. `field start "Tend Apiary"` maintains the hives and `field start "Harvest Apiary"` draws on stores. For a low apple yield, check the crop's stage and whether the hives are healthy and in range before increasing the crop's base mass.
 
 **What players can do next season.** The tenant must sow the harvested rye plot again. The apple trees remain planted and can enter another fruiting cycle. The beekeeper can tend the hives between fruit harvests. The inn can order each product separately, and a new tenant can take over the established orchard.
+
+**Supply the first season.** Give the tenant a supplier before the grange has ever harvested anything. A seed merchant can stock a starting lot of rye with the **Seeds** pile tag. Stock harvests can yield a small **Seeds** pile for the next sowing. In worlds with the Antiquity recipes, reserve some of the main **Seeded Yield** rye as well. The `select antiquity seed stock` craft turns that grain into a smaller **Seeds** pile of the same material. Keep the rest for the mill. For the apiary, a basket maker can make two wicker beehives and a carpenter can build a wooden hive stand. Worlds with the Antiquity catalogue can use `antiquity_wicker_beehive` and `antiquity_wooden_hive_stand` or sell the finished equipment at a farm supplier. Local equivalents need the **Bee Hive** and **Hive Stand** item tags. Supply them to the installation project by their requirement names:
+
+```text
+project supply <apiary-project> "Bee Hives"
+project supply <apiary-project> "Hive Stand"
+```
+
+**Recruit harvest hands.** Give a farmhand template the `projectworker` AI, enable its `search` setting and set a walkable search range and minimum hourly pay. For example, create `ai edit new projectworker GrangeHand`, inspect `ai show GrangeHand` and set `ai set range 3`. Set its currency and pay threshold to local values. Attach it with `npc set ai add GrangeHand` and approve the template for new workers. Place an eligible, idle worker within reach. Once the tenant starts the harvest, the owner can advertise and fund the current phase:
+
+```text
+project pay <harvest-project> currency <local-currency>
+project pay <harvest-project> labour "Field Labour" <hourly-wage>
+project fund <harvest-project> <cash-amount>
+project pay <harvest-project>
+```
+
+Choose a wage at or above the farmhand's minimum and fund the expected hours. An available worker looks for a reachable, funded slot on its search cadence. The field starter still supplies materials separately. [Paid project workers](Projects_System_Builder_Workflows.md#paid-project-worker-ai)
 
 **Pasture and woodland.** An adjoining pasture can hold a field herd measured in headcount, condition and secondary yield. `field start "Collect Herd Products" <herd>` can supply wool or milk from configured animals. If a particular animal must be led to market, `field herd draw <herd> 1` can produce a live NPC when the herd has a matching NPC template. That animal now has a body and can enter the butchery chain. To supply the basket maker, use a separate `Managed Woodland` field and `field start "Plant Woodland" "Willow Coppice"`. Once mature, a crew can `field start "Coppice Woodland"` to cut a share of the yield and keep the stand. [Field profiles, operations, pasture and pollination](Agriculture_Builder_Workflows.md)
 
@@ -192,21 +212,74 @@ The east-bank crew gets a vein and one sample. Another crew at the same marker f
 ```text
 register location OreLoadsLeft number
 register location OreCrew number
+register default location OreCrew 0
+register default location OreLoadsLeft 0
 setregister location here OreLoadsLeft 3
 setregister location here OreCrew 0
 ```
 
-Make a local extraction project with one work phase. Put a single fixed 20 kg hematite output tagged **Raw Ore** in a loot table called **Hematite Cartload** (the group and commodity syntax is in chapter 5). This lets a prog request one known package and read the placement result. Use a `prog` completion action for this project. Attaching an additional unconditional `commodityoutput` would issue a second load.
+Make a one-phase local extraction project. Give **Hematite Cartload** one fixed, 20 kg **Raw Ore** choice as described in chapter 5. Substitute the approved table ID and revision for 42 and 0 below, and the **Hematite Exposure** tag ID for 73. These examples assume a single ground-level working in each room. With several workings in a room, store the reserve on the individual marker and save the selected marker on the project.
 
-| Attach this prog | What to put in it |
-| --- | --- |
-| `project set why WhyMineOre`, returning text from one character | Inspect `@actor.location`. Require a visible exposure at the work site, `OreLoadsLeft` above zero and `OreCrew` equal to zero. Return an appropriate message such as “The seam is worked out” or “A crew already has this face”. Return empty text for an available face. |
-| `project set can CanMineOre`, returning boolean from one character | `return @WhyMineOre(@actor) == ""`. Both progs only read state, so browsing the catalogue never claims the face. |
-| `project set start ClaimOreFace`, taking one project | Recheck the site and store `@job.id` as `OreCrew`. A second crew now waits even if it previewed the project first. |
-| Phase action `prog TakeOreLoad`, taking one project | Recheck the marker, remaining load and ownership at `@job.location`. Materialise the cartload and debit only a successful receipt. Use the active project's room even if the foreman has gone home. |
-| `project set cancel ReleaseOreFace` and `project set finish ReleaseOreFace`, each taking one project | Clear `OreCrew` only when it still equals this project's ID. Cancellation before delivery leaves the stock available. |
+Create each named prog with the parameters shown, in order. Use dynamic progs so each call sees the current room balances. Load the helper progs before their callers. [FutureProg editor and compilation](FutureProg_Builder_Guide.md)
 
-For a normal ground-level room, the body of `TakeOreLoad(job project)` can be written as below. In this example table 42 revision 0 is the approved cartload, and 73 is the marker's tag ID. Substitute the values from your world. Where one room contains several distinct work sites or layers, put the balance on the individual exposure and have the project remember that marker.
+**`OreFaceProblem(site location) → text`**
+
+```futureprog
+if (@site.items.any(i, istagged(@i, 73)) == false)
+  return "The crew needs a surveyed exposure here."
+end if
+if (getregister(@site, "OreLoadsLeft") < 1)
+  return "The seam is worked out."
+end if
+if (getregister(@site, "OreCrew") != 0)
+  return "Another crew has this face."
+end if
+return ""
+```
+
+**`WhyMineOre(actor character) → text`**
+
+```futureprog
+return @OreFaceProblem(@actor.location)
+```
+
+**`CanMineOre(actor character) → boolean`**
+
+```futureprog
+return @WhyMineOre(@actor) == ""
+```
+
+**`ClaimOreFace(job project) → void`**
+
+```futureprog
+var site = @job.location
+if (@OreFaceProblem(@site) == "")
+  setregister @site "OreCrew" @job.id
+end if
+```
+
+**`ReleaseOreFace(job project) → void`**
+
+```futureprog
+var site = @job.location
+if (getregister(@site, "OreCrew") == @job.id)
+  setregister @site "OreCrew" 0
+end if
+```
+
+On the open extraction template, attach the following progs. After adding the action, replace `<action-name>` with its name shown by the editor. This is the only action that issues ore.
+
+```text
+project set why WhyMineOre
+project set can CanMineOre
+project set start ClaimOreFace
+project set cancel ReleaseOreFace
+project set finish ReleaseOreFace
+project set phase 1 action add prog
+project set phase 1 action <action-name> prog TakeOreLoad
+```
+
+**`TakeOreLoad(job project) → void`**
 
 ```futureprog
 var site = @job.location
@@ -228,57 +301,268 @@ end if
 
 When the third cart leaves, the reserve reads zero. An old marker can remain as an exhausted working. Placement and register persistence have separate save boundaries. The crew check prevents competing jobs from claiming the same last load during ordinary play. A server interruption between package commitment and the register save requires reconciliation.
 
-**Stage 3. Extend the north drift.** Let a surveyor mark a direction before a crew takes the contract. In this design, only one extension can occupy a face at a time. Use short cardinal keywords such as `n` and `e` consistently. Store text for a proposed route because an unopened shaft has no exit.
+### Extend the north drift
+
+Give the north drift a **Mine Face** room tag (74 in these examples). At the model tunnel use `room set uniquename north-drift-template`. Use ordinary ground-level rooms here. The surveyor chooses a direction before anyone starts digging. The **cut** creates a named draft package, a room and a reciprocal exit. The **opening** makes the reviewed route available to players. Below are three ways to order the same cut: a crew project, a timbering craft, or a foreman's command at the face.
+
+Declare the registers once. On an initial face, `setregister location here ShaftDirection n` marks an unopened north heading. Use `n`, `s`, `e` or `w` for a level drift, and `d` or `u` for a vertical shaft. Staff can mark another direction when this face is free. `ShaftCrew` records a positive project ID for a crew or the negative ID of a unique physical work order for an individual miner. Zero means available. Store the package as soon as it exists so a partial draft cannot be mistaken for a free face.
 
 ```text
 register location ShaftDirection text
 register location ShaftCrew number
 register default location ShaftCrew 0
-register project CutDirection text
+register location ShaftDraftPackage overlaypackage
 register location ShaftDraftRoom location
-setregister location here ShaftDirection n
+register project CutDirection text
+register item ShaftSite location
+register item ShaftBearing text
+register item ShaftSurveyor character
 ```
 
-Staff can mark the direction directly. For a player-driven expedition, attach an interaction to a survey stake that accepts a direction from an authorised surveyor at the face. Write the same `ShaftDirection` value and refuse changes while `ShaftCrew` is occupied. The project lifecycle supplies the remaining hooks.
+#### Shared survey and construction progs
 
-1. **Eligibility.** Write `WhyCutShaft(actor character) → text`. Require a designated mine face, a permitted direction, no current exit in that direction, no reserved crew and no outstanding draft room. Compare the requested keyword against `@actor.location.exits`. Use `CanCutShaft(actor character) → boolean` to return whether the explanation is empty. Attach them with `project set why` and `project set can`.
-2. **Reservation.** Attach `StartCutShaft(job project) → void` with `project set start`. Recheck the face, copy the selected direction to `CutDirection` on the project and write the active ID to `ShaftCrew` on the room. Cancellation clears only that crew's reservation. A changed survey or a rival crew cannot redirect an existing contract.
-3. **Construction.** On the last phase add `action add prog` and set its `prog` to `CutShaft(job project)`. Recheck the owner ID, the saved direction and the outgoing exits. Resolve an editable package dedicated to this extension, its template and the site's zone. The completion body below opens a dedicated package and resolves a tunnel template by its unique room name. Use separate packages for independent extensions so approval activates only the intended work.
-4. **Opening.** Have a builder inspect the resulting draft, approve it and swap it into use. A game that explicitly delegates opening to a trusted prog can use `ApproveOverlay(package, builder, comment)` followed by `SwapOverlay(package)` after successful linking. Once the shaft is open, clear `ShaftDraftRoom` and the matching reservation. A draft left for review must keep its room reference, so a fresh crew cannot create another copy while it waits.
+**`HeadingProblem(site location, bearing text, expected number) → text`**
+
+```futureprog
+if (isnull(@site) or isnull(@bearing))
+  return "No heading has been surveyed."
+end if
+if (istagged(@site, 74) == false)
+  return "This is not a mine face."
+end if
+if (@bearing != "n" and @bearing != "s" and @bearing != "w" and @bearing != "e" and @bearing != "d" and @bearing != "u")
+  return "Survey a compass heading or vertical shaft first."
+end if
+if (@bearing != getregister(@site, "ShaftDirection"))
+  return "The survey marks have changed."
+end if
+if (isnull(getregister(@site, "ShaftDraftPackage")) == false or isnull(getregister(@site, "ShaftDraftRoom")) == false)
+  return "A draft at this face awaits the surveyor."
+end if
+if (getregister(@site, "ShaftCrew") != @expected)
+  return "This face is reserved under a different order."
+end if
+if (@site.exits.any(x, @x.keyword == @bearing))
+  return "A passage already runs that way."
+end if
+return ""
+```
+
+**`DraftHeading(surveyor character, site location, bearing text, claim number) → boolean`**
+
+```futureprog
+if (isnull(@surveyor) or @claim == 0)
+  return false
+end if
+var problem = @HeadingProblem(@site, @bearing, @claim)
+if (@problem != "")
+  send(@surveyor, @problem)
+  return false
+end if
+var tunnel = locationbyuniquename("north-drift-template")
+if (isnull(@tunnel))
+  send(@surveyor, "The survey office needs to designate a model tunnel.")
+  return false
+end if
+var package = CreateOverlay(@surveyor, "North Drift " + totext(@site.id) + " " + totext(@claim))
+if (isnull(@package))
+  send(@surveyor, "Ask the survey office to inspect the existing plans.")
+  return false
+end if
+setregister @site "ShaftDraftPackage" @package
+var shaft = CreateRoom(@package, @site.zone, @tunnel)
+if (isnull(@shaft))
+  send(@surveyor, "The package exists but the heading needs a room.")
+  return false
+end if
+setregister @site "ShaftDraftRoom" @shaft
+if (NameRoom(@shaft, @package, "Beyond the North Drift") == false)
+  send(@surveyor, "The survey office must finish naming the draft.")
+  return false
+end if
+var way = LinkCells(@site, @shaft, @package, @bearing)
+if (isnull(@way))
+  send(@surveyor, "The draft room exists. Ask the survey office to reconcile its connection.")
+  return false
+end if
+send(@surveyor, "Both ends of the new heading are ready for inspection.")
+return true
+```
+
+`LinkCells` checks both endpoints in the chosen package, including conflicts a player cannot see in the current overlay. Creating the room and linking it are separate operations. Keep the recorded draft on failure. A phase prog returning false cannot rewind the project or a craft.
+
+#### Crew project
+
+Use this route for a heading that takes several shifts. Configure timber and labour on a local project. Bind the following five progs with `project set why WhyCutShaft`, `project set can CanCutShaft`, `project set start StartCutShaft`, `project set finish ReleaseCutShaft` and `project set cancel ReleaseCutShaft`. On the final phase use `project set phase last action add prog` and `project set phase last action <action-name> prog CutShaft`. The project keeps the original direction even if the foreman travels.
+
+**`WhyCutShaft(actor character) → text`**
+
+```futureprog
+var site = @actor.location
+return @HeadingProblem(@site, getregister(@site, "ShaftDirection"), 0)
+```
+
+**`CanCutShaft(actor character) → boolean`**
+
+```futureprog
+return @WhyCutShaft(@actor) == ""
+```
+
+**`StartCutShaft(job project) → void`**
 
 ```futureprog
 var site = @job.location
-var direction = getregister(@job, "CutDirection")
-if (getregister(@site, "ShaftCrew") != @job.id or @direction != getregister(@site, "ShaftDirection"))
-  return
-end if
-if (@site.exits.any(x, @x.keyword == @direction) or isnull(getregister(@site, "ShaftDraftRoom")) == false)
-  return
-end if
-var template = locationbyuniquename("north-drift-template")
-if (isnull(@template))
-  return
-end if
-var package = CreateOverlay(@job.owner, "North Drift " + totext(@job.id))
-if (isnull(@package))
-  return
-end if
-var shaft = CreateRoom(@package, @site.zone, @template)
-if (isnull(@shaft))
-  return
-end if
-setregister @site "ShaftDraftRoom" @shaft
-NameRoom(@shaft, @package, "Beyond the North Drift")
-var way = LinkRooms(@site, @shaft, @package, @direction)
-if (isnull(@way))
-  send(@job.owner, "The heading needs a surveyor to reconcile its connection.")
-  return
+var bearing = getregister(@site, "ShaftDirection")
+if (@HeadingProblem(@site, @bearing, 0) == "")
+  setregister @job "CutDirection" @bearing
+  setregister @site "ShaftCrew" @job.id
 end if
 ```
 
-Give the model tunnel room the unique name `north-drift-template` or substitute your own key. The project ID gives each draft package its own name. If a creation attempt has already left a package under that name, inspect the existing draft before retrying. `LinkRooms` checks both ends and adds the return exit. If linking fails after creation, the recorded draft room lets the builder repair the connection without digging another room. Returning from a phase action does not undo or veto project completion. Use the recorded link and package state when announcing a successful opening.
+**`CutShaft(job project) → void`**
 
-For a newly opened shaft that intersects ore, place a vein node there and initialise its reserve once as part of opening the working. For example, place the approved exposure item in the new room and seed `OreLoadsLeft` to two for a short seam. Barren shafts get neither. The miners can now extract two cartloads using stage 2. If you want a hidden survey opportunity instead, lay out tagged ground for stage 1 and leave the visible marker for the prospectors. Copying an overlay's description is insufficient to mark the room as ore-bearing. [Project authoring](Projects_System_Builder_Workflows.md) · [FutureProg and persistent registers](FutureProg_Builder_Guide.md) · [Room overlays](Room_Building_Builder_Guide.md)
+```futureprog
+@DraftHeading(@job.owner, @job.location, getregister(@job, "CutDirection"), @job.id)
+```
+
+**`ReleaseCutShaft(job project) → void`**
+
+```futureprog
+var site = @job.location
+if (getregister(@site, "ShaftCrew") == @job.id and isnull(getregister(@site, "ShaftDraftPackage")))
+  setregister @site "ShaftCrew" 0
+end if
+```
+
+#### Issue a work order for a craft or command
+
+For the two alternatives, make a non-stackable **North Drift work order** item, a fixed timbering bench at the face, and ordinary item prototypes for a **cutting report** and **survey query**. Give each miner a fresh work order. At the marked face the mine's builder can issue it using `prog execute IssueHeadingOrder <miner> <order>`. Keep issuance under the game's mine authority. The numeric claim belongs to this particular item, so a copy of the same prototype cannot spend it. These two routes work independently of the crew project.
+
+**`IssueHeadingOrder(miner character, ticket item) → boolean`**
+
+```futureprog
+if (isnull(@ticket) or isnull(@miner))
+  return false
+end if
+var site = @miner.location
+var bearing = getregister(@site, "ShaftDirection")
+if (@HeadingProblem(@site, @bearing, 0) != "" or isnull(getregister(@ticket, "ShaftSite")) == false)
+  return false
+end if
+var claim = 0 - @ticket.id
+setregister @ticket "ShaftSite" @site
+setregister @ticket "ShaftBearing" @bearing
+setregister @ticket "ShaftSurveyor" @miner
+setregister @site "ShaftCrew" @claim
+return true
+```
+
+**`OrderProblem(miner character, ticket item) → text`**
+
+```futureprog
+if (isnull(@ticket) or isnull(@miner))
+  return "Bring your work order to the face."
+end if
+var site = getregister(@ticket, "ShaftSite")
+if (isnull(@site) or @site != @miner.location or getregister(@ticket, "ShaftSurveyor") != @miner)
+  return "This order belongs to another surveyor or another face."
+end if
+return @HeadingProblem(@site, getregister(@ticket, "ShaftBearing"), 0 - @ticket.id)
+```
+
+**`UseHeadingOrder(miner character, ticket item) → boolean`**
+
+```futureprog
+if (@OrderProblem(@miner, @ticket) != "")
+  return false
+end if
+return @DraftHeading(@miner, getregister(@ticket, "ShaftSite"), getregister(@ticket, "ShaftBearing"), 0 - @ticket.id)
+```
+
+**Craft example — timber the heading.** Use a normal two-phase craft with a qualification check for the miner. Set up the first input as one order, the first tool as a stationary timbering bench at the face, and add shoring timber as a separate consumed input if desired. Have the miner hold their own order before starting. The normal product receives the actual items consumed, indexed by input slot. Use that product for the cut so a failed check cannot create the room. A craft-wide `onfinish` receives only the character and can also run on a failed craft.
+
+**`WhyTimberHeading(actor character) → text`**
+
+```futureprog
+var orders = @actor.helditems.where(i, isnull(getregister(@i, "ShaftSite")) == false)
+if (@orders.count != 1)
+  return "Hold exactly one issued heading order."
+end if
+return @OrderProblem(@actor, @orders.first(i, true))
+```
+
+**`CanTimberHeading(actor character) → boolean`**
+
+```futureprog
+return @WhyTimberHeading(@actor) == ""
+```
+
+**`TimberHeading(inputs item collection dictionary) → item`**
+
+```futureprog
+var ticket = collectiondictionarygetfirst(@inputs, "1")
+if (isnull(@ticket) == false)
+  var miner = getregister(@ticket, "ShaftSurveyor")
+  if (@UseHeadingOrder(@miner, @ticket))
+    return loaditem(9022)
+  end if
+end if
+return loaditem(9023)
+```
+
+Replace 9022 and 9023 with the report and query prototype IDs. On the open craft, after creating both phases and the bench tool, bind the definitions below. Reference the shoring input in the first phase if you added it. Keep other orders outside the inventory plan's reach. The product rechecks the actual ticket and the reserved origin even on a resumed craft.
+
+```text
+craft set canuse CanTimberHeading
+craft set whycannotuse WhyTimberHeading
+craft set tool 1 item <timbering-bench-prototype>
+craft set tool 1 room
+craft set input add simple
+craft set input 1 item <work-order-prototype>
+craft set input 1 quantity 1
+craft set product add prog
+craft set product 1 prog TimberHeading
+craft set failphase 2
+craft set phase edit 2 30 "$0 checks $i1 at $t1 and files $p1." "$0 finds a fault in the shoring at $t1."
+```
+
+The miner uses `craft begin <craft-name>` at the bench. Failure produces no new heading. If work is interrupted, resume the craft with its progress item. If an order is lost or was consumed by a failed craft, the survey office can revoke that specific reservation, then issue a fresh order as described below.
+
+**Command-hook example — the foreman's board.** Install the hook in the board's room. The foreman holds the issued order and types `cutheading`. This route treats the order as authority to cut immediately. Use the craft or crew project where time, materials or a failed skill check matter. A room `CommandInput` hook receives the character, the perceivable hosting the hook, the command and a text collection of arguments. Use a dedicated verb and handle it even when the order is refused.
+
+**`CutHeadingCommand(actor character, host perceivable, verb text, args text collection) → boolean`**
+
+```futureprog
+if (@args.count > 0)
+  send(@actor, "Hold your survey order and type CUTHEADING.")
+  return true
+end if
+var problem = @WhyTimberHeading(@actor)
+if (@problem != "")
+  send(@actor, @problem)
+  return true
+end if
+var ticket = @actor.helditems.first(i, isnull(getregister(@i, "ShaftSite")) == false)
+@UseHeadingOrder(@actor, @ticket)
+return true
+```
+
+```text
+hook create NorthDriftBoard CutHeadingCommand CommandInput cutheading
+hook conditional NorthDriftBoard on
+hook install here NorthDriftBoard
+```
+
+#### Inspect, open or recover the heading
+
+1. Identify the recorded draft at the **original face** using `sniff here` and `room package list all`. The package name includes the origin room ID and the claim. Inspect it with `room package show <package-id>`. To preview it, use `room overlay <package-id> <revision>`, inspect both ends and the return passage, then `room overlay clear`. A personal preview does not open the mine for other players.
+2. Open the draft with `room package open <package-id>` and `room package submit North drift surveyed and shored`. A reviewer uses `room package review <package-id>`, then `accept edit Both endpoints inspected`. Activate the approved package with `room package swap <package-id>`. From the original face without a preview override, follow the new exit and return. Check that its destination is the recorded room.
+3. Back at the original face, verify the matching claim before clearing it. Use `setregister location here ShaftDraftRoom null`, `setregister location here ShaftDraftPackage null` and `setregister location here ShaftDirection ""`, then `setregister location here ShaftCrew 0` last. A second use of the old order fails its claim check. For a failed or cancelled craft with **no draft**, first reconcile or end any resumable craft, match the negative claim to the order's item ID, and clear only that claim. A new order must have a new item ID.
+4. If the draft contains an unlinked room, keep the reservation while a builder repairs the connection in that package. Use the existing draft room ID. Once both ends agree, continue with review and opening. Do the same inspection after a restart partway through construction. Creating a package, creating a room, linking and saving registers have distinct save boundaries.
+
+If your setting allows miners to open a surveyed heading immediately, put the approval in the success branch of `DraftHeading`, after `LinkCells` returns an exit. Call `ApproveOverlay(@package, @surveyor, "Survey order fulfilled")`. Only if that returns true, call `SwapOverlay(@package)` and check its result before announcing the opening. That choice applies equally to a work order spent at the bench or at the board. Keep a refused or partially activated package on record for inspection.
+
+To extend the mine again, mark the new working with the **Mine Face** room tag and set its own `ShaftDirection` when the surveyor picks the next bearing. For a newly opened shaft that intersects ore, place a vein node there and initialise its reserve once as part of opening the working. For example, place the approved exposure item in the new room and seed `OreLoadsLeft` to two for a short seam. Barren shafts get neither. The miners can now extract two cartloads using stage 2. If you want a hidden survey opportunity instead, lay out tagged ground for stage 1 and leave the visible marker for the prospectors. Copying an overlay's description is insufficient to mark the room as ore-bearing. [Project authoring](Projects_System_Builder_Workflows.md) · [FutureProg and persistent registers](FutureProg_Builder_Guide.md) · [Room overlays](Room_Building_Builder_Guide.md)
 
 ## 5. Scavenging and loot tables
 
@@ -306,6 +590,8 @@ Set a closed, openable strongbox in the customs house. The first explorer to ope
 2. Declare `register item CustomsSearchState number`. Use 0 for untouched, 1 while opening the package and 2 for searched. Set the initial state with `register default item CustomsSearchState 0`. Install a hook on this box, or install the same hook on each new instance created by your dungeon. Give the ordinary hook prog the parameters `opener character` and `box item` in that order.
 3. In the prog, inspect the receipt. Below, 81 and 0 stand for the chosen approved table ID and revision. Reachable item hooks can run during a load, so claim the box before calling the table. Settle that claim even if the director authored a perfectly good empty drawer.
 
+**`StockCustomsBox(opener character, box item) → void`**
+
 ```futureprog
 if (getregister(@box, "CustomsSearchState") != 0)
   return
@@ -322,7 +608,7 @@ end if
 
 ```text
 hook create OpenCustomsBox StockCustomsBox ItemOpened
-hook install OpenCustomsBox <strongbox-keyword>
+hook install <strongbox-keyword> OpenCustomsBox
 ```
 
 `StockCustomsBox` is the prog above. Opening triggers it on the box after the character opens it. Closing and opening it again leaves existing contents alone. A successful receipt with zero items or post-commit warnings still spends the search. A placement error, such as a box too small for the chosen item, releases the claim. Correct the cause before retrying. If a restart leaves state 1, inspect the box and any recorded receipt before deciding whether to reopen the claim. Register persistence and loot commitment are separate operations. [Hook attachment and event parameters](../AI/Event_System_for_AI_and_Hooks.md) · [Loot choices and receipts](../Features/LootTables.md)

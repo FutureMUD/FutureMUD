@@ -10,5 +10,6 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 - [Agriculture Builder Workflows](../Builder%20Guides/Agriculture_Builder_Workflows.md)
 - [Agriculture Runtime Model](Agriculture_Runtime_Model.md)
+- [Primary production runtime review](Primary_Production_Runtime_Review.md) traces wild gathering, remains, field work, mineral extraction and scavenging.
 
 [Documentation home](../README.md) · [Document roles and naming](../Documentation_Guide.md)

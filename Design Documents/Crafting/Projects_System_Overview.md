@@ -81,6 +81,8 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | `commodityoutput` | `CommodityOutputProjectAction` | Creates a commodity pile in the active project location or owner fallback location when the phase completes |
 | `resourcediscovery` | `ResourceDiscoveryProjectAction` | Creates one configured visible resource marker in the active project location, gated by an optional location tag and duplicate-prevention tag |
 
+For local mining and quarrying, `resourcediscovery` checks the required room tag and searches the work site for an existing marker by tag or exact prototype revision. `commodityoutput` creates its configured material, tag and weight independently. Phase actions return `void`. Skipping discovery on an untagged site or finding a duplicate does not suppress a later commodity action. The optional stock iron prospect therefore produces its sample even on an untagged site. Neither action records remaining ore. [Primary production review](../Agriculture/Primary_Production_Runtime_Review.md)
+
 ### Labour impact types
 | Builder keyword | Runtime type | Purpose |
 | --- | --- | --- |

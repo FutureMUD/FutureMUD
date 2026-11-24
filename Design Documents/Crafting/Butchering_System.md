@@ -33,6 +33,8 @@ When a command starts, it adds a staged action effect to the actor. The effect e
 
 On completion, the corpse or severed-bodypart component loads the matching products into the actor's location. Full breakdowns consume the corpse or bodypart. Subcategory breakdowns mark that subcategory as already processed and leave the corpse or bodypart available for other subcategories or final breakdown.
 
+For a carcass-to-craft chain, make the pelt a skinning product, group tusks or other trophies into named subcategories, and put primal cuts in the final breakdown. Taking trophies first records that subcategory on the remains. Final breakdown can still produce unclaimed eligible non-pelt products. It consumes the remains, ending the opportunity to skin them. Subsequent boning, portioning or curing belongs to ordinary recipes that accept the resulting items. [Primary production review](../Agriculture/Primary_Production_Runtime_Review.md)
+
 ## Product Applicability
 
 A butchery product applies to a corpse or bodypart only when all of the following are true:
@@ -77,7 +79,7 @@ That live progress prevents repeated skinning or repeated subcategory harvesting
 
 ## Stock Animal Butchery Package
 
-`AnimalButcherySeeder` installs the stock animal butchery package after `ItemSeeder`. It is rerunnable and owns the stock butchery items, signature materials, products, profiles, checks, emotes, and eligible race-profile assignments.
+`AnimalButcherySeeder` installs the stock animal butchery package once its component prototypes, tags, materials, trait, races, body prototypes and account prerequisites are present. It is rerunnable and owns the stock butchery items, signature materials, products, profiles, checks, emotes, and eligible race-profile assignments.
 
 The seeder uses a signature-species model rather than creating a bespoke item set for every race:
 

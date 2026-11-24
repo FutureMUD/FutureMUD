@@ -159,6 +159,10 @@ Agriculture operations are definition rows backed by normal project templates. S
 
 `AgricultureOperationAction` is the completion action for those projects. On phase completion it reloads the context, revalidates the field and operation, applies score and state changes, emits local feedback, runs any completion FutureProg, and removes the context.
 
+The field command and `StartFieldProject` write the agriculture context after flushing the new active project. Ordinary `project start` creates a local project without that context. Stock agriculture templates are visible in the ordinary catalogue, so this path can consume labour and materials and finish without applying the operation. A second site issue affects `StartFieldProject` when the actor is away from the field. Labour is anchored to the actor's starting room while completion changes the field supplied to the function. [Primary production review](Primary_Production_Runtime_Review.md)
+
+Property authorisation is checked at initiation. Completion rechecks field and target eligibility with the actor-access check disabled. If the field has changed and the operation fails, the action reports the reason and clears the context. The ordinary project lifecycle then advances.
+
 During each project tick, agriculture projects record a Farming-weighted labour summary into the context XML. The summary stores total contributing hours, weighted worker skill, supervision hours, and weighted supervisor skill. Completion converts that summary into a capped work outcome:
 
 - beneficial score deltas are strengthened or weakened

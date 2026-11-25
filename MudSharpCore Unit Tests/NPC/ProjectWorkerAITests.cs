@@ -17,6 +17,7 @@ using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.RPG.Merits;
 using MudSharp.Work.Projects;
 using MudSharp.Work.Projects.ConcreteTypes;
+using MudSharp.Work.Projects.Impacts;
 using ActiveProjectModel = MudSharp.Models.ActiveProject;
 
 #nullable enable
@@ -142,6 +143,124 @@ public class ProjectWorkerAITests
 		Assert.AreEqual(0, project.FulfilLabourCalls);
 		Assert.IsNull(worker.Object.CurrentProject.Project);
 		Assert.IsFalse(ProjectPaymentService.OutstandingPayablesFor(worker.Object).Any());
+	}
+
+	[TestMethod]
+	public void LocalShift_ContinuesWorkAndPayAwayFromSiteUntilWorkerQuits()
+	{
+		var currency = Currency(1, "crowns");
+		var world = Gameworld(currency.Object);
+		world.Setup(x => x.GetStaticDouble("ProjectProgressMultiplier")).Returns(0.25);
+		var role = Labour(5, "Porter");
+		role.SetupGet(x => x.TotalProgressRequired).Returns(8.0);
+		role.Setup(x => x.HourlyProgress(It.IsAny<ICharacter>(), false)).Returns(4.0);
+		role.Setup(x => x.ProgressMultiplierForOtherLabourPerPercentageComplete(role.Object, It.IsAny<IActiveProject>())).Returns(1.0);
+		var definition = ShiftDefinition(world.Object, role.Object);
+		var site = new Mock<IRoom>();
+		var elsewhere = new Mock<IRoom>();
+		var worker = Character(20, "Porter", world.Object);
+		worker.SetupGet(x => x.Location).Returns(site.Object);
+		worker.SetupProperty(x => x.CurrentProjectHours);
+		worker.SetupProperty(x => x.CurrentProjectProjectHours);
+		worker.Setup(x => x.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName)).Returns("Porter");
+		var project = new TestActiveLocalProject(definition, worker.Object);
+		project.SetIDFromDatabase(new ActiveProjectModel { Id = 200 });
+		project.SetPaymentCurrency(currency.Object);
+		project.SetLabourPaymentRate(role.Object, 8.0M);
+		VirtualCashLedger.Credit(project, currency.Object, 10.0M, null, null, "Commission", "Shift budget");
+		Assert.IsTrue(project.TryJoinLabour(worker.Object, role.Object, true, out _));
+
+		worker.SetupGet(x => x.Location).Returns(elsewhere.Object);
+		project.DoProjectsTick();
+		Assert.AreSame(project, worker.Object.CurrentProject.Project);
+		Assert.AreEqual(1.0, project.LabourProgress[role.Object]);
+		Assert.AreEqual(0.25, worker.Object.CurrentProjectHours);
+		Assert.AreEqual(0.25, worker.Object.CurrentProjectProjectHours);
+		Assert.AreEqual(8.0M, project.CashBalance);
+		Assert.AreEqual(2.0M, ProjectPaymentService.OutstandingPayablesFor(worker.Object).Single().Amount);
+		worker.Verify(x => x.RecordQueuedProjectLabour(project, 0.25), Times.Once);
+		worker.Verify(x => x.ReleaseQueuedProjectLabourClaim(project), Times.Never);
+
+		var module = typeof(ProjectWorkerAI).Assembly.GetType("MudSharp.Commands.Modules.CraftModule")!;
+		module.GetMethod("ProjectLeave", BindingFlags.Static | BindingFlags.NonPublic)!
+			.Invoke(null, [worker.Object, new StringStack("200")]);
+		Assert.IsNull(worker.Object.CurrentProject.Project);
+		Assert.IsFalse(project.TryJoinLabour(worker.Object, role.Object, true, out _));
+		project.DoProjectsTick();
+		Assert.AreEqual(8.0M, project.CashBalance);
+	}
+
+	[TestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void ChangingRoles_UpdatesAssignmentDirectlyAndClearsOldRosterEntry(bool local)
+	{
+		var world = Gameworld(Currency(1, "crowns").Object);
+		var oldRole = Labour(5, "Porter").Object;
+		var newRole = Labour(6, "Joiner").Object;
+		var worker = Character(20, "Worker", world.Object);
+		worker.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
+		var definition = ShiftDefinition(world.Object, oldRole, newRole);
+		ActiveProject project = local ? new TestActiveLocalProject(definition, worker.Object)
+			: new ActivePersonalProject(definition, worker.Object);
+		var character = TestObjectFactory.CreateUninitialized<MudSharp.Character.Character>();
+		typeof(LateKeywordedInitialisingItem).GetProperty(nameof(character.Gameworld))!.SetValue(character, world.Object);
+		worker.SetupSet(x => x.CurrentProject = It.IsAny<(IActiveProject, IProjectLabourRequirement)>())
+			.Callback<(IActiveProject, IProjectLabourRequirement)>(assignment => character.CurrentProject = assignment);
+		worker.SetupGet(x => x.CurrentProject).Returns(() => character.CurrentProject);
+
+		Assert.IsTrue(project.TryJoinLabour(worker.Object, oldRole, true, out _));
+		character.CurrentProjectHours = 2;
+		character.CurrentProjectProjectHours = 5;
+		Assert.IsTrue(project.TryJoinLabour(worker.Object, newRole, true, out _));
+		Assert.AreEqual(0.0, character.CurrentProjectHours);
+		Assert.AreEqual(5.0, character.CurrentProjectProjectHours);
+		Assert.AreSame(newRole, project.ActiveLabour.Single().Labour);
+		project.Leave(worker.Object);
+		Assert.AreEqual(0.0, character.CurrentProjectProjectHours);
+	}
+
+	[TestMethod]
+	[DataRow("Labour")]
+	[DataRow("Project")]
+	public void ProjectTick_CreditsJobEffortStartingOnTheTickThatReachesTheChosenThreshold(string scope)
+	{
+		var world = Gameworld(Currency(1, "crowns").Object);
+		world.Setup(x => x.GetStaticDouble("ProjectProgressMultiplier")).Returns(0.25);
+		var impact = new JobEffortImpact(new MudSharp.Models.ProjectLabourImpact
+		{
+			MinimumHoursForImpactToKickIn = 1.0,
+			Definition = $"<Impact><HoursReference>{scope}</HoursReference><Expression>8</Expression></Impact>"
+		}, world.Object);
+		var role = Labour(5, "Diligent");
+		role.SetupGet(x => x.LabourImpacts).Returns([impact]);
+		var worker = Character(20, "Worker", world.Object);
+		worker.SetupProperty(x => x.CurrentProjectHours, scope == "Labour" ? 0.5 : 0);
+		worker.SetupProperty(x => x.CurrentProjectProjectHours, scope == "Project" ? 0.5 : 2);
+		var project = new TestActiveProject(ShiftDefinition(world.Object, role.Object), worker.Object, 200);
+		var job = new Mock<IActiveJob>();
+		job.SetupGet(x => x.ActiveProject).Returns(project);
+		job.SetupProperty(x => x.CurrentPerformance);
+		worker.SetupGet(x => x.ActiveJobs).Returns([job.Object]);
+		project.Join(worker.Object, role.Object);
+		project.DoProjectsTick();
+		Assert.AreEqual(0.0, job.Object.CurrentPerformance);
+		project.DoProjectsTick();
+		Assert.AreEqual(8.0, job.Object.CurrentPerformance);
+		project.DoProjectsTick();
+		Assert.AreEqual(16.0, job.Object.CurrentPerformance);
+	}
+
+	private static IProject ShiftDefinition(IFuturemud world, params IProjectLabourRequirement[] roles)
+	{
+		var phase = new Mock<IProjectPhase>();
+		phase.SetupGet(x => x.LabourRequirements).Returns(roles);
+		var definition = new Mock<IProject>();
+		definition.SetupGet(x => x.Id).Returns(100);
+		definition.SetupGet(x => x.Name).Returns("Work Shift");
+		definition.SetupGet(x => x.Gameworld).Returns(world);
+		definition.SetupGet(x => x.Phases).Returns([phase.Object]);
+		return definition.Object;
 	}
 
 	[TestMethod]

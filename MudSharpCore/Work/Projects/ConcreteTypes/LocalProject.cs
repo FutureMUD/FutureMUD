@@ -29,7 +29,7 @@ public class LocalProject : Project
         sb.AppendLine($"Local Project: {Name.Colour(Telnet.Cyan)}");
         sb.AppendLine($"Tagline: {Tagline.ColourCommand()}");
         sb.AppendLine(
-            $"You currently {(CanInitiateProg.Execute<bool?>(actor) == true ? "can".Colour(Telnet.Green) : "cannot".Colour(Telnet.Red))} initiate this project.");
+            $"You currently {(CanInitiateProject(actor) ? "can".Colour(Telnet.Green) : "cannot".Colour(Telnet.Red))} initiate this project.");
         foreach (IProjectPhase phase in Phases)
         {
             sb.AppendLine();

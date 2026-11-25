@@ -40,6 +40,7 @@ internal sealed class CheckLearningScope : IDisposable
 	internal sealed class ValueWrite : IDisposable
 	{
 		private readonly TraitWrite? _write;
+		internal IHaveTraits? User => _write?.User;
 		internal ValueWrite(ITrait trait)
 		{
 			if (CurrentWrite.Value is not { } write || !ReferenceEquals(write.Trait, trait)) return;
@@ -66,12 +67,14 @@ internal sealed class CheckLearningScope : IDisposable
 	{
 		private readonly TraitWrite? _previous;
 		internal readonly ITrait Trait;
+		internal readonly IHaveTraits User;
 		internal readonly CheckLearningScope? Scope;
 		internal readonly ulong? MutationVersion;
 		internal bool Applied;
 		internal TraitWrite(ITrait trait, IHaveTraits user)
 		{
 			Trait = trait;
+			User = user;
 			MutationVersion = (trait as Trait)?.ValueMutationVersion;
 			Scope = ReferenceEquals(Current.Value?._user, user) ? Current.Value : null;
 			_previous = CurrentWrite.Value;

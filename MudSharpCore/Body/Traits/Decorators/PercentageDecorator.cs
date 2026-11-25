@@ -13,10 +13,12 @@ public class PercentageDecorator : FrameworkItem, ITraitValueDecorator
 
     #region ITraitValueDecorator Members
 
-    public string Decorate(ITrait trait)
+    public string Decorate(ITrait trait) => Decorate(trait, trait.Owner);
+
+    public string Decorate(ITrait trait, IHaveTraits subject)
     {
-        double value = trait.Owner?.TraitValue(trait.Definition, TraitBonusContext.None) ?? trait.Value;
-        double max = trait.Owner?.TraitMaxValue(trait) ?? trait.MaxValue;
+        double value = subject?.TraitValue(trait.Definition, TraitBonusContext.None) ?? trait.Value;
+        double max = subject?.TraitMaxValue(trait) ?? trait.MaxValue;
         if (max == 0.0)
         {
             max = 1.0;

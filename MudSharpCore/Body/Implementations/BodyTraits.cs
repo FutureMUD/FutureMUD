@@ -162,11 +162,7 @@ public partial class Body
             return 0.0;
         }
 
-        double baseValue = trait.MaxValue;
-        baseValue += Actor.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(Actor))
-                          .OfType<ILabourImpactTraitCaps>().Sum(x => x.EffectOnTrait(trait.Definition)) ?? 0.0;
-
-        return baseValue;
+        return trait.MaxValue + TraitCapImpact.TotalFor(Actor, trait.Definition);
     }
 
     public bool HasTrait(ITraitDefinition trait)
@@ -191,7 +187,7 @@ public partial class Body
 
     public string GetTraitDecorated(ITraitDefinition trait)
     {
-        return trait.Decorator.Decorate(GetTrait(trait));
+        return trait.Decorator.Decorate(GetTrait(trait), this);
     }
 
     public IEnumerable<ITrait> Traits => _traits.Concat(Actor?.CharacterTraits ?? Enumerable.Empty<ITrait>());

@@ -44,11 +44,13 @@ public class RangeDecorator : FrameworkItem, IRangeTraitValueDecorator
 
     #region ITraitValueDecorator Members
 
-    public string Decorate(ITrait trait)
+    public string Decorate(ITrait trait) => Decorate(trait, trait.Owner);
+
+    public string Decorate(ITrait trait, IHaveTraits subject)
     {
-        double currentValue = trait.Owner?.TraitValue(trait.Definition) ?? trait.Value;
-        double maxValue = trait.Owner?.TraitMaxValue(trait) ?? trait.MaxValue;
-        double rawValue = trait.Owner?.TraitRawValue(trait.Definition) ?? trait.Value;
+        double currentValue = subject?.TraitValue(trait.Definition) ?? trait.Value;
+        double maxValue = subject?.TraitMaxValue(trait) ?? trait.MaxValue;
+        double rawValue = subject?.TraitRawValue(trait.Definition) ?? trait.Value;
         bool capped = rawValue >= maxValue;
         bool buffed = currentValue > rawValue;
         bool penalised = currentValue <= rawValue && currentValue <= maxValue;

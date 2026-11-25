@@ -75,10 +75,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         if (AreCurrentPhaseCompletionRequirementsMet())
         {
             var resumeList = workersToResume.DistinctBy(x => x.InstanceId).ToList();
-            foreach (IProjectAction action in OrderedCompletionActions())
-            {
-                action.CompleteAction(this);
-            }
+            CompletePhaseActions(this, CurrentPhase.CompletionActions);
 
             IProjectPhase nextPhase =
                 ProjectDefinition.Phases.ElementAtOrDefault(ProjectDefinition.Phases.ToList().IndexOf(CurrentPhase) +
@@ -208,9 +205,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 
     public override void Join(ICharacter actor, IProjectLabourRequirement labour)
     {
-        actor.CurrentProject.Project?.Leave(actor);
-        _activeLabour.Add((actor, labour));
-        actor.CurrentProject = (this, labour);
+        AssignLabour(actor, labour);
         actor.OutputHandler.Send(
             $"You begin working on the {labour.Name.ColourValue()} task of your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project.");
     }

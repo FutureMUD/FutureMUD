@@ -70,6 +70,7 @@ public class CommodityOutputProjectActionTests
 		Assert.AreEqual("1", xml.Element("MaterialId")?.Value);
 		Assert.AreEqual("2500", xml.Element("Weight")?.Value);
 		Assert.AreEqual("2", xml.Element("TagId")?.Value);
+		Assert.IsNull(xml.Element("RequiredDiscoveryMarkerPrototypeId"));
 		Assert.AreEqual("true", xml.Element("UseIndirectDescription")?.Value.ToLowerInvariant());
 		Assert.AreEqual("Ore piles slump from the completed working.", xml.Element("Echo")?.Value);
 

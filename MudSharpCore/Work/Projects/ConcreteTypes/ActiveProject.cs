@@ -8,6 +8,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects.Impacts;
+using MudSharp.Work.Projects.Actions;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
@@ -567,7 +568,8 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         out ICharacter displacedWorker)
     {
         displacedWorker = null;
-        if (CurrentPhase?.LabourRequirements.Contains(labour) != true ||
+        if ((this is ILocalProject local && !local.IsAtProjectSite(actor)) ||
+            CurrentPhase?.LabourRequirements.Contains(labour) != true ||
             CharacterAlreadyWorkingOnLabour(actor, labour) ||
             !labour.CharacterIsQualified(actor))
         {
@@ -663,6 +665,22 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 
     public abstract void Join(ICharacter actor, IProjectLabourRequirement labour);
 
+    protected void AssignLabour(ICharacter actor, IProjectLabourRequirement labour)
+    {
+        if (actor.CurrentProject.Project == this)
+        {
+            // Keep the project assignment continuous while replacing its role.
+            _activeLabour.RemoveAll(x => x.Character == actor);
+        }
+        else
+        {
+            actor.CurrentProject.Project?.Leave(actor);
+        }
+
+        _activeLabour.Add((actor, labour));
+        actor.CurrentProject = (this, labour);
+    }
+
     public abstract void Leave(ICharacter actor);
 
     protected bool AreMandatoryLabourRequirementsComplete()
@@ -685,11 +703,24 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
                AreMandatoryMaterialRequirementsComplete();
     }
 
-    protected IEnumerable<IProjectAction> OrderedCompletionActions()
+    internal static void CompletePhaseActions(IActiveProject project, IEnumerable<IProjectAction> actions)
     {
-        return CurrentPhase.CompletionActions
-            .OrderBy(x => x.SortOrder)
-            .ThenBy(x => x.Id);
+        var successfulResourceMarkers = new HashSet<long>();
+        foreach (var action in actions.OrderBy(x => x.SortOrder).ThenBy(x => x.Id))
+        {
+            switch (action)
+            {
+                case ResourceDiscoveryProjectAction discovery:
+                    discovery.CompleteAction(project, successfulResourceMarkers);
+                    break;
+                case CommodityOutputProjectAction output:
+                    output.CompleteAction(project, successfulResourceMarkers);
+                    break;
+                default:
+                    action.CompleteAction(project);
+                    break;
+            }
+        }
     }
 
 	protected void TryJoinQueuedProjectLabourFor(IEnumerable<ICharacter> characters)
@@ -870,7 +901,10 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 			labour.Character.CurrentProjectProjectHours += labourHours;
 			foreach (ILabourImpactActionAtTick impact in labour.Labour.LabourImpacts.OfType<ILabourImpactActionAtTick>())
 			{
-				impact.DoAction(labour.Character, this, labour.Labour);
+				if (impact.Applies(labour.Character))
+				{
+					impact.DoAction(labour.Character, this, labour.Labour);
+				}
 			}
 
 			if (FulfilLabour(labour.Labour, progress))

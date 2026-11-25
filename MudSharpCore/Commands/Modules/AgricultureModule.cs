@@ -2,7 +2,6 @@ using MudSharp.Commands.Helpers;
 ﻿using MudSharp.Database;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects;
-using MudSharp.Work.Projects.ConcreteTypes;
 
 namespace MudSharp.Commands.Modules;
 
@@ -353,42 +352,10 @@ Admin Syntax:
 
 	private static void StartOperation(ICharacter actor, IAgricultureField field, IAgricultureOperation operation, IFrameworkItem target)
 	{
-		if (!field.CanBeginOperation(actor, operation, target, out var reason))
+		if (!AgricultureProjectStarter.TryStart(actor, field, operation, target, out var reason))
 		{
 			actor.OutputHandler.Send(reason);
 			return;
-		}
-
-		if (operation.Project == null)
-		{
-			actor.OutputHandler.Send("That agriculture operation has no project template configured.");
-			return;
-		}
-
-		if (!operation.Project.CanInitiateProject(actor))
-		{
-			actor.OutputHandler.Send(operation.Project.WhyCannotInitiateProject(actor));
-			return;
-		}
-
-		var active = new ActiveLocalProject(operation.Project, actor);
-		actor.Gameworld.Add(active);
-		actor.Gameworld.SaveManager.Flush();
-		using (new FMDB())
-		{
-			var context = new MudSharp.Models.AgricultureProjectContext
-			{
-				ActiveProjectId = active.Id,
-				AgricultureFieldId = field.Id,
-				OperationId = operation.Id,
-				TargetType = (int)operation.TargetType,
-				TargetId = target?.Id,
-				TargetText = target?.Name ?? string.Empty,
-				ActorId = CharacterInstanceIdentityComparer.IdentityId(actor),
-				Definition = "<Context />"
-			};
-			FMDB.Context.AgricultureProjectContexts.Add(context);
-			FMDB.Context.SaveChanges();
 		}
 
 		actor.OutputHandler.Send($"You start the {operation.Project.Name.ColourName()} project for {operation.Name.ColourName()}.");

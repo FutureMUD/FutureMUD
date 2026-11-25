@@ -10,12 +10,11 @@ The intended audience is engine developers, maintainers, and agents working on t
 - [Agriculture Runtime Model](../Agriculture/Agriculture_Runtime_Model.md) explains how farming operations use normal local projects plus `AgricultureProjectContext` and the `agriculture` completion action.
 
 ## Core Idea
-Projects model long-running, mostly off-screen work.
+Projects model a sustained commitment. Use a craft for a single maker’s foreground activity, especially where interruption, specific tools, or the properties of individual inputs determine the result. A short session (often under ten minutes) is a design guideline for a craft. Projects suit shared construction, paid shifts, training and delayed changes to the world. A craft can produce the fasteners a project consumes.
 
-They differ from short-lived craft actions in three important ways:
-- project definitions are revisioned builder content, not ad hoc runtime state
-- active projects persist over time and advance on a scheduled tick
-- a character can have multiple active projects available, but only one currently selected labour role in `CurrentProject`
+Project work continues for assigned characters across player logout on the running server’s scheduler. Server downtime does not accrue project ticks. Local projects require physical presence to take a role. Once assigned, a worker retains their slot and any queue claim while away. Normal ticks advance labour, continuity, eligible impacts and any funded wages. Workers can inspect and quit their current assignment remotely. New local assignments still require presence at the site.
+
+Templates are revisioned, each active instance tracks its own work, and a character has only one selected labour role. This gives personal projects an opportunity cost. Someone assigned to a standing conditioning regimen can benefit during ordinary play, but moving to a paid assignment gives up the regimen’s active impacts. A role impact represents a condition of working; a permanent unlock belongs in a completion action or finish hook.
 
 The system is composed from five layers:
 - `IProject` is the revisioned template that builders approve and players browse from the catalogue
@@ -29,7 +28,7 @@ The system is composed from five layers:
 - `IProject` exposes catalogue visibility, initiation gating, start/cancel/finish hooks, player presentation, cancellation rules, and the ordered phase list.
 - `IActiveProject` exposes the project definition, current phase, labour progress, material progress, active workers, payment reserve state, labour and material payment rates, join/leave/cancel operations, tick processing, and player-facing display.
 - `IPersonalProject` is a marker for active projects owned by a single character.
-- `ILocalProject` is a marker for active projects attached to a cell and worked on by multiple people in that location.
+- `ILocalProject` is a marker for active projects attached to a worksite where multiple people can enrol.
 
 ### Phase and requirement contracts
 - `IProjectPhase` owns its phase number, description, labour requirements, material requirements, completion actions, duplication, deletion, and submit validation.
@@ -81,6 +80,10 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | `commodityoutput` | `CommodityOutputProjectAction` | Creates a commodity pile in the active project location or owner fallback location when the phase completes |
 | `resourcediscovery` | `ResourceDiscoveryProjectAction` | Creates one configured visible resource marker in the active project location, gated by an optional location tag and duplicate-prevention tag |
 
+For mining and quarrying, a `resourcediscovery` action checks the required room tag and searches the work site for an existing marker by tag or exact prototype revision. To award an ore sample, place a `commodityoutput` action later in the same phase and set its `discovery <prototype>` to the marker prototype. The sample is created only if discovery placed a new matching marker during this phase completion. A barren site or a repeat survey yields no sample. Use `discovery none` for an independent output such as quarried stone. The same ordering applies to personal and local projects. Neither action tracks a remaining ore reserve.
+
+The stock iron, tin, copper and lead prospect samples have this dependency. When loading older definitions, the engine recognises each by its original project name, sample action name and marker prototype. A renamed custom prospect can opt in with `discovery <prototype>`. [Primary production review](../Agriculture/Primary_Production_Runtime_Review.md)
+
 ### Labour impact types
 | Builder keyword | Runtime type | Purpose |
 | --- | --- | --- |
@@ -88,6 +91,8 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | `healing` | `HealingImpact` | Modifies healing checks, healing rate, and infection chance |
 | `job` | `JobEffortImpact` | Converts project work into ongoing-job performance effort each project tick |
 | `cap` | `TraitCapImpact` | Modifies trait caps while the impact applies |
+
+A positive cap impact on an ordinary skill lets a worker train beyond the definition's normal cap while committing a project slot to mastery. Reads and improvement writes use the applicable ceiling. Losing the impact limits the usable value without erasing the trained value, which persists across saves. For a base cap of 70 and a +10 impact, a worker trained to 78 uses 70 after leaving, gains nothing while over the ceiling, and resumes at 78 when the impact applies again. Independent magical improvement limits still apply.
 
 ## Runtime Model
 ### Revisioned definitions versus live instances
@@ -180,7 +185,7 @@ Join rules are enforced by:
 - current phase membership
 - the player-facing NPC displacement concession, which lets qualified player characters take over a full labour role when at least one current worker in that role is an NPC
 
-Joining one project labour automatically calls `Leave` on the character's previously selected `CurrentProject.Project` before assigning the new one.
+Taking labour on a different project calls `Leave` on the old project. A direct role change on the same active project replaces the roster entry and updates `CurrentProject` in one assignment. The character retains project continuity and restarts labour continuity.
 
 This means the system models:
 - many active projects existing at once
@@ -242,7 +247,7 @@ The current tick path is:
 5. Applicable `Project Labour Contribution` merits multiply that progress with a numeric `number(character, project)` FutureProg. Results stack multiplicatively; negative results clamp to zero and invalid results use `1.0` with an administrator diagnostic.
 6. If that labour requirement has an hourly payment, the project reserves the tick's fraction of hourly pay as a project payable before recording skill use or progress.
 7. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
-8. Any `ILabourImpactActionAtTick` impacts execute.
+8. `ILabourImpactActionAtTick` impacts execute when `Applies` accepts the updated hours for their configured scope, including the tick on which the worker reaches the minimum.
 
 Contribution merits affect project progress and progress estimates only. They do not alter pay, elapsed queue time, continuity hours, labour impacts, or skill-check frequency.
 
@@ -466,7 +471,8 @@ For every new family member, the expected minimum implementation work is:
 - any required integration consumers
 
 ## Known Quirks And Edge Cases
-- Queue entries are intentionally current-phase-only. If a local project advances phase, old queued labour entries for the previous phase become stale and are removed rather than being remapped.
+- A queue entry configured for `until phase` completes at the boundary. An `until completion` entry stays linked to the active project and rechecks role availability in the new phase.
+- Passive trait, cap and healing impacts and per-tick job effort all honour the minimum hours for the configured scope.
 - For backwards compatibility, characters loaded from worlds that predate `CurrentProjectProjectHours` bootstrap that value from `CurrentProjectHours` if they are already assigned to a current project.
 - Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior. Older definitions also default to non-scaled supervision until a builder enables the `scaled` option.
 - `JobEffortImpact` is created from the builder keyword `job`, but its concrete type stores and loads using the runtime type string `JobEffort`. Treat the builder keyword list in `ProjectFactory` as the source of truth for authoring.

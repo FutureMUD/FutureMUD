@@ -40,9 +40,10 @@ public abstract class Trait : FrameworkItem, ITrait
         set
         {
             using var write = CheckLearningScope.EnterValueWrite(this);
-            if (value > MaxValue)
+            var ceiling = ValueCeilingFor(write.User ?? Owner);
+            if (value > ceiling)
             {
-                value = Math.Max(_value, MaxValue);
+                value = Math.Max(_value, ceiling);
             }
 
             if (!write.CanContinue()) return;
@@ -112,7 +113,7 @@ public abstract class Trait : FrameworkItem, ITrait
                 FMDB.Context.CharacterTraits.Add(dbcharactertrait);
             }
 
-            dbcharactertrait.Value = Value;
+            dbcharactertrait.Value = _value;
             Changed = false;
             return;
         }
@@ -129,13 +130,15 @@ public abstract class Trait : FrameworkItem, ITrait
             };
             FMDB.Context.Traits.Add(dbtrait);
         }
-        dbtrait.Value = Value;
+        dbtrait.Value = _value;
         Changed = false;
     }
 
     public IFuturemud Gameworld => Definition.Gameworld;
 
     public virtual double MaxValue => Definition.MaxValue;
+
+    protected virtual double ValueCeilingFor(IHaveTraits user) => MaxValue;
 
     protected void TraitChanged(double oldval, double newval)
     {

@@ -52,7 +52,7 @@ public class CraftInputPersistenceTests
 		var parent = new Mock<IGameItem>();
 		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 
-		var source = new TestActiveCraftComponent(parent.Object) { Craft = craft.Object };
+		var source = new TestActiveCraftComponent(parent.Object) { Craft = craft.Object, HasFailed = true };
 		source.ConsumedInputs[standard.Input.Object] = (standard.Data.Perceivable, standard.Data);
 		source.ConsumedInputs[liquid.Input.Object] = (liquid.Data.Perceivable, liquid.Data);
 		source.ConsumedInputs[taggedLiquid.Input.Object] = (taggedLiquid.Data.Perceivable, taggedLiquid.Data);
@@ -61,6 +61,7 @@ public class CraftInputPersistenceTests
 		var loaded = new TestActiveCraftComponent(parent.Object);
 		loaded.LoadDefinition(saved);
 
+		Assert.IsTrue(loaded.HasFailed);
 		Assert.AreEqual(3, loaded.ConsumedInputs.Count);
         standard.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, standardXml)), gameworld.Object), Times.Once);
         liquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, liquidXml)), gameworld.Object), Times.Once);
@@ -68,6 +69,7 @@ public class CraftInputPersistenceTests
 
         var copy = (IActiveCraftGameItemComponent)source.Copy(parent.Object, true);
 
+        Assert.IsTrue(copy.HasFailed);
         Assert.AreEqual(3, copy.ConsumedInputs.Count);
         standard.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, standardXml)), gameworld.Object), Times.Exactly(2));
         liquid.Input.Verify(x => x.LoadDataFromXml(It.Is<XElement>(e => XElement.DeepEquals(e, liquidXml)), gameworld.Object), Times.Exactly(2));

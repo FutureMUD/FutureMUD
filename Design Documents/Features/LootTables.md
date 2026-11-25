@@ -92,6 +92,10 @@ Success returns a canonical `OK` receipt with exact revision/hash, algorithm, va
 
 After every item is physically placed and registered with the game world, the materialiser crosses its commit boundary. It then executes prototype OnLoad progs, `ItemFinishedLoading`, and `Login` for the committed items. These operations can make arbitrary external changes and therefore cannot be rolled back; a post-commit failure is reported to administrators and the successful receipt includes `postcommitwarnings=<count>`, while the completed package remains in the world. Character destinations deliberately do not fire `CharacterGotItem`, `ItemGotten`, inventory-change, or witness hooks: loading a loot package is not a player `get` action, and suppressing those hooks prevents a later staging failure from granting an irreversible reward.
 
+## One-time scavenging
+
+A deterministic seed makes a roll reproducible. Each successful call still materialises a new package. The caller chooses whether a claim belongs to a persistent ruin, an individual chest or a dungeon instance. Treat any `OK` receipt as a spent opportunity when the design allows one search, including `created=0` and post-commit warnings. An `ERROR` receipt indicates failure before commitment. A separate room or item register and the loot commit have independent save boundaries, so a script-only claim does not guarantee exactly-once delivery across a crash. [Primary production review](../Agriculture/Primary_Production_Runtime_Review.md)
+
 ## Persistence
 
 Migration `AddLootTables` adds one `LootTables` table keyed by `(Id, RevisionNumber)` and linked to `EditableItems`. It stores name, algorithm version and canonical definition payload. No existing content is migrated automatically.

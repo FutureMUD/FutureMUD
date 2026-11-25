@@ -5,8 +5,13 @@ using Moq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.Form.Material;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Work.Projects;
+using MudSharp.Work.Projects.ConcreteTypes;
 using MudSharp.Work.Projects.Actions;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,6 +128,104 @@ public class ResourceDiscoveryProjectActionTests
 		fixture.Room.Verify(x => x.HandleRoomEcho("No workable sign is found.", RoomLayer.InTrees), Times.Once);
 	}
 
+	[TestMethod]
+	[DoNotParallelize]
+	[DataRow("success", false, 2, 1)]
+	[DataRow("barren", false, 2, 0)]
+	[DataRow("duplicate", false, 2, 0)]
+	[DataRow("success", true, null, 1)]
+	[DataRow("barren", true, null, 0)]
+	[DataRow("duplicate", true, null, 0)]
+	[DataRow("barren", true, 0, 1)]
+	[DataRow("barren", false, null, 1)]
+	[DataRow("sample-first", false, 2, 0)]
+	public void CompletePhaseActions_GatesOnlyTheMatchingDiscoverySample(
+		string outcome, bool stockProject, int? markerId, int expectedCommodityCreations)
+	{
+		var fixture = CreateConfiguredFixture();
+		if (outcome == "barren")
+		{
+			fixture.Room.Setup(x => x.IsA(fixture.RequiredTag.Object)).Returns(false);
+		}
+		else if (outcome == "duplicate")
+		{
+			var existingMarker = new Mock<IGameItem>();
+			existingMarker.Setup(x => x.IsA(fixture.DuplicateTag.Object)).Returns(true);
+			fixture.Room.SetupGet(x => x.GameItems).Returns([existingMarker.Object]);
+		}
+
+		fixture.OutputPrototype.Setup(x => x.CreateNew(fixture.Owner.Object)).Returns(() =>
+		{
+			var marker = new Mock<IGameItem>();
+			marker.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+			marker.SetupGet(x => x.Prototype).Returns(fixture.OutputPrototype.Object);
+			return marker.Object;
+		});
+		var sample = CreateSample(fixture, markerId, out var commodityPrototype, out var commodityItem);
+		if (outcome == "sample-first")
+		{
+			sample.SortOrder = 0;
+		}
+
+		var phase = new ProjectPhase(new MudSharp.Models.ProjectPhase { ProjectActions = { sample, CreateConfiguredModel() } },
+			fixture.Gameworld.Object, stockProject ? "Stock Primary Production: Prospect for Iron Deposits" : "Foothills Survey");
+		var output = phase.CompletionActions.OfType<CommodityOutputProjectAction>().Single();
+		var savedDefinition = (XElement)typeof(CommodityOutputProjectAction)
+			.GetMethod("SaveDefinition", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(output, [])!;
+		Assert.AreEqual(markerId ?? (stockProject ? 2 : (int?)null), (int?)savedDefinition.Element("RequiredDiscoveryMarkerPrototypeId"));
+
+		var project = CreateProject(fixture);
+		var unrelatedAction = new Mock<IProjectAction>();
+		unrelatedAction.SetupGet(x => x.Id).Returns(30);
+		unrelatedAction.SetupGet(x => x.SortOrder).Returns(3);
+		var unrelatedActionRan = false;
+		unrelatedAction.Setup(x => x.CompleteAction(project.Object)).Callback(() => unrelatedActionRan = true);
+		var originalCommodityPrototype = CommodityGameItemComponentProto.ItemPrototype;
+		CommodityGameItemComponentProto.ItemPrototype = commodityPrototype.Object;
+
+		try
+		{
+			ActiveProject.CompletePhaseActions(project.Object, phase.CompletionActions.Prepend(unrelatedAction.Object));
+		}
+		finally
+		{
+			CommodityGameItemComponentProto.ItemPrototype = originalCommodityPrototype;
+		}
+
+		fixture.Gameworld.Verify(x => x.Add(commodityItem.Object), Times.Exactly(expectedCommodityCreations));
+		Assert.IsTrue(unrelatedActionRan, "An unrelated phase action must run regardless of discovery outcome.");
+	}
+
+	private static ProjectActionModel CreateSample(ResourceDiscoveryFixture fixture, int? markerId,
+		out Mock<IGameItemProto> commodityPrototype, out Mock<IGameItem> commodityItem)
+	{
+		var material = new Mock<ISolid>();
+		material.SetupGet(x => x.Id).Returns(8);
+		material.SetupGet(x => x.Name).Returns("hematite");
+		material.SetupGet(x => x.FrameworkItemType).Returns("Solid");
+		material.SetupGet(x => x.ResidueColour).Returns(Telnet.Red);
+		var materials = new All<ISolid>();
+		materials.Add(material.Object);
+		fixture.Gameworld.SetupGet(x => x.Materials).Returns(materials);
+
+		var commodity = new Mock<ICommodity>();
+		commodityItem = new Mock<IGameItem>();
+		commodityItem.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		commodityItem.Setup(x => x.GetItemType<ICommodity>()).Returns(commodity.Object);
+		commodityPrototype = new Mock<IGameItemProto>();
+		commodityPrototype.Setup(x => x.CreateNew(null)).Returns(commodityItem.Object);
+		return new ProjectActionModel
+		{
+			Id = 25,
+			Name = "Sample Iron Ore",
+			Description = "Create an iron sample",
+			SortOrder = 2,
+			Type = "commodityoutput",
+			Definition = new XElement("Action", new XElement("MaterialId", 8), new XElement("Weight", 1500),
+				markerId.HasValue ? new XElement("RequiredDiscoveryMarkerPrototypeId", markerId) : null).ToString()
+		};
+	}
+
 	private static ProjectActionModel CreateConfiguredModel()
 	{
 		return new ProjectActionModel
@@ -162,6 +265,7 @@ public class ResourceDiscoveryProjectActionTests
 		var outputPrototype = MockFrameworkItem<IGameItemProto>(2, "hematite deposit");
 		outputPrototype.SetupGet(x => x.RevisionNumber).Returns(3);
 		outputPrototype.SetupGet(x => x.ShortDescription).Returns("a hematite ore vein");
+		outputPrototype.SetupGet(x => x.UniqueName).Returns("primary_production_hematite_deposit");
 
 		var tags = new All<ITag>();
 		tags.Add(requiredTag.Object);

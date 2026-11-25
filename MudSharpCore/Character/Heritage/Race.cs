@@ -2028,7 +2028,7 @@ public partial class Race : SaveableItem, IRace
 
     public double BiteYield(string yieldType)
     {
-        return _edibleForagableYields.First(x => x.YieldType.EqualTo(yieldType)).YieldPerBite;
+        return EdibleForagableYields.First(x => x.YieldType.EqualTo(yieldType)).YieldPerBite;
     }
 
     public string EatCorpseEmoteText { get; set; }

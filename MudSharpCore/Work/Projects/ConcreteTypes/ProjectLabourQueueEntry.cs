@@ -191,6 +191,11 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 		}
 
 		var project = ResolveProject();
+		if (project is not null && IsClaimedBy(character) && character.CurrentProject.Project == project)
+		{
+			return ProjectLabourQueueStatus.Claimed;
+		}
+
 		if (project is null)
 		{
 			if (EntryType == ProjectLabourQueueEntryType.JoinActiveProject)

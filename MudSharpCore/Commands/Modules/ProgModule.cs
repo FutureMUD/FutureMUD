@@ -1953,8 +1953,8 @@ The syntax for this command is as follows:
 	#3hook prog <hook> <prog>#0 - changes or toggles the prog payload of a hook
 	#3hook command <hook> <command>#0 - changes the command for a command triggered hook
 	#3hook conditional <hook> [on|off]#0 - lets boolean input progs decide handling; command * receives all original input
-	#3hook install <hook> <target>#0 - installs a hook on a target
-	#3hook remove <hook> <target>#0 - removes a hook on a target
+	#3hook install <target> <hook>#0 - installs a hook on a target
+	#3hook remove <target> <hook>#0 - removes a hook on a target
 	#3hook defaults#0 - shows all default hooks
 	#3hook adddefault <perceivable type> <hook> <filter prog>#0 - adds a default hook
 	#3hook remdefault <perceivable type> <hook> <filter prog>#0 - removes a default hook

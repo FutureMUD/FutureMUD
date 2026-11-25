@@ -115,6 +115,7 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
         Craft = rhs.Craft;
         _phase = rhs.Phase;
         _checkOutcome = rhs._checkOutcome;
+        _hasFailed = rhs._hasFailed;
         foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> input in rhs.ConsumedInputs)
         {
             ICraftInputData data = input.Key.LoadDataFromXml(input.Value.Data.SaveToXml(), Gameworld);
@@ -151,6 +152,11 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
         {
             _checkOutcome = (Outcome)int.Parse(element.Value);
         }
+
+        XElement failedElement = root.Element("HasFailed");
+        _hasFailed = failedElement != null
+            ? bool.Parse(failedElement.Value)
+            : _checkOutcome != Outcome.NotTested && _checkOutcome != Outcome.None && Craft.FailThreshold >= _checkOutcome;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -169,6 +175,7 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
             new XElement("CraftRevision", Craft.RevisionNumber),
             new XElement("Phase", Phase),
             new XElement("CheckOutcome", (int)CheckOutcome),
+            new XElement("HasFailed", HasFailed),
             new XElement("Consumed",
                 from item in ConsumedInputs
                 select new XElement("Input",
@@ -274,6 +281,17 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
             }
             else
             {
+                if (!HasFailed)
+                {
+                    foreach (KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> input in ConsumedInputs)
+                    {
+                        if (input.Key is ICraftInputOnSuccessfulCompletion completionInput)
+                        {
+                            completionInput.CompleteInput(input.Value.Input, input.Value.Data);
+                        }
+                    }
+                }
+
                 ReleaseItems(effect.CharacterOwner.Location, effect.CharacterOwner.RoomLayer);
                 HasFinished = true;
                 Craft.OnUseProgComplete?.Execute(effect.CharacterOwner);

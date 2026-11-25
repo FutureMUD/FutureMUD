@@ -6,8 +6,11 @@ namespace MudSharp.Work.Projects.ConcreteTypes;
 
 public class ActiveLocalProject : ActiveProject, ILocalProject
 {
-    public ActiveLocalProject(IProject project, ICharacter owner) : base(project)
+    private readonly Models.AgricultureProjectContext _initialFieldContext;
+
+    public ActiveLocalProject(IProject project, ICharacter owner, Models.AgricultureProjectContext fieldContext = null) : base(project)
     {
+        _initialFieldContext = fieldContext;
         _characterOwner = owner.Identity as ICharacter ?? owner;
         _characterOwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
         Location = owner.Location;
@@ -84,21 +87,18 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
         _activeLabour.Clear();
     }
 
-    private bool CheckForProjectCompletion()
+    private bool CheckForProjectCompletion(IEnumerable<ICharacter> releasedWorkers)
     {
         if (AreCurrentPhaseCompletionRequirementsMet())
         {
-            foreach (IProjectAction action in OrderedCompletionActions())
-            {
-                action.CompleteAction(this);
-            }
+            CompletePhaseActions(this, CurrentPhase.CompletionActions);
 
             IProjectPhase nextPhase =
                 ProjectDefinition.Phases.ElementAtOrDefault(ProjectDefinition.Phases.ToList().IndexOf(CurrentPhase) +
                                                             1);
             if (nextPhase != null)
             {
-				var phaseWorkers = _activeLabour.Select(x => x.Character).DistinctBy(x => x.InstanceId).ToList();
+				var phaseWorkers = _activeLabour.Select(x => x.Character).Concat(releasedWorkers).DistinctBy(x => x.InstanceId).ToList();
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
@@ -112,13 +112,13 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
                 Changed = true;
 				HandleAtProjectSite(
                     $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has entered the {CurrentPhase.Name.ColourBold(Telnet.White)} phase.");
-				TryJoinQueuedProjectLabourFor(CharactersAtProjectSite());
+				TryJoinQueuedProjectLabourFor(CharactersAtProjectSite().Concat(phaseWorkers));
                 return true;
             }
 
 			var locationCharacters = CharactersAtProjectSite();
 			var workers = _activeLabour.Select(x => x.Character).DistinctBy(x => x.InstanceId).ToList();
-			var queueParticipants = workers.Append(CharacterOwner).DistinctBy(x => x.InstanceId).ToList();
+			var queueParticipants = workers.Concat(releasedWorkers).Append(CharacterOwner).DistinctBy(x => x.InstanceId).ToList();
 			HandleAtProjectSite(
                 $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has been completed.");
             ProjectDefinition.OnFinishProg?.Execute(this);
@@ -145,7 +145,8 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
             _labourProgress[labour] = labour.TotalProgressRequired;
 			HandleAtProjectSite(
                 $"The {labour.Name.ColourValue()} labour requirement of the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project is now complete.");
-            foreach ((ICharacter ch, IProjectLabourRequirement _) in _activeLabour.Where(x => x.Labour == labour))
+            var releasedWorkers = _activeLabour.Where(x => x.Labour == labour).Select(x => x.Character).ToList();
+            foreach (var ch in releasedWorkers)
             {
                 ch.OutputHandler.Send(
                     $"You have finished your work on the {labour.Name.ColourValue()} task of the {ProjectDefinition.Name.Colour(Telnet.Cyan)} project in {Location.HowSeen(ch)}.");
@@ -153,10 +154,10 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
             }
 
             _activeLabour.RemoveAll(x => x.Labour == labour);
-            var changedProjectState = CheckForProjectCompletion();
+            var changedProjectState = CheckForProjectCompletion(releasedWorkers);
             if (!changedProjectState)
             {
-				TryJoinQueuedProjectLabourFor(CharactersAtProjectSite());
+				TryJoinQueuedProjectLabourFor(CharactersAtProjectSite().Concat(releasedWorkers));
             }
 
             return changedProjectState;
@@ -174,7 +175,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
             _materialProgress[material] = material.QuantityRequired;
 			HandleAtProjectSite(
                 $"The requirement for {material.Name.ColourValue()} with the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project is now complete.");
-            CheckForProjectCompletion();
+            CheckForProjectCompletion([]);
         }
     }
 
@@ -186,13 +187,16 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 			return;
 		}
 
-        actor.CurrentProject.Project?.Leave(actor);
-        _activeLabour.Add((actor, labour));
-        actor.CurrentProject = (this, labour);
+        var changingRole = actor.CurrentProject.Project == this;
+        AssignLabour(actor, labour);
         actor.OutputHandler.Handle(new EmoteOutput(
             new Emote(
                 $"@ begin|begins working on the {labour.Name.ColourValue()} task of the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project.",
                 actor, actor), flags: OutputFlags.SuppressObscured));
+        if (changingRole)
+        {
+            TryJoinQueuedProjectLabourFor(CharactersAtProjectSite());
+        }
     }
 
     public override void Leave(ICharacter actor)
@@ -205,31 +209,11 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 		TryJoinQueuedProjectLabourFor(CharactersAtProjectSite().Where(x => x != actor).ToList());
     }
 
-	public override void DoProjectsTick()
-	{
-		foreach (var worker in _activeLabour
-			         .Where(x => !IsAtProjectSite(x.Character))
-			         .ToList())
-		{
-			_activeLabour.Remove(worker);
-			worker.Character.ReleaseQueuedProjectLabourClaim(this);
-			if (worker.Character.CurrentProject.Project == this)
-			{
-				worker.Character.CurrentProject = (null, null);
-			}
-
-			worker.Character.OutputHandler.Send(
-				$"You stop working on the {worker.Labour.Name.ColourName()} task because you have moved away from the local project.");
-			worker.Character.TryJoinQueuedProjectLabour();
-		}
-
-		base.DoProjectsTick();
-	}
-
     protected override void DatabaseInsert(MudSharp.Models.ActiveProject project)
     {
         project.CharacterId = _characterOwnerId;
         project.RoomId = Location?.Id;
+        project.AgricultureProjectContext = _initialFieldContext;
 		project.RoomLayer = (int)RoomLayer;
 		project.RoutePosition = RoutePositionMetres.HasValue
 			? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)

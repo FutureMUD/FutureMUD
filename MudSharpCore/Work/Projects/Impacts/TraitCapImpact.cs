@@ -27,6 +27,13 @@ public class TraitCapImpact : BaseImpact, ILabourImpactTraitCaps
 
     public double TraitCapChange { get; protected set; }
 
+    internal static double TotalFor(ICharacter actor, ITraitDefinition trait)
+    {
+        return actor?.CurrentProject.Labour?.LabourImpacts.OfType<ILabourImpactTraitCaps>()
+                   .Where(impact => impact.Applies(actor))
+                   .Sum(impact => impact.EffectOnTrait(trait)) ?? 0.0;
+    }
+
     public double EffectOnTrait(ITraitDefinition trait)
     {
         if (Trait != trait)

@@ -5,7 +5,7 @@ using MudSharp.PerceptionEngine.Lists;
 
 namespace MudSharp.Work.Crafts.Inputs;
 
-public class ConditionRepairInput : BaseInput
+public class ConditionRepairInput : BaseInput, ICraftInputOnSuccessfulCompletion
 {
     public override string InputType => "ConditionRepair";
     public ITag TargetTag { get; set; }
@@ -192,15 +192,20 @@ public class ConditionRepairInput : BaseInput
 
     public override void UseInput(IPerceivable item, ICraftInputData data)
     {
-        ICraftInputDataWithItems icidwi = (ICraftInputDataWithItems)data;
-        foreach (IGameItem gameItem in icidwi.ConsumedItems)
+        CompleteInput(item, data);
+    }
+
+    public void CompleteInput(IPerceivable item, ICraftInputData data)
+    {
+        if (data is not NonDeletingItemInputData repairData || repairData.RepairApplied)
         {
-            double repairAmount = RepairAmount;
-            if (gameItem.Condition + repairAmount > 1.0)
-            {
-                repairAmount = 1.0 - gameItem.Condition;
-            }
-            gameItem.Condition += repairAmount;
+            return;
+        }
+
+        repairData.RepairApplied = true;
+        foreach (IGameItem gameItem in repairData.ConsumedItems)
+        {
+            gameItem.Condition = Math.Min(1.0, gameItem.Condition + RepairAmount);
         }
     }
 
@@ -220,6 +225,7 @@ public class ConditionRepairInput : BaseInput
     {
         public NonDeletingItemInputData(XElement root, IFuturemud gameworld)
         {
+            RepairApplied = bool.TryParse(root.Element("RepairApplied")?.Value, out var repairApplied) && repairApplied;
             foreach (XElement element in root.Element("ConsumedItems").Elements())
             {
                 IGameItem item = gameworld.TryGetItem(long.Parse(element.Value));
@@ -237,6 +243,7 @@ public class ConditionRepairInput : BaseInput
         public XElement SaveToXml()
         {
             return new XElement("Data",
+                new XElement("RepairApplied", RepairApplied),
                 new XElement("ConsumedItems",
                     from item in ConsumedItems
                     select new XElement("ConsumedItem", item.Id)
@@ -305,6 +312,8 @@ public class ConditionRepairInput : BaseInput
         public IPerceivable Perceivable => ConsumedGroup;
 
         public List<IGameItem> ConsumedItems { get; } = new();
+
+        public bool RepairApplied { get; set; }
 
         IEnumerable<IGameItem> ICraftInputDataWithItems.ConsumedItems => ConsumedItems;
 

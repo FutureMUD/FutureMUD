@@ -17,12 +17,19 @@ public class CommodityOutputProjectAction : BaseAction
 	private readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> _characteristics = new();
 	private long _materialId;
 	private long _tagId;
+	private long? _requiredDiscoveryMarkerPrototypeId;
+	private IGameItemProto? _requiredDiscoveryMarkerPrototype;
 
 	public CommodityOutputProjectAction(ProjectAction action, IFuturemud gameworld) : base(action, gameworld)
 	{
 		var root = XElement.Parse(action.Definition);
 		_materialId = GetLongElement(root, "MaterialId");
 		_tagId = GetLongElement(root, "TagId");
+		_requiredDiscoveryMarkerPrototypeId = (long?)root.Element("RequiredDiscoveryMarkerPrototypeId");
+		if (_requiredDiscoveryMarkerPrototypeId is > 0)
+		{
+			_requiredDiscoveryMarkerPrototype = Gameworld.ItemProtos.Get(_requiredDiscoveryMarkerPrototypeId.Value);
+		}
 		Material = Gameworld.Materials.Get(_materialId);
 		Tag = _tagId == 0 ? null : Gameworld.Tags.Get(_tagId);
 		Weight = GetDoubleElement(root, "Weight", 0.0);
@@ -62,6 +69,8 @@ public class CommodityOutputProjectAction : BaseAction
 	{
 		_materialId = rhs._materialId;
 		_tagId = rhs._tagId;
+		_requiredDiscoveryMarkerPrototypeId = rhs._requiredDiscoveryMarkerPrototypeId;
+		_requiredDiscoveryMarkerPrototype = rhs._requiredDiscoveryMarkerPrototype;
 		Material = rhs.Material;
 		Weight = rhs.Weight;
 		Tag = rhs.Tag;
@@ -91,6 +100,9 @@ public class CommodityOutputProjectAction : BaseAction
 			new XElement("MaterialId", Material?.Id ?? _materialId),
 			new XElement("Weight", Weight.ToString("R", System.Globalization.CultureInfo.InvariantCulture)),
 			new XElement("TagId", Tag?.Id ?? _tagId),
+			_requiredDiscoveryMarkerPrototypeId.HasValue
+				? new XElement("RequiredDiscoveryMarkerPrototypeId", _requiredDiscoveryMarkerPrototypeId)
+				: null,
 			new XElement("UseIndirectDescription", UseIndirectDescription),
 			new XElement("Echo", Echo ?? string.Empty),
 			new XElement("Characteristics",
@@ -105,6 +117,17 @@ public class CommodityOutputProjectAction : BaseAction
 
 	public override void CompleteAction(IActiveProject project)
 	{
+		CompleteAction(project, null);
+	}
+
+	internal void CompleteAction(IActiveProject project, ISet<long>? successfulResourceMarkers)
+	{
+		if (_requiredDiscoveryMarkerPrototypeId is > 0 &&
+		    successfulResourceMarkers?.Contains(_requiredDiscoveryMarkerPrototypeId.Value) != true)
+		{
+			return;
+		}
+
 		var (valid, _) = CanSubmit();
 		if (!valid || Material is null)
 		{
@@ -154,6 +177,32 @@ public class CommodityOutputProjectAction : BaseAction
 			roomLayer);
 	}
 
+	internal void RestoreLegacyStockDiscoveryRequirement(string projectName, IEnumerable<IProjectAction> phaseActions)
+	{
+		if (_requiredDiscoveryMarkerPrototypeId.HasValue)
+		{
+			return;
+		}
+
+		var expected = (projectName, Name) switch
+		{
+			("Stock Primary Production: Prospect for Iron Deposits", "Sample Iron Ore") => "primary_production_hematite_deposit",
+			("Stock Primary Production: Prospect for Tin Deposits", "Sample Tin Ore") => "primary_production_cassiterite_deposit",
+			("Stock Primary Production: Prospect for Copper Deposits", "Sample Copper Ore") => "primary_production_malachite_deposit",
+			("Stock Primary Production: Prospect for Lead And Silver Deposits", "Sample Lead Ore") => "primary_production_galena_deposit",
+			_ => null
+		};
+		if (expected is null)
+		{
+			return;
+		}
+
+		_requiredDiscoveryMarkerPrototype = phaseActions.OfType<ResourceDiscoveryProjectAction>()
+			.Select(action => action.OutputItemPrototype)
+			.FirstOrDefault(prototype => prototype?.UniqueName == expected);
+		_requiredDiscoveryMarkerPrototypeId = _requiredDiscoveryMarkerPrototype?.Id;
+	}
+
 	private static IRoom? ResolveProjectLocation(IActiveProject project)
 	{
 		return (project as MudSharp.Work.Projects.ConcreteTypes.ActiveProject)?.Location ?? project.CharacterOwner?.Location;
@@ -195,8 +244,12 @@ public class CommodityOutputProjectAction : BaseAction
 
 	public override string Show(ICharacter actor)
 	{
-		return
-			$"[{Name}] {DescribeOutput(actor)} - {Description}";
+		var discoveryText = _requiredDiscoveryMarkerPrototypeId == 0
+			? "; no discovery prerequisite"
+			: _requiredDiscoveryMarkerPrototype is not null
+				? $"; requires new discovery of {_requiredDiscoveryMarkerPrototype.ShortDescription.ColourName()}"
+				: string.Empty;
+		return $"[{Name}] {DescribeOutput(actor)}{discoveryText} - {Description}";
 	}
 
 	public override string ShowToPlayer(ICharacter actor)
@@ -239,6 +292,11 @@ public class CommodityOutputProjectAction : BaseAction
 			return (false, "The configured commodity output tag no longer exists.");
 		}
 
+		if (_requiredDiscoveryMarkerPrototypeId is not (null or 0) && _requiredDiscoveryMarkerPrototype is null)
+		{
+			return (false, "The configured resource discovery marker prototype no longer exists.");
+		}
+
 		return base.CanSubmit();
 	}
 
@@ -249,6 +307,7 @@ public class CommodityOutputProjectAction : BaseAction
 	#3tag <tag|none>#0 - sets or clears the commodity pile tag
 	#3indirect#0 - toggles indirect quantity descriptions
 	#3echo <text|none>#0 - sets or clears the completion echo
+	#3discovery <prototype|none>#0 - requires that a new resource marker be discovered first, or clears the prerequisite
 	#3characteristic <definition> <value|remove>#0 - sets or clears a fixed output commodity characteristic";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command, IProjectPhase phase)
@@ -268,6 +327,9 @@ public class CommodityOutputProjectAction : BaseAction
 				return BuildingCommandIndirect(actor);
 			case "echo":
 				return BuildingCommandEcho(actor, command);
+			case "discovery":
+			case "requiresdiscovery":
+				return BuildingCommandDiscovery(actor, command);
 			case "characteristic":
 			case "characteristics":
 			case "ch":
@@ -392,6 +454,38 @@ public class CommodityOutputProjectAction : BaseAction
 		Echo = echoText.SubstituteANSIColour().ProperSentences().Fullstop();
 		Changed = true;
 		actor.OutputHandler.Send($"This action will now echo: {Echo}");
+		return true;
+	}
+
+	private bool BuildingCommandDiscovery(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which resource marker prototype must be newly discovered first? Use NONE to clear the prerequisite.");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		if (text.Equals("none", StringComparison.OrdinalIgnoreCase))
+		{
+			_requiredDiscoveryMarkerPrototype = null;
+			_requiredDiscoveryMarkerPrototypeId = 0;
+			Changed = true;
+			actor.OutputHandler.Send("This commodity output will no longer require resource discovery.");
+			return true;
+		}
+
+		var prototype = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(text);
+		if (prototype is null)
+		{
+			actor.OutputHandler.Send($"There is no item prototype identified by {text.ColourCommand()}.");
+			return false;
+		}
+
+		_requiredDiscoveryMarkerPrototype = prototype;
+		_requiredDiscoveryMarkerPrototypeId = prototype.Id;
+		Changed = true;
+		actor.OutputHandler.Send($"This commodity output now requires a new discovery of {prototype.ShortDescription.ColourName()}.");
 		return true;
 	}
 

@@ -11,6 +11,8 @@ Baseline availability: **Enabled**. The entrypoint is [ChargenSeeder.cs](../../.
 
 Operator question IDs: `rpp`, `rppname`, `bp`, `class`, `subclass`, `role-first`, `attributemode`, `skillmode`, `merits`, `customdescs`. Exact accepted values, conditional visibility and defaults are defined in the linked `SeederQuestions`; the trace below explains the relevant choice path.
 
+Only race-first setups ask for `skillmode`. Role-first installs skill and knowledge skippers. The `merits` question accepts `neither` to skip player selection. Both paths use the simple characteristic picker, skip notes, and reserve interactive disfigurement selection for special applications. See the [character creation seeder guide](../../Characters/Character_Creation_Seeder.md#stock-answer-effects).
+
 Metadata prerequisite descriptions from [SeederMetadataRegistry](../../../DatabaseSeeder/SeederMetadataRegistry.cs):
 
 - The Core seeder must have created at least one account.

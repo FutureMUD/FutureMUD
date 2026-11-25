@@ -215,6 +215,36 @@ public class ChargenSeederTests
 	}
 
 	[TestMethod]
+	[DataRow("role", "neither", "QuirkSkipper", "SkillSkipper", "KnowledgeSkipper")]
+	[DataRow("race", "quirk", "QuirkPicker", "SkillPicker", "KnowledgePickerBySkill")]
+	[DataRow("race", "merit", "MeritPicker", "SkillPicker", "KnowledgePickerBySkill")]
+	public void SeedData_InstallsScreensForActiveAnswers(string order, string merits, string meritType, string skillType, string knowledgeType)
+	{
+		using var context = BuildContext();
+		SeedPrerequisites(context);
+		var seeder = new ChargenSeeder();
+		var answers = BuildAnswers(roleFirst: order, meritsMode: merits);
+		var questions = seeder.SeederQuestions.ToDictionary(x => x.Id);
+		Assert.IsTrue(questions["merits"].Validator(merits, context).Success);
+		Assert.AreEqual(order == "race", questions["skillmode"].Filter(context, answers));
+		if (order == "role") answers.Remove("skillmode");
+
+		seeder.SeedData(context, answers);
+		Assert.AreEqual(meritType, GetStage(context, ChargenStage.SelectMerits).ChargenType);
+		var skills = GetStage(context, ChargenStage.SelectSkills);
+		Assert.AreEqual(skillType, skills.ChargenType);
+		Assert.AreEqual("ChargenFreeSkills", XElement.Parse(skills.StageDefinition).Element("FreeSkillsProg")?.Value);
+		var knowledge = GetStage(context, ChargenStage.SelectKnowledges);
+		Assert.AreEqual(knowledgeType, knowledge.ChargenType);
+		Assert.AreEqual("ChargenFreeKnowledges", XElement.Parse(knowledge.StageDefinition).Element("FreeKnowledgesProg")?.Value);
+		var disfigurements = GetStage(context, ChargenStage.SelectDisfigurements);
+		Assert.AreEqual("DisfigurementSkipper", disfigurements.ChargenType);
+		Assert.IsTrue((bool)XElement.Parse(disfigurements.StageDefinition).Element("PickForSpecialApplications")!);
+		Assert.AreEqual("SimpleCharacteristicPicker", GetStage(context, ChargenStage.SelectCharacteristics).ChargenType);
+		Assert.AreEqual("NoteSkipper", GetStage(context, ChargenStage.SelectNotes).ChargenType);
+	}
+
+	[TestMethod]
 	public void ShouldSeedData_WithPrerequisitesAndNoChargenPackage_ReturnsReadyToInstall()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -288,6 +318,11 @@ public class ChargenSeederTests
 		];
 
 		seeder.SeedData(context, BuildAnswers(attributeMode: "order", skillMode: "picker", meritsMode: "merit", roleFirst: "race"));
+		var notes = GetStage(context, ChargenStage.SelectNotes);
+		notes.ChargenType = "NotePicker";
+		const string customNotes = "<Stage><Note Name='History'><Blurb>Your history</Blurb><Prog>AlwaysTrue</Prog></Note></Stage>";
+		notes.StageDefinition = customNotes;
+		context.SaveChanges();
 		seeder.SeedData(context, BuildAnswers(attributeMode: "points", skillMode: "boosts", meritsMode: "quirk", roleFirst: "role", rpp: "yes"));
 
 		foreach (ChargenStage stage in requiredStages)
@@ -300,6 +335,9 @@ public class ChargenSeederTests
 			x.Type == (int)MudSharp.CharacterCreation.Roles.ChargenRoleType.StartingLocation &&
 			x.Name == "Default Starting Location"));
 		Assert.AreEqual(7L, context.ChargenRoles.Single(x => x.Name == "Default Starting Location").PosterId);
+		Assert.AreEqual("NotePicker", GetStage(context, ChargenStage.SelectNotes).ChargenType);
+		Assert.AreEqual(customNotes, GetStage(context, ChargenStage.SelectNotes).StageDefinition);
+		Assert.AreEqual("SkillPicker", GetStage(context, ChargenStage.SelectSkills).ChargenType);
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 	}
 
@@ -412,5 +450,13 @@ public class ChargenSeederTests
 		XElement skillDefinition = XElement.Parse(GetStage(context, ChargenStage.SelectSkills).StageDefinition);
 		Assert.AreEqual(rppResource.Id.ToString(), skillDefinition.Element("BoostResource")?.Value);
 		Assert.AreEqual("1", skillDefinition.Element("FreeBoostResource")?.Value);
+
+		context.FutureProgs.Remove(context.FutureProgs.Single(x => x.FunctionName == "ChargenSkillBoostCost"));
+		context.SaveChanges();
+		var roleFirst = BuildAnswers(roleFirst: "role", rpp: "yes");
+		roleFirst.Remove("skillmode");
+		seeder.SeedData(context, roleFirst);
+		Assert.AreEqual("SkillCostPicker", GetStage(context, ChargenStage.SelectSkills).ChargenType);
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 	}
 }

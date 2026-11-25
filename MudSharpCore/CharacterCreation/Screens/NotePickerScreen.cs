@@ -12,6 +12,13 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
     {
     }
 
+	protected NotePickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard)
+		: base(gameworld, storyboard)
+	{
+		NotesBlurbs = storyboard is NotePickerScreenStoryboard picker ? [.. picker.NotesBlurbs] : [];
+		SaveAfterTypeChange();
+	}
+
     public NotePickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
         : base(dbitem, gameworld)
     {
@@ -315,7 +322,8 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
     {
         ChargenStoryboard.RegisterFactory(ChargenStage.SelectNotes,
             new ChargenScreenStoryboardFactory("NotePicker",
-                (game, dbitem) => new NotePickerScreenStoryboard(game, dbitem)),
+                (game, dbitem) => new NotePickerScreenStoryboard(game, dbitem),
+				(game, other) => new NotePickerScreenStoryboard(game, other)),
             "NotePicker",
             "Enter text notes about your character",
             ((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))

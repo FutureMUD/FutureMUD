@@ -148,6 +148,8 @@ Consider these two examples:
 
 If you're unhappy with the decision you can change it later but it does influence how you ""restrict"" options (e.g. what progs you need to write to filter available choices).
 
+Role-first setup also skips open skill and knowledge selection. Characters receive their configured grants.
+
 With all this in mind, do you want to use ""role first"" or ""race first"" ordering?
 
 Please answer #3role#F or #3race#f: ",
@@ -177,7 +179,7 @@ Please answer #3order#f or #3points#f: ",
 #9Note: The ""Boosts"" mode works best if you selected either a Karma/RPP option or BP. If you choose boosts without any chargen resource, the seeder will fall back to the simpler picker so chargen remains usable.#0
 
 Please answer #3picker#f or #3boosts#f: ",
-                (context, answers) => { return true; },
+                (context, answers) => answers["role-first"].EqualTo("race"),
                 (answer, context) =>
                 {
                     if (!answer.EqualToAny("picker", "boosts")) { return (false, "Invalid selection."); } return (true, string.Empty);
@@ -193,13 +195,13 @@ If you choose the #3merit#F option they will first pick the number of merits tha
 
 If you choose the #3quirk#f option all the options are presented as quirks, they are not required to balance them, and you have some alternate form of balancing them (like making them cost build points or only offering positive choices).
 
-You can choose either #3merit#F to use the balanced merits/flaws system or choose #3quirk#f to use the unified approach.
+Choose #3neither#F to skip player selection of merits and flaws.
 
 Please answer with your choice: ",
                 (context, answers) => true,
                 (answer, context) =>
                 {
-                    if (!answer.EqualToAny("merit", "quirk")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                    if (!answer.EqualToAny("merit", "quirk", "neither")) { return (false, "Invalid selection."); } return (true, string.Empty);
                 }),
             ("customdescs",
                 @"#DCustom Descriptions in Chargen#F
@@ -610,27 +612,6 @@ return @knowledges",
                 (ProgVariableTypes.Trait, "trait"));
         }
 
-        if (questionAnswers["skillmode"].EqualTo("boosts"))
-        {
-            EnsureChargenProg(
-                "ChargenSkillBoostCost",
-                "Skills",
-                ProgVariableTypes.Number,
-                "Determines the base cost of boosts to individual skills",
-                buildPointResource is not null
-                    ? @"// This is just an example of how you might set this up. The limit is your own imagination.
-if (@skill.Group == ""Combat"")
-  return 15
-end if
-if (@skill.Group == ""Language"")
-  return 5
-end if
-return 10"
-                    : @"return 1",
-                (ProgVariableTypes.Toon, "ch"),
-                (ProgVariableTypes.Trait, "skill"));
-        }
-
         context.SaveChanges();
 		ChargenFreeKnowledgeProgReconcileResult freeKnowledgeResult =
 			ChargenFreeKnowledgeProgReconciler.Reconcile(context);
@@ -646,7 +627,13 @@ return 10"
         Dictionary<ChargenStage, ChargenScreenStoryboard> stages = new();
         CollectionDictionary<ChargenScreenStoryboard, ChargenStage> stageDependencies = new();
         int order = 0;
-        bool requestedSkillBoostMode = questionAnswers["skillmode"].EqualTo("boosts");
+        bool roleFirst = questionAnswers["role-first"].EqualTo("role");
+        bool requestedSkillBoostMode = !roleFirst && (questionAnswers["skillmode"].ToLowerInvariant() switch
+        {
+            "boosts" => true,
+            "picker" => false,
+            _ => throw new ArgumentOutOfRangeException("Unsupported skill mode.")
+        });
         bool useSkillBoostMode = requestedSkillBoostMode && hasChargenSpendResource;
 
         if (requestedSkillBoostMode && !useSkillBoostMode)
@@ -721,7 +708,7 @@ return 10"
         bool usingNonbinary = allowedGenders.Contains("4", StringComparison.OrdinalIgnoreCase) ||
                               allowedGenders.Contains("nonbinary", StringComparison.OrdinalIgnoreCase);
 
-        if (questionAnswers["role-first"].EqualToAny("role"))
+        if (roleFirst)
         {
             AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRole,
                 BuildSpecialApplicationBlurb());
@@ -776,8 +763,8 @@ return 10"
             ChargenStage.SelectHeight);
         AddStage(ChargenStage.SelectName, "NamePicker", ChargenStage.SelectDisfigurements, "<Screen></Screen>",
             ChargenStage.SelectCulture);
-        AddStage(ChargenStage.SelectDisfigurements, "DisfigurementPicker", ChargenStage.SelectMerits,
-            @"<Screen><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit a proposal to your builders or staff team.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit a proposal to your builders or staff team.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game 
+        AddStage(ChargenStage.SelectDisfigurements, "DisfigurementSkipper", ChargenStage.SelectMerits,
+            @"<Screen><PickForSpecialApplications>true</PickForSpecialApplications><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit a proposal to your builders or staff team.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit a proposal to your builders or staff team.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game
 	<Prosthetic>
 			<Item>ITEM ID</Item>
 			<Costs><Cost resource=""RESOURCE ID"" amount=""RESOURCE AMOUNT""/></Costs>
@@ -790,6 +777,11 @@ return 10"
             AddStage(ChargenStage.SelectMerits, "MeritPicker", ChargenStage.SelectAttributes,
                 "<Screen><MeritSelectionBlurb><![CDATA[In addition to picking attributes and skills, you have the opportunity to pick from a number of merits and flaws. These traits can help flesh out your character's natural advantages and disadvantages, and most have coded benefits and penalties attributed to them. Merits are positive traits; usually they boost a stat or skill, or aid your character in any number of beneficial ways: increased strength, resistance to poisons, attractiveness, etc. Flaws, on the other hand, are typically negative traits that are, in some way, harmful to your character: allergies, cowardice, being weak-willed, among others. Picking merits and flaws is purely optional; if you don't want to, you may select none.]]></MeritSelectionBlurb><SkipScreenIfNoChoices>true</SkipScreenIfNoChoices><ForceBalanceOfMeritsAndFlaws>true</ForceBalanceOfMeritsAndFlaws><MaximumMeritsAndFlaws>4</MaximumMeritsAndFlaws></Screen>",
                 ChargenStage.SelectDisfigurements);
+        }
+        else if (questionAnswers["merits"].EqualTo("neither"))
+        {
+            AddStage(ChargenStage.SelectMerits, "QuirkSkipper", ChargenStage.SelectAttributes,
+                "<Screen />", ChargenStage.SelectDisfigurements);
         }
         else
         {
@@ -818,38 +810,54 @@ return 10"
                 throw new ArgumentOutOfRangeException("Unsupported attribute mode.");
         }
 
-        switch (questionAnswers["skillmode"].ToLowerInvariant())
+        if (roleFirst)
         {
-            case "picker":
-                AddStage(ChargenStage.SelectSkills, "SkillPicker", ChargenStage.SelectAccents,
-                    "<Screen><Blurb><![CDATA[You may now select the skills that your character begins the game with. You can also learn new skills in game.]]></Blurb><NumberOfSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>",
-                    ChargenStage.SelectAttributes);
-                break;
-            case "boosts":
-                if (useSkillBoostMode)
-                {
-                    AddStage(ChargenStage.SelectSkills, "SkillCostPicker", ChargenStage.SelectAccents,
-                        BuildSkillCostPickerDefinition(),
-                        ChargenStage.SelectAttributes);
-                }
-                else
-                {
-                    AddStage(ChargenStage.SelectSkills, "SkillPicker", ChargenStage.SelectAccents,
-                        "<Screen><Blurb><![CDATA[You may now select the skills that your character begins the game with. You can also learn new skills in game.]]></Blurb><NumberOfSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>",
-                        ChargenStage.SelectAttributes);
-                }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException("Unsupported skill mode.");
+            AddStage(ChargenStage.SelectSkills, "SkillSkipper", ChargenStage.SelectAccents,
+                "<Screen><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>", ChargenStage.SelectAttributes);
+        }
+        else if (useSkillBoostMode)
+        {
+            AddStage(ChargenStage.SelectSkills, "SkillCostPicker", ChargenStage.SelectAccents,
+                BuildSkillCostPickerDefinition(), ChargenStage.SelectAttributes);
+        }
+        else
+        {
+            AddStage(ChargenStage.SelectSkills, "SkillPicker", ChargenStage.SelectAccents,
+                "<Screen><Blurb><![CDATA[You may now select the skills that your character begins the game with. You can also learn new skills in game.]]></Blurb><NumberOfSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>",
+                ChargenStage.SelectAttributes);
+        }
+
+        // A rerun can retain a paid skill picker from a previous installation.
+        if (requestedSkillBoostMode || (stages[ChargenStage.SelectSkills].ChargenType.EqualTo("SkillCostPicker") &&
+                                       !context.FutureProgs.Any(x => x.FunctionName == "ChargenSkillBoostCost")))
+        {
+            EnsureChargenProg(
+                "ChargenSkillBoostCost",
+                "Skills",
+                ProgVariableTypes.Number,
+                "Determines the base cost of boosts to individual skills",
+                buildPointResource is not null
+                    ? @"// This is just an example of how you might set this up. The limit is your own imagination.
+if (@skill.Group == ""Combat"")
+  return 15
+end if
+if (@skill.Group == ""Language"")
+  return 5
+end if
+return 10"
+                    : @"return 1",
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "skill"));
         }
 
         AddStage(ChargenStage.SelectAccents, "AccentPicker", ChargenStage.SelectKnowledges,
             BuildAccentPickerDefinition(),
             ChargenStage.SelectSkills);
-        AddStage(ChargenStage.SelectKnowledges, "KnowledgePickerBySkill", ChargenStage.SelectCharacteristics,
+        AddStage(ChargenStage.SelectKnowledges, roleFirst ? "KnowledgeSkipper" : "KnowledgePickerBySkill", ChargenStage.SelectCharacteristics,
+            roleFirst ? "<Screen><FreeKnowledgesProg>ChargenFreeKnowledges</FreeKnowledgesProg></Screen>" :
             "<Screen><Blurb><![CDATA[Knowledges are supplements to skills that represent specific areas of training that you have. Generally speaking, knowledges can be taught and learned in game, and they gate things like crafts and surgical procedures.]]></Blurb><NumberOfPicksProg>ChargenNumberOfKnowledgePicks</NumberOfPicksProg><FreeKnowledgesProg>ChargenFreeKnowledges</FreeKnowledgesProg></Screen>",
             ChargenStage.SelectSkills);
-        AddStage(ChargenStage.SelectCharacteristics, "CharacteristicPicker", ChargenStage.SelectDescription,
+        AddStage(ChargenStage.SelectCharacteristics, "SimpleCharacteristicPicker", ChargenStage.SelectDescription,
             "<Screen><Blurb> \u00a0 \u00a0 \u00a0<![CDATA[Characteristics are a way to categorise the various aspects of your character's appearance, for example eye colour, or hair style. Your characteristics that are chosen at this stage of the character creation process (with the exception of hair style / length) represent your natural, intrinsic values for these characteristics, but can be changed, hidden or altered later in game by items, skills and effects.]]> \u00a0 \u00a0</Blurb></Screen>",
             ChargenStage.SelectMerits);
         AddStage(ChargenStage.SelectDescription, "DescriptionPicker", ChargenStage.SelectStartingLocation,
@@ -879,9 +887,7 @@ return 10"
         AddStage(ChargenStage.SelectStartingLocation, "StartingLocationPicker", ChargenStage.SelectNotes,
             @$"<Screen><Blurb><![CDATA[You must now select a starting location for your character. This reflects where your character will begin once in the game, but does not mean you are restricted to only that area.]]>    </Blurb>   <Locations>     <Location>       <Name>Guest Lounge</Name>       <Blurb><![CDATA[As you have not yet set up any other starting areas, the default starting area will be the guest lounge.]]></Blurb>       <Location>1</Location>       <Role>{role.Id}</Role><OnCommenceProg>0</OnCommenceProg>     </Location></Locations>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
             ChargenStage.SelectRole);
-        AddStage(ChargenStage.SelectNotes, "NotePicker", ChargenStage.Submit,
-            "<Stage><Note Name=\"Background Comment\">\u00a0 \u00a0 \u00a0<Blurb><![CDATA[Please give a brief overview of your character's background and/or personality, in order to give admin storytellers something to work with roleplaying with you. Typically we would expect a minimum of four sentences or dot points.]]></Blurb>\u00a0 \u00a0 \u00a0<Prog>AlwaysTrue</Prog>\u00a0 \u00a0</Note></Stage>",
-            ChargenStage.SelectSkills);
+        AddStage(ChargenStage.SelectNotes, "NoteSkipper", ChargenStage.Submit, "<Screen />", ChargenStage.SelectSkills);
         AddStage(ChargenStage.Submit, "Submit", ChargenStage.None, "<Stage></Stage>");
         AddStage(ChargenStage.Menu, "Menu", ChargenStage.None, "<Stage></Stage>");
         context.SaveChanges();

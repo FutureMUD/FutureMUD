@@ -202,16 +202,23 @@ public partial class Chargen : FrameworkItem, IChargen
                              SelectedHeight > 0.0 &&
                              SelectedWeight > 0.0 &&
                              SelectedAttributes.Any() &&
-                             SelectedSkills.Any() &&
+                             HasRequiredSkills(this) &&
 							 (SelectedAccents.Any() || !Gameworld.Languages.Any(x => SelectedSkills.Contains(x.LinkedTrait) && x.Accents.Any())) &&
                              HasRequiredCharacteristics(this) &&
-                             SelectedNotes.Any() &&
+                             HasRequiredNotes(this) &&
                              SelectedStartingLocation != null &&
                              Handedness != Alignment.Irrelevant;
 
     internal static bool HasRequiredCharacteristics(IChargen chargen) =>
         chargen.SelectedCharacteristics.Any() ||
         !chargen.SelectedRace.Characteristics(chargen.SelectedGender).Any();
+
+	internal static bool HasRequiredSkills(IChargen chargen) =>
+		chargen.SelectedSkills.Any() || (chargen.CompletedStages.Contains(ChargenStage.SelectSkills) &&
+			chargen.Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectSkills] is SkillSkipperScreenStoryboard);
+
+	internal static bool HasRequiredNotes(IChargen chargen) =>
+		chargen.SelectedNotes.Any() || chargen.CompletedStages.Contains(ChargenStage.SelectNotes);
 
     public IEnumerable<Tuple<string, string>> PriorRejections => _priorRejections;
 

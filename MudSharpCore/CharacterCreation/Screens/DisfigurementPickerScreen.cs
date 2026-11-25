@@ -14,20 +14,16 @@ namespace MudSharp.CharacterCreation.Screens;
 
 public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 {
-    private DisfigurementPickerScreenStoryboard()
+    protected DisfigurementPickerScreenStoryboard()
     {
     }
 
-	private DisfigurementPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard)
+	protected DisfigurementPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard)
 		: base(gameworld, storyboard)
 	{
-		ScarBlurb = "Select your character's scars.";
-		TattooBlurb = "Select your character's tattoos.";
-		BodypartsBlurb = "Select any missing bodyparts.";
-		ProstheticsBlurb = "Select your character's prostheses.";
+		SetDefaultBlurbs();
 		PickableProstheses = [];
 		SkipIfSimpleApplication = true;
-		SaveAfterTypeChange();
 	}
 
     public DisfigurementPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem) : base(
@@ -146,7 +142,17 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
             throw new ApplicationException(
                 "DisfigurementPicker in ChargenStoryboard permitted the selection of prosthetics but did not define a ProstheticsBlurb.");
         }
+
+		SetDefaultBlurbs();
     }
+
+	private void SetDefaultBlurbs()
+	{
+		ScarBlurb ??= "Select your character's scars.";
+		TattooBlurb ??= "Select your character's tattoos.";
+		BodypartsBlurb ??= "Select any missing bodyparts.";
+		ProstheticsBlurb ??= "Select your character's prostheses.";
+	}
 
     protected override string StoryboardName => "DisfigurementPicker";
 
@@ -166,10 +172,12 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
     internal List<ChargenProsthesisSelection> PickableProstheses { get; }
 
     public override string HelpText => $@"{BaseHelpText}
-	#3allowtattoos#0 - toggles tattoos being selectable
+	#3skipsimple#0 - skips this screen if ""simple"" mode is selected
+	{PickerHelpText}";
+
+	protected const string PickerHelpText = @"#3allowtattoos#0 - toggles tattoos being selectable
 	#3allowscars#0 - toggles scars being selectable
 	#3allowmissing#0 - toggles missing bodyparts and prosthetics being selectable
-	#3skipsimple#0 - skips this screen if ""simple"" mode is selected
 	#3tattooblurb#0 - drops into an editor to edit the tattoo blurb
 	#3scarblurb#0 - drops into an editor to edit the scar blurb
 	#3missingblurb#0 - drops into an editor to edit the missing bodyparts blurb
@@ -182,7 +190,13 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
-        switch (command.PopForSwitch())
+		var option = command.PopForSwitch();
+		return option == "skipsimple" ? BuildingCommandSkipSimple(actor) : BuildingCommandPicker(actor, command, option);
+	}
+
+	protected bool BuildingCommandPicker(ICharacter actor, StringStack command, string option)
+	{
+        switch (option)
         {
             case "allowscars":
                 return BuildingCommandAllowScars(actor);
@@ -203,8 +217,6 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                 return BuildingCommandProstheticBlurb(actor);
             case "prosthetic":
                 return BuildingCommandProsthetic(actor, command);
-            case "skipsimple":
-                return BuildingCommandSkipSimple(actor);
         }
 
         return BuildingCommandFallback(actor, command.GetUndo());
@@ -595,9 +607,12 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
     #region Overrides of ChargenScreenStoryboard
 
     /// <inheritdoc />
-    protected override string SaveDefinition()
+    protected override string SaveDefinition() => PickerDefinition().ToString();
+
+    protected XElement PickerDefinition()
     {
         return new XElement("Definition",
+            new XElement("SkipIfSimpleApplication", SkipIfSimpleApplication),
             new XElement("ScarBlurb", new XCData(ScarBlurb)),
             new XElement("TattooBlurb", new XCData(TattooBlurb)),
             new XElement("BodypartsBlurb", new XCData(BodypartsBlurb)),
@@ -617,7 +632,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                     new XElement("CanSelectProg", item.CanSelectProg?.Id ?? 0)
                 )
             )
-        ).ToString();
+        );
     }
 
     #endregion
@@ -627,7 +642,12 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
         ChargenStoryboard.RegisterFactory(ChargenStage.SelectDisfigurements,
             new ChargenScreenStoryboardFactory("DisfigurementPicker",
                 (game, dbitem) => new DisfigurementPickerScreenStoryboard(game, dbitem),
-				(game, other) => new DisfigurementPickerScreenStoryboard(game, other)),
+				(game, other) =>
+				{
+					var picker = new DisfigurementPickerScreenStoryboard(game, other);
+					picker.SaveAfterTypeChange();
+					return picker;
+				}),
             "DisfigurementPicker",
             "Pick tattoos, scars, missing bodyparts and prosthetics",
             ((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))
@@ -648,6 +668,12 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                       .Wrap(voyeur.InnerLineFormatLength).ColourCommand());
         sb.AppendLine();
         sb.AppendLine($"Skip if Simple Application: {SkipIfSimpleApplication.ToColouredString()}");
+		AppendPickerSettings(sb, voyeur);
+		return sb.ToString();
+	}
+
+	protected void AppendPickerSettings(StringBuilder sb, ICharacter voyeur)
+	{
         sb.AppendLine($"Allow Picking Tattoos: {AllowPickingTattoos.ToColouredString()}");
         sb.AppendLine($"Allow Picking Scars: {AllowPickingScars.ToColouredString()}");
         sb.AppendLine($"Allow Picking Severs/Prosthetics: {AllowPickingMissingBodyparts.ToColouredString()}");
@@ -691,7 +717,6 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
             },
             voyeur
         ));
-        return sb.ToString();
     }
 
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)

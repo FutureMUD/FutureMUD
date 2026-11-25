@@ -61,9 +61,18 @@ public class SkillLessonProposal : LessonProposal
         {
             if (Student.TraitsOfType(TraitType.Skill).Any(x => x.Definition == Skill))
             {
-                Student.Traits.First(x => x.Definition == Skill).Value +=
-                    Student.Gameworld.GetStaticDouble("BaseTeachSkillAmount") *
+                var trait = Student.Traits.First(x => x.Definition == Skill);
+                var gain = Student.Gameworld.GetStaticDouble("BaseTeachSkillAmount") *
                     TeachLearnMatrix[(int)teachoutcome.Outcome - 2, (int)learnoutcome - 2];
+                if (trait is Subtypes.Skill skill)
+                {
+                    using var write = CheckLearningScope.EnterTraitWrite(skill, Student);
+                    skill.Value = skill.RawValue + gain;
+                }
+                else
+                {
+                    trait.Value += gain;
+                }
                 Student.OutputHandler.Send("You feel like you learned something from the lesson.");
             }
             else

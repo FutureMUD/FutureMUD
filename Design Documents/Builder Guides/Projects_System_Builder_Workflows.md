@@ -1,7 +1,7 @@
 ---
 slug: projects
 category: Crafting and projects
-summary: Build a town footbridge and a personal apprenticeship. Design paid work, training, quests and PC job performance with phases, labour and completion actions.
+summary: Build a town footbridge and a personal apprenticeship. Design paid work, skill mastery, quests and PC job performance with phases, labour and completion actions.
 ---
 
 # FutureMUD Projects System Builder Workflows
@@ -147,6 +147,20 @@ project edit submit
 
 New templates already have phase one. The ground crew has three places and accepts unskilled workers. The decking needs carpenters. The foreman takes a separate place and can increase the carpenters’ output up to the configured multiplier, scaled by the supervisor’s check. A foreman alone cannot lay any decking. A reviewer uses `project review <template-id>` and `accept edit` to make the revision Current. An active commission keeps the revision it started on.
 
+### Give the bridge porters a lifting bonus
+
+The ground crew unloads timbers on the near bank. Give everyone who takes that role a small advantage when lifting a beam. Add these commands before submitting the footbridge template, or put them on a new revision for the next crossing.
+
+```text
+project set phase 1 labour Groundcrew impact add trait PorterLift
+project set phase 1 labour Groundcrew impact PorterLift trait Strength
+project set phase 1 labour Groundcrew impact PorterLift bonus 2
+project set phase 1 labour Groundcrew impact PorterLift context CarryingCapacity
+project set phase 1 labour Groundcrew impact PorterLift description You can lift heavier loads while unloading bridge timber.
+```
+
+When the porter's race uses Strength in its maximum-lift formula, the calculation sees a Strength of 14 for a porter who normally has 12. The extra weight they can lift depends on that formula. Their ordinary Strength stays at 12, and leaving Groundcrew ends the advantage. If the race's formula uses a different trait, select that trait for the impact. Supplying timber still follows the normal delivery and payment rules.
+
 ### Run the paid shifts
 
 At the near bank the sponsor starts the Current template. Substitute the ID from `projects` for `<bridge>` below. The money amounts are in the world’s own currency notation. For example, if a ground worker earns four coins an hour, each successful default tick reserves one coin for that worker. Three workers on the same tick cost three coins. Keep money for the six beams and later shifts as well.
@@ -215,6 +229,25 @@ project edit submit
 
 Once approved, the apprentice uses `project start apprenticeship` followed by `project join <active-id> Benchwork`. They can break off for a bridge shift and resume their accumulated benchwork later. For an enrolment that should award a permanent guild qualification once only, have the finish hook record the qualification and have the start gate check it. Otherwise a completed apprenticeship can be started again.
 
+
+## Reserve a personal project for skill mastery
+
+**Focus on Mastery: Swords** is a choice for a character who has reached the ordinary Swords ceiling of 70. Committing their project slot raises their ceiling to 80. A character who joins at 70 still has 70 Swords. They earn the next ten points through ordinary qualifying skill use. A character who wants to take a paid bridge shift or resume a conditioning regimen has to give up the focus.
+
+Create a personal template with that name. Use a one-character boolean initiation prog that checks `GetTrait(@actor, ToTrait("Swords")) >= 70` and a text refusal prog explaining the entry requirement. Set `appear`, `can` and `why` as in the apprenticeship. Give its first phase one mandatory, endless role so the focus lasts as long as the player chooses to work on it.
+
+```text
+project set phase 1 description Pursue mastery beyond ordinary sword training.
+project set phase 1 labour add endless Focus
+project set phase 1 labour Focus trait Swords
+project set phase 1 labour Focus minskill 70
+project set phase 1 labour Focus impact add cap SwordMastery
+project set phase 1 labour Focus impact SwordMastery trait Swords
+project set phase 1 labour Focus impact SwordMastery bonus 10
+project set phase 1 labour Focus impact SwordMastery description Your sustained focus raises your Swords training ceiling by ten points.
+```
+
+Once the template is approved, the character uses `project start mastery.swords` and then `project join <active-id> Focus`. Suppose they train Swords to 78 and take a porter shift. They keep all 78 trained points, but only 70 are usable while the normal ceiling applies. Practice during the shift cannot advance Swords further. When they rejoin Focus, all 78 are usable again, even after logging out and returning. The next qualifying improvement can take them toward 80. Use the `trait` impact in the porter example for a bonus that comes with the assignment, and `cap` for mastery the character has to earn.
 
 ## Four patterns from the original LabMUD projects
 

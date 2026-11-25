@@ -1,6 +1,7 @@
 using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character.Heritage;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
@@ -329,7 +330,7 @@ public partial class Character
         }
 
         ITrait characterTrait = CanonicalTraitOwner._characterTraits.FirstOrDefault(x => x.Definition == trait);
-        double baseValue = characterTrait?.Value ?? 0.0;
+        double baseValue = characterTrait is Skill skill ? skill.ValueFor(this) : characterTrait?.Value ?? 0.0;
         baseValue +=
             Merits.OfType<ITraitBonusMerit>().Where(x => x.Applies(this))
                   .Sum(x => x.BonusForTrait(trait, context));
@@ -348,9 +349,9 @@ public partial class Character
 
     public double TraitRawValue(ITraitDefinition trait)
     {
-        return trait.OwnerScope == TraitOwnerScope.Body
-            ? Body.TraitRawValue(trait)
-            : CanonicalTraitOwner._characterTraits.FirstOrDefault(x => x.Definition == trait)?.Value ?? 0.0;
+        if (trait.OwnerScope == TraitOwnerScope.Body) return Body.TraitRawValue(trait);
+        var characterTrait = CanonicalTraitOwner._characterTraits.FirstOrDefault(x => x.Definition == trait);
+        return characterTrait is Skill skill ? skill.ValueFor(this) : characterTrait?.Value ?? 0.0;
     }
 
     public double TraitMaxValue(ITraitDefinition trait)

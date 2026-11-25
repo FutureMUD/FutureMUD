@@ -92,6 +92,8 @@ The stock iron, tin, copper and lead prospect samples have this dependency. When
 | `job` | `JobEffortImpact` | Converts project work into ongoing-job performance effort each project tick |
 | `cap` | `TraitCapImpact` | Modifies trait caps while the impact applies |
 
+A positive cap impact on an ordinary skill lets a worker train beyond the definition's normal cap while committing a project slot to mastery. Reads and improvement writes use the applicable ceiling. Losing the impact limits the usable value without erasing the trained value, which persists across saves. For a base cap of 70 and a +10 impact, a worker trained to 78 uses 70 after leaving, gains nothing while over the ceiling, and resumes at 78 when the impact applies again. Independent magical improvement limits still apply.
+
 ## Runtime Model
 ### Revisioned definitions versus live instances
 Project templates are revisioned content:

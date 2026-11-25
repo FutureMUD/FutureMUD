@@ -11,9 +11,11 @@ public class SimpleNumericDecorator : FrameworkItem, ITraitValueDecorator
 
     public override string FrameworkItemType => "TraitDecorator";
 
-    public string Decorate(ITrait trait)
+    public string Decorate(ITrait trait) => Decorate(trait, trait.Owner);
+
+    public string Decorate(ITrait trait, IHaveTraits subject)
     {
-        return (trait.Owner?.TraitValue(trait.Definition) ?? trait.Value).ToString("F0");
+        return (subject?.TraitValue(trait.Definition) ?? trait.Value).ToString("F0");
     }
 
     public string Decorate(double value)

@@ -375,7 +375,7 @@ public partial class Body : PerceiverItem, IBody
             FMDB.Context.Traits.Add(dbtrait);
             dbtrait.Body = dbitem;
             dbtrait.TraitDefinitionId = trait.Definition.Id;
-            dbtrait.Value = trait.Value;
+            dbtrait.Value = trait is Skill ? trait.RawValue : trait.Value;
         }
 
         foreach (KeyValuePair<ICharacteristicDefinition, ICharacteristicValue> characteristic in DefaultCharacteristicValues)

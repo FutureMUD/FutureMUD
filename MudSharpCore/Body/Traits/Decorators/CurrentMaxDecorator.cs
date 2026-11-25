@@ -27,14 +27,16 @@ public class CurrentMaxDecorator : FrameworkItem, ITraitValueDecorator
 
     #region ITraitValueDecorator Members
 
-    public string Decorate(ITrait trait)
+    public string Decorate(ITrait trait) => Decorate(trait, trait.Owner);
+
+    public string Decorate(ITrait trait, IHaveTraits subject)
     {
-        double currentValue = trait.Owner?.TraitValue(trait.Definition) ?? trait.Value;
-        double rawValue = trait.Owner?.TraitRawValue(trait.Definition) ?? trait.RawValue;
-        double maxValue = trait.Owner?.TraitMaxValue(trait) ?? trait.MaxValue;
+        double currentValue = subject?.TraitValue(trait.Definition) ?? trait.Value;
+        double rawValue = subject?.TraitRawValue(trait.Definition) ?? trait.RawValue;
+        double maxValue = subject?.TraitMaxValue(trait) ?? trait.MaxValue;
         if (currentValue != rawValue)
         {
-            return $"{rawValue:F0}[{currentValue - rawValue:F0}] / {trait.MaxValue:F0}";
+            return $"{rawValue:F0}[{currentValue - rawValue:F0}] / {maxValue:F0}";
         }
 
         return currentValue.ToString("F0") + " / " + maxValue.ToString("F0");

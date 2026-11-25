@@ -1,6 +1,7 @@
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Logging;
 using MudSharp.RPG.Checks;
+using MudSharp.Work.Projects.Impacts;
 
 namespace MudSharp.Body.Traits.Subtypes;
 
@@ -55,9 +56,11 @@ public class Skill : Trait, ISkill
 		// Evaluate the clamped getter before claiming the final native assignment:
 		// cap callbacks can legitimately write the same canonical skill independently.
 		var mutationVersion = ValueMutationVersion;
+		var usableValue = ValueFor(user);
+		if (_value > usableValue) return false;
 		var nextValue = castingCap.HasValue
 			? _value + Math.Min(improvement, castingCap.Value - _value)
-			: Value + improvement;
+			: usableValue + improvement;
 		if (!CheckLearningScope.CanContinue(user) || ValueMutationVersion != mutationVersion) return false;
 		using var write = CheckLearningScope.EnterTraitWrite(this, user);
 		Value = nextValue;
@@ -66,9 +69,17 @@ public class Skill : Trait, ISkill
 
     public override double MaxValue => _definition.Cap.Evaluate(_owner);
 
+    protected override double ValueCeilingFor(IHaveTraits user)
+    {
+        var actor = user as ICharacter ?? (user as IBody)?.Actor;
+        return MaxValue + TraitCapImpact.TotalFor(actor, Definition);
+    }
+
+    internal double ValueFor(IHaveTraits user) => Math.Min(ValueCeilingFor(user), _value);
+
     public override double Value
     {
-        get => Math.Min(MaxValue, _value);
+        get => ValueFor(Owner);
 		set
 		{
 			using var write = CheckLearningScope.EnterValueWrite(this);

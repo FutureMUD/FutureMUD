@@ -1,4 +1,5 @@
 using ExpressionEngine;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -127,7 +128,7 @@ public class ClassicImprovement : ImprovementModel
             return true;
         }
 
-        if (trait.Value >= person.TraitMaxValue(trait.Definition))
+        if (AtSkillCeiling(person, trait))
         {
             return false;
         }
@@ -138,6 +139,12 @@ public class ClassicImprovement : ImprovementModel
         }
 
         return true;
+    }
+
+    private static bool AtSkillCeiling(IHaveTraits person, ITrait trait)
+    {
+        var trained = trait is Skill ? trait.RawValue : trait.Value;
+        return trained >= person.TraitMaxValue(trait.Definition);
     }
 
     /// <inheritdoc />
@@ -378,7 +385,7 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
             return 0.0;
         }
 
-        if (trait.Value >= person.TraitMaxValue(trait.Definition))
+        if (AtSkillCeiling(person, trait))
         {
             trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement,
                 "-- NoGain [Trait above maximum value]");

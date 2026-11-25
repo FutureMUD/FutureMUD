@@ -680,7 +680,7 @@ The syntax is:
             foreach (ITrait skill in group.OrderBy(x => x.Definition.Name))
             {
                 categorySkills.Add(
-                    $"{skill.Definition.Name.TitleCase().RawTextPadRight(15)} {(adminMode ? CurrentMaxDecorator.Instance.Decorate(skill) : actor.GetTraitDecorated(skill.Definition))}");
+                    $"{skill.Definition.Name.TitleCase().RawTextPadRight(15)} {(adminMode ? CurrentMaxDecorator.Instance.Decorate(skill, actor) : actor.GetTraitDecorated(skill.Definition))}");
             }
 
             sb.Append(categorySkills.SplitTextIntoColumns((uint)actor.LineFormatLength / 40,
@@ -715,7 +715,7 @@ The aliases #3sk#0, #3ski#0 and #3skil#0 work the same way.", AutoHelp.HelpArg)]
                                               x =>
                                                   x.Definition.Name.TitleCase().RawTextPadRight(15) +
                                                   (adminMode
-                                                      ? CurrentMaxDecorator.Instance.Decorate(x)
+                                                      ? CurrentMaxDecorator.Instance.Decorate(x, actor)
                                                       : actor.Body.GetTraitDecorated(x.Definition)))
                                           //.ArrangeStringsOntoLines(3, (uint)actor.LineFormatLength)
                                           .SplitTextIntoColumns((uint)actor.LineFormatLength / 40,
@@ -742,8 +742,8 @@ The aliases #3sk#0, #3ski#0 and #3skil#0 work the same way.", AutoHelp.HelpArg)]
                               x =>
                                   x.Definition.Name.TitleCase().ColourName().RawTextPadRight(12) +
                                   (adminMode
-                                      ? CurrentMaxDecorator.Instance.Decorate(x)
-                                      : actor.Body.GetTraitDecorated(x.Definition)))
+                                      ? CurrentMaxDecorator.Instance.Decorate(x, target)
+                                      : target.Body.GetTraitDecorated(x.Definition)))
                           .ArrangeStringsOntoLines(Math.Max(1, (uint)actor.LineFormatLength / 30),
                               (uint)actor.LineFormatLength));
                 return;

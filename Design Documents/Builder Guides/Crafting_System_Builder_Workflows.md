@@ -25,6 +25,8 @@ Use your world's IDs wherever a command below uses angle brackets. `Pottery` is 
 
 ### Open the recipe and decide who can make it
 
+If your world still needs the Pottery skill, give the potter a starting choice, a cap and an improver before setting the recipe's check. [Build the apprentice's Pottery skill](Skills_Checks_and_Progression_Builder_Guide.md#establish-pottery-and-give-apprentices-a-way-in)
+
 ```text
 craft edit new
 craft set name Fire a Wayfarer cider mug

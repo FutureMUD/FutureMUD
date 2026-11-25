@@ -6,6 +6,8 @@ summary: Configure check templates, trait expressions and display decorators, an
 
 # Check and Decorator Editors
 
+For a worked example that follows a skill from chargen through practice, lessons and mastery, see [Skills, checks and character progression](Skills_Checks_and_Progression_Builder_Guide.md).
+
 See the [common builder workflow](Generic_Editable_Item_Builder_Workflows.md) for help discovery, selection and closing. The restart activation rule below is specific to these editors.
 
 The `checktemplate`, `traitdecorator`, and `stackdecorator` commands edit existing database-backed runtime definitions. They preserve each row's numeric identity. These commands configure definitions used by the engine; they do not add C# check types or decorator implementations.
@@ -18,7 +20,7 @@ Use `checktemplate list [+keyword]` to find templates and `checktemplate show <i
 
 Use typed settings to save common method data. Set Timebound values with `checktemplate set maximum_time 8` followed by `checktemplate set minimum_time 2`. PassivePerception shares the same time settings. Set its formula and fuzziness with `checktemplate set core_expression "awareness + perception"` and `checktemplate set passive_fuzziness 0.15`. Limb requirements support `checktemplate set limb list`, `limb add <LimbType> <minimum>`, `limb set <index> <LimbType> <minimum>`, and `limb remove <index>`. Limb indexes are one-based. Timebound seconds must be non-negative, and maximum must be at least minimum. PassivePerception requires a valid `CoreTraitExpression` formula and finite `PassiveFuzziness` from 0 up to (but not including) 1. Limb requirements use defined `LimbType` values and non-negative minimum counts.
 
-Other template fields are `name`, `method`, `improve`, `branch`, `missing`, and `difficulty`. Boolean fields accept `true`/`false`, `yes`/`no`, or `1`/`0`; `missing` accepts a `FailIfTraitMissingType` name. Set a difficulty with its `Difficulty` enum name and a finite numeric modifier, for example `checktemplate set difficulty Difficult -2.5`. Every difficulty must have a modifier before a save succeeds. `checktemplate set definition <xml>` is an advanced override when a specialized definition needs direct XML editing. A method change resets method XML to factory-compatible defaults so the editor remains valid.
+Other template fields are `name`, `method`, `improve`, `branch`, `missing`, and `difficulty`. Boolean fields accept `true`/`false`, `yes`/`no`, or `1`/`0`; `missing` accepts a `FailIfTraitMissingType` name. Set a difficulty with its `Difficulty` enum name and a finite numeric modifier, for example `checktemplate set difficulty Hard -2.5`. Every difficulty must have a modifier before a save succeeds. `checktemplate set definition <xml>` is an advanced override when a specialized definition needs direct XML editing. A method change resets method XML to factory-compatible defaults so the editor remains valid.
 
 The supported method names are `Standard`, `OGL`, `Timebound`, `Limb`, `Static`, `Branch`, `PassivePerception`, and `BonusAbsent`. These are the existing runtime factories. Use `checktemplate assign <id|name> <CheckType>` to attach a template to an already defined enum-backed check row. The command refuses unknown enum values and missing rows; it does not manufacture check identities. Assignment affects that check type's existing row and may change every caller of that check.
 

@@ -37,6 +37,8 @@ For a future executable addition, extend [MythicalAnimalSeederTemplateTests](../
 
 ## Declared rerun and ownership contract
 
+The breathing profile is stock-owned. Its refresh updates the existing race/medium rows, adds missing media and removes media outside the selected profile. All profiles use breathable air at 1.0. Marine amphibious profiles also use salt water at 1.0 and brackish water at 0.5. The same refresh runs during initial installation after the new races have been saved.
+
 Metadata declares `Idempotent / InstallMissing`.
 
 Reruns install missing stock mythic races without duplicating existing entries.

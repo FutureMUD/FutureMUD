@@ -223,8 +223,13 @@ public abstract class MeritBase : SaveableItem, IMerit
         dbitem.MeritType = (int)MeritType;
         dbitem.MeritScope = (int)MeritScope;
         dbitem.Definition = SaveDefinition().ToString();
+        SaveAdditionalState(dbitem);
         Changed = false;
     }
+
+	protected virtual void SaveAdditionalState(Merit merit)
+	{
+	}
 
     public virtual XElement SaveDefinition()
     {

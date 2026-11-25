@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
+using MudSharp.Database;
 using MudSharp.Models;
 using Chargen = MudSharp.CharacterCreation.Chargen;
 
@@ -57,6 +58,36 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
     {
 
     }
+
+	protected override void SaveAdditionalState(Merit merit)
+	{
+		merit.ParentId = _parentMeritId;
+		FMDB.Context.Entry(merit).Collection(x => x.MeritsChargenResources).Load();
+		// RequirementOnly is part of the key, so a mode change replaces its row.
+		var remainingCosts = _costs.ToDictionary(x => (x.Resource.Id, x.RequirementOnly));
+		foreach (var row in merit.MeritsChargenResources.ToList())
+		{
+			if (remainingCosts.Remove((row.ChargenResourceId, row.RequirementOnly), out var cost))
+			{
+				row.Amount = cost.Amount;
+				continue;
+			}
+
+			merit.MeritsChargenResources.Remove(row);
+			FMDB.Context.MeritsChargenResources.Remove(row);
+		}
+
+		foreach (var cost in remainingCosts.Values)
+		{
+			merit.MeritsChargenResources.Add(new MeritsChargenResources
+			{
+				MeritId = Id,
+				ChargenResourceId = cost.Resource.Id,
+				Amount = cost.Amount,
+				RequirementOnly = cost.RequirementOnly
+			});
+		}
+	}
 
     public override bool Applies(IHaveMerits owner)
     {
@@ -180,7 +211,8 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
 	#3blurb <text>#0 - sets the chargen blurb directly
 	#3cost <resource> <amount>#0 - sets a cost to select this merit in chargen
 	#3cost <resource> 0#0 - removes a cost
-	#3cost <resource> spend#0 - toggles the resource being spent or only required";
+	#3cost <resource> spend#0 - toggles the resource being spent or only required
+	Mode changes are refused if that resource already has both spent and requirement-only entries.";
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -255,6 +287,12 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
                 actor.OutputHandler.Send($"There is no cost set up for the {resource.Name.ColourValue()} resource.");
                 return false;
             }
+
+			if (_costs.Any(x => x.Resource == resource && x.RequirementOnly != cost.RequirementOnly))
+			{
+				actor.OutputHandler.Send("This merit already has both a cost and a requirement for that resource. Remove its entries before changing their mode.");
+				return false;
+			}
 
             _costs[_costs.IndexOf(cost)] = cost with { RequirementOnly = !cost.RequirementOnly };
             Changed = true;

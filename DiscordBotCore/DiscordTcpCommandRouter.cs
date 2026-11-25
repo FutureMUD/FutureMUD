@@ -15,6 +15,7 @@ internal static class DiscordTcpCommandRouter
 		"request",
 		"remote",
 		"accountnotification",
+		"accountcreated",
 		"shutdown",
 		"crash",
 		"chargen",

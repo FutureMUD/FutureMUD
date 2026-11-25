@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.9.0.0",
-  "LatestMigrationId": "20261119035119_RecordManualSentenceMinimumOverride",
-  "GeneratedUtc": "2026-11-19T03:51:19Z"
+  "LatestMigrationId": "20261125040236_AddDiscordEconomyRiskDigest",
+  "GeneratedUtc": "2026-11-25T04:11:03.945Z"
 }

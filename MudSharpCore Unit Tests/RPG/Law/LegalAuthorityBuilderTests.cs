@@ -7,6 +7,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Character.Name;
+using MudSharp.Discord;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -25,6 +27,33 @@ namespace MudSharp_Unit_Tests.RPG.Law;
 [TestClass]
 public class LegalAuthorityBuilderTests
 {
+	[TestMethod]
+	public void JusticeNotifications_UseOnlyTheConfiguredJurisdictionChannel()
+	{
+		using var database = new InMemoryDatabaseTestScope();
+		var world = CreateWorld();
+		var bridge = new Mock<IDiscordConnection>();
+		world.SetupGet(x => x.DiscordConnection).Returns(bridge.Object);
+		var authority = CreateAuthority(world.Object);
+		var defendant = Mock.Of<ICharacter>(x => x.PersonalName.GetName(NameStyle.FullName) == "Ellis Ward");
+		var route = Mock.Of<IPatrolRoute>(x => x.Name == "Watch");
+
+		void Notify()
+		{
+			authority.NotifyTrialRequested(defendant);
+			authority.NotifyTrialStarted(defendant);
+			authority.NotifyExecutionPatrolStarted(route);
+		}
+		Notify();
+		bridge.VerifyNoOtherCalls();
+		authority.DiscordChannelId = 42;
+		Notify();
+		bridge.Verify(x => x.NotifyEnforcement("trialrequested", 42, "Ellis Ward has requested a trial in Alderbridge Bench."), Times.Once);
+		bridge.Verify(x => x.NotifyEnforcement("trialstarted", 42, "The trial of Ellis Ward has begun in Alderbridge Bench."), Times.Once);
+		bridge.Verify(x => x.NotifyEnforcement("executionpatrol", 42, "The Watch execution patrol has begun in Alderbridge Bench."), Times.Once);
+		bridge.VerifyNoOtherCalls();
+	}
+
 	[TestMethod]
 	public void NewAuthority_CreatesNamedClassAndPersistsNewLawWithNoPunishment()
 	{

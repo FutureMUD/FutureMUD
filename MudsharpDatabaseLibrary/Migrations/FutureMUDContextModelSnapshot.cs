@@ -16,7 +16,7 @@ partial class FutureMUDContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261119035119_RecordManualSentenceMinimumOverride";
+    public override string LastMigrationId => "20261125040236_AddDiscordEconomyRiskDigest";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -9015,6 +9015,9 @@ partial class FutureMUDContextModelSnapshot : ModelSnapshot
 
                 b.Property<DateTime>("CreatedUtc")
                     .HasColumnType("datetime(6)");
+
+                b.Property<string>("EconomyRiskDigestState")
+                    .HasColumnType("mediumtext");
 
                 b.Property<bool>("NotificationsEnabled")
                     .HasColumnType("tinyint(1)");

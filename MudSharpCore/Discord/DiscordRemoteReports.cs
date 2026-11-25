@@ -6,9 +6,11 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Climate;
+using MudSharp.Construction;
 using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Economy;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Network;
 using MudSharp.TimeAndDate;
@@ -27,6 +29,8 @@ internal sealed partial class DiscordRemoteService
 		return request.Operation switch
 		{
 			"game.info" => GetPublishedSetting("game.info") ?? "Game information has not been published.",
+			"game.landmarks" => LandmarkList(account, RemoteLong(root, "after") ?? 0),
+			"game.landmark" => LandmarkDetail(account, RemoteLong(root, "id") ?? 0),
 			"game.helpsearch" => PublicHelpSearch(RemoteString(root, "query", required: true)),
 			"game.time" => PublicTime(RemoteString(root, "place", required: true)),
 			"game.calendar" => PublicCalendar(RemoteString(root, "calendar", required: true),
@@ -52,6 +56,13 @@ internal sealed partial class DiscordRemoteService
 			"admin.connections" => ConnectedUsers(),
 			"admin.performance" => PerformanceReport(),
 			"admin.census" => RuntimeCensus(),
+			"justice.status" => JusticeStatus(RemoteString(root, "jurisdiction"), RemoteInt(root, "page") ?? 1),
+			"npc.overview" => NpcOverview(RemoteInt(root, "page") ?? 1),
+			"npc.group" => NpcGroupRoster(RemoteLong(root, "id") ?? 0, RemoteInt(root, "page") ?? 1),
+			"storyteller.overview" => StorytellerOverviewReport(RemoteLong(root, "after") ?? 0),
+			"storyteller.status" => StorytellerStatus(FindStoryteller(root)),
+			"storyteller.pause" => SetStorytellerPaused(FindStoryteller(root), true),
+			"storyteller.resume" => SetStorytellerPaused(FindStoryteller(root), false),
 			"admin.resourceaudit" => ResourceAudit(RemoteString(root, "resource")),
 			"admin.maintenance" => Maintenance(RemoteString(root, "setting"), RemoteString(root, "value")),
 			"economy.summary" => EconomySummary(RemoteLong(root, "zoneId")),
@@ -75,10 +86,20 @@ internal sealed partial class DiscordRemoteService
 		};
 	}
 
-	internal string ReportConfirmationFingerprint(DiscordRemoteRequest request, IAccount? actor)
+	private string ReportConfirmationFingerprint(DiscordRemoteRequest request, IAccount? actor, out string? prompt)
 	{
+		prompt = null;
 		using var arguments = ParseRemoteArguments(request.Arguments);
 		var root = arguments.RootElement;
+		if (request.Operation is "storyteller.pause" or "storyteller.resume")
+		{
+			var target = FindStoryteller(root);
+			var pause = request.Operation == "storyteller.pause";
+			prompt = pause
+				? $"Pause {target.Name} (#{target.Id})? This cancels its active request and discards any queued work at confirmation."
+				: $"Resume {target.Name} (#{target.Id}) for new work? Previously discarded work will stay discarded.";
+			return JsonSerializer.Serialize(new { target.Id, target.Name, target.IsPaused });
+		}
 		if (request.Operation == "admin.maintenance")
 		{
 			var setting = RemoteString(root, "setting").ToLowerInvariant();
@@ -291,6 +312,58 @@ internal sealed partial class DiscordRemoteService
 			.Select(x => $"• {x.Name} — {x.TagLine}")
 			.ToList();
 		return matches.Count == 0 ? "No public help matched that search." : string.Join(Environment.NewLine, matches);
+	}
+
+	private static bool SeesAllLandmarks(IAccount? account) =>
+		account is { AccountStatus: AccountStatus.Normal } && account.Authority?.Level >= PermissionLevel.JuniorAdmin;
+
+	private static bool VisibleLandmark(LandmarkEffect landmark, bool staff) => staff || landmark.IsPublicOnDiscord();
+
+	private string LandmarkList(IAccount? account, long after)
+	{
+		if (after < 0) { throw new ArgumentException("Supply a non-negative room ID for after."); }
+		const int pageSize = 20;
+		var staff = SeesAllLandmarks(account);
+		var rooms = _world.Rooms.Where(room => room.Id > after)
+			.SelectNotNull(room => room.EffectsOfType<LandmarkEffect>().FirstOrDefault())
+			.OrderBy(landmark => landmark.Owner.Id)
+			.Where(landmark => VisibleLandmark(landmark, staff))
+			.Take(pageSize + 1)
+			.Select(landmark => (IRoom)landmark.Owner)
+			.ToList();
+		if (rooms.Count == 0) { return "No visible landmarks on this page."; }
+		var lines = rooms.Take(pageSize)
+			.Select(room => $"#{room.Id}  {ReportLabel(room.PublicLandmarkDescription(nameOnly: true))}")
+			.ToList();
+		if (rooms.Count > pageSize)
+		{
+			lines.Add($"Continue with /game landmarks after:{rooms[pageSize - 1].Id}.");
+		}
+		return string.Join(Environment.NewLine, lines);
+	}
+
+	private string LandmarkDetail(IAccount? account, long id)
+	{
+		var staff = SeesAllLandmarks(account);
+		if (_world.Rooms.Get(id) is not { } room || room.EffectsOfType<LandmarkEffect>().FirstOrDefault() is not { } landmark ||
+		    !VisibleLandmark(landmark, staff))
+		{
+			return "No visible landmark with that ID.";
+		}
+		var builder = new StringBuilder()
+			.AppendLine($"#{room.Id}  {room.PublicLandmarkDescription(nameOnly: true)}")
+			.AppendLine(room.PublicLandmarkDescription(nameOnly: false))
+			.AppendLine($"Terrain: {room.CurrentOverlay.Terrain.Name}")
+			.AppendLine($"Meeting place: {(landmark.IsMeetingPlace ? "yes" : "no")}")
+			.AppendLine($"Safe quit: {(room.SafeQuit ? "yes" : "no")}");
+		foreach (var (progId, text) in landmark.LandmarkDescriptionTexts)
+		{
+			if (staff || LandmarkEffect.AllowsDiscordReader(_world.FutureProgs.Get(progId), [null]))
+			{
+				builder.AppendLine(text.SubstituteANSIColour().RawText());
+			}
+		}
+		return builder.ToString().TrimEnd();
 	}
 
 	private string PublicTime(string place)
@@ -920,5 +993,19 @@ internal sealed partial class DiscordRemoteService
 		return value.Replace("\\", "\\\\", StringComparison.Ordinal)
 			.Replace("%", "\\%", StringComparison.Ordinal)
 			.Replace("_", "\\_", StringComparison.Ordinal);
+	}
+
+	private static int ReportPageStart(int page, int count, int pageSize)
+	{
+		if (page < 1) { throw new ArgumentException("Page numbers start at 1."); }
+		var start = (page - 1L) * pageSize;
+		if (page > 1 && start >= count) { throw new ArgumentException("That page is past the end of the report."); }
+		return (int)start;
+	}
+
+	private static string ReportLabel(string label)
+	{
+		var text = label.RawText().ReplaceLineEndings(" ");
+		return text.Length <= 64 ? text : text[..(char.IsHighSurrogate(text[62]) ? 62 : 63)] + "…";
 	}
 }

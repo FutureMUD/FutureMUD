@@ -83,6 +83,8 @@ public sealed partial class DiscordConnection : IDiscordConnection
         }
     }
 
+	public void NotifyAccountCreated(string account) => SendClientMessage($"accountcreated {account}");
+
     public void NotifyShutdown(string shutdownAccount, bool reboot = true)
     {
         try

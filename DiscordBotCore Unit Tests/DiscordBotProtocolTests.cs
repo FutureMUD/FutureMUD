@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using MudSharp.Discord;
+using MudSharp.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
@@ -148,6 +149,8 @@ public class DiscordBotProtocolTests
 	[DataRow("request 42 who")]
 	[DataRow("remote AQID")]
 	[DataRow("accountnotification 42 AQID")]
+	[DataRow("accountcreated Example")]
+	[DataRow("enforcement trialstarted 42 The trial has begun.")]
 	[DataRow("shutdown Admin false")]
 	[DataRow("broadcast hello")]
 	[DataRow("progerror 10 test error")]
@@ -155,6 +158,39 @@ public class DiscordBotProtocolTests
 	{
 		Assert.IsTrue(DiscordTcpCommandRouter.TryParse(input, out var command));
 		Assert.IsTrue(command.RequiresAuthentication);
+	}
+
+	[TestMethod]
+	[DataRow("trialrequested")]
+	[DataRow("trialstarted")]
+	[DataRow("executionpatrol")]
+	public async Task JusticeDelivery_FailedDestinationLeavesNextAlertDeliverable(string subtype)
+	{
+		var attempts = 0;
+		ulong destination = 0;
+		string delivered = "";
+		Task Send(ulong id, string text)
+		{
+			attempts++;
+			if (id == 41) { return Task.FromException(new InvalidOperationException("Unavailable channel")); }
+			destination = id;
+			delivered = text;
+			return Task.CompletedTask;
+		}
+		await TcpConnection.DeliverEnforcementAsync(new StringStack($"{subtype} 41 First event"), Send);
+		await TcpConnection.DeliverEnforcementAsync(new StringStack($"{subtype} 42 Second event @everyone"), Send);
+		Assert.AreEqual(2, attempts);
+		Assert.AreEqual(42UL, destination);
+		StringAssert.Contains(delivered, "Second event");
+		Assert.IsFalse(delivered.Contains("@everyone", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void AccountCreatedMessage_UsesBoldNamesAndSuppressesMentions()
+	{
+		Assert.AreEqual("A new account called **Morgan** has been created on **Example MUD**",
+			DiscordBotProtocol.AccountCreatedMessage("Morgan", "Example MUD"));
+		Assert.IsFalse(DiscordBotProtocol.AccountCreatedMessage("Morgan", "@everyone").Contains("@everyone"));
 	}
 
 	[TestMethod]

@@ -360,6 +360,8 @@ To offer scheduled retrieval, add a **Sheriff** route, put its node at court and
 
 ## Set up an execution patrol
 
+To follow court and patrol activity in Discord, select the jurisdiction and use `legalauthority set discord <channelid>`. The channel receives an alert when a defendant successfully requests a trial, when a judge opens a hearing, and when an execution patrol launches. The patrol may still abort during preparation or retrieval. A linked JuniorAdmin can follow an alert with `/justice status`, select the jurisdiction by ID or exact name, and inspect waiting defendants, judge availability and active patrols. [Discord justice status](../Core/Discord_Remote_Operations.md#justice-status)
+
 Alderbridge reserves capital sentencing for **Murder under the Crown's Peace** and authorises the Watch to bring the accused before the Bench. This example uses a law that the Watch invokes by accusation. It leaves automatic application off.
 
 ```text

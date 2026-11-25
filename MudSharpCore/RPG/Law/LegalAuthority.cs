@@ -1279,6 +1279,33 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     #endregion
 
     #region Discord Notifications
+	public void NotifyTrialRequested(ICharacter defendant)
+	{
+		if (DiscordChannelId is > 0)
+		{
+			Gameworld.DiscordConnection?.NotifyEnforcement("trialrequested", DiscordChannelId.Value,
+				$"{defendant.PersonalName.GetName(NameStyle.FullName)} has requested a trial in {Name}.");
+		}
+	}
+
+	public void NotifyTrialStarted(ICharacter defendant)
+	{
+		if (DiscordChannelId is > 0)
+		{
+			Gameworld.DiscordConnection?.NotifyEnforcement("trialstarted", DiscordChannelId.Value,
+				$"The trial of {defendant.PersonalName.GetName(NameStyle.FullName)} has begun in {Name}.");
+		}
+	}
+
+	public void NotifyExecutionPatrolStarted(IPatrolRoute route)
+	{
+		if (DiscordChannelId is > 0)
+		{
+			Gameworld.DiscordConnection?.NotifyEnforcement("executionpatrol", DiscordChannelId.Value,
+				$"The {route.Name} execution patrol has begun in {Name}.");
+		}
+	}
+
     public void HandleDiscordNotification(ICrime crime)
     {
         if (DiscordChannelId is null)

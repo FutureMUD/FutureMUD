@@ -44,6 +44,43 @@ public class EconomyAnalyticsTests
 	}
 
 	[TestMethod]
+	public void DigestRisks_AggregatesReservesByZoneAndCurrencyAndUsesTheScheduledDeadline()
+	{
+		var currency = Mock.Of<ICurrency>(x => x.Id == 2 && x.BaseCurrencyToGlobalBaseCurrencyConversion == 2m);
+		var zone = Mock.Of<IEconomicZone>(x => x.Id == 4);
+		var reserves = new DecimalCounter<ICurrency> { [currency] = 60m };
+		var bank = Mock.Of<IBank>(x => x.Id == 1 && x.EconomicZone == zone && x.CurrencyReserves == reserves);
+		var otherReserves = new DecimalCounter<ICurrency> { [currency] = 25m };
+		var other = Mock.Of<IBank>(x => x.Id == 2 && x.EconomicZone == zone && x.CurrencyReserves == otherReserves);
+		var accounts = new All<IBankAccount>();
+		foreach (var (id, balance) in new[] { (1L, 80m), (2L, 20m), (3L, -40m) })
+		{
+			accounts.Add(Mock.Of<IBankAccount>(x => x.Id == id && x.Bank == bank && x.Currency == currency && x.CurrentBalance == balance));
+		}
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.Currencies).Returns(new All<ICurrency> { currency });
+		world.SetupGet(x => x.Banks).Returns(new All<IBank> { bank, other });
+		world.SetupGet(x => x.BankAccounts).Returns(accounts);
+		world.Setup(x => x.GetStaticBool(EconomyAnalyticsService.SnapshotsEnabledConfiguration)).Returns(true);
+		world.Setup(x => x.GetStaticDouble(EconomyAnalyticsService.SnapshotIntervalConfiguration)).Returns(60);
+		var service = new EconomyAnalyticsService(world.Object);
+		var risk = service.GetDigestRisks().Single();
+		Assert.AreEqual("reserve-shortfall", risk.Code);
+		Assert.AreEqual(30m, risk.GlobalBaseValue);
+		Assert.AreEqual(4L, risk.EconomicZoneId);
+		Assert.AreEqual(2L, risk.CurrencyId);
+		reserves[currency] += 15m;
+		typeof(EconomyAnalyticsService).GetProperty(nameof(service.LastSnapshotUtc))!.SetValue(service, DateTime.UtcNow);
+		var periodic = typeof(EconomyAnalyticsService).GetProperty(nameof(service.LastPeriodicSnapshotUtc))!;
+		periodic.SetValue(service, DateTime.UtcNow.AddMinutes(-65));
+		Assert.IsEmpty(service.GetDigestRisks());
+		periodic.SetValue(service, DateTime.UtcNow.AddMinutes(-71));
+		Assert.AreEqual("stale-snapshot", service.GetDigestRisks().Single().Code);
+		world.Setup(x => x.GetStaticBool(EconomyAnalyticsService.SnapshotsEnabledConfiguration)).Returns(false);
+		Assert.IsEmpty(service.GetDigestRisks());
+	}
+
+	[TestMethod]
 	public void SnapshotDefaultsAndMinimumInterval_AreStable()
 	{
 		Assert.AreEqual("true", DefaultStaticSettings.DefaultStaticConfigurations["EconomyAnalyticsSnapshotsEnabled"]);

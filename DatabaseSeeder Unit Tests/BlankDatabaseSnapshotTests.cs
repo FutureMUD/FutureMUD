@@ -109,6 +109,13 @@ public class BlankDatabaseSnapshotTests
     }
 
 	[TestMethod]
+	public void CommittedBlankSnapshot_StoresOptionalDiscordDigestState()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "discordaccountlinks"), "`EconomyRiskDigestState` mediumtext");
+	}
+
+	[TestMethod]
 	public void CommittedBlankSnapshot_StoresConfirmedManualSentenceOverrides()
 	{
 		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));

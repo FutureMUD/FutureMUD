@@ -1842,6 +1842,7 @@ With each of the emotes, you can use the following tokens:
         )));
         trialEffect.Phase = TrialPhase.Charges;
         trialEffect.LastTrialAction = RuntimeClock.UtcNow;
+		trialEffect.LegalAuthority.NotifyTrialStarted(defendant);
         return true;
     }
 

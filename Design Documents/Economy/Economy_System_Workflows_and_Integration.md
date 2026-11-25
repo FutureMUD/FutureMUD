@@ -649,6 +649,7 @@ Administrators use `economy` as the reporting umbrella:
 - `economy trends <supply|exchange|movement|pcwealth|reserves> [...]` reads durable snapshots. When collection is disabled it still displays retained history and explicitly reports the disabled state.
 - `economy wealth [...] [top <count>]` keeps directly attributable PC wealth separate from shared PC-controlled institutions/property and reports median direct wealth, top-decile share, and the Gini coefficient.
 - `economy risks [<zone>|all]` flags reserve shortfalls, overdraft liabilities, ambiguous/unclaimed physical cash, stale history, and disabled collection.
+- Linked Admins can use `/economy digest enabled:true` in Discord for private alerts on reserve shortfalls, restored coverage and overdue scheduled snapshots. See [Discord Remote Operations](../Core/Discord_Remote_Operations.md#economy-risk-digest).
 - `economy snapshot [<zone>|all]` takes a labelled manual snapshot only while collection is enabled.
 
 All reported money is currency-formatted rather than shown as raw base units. A row's native amount uses that row's currency description pattern. Aggregated global values are converted into and described by the configured global display currency, so changing the display currency never rewrites snapshots or ledger records.

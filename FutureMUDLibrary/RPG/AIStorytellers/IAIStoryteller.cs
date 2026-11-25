@@ -21,6 +21,10 @@ public interface IAIStoryteller : IFrameworkItem, ISaveable, IEditableItem
     /// <summary>Advance queued provider work and execute completed tools on the game loop.</summary>
     void ProcessPendingWork();
     string ShowUsage(ICharacter voyeur);
+	/// <summary>Formats role usage, pending work and recent failure categories for a staff reader.</summary>
+	string DescribeUsage(IFormatProvider format);
+	bool IsPaused { get; }
+	StorytellerOverview GetOverview();
     void SubscribeEvents();
     void UnsubscribeEvents();
     void Delete();

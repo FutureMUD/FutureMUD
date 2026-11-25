@@ -62,6 +62,8 @@ public class Help : BaseCommandModule
     **status** - shows whether the discord bot is connected to the MUD
     **register <account>** - connects your discord and MUD accounts (you need to be logged in to the MUD)
 
+Browse landmarks with **/game landmarks**. Linked staff can use **/justice status** (JuniorAdmin), **/economy digest** (Admin), and **/npc overview** and **/storyteller overview** (SeniorAdmin).
+
 The following commands require you to be registered but not necessarily authorised before using them:
 
 	**sendchannel <which> <message>** - send a message to an in-game channel (e.g. wiznet)

@@ -803,6 +803,8 @@ Optional landmark text progs must return boolean and accept `Character`. These e
 
 The optional sphere lets you segment landmarks. A city can have public landmarks, clan-specific landmarks, staff-only landmarks, or any other sphere convention your game uses.
 
+Discord users can browse these rooms with `/game landmarks` and inspect one with `/game landmark id:<id>`. For character-specific knowledge, set a visibility prog that returns false for a null character. Discord has no character sphere, so a sphere label alone leaves the room visible there. Extra-text progs also receive a null character. Verified JuniorAdmin and higher accounts can inspect all entries and extra texts. If an extra-text prog is missing, `room landmarktext` shows its saved ID. Players cannot see the text until you assign a working filter with `room landmarktext prog <number> <prog>`.
+
 Example:
 
 ```text

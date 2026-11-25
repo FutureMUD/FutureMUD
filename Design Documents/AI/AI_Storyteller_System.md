@@ -285,6 +285,7 @@ Builder commands:
 - `ais set batch <0-60>` sets a fixed routine-event window; zero disables batching.
 - `ais set cache <stable|provider>` chooses explicit stable-prefix caching on verified compatible models, or provider-default behavior.
 - `ais usage [<id|name>]` shows since-startup requests, batches/events, decisions, token categories, total request latency, retries, incomplete results, cancellations, failures and dropped events.
+- The usage report also shows the active role, waiting batches and events by role, the oldest wait and the five most recent failure categories with UTC timestamps. It retains only these categories for display. A verified SeniorAdmin can inspect the same report privately from Discord, list summaries across storytellers and confirm a pause or resume for one storyteller. [Discord storyteller commands](../Core/Discord_Remote_Operations.md#ai-storyteller-operations)
 
 Options are saved in version 1 `ExecutionOptions` inside the existing custom-tool XML. No database columns are added. Legacy records without this element retain disabled batching. Legacy numeric reasoning values remain readable; newer levels use textual persistence. Arbitrary model IDs remain allowed; known incompatible model/effort combinations are rejected locally without silent fallback.
 

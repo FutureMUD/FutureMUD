@@ -176,7 +176,10 @@ public sealed record EconomyRisk(
 	string Description,
 	decimal? GlobalBaseValue = null,
 	long? EconomicZoneId = null,
-	long? CurrencyId = null);
+	long? CurrencyId = null)
+{
+	public long? LastScheduledSnapshotId { get; init; }
+}
 
 public static class EconomyAnalyticsMath
 {
@@ -237,6 +240,8 @@ public interface IEconomyAnalyticsService
 		EconomicVolumeClassification? volumeClassification, long? economicZoneId = null,
 		long? currencyId = null, int count = 30);
 	IReadOnlyList<EconomyRisk> GetRisks(long? economicZoneId = null);
+	/// <summary>Live reserve shortfalls and an overdue scheduled snapshot, without scanning physical holdings.</summary>
+	IReadOnlyList<EconomyRisk> GetDigestRisks();
 	IReadOnlyList<EconomyRisk> GetRisks(IReadOnlyList<EconomyHolding> currentHoldings,
 		long? economicZoneId = null);
 	long? TakeSnapshot(EconomySnapshotReason reason, long? economicZoneId = null,

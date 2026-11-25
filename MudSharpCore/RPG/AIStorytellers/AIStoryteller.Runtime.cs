@@ -16,6 +16,7 @@ public partial class AIStoryteller
 	private PendingRun? _activeRun;
 	private bool _deleted;
 	private readonly Dictionary<string, UsageCounters> _usage = new(StringComparer.Ordinal);
+	private readonly Queue<(DateTimeOffset Time, string Role, string Reason)> _recentFailures = new();
 
 	private sealed class UsageCounters
 	{
@@ -47,17 +48,44 @@ public partial class AIStoryteller
 		return usage;
 	}
 
-	public string ShowUsage(ICharacter voyeur)
+	private void RecordFailure(string role, string reason)
+	{
+		Usage(role).Failures++;
+		if (_recentFailures.Count == 5) { _recentFailures.Dequeue(); }
+		_recentFailures.Enqueue((Clock.GetUtcNow(), role, reason));
+	}
+
+	private string? ActiveRole => _activeRun is { IsClassifier: true } ? "attention" : _activeRun?.Role;
+
+	public StorytellerOverview GetOverview() => new(_pendingRuns.Count, ActiveRole,
+		_usage.Values.Sum(x => x.Requests), _usage.Values.Sum(x => x.Input),
+		_usage.Values.Sum(x => x.Output), _usage.Values.Sum(x => x.Failures));
+
+	public string ShowUsage(ICharacter voyeur) => DescribeUsage(voyeur);
+
+	public string DescribeUsage(IFormatProvider format)
 	{
 		var sb = new StringBuilder($"AI storyteller {Name.ColourName()} usage since startup:\n");
 		foreach (var (role, u) in _usage.OrderBy(x => x.Key))
 		{
-			sb.AppendLine($"{role.ColourName()}: requests {u.Requests.ToString("N0", voyeur)}, batches {u.Batches.ToString("N0", voyeur)}, events {u.Events.ToString("N0", voyeur)}");
-			sb.AppendLine($"  Input {u.Input.ToString("N0", voyeur)}, cache read {u.CacheRead.ToString("N0", voyeur)}, cache write {u.CacheWrite.ToString("N0", voyeur)}, output {u.Output.ToString("N0", voyeur)}, reasoning {u.Reasoning.ToString("N0", voyeur)}");
-			sb.AppendLine($"  Interested {u.Interested.ToString("N0", voyeur)}, ignored {u.Ignored.ToString("N0", voyeur)}, retries {u.Retries.ToString("N0", voyeur)}, incomplete {u.Incomplete.ToString("N0", voyeur)}, cancelled {u.Cancellations.ToString("N0", voyeur)}, dropped events {u.Drops.ToString("N0", voyeur)}, failures {u.Failures.ToString("N0", voyeur)}");
-			sb.AppendLine($"  Total request latency {u.Milliseconds.ToString("N0", voyeur)} ms");
+			sb.AppendLine($"{role.ColourName()}: requests {u.Requests.ToString("N0", format)}, batches {u.Batches.ToString("N0", format)}, events {u.Events.ToString("N0", format)}");
+			sb.AppendLine($"  Input {u.Input.ToString("N0", format)}, cache read {u.CacheRead.ToString("N0", format)}, cache write {u.CacheWrite.ToString("N0", format)}, output {u.Output.ToString("N0", format)}, reasoning {u.Reasoning.ToString("N0", format)}");
+			sb.AppendLine($"  Interested {u.Interested.ToString("N0", format)}, ignored {u.Ignored.ToString("N0", format)}, retries {u.Retries.ToString("N0", format)}, incomplete {u.Incomplete.ToString("N0", format)}, cancelled {u.Cancellations.ToString("N0", format)}, dropped events {u.Drops.ToString("N0", format)}, failures {u.Failures.ToString("N0", format)}");
+			sb.AppendLine($"  Total request latency {u.Milliseconds.ToString("N0", format)} ms");
 		}
-		sb.AppendLine($"Pending/running: {PendingStorytellerWorkCount.ToString("N0", voyeur)}. Cache and reasoning counts are subsets of input/output, not additional tokens.");
+		if (_usage.Count == 0) { sb.AppendLine("No usage recorded since startup."); }
+		sb.AppendLine($"Queued batches: {_pendingRuns.Count.ToString("N0", format)}. Active role: {ActiveRole ?? "none"}.");
+		var now = Clock.GetUtcNow();
+		foreach (var group in _pendingRuns.GroupBy(x => x.Role).OrderBy(x => x.Key))
+		{
+			sb.AppendLine($"  {group.Key}: {group.Count().ToString("N0", format)} queued, {group.Sum(x => x.Events).ToString("N0", format)} events, oldest waiting {(now - group.Min(x => x.Created)).TotalSeconds.ToString("N0", format)} s");
+		}
+		sb.AppendLine("Cache reads and writes are included in input tokens. Reasoning is included in output tokens.");
+		sb.AppendLine(_recentFailures.Count == 0 ? "No failures recorded since startup." : "Recent failures (newest first):");
+		foreach (var failure in _recentFailures.Reverse())
+		{
+			sb.AppendLine($"  {failure.Time:u} | {failure.Role} | {failure.Reason}");
+		}
 		return sb.ToString();
 	}
 
@@ -150,7 +178,7 @@ public partial class AIStoryteller
 		}
 		catch (Exception ex)
 		{
-			Usage(role).Failures++;
+			RecordFailure(role, "Could not prepare the request");
 			LogStorytellerError(ex.Message);
 			return false;
 		}
@@ -198,7 +226,7 @@ public partial class AIStoryteller
 			var status = response["status"]?.GetValue<string>();
 			if (status != "completed")
 			{
-				if (status == "incomplete") usage.Incomplete++; else usage.Failures++;
+				if (status == "incomplete") usage.Incomplete++; else RecordFailure(ActiveRole!, "Unsuccessful provider response");
 				DebugAIMessaging("Provider result", $"Status: {status}; incomplete reason: {response["incomplete_details"]?["reason"]}; no tools executed.", false);
 				FinishRun();
 				return;
@@ -206,7 +234,7 @@ public partial class AIStoryteller
 			var output = response["output"]?.AsArray() ?? [];
 			if (output.OfType<JsonObject>().Any(x => x["content"] is JsonArray c && c.Any(y => (string?)y?["type"] == "refusal")))
 			{
-				usage.Failures++;
+				RecordFailure(ActiveRole!, "Provider refused the request");
 				DebugAIMessaging("Provider refusal", "No tools executed.", false);
 				FinishRun();
 				return;
@@ -218,7 +246,7 @@ public partial class AIStoryteller
 					.Select(x => (string?)x?["text"]));
 				if (!TryInterpretAttentionClassifierOutput(text, out var interested, out var reason))
 				{
-					usage.Failures++;
+					RecordFailure("attention", "Invalid classifier decision");
 					FinishRun();
 					return;
 				}
@@ -234,7 +262,12 @@ public partial class AIStoryteller
 			if (calls.Count == 0)
 			{
 				if (run.ObservedTool) { FinishRun(); return; }
-				if (++run.MissingRetries > MaxMissingToolCallRetries) { usage.Failures++; FinishRun(); return; }
+				if (++run.MissingRetries > MaxMissingToolCallRetries)
+				{
+					RecordFailure(run.Role, "No tool call after retries");
+					FinishRun();
+					return;
+				}
 				usage.Retries++;
 				run.History.Add(UserMessage(MissingToolCallFeedbackMessage));
 				StartRequest(run);
@@ -272,7 +305,7 @@ public partial class AIStoryteller
 			StartRequest(run);
 		}
 		catch (OperationCanceledException) { usage.Cancellations++; FinishRun(); }
-		catch (Exception ex) { usage.Failures++; LogStorytellerException(ex); FinishRun(); }
+		catch (Exception ex) { RecordFailure(run.IsClassifier ? "attention" : run.Role, "Request or response processing failed"); LogStorytellerException(ex); FinishRun(); }
 	}
 
 	private static JsonObject UserMessage(string text) => new() { ["role"] = "user", ["content"] = text };
@@ -298,7 +331,7 @@ public partial class AIStoryteller
 			run.RequestStarted = Clock.GetTimestamp();
 			run.Request = RequestAdapter.SendAsync(run.ApiKey, BinaryData.FromString(json), run.Cancellation.Token);
 		}
-		catch (Exception ex) { Usage(run.Role).Failures++; LogStorytellerException(ex); FinishRun(); }
+		catch (Exception ex) { RecordFailure(run.IsClassifier ? "attention" : run.Role, "Could not start the request"); LogStorytellerException(ex); FinishRun(); }
 	}
 
 	private void RecordUsage(UsageCounters usage, JsonObject response)

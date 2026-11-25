@@ -20,6 +20,7 @@ public partial class FuturemudDatabaseContext
 			entity.HasKey(x => x.DiscordUserId);
 			entity.Property(x => x.DiscordUserId).HasMaxLength(20).UseCollation("ascii_bin").HasCharSet("ascii");
 			entity.HasIndex(x => x.AccountId).IsUnique();
+			entity.Property(x => x.EconomyRiskDigestState).HasColumnType("mediumtext");
 			entity.HasOne(x => x.Account).WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Cascade);
 		});
 		modelBuilder.Entity<DiscordHook>(entity =>

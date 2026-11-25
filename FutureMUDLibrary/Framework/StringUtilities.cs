@@ -336,6 +336,14 @@ namespace MudSharp.Framework
             return text;
         }
 
+		/// <summary>Renders trait, writing and signing markup for a public room description using only the fallback text.</summary>
+		public static string SubstitutePublicRoomDetails(this string text)
+		{
+			text = CheckReplacementRegex.Replace(text, match => match.Groups["alt"].Value);
+			text = LanguageReplacementRegex.Replace(text, match => match.Groups["alt"].Value);
+			return SignedLanguageReplacementRegex.Replace(text, match => match.Groups["alt"].Value);
+		}
+
 		/// <summary>
 		/// Parses visual depictions of signing, for example sign{ASL}{an open hand moves forward}{an unfamiliar hand sign}.
 		/// An optional known variety and minskill attribute may follow the language name.

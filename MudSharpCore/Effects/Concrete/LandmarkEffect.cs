@@ -17,7 +17,7 @@ public class LandmarkEffect : Effect
         IsMeetingPlace = bool.Parse(root.Element("IsMeetingPlace").Value);
         foreach (XElement item in root.Element("ExtraTexts")?.Elements("ExtraText") ?? Enumerable.Empty<XElement>())
         {
-            LandmarkDescriptionTexts.Add((Gameworld.FutureProgs.Get(long.Parse(item.Attribute("prog").Value)), item.Value));
+            LandmarkDescriptionTexts.Add((long.Parse(item.Attribute("prog").Value), item.Value));
         }
     }
 
@@ -43,7 +43,7 @@ public class LandmarkEffect : Effect
             new XElement("ExtraTexts",
                 from item in LandmarkDescriptionTexts
                 select new XElement("ExtraText",
-                    new XAttribute("prog", item.Prog.Id),
+                    new XAttribute("prog", item.ProgId),
                     new XCData(item.Text)
                 )
             )
@@ -54,5 +54,24 @@ public class LandmarkEffect : Effect
 
     public bool IsMeetingPlace { get; set; }
 
-    public List<(IFutureProg Prog, string Text)> LandmarkDescriptionTexts { get; } = new();
+	internal bool IsPublicOnDiscord() => ApplicabilityProg is { } filter
+		? AllowsDiscordReader(filter, Owner, null)
+		: ApplicabilityProgId == 0;
+
+	internal static bool AllowsDiscordReader(IFutureProg filter, params object[] arguments)
+	{
+		try
+		{
+			return filter is not null && filter.ExecuteWithStatus(out var result, arguments) && result is true;
+		}
+		catch (Exception error)
+		{
+			// Debug progs can throw when they expect a character. Omit this entry and continue the directory.
+			filter.Gameworld.DiscordConnection?.NotifyProgError(filter.Id, filter.FunctionName,
+				$"Discord landmark filter failed for a null character ({error.GetType().Name}).");
+			return false;
+		}
+	}
+
+    public List<(long ProgId, string Text)> LandmarkDescriptionTexts { get; } = new();
 }

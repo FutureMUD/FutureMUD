@@ -13,6 +13,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation.Resources;
 using MudSharp.CharacterCreation.Screens;
 using MudSharp.Communication.Language;
 using MudSharp.Framework;
@@ -74,7 +75,8 @@ public class ChargenSkipperTests
 		f.Chargen.SelectedScars = null!;
 		f.Chargen.MissingBodyparts = null!;
 		f.Chargen.SelectedProstheses = null!;
-		ChargenScreenStoryboard[] boards = [f.Accents(), f.Quirks(), f.Disfigurements()];
+		ChargenScreenStoryboard[] boards = [f.Accents(), f.Quirks(), f.Disfigurements(),
+			new NoteSkipperScreenStoryboard(f.World.Object, new MudSharp.Models.ChargenScreenStoryboard { StageDefinition = "<Screen />" })];
 		foreach (var board in boards)
 		{
 			var screen = board.GetScreen(f.Chargen);
@@ -148,6 +150,49 @@ public class ChargenSkipperTests
 		prog.Setup(x => x.ExecuteCollection<IMerit>(It.IsAny<object[]>())).Returns((IEnumerable<IMerit>)null!);
 		f.Quirks().GetScreen(f.Chargen);
 		Assert.IsEmpty(f.Chargen.SelectedMerits);
+	}
+
+	[TestMethod]
+	public void Submission_EmptyNotesAndSkills_RequireCompletedStagesAndSkillSkipper()
+	{
+		var f = new Fixture();
+		var stages = new Dictionary<ChargenStage, IChargenScreenStoryboard>();
+		f.World.SetupGet(x => x.ChargenStoryboard.StageScreenMap).Returns(stages);
+		f.Application.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		f.Chargen.SelectedNotes = [];
+		Assert.IsFalse(Chargen.HasRequiredNotes(f.Chargen));
+		Assert.IsFalse(Chargen.HasRequiredSkills(f.Chargen));
+
+		f.Application.SetupGet(x => x.CompletedStages).Returns([ChargenStage.SelectSkills, ChargenStage.SelectNotes]);
+		stages[ChargenStage.SelectSkills] = (SkillSkipperScreenStoryboard)Activator.CreateInstance(typeof(SkillSkipperScreenStoryboard), true)!;
+		Assert.IsTrue(Chargen.HasRequiredNotes(f.Chargen));
+		Assert.IsTrue(Chargen.HasRequiredSkills(f.Chargen));
+		stages[ChargenStage.SelectSkills] = Mock.Of<IChargenScreenStoryboard>();
+		Assert.IsFalse(Chargen.HasRequiredSkills(f.Chargen));
+	}
+
+	[TestMethod]
+	[DataRow(ApplicationType.Simple, true, false)]
+	[DataRow(ApplicationType.Normal, true, false)]
+	[DataRow(ApplicationType.Special, true, true)]
+	[DataRow(ApplicationType.Special, false, false)]
+	public void DisfigurementSkipper_OnlyConfiguredSpecialApplicationsUsePicker(ApplicationType type, bool specialPicker, bool interactive)
+	{
+		var f = new Fixture();
+		f.Chargen.ApplicationType = type;
+		var price = new Counter<IChargenResource> { [Mock.Of<IChargenResource>()] = 2 };
+		var template = Mock.Of<ITattooTemplate>(x => x.ChargenCosts == price);
+		f.Chargen.SelectedTattoos.Add(Mock.Of<ISelectedTattoo>(x => x.Tattoo == template));
+		var prog = f.Prog(1, "GrantScars", ProgVariableTypes.Void);
+		var board = f.Board("DisfigurementSkipper", new XElement("Definition",
+			new XElement("PickForSpecialApplications", specialPicker),
+			new XElement("BodypartsBlurb", "Choose missing bodyparts."),
+			new XElement("AllowPickingMissingBodyparts", true),
+			new XElement("GiveScarsProg", prog.Object.Id)).ToString());
+
+		Assert.AreEqual(interactive ? ChargenScreenState.Incomplete : ChargenScreenState.Complete, board.GetScreen(f.Chargen).State);
+		prog.Verify(x => x.Execute(It.IsAny<object[]>()), interactive ? Times.Never() : Times.Once());
+		Assert.AreEqual(interactive ? 2 : 0, board.ChargenCosts(f.Chargen).Sum(x => x.Cost));
 	}
 
 	[TestMethod]
@@ -312,18 +357,22 @@ public class ChargenSkipperTests
 	{
 		using var db = new InMemoryDatabaseTestScope();
 		var f = new Fixture();
-		var stages = new[] { ChargenStage.SelectAccents, ChargenStage.SelectMerits, ChargenStage.SelectDisfigurements };
-		var types = new[] { "AccentSkipper", "QuirkSkipper", "DisfigurementSkipper" };
+		var stages = new[] { ChargenStage.SelectAccents, ChargenStage.SelectMerits, ChargenStage.SelectDisfigurements, ChargenStage.SelectNotes };
+		var types = new[] { "AccentSkipper", "QuirkSkipper", "DisfigurementSkipper", "NoteSkipper" };
+		f.Prog(5, "RequireBackground", ProgVariableTypes.Boolean);
 		for (var i = 0; i < stages.Length; i++)
 		{
 			db.Context.ChargenScreenStoryboards.Add(new MudSharp.Models.ChargenScreenStoryboard
 			{
-				Id = i + 1, ChargenStage = (int)stages[i], ChargenType = types[i], StageDefinition = "<Definition />", Order = i * 10
+				Id = i + 1, ChargenStage = (int)stages[i], ChargenType = types[i], Order = i * 10,
+				StageDefinition = stages[i] == ChargenStage.SelectNotes
+					? "<Definition><Note Name='Background'><Blurb>Describe your background.</Blurb><Prog>5</Prog></Note></Definition>"
+					: "<Definition />"
 			});
 		}
 		db.Context.SaveChanges();
 		var graph = new ChargenStoryboard(f.World.Object);
-		var pickers = new[] { "AccentPicker", "QuirkPicker", "DisfigurementPicker" };
+		var pickers = new[] { "AccentPicker", "QuirkPicker", "DisfigurementPicker", "NotePicker" };
 		for (var i = 0; i < stages.Length; i++)
 		{
 			graph.SwapStoryboard(stages[i], pickers[i]);
@@ -334,6 +383,10 @@ public class ChargenSkipperTests
 		graph.SwapStoryboard(ChargenStage.SelectMerits, "QuirkSkipper");
 		var reloaded = new ChargenStoryboard(f.World.Object);
 		CollectionAssert.AreEquivalent(types, reloaded.StageScreenMap.Values.Select(x => x.Name).ToArray());
+		reloaded.SwapStoryboard(ChargenStage.SelectNotes, "NotePicker");
+		var restoredNote = ((NotePickerScreenStoryboard)reloaded.StageScreenMap[ChargenStage.SelectNotes]).NotesBlurbs.Single();
+		Assert.AreEqual(("Background", "Describe your background.", f.Progs.Get(5)), restoredNote);
+		reloaded.SwapStoryboard(ChargenStage.SelectNotes, "NoteSkipper");
 		foreach (var stage in stages) Assert.AreEqual(ChargenScreenState.Complete, reloaded.StageScreenMap[stage].GetScreen(f.Chargen).State);
 	}
 

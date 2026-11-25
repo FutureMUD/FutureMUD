@@ -2,21 +2,23 @@
 
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
+using MudSharp.CharacterCreation.Resources;
 using MudSharp.GameItems;
 using MudSharp.Health;
 
 namespace MudSharp.CharacterCreation.Screens;
 
-public class DisfigurementSkipperScreenStoryboard : ChargenScreenStoryboard
+public class DisfigurementSkipperScreenStoryboard : DisfigurementPickerScreenStoryboard
 {
 	private DisfigurementSkipperScreenStoryboard()
 	{
 	}
 
 	public DisfigurementSkipperScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
-		: base(dbitem, gameworld)
+		: base(gameworld, dbitem)
 	{
 		var definition = XElement.Parse(dbitem.StageDefinition);
+		PickForSpecialApplications = (bool?)definition.Element(nameof(PickForSpecialApplications)) ?? false;
 		MissingBodypartsProg = SkipperProgHelper.Load(gameworld, definition, nameof(MissingBodypartsProg));
 		GiveProsthesesProg = SkipperProgHelper.Load(gameworld, definition, nameof(GiveProsthesesProg));
 		GiveScarsProg = SkipperProgHelper.Load(gameworld, definition, nameof(GiveScarsProg));
@@ -30,19 +32,24 @@ public class DisfigurementSkipperScreenStoryboard : ChargenScreenStoryboard
 	}
 
 	protected override string StoryboardName => "DisfigurementSkipper";
-	public override ChargenStage Stage => ChargenStage.SelectDisfigurements;
+	public bool PickForSpecialApplications { get; private set; }
 	public IFutureProg? MissingBodypartsProg { get; private set; }
 	public IFutureProg? GiveProsthesesProg { get; private set; }
 	public IFutureProg? GiveScarsProg { get; private set; }
 	public IFutureProg? GiveTattoosProg { get; private set; }
 
-	protected override string SaveDefinition() => new XElement("Definition",
-		new XElement(nameof(MissingBodypartsProg), MissingBodypartsProg?.Id ?? 0),
-		new XElement(nameof(GiveProsthesesProg), GiveProsthesesProg?.Id ?? 0),
-		new XElement(nameof(GiveScarsProg), GiveScarsProg?.Id ?? 0),
-		new XElement(nameof(GiveTattoosProg), GiveTattoosProg?.Id ?? 0)).ToString();
+	protected override string SaveDefinition()
+	{
+		var definition = PickerDefinition();
+		definition.Add(new XElement(nameof(PickForSpecialApplications), PickForSpecialApplications),
+			new XElement(nameof(MissingBodypartsProg), MissingBodypartsProg?.Id ?? 0),
+			new XElement(nameof(GiveProsthesesProg), GiveProsthesesProg?.Id ?? 0),
+			new XElement(nameof(GiveScarsProg), GiveScarsProg?.Id ?? 0),
+			new XElement(nameof(GiveTattoosProg), GiveTattoosProg?.Id ?? 0));
+		return definition.ToString();
+	}
 
-	public static void RegisterFactory()
+	public new static void RegisterFactory()
 	{
 		ChargenStoryboard.RegisterFactory(ChargenStage.SelectDisfigurements,
 			new ChargenScreenStoryboardFactory("DisfigurementSkipper",
@@ -52,20 +59,30 @@ public class DisfigurementSkipperScreenStoryboard : ChargenScreenStoryboard
 			new DisfigurementSkipperScreenStoryboard().HelpText);
 	}
 
-	public override IChargenScreen GetScreen(IChargen chargen) => new DisfigurementSkipperScreen(chargen, this);
+	private bool UsesPicker(IChargen chargen) => PickForSpecialApplications && chargen.ApplicationType == ApplicationType.Special;
+
+	public override IChargenScreen GetScreen(IChargen chargen) =>
+		UsesPicker(chargen) ? base.GetScreen(chargen) : new DisfigurementSkipperScreen(chargen, this);
+
+	public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen) =>
+		UsesPicker(chargen) ? base.ChargenCosts(chargen) : [];
 
 	public override string Show(ICharacter voyeur)
 	{
 		var sb = new StringBuilder(ShowHeader(voyeur));
-		sb.AppendLine("Skips disfigurement selection, preserving existing selections. Optional void progs run in the order below with the chargen as their sole parameter. Grants have no resource cost.".Wrap(voyeur.InnerLineFormatLength));
+		sb.AppendLine("Skipped applications keep their existing selections. Optional void progs run in the order below with the chargen as their sole parameter. Grants have no resource cost.".Wrap(voyeur.InnerLineFormatLength));
+		sb.AppendLine($"Use Picker for Special Applications: {PickForSpecialApplications.ToColouredString()}");
 		sb.AppendLine($"Missing Bodyparts Prog: {MissingBodypartsProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
 		sb.AppendLine($"Give Prostheses Prog: {GiveProsthesesProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
 		sb.AppendLine($"Give Scars Prog: {GiveScarsProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
 		sb.AppendLine($"Give Tattoos Prog: {GiveTattoosProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
+		if (PickForSpecialApplications) AppendPickerSettings(sb, voyeur);
 		return sb.ToString();
 	}
 
 	public override string HelpText => $@"{BaseHelpText}
+	#3specialpicker#0 - toggles interactive disfigurement selection on special applications
+	{PickerHelpText}
 	#3missingbodyparts <prog|none>#0 - sets the missing bodyparts hook
 	#3prostheses <prog|none>#0 - sets the prostheses hook
 	#3scars <prog|none>#0 - sets the scars hook
@@ -79,6 +96,11 @@ AddChargenProsthesis, AddChargenScar and AddChargenTattoo in these progs.";
 		Action<IFutureProg?> setter;
 		switch (option)
 		{
+			case "specialpicker":
+				PickForSpecialApplications = !PickForSpecialApplications;
+				Changed = true;
+				actor.OutputHandler.Send($"Special applications will {PickForSpecialApplications.NowNoLonger()} use the disfigurement picker.");
+				return true;
 			case "missingbodyparts":
 			case "missingbodypartsprog":
 				setter = prog => MissingBodypartsProg = prog;
@@ -96,7 +118,7 @@ AddChargenProsthesis, AddChargenScar and AddChargenTattoo in these progs.";
 				setter = prog => GiveTattoosProg = prog;
 				break;
 			default:
-				return BuildingCommandFallback(actor, command.GetUndo());
+				return BuildingCommandPicker(actor, command, option);
 		}
 
 		if (!SkipperProgHelper.TryBuildingCommand(Gameworld, actor, command, ProgVariableTypes.Void, out var selected)) return false;

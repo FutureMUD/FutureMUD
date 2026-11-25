@@ -65,7 +65,9 @@ Not every stage has only one possible screen type. The most important alternativ
 - `SelectAccents`: `AccentPicker` or `AccentSkipper`
 - `SelectDisfigurements`: `DisfigurementPicker` or `DisfigurementSkipper`
 - `SelectAttributes`: `AttributeOrderer` or `AttributePointBuy`
-- `SelectSkills`: `SkillPicker` or `SkillCostPicker`
+- `SelectSkills` supports `SkillPicker`, `SkillCostPicker`, `SkillSkipper` and `SkillBoostSkipper`.
+- `SelectKnowledges` supports `KnowledgePickerBySkill` and `KnowledgeSkipper`.
+- `SelectNotes` supports `NotePicker` and `NoteSkipper`.
 - `SelectCharacteristics`: `CharacteristicPicker`, `SimpleCharacteristicPicker`, or `RerollableCharacteristicPicker`
 - `SelectDescription`: `DescriptionPicker` or `CustomDescriptionPicker`; the latter always requires custom short and full descriptions
 - `SpecialApplication`: the same stage can be configured to auto-short first-account applications
@@ -81,7 +83,9 @@ For races without characteristic definitions, all three characteristic picker ty
 
 ### Automatic Accent, Quirk and Disfigurement Stages
 
-`AccentSkipper`, `QuirkSkipper` and `DisfigurementSkipper` create silent screens that complete in their constructors. Their optional prog IDs are stored in each storyboard's existing XML definition; no new stages or database columns are required. See [builder configuration and function signatures](../Builder%20Guides/Character_Creation_Builder_Workflows.md#skipping-optional-selection-screens).
+`AccentSkipper`, `QuirkSkipper` and `DisfigurementSkipper` complete silently on skipped applications. When `PickForSpecialApplications` is enabled on the disfigurement skipper, special applications use the interactive picker and its resource costs. Skipper hooks run only on the silent path. Existing skipper definitions default to skipping every application type. See [builder configuration and function signatures](../Builder%20Guides/Character_Creation_Builder_Workflows.md#skipping-optional-selection-screens).
+
+`NoteSkipper` completes immediately and preserves any notes already entered. A completed notes stage can satisfy submission with zero notes. A completed `SkillSkipper` can likewise submit with zero granted skills after the ordinary skill-group checks.
 
 AccentSkipper resets accents and invalid native-language choices, applies the picker's automatic single-accent grants, then adds distinct known-language accents from `GiveAccentsProg`. Unassigned known languages use `LanguageAcquisition` fallback among chargen-available accents. QuirkSkipper clears selected merits before applying distinct character merits from `GiveQuirksProg`. DisfigurementSkipper initializes all disfigurement lists, preserves existing choices, and normalizes legacy tattoo tuples into selected tattoos before executing `MissingBodypartsProg`, `GiveProsthesesProg`, `GiveScarsProg`, and `GiveTattoosProg` in that order. Disfigurement hooks return void and modify the application through `AddChargenMissingBodypart`, `AddChargenProsthesis`, `AddChargenScar` and `AddChargenTattoo`. The helper functions reject invalid or duplicate grants; hook authors must keep other side effects repeatable.
 

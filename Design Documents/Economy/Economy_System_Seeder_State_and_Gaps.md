@@ -384,6 +384,8 @@ Restaurants are runtime-ready but deliberately have no stock cafe or restaurant 
 
 ### Economy analytics fresh-install state
 
+Migration `20261125040236_AddDiscordEconomyRiskDigest` adds a nullable incident record to each Discord account link. New and existing links start opted out.
+
 The Armageddon worldfile package additionally authors command progs for three source gambling games and two carried-item barter traders. These use native cash transfer and whole-item exchange actions, rather than NPC-owned shops. Dice/pebble wagers require a one-stake NPC bankroll; the wheel retains the source five-stake admission requirement and net +3/+2/0/-1 payouts. Initial money comes from the imported NPC cash definition; successful wagers move that actual cash. Halfling zone-39 gifts update the installed Armageddon ecology register only after successful item delivery. These are one-shot setting records and do not import historical balances or player transactions.
 
 Employment-market and PC-income analytics extend the existing integer snapshot metrics and semantic activity ledger without a migration, new seeder settings or blank-database snapshot changes. New captures include employment counts and rolling real-day PC job/project/clan income. Existing captures are retained without invented employment history. Legacy job collection and clan payday hooks begin recording on deployment; an older overall ledger coverage date does not establish complete payroll coverage before those hooks were installed. Free specialist counts depend on the world's loaded employment-worker NPCs and their configured capabilities; no generic NPC population is seeded for these reports.

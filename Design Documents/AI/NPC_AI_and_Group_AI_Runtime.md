@@ -403,6 +403,8 @@ Group-controlled animals perform those scan checks through their leader and sent
 
 Use group AI when the behavior needs to coordinate across multiple NPCs and maintain shared group state.
 
+Linked SeniorAdmins can inspect individual AI assignments and live group rosters from Discord with `/npc overview` and `/npc group id:<ID>`. Group membership alone leaves an NPC in the count for no individual AI assignments. [Discord NPC AI overview](../Core/Discord_Remote_Operations.md#npc-ai-overview)
+
 ## Builder Workflow
 ### `ai`
 The `ai` command is the primary builder surface for reusable individual AI definitions.

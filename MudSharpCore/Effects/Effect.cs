@@ -29,7 +29,8 @@ public abstract partial class Effect : FrameworkItem, IEffect, IPhysicalEntityRe
     {
         Owner = owner;
         Gameworld = owner.Gameworld;
-        ApplicabilityProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ApplicabilityProg").Value));
+		_savedApplicabilityProgId = long.Parse(root.Element("ApplicabilityProg").Value);
+		_applicabilityProg = Gameworld.FutureProgs.Get(_savedApplicabilityProgId);
     }
 
     public XElement SaveToXml(Dictionary<IEffect, TimeSpan> scheduledEffects)
@@ -37,7 +38,7 @@ public abstract partial class Effect : FrameworkItem, IEffect, IPhysicalEntityRe
         bool scheduled = scheduledEffects.ContainsKey(this);
         return new XElement("Effect",
             scheduled ? new XAttribute("scheduled", true) : null,
-            new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
+            new XElement("ApplicabilityProg", ApplicabilityProgId),
             new XElement("Type", SpecificEffectType),
             new XElement("Original", scheduled ? (long)scheduledEffects[this].TotalMilliseconds : 0),
             new XElement("Remaining", scheduled ? (long)scheduledEffects[this].TotalMilliseconds : 0),
@@ -45,7 +46,19 @@ public abstract partial class Effect : FrameworkItem, IEffect, IPhysicalEntityRe
         );
     }
 
-    public IFutureProg ApplicabilityProg { get; set; }
+	private IFutureProg _applicabilityProg;
+	private long _savedApplicabilityProgId;
+	protected long ApplicabilityProgId => _applicabilityProg?.Id ?? _savedApplicabilityProgId;
+
+	public IFutureProg ApplicabilityProg
+	{
+		get => _applicabilityProg;
+		set
+		{
+			_applicabilityProg = value;
+			_savedApplicabilityProgId = 0;
+		}
+	}
 
     public override string FrameworkItemType => SpecificEffectType;
     public bool LoadErrors { get; protected set; } = false;

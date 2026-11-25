@@ -349,12 +349,21 @@ public partial class Room
         }
     }
 #nullable restore
-    private string SubstituteDescriptionVariables(string description, IPerceiver voyeur, PerceiveIgnoreFlags flags)
+	public string PublicLandmarkDescription(bool nameOnly) =>
+		SubstituteDescriptionVariables(nameOnly ? CurrentOverlay.RoomName : CurrentOverlay.RoomDescription,
+			null, PerceiveIgnoreFlags.None, publicLandmark: true).RawText();
+
+    private string SubstituteDescriptionVariables(string description, IPerceiver voyeur, PerceiveIgnoreFlags flags,
+		bool publicLandmark = false)
     {
         description = SubstituteWeatherAndLightText(description, voyeur);
         description = description.SubstituteANSIColour();
         description = description.Replace("@shop", Shop?.Name ?? "An Empty Shop",
             StringComparison.InvariantCultureIgnoreCase);
+		if (publicLandmark)
+		{
+			return description.SubstitutePublicRoomDetails();
+		}
         description = description.SubstituteCheckTrait(voyeur, Gameworld);
         description = description.SubstituteWrittenLanguage(voyeur, Gameworld);
         return description;

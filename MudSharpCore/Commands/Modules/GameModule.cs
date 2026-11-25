@@ -975,7 +975,7 @@ You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3l
 
         sb.AppendLine($"Path: {pathDescription.ColourCommand()}".Wrap(actor.InnerLineFormatLength));
         int index = 1;
-        foreach ((FutureProg.IFutureProg Prog, string Text) text in landmark.LandmarkDescriptionTexts.Where(x => x.Prog.ExecuteBool(actor)))
+        foreach (var text in landmark.LandmarkDescriptionTexts.Where(x => actor.Gameworld.FutureProgs.Get(x.ProgId)?.ExecuteBool(actor) == true))
         {
             sb.AppendLine();
             sb.AppendLine($"About #{index++.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));

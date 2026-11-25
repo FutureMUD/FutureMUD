@@ -35,7 +35,7 @@ public class AIStorytellerPauseTests
         return gameworld;
     }
 
-    private static ModelStoryteller CreateModel(bool isPaused)
+    internal static ModelStoryteller CreateModel(bool isPaused)
     {
         return new ModelStoryteller
         {

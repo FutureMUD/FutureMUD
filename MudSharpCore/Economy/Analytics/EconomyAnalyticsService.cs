@@ -41,6 +41,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 	private readonly object _snapshotLock = new();
 	private bool _initialised;
 	private bool _snapshotInProgress;
+	private long? _lastScheduledSnapshotId;
 	private readonly object _pendingActivityLock = new();
 	private readonly List<EconomicActivityRecordItem> _pendingActivities = new();
 
@@ -81,11 +82,12 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 	}
 	public DateTime? LastSnapshotUtc { get; private set; }
 	public DateTime? LastPeriodicSnapshotUtc { get; private set; }
+	private DateTime _baselineDueUtc = DateTime.UtcNow;
 	public DateTime? NextPeriodicSnapshotUtc => !SnapshotsEnabled
 		? null
 		: LastPeriodicSnapshotUtc.HasValue
 			? EconomyAnalyticsMath.NextPeriodicDue(LastPeriodicSnapshotUtc.Value, SnapshotInterval)
-			: DateTime.UtcNow;
+			: _baselineDueUtc;
 	public DateTime? ActivityCoverageStartUtc { get; private set; }
 
 	public void Initialise()
@@ -100,11 +102,16 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 			LastSnapshotUtc = FMDB.Context.EconomySnapshots
 				.AsNoTracking()
 				.Max(x => (DateTime?)x.RealDateTime);
-			LastPeriodicSnapshotUtc = FMDB.Context.EconomySnapshots
+			var lastScheduled = FMDB.Context.EconomySnapshots
 				.AsNoTracking()
 				.Where(x => x.Reason == (int)EconomySnapshotReason.Periodic ||
 				            x.Reason == (int)EconomySnapshotReason.Baseline)
-				.Max(x => (DateTime?)x.RealDateTime);
+				.OrderByDescending(x => x.RealDateTime)
+				.ThenByDescending(x => x.Id)
+				.Select(x => new { x.Id, x.RealDateTime })
+				.FirstOrDefault();
+			LastPeriodicSnapshotUtc = lastScheduled?.RealDateTime;
+			_lastScheduledSnapshotId = lastScheduled?.Id;
 			ActivityCoverageStartUtc = FMDB.Context.EconomicActivityRecords
 				.AsNoTracking()
 				.Min(x => (DateTime?)x.RealDateTime);
@@ -120,6 +127,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 
 	private void CheckSnapshotSchedule()
 	{
+		_gameworld.DiscordConnection?.CheckEconomyRiskDigest();
 		if (!SnapshotsEnabled || _snapshotInProgress)
 		{
 			return;
@@ -1083,6 +1091,38 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		return GetRisks(GetCurrentHoldings(economicZoneId), economicZoneId);
 	}
 
+	private EconomyRisk? ReserveShortfall(long? zoneId, long currencyId, decimal deposits, decimal reserves) =>
+		deposits > 0m && reserves < deposits
+			? new EconomyRisk("reserve-shortfall", $"Bank reserves cover {reserves / deposits:P1} of positive deposits.",
+				(deposits - reserves) * GetConversion(currencyId), zoneId, currencyId)
+			: null;
+
+	private EconomyRisk? OverdueSnapshot() =>
+		NextPeriodicSnapshotUtc is { } due && DateTime.UtcNow - due > TimeSpan.FromMinutes(10)
+			? new EconomyRisk("stale-snapshot", $"The scheduled economy snapshot was due at {due:u}.")
+				{ LastScheduledSnapshotId = _lastScheduledSnapshotId }
+			: null;
+
+	public IReadOnlyList<EconomyRisk> GetDigestRisks()
+	{
+		var reserves = _gameworld.Banks
+			.SelectMany(bank => bank.CurrencyReserves.Select(x => (Key: (bank.EconomicZone.Id, x.Key.Id), x.Value)))
+			.GroupBy(x => x.Key)
+			.ToDictionary(g => g.Key, g => g.Sum(x => x.Value));
+		var risks = new List<EconomyRisk>();
+		foreach (var group in _gameworld.BankAccounts.Where(x => x.CurrentBalance > 0m)
+			         .GroupBy(x => (Zone: x.Bank.EconomicZone.Id, Currency: x.Currency.Id)))
+		{
+			if (ReserveShortfall(group.Key.Zone, group.Key.Currency, group.Sum(x => x.CurrentBalance),
+				    reserves.GetValueOrDefault(group.Key)) is { } risk)
+			{
+				risks.Add(risk);
+			}
+		}
+		if (OverdueSnapshot() is { } overdue) { risks.Add(overdue); }
+		return risks;
+	}
+
 	public IReadOnlyList<EconomyRisk> GetRisks(IReadOnlyList<EconomyHolding> currentHoldings,
 		long? economicZoneId = null)
 	{
@@ -1091,12 +1131,9 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		{
 			var deposits = group.Where(x => x.Metric == EconomyHoldingMetric.BankDeposits).Sum(x => x.Amount);
 			var reserves = group.Where(x => x.Metric == EconomyHoldingMetric.BankReserves).Sum(x => x.Amount);
-			if (deposits > 0.0M && reserves < deposits)
+			if (ReserveShortfall(group.Key.EconomicZoneId, group.Key.CurrencyId, deposits, reserves) is { } shortfall)
 			{
-				risks.Add(new EconomyRisk("reserve-shortfall",
-					$"Bank reserves cover {reserves / deposits:P1} of positive deposits.",
-					(deposits - reserves) * GetConversion(group.Key.CurrencyId), group.Key.EconomicZoneId,
-					group.Key.CurrencyId));
+				risks.Add(shortfall);
 			}
 
 			var debt = group.Where(x => x.Metric == EconomyHoldingMetric.BankDebt).Sum(x => x.Amount);
@@ -1136,9 +1173,9 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		{
 			risks.Add(new EconomyRisk("snapshots-disabled", "Snapshot collection is disabled; existing history is preserved."));
 		}
-		else if (LastSnapshotUtc.HasValue && DateTime.UtcNow - LastSnapshotUtc.Value > SnapshotInterval + TimeSpan.FromMinutes(10))
+		else if (OverdueSnapshot() is { } overdue)
 		{
-			risks.Add(new EconomyRisk("stale-snapshot", "The most recent snapshot is older than the configured interval."));
+			risks.Add(overdue);
 		}
 
 		return risks;
@@ -1273,6 +1310,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				if (reason is EconomySnapshotReason.Baseline or EconomySnapshotReason.Periodic)
 				{
 					LastPeriodicSnapshotUtc = now;
+					_lastScheduledSnapshotId = snapshot.Id;
 				}
 
 				return snapshot.Id;
@@ -1297,6 +1335,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		SaveConfiguration(SnapshotsEnabledConfiguration, enabled.ToString().ToLowerInvariant());
 		if (enabled && LastSnapshotUtc is null)
 		{
+			_baselineDueUtc = DateTime.UtcNow;
 			TakeSnapshot(EconomySnapshotReason.Baseline);
 		}
 	}

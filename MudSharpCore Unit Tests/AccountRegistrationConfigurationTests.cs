@@ -2,6 +2,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Linq;
+using MudSharp.Accounts;
+using MudSharp.Discord;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -13,6 +16,30 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AccountRegistrationConfigurationTests
 {
+	[TestMethod]
+	public void Create_OnlyAnnouncesANewlyPersistedAccount()
+	{
+		using var database = new InMemoryDatabaseTestScope();
+		database.Context.AuthorityGroups.Add(new MudSharp.Models.AuthorityGroup
+		{
+			Name = "Player", AuthorityLevel = (int)PermissionLevel.Player
+		});
+		database.Context.SaveChanges();
+		var world = new Mock<IFuturemud>();
+		var bridge = new Mock<IDiscordConnection>();
+		world.SetupGet(x => x.DiscordConnection).Returns(bridge.Object);
+		world.Setup(x => x.GetStaticBool(RuntimeAccount.DisableAccountRegistrationByEmailStaticConfiguration)).Returns(true);
+		bridge.Setup(x => x.NotifyAccountCreated("Morgan"))
+			.Callback(() => Assert.IsTrue(database.Context.Accounts.Any(x => x.Name == "morgan")));
+
+		bool Create(string name) => RuntimeAccount.Create(world.Object, name, "test hash", 123, "en-US", "UTC",
+			true, 80, "morgan@example.invalid", "Metric", "127.0.0.1");
+		Assert.IsTrue(Create("Morgan"));
+		Assert.IsFalse(Create("MORGAN"));
+		bridge.Verify(x => x.NotifyAccountCreated("Morgan"), Times.Once);
+		bridge.VerifyNoOtherCalls();
+	}
+
 	[TestMethod]
 	public void StaticDefaults_DisableAccountRegistrationByEmailDefaultsToFalse()
 	{

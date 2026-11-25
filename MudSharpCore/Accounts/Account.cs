@@ -392,6 +392,7 @@ public sealed class Account : SaveableItem, IAccount
         int linewidth, string email, string unitPreference, string IP)
     {
         string nameLower = name.ToLowerInvariant().Trim();
+		string verificationCode = null;
 
         lock (_creationMutex)
         {
@@ -452,15 +453,16 @@ public sealed class Account : SaveableItem, IAccount
                 FMDB.Context.Accounts.Add(newAccount);
                 FMDB.Context.LoginIps.Add(ipLog);
 
-                if (FMDB.Context.SaveChanges() > 0)
-                {
-					if (!disableAccountRegistrationByEmail)
-						EmailHelper.Instance.SendEmail(EmailTemplateTypes.NewAccountVerification, email, name.Proper(), newAccount.RegistrationCode);
-                    return true;
-                }
+				if (FMDB.Context.SaveChanges() == 0) { return false; }
+				if (!disableAccountRegistrationByEmail) { verificationCode = newAccount.RegistrationCode; }
             }
-
-            return false;
         }
+
+		gameworld.DiscordConnection?.NotifyAccountCreated(name.Proper());
+		if (verificationCode is not null)
+		{
+			EmailHelper.Instance.SendEmail(EmailTemplateTypes.NewAccountVerification, email, name.Proper(), verificationCode);
+		}
+		return true;
     }
 }

@@ -10,6 +10,7 @@ internal static class DiscordRemotePolicy
 		new Dictionary<string, PermissionLevel>(StringComparer.Ordinal)
 		{
 			["game.info"] = PermissionLevel.Guest, ["game.helpsearch"] = PermissionLevel.Guest,
+			["game.landmarks"] = PermissionLevel.Guest, ["game.landmark"] = PermissionLevel.Guest,
 			["game.time"] = PermissionLevel.Guest, ["game.calendar"] = PermissionLevel.Guest,
 			["game.weather"] = PermissionLevel.Guest, ["game.chargenguide"] = PermissionLevel.Guest,
 			["account.linkstatus"] = PermissionLevel.Player, ["account.unlink"] = PermissionLevel.Player,
@@ -23,7 +24,12 @@ internal static class DiscordRemotePolicy
 			["admin.performance"] = PermissionLevel.SeniorAdmin, ["admin.census"] = PermissionLevel.SeniorAdmin,
 			["admin.actionlog"] = PermissionLevel.SeniorAdmin, ["admin.deauthorise"] = PermissionLevel.Founder,
 			["admin.resourceaudit"] = PermissionLevel.Admin,
+			["justice.status"] = PermissionLevel.JuniorAdmin,
+			["npc.overview"] = PermissionLevel.SeniorAdmin, ["npc.group"] = PermissionLevel.SeniorAdmin,
+			["storyteller.overview"] = PermissionLevel.SeniorAdmin, ["storyteller.status"] = PermissionLevel.SeniorAdmin,
+			["storyteller.pause"] = PermissionLevel.SeniorAdmin, ["storyteller.resume"] = PermissionLevel.SeniorAdmin,
 			["economy.summary"] = PermissionLevel.Admin, ["economy.money"] = PermissionLevel.Admin,
+			["economy.digest"] = PermissionLevel.Admin,
 			["economy.holdings"] = PermissionLevel.Admin, ["economy.volume"] = PermissionLevel.Admin,
 			["economy.income"] = PermissionLevel.Admin, ["economy.employment"] = PermissionLevel.Admin,
 			["economy.trends"] = PermissionLevel.Admin, ["economy.wealth"] = PermissionLevel.Admin,
@@ -43,6 +49,7 @@ internal static class DiscordRemotePolicy
 
 	internal static bool RequiresConfirmation(string operation, string arguments) => operation is
 		"account.unlink" or "admin.addnote" or "admin.resources" or "admin.ban" or "admin.unban" or
-		"admin.deauthorise" or "economy.snapshot" or "economy.configure" or "hooks.enabled" ||
+		"admin.deauthorise" or "economy.snapshot" or "economy.configure" or "hooks.enabled" or
+		"storyteller.pause" or "storyteller.resume" ||
 		operation == "admin.maintenance" && arguments != "{}" && !string.IsNullOrWhiteSpace(arguments);
 }

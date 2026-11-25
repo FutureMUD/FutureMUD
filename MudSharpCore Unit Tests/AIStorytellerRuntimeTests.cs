@@ -315,6 +315,33 @@ public class AIStorytellerRuntimeTests
 		StringAssert.Contains(usage, "500");
 		StringAssert.Contains(usage, "300");
 		Assert.IsFalse(usage.Contains("PRIVATE NARRATIVE"));
+		Assert.AreEqual(new StorytellerOverview(0, null, 1, 1234, 200, 0), s.GetOverview());
+	}
+
+	[TestMethod]
+	public void Overview_ReportsQueuedAndActiveWorkAndFiveRedactedFailures()
+	{
+		var (s, adapter, clock) = Create(0);
+		for (var i = 0; i < 6; i++)
+		{
+			clock.Advance(TimeSpan.FromSeconds(1));
+			adapter.Responses.Enqueue(Task.FromResult(Response("failed", "[]", ",\"error\":{\"message\":\"PRIVATE ERROR\"}")));
+			Assert.IsTrue(Enqueue(s, classify: true, text: "PRIVATE EVENT"));
+			Assert.AreEqual(1, s.GetOverview().QueuedBatches);
+			s.ProcessPendingWork();
+			Assert.AreEqual("attention", s.GetOverview().ActiveRole);
+			s.ProcessPendingWork();
+		}
+		var overview = s.GetOverview();
+		Assert.AreEqual(6L, overview.Failures);
+		Assert.AreEqual(6L, overview.Requests);
+		Assert.IsNull(overview.ActiveRole);
+		var detail = s.DescribeUsage(System.Globalization.CultureInfo.InvariantCulture);
+		Assert.AreEqual(5, detail.Split("Unsuccessful provider response").Length - 1);
+		StringAssert.Contains(detail, "2026-10-28 00:00:06Z | attention");
+		Assert.IsFalse(detail.Contains("00:00:01Z"));
+		Assert.IsFalse(detail.Contains("PRIVATE"));
+		Assert.IsFalse(detail.Contains("not-a-real-key"));
 	}
 
 	[TestMethod]

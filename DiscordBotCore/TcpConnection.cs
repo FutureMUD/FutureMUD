@@ -118,6 +118,9 @@ public class TcpConnection
             case "accountnotification":
                 await HandleAccountNotificationAsync(ss);
                 return;
+			case "accountcreated":
+				await _discordBot.AnnounceToAdminChannel(DiscordBotProtocol.AccountCreatedMessage(command.Payload, _discordBot.GameName));
+				return;
             case "login":
                 await HandleTcpCommandLoginAsync(ss.RemainingArgument);
                 return;
@@ -256,48 +259,27 @@ public class TcpConnection
         await channel.SendMessageAsync($"**{header}**\n\n```{message}```");
     }
 
-    private async Task HandleTcpCommandEnforcement(StringStack ss)
-    {
-        if (!TcpClientAuthenticated)
-        {
-            return;
-        }
+	private Task HandleTcpCommandEnforcement(StringStack ss) => DeliverEnforcementAsync(ss, async (id, message) =>
+	{
+		var channel = await _discordClient.GetChannelAsync(id);
+		await channel.SendMessageAsync(message);
+	});
 
-        string subtype = ss.Pop();
-        ulong channelid = ulong.Parse(ss.Pop());
-        DiscordChannel channel = await _discordClient.GetChannelAsync(channelid);
-        string authority = ss.PopSpeech();
-        string criminalid = ss.Pop();
-        string criminalname = ss.PopSpeech();
-        switch (subtype)
-        {
-            case "enforcement":
-                string patrol = ss.PopSpeech();
-                string crime = ss.PopSpeech();
-                string location = ss.PopSpeech();
-                string action = ss.PopSpeech();
-                await channel.SendMessageAsync($"Enforcement Action in **{authority}** at **{location}**:\n\tThe **{patrol}** patrol is enforcing **{crime}** against **{criminalname}** ({criminalid}) - *{action}*");
-                return;
-            case "conviction":
-                crime = ss.PopSpeech();
-                string result = ss.PopSpeech();
-                await channel.SendMessageAsync($"Conviction Recorded in **{authority}**:\n\t**{criminalname}** ({criminalid}) was convicted of **{crime}** with a punishment of **{result}**");
-                return;
-            case "returnfrombail":
-                await channel.SendMessageAsync($"**{criminalname}** ({criminalid}) has returned from bail in **{authority}**");
-                return;
-            case "release":
-                await channel.SendMessageAsync($"**{criminalname}** ({criminalid}) has been released from custody in **{authority}**");
-                return;
-            case "imprisonment":
-                string length = ss.PopSpeech();
-                await channel.SendMessageAsync($"**{criminalname}** ({criminalid}) has been sentenced to **{length}** imprisonment in **{authority}**");
-                return;
-            case "incarceration":
-                await channel.SendMessageAsync($"**{criminalname}** ({criminalid}) has been incarcerated awaiting trial in **{authority}**");
-                return;
-        }
-    }
+	internal static async Task DeliverEnforcementAsync(StringStack ss, Func<ulong, string, Task> send)
+	{
+		var subtype = ss.Pop();
+		if (!ulong.TryParse(ss.Pop(), NumberStyles.None, CultureInfo.InvariantCulture, out var channelId) || channelId == 0) { return; }
+		var message = DiscordBotProtocol.EnforcementMessage(subtype, ss);
+		if (message is null) { return; }
+		try
+		{
+			await send(channelId, DiscordResponseText.Truncate(message, 2000));
+		}
+		catch (Exception error)
+		{
+			Log.Warning("Could not deliver {Subtype} notification to Discord channel {ChannelId} ({ExceptionType}).", subtype, channelId, error.GetType().Name);
+		}
+	}
 
     private async Task HandleTcpCommandRequest(StringStack ss)
     {

@@ -225,6 +225,10 @@ public class PatrolController : IPatrolController
         ICharacter leader = patrolMembers.GetRandomElement();
         Patrol patrol = new(LegalAuthority, route, leader, patrolMembers, pendingReport, targetCrime);
         LegalAuthority.AddPatrol(patrol);
+		if (route.PatrolStrategy is ExecutionPatrolStrategy)
+		{
+			LegalAuthority.NotifyExecutionPatrolStarted(route);
+		}
         return true;
     }
 }

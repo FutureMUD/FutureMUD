@@ -103,6 +103,9 @@ namespace MudSharp.RPG.Law
         void IncarcerateCriminal(ICharacter who);
         void HandleDiscordNotification(ICrime crime);
         void HandleDiscordNotificationOfEnforcement(ICrime crime, IPatrol patrol);
+		void NotifyTrialRequested(ICharacter defendant);
+		void NotifyTrialStarted(ICharacter defendant);
+		void NotifyExecutionPatrolStarted(IPatrolRoute route);
         void HandleDiscordNotificationOfConviction(ICharacter criminal, ICrime crime, PunishmentResult result, ICharacter enforcer);
         void HandleDiscordNotificationOfForgiveness(ICrime crime, ICharacter enforcer);
         void ConvictAllKnownCrimes(ICharacter criminal, ICharacter judge);

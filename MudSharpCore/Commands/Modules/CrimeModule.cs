@@ -1866,27 +1866,9 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
                 continue;
             }
 
-            if (jurisdiction.CourtLocation is null)
+            if (jurisdiction.TrialRequestBlocker() is { } courtBlocker)
             {
-                errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have a courtroom");
-                continue;
-            }
-
-            if (jurisdiction.CourtLocation.Characters.Any(x => x.AffectedBy<OnTrial>(jurisdiction)))
-            {
-                errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction already has a trial being heard");
-                continue;
-            }
-
-            if (jurisdiction.Patrols.All(x => x.PatrolStrategy.Name != "Judge"))
-            {
-                errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have any hearings scheduled");
-                continue;
-            }
-
-            if (jurisdiction.Patrols.Where(x => x.PatrolStrategy.Name == "Judge").All(x => x.PatrolLeader.Location != jurisdiction.CourtLocation))
-            {
-                errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have a judge available");
+                errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction {courtBlocker}");
                 continue;
             }
 
@@ -1903,6 +1885,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
             actor.RoomLayer = RoomLayer.GroundLevel;
             jurisdiction.CourtLocation.Enter(actor);
             actor.AddEffect(new OnTrial(actor, jurisdiction, DateTime.UtcNow, crimes));
+			jurisdiction.NotifyTrialRequested(actor);
             actor.Body.Look(true);
             actor.OutputHandler.Handle(new EmoteOutput(
                 new Emote(actor.Gameworld.GetStaticString("RequestTrialEmoteCourt"), actor, actor),
@@ -2674,7 +2657,7 @@ The syntax is as follows:
     private static List<ILegalAuthority> JudgementAuthorities(ICharacter actor)
     {
         return actor.Gameworld.LegalAuthorities
-                    .Where(x => actor.IsAdministrator() || x.GetEnforcementAuthority(actor)?.CanConvict == true)
+                    .Where(x => x.HasJudgementAuthority(actor))
                     .ToList();
     }
 
@@ -2944,6 +2927,7 @@ The syntax is as follows:
         if (target.Location == jurisdiction.CourtLocation)
         {
             target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));
+			jurisdiction.NotifyTrialStarted(target);
             actor.OutputHandler.Handle(new QuickEmote("@ call|calls $1 before the court to answer the charges.", actor, actor, target));
             return;
         }
@@ -2959,6 +2943,7 @@ The syntax is as follows:
         target.RoomLayer = RoomLayer.GroundLevel;
         jurisdiction.CourtLocation.Enter(target);
         target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));
+		jurisdiction.NotifyTrialStarted(target);
         target.Body.Look(true);
         target.OutputHandler.Handle(new EmoteOutput(
             new Emote(actor.Gameworld.GetStaticString("FetchCriminalForTrialEmoteCourt"), target, target),

@@ -84,4 +84,21 @@ public sealed partial class DiscordConnection
 	}
 
 	public void NotifyAccountMessage(string account, string message) => NotifyLinkedAccount(account, message);
+
+	public void CheckEconomyRiskDigest()
+	{
+		if (!_authenticated) { return; }
+		try
+		{
+			Remote.ProcessEconomyDigest(() => _authenticated, (id, message) =>
+			{
+				var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(message));
+				SendClientMessage($"accountnotification {id} {payload}");
+			});
+		}
+		catch (Exception error)
+		{
+			Console.WriteLine($"Discord economy digest check failed ({error.GetType().Name}).");
+		}
+	}
 }

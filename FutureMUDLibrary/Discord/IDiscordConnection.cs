@@ -8,6 +8,7 @@ namespace MudSharp.Discord
         void SendMessageFromProg(ulong channel, string title, string message);
         void NotifyPetition(string account, string message, string location);
         void NotifyCharacterSubmission(string account, string name, long id);
+        void NotifyAccountCreated(string account);
         void NotifyShutdown(string shutdownAccount, bool reboot = true);
         void NotifyCharacterApproval(string account, string name, string approver);
         void NotifyCharacterRejection(string account, string name, string reviewer);
@@ -22,6 +23,7 @@ namespace MudSharp.Discord
         void HandleMessages();
         void HandleBroadcast(string message);
         void NotifyEnforcement(string subtype, ulong discordChannel, string otherText);
+		void CheckEconomyRiskDigest();
         void NotifyProgError(long progId, string progName, string errorMessage);
         /// <summary>Optionally forwards applicant/staff-facing text to an opted-in, verified account link.</summary>
         void NotifyAccountMessage(string account, string message) { }

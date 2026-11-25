@@ -11,6 +11,20 @@ namespace MudSharp_Unit_Tests;
 public class DiscordIntegrationMigrationTests
 {
 	[TestMethod]
+	public void EconomyDigestMigration_LeavesExistingLinksOptedOut()
+	{
+		var migration = new _20261125040236_AddDiscordEconomyRiskDigest();
+		var column = (AddColumnOperation)migration.UpOperations.Single();
+		Assert.AreEqual("DiscordAccountLinks", column.Table);
+		Assert.AreEqual("EconomyRiskDigestState", column.Name);
+		Assert.IsTrue(column.IsNullable);
+		Assert.IsNull(column.DefaultValue);
+		var drop = (DropColumnOperation)migration.DownOperations.Single();
+		Assert.AreEqual(column.Name, drop.Name);
+		Assert.AreEqual(column.Table, drop.Table);
+	}
+
+	[TestMethod]
 	public void Migration_OnlyCreatesDiscordTables_PreservesExistingWorldSchema()
 	{
 		var operations = new DiscordRemoteOperations().UpOperations;

@@ -27,7 +27,15 @@ Every recognized command other than `login` is marked as requiring authenticatio
 
 Remote requests carry a unique operation ID and Discord invoker/context. The engine resolves a persisted account binding and rechecks current authority, suspension and context. Sensitive compatibility commands also require a verified account at the engine boundary. Public named help uses the public route; the unauthorised where path returns immediately.
 
-See [Discord Remote Operations](./Discord_Remote_Operations.md) for the added actions, public publication settings, identity migration, confirmations, durable outcomes and Discord Hook authoring.
+The following authenticated engine frames carry the account, court and economy alerts. Each frame has a single destination.
+
+| Frame | Destination |
+| --- | --- |
+| `accountcreated <account name>` | The bot’s configured admin announcement channel. The bot adds its configured game name. |
+| `enforcement <subtype> <channel ID> <message>` | The jurisdiction’s configured channel. The subtypes `trialrequested`, `trialstarted` and `executionpatrol` carry display text. |
+| `accountnotification <Discord user ID> <base64 UTF-8 text>` | A private message to that user. The engine checks digest eligibility and records the incident before using this frame. |
+
+For the slash commands, required MUD ranks, account linking and digest delivery policy, see [Discord Remote Operations](./Discord_Remote_Operations.md).
 
 Discord `showaccount` and `showcharacter` requests carry the linked MUD account ID, but the engine remains the authorization boundary: the requester must currently resolve to at least `JuniorAdmin`. Malformed request, requester, or character identifiers are rejected without throwing through the game loop. Account-detail rendering occurs while its `FMDB` scope is alive because the formatter reads account navigation data and related character rows.
 

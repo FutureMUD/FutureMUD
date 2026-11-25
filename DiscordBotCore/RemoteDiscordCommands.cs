@@ -25,6 +25,15 @@ internal static class RemoteDiscordCommands
 [SlashCommandGroup("game", "Public information about the game")]
 public sealed class GameCommands : ApplicationCommandModule
 {
+	[SlashCommand("landmarks", "List visible landmarks in room ID order")]
+	public Task LandmarksAsync(InteractionContext context,
+		[Option("after", "Show landmarks after this room ID")] long? after = null) =>
+		RemoteDiscordCommands.SubmitAsync(context, "game.landmarks", ("after", after));
+
+	[SlashCommand("landmark", "View a landmark from the directory")]
+	public Task LandmarkAsync(InteractionContext context, [Option("id", "Room ID from the landmark list")] long id) =>
+		RemoteDiscordCommands.SubmitAsync(context, "game.landmark", ("id", id));
+
 	[SlashCommand("info", "Game description, links, connection information and maintenance notice")]
 	public Task InfoAsync(InteractionContext context) => RemoteDiscordCommands.SubmitAsync(context, "game.info");
 
@@ -148,9 +157,56 @@ public sealed class AdminCommands : ApplicationCommandModule
 		RemoteDiscordCommands.SubmitAsync(context, "admin.resourceaudit", ("resource", resource));
 }
 
+[SlashCommandGroup("npc", "Private reports on active NPCs and their AI")]
+public sealed class NpcCommands : ApplicationCommandModule
+{
+	[SlashCommand("overview", "Show active NPCs by AI type, unassigned NPCs and live group controllers")]
+	public Task OverviewAsync(InteractionContext context, [Option("page", "Page of AI types and group controllers")] long? page = null) =>
+		RemoteDiscordCommands.SubmitAsync(context, "npc.overview", ("page", page));
+
+	[SlashCommand("group", "Show the members of one live group controller")]
+	public Task GroupAsync(InteractionContext context, [Option("id", "Group controller ID from /npc overview")] long id,
+		[Option("page", "Page of group members")] long? page = null) =>
+		RemoteDiscordCommands.SubmitAsync(context, "npc.group", ("id", id), ("page", page));
+}
+
+[SlashCommandGroup("justice", "Private jurisdiction reports")]
+public sealed class JusticeCommands : ApplicationCommandModule
+{
+	[SlashCommand("status", "List jurisdictions or inspect one court, its waiting defendants and active patrols")]
+	public Task StatusAsync(InteractionContext context,
+		[Option("jurisdiction", "Jurisdiction ID or exact name, omit to list jurisdictions")] string? jurisdiction = null,
+		[Option("page", "Page of jurisdictions or court and patrol entries")] long? page = null) =>
+		RemoteDiscordCommands.SubmitAsync(context, "justice.status", ("jurisdiction", jurisdiction), ("page", page));
+}
+
+[SlashCommandGroup("storyteller", "Private AI storyteller reports and controls")]
+public sealed class StorytellerCommands : ApplicationCommandModule
+{
+	[SlashCommand("overview", "Show storyteller states, work, usage and failures since startup")]
+	public Task OverviewAsync(InteractionContext context, [Option("after", "Continue after this storyteller ID")] long? after = null) =>
+		RemoteDiscordCommands.SubmitAsync(context, "storyteller.overview", ("after", after));
+
+	[SlashCommand("status", "Inspect workload, per-role usage and recent failures")]
+	public Task StatusAsync(InteractionContext context, [Option("target", "Storyteller ID or exact name")] string target) =>
+		RemoteDiscordCommands.SubmitAsync(context, "storyteller.status", ("target", target));
+
+	[SlashCommand("pause", "Pause one storyteller, cancelling active and discarding queued work")]
+	public Task PauseAsync(InteractionContext context, [Option("target", "Storyteller ID or exact name")] string target) =>
+		RemoteDiscordCommands.SubmitAsync(context, "storyteller.pause", ("target", target));
+
+	[SlashCommand("resume", "Resume one paused storyteller for new work")]
+	public Task ResumeAsync(InteractionContext context, [Option("target", "Storyteller ID or exact name")] string target) =>
+		RemoteDiscordCommands.SubmitAsync(context, "storyteller.resume", ("target", target));
+}
+
 [SlashCommandGroup("economy", "Private economy reports and controls")]
 public sealed class EconomyCommands : ApplicationCommandModule
 {
+	[SlashCommand("digest", "Inspect or change your private reserve shortfall and overdue snapshot alerts")]
+	public Task DigestAsync(InteractionContext context, [Option("enabled", "Enable or disable your own digest")] bool? enabled = null) =>
+		RemoteDiscordCommands.SubmitAsync(context, "economy.digest", ("enabled", enabled));
+
 	[SlashCommand("summary", "Summarise money supply, reserves, activity and warnings")]
 	public Task SummaryAsync(InteractionContext context, [Option("zoneid", "Optional economic zone ID")] long? zoneId = null) =>
 		RemoteDiscordCommands.SubmitAsync(context, "economy.summary", ("zoneId", zoneId));

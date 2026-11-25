@@ -365,10 +365,12 @@ There is also a universal optional argument which must come first in the form of
 
             sb.AppendLine($"Extra Texts for this landmark:");
             int i = 1;
-            foreach ((IFutureProg Prog, string Text) text in existing.LandmarkDescriptionTexts)
+            foreach (var text in existing.LandmarkDescriptionTexts)
             {
                 sb.AppendLine();
-                sb.AppendLine($"#{i++.ToStringN0(actor)} - Prog: {text.Prog.MXPClickableFunctionName()}");
+                var filter = actor.Gameworld.FutureProgs.Get(text.ProgId);
+                var filterName = filter is null ? $"Missing prog #{text.ProgId.ToStringN0(actor)}".ColourError() : filter.MXPClickableFunctionName();
+                sb.AppendLine($"#{i++.ToStringN0(actor)} - Prog: {filterName}");
                 sb.AppendLine();
                 sb.AppendLine(text.Text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
             }
@@ -386,13 +388,13 @@ There is also a universal optional argument which must come first in the form of
                     return;
                 }
 
-                existing.LandmarkDescriptionTexts[index] = (existing.LandmarkDescriptionTexts[index].Prog, text);
+                existing.LandmarkDescriptionTexts[index] = (existing.LandmarkDescriptionTexts[index].ProgId, text);
                 existing.Changed = true;
                 handler.Send($"You change the text of the {(index + 1).ToOrdinal()} extra text for this landmark to:\n\n{text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
             }
             else if (args[0] is IFutureProg prog)
             {
-                existing.LandmarkDescriptionTexts.Add((prog, text));
+                existing.LandmarkDescriptionTexts.Add((prog.Id, text));
                 existing.Changed = true;
                 handler.Send($"You add a new extra text for this landmark with the prog {prog.MXPClickableFunctionName()} and text as follows:\n\n{text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
             }
@@ -468,7 +470,7 @@ Enter your text below:");
                     return;
                 }
 
-                existing.LandmarkDescriptionTexts[value - 1] = (prog, existing.LandmarkDescriptionTexts[value - 1].Text);
+                existing.LandmarkDescriptionTexts[value - 1] = (prog.Id, existing.LandmarkDescriptionTexts[value - 1].Text);
                 existing.Changed = true;
                 actor.OutputHandler.Send($"The {value.ToOrdinal()} extra description for this landmark now uses the prog {prog.MXPClickableFunctionName()}.");
                 return;
@@ -523,8 +525,8 @@ Enter your text below:");
                     return;
                 }
 
-                (IFutureProg Prog, string Text) old = existing.LandmarkDescriptionTexts.ElementAt(value - 1);
-                existing.LandmarkDescriptionTexts.Remove(old);
+                var old = existing.LandmarkDescriptionTexts[value - 1];
+                existing.LandmarkDescriptionTexts.RemoveAt(value - 1);
                 existing.Changed = true;
                 actor.OutputHandler.Send($"You remove the {value.ToOrdinal()} landmark description, which was:\n\n{old.Text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
                 return;

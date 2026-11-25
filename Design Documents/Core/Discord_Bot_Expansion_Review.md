@@ -293,3 +293,14 @@ Implementation acceptance:
 The bot unit suite covers framing, authentication, settings, link serialisation and request-ID uniqueness. Core [ExternalIntegrationSecurityTests](../../MudSharpCore%20Unit%20Tests/ExternalIntegrationSecurityTests.cs) cover show-command authority/parsing and alert sanitisation. These do not prove full command permissions or live gameplay/Discord behavior.
 
 Review validation: source/dispatch/persistence/service tracing, complete command inventory, delimiter byte-level probe, document-link and diff checks. No runtime code changed. No unit suites, live MUD, Discord bot or migrations were executed for this investigation. Implementation must run the owning bot/core/persistence suites and an explicit disposable-world Discord acceptance scenario.
+
+## Staff tools proposed on 25 November 2026
+
+| Priority | Proposed workflow | Existing capability to build on |
+| --- | --- | --- |
+| 1 (implemented) | A SeniorAdmin checks which AI storytellers are paused, inspects work, token use and recent failures, and confirms a pause or resume for one named storyteller. | [Discord storyteller commands](./Discord_Remote_Operations.md#ai-storyteller-operations) share the in-game usage counters and native controls. |
+| 2 (implemented) | Linked Admins can subscribe to private DMs for reserve shortfalls, their clearance, and overdue scheduled snapshots. | The [economy risk digest](./Discord_Remote_Operations.md#economy-risk-digest) remembers incidents per subscriber across restarts and links each alert to the relevant report. |
+| 3 (implemented) | Follow a justice notification with a private jurisdiction report showing waiting defendants, judge availability and active patrols. | [Justice status](./Discord_Remote_Operations.md#justice-status) uses the jurisdiction’s known cases, courtroom and launched patrols. |
+| 4 (implemented) | Inspect active NPC counts per AI type, NPCs without individual AI, and live group controllers and their members. | The [NPC AI overview](./Discord_Remote_Operations.md#npc-ai-overview) counts distinct NPCs and individual assignments separately and provides a roster for each controller. |
+
+All four staff workflows are documented in [Discord Remote Operations](./Discord_Remote_Operations.md).

@@ -10,6 +10,8 @@ internal interface IDiscordRemoteStore
 {
 	DiscordAccountLink? FindLink(string userId);
 	void SaveLink(DiscordAccountLink link);
+	IReadOnlyList<DiscordAccountLink> EconomyDigestSubscribers();
+	bool TryAdvanceEconomyDigest(DiscordAccountLink link, string state);
 	void RemoveLink(string userId);
 	IReadOnlyList<DiscordHook> Hooks();
 	void SaveHook(DiscordHook hook);
@@ -24,6 +26,25 @@ internal interface IDiscordRemoteStore
 
 internal sealed class DiscordRemoteStore : IDiscordRemoteStore
 {
+	private static IQueryable<DiscordAccountLink> EligibleDigestLinks() => FMDB.Context.DiscordAccountLinks
+		.Where(x => x.EconomyRiskDigestState != null && x.Account.AccessStatus == (int)Accounts.AccountStatus.Normal &&
+		            x.Account.AuthorityGroup.AuthorityLevel >= (int)Accounts.PermissionLevel.Admin);
+
+	public IReadOnlyList<DiscordAccountLink> EconomyDigestSubscribers()
+	{
+		using (new FMDB()) { return EligibleDigestLinks().AsNoTracking().ToList(); }
+	}
+
+	public bool TryAdvanceEconomyDigest(DiscordAccountLink link, string state)
+	{
+		using (new FMDB())
+		{
+			return EligibleDigestLinks().Where(x => x.DiscordUserId == link.DiscordUserId && x.AccountId == link.AccountId &&
+				x.CreatedUtc == link.CreatedUtc && x.EconomyRiskDigestState == link.EconomyRiskDigestState)
+				.ExecuteUpdate(s => s.SetProperty(x => x.EconomyRiskDigestState, state)) == 1;
+		}
+	}
+
 	public DiscordAccountLink? FindLink(string userId)
 	{
 		using (new FMDB())

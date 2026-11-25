@@ -150,15 +150,21 @@ internal sealed partial class DiscordRemoteService
 			// A duplicate completion is a result lookup, not another attempt to validate/execute its old target state.
 			if (existing is not null && existing.Status != "confirmation")
 			{
+				// Landmark visibility can change with the world, a prog edit or a staff demotion.
+				if (request.Operation is "game.landmark" or "game.landmarks")
+				{
+					return Response(request, "denied", "Request a fresh landmark view to check current visibility.");
+				}
 				return existing.Fingerprint == fingerprint && existing.AccountId == account?.Id
 					? FromInvocation(request, existing)
 					: Response(request, "denied", "Request ID belongs to a different operation or account.");
 			}
 			if (request.Operation == "hooks.run") { ValidateRunnableHook(hook!); }
+			string? confirmationPrompt = null;
 			var definitionFingerprint = hook is not null ? HookFingerprint(hook) :
 				DiscordRemotePolicy.RequiresConfirmation(request.Operation, request.Arguments) &&
 				request.Operation is not ("account.unlink" or "admin.deauthorise")
-					? Hash(ReportConfirmationFingerprint(request, account)) : "";
+					? Hash(ReportConfirmationFingerprint(request, account, out confirmationPrompt)) : "";
 			if (existing is not null)
 			{
 				if (existing.Fingerprint != fingerprint || existing.AccountId != account?.Id)
@@ -204,7 +210,7 @@ internal sealed partial class DiscordRemoteService
 				invocation.Status = "confirmation";
 				invocation.ConfirmationId = Guid.NewGuid().ToString("D");
 				invocation.ExpiresUtc = now.AddMinutes(2);
-				invocation.ResultText = $"Confirm {request.Operation}. Arguments: {request.Arguments}. " +
+				invocation.ResultText = confirmationPrompt ?? $"Confirm {request.Operation}. Arguments: {request.Arguments}. " +
 				                        "This may change persistent world state. Confirmation expires in two minutes.";
 				_store.SaveInvocation(invocation);
 				return FromInvocation(request, invocation);
@@ -250,6 +256,22 @@ internal sealed partial class DiscordRemoteService
 	{
 		switch (request.Operation)
 		{
+			case "economy.digest":
+				if (args.TryGetProperty("enabled", out var digestEnabled))
+				{
+					if (digestEnabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+					{
+						throw new ArgumentException("Supply true or false for enabled.");
+					}
+					if (digestEnabled.GetBoolean() != (link!.EconomyRiskDigestState is not null))
+					{
+						link.EconomyRiskDigestState = digestEnabled.GetBoolean() ? "[]" : null;
+						_store.SaveLink(link);
+					}
+				}
+				return link!.EconomyRiskDigestState is not null
+					? "Your economy risk digest is on. Alerts go to your Discord DMs."
+					: "Your economy risk digest is off.";
 			case "account.linkstatus":
 				return $"Linked to {account!.Name} (#{account.Id}). Notifications: {link!.NotificationsEnabled}.";
 			case "account.unlink":

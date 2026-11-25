@@ -9,6 +9,8 @@ public class DiscordAccountLink
 	public string DiscordUserId { get; set; } = "";
 	public long AccountId { get; set; }
 	public bool NotificationsEnabled { get; set; }
+	/// <summary>Null when opted out. Otherwise contains the last observed economy digest incident keys.</summary>
+	public string? EconomyRiskDigestState { get; set; }
 	public DateTime CreatedUtc { get; set; }
 	public virtual Account Account { get; set; } = null!;
 }

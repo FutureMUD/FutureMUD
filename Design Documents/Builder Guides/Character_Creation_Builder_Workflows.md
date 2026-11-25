@@ -59,7 +59,9 @@ Important note:
 
 ## Skipping Optional Selection Screens
 
-Use `chargen changetype SelectAccents AccentSkipper`, `chargen changetype SelectMerits QuirkSkipper`, or `chargen changetype SelectDisfigurements DisfigurementSkipper` to replace a selection stage with an automatically completed screen. These stages display no prompt. Configure them through `chargen edit <screen>` and `chargen set ...` as usual.
+Use `chargen changetype SelectAccents AccentSkipper`, `chargen changetype SelectMerits QuirkSkipper`, or `chargen changetype SelectNotes NoteSkipper` to advance through those stages automatically. Switching back to `NotePicker` restores previously configured prompts. Add a prompt with `chargen set note add <name> <prog>`.
+
+Use `chargen changetype SelectDisfigurements DisfigurementSkipper` to enable automatic disfigurement grants. While editing that screen, `chargen set specialpicker` toggles interactive selection for special applications. When enabled, use the regular picker settings such as `allowscars`, `allowtattoos` and `allowmissing` to configure their choices. Fresh seeder installations enable this exception. Simple and normal applications run the automatic hooks.
 
 All skipper progs are optional and take one `chargen` parameter. Use a prog ID or name, or `none` to clear the setting:
 

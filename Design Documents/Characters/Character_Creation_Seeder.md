@@ -30,8 +30,8 @@ The stock answers currently cover:
 - whether subclasses are in use
 - whether chargen is role-first or race-first
 - whether attributes use ordered rolls or point-buy
-- whether skills use simple picks or paid boosts
-- whether merits/flaws or quirks are used
+- whether race-first applications use simple skill picks or paid boosts
+- whether players choose balanced merits and flaws, choose quirks, or skip that choice
 - whether custom descriptions are allowed
 
 ## What Gets Seeded
@@ -100,12 +100,17 @@ It now assigns the first available account as the poster instead of assuming acc
 
 ## Stock Answer Effects
 ### Role-first versus race-first
-This only changes the early ordering of role and heritage stages.
+Role-first presents roles before heritage and uses `SkillSkipper` and `KnowledgeSkipper`. Both run their configured free-grant progs. Configured skill-selection groups still run before the open skill selection is skipped. Race-first presents heritage before roles and uses the selected skill picker and `KnowledgePickerBySkill`.
 
-### Merits versus quirks
-This chooses whether the stock `SelectMerits` stage starts as:
-- `MeritPicker`
-- `QuirkPicker`
+### Merits, quirks, or neither
+
+The `merits` answer selects the screen for `SelectMerits`. Choose `merit` for the balanced `MeritPicker`, `quirk` for the unified `QuirkPicker`, or `neither` for the silent `QuirkSkipper`.
+
+### Appearance and notes
+
+Both orders use `DisfigurementSkipper` for simple and normal applications. Special applications use its interactive picker for scars, tattoos, missing bodyparts, and configured prostheses.
+
+`SimpleCharacteristicPicker` rolls initial characteristics from the selected ethnicity and lets players customise individual values. `NoteSkipper` advances to submission without asking for a background note.
 
 ### Attribute mode
 This chooses whether `SelectAttributes` starts as:
@@ -118,7 +123,7 @@ If point-buy is selected:
 - no-resource setups seed free-only point-buy by setting extra paid boosts to zero
 
 ### Skill mode
-This chooses whether `SelectSkills` starts as:
+On the race-first path this chooses whether `SelectSkills` starts as:
 - `SkillPicker`
 - `SkillCostPicker`
 
@@ -171,7 +176,7 @@ Targeted naming uses `playable_packs` and `weight_by_era` when supplied, with or
 
 ## Builder Follow-Up Checklist
 After seeding, builders should usually:
-1. Replace placeholder blurbs on the welcome, role, description, and note screens.
+1. Replace placeholder blurbs on the welcome, role, and description screens. To collect background notes, change `SelectNotes` to `NotePicker` and configure the prompts.
 2. Replace the guest-lounge starting-location placeholder.
 3. Decide whether the stock special-application surcharge is correct.
 4. Review attribute and skill costs if using paid chargen resources.

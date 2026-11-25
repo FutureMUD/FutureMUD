@@ -1066,43 +1066,41 @@ public partial class MythicalAnimalSeeder : IFoundationSeeder
 
     private void ApplyBreathingProfile(Race race, MythicalBreathingProfile profile)
     {
-        _context.RacesBreathableGases.RemoveRange(_context.RacesBreathableGases.Where(x => x.RaceId == race.Id).ToList());
-        _context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
-
         race.NeedsToBreathe = true;
         race.BreathingVolumeExpression = "7";
         race.HoldBreathLengthExpression = $"90+(5*con:{_healthTrait.Id})";
+        race.BreathingModel = profile == MythicalBreathingProfile.SimpleAir ? "simple" : "partless";
 
-        _context.RacesBreathableGases.Add(new RacesBreathableGases
+        // Keep matching composite-key rows tracked when refreshing an existing profile.
+        var gases = _context.RacesBreathableGases.Where(x => x.RaceId == race.Id).ToList();
+        var air = gases.SingleOrDefault(x => x.GasId == _breathableAir.Id);
+        if (air is null)
         {
-            Race = race,
-            Gas = _breathableAir,
-            Multiplier = 1.0
-        });
+            air = new RacesBreathableGases { Race = race, Gas = _breathableAir };
+            _context.RacesBreathableGases.Add(air);
+        }
 
-        switch (profile)
+        air.Multiplier = 1.0;
+        _context.RacesBreathableGases.RemoveRange(gases.Where(x => x.GasId != _breathableAir.Id));
+
+        var liquids = _context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToDictionary(x => x.LiquidId);
+        if (profile == MythicalBreathingProfile.MarineAmphibious)
         {
-            case MythicalBreathingProfile.SimpleAir:
-                race.BreathingModel = "simple";
-                break;
-            case MythicalBreathingProfile.PartlessAir:
-                race.BreathingModel = "partless";
-                break;
-            case MythicalBreathingProfile.MarineAmphibious:
-                race.BreathingModel = "partless";
-                _context.RacesBreathableLiquids.Add(new RacesBreathableLiquids
-                {
-                    Race = race,
-                    Liquid = _saltWater,
-                    Multiplier = 1.0
-                });
-                _context.RacesBreathableLiquids.Add(new RacesBreathableLiquids
-                {
-                    Race = race,
-                    Liquid = _brackishWater,
-                    Multiplier = 0.5
-                });
-                break;
+            SetLiquidMultiplier(_saltWater, 1.0);
+            SetLiquidMultiplier(_brackishWater, 0.5);
+        }
+
+        _context.RacesBreathableLiquids.RemoveRange(liquids.Values);
+
+        void SetLiquidMultiplier(Liquid liquid, double multiplier)
+        {
+            if (!liquids.Remove(liquid.Id, out var row))
+            {
+                row = new RacesBreathableLiquids { Race = race, Liquid = liquid };
+                _context.RacesBreathableLiquids.Add(row);
+            }
+
+            row.Multiplier = multiplier;
         }
     }
 

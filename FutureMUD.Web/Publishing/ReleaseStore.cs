@@ -28,6 +28,7 @@ public sealed partial class ReleaseStore
 	private readonly FutureMudWebOptions _options;
 	private readonly ReleaseProductCatalogue _products;
 	private readonly ILogger<ReleaseStore> _logger;
+	private readonly Func<string, long> _availableFreeSpace;
 	private readonly bool _initialised;
 	private readonly ConcurrentDictionary<string, UploadLock> _locks = new(StringComparer.Ordinal);
 	private readonly SemaphoreSlim _releaseMutationLock = new(1, 1);
@@ -42,10 +43,20 @@ public sealed partial class ReleaseStore
 		IOptions<FutureMudWebOptions> options,
 		ReleaseProductCatalogue products,
 		ILogger<ReleaseStore> logger)
+		: this(options, products, logger, GetAvailableFreeSpace)
+	{
+	}
+
+	internal ReleaseStore(
+		IOptions<FutureMudWebOptions> options,
+		ReleaseProductCatalogue products,
+		ILogger<ReleaseStore> logger,
+		Func<string, long> availableFreeSpace)
 	{
 		_options = options.Value;
 		_products = products;
 		_logger = logger;
+		_availableFreeSpace = availableFreeSpace;
 		try
 		{
 			Directory.CreateDirectory(StagingRoot);
@@ -1121,7 +1132,14 @@ public sealed partial class ReleaseStore
 
 	private void EnsureDiskSpace(long requestedBytes)
 	{
-		var dataRoot = Path.GetFullPath(_options.DataRoot);
+		if (_availableFreeSpace(Path.GetFullPath(_options.DataRoot)) - requestedBytes < _options.MinimumFreeBytes)
+		{
+			throw new ReleaseStoreException("There is insufficient disk space for this release.", StatusCodes.Status507InsufficientStorage);
+		}
+	}
+
+	private static long GetAvailableFreeSpace(string dataRoot)
+	{
 		var drive = DriveInfo.GetDrives()
 			.Where(candidate => IsPathWithin(dataRoot, candidate.RootDirectory.FullName))
 			.OrderByDescending(candidate => candidate.RootDirectory.FullName.Length)
@@ -1130,11 +1148,7 @@ public sealed partial class ReleaseStore
 		{
 			throw new ReleaseStoreException("Release storage capacity could not be determined.", StatusCodes.Status507InsufficientStorage);
 		}
-		var available = drive.AvailableFreeSpace;
-		if (available - requestedBytes < _options.MinimumFreeBytes)
-		{
-			throw new ReleaseStoreException("There is insufficient disk space for this release.", StatusCodes.Status507InsufficientStorage);
-		}
+		return drive.AvailableFreeSpace;
 	}
 
 	private static bool IsPathWithin(string path, string root)

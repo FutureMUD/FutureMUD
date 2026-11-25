@@ -416,12 +416,7 @@ public sealed class ReleaseStoreTests
 		var candidate = Path.Combine(_root, "staging", staged.UploadId, "release");
 		Directory.CreateDirectory(candidate);
 		await File.WriteAllBytesAsync(Path.Combine(candidate, "stale.bin"), new byte[8 * 1024 * 1024]);
-		var available = GetAvailableFreeSpace();
-		var constrained = CreateStore(new FutureMudWebOptions
-		{
-			DataRoot = _root,
-			MinimumFreeBytes = available - bytes.Length / 2
-		});
+		var constrained = CreateCapacityLimitedStore(bytes.Length / 2);
 
 		var completed = await constrained.CompleteAsync(staged.UploadId, CancellationToken.None);
 
@@ -439,21 +434,24 @@ public sealed class ReleaseStoreTests
 		var secondRequest = CreateTerrainPlannerRequest("4.0.1", bytes, 'c');
 		var first = await _store.CreateOrResumeAsync(firstRequest, CancellationToken.None);
 		var second = await _store.CreateOrResumeAsync(secondRequest, CancellationToken.None);
-		var available = GetAvailableFreeSpace();
-		var constrained = CreateStore(new FutureMudWebOptions
-		{
-			DataRoot = _root,
-			MinimumFreeBytes = available - bytes.Length - bytes.Length / 2
-		});
+		var constrained = CreateCapacityLimitedStore(bytes.Length + bytes.Length / 2);
 		var pausingBody = new PausingMemoryStream(bytes);
 		var firstUpload = constrained.PutChunkAsync(
 			first.UploadId, "win-x64", 0, 0, bytes.Length - 1, bytes.Length,
 			firstRequest.Artifacts[0].Sha256, pausingBody, CancellationToken.None);
-		await pausingBody.ReadStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-		var secondUpload = constrained.PutChunkAsync(
-			second.UploadId, "win-x64", 0, 0, bytes.Length - 1, bytes.Length,
-			secondRequest.Artifacts[0].Sha256, new MemoryStream(bytes), CancellationToken.None);
-		pausingBody.ResumeReading.TrySetResult();
+		Task<StagedRelease> secondUpload;
+		try
+		{
+			var started = await Task.WhenAny(pausingBody.ReadStarted.Task, firstUpload).WaitAsync(TimeSpan.FromSeconds(5));
+			await started;
+			secondUpload = constrained.PutChunkAsync(
+				second.UploadId, "win-x64", 0, 0, bytes.Length - 1, bytes.Length,
+				secondRequest.Artifacts[0].Sha256, new MemoryStream(bytes), CancellationToken.None);
+		}
+		finally
+		{
+			pausingBody.ResumeReading.TrySetResult();
+		}
 
 		await firstUpload;
 		var exception = await Assert.ThrowsExactlyAsync<ReleaseStoreException>(() => secondUpload);
@@ -663,10 +661,20 @@ public sealed class ReleaseStoreTests
 
 	private string GetPromotionJournalPath() => Path.Combine(_root, "releases", "promotion-journal.json");
 
-	private long GetAvailableFreeSpace()
+	private ReleaseStore CreateCapacityLimitedStore(long initiallyFreeBytes)
 	{
-		var root = Path.GetPathRoot(Path.GetFullPath(_root)) ?? throw new DirectoryNotFoundException();
-		return new DriveInfo(root).AvailableFreeSpace;
+		static long UsedBytes(string path) => new DirectoryInfo(path)
+			.EnumerateFiles("*", SearchOption.AllDirectories)
+			.Sum(file => file.Length);
+
+		// Only writes in this fixture consume its simulated volume.
+		var capacity = UsedBytes(_root) + initiallyFreeBytes;
+		var environment = new TestWebHostEnvironment { ContentRootPath = FindWebProjectRoot() };
+		return new ReleaseStore(
+			Options.Create(new FutureMudWebOptions { DataRoot = _root, MinimumFreeBytes = 0 }),
+			new ReleaseProductCatalogue(environment),
+			NullLogger<ReleaseStore>.Instance,
+			path => capacity - UsedBytes(path));
 	}
 
 	private async Task UploadCompleteAndPromoteAsync(

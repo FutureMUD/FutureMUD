@@ -127,6 +127,8 @@ Examples:
 
 This keeps the cost display and submit validation in sync.
 
+When editing a character merit, `cost <resource> <amount>` sets the amount and `cost <resource> 0` removes it. Use `cost <resource> spend` to switch between spending the resource and requiring the balance. These edits and combo-merit parent assignments persist after restart. If an older merit already has both kinds of entry for one resource, remove the conflicting entries before changing the mode.
+
 ## Suggested Skills
 The `SkillPicker` storyboard can pre-select editable skill suggestions from earlier chargen choices. While editing that storyboard, use:
 

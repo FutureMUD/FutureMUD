@@ -232,6 +232,8 @@ Once approved, the apprentice uses `project start apprenticeship` followed by `p
 
 ## Reserve a personal project for skill mastery
 
+For the complete progression from a chargen pick to a craft that can still teach a master, see [the Wayfarer potter's mastery project](Skills_Checks_and_Progression_Builder_Guide.md#mastery-as-a-choice-the-potter-can-give-up).
+
 **Focus on Mastery: Swords** is a choice for a character who has reached the ordinary Swords ceiling of 70. Committing their project slot raises their ceiling to 80. A character who joins at 70 still has 70 Swords. They earn the next ten points through ordinary qualifying skill use. A character who wants to take a paid bridge shift or resume a conditioning regimen has to give up the focus.
 
 Create a personal template with that name. Use a one-character boolean initiation prog that checks `GetTrait(@actor, ToTrait("Swords")) >= 70` and a text refusal prog explaining the entry requirement. Set `appear`, `can` and `why` as in the apprenticeship. Give its first phase one mandatory, endless role so the focus lasts as long as the player chooses to work on it.

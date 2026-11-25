@@ -568,7 +568,8 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         out ICharacter displacedWorker)
     {
         displacedWorker = null;
-        if (CurrentPhase?.LabourRequirements.Contains(labour) != true ||
+        if ((this is ILocalProject local && !local.IsAtProjectSite(actor)) ||
+            CurrentPhase?.LabourRequirements.Contains(labour) != true ||
             CharacterAlreadyWorkingOnLabour(actor, labour) ||
             !labour.CharacterIsQualified(actor))
         {
@@ -663,6 +664,22 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
     public abstract void FulfilMaterial(IProjectMaterialRequirement material, double progress);
 
     public abstract void Join(ICharacter actor, IProjectLabourRequirement labour);
+
+    protected void AssignLabour(ICharacter actor, IProjectLabourRequirement labour)
+    {
+        if (actor.CurrentProject.Project == this)
+        {
+            // Keep the project assignment continuous while replacing its role.
+            _activeLabour.RemoveAll(x => x.Character == actor);
+        }
+        else
+        {
+            actor.CurrentProject.Project?.Leave(actor);
+        }
+
+        _activeLabour.Add((actor, labour));
+        actor.CurrentProject = (this, labour);
+    }
 
     public abstract void Leave(ICharacter actor);
 
@@ -884,7 +901,10 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 			labour.Character.CurrentProjectProjectHours += labourHours;
 			foreach (ILabourImpactActionAtTick impact in labour.Labour.LabourImpacts.OfType<ILabourImpactActionAtTick>())
 			{
-				impact.DoAction(labour.Character, this, labour.Labour);
+				if (impact.Applies(labour.Character))
+				{
+					impact.DoAction(labour.Character, this, labour.Labour);
+				}
 			}
 
 			if (FulfilLabour(labour.Labour, progress))

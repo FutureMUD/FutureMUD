@@ -45,6 +45,23 @@ public class ProjectLabourQueueEntryTests
 	}
 
 	[TestMethod]
+	public void ClaimedLocalShiftRemainsClaimedOffsiteUntilReleased()
+	{
+		var worker = new Mock<ICharacter>();
+		worker.SetupGet(x => x.InstanceId).Returns(44L);
+		var role = Mock.Of<IProjectLabourRequirement>();
+		var project = new Mock<ILocalProject>();
+		project.SetupGet(x => x.CurrentPhase).Returns(Mock.Of<IProjectPhase>());
+		var entry = new ProjectLabourQueueEntry(worker.Object, project.Object, role, 1);
+		worker.SetupGet(x => x.CurrentProject).Returns((project.Object, role));
+		entry.Claim(worker.Object, role);
+
+		Assert.AreEqual(ProjectLabourQueueStatus.Claimed, entry.Status);
+		entry.ReleaseClaim();
+		Assert.AreEqual(ProjectLabourQueueStatus.WaitingForLocation, entry.Status);
+	}
+
+	[TestMethod]
 	public void DurationEntryTracksOnlyItsOwnCycleState()
 	{
 		var owner = new Mock<ICharacter>();

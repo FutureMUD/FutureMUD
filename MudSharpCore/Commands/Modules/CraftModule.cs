@@ -968,7 +968,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = VisibleActiveProjects(actor);
+        List<IActiveProject> projects = VisibleActiveProjects(actor, includeCurrentAssignment: true);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {
@@ -979,12 +979,18 @@ Note: See the closely related #3projects#0 command for information about your cu
         actor.OutputHandler.Send(project.ShowToPlayer(actor));
     }
 
-    private static List<IActiveProject> VisibleActiveProjects(ICharacter actor)
+    private static List<IActiveProject> VisibleActiveProjects(ICharacter actor, bool includeCurrentAssignment = false)
     {
-		return actor.PersonalProjects
+		var projects = actor.PersonalProjects
 			.OfType<IActiveProject>()
 			.Concat(actor.Location.LocalProjects.Where(x => x.IsAtProjectSite(actor)))
 			.ToList();
+		if (includeCurrentAssignment && actor.CurrentProject.Project is { } current && !projects.Contains(current))
+		{
+			projects.Add(current);
+		}
+
+		return projects;
     }
 
     private static bool CanManageProjectPayments(ICharacter actor, IActiveProject project)
@@ -1772,7 +1778,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        List<IActiveProject> projects = VisibleActiveProjects(actor);
+        List<IActiveProject> projects = VisibleActiveProjects(actor, includeCurrentAssignment: true);
         IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
         if (project == null)
         {

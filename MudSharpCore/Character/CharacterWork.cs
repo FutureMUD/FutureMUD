@@ -381,6 +381,27 @@ public partial class Character
 		}
 
 		var owner = ProjectQueueOwner;
+		if (owner._projectLabourQueue.Count == 0)
+		{
+			return false;
+		}
+
+		// A role can finish before the rest of its phase, leaving its worker off the notification roster.
+		foreach (var entry in owner._projectLabourQueue.ToList())
+		{
+			var phase = entry.Project?.CurrentPhase;
+			if (phase is null && entry.CompletionMode != ProjectLabourQueueCompletionMode.JoinOnce &&
+				(entry.ProjectId.HasValue || entry.WatchedPhaseId.HasValue))
+			{
+				entry.ClearActiveProjectLink();
+				owner.CompleteQueueCycle(entry);
+			}
+			else if (entry.WatchedPhaseId.HasValue && entry.WatchedPhaseId != phase?.Id)
+			{
+				owner.CompleteQueueCycle(entry);
+			}
+		}
+
 		var claimed = owner._projectLabourQueue.FirstOrDefault(x => x.IsClaimedBy(this));
 		if (claimed is not null && owner.TryActivateQueueEntry(this, claimed))
 		{

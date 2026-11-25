@@ -168,6 +168,29 @@ public class ProjectQueuePreferenceTests
 	}
 
 	[TestMethod]
+	public void UntilPhaseEntryFinishesWhenWorkerReturnsAfterPhaseAdvanced()
+	{
+		var character = TestObjectFactory.CreateUninitialized<MudSharp.Character.Character>();
+		var digger = new Mock<ICharacter>();
+		digger.SetupGet(x => x.InstanceId).Returns(44L);
+		var role = Mock.Of<IProjectLabourRequirement>();
+		var project = new Mock<ILocalProject>();
+		project.SetupGet(x => x.CurrentPhase).Returns(Mock.Of<IProjectPhase>(x => x.Id == 10));
+		var entry = new ProjectLabourQueueEntry(digger.Object, project.Object, role, 1,
+			completionMode: ProjectLabourQueueCompletionMode.PhaseCompletion);
+		var queue = new List<ProjectLabourQueueEntry> { entry };
+		typeof(MudSharp.Character.Character).GetField("_projectLabourQueue", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(character, queue);
+		entry.Claim(digger.Object, role);
+		entry.ReleaseClaim();
+
+		// Digging ended while the worker was away. A later material delivery opened phase two.
+		project.SetupGet(x => x.CurrentPhase).Returns(Mock.Of<IProjectPhase>(x => x.Id == 11));
+		Assert.IsFalse(character.TryJoinQueuedProjectLabour());
+		Assert.IsEmpty(queue);
+	}
+
+	[TestMethod]
 	public void SetProjectLabourQueueLabour_101Characters_LeavesQueueAndDirtyStateUnchanged()
 	{
 		var character = TestObjectFactory.CreateUninitialized<MudSharp.Character.Character>();

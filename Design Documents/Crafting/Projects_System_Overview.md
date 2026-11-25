@@ -12,7 +12,7 @@ The intended audience is engine developers, maintainers, and agents working on t
 ## Core Idea
 Projects model a sustained commitment. Use a craft for a single maker’s foreground activity, especially where interruption, specific tools, or the properties of individual inputs determine the result. A short session (often under ten minutes) is a design guideline for a craft. Projects suit shared construction, paid shifts, training and delayed changes to the world. A craft can produce the fasteners a project consumes.
 
-Project work continues for assigned characters across player logout on the running server’s scheduler. Server downtime does not accrue project ticks. Local labour currently removes an absent worker before the tick awards wages or progress. Whether the assignment should survive absence is open for assessment. [Worksite assignment assessment](https://github.com/FutureMUD/FutureMUD/issues/903)
+Project work continues for assigned characters across player logout on the running server’s scheduler. Server downtime does not accrue project ticks. Local projects require physical presence to take a role. Once assigned, a worker retains their slot and any queue claim while away. Normal ticks advance labour, continuity, eligible impacts and any funded wages. Workers can inspect and quit their current assignment remotely. New local assignments still require presence at the site.
 
 Templates are revisioned, each active instance tracks its own work, and a character has only one selected labour role. This gives personal projects an opportunity cost. Someone assigned to a standing conditioning regimen can benefit during ordinary play, but moving to a paid assignment gives up the regimen’s active impacts. A role impact represents a condition of working; a permanent unlock belongs in a completion action or finish hook.
 
@@ -28,7 +28,7 @@ The system is composed from five layers:
 - `IProject` exposes catalogue visibility, initiation gating, start/cancel/finish hooks, player presentation, cancellation rules, and the ordered phase list.
 - `IActiveProject` exposes the project definition, current phase, labour progress, material progress, active workers, payment reserve state, labour and material payment rates, join/leave/cancel operations, tick processing, and player-facing display.
 - `IPersonalProject` is a marker for active projects owned by a single character.
-- `ILocalProject` is a marker for active projects attached to a cell and worked on by multiple people in that location.
+- `ILocalProject` is a marker for active projects attached to a worksite where multiple people can enrol.
 
 ### Phase and requirement contracts
 - `IProjectPhase` owns its phase number, description, labour requirements, material requirements, completion actions, duplication, deletion, and submit validation.
@@ -185,7 +185,7 @@ Join rules are enforced by:
 - current phase membership
 - the player-facing NPC displacement concession, which lets qualified player characters take over a full labour role when at least one current worker in that role is an NPC
 
-Joining one project labour automatically calls `Leave` on the character's previously selected `CurrentProject.Project` before assigning the new one.
+Taking labour on a different project calls `Leave` on the old project. A direct role change on the same active project replaces the roster entry and updates `CurrentProject` in one assignment. The character retains project continuity and restarts labour continuity.
 
 This means the system models:
 - many active projects existing at once
@@ -247,7 +247,7 @@ The current tick path is:
 5. Applicable `Project Labour Contribution` merits multiply that progress with a numeric `number(character, project)` FutureProg. Results stack multiplicatively; negative results clamp to zero and invalid results use `1.0` with an administrator diagnostic.
 6. If that labour requirement has an hourly payment, the project reserves the tick's fraction of hourly pay as a project payable before recording skill use or progress.
 7. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
-8. Any `ILabourImpactActionAtTick` impacts execute.
+8. `ILabourImpactActionAtTick` impacts execute when `Applies` accepts the updated hours for their configured scope, including the tick on which the worker reaches the minimum.
 
 Contribution merits affect project progress and progress estimates only. They do not alter pay, elapsed queue time, continuity hours, labour impacts, or skill-check frequency.
 
@@ -472,7 +472,7 @@ For every new family member, the expected minimum implementation work is:
 
 ## Known Quirks And Edge Cases
 - A queue entry configured for `until phase` completes at the boundary. An `until completion` entry stays linked to the active project and rechecks role availability in the new phase.
-- Manual role changes call `Leave` before `Join`, so both continuity counters reset even when switching roles on the same project. Passive trait, cap and healing impacts consult `Applies`. The per-tick job-effort dispatch does not consult that threshold. [Impact hour tracking](https://github.com/FutureMUD/FutureMUD/issues/904)
+- Passive trait, cap and healing impacts and per-tick job effort all honour the minimum hours for the configured scope.
 - For backwards compatibility, characters loaded from worlds that predate `CurrentProjectProjectHours` bootstrap that value from `CurrentProjectHours` if they are already assigned to a current project.
 - Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior. Older definitions also default to non-scaled supervision until a builder enables the `scaled` option.
 - `JobEffortImpact` is created from the builder keyword `job`, but its concrete type stores and loads using the runtime type string `JobEffort`. Treat the builder keyword list in `ProjectFactory` as the source of truth for authoring.

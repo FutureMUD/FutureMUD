@@ -24,7 +24,7 @@ A **template** describes the work and has an approved revision. Starting it crea
 
 Each phase ends when its mandatory labour and materials are complete. Deliveries and labour can proceed in either order within a phase. If the deck crew must wait for the foundations, give them separate phases. A worker leaving does not undo completed work. With the default settings each real quarter hour of assigned work earns a quarter of an hour towards continuity. Progress towards a requirement also depends on the labour check and applicable modifiers. Twelve units of required progress do not promise completion twelve clock hours after the tender opens.
 
-Choose **local** for a fixed worksite. Start it where the crew will actually stand. An ordinary room counts as one site. A route uses the immediate neighbourhood of the site’s layer and position. The engine currently clears a worker’s assignment if they are away at the next tick. Whether stepping away should end the assignment is under assessment. [Worksite assignment assessment](https://github.com/FutureMUD/FutureMUD/issues/903)
+Choose **local** for a fixed worksite. Start it where the crew will enrol and deliver materials. An ordinary room counts as one site. A route uses the immediate neighbourhood of the site’s layer and position. Once a worker joins, they can travel or log out. Their shift continues to earn progress, hours towards role benefits and any funded wages. They still occupy their place on the crew. From elsewhere they can use `project details <id>` to check the job and `project quit <id>` to give up the shift. Taking another local role requires a visit to its site.
 
 Choose **personal** when the assignment should follow its owner. Local crews clear at phase changes. A participating personal owner can carry on in the first eligible role with space in the new phase.
 
@@ -271,7 +271,7 @@ project set phase 1 labour "Pump Iron" impact Conditioning hours 12
 project set phase 1 labour "Pump Iron" impact Conditioning scope labour
 ```
 
-Add other regimens as sibling roles in the same phase. Use `scope labour` when a change from Cardio to Yoga should restart the wait. `scope project` reads the project continuity counter. A manual role change currently passes through a leave and resets that counter too. Keep a regimen on a single role if its waiting period matters. The worker still receives only the impacts on the role they are doing now. For the recovery project, give its endless Rest role one `healing` impact and configure its `hours`, `bonus`, `multiplier` and `infection`. For the original values, use `hours 3`, `bonus 0.5`, `multiplier 200%` and `infection 0%`. Make these effects visible in the role descriptions so combatants can weigh the lost benefit against a crew wage.
+Add other regimens as sibling roles in the same phase. Use `scope labour` when a change from Cardio to Yoga should restart the wait. Use `scope project` if time spent on Cardio should count towards Yoga’s waiting period. Have the trainee join Yoga directly. Quitting the regimen and later rejoining starts both clocks over. The worker still receives only the impacts on the role they are doing now. For the recovery project, give its endless Rest role one `healing` impact and configure its `hours`, `bonus`, `multiplier` and `infection`. For the original values, use `hours 3`, `bonus 0.5`, `multiplier 200%` and `infection 0%`. Make these effects visible in the role descriptions so combatants can weigh the lost benefit against a crew wage.
 
 ### Dig a room that can become the next worksite
 
@@ -284,7 +284,7 @@ LabMUD’s **Create New Room (#2)** built a fresh underground chamber. The footb
 | Fit-out | General labour, structural fit-out and foreman roles shared the phase. The site took 200 fasteners, 30 pieces of shoring timber and two roof beams. | Counts work well when the crew needs particular pieces. General labour had two places and structural fit-out had four. The separately qualified foreman supervised them. |
 | Handover | The final action revised an overlay package, made a dark indoor chamber with timber supports, linked it in the selected direction, allowed a door, marked the new room as eligible for later expansion, and approved the package. | The result can itself become a worksite. Set permissions, direction and room presentation as part of the handover. |
 
-Two details matter when adapting the old commission. Its direction command wrote to the character, but its construction progs read from the room. It also had no cancellation hook to clear the marker and busy flag. For a new design, copy the authorised direction to the active project at the start and read that same value in both phase actions. Reserve the site against that project’s ID. On cancellation remove its work marker and release only its reservation. If a draft room already exists, leave it identifiable for the surveyor. Approval and activation are distinct operations in the current engine. For a route to open immediately, check that the link and approval succeeded, then call `SwapOverlay`. For an inspected route, leave the package for the surveyor to review and swap. The north-drift example gives the register declarations, eligibility and refusal progs, completion code and recovery procedure. [Extend the north drift](Primary_Production_and_Agriculture_Builder_Guide.md#extend-the-north-drift)
+Give the surveyor a direction command. When the commission starts, copy the surveyor’s selected direction onto the active project. Both phase actions use that saved direction, so a later survey cannot redirect a dig already under way. Record which project owns the site and which marker belongs to the dig. If the commission is cancelled during excavation or fit-out, remove its marker and release its reservation. Leave another crew’s claim and equipment in place. If a draft room already exists, leave it identifiable for the surveyor. Approval and activation are distinct operations in the current engine. For a route to open immediately, check that the link and approval succeeded, then call `SwapOverlay`. For an inspected route, leave the package for the surveyor to review and swap. The north-drift example gives the register declarations, eligibility and refusal progs, completion code and recovery procedure. [Extend the north drift](Primary_Production_and_Agriculture_Builder_Guide.md#extend-the-north-drift)
 
 ### Make a personal project one stage of a quest
 
@@ -392,7 +392,7 @@ Current behavior:
 - if multiple labour requirements are joinable, the command requires an explicit labour name
 - qualification and worker-cap checks are enforced
 - a qualified player can join a full labour role by displacing an NPC who is currently working that same role
-- joining a new project labour automatically leaves whatever `CurrentProject` labour you were already working on
+- a direct role switch on the same active project keeps project hours and restarts role hours. Taking work on another project restarts both clocks
 
 ### `project quit <project>`
 Use `project quit <project>` to stop working on that active project.
@@ -642,7 +642,7 @@ Shared impact settings:
 - `project set phase <phase> labour <labour> impact <impact> hours <hours>`
 - `project set phase <phase> labour <labour> impact <impact> scope labour|project`
 
-Impact hours control when the effect begins. `scope labour` keys off continuity on the exact current labour role; `scope project` reads continuity on the active project. A manual `project join` on a different role leaves the old one first and resets both counters. Trait, cap and healing impacts check their hour threshold. The `job` impact currently credits effort on every successful work tick. [Impact hour tracking](https://github.com/FutureMUD/FutureMUD/issues/904)
+Impact hours control when the effect begins. `scope labour` keys off continuity on the exact current labour role; `scope project` reads continuity on the active project. Switching directly to another role on the same active project restarts labour hours and preserves project hours. Quitting or moving to another project resets both. Job effort first accrues on the successful tick that reaches the configured minimum. For example, with quarter-hour ticks and `hours 1`, the fourth tick earns the first effort credit. A paid role can earn wages throughout that first hour.
 
 ### Impact type reference
 | Keyword | What it does in play | Common extra commands |

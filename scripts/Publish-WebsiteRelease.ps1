@@ -15,6 +15,28 @@ $ErrorActionPreference = 'Stop'
 $chunkSize = 4MB
 $headers = @{ Authorization = "Bearer $Token" }
 
+function Invoke-PublishingRequest([scriptblock]$Send) {
+	for ($attempt = 0; ; $attempt++) {
+		try {
+			return & $Send
+		}
+		catch [Microsoft.PowerShell.Commands.HttpResponseException] {
+			$response = $_.Exception.Response
+			if ([int]$response.StatusCode -ne 429 -or $attempt -ge 5) { throw }
+			$delay = [Math]::Pow(2, $attempt + 1)
+			$retryAfter = $response.Headers.RetryAfter
+			if ($null -ne $retryAfter.Delta) {
+				$delay = [Math]::Max($delay, $retryAfter.Delta.TotalSeconds)
+			} elseif ($null -ne $retryAfter.Date) {
+				$delay = [Math]::Max($delay, ($retryAfter.Date - [DateTimeOffset]::UtcNow).TotalSeconds)
+			}
+			if ($delay -gt 120) { throw }
+			Write-Warning "Publishing request rate-limited. Retrying in $([Math]::Ceiling($delay)) seconds."
+			Start-Sleep -Seconds ([Math]::Ceiling($delay))
+		}
+	}
+}
+
 function Get-Sha256Bytes([byte[]]$Bytes) {
 	$sha256 = [Security.Cryptography.SHA256]::Create()
 	try {
@@ -72,7 +94,9 @@ if ($UpdateManifest -or $UpdateManifestSignature -or $UpdateManifestKeyId) {
 	}
 }
 
-$draft = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/publishing/v1/releases" -Headers $headers -ContentType 'application/json' -Body ($request | ConvertTo-Json -Depth 8)
+$draft = Invoke-PublishingRequest {
+	Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/publishing/v1/releases" -Headers $headers -ContentType 'application/json' -Body ($request | ConvertTo-Json -Depth 8)
+}
 $allFiles = @{}
 foreach ($file in $files) {
 	if ($file.BaseName -notmatch '(win-x64|linux-x64|linux-arm64)$') { throw "Cannot determine runtime from $($file.Name)." }
@@ -88,6 +112,10 @@ foreach ($artifactId in $allFiles.Keys) {
 		$index = 0
 		$buffer = [byte[]]::new($chunkSize)
 		while (($read = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+			if ($draft.receivedChunks.$artifactId -contains $index) {
+				$index++
+				continue
+			}
 			$start = [int64]$index * $chunkSize
 			$end = $start + $read - 1
 			[byte[]]$body = if ($read -eq $buffer.Length) { $buffer } else { $buffer[0..($read - 1)] }
@@ -97,7 +125,9 @@ foreach ($artifactId in $allFiles.Keys) {
 				'Content-Range' = "bytes $start-$end/$($fileInfo.Length)"
 				Digest = "sha-256=$digest"
 			}
-			Invoke-RestMethod -Method Put -Uri "$BaseUrl/api/publishing/v1/releases/$($draft.uploadId)/artifacts/$artifactId/chunks/$index" -Headers $chunkHeaders -ContentType 'application/octet-stream' -Body $body | Out-Null
+			Invoke-PublishingRequest {
+				Invoke-RestMethod -Method Put -Uri "$BaseUrl/api/publishing/v1/releases/$($draft.uploadId)/artifacts/$artifactId/chunks/$index" -Headers $chunkHeaders -ContentType 'application/octet-stream' -Body $body
+			} | Out-Null
 			$index++
 		}
 	}
@@ -106,6 +136,10 @@ foreach ($artifactId in $allFiles.Keys) {
 	}
 }
 
-Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/publishing/v1/releases/$($draft.uploadId)/complete" -Headers $headers | Out-Null
-$release = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/publishing/v1/releases/$($draft.uploadId)/promote" -Headers $headers
+Invoke-PublishingRequest {
+	Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/publishing/v1/releases/$($draft.uploadId)/complete" -Headers $headers
+} | Out-Null
+$release = Invoke-PublishingRequest {
+	Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/publishing/v1/releases/$($draft.uploadId)/promote" -Headers $headers
+}
 Write-Output "Promoted $($release.product) $($release.version) from $($release.sourceCommit)."

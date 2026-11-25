@@ -62,6 +62,8 @@ The Discord webhook is stored as the `FUTUREMUD_RELEASE_DISCORD_WEBHOOK_URL` sec
 
 The manual action in `backfill-products.yml` is restricted to specifically allowlisted historical releases. Do not add new routine releases to that workflow.
 
+If the publishing endpoint returns HTTP 429, the publisher backs off before retrying the rejected request. It honours a longer server retry delay up to two minutes. After five retries, or a longer requested wait, the job reports the failure. Retrying a failed production job with its original artifacts can resume the matching draft and skip chunks the server already received.
+
 Single-file archive publishing shuts down build servers after the tests, then uses one MSBuild node with serial restore and project builds and separate compiler processes. This bounds retained compiler state across the test and runtime-specific compilations; all analyzers remain enabled. An infrastructure interruption does not qualify a package: retry the existing immutable tag through the manual `release_tag` input after any publishing-workflow correction has reached `master`. Keep the tagged product source unchanged and require the same tests, runtime matrix, smoke test and production promotion on the retry.
 
 ## Windows signing and free distribution options

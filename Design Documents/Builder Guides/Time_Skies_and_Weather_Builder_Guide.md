@@ -63,7 +63,7 @@ Write down one ordinary year and one exceptional year before opening the editor.
 | Which year name should people hear? | `era`, `yearcycle`, `regnal` and the short/long/wordy masks | Eras label dates on either side of year 1. A named cycle repeats an ordered list. A regnal period attaches a ruler's name and year of reign to a span with a start date. |
 | When does today become tomorrow? | `dayboundary` and, for a solar boundary, `authority` | Month generation and the hour at which a date rolls over are separate choices. |
 
-Use `calendar set preview <year>` to inspect generated **months and lengths**. `calendar set validate` checks that the current year can be generated. To see a weekday, feast name or era as players will read it, use the calendar's long mask and `time` in a zone with the calendar attached. Build structural changes on a new calendar or a clone first. After each warning, type `accept` before the next command. This can apply even to a newly created record. Enter commands individually at the game prompt. Replace angle-bracketed names with the corresponding records from your world.
+Use `calendar set preview <year>` to inspect generated **months and lengths**. `calendar set validate` checks that the current year can be generated. To see a weekday, feast name or era as players will read it, use the calendar's long mask and `time` in a zone with the calendar attached. Build structural changes on a new calendar or a clone first. After each warning, type `accept` before the next command. This can apply even to a newly created record. Enter commands individually at the game prompt. Replace angle-bracketed names with the corresponding records from your world. Ordinary clock, calendar and weather editor changes take effect when the command succeeds or you accept its confirmation. The game saves those edits automatically. Closing one of these editors ends your selection. Authored celestials have a private draft with an explicit `celestial save`, and room text follows the room overlay package's revision workflow.
 
 ## Clock and calendar markup reference
 
@@ -162,6 +162,12 @@ Keep four questions distinct when designing the sky.
 - **How much light reaches someone here?** An authored body can use a lux profile by elevation or a separate light timeline. A moon can scale that light by illuminated fraction. Cloud, terrain, shelter and local lamps influence what a player experiences. A brightly lit street may still be in the night part of the day.
 - **What recurs?** A body's path period, phase cycle and year can have different lengths. Separate event markers can drive sky narrative. `time event sunset <sun>` asks for a future event at the observer's coordinates. `celestial event` and `celestial preview` inspect an authored draft relative to its anchor. Neither preview advances the world.
 
+### Where the sky description comes from
+
+Use `show skies` to list installed sky templates and `show sky <template>` to read the description attached to each brightness range. Select one with `shard set <shard> sky <template>`. The in-game commands let you inspect and assign an installed template. New brightness bands and their descriptions are supplied in world data. The template describes the whole sky. Its ranges are in magnitudes per square arcsecond, where a **larger number means a darker sky**. The shard applies its minimum ambient lux before looking up the band. If two moonless locations never get the dark-sky prose you expected, check the shard's minimum lux as well as the template.
+
+An installed physical sun can also describe *its own position*. Its elevation band supplies a phrase such as `is low in the {0} sky`, and `{0}` inserts the direction from the sun's current azimuth band, producing “is low in the eastern sky”. This placeholder belongs to the physical sun definition. For narrative attached to a builder-authored body, use the [celestial echo commands](#giving-the-copper-sun-a-voice).
+
 ## Seasons, climate and today's weather
 
 Build from definitions toward a living region. A **season** has an onset day in a celestial's year, an internal name, a player-facing display name and an optional group. Different local seasons can belong to `Spring` so a planting rule can recognise both. Reuse the same celestial across a regional climate's seasons. Decide how to handle hemispheres once. Use seasons with the intended local onsets, or use `wc set hemisphere opposite` to shift a common rotation by half a year. Applying both shifts can put summer back where you started.
@@ -176,11 +182,36 @@ A room normally takes its controller from its zone. A weather override on its cu
 
 ## What players can observe and use
 
-Use `look sky` for the visible sky and `look <celestial name>` for a particular visible body. `time` combines local calendar information, the character's ability to tell time and any readable timepieces. An administrator seeing an exact time is a poor guide to what a traveller can tell without a watch. `weather` reports current conditions as experienced at the location. Compare the open quay, a room with windows and a sheltered cellar when writing their descriptions. For a quay description that changes with the weather, write `environment{rain=Rain stipples the water between the moored boats.}{*rain=Water drips from the mooring ropes.}{The mooring ropes stretch taut over the water.}`. The first matching branch wins. Here current rain takes precedence over recent rain, with a fallback for dry weather. See [room description conditions](../Markup/Room_Description_Markup.md).
+Use `look sky` for the visible sky and `look <celestial name>` for a particular visible body. `time` combines local calendar information, the character's ability to tell time and any readable timepieces. An administrator seeing an exact time is a poor guide to what a traveller can tell without a watch. `weather` reports current conditions as experienced at the location. Compare the open quay, a room with windows and a sheltered cellar when writing their descriptions.
 
 `weather forecast` gives a narrative outlook; `weather forecast table` presents the same reading. A new observation requires an above-water place where the weather can be observed, including outdoors, through windows or in a climate-exposed interior. A character can recall an existing reading indoors. There is one quality roll per character, controller and controller-local game day. The capability check is `WeatherForecastCapability` and the quality check is `WeatherForecast`. Standard skill setups use Meteorology. Set both if using custom skills. Use `wc set forecast <days>` to choose a horizon from 1 to 30 local game days. Skill and distance into the future affect how accurately the observer interprets it. Asking for a forecast leaves the simulation at the current instant.
 
 Choose the signal that matches the in-world rule. A street lamp's light sensor can respond to heavy cloud before sunset. A temple can observe an astronomical sunset even on a cloudy day. Farmers can use a season group for planting and still experience rain or frost on a particular morning. For the receiving ends of these integrations see [street lighting](Automation_Systems_Builder_Guide.md#street-lights-that-come-on-after-dark), [agriculture](Agriculture_Builder_Workflows.md), [environmental exposure](Environmental_Exposure_Builder_Guide.md) and [skill checks](Skills_Checks_and_Progression_Builder_Guide.md).
+
+### Writing room descriptions for changing conditions
+
+Use `environment{conditions=text}{conditions=text}{fallback}` in either a room name or its description. The engine reads up to eight branches from left to right and displays the **first** one whose conditions all match. A comma means *and*. Put the most specific combination first. The final brace group supplies ordinary prose when nothing matches. Without a fallback the passage disappears.
+
+| Condition | What it reads |
+| --- | --- |
+| `dawn`, `morning`, `afternoon`, `dusk`, `night` | The room's part of day. `day` combines morning and afternoon. `notnight` includes dawn and dusk as well. |
+| Season name or group | The **zone controller's** current season. Match its internal name (such as `temperate_mid_autumn`) or its configured group (such as `autumn`). A terrain or area weather override can change the weather in a room while this condition still follows the zone's season. |
+| `rain`, `heavysnow`, etc. | The room's current precipitation level. The ordered levels are `parched`, `dry`, `humid`, `lightrain`, `rain`, `heavyrain`, `torrentialrain`, `lightsnow`, `snow`, `heavysnow`, `blizzard` and `sleet`. An unprefixed name matches that exact level. |
+| `>rain`, `<lightsnow`, `*rain` | `>` means *at least*, and `<` means *strictly below*. Snow and sleet follow rain in the ordering. Combine `>rain,<lightsnow` for rain through torrential rain. `*rain` checks whether the highest recent precipitation reached at least rain, including while it is still falling. |
+| `dim`, `>dim`, `<bright` | The room's illumination using the active light model's description names. A bare name matches its band. A comparison uses that band's lower lux threshold. Lamps can change the result at night. |
+| `!` before a condition | Negates that condition. `!night` includes twilight. `!rain` excludes only the exact rain level, so a quay can still be wet in heavy rain. |
+
+Recent precipitation comes from the room's weather controller. An equally wet or wetter event refreshes its recorded maximum. After more than `MaximumPeriodsForRecentWeather` consecutive lower-precipitation game-minute updates, the controller resets it to current conditions. The world default is 300. Use `show staticconfig MaximumPeriodsForRecentWeather` to inspect your world's setting. On a dry controller, `setroomweather` can make a single room match `rain` without ever making it match `*rain`. Clearing the room effect restores the dry conditions immediately.
+
+At the ferry landing, give the active weather priority over its aftermath. Write the following as one line in the room description:
+
+```text
+environment{>rain,<lightsnow=Rain rings spread across the water between the moored boats.}{*rain=The mooring ropes hang dark and damp against the pilings.}{night,<bright=The ferry steps disappear into shadow below the quay.}{The ferry steps lead down between the moored boats.}
+```
+
+To inspect alternate wording, use a separate building zone with its own controller and view the room with `look`. As an administrator, `weather transition` lists valid destinations and `weather transition <id>` takes that controller to one of them. Reusing a live town's controller would change that town too. For a different season or hour, use a separate test world or a dedicated test clock and season setup. `calendar set preview` and `celestial preview` show model data and leave the room at its current conditions.
+
+On a different street, `environment{autumn,!night=Gilded leaves gather beneath the market awnings.}` adds a single seasonal detail. Leave unrelated details in the permanent description so the scene still reads naturally when the clause disappears. [Room description markup](../Markup/Room_Description_Markup.md)
 
 ## Timekeeping at the builder prompt
 
@@ -393,7 +424,7 @@ These are baseline temperatures at hour 5, before other effects. Tune neighbouri
 ```text
 weatherevent clone <overcast-event> QuayFog
 weatherevent set desc A bank of sea fog lies across the harbour.
-weatherevent set room Fog beads on the mooring ropes and conceals the headland.
+weatherevent set room A veil of fog blurs the distance.
 weatherevent set forecast low coastal fog
 weatherevent set light 35%
 weatherevent show
@@ -404,6 +435,30 @@ clm set season <coastal-autumn> transition QuayFog <overcast-event> 1
 ```
 
 In the event display, check sky visibility. `weatherevent set sky` **toggles** it; use it once if the inherited event leaves the sky visible. Weight 2 puts the fog in competition with the overcast event's other exits. Weight 1 is enough for the way back because it is the fog's only exit in this example. The fog is now part of this model's autumn; add it to adjoining seasons if it should occur then too.
+
+### Writing the fog's arrival, presence and departure
+
+Keep the weather event selected with `weatherevent edit QuayFog`. The text fields answer different player questions.
+
+| Field | When someone sees it | What belongs there |
+| --- | --- | --- |
+| `desc` | On checking the current weather | An account of conditions that stays true throughout the event. |
+| `room` | As a weather addendum when looking at an exposed location | A detail suitable for **every** affected room. If the controller also covers rooftops and inland streets, keep mooring ropes in the quay's own room description. |
+| `forecast` | When the event appears in a forecast | A short summary such as “low coastal fog”. |
+| `default` and `transition <from>` | Once when this event arrives | A general arrival line plus a more specific line when a particular event preceded it. |
+| `echo add <weight>` | Occasionally while the event persists | Repeatable observations. Weight chooses among flavour lines. The model's `echochance` and `echoticks` control opportunities and spacing. |
+
+```text
+weatherevent edit QuayFog
+weatherevent set default A bank of pale fog rolls in from the water.
+weatherevent set transition <overcast-event> The low cloud thickens until the harbour headland disappears.
+weatherevent set echo add 3 Beads of moisture gather on every cold surface.
+weatherevent set echo add 1 A cool breath of air briefly thins the fog.
+```
+
+Enter the transition text on the **arriving** event. The engine first looks for the exact departing event, then the event that the departing one `countas`, then the arrival's default line. For example, a drizzle event configured to count as overcast can use the overcast-to-fog wording until you give it a more specific line. For a fog-lifting line, edit the **destination** event and use `weatherevent set transition QuayFog Wisps of fog draw apart, revealing the low cloud overhead.` An edit to a shared destination is visible wherever that transition occurs. Remove a specific line with `weatherevent set transition none <from>`.
+
+The two added flavour echoes have relative weights 3 and 1. Other lines inherited from the cloned event also participate. `weatherevent show` lists them and `weatherevent set echo remove <number>` removes one. Use `clm set season … transition` to make a route possible, and `weatherevent set transition` to narrate the arrival. Changing the sentence leaves the route's weight alone.
 
 ### Give each region its own weather
 
@@ -461,7 +516,22 @@ Use the actual office room ID. Compile the prog, then stand in the civil port an
 schedule add HarbourClosingBell "every 1 day" <civil-timezone> 15/january/1250 6:00:00 pm
 ```
 
+After creating the schedule, enter `schedules`. Read the prog name, interval and **Next Time**, and keep the ID. If the time is wrong or you created a duplicate, `schedule remove <id>` deletes that schedule. Check the list again before creating its replacement.
+
 The reference sets the recurring hour. Omitting it uses the current local date and time. The scheduler takes its calendar and clock from the first entries at the builder's location. The message is all this prog does; a clerk who stops serving customers at that hour also needs the service's availability rule. At midwinter the brass bell might ring well after the priests begin their new day. In summer the same bell can ring in daylight. For a rule that really depends on sunset, FutureProg's `nextsunset` queries the selected body, place and calendar; the result is an instant a caller can use, and a query on its own schedules nothing. See [FutureProg authoring](FutureProg_Builder_Guide.md).
+
+### Choosing which month-end or weekday recurs
+
+Keep the entire interval inside the quotes. The schedule's reference date and time supply the local hour. Choose the rule that matches what the town actually does.
+
+| Example duty | Interval for `schedule add` | What happens in a short month |
+| --- | --- | --- |
+| Close the harbour dues ledger on the last day | `"every month on last day"` | Always uses the actual last day. |
+| Issue invoices on the 30th | `"every month on day 30"` | Uses the final valid day when the month has fewer than 30 days. |
+| Hold an extra council sitting only when there is a fifth Wednesday | `"every month on the 5th Wednesday"` | Skips a month with only four Wednesdays. |
+| Hold a sitting every month, as late as possible up to the fifth Wednesday | `"every month on the 5th or last Wednesday"` | Uses the fourth Wednesday in that month. |
+
+For example, a no-argument prog named `HarbourDuesClose` can announce the close of the ledger with `schedule add HarbourDuesClose "every month on last day" <civil-timezone> 1/january/1250 6:00:00 pm`. Replace the reference with an appropriate local date. Names in weekday rules come from that calendar. The Mission ship could schedule its stores count with `"every month on the 6th Rest"` because each 36-day month normally includes six Rest days.
 
 ## A nine-hour world with a copper sun
 
@@ -522,6 +592,25 @@ shard set <reach> celestials <copper-sun> <pearl-moon>
 ```
 
 The moon's rise-to-set arc crosses hour zero. The three samples are at the same local hour, five days apart. Read the elevation, phase name and source lux on each line. The moon occupies the same position on all three nights, but its changing phase gives the settlers a bright night, a partly lit one and a dark one. The sun remains the time-of-day authority throughout. Keep the shard's ambient minimum lux low enough for that difference to matter in play.
+
+### Giving the Copper Sun a voice
+
+On the Copper Sun's 540-minute rail, sunrise is at minute 90. Give someone on the basin floor a glimpse of light before the sun actually rises, then mark the first watch at minute 120. The following commands edit the existing sun.
+
+```text
+celestial edit <copper-sun>
+celestial set scheduled copperglow 1d 80 SkyVisible 0 A copper glow gathers along the eastern rim.
+celestial set threshold copperrise 0 Ascending BodyVisible 0 The copper rim of the sun climbs into view.
+celestial set milestone custom:firstwatch 1d 120
+celestial set echo firstwatch custom:firstwatch SkyVisible 1 The copper glare gives way to the clear light of first watch.
+celestial validate
+celestial event custom:firstwatch 0
+celestial save
+```
+
+A **scheduled echo** fires at the specified minute of its repeating period. A **threshold echo** follows a rail as it crosses an elevation in degrees in the specified direction. A **milestone** gives a recurring instant a name so it can be queried even if no observer receives the echo. `set echo` attaches prose to that named event. Use a room description for sunlight reaching a notch on a particular watchstone. The sun's echo can reach observers across the shard.
+
+`SkyVisible` allows a below-horizon glow. `BodyVisible` also requires the body to have reached the horizon. Both respect the recipient's perception, sky-obscuring weather, and an outdoor location or an interior with windows. Echo text accepts ordinary sentences and colour markup. If multiple echoes fall in one minute, lower order numbers go first, then echo IDs in ordinal order. `celestial preview` and `celestial event` let you inspect the timing silently. Live narrative is delivered as the clock passes through the minute normally. [Authored celestial events](../World/Authored_Celestials.md#events-and-narrative)
 
 ### Give the Reach seasons and weather that fit its clock
 

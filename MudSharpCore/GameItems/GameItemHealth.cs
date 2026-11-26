@@ -25,7 +25,7 @@ public partial class GameItem : IHaveWounds
 
     private IOverrideItemWoundBehaviour _overridingWoundBehaviourComponent;
 
-    private bool _deferredInitialHealthTick;
+    private bool _deferBodyWounds;
     private bool _healthTickSubscribed;
 
     private readonly List<IWound> _wounds = new();
@@ -544,6 +544,7 @@ public partial class GameItem : IHaveWounds
 
     public void EndHealthTick()
     {
+        if (_deferBodyWounds) return;
         if (_overridingWoundBehaviourComponent != null)
         {
             _overridingWoundBehaviourComponent.EndHealthTick();

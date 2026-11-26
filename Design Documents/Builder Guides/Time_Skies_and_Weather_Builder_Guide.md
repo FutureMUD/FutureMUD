@@ -21,7 +21,7 @@ Two towns can keep the same hour, see the sun rise at different times and have e
 | Is there fog here *today*? What might tomorrow bring? | **Weather controller** assigned to the location | Places served by that particular controller |
 | Can someone see the moon, read the time, feel the cold or forecast the rain? | Room exposure, actual light and weather, equipment and character checks | The individual observer |
 
-Read the concepts in order, then [build the seeded timekeeping examples](#timekeeping-at-the-builder-prompt) or jump to [the port and valley](#a-coastal-port-and-an-inland-valley), [the sunset festival](#a-sunset-festival-and-a-civil-closing-hour), or [the nine-hour world](#a-nine-hour-world-with-a-copper-sun).
+Look up a token in the [clock and calendar markup reference](#clock-and-calendar-markup-reference), [build the seeded timekeeping examples](#timekeeping-at-the-builder-prompt) or jump to [the port and valley](#a-coastal-port-and-an-inland-valley), [the sunset festival](#a-sunset-festival-and-a-civil-closing-hour), or [the nine-hour world](#a-nine-hour-world-with-a-copper-sun).
 
 For building, clocks, calendar editing, shards and authored celestials require HighAdmin access. The weather editors require SeniorAdmin. Timezone editing and recurring prog schedules require Admin. Players can inspect their surroundings with `time`, `look sky` and `weather`.
 
@@ -64,6 +64,90 @@ Write down one ordinary year and one exceptional year before opening the editor.
 | When does today become tomorrow? | `dayboundary` and, for a solar boundary, `authority` | Month generation and the hour at which a date rolls over are separate choices. |
 
 Use `calendar set preview <year>` to inspect generated **months and lengths**. `calendar set validate` checks that the current year can be generated. To see a weekday, feast name or era as players will read it, use the calendar's long mask and `time` in a zone with the calendar attached. Build structural changes on a new calendar or a clone first. After each warning, type `accept` before the next command. This can apply even to a newly created record. Enter commands individually at the game prompt. Replace angle-bracketed names with the corresponding records from your world.
+
+## Clock and calendar markup reference
+
+A display mask is ordinary text with tokens starting with `$`. A clock reads **one letter** after the dollar sign. A calendar reads **two letters**. For example, `$m` on a clock gives the minute, `$mm` on a calendar gives the month alias, and `$mo` on a calendar gives the month number. Use the exact capitalisation shown in the tables. You can place tokens side by side and put units or punctuation directly after them. An unrecognised token stays visible in the output.
+
+### Clock masks
+
+While editing a clock, use `clock set short <mask>` for the compact display, `clock set long <mask>` for the long display, and `clock set super <mask>` for the administrator display. The numeric fields follow `hourdigits`, `minutedigits` and `seconddigits`. A width of 2 prints 7 as `07`. The word forms spell it `seven`.
+
+| Tokens | What they insert |
+| --- | --- |
+| `$h` / `$H` | Hour since the start of the day, in digits / words. At 13:07 on a 24-hour clock these give `13` / `thirteen`. |
+| `$j` / `$J` | Hour within the current named interval, in digits / words. With two twelve-hour intervals, hour 13 gives `1` / `one`. With `nozero true`, the first hour of each interval displays as its length, e.g. `12` at noon. |
+| `$m` / `$M` | Minute within the hour, in digits / words. |
+| `$s` / `$S` | Second within the minute, in digits / words. |
+| `$t` / `$T` | Alias / full description of the timezone of the time being displayed. |
+| `$i` / `$I` | Short / long name of the interval containing the **actual hour**, such as `p.m` / `in the afternoon`. |
+| `$l` / `$L` | Short / long name of the interval for the **approximate hour**. The first token is a lowercase L. Use these with `$c` so that an estimate near midnight picks up the next interval's name. |
+| `$c` | Approximate spoken time. Depending on the fraction of the hour, this gives an o'clock, quarter past, half past or quarter to expression. The calculation uses this clock's minutes per hour. |
+| `$C` | Crude time band configured with `clock set crude`. It gains `early` or `late` near the beginning or end of the band. |
+
+For a stock-style clock with two twelve-hour intervals, compare these masks at **23:59:59**. The exact watch face still shows `p.m`. Someone estimating the time is already saying midnight.
+
+| Set this mask | Output |
+| --- | --- |
+| `clock set short $j:$m:$s $i` | `11:59:59 p.m` |
+| `clock set long $c $l` | `twelve o'clock a.m` |
+| `clock set super $h:$m:$s $t` | `23:59:59 UTC` in the UTC timezone |
+
+### Calendar masks
+
+While editing a calendar, use `calendar set short <mask>` for a compact record, `calendar set long <mask>` for a date in prose, or `calendar set wordy <mask>` for a fully written date. All three accept the same tokens. The date being displayed supplies the weekday, observance, era, named year and reign.
+
+**Day, weekday and observance**
+
+| Tokens | What they insert |
+| --- | --- |
+| `$dd` / `$DD` | Day of the month in digits / words, e.g. `18` / `eighteen`. |
+| `$dt` / `$DT` | Ordinal day in digits / words, e.g. `18th` / `eighteenth`. |
+| `$dr` | Day in Roman numerals, e.g. `XVIII`. |
+| `$ww` | Weekday name. Empty on a day marked as a non-weekday. |
+| `$nn` / `$NN` | Short / full name of the special day, with no separator. |
+| `$ns` / `$NS` | Short / full special-day name followed by a space. |
+| `$nz` / `$NZ` | Short / full special-day name followed by a comma and a space. |
+
+All six special-day tokens give empty text on an ordinary day, including any separator supplied by the token. On the Mission Calendar, `calendar set long $nz$ww the $dt of $mf` gives **Reassignment Day, Axis the 18th of Lux** on the observance, then **Core the 19th of Lux** the next day. Putting the comma outside the token would leave it in both dates.
+
+**Month, year and era**
+
+| Tokens | What they insert |
+| --- | --- |
+| `$mm` / `$ms` / `$mf` | Month alias / short name / full name. The Mission Calendar's first month gives `ignis` / `ign` / `Ignis`. |
+| `$mo` / `$MO` / `$MT` | Month's **nominal order** as digits / words / ordinal words. For the fifth month these give `5` / `five` / `fifth`. |
+| `$yy` / `$YY` | Year within the era, in digits / words. |
+| `$yo` / `$YO` | Year within the era as a numeric / written ordinal. |
+| `$ee` / `$EE` | Short / long era name. Internal year 1 is year 1 of the modern era. Internal year 0 displays as year 1 of the ancient era, and −1 as year 2 of the ancient era. |
+| `$cc` / `$CC` | Century within the era as a numeric / written ordinal. Years 1–100 are the first century. |
+| `$mi` / `$MI` | Millennium within the era as a numeric / written ordinal. Years 1–1000 are the first millennium. |
+| `$my` / `$MY` | The displayed year number modulo 1000 as a numeric / written ordinal. Year 1042 gives the same result as year 42. Exact multiples of 1000 give a zero ordinal. |
+
+**Named year cycles and reigns**
+
+| Tokens | What they insert |
+| --- | --- |
+| `$yn` / `$yi` | Name of this year in the repeating cycle / its one-based position, e.g. `Jihae's Anger` / `1` in the first year of a King's Age. |
+| `$yc` / `$ya` | Cycle's display name / cycle number. The cycle containing its epoch is number 1. The immediately preceding cycle is number 0. |
+| `$rk` / `$rs` / `$rf` | Regnal key including `@` / short name / full name, e.g. `@charles-iii` / `Charles III` / `King Charles III`. |
+| `$rn` / `$rN` | Year of the reign, in digits / words, e.g. `1` / `one`. |
+| `$rt` / `$rT` | Year of the reign, as a numeric / written ordinal, e.g. `1st` / `first`. |
+| `$rq` | Canonical regnal year, e.g. `RY1 @charles-iii`. Outside a reign this gives the ordinary year number and short era name, equivalent to `$yy $ee`. |
+| `$rp` | Regnal year in prose, e.g. `1st year of King Charles III`. Outside a reign this gives the ordinary ordinal year and long era name, equivalent to `$yo $EE`. |
+
+The four cycle fields are empty on calendars without a named cycle. Outside a regnal period, the regnal key, names and standalone year fields are empty. Use `$rq` or `$rp` for their built-in fallbacks, or write **`$ir{during a reign}{outside a reign}`** to choose the surrounding wording yourself. Put both brace groups together. Each branch can contain plain text and calendar tokens. Use a single level of braces. Separate conditionals can appear in the same mask.
+
+For example, a clerk recording a date in month 3 of year 1200 wants a ruler's name when a reign covers the date. With King Charles III's regnal period beginning on day 15 of that month and the long modern era named “after era”, this mask gives the two entries below.
+
+```text
+calendar set long $dd/$mm/$ir{$rt year of $rf}{$yo $EE}
+```
+
+| Date recorded | Ledger entry |
+| --- | --- |
+| Day 16, inside the period | `16/month3/1st year of King Charles III` |
+| Day 1 of month 1, before the period | `1/month1/1200th after era` |
 
 ## Physical and authored skies
 

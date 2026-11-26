@@ -10,6 +10,12 @@ A new observation requires visible outdoor conditions: outdoors, through windows
 
 Quality changes the interpretation, not the scheduled weather. Difficulty and uncertainty increase with distance. Failed readings can substitute climate-compatible weather and temperature estimates, so a confidently presented outlook can be wrong. The saved effect contains the resulting interpretation; it never exposes exact transition times, strike targets, or damage rolls.
 
+### Weather transition and flavour text
+
+The climate model's `echoticks` sets the minimum number of unchanged-weather minute ticks between flavour echoes. Once that interval passes, the controller rolls `echochance` each eligible minute. A non-empty flavour echo restarts the interval.
+
+Use `weatherevent set transition <from> <text>` on the arriving event. Quote a source name containing spaces or enter its ID. The text lookup tries the old event, its direct `countas` event, then the arriving event's default. `weatherevent set transition none <from>` removes an override. The climate model sets which transitions can occur and their relative weights. Flavour lines belong to the current event and have their own weights.
+
 ## Authoritative schedule
 
 New weather controllers adopt the first climate season's celestial and its clock/primary timezone when that celestial exposes a time context. This supports nine-hour templates even when an unrelated 24-hour clock is first in the world. Loaded controllers keep their saved clock and celestial.

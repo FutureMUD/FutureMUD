@@ -4,6 +4,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## Master guides
 
+- [Building Time, Skies and Weather](../Builder%20Guides/Time_Skies_and_Weather_Builder_Guide.md) walks builders through a coastal and inland climate, a sunset calendar and an authored nine-hour sky.
 - [FutureMUD Time And Date System](Time_And_Date_System.md)
 - [Room Layer System Primer](Room_Layer_System_Primer.md)
 - [FutureMUD Celestial System Overview](Celestial_System_Overview.md)

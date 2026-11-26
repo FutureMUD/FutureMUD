@@ -270,7 +270,7 @@ public class SimpleWeatherEvent : WeatherEventBase
 
         }
 
-        we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
+        we = Gameworld.WeatherEvents.GetByIdOrName(which);
         if (we is null)
         {
             actor.OutputHandler.Send("There is no such weather event.");

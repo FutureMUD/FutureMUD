@@ -312,18 +312,18 @@ public partial class Character
 		dbchar.CurrentSignedLanguageId = CurrentSignedLanguage?.Id;
 		dbchar.CurrentSignedLanguageVarietyId = CurrentSignedLanguageVariety?.Id;
 
-        FMDB.Context.CharactersAccents.RemoveRange(dbchar.CharactersAccents);
-        foreach (KeyValuePair<IAccent, Difficulty> accent in _accents)
+        var remainingAccents = dbchar.CharactersAccents.ToDictionary(x => x.AccentId);
+        foreach (var (accent, familiarity) in _accents)
         {
-            CharacterAccent dbitem = new()
+            if (!remainingAccents.Remove(accent.Id, out var savedAccent))
             {
-                Character = dbchar,
-                AccentId = accent.Key.Id,
-                Familiarity = (int)accent.Value,
-                IsPreferred = _preferredAccents.ContainsValue(accent.Key)
-            };
-            dbchar.CharactersAccents.Add(dbitem);
+                savedAccent = new CharacterAccent { Character = dbchar, AccentId = accent.Id };
+                dbchar.CharactersAccents.Add(savedAccent);
+            }
+            savedAccent.Familiarity = (int)familiarity;
+            savedAccent.IsPreferred = _preferredAccents.ContainsValue(accent);
         }
+        FMDB.Context.CharactersAccents.RemoveRange(remainingAccents.Values);
 
         FMDB.Context.CharactersLanguages.RemoveRange(dbchar.CharactersLanguages);
         foreach (ILanguage language in _languages)

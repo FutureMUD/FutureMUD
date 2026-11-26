@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Traits;
 using MudSharp.Communication.Language;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using ConcreteCharacter = MudSharp.Character.Character;
@@ -14,6 +18,44 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NativeAccentMasteryTests
 {
+	[TestMethod]
+	public void SaveLanguages_UpdatesExistingAccentAndPersistsLearnedAndForgottenAccents()
+	{
+		var f = new Fixture();
+		f.Language.SetupGet(x => x.Id).Returns(1);
+		Mock.Get(f.Home).SetupGet(x => x.Id).Returns(2);
+		f.Set("_signedLanguages", new List<ISignedLanguage>());
+		f.Set("_signedLanguageVarieties", new Dictionary<ISignedLanguageVariety, Difficulty>());
+		f.Set("_scripts", new List<IScript>());
+		f.Familiarity[f.Learner] = Difficulty.Easy;
+		f.Familiarity[f.Native] = Difficulty.Normal;
+		f.Character.SetPreferredAccent(f.Native);
+
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options;
+		using var database = new InMemoryDatabaseTestScope(options);
+		using var session = new FMDB();
+		var db = database.Context;
+		var character = new MudSharp.Models.Character { Id = 1 };
+		var retained = new MudSharp.Models.CharacterAccent { AccentId = f.Learner.Id, IsPreferred = true };
+		character.CharactersAccents.Add(retained);
+		character.CharactersAccents.Add(new MudSharp.Models.CharacterAccent { AccentId = 3 });
+		db.Characters.Add(character);
+		db.SaveChanges();
+
+		typeof(ConcreteCharacter).GetMethod("SaveLanguages", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(f.Character, [character]);
+		Assert.AreEqual(EntityState.Modified, db.Entry(retained).State);
+		db.SaveChanges();
+		db.ChangeTracker.Clear();
+		var accents = db.CharactersAccents.ToDictionary(x => x.AccentId);
+		Assert.HasCount(2, accents);
+		Assert.IsFalse(accents[f.Learner.Id].IsPreferred);
+		Assert.AreEqual((int)Difficulty.Easy, accents[f.Learner.Id].Familiarity);
+		Assert.IsTrue(accents[f.Native.Id].IsPreferred);
+		Assert.IsFalse(accents.ContainsKey(3));
+	}
+
 	[TestMethod]
 	public void AccentlessSpeechRequiresNoAccentCheck()
 	{

@@ -1031,19 +1031,28 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         if (_overridingWoundBehaviourComponent is IBodyRemains && Gameworld.SaveManager.MudBootingMode)
         {
-            _deferredInitialHealthTick = true;
+            _deferBodyWounds = true;
             Gameworld.RegisterPostCharacterLoadFinalisable(this);
         }
     }
 
     void IPostCharacterLoadFinalisable.FinaliseLoading()
     {
-        if (!_deferredInitialHealthTick)
+        if (!_deferBodyWounds)
         {
             return;
         }
 
-        _deferredInitialHealthTick = false;
+        _deferBodyWounds = false;
+        if (Deleted || !_loadTimeTasksFinalised) return;
+
+        // The corpse exposes its original body's wounds. Loading them can materialise the character.
+        foreach (var lodged in LodgedItems)
+        {
+            lodged.FinaliseLoadTimeTasks();
+            if (IsActive) lodged.Login();
+        }
+
         if (IsActive) StartHealthTick();
     }
 
@@ -1377,7 +1386,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 _finalisedComponents.Add(component);
             }
 
-            foreach (var item in LodgedItems) item.FinaliseLoadTimeTasks();
+            foreach (var item in LifecycleLodgedItems) item.FinaliseLoadTimeTasks();
             _loadTimeTasksFinalised = true;
         }
         finally
@@ -1549,6 +1558,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                    .Concat(Wounds.SelectNotNull(x => x.Lodged));
 
     public IEnumerable<IGameItem> LodgedItems => Wounds.SelectNotNull(x => x.Lodged).ToArray();
+
+    private IEnumerable<IGameItem> LifecycleLodgedItems => _deferBodyWounds ? [] : LodgedItems;
     public IEnumerable<IGameItem> AttachedItems =>
         (GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? [])
         .Concat(GetItemType<IFirearmAttachmentHost>()?.InstalledAttachments.Values.Select(x => x.Parent) ?? [])
@@ -2245,7 +2256,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 component.Login();
             }
 
-            foreach (var item in LodgedItems)
+            foreach (var item in LifecycleLodgedItems)
             {
                 if (Deleted || !_active) return;
                 enteringLodgedItems.Add(item);
@@ -2264,7 +2275,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             if (Deleted || !_active) return;
             if (_overridingWoundBehaviourComponent is not null)
             {
-                if (!_deferredInitialHealthTick) StartHealthTick();
+                if (!_deferBodyWounds) StartHealthTick();
             }
             else if (Wounds.Any())
             {
@@ -2403,7 +2414,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 if (_components.Contains(component)) component.Quit();
             }
 
-            foreach (var item in LodgedItems) item.Quit();
+            foreach (var item in LifecycleLodgedItems) item.Quit();
             Gameworld.EffectScheduler.Destroy(this);
             if (!inEscrow) Gameworld.Destroy(this);
             _suspended = true;

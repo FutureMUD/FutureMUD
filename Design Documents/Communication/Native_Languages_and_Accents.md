@@ -40,6 +40,8 @@ Existing better familiarity is preserved but cannot improve further before quali
 
 ## Persistence and compatibility
 
+Character saves update familiarity and preference on existing accent rows. Learning an accent adds a row and forgetting one removes it. This applies during startup when the engine saves a character loaded through a corpse.
+
 `NativeLanguagesAndAccentRoles` adds nullable native-language references to characters and heritage, a nullable acquisition-accent reference on character-language rows, accent roles, and `AccentsAssociatedLanguages`. The migration converts old learner-pointer targets to Fallback before removing `Languages.DefaultLearnerAccentId`; other existing accents begin as Native. Existing familiarity and preferred accents are not rewritten. Missing optional NPC/chargen XML remains valid.
 
 The C# learner-accent property, language builder setting, and FutureProg `language.defaultaccent` property are removed. Custom progs using that property require manual updates; use `language.accents` and accent roles/associations instead. Seeded progs and maintained seeder code must not depend on the removed property. New readable properties are `character.nativelanguage`, `chargen.nativelanguage`, `culture.nativelanguage`, `ethnicity.nativelanguage`, `accent.role` (text), and `accent.associatedlanguages` (language collection).

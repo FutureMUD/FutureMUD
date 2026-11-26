@@ -99,6 +99,10 @@ environment{*rain=Everything here still glistens with recent rain.}
 
 Current runtime treats this as `highest recent precipitation >= requested level`.
 
+#### Wind
+
+Use `wind:<level>` for the current weather event's wind. For example, `environment{>wind:strongwind=Canvas snaps against the mast.}{wind:breeze=The pennant stirs.}{The pennant hangs slack.}` reads from strongest to weakest. The ordered levels are `none`, `still`, `occasionalbreeze`, `breeze`, `wind`, `strongwind`, `galewind`, `hurricanewind` and `maelstromwind`. A room without a current weather event matches none of the positive wind conditions. The usual `!`, inclusive `>` and exclusive `<` operators work with wind.
+
 #### Negation
 
 Prefix any qualifier with `!` to negate it.
@@ -122,6 +126,7 @@ Current runtime semantics are:
 This applies to:
 
 - precipitation levels
+- wind levels
 - light descriptions resolved through the light model
 
 Examples:
@@ -314,6 +319,8 @@ The painted board above the door reads @shop.
 ```
 
 ## Practical Guidance
+
+Stand in the room and use `room preview time dusk wind galewind rain dry recentrain rain` to render the selected overlay's name and body once. You can also supply `season <id|internal name>` and `light <lux|band>`. Quote multiword values. Omitted factors retain their live values. Previewing leaves the world and other observers untouched. See the [ferry landing examples](../Builder%20Guides/Time_Skies_and_Weather_Builder_Guide.md#preview-the-ferry-landing-in-different-conditions).
 
 - Use `environment` for genuinely dynamic environmental prose, not for every sentence.
 - Use `writing` when the text should be readable only to the right viewers; keep the alternate text natural enough that it still reads well in context.

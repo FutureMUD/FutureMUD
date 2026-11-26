@@ -174,6 +174,8 @@ show exittemplates
 
 `room overlay` is a builder view/edit helper. It lets you view a specific overlay revision for your current room. `room overlay clear` returns you to the default current overlay. You will see the information associated with your current overlay when you look at the room, but others will still see the room's default current. This way, you can be working on changes to an area live without impacting on what others are seeing.
 
+While viewing that overlay, try `room preview time night rain dry recentrain heavyrain` to read its authored name and description after a shower. Combine any of `time`, `wind`, `rain`, `recentrain`, `season` and `light` in one command. Each preview is private and uses live values for factors you omit. See the [worked ferry landing example](Time_Skies_and_Weather_Builder_Guide.md#preview-the-ferry-landing-in-different-conditions).
+
 Agriculture note:
 
 - agriculture fields are live room state, not overlay text

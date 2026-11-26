@@ -102,6 +102,7 @@ Where possible you should prefer to revise existing room overlay packages instea
 The following commands do not require you to have adopted an overlay package:
 
 	#3room show#0 - shows builder-specific info about the location you are in
+	#3room preview <factor> <value> [<factor> <value> ...]#0 - reads this overlay's name and description with temporary time, wind, rain, recentrain, season or light values
 	#3room overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
 	#3room overlay clear#0 - clears your current override for seeing room packages
 	#3room exit list#0 - lists all exits for the current room (including in other overlays)
@@ -214,6 +215,9 @@ There is also a universal optional argument which must come first in the form of
                 break;
             case "show":
                 RoomShow(actor, ss);
+                break;
+            case "preview":
+                RoomPreview(actor, ss);
                 break;
             case "set":
             case "edit":
@@ -2042,6 +2046,7 @@ The syntax is:
 Conditions for 'environment' include:
 
 Times: day, night, morning, afternoon, dusk, dawn, notnight
+Wind: wind:breeze, >wind:strongwind or <wind:galewind. Use room preview to try conditions together.
 Light: pitch black, almost completely dark, extremely dark, very dark, dark, dim, soft, normal, bright, very bright, extremely bright
 Light: Add a > or < to light levels to check higher than (inclusive) or lower than (exclusive)
 {(actor.Location.WeatherController?.RegionalClimate.Seasons.Any() == true ? $"Seasons: {actor.Location.WeatherController.RegionalClimate.Seasons.Select(x => x.Name).ListToCommaSeparatedValues(", ")}\nSeason Groups:{actor.Location.WeatherController.RegionalClimate.Seasons.Select(x => x.SeasonGroup).Distinct().ListToCommaSeparatedValues(", ")}\n" : "")}Precipitation: parched, dry, humid, lightrain, rain, heavyrain, torrentialrain, lightsnow, snow, heavysnow, blizzard, sleet
@@ -3403,6 +3408,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         sb.AppendLine();
         sb.AppendLine(
             $"{"Times".ColourName()}: {"day, night, morning, afternoon, dusk, dawn, notnight".ColourCommand()}");
+		sb.AppendLine("Wind: wind:breeze, >wind:strongwind or <wind:galewind. Use room preview to try conditions together.");
         sb.AppendLine(
             $"{"Light".ColourName()}: {$"{actor.Gameworld.LightModel.LightDescriptions.Select(x => x.ToLowerInvariant()).ListToCommaSeparatedValues(", ")}".ColourCommand()}");
         sb.AppendLine(

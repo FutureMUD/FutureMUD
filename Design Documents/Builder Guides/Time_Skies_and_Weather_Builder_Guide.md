@@ -199,6 +199,7 @@ Use `environment{conditions=text}{conditions=text}{fallback}` in either a room n
 | `rain`, `heavysnow`, etc. | The room's current precipitation level. The ordered levels are `parched`, `dry`, `humid`, `lightrain`, `rain`, `heavyrain`, `torrentialrain`, `lightsnow`, `snow`, `heavysnow`, `blizzard` and `sleet`. An unprefixed name matches that exact level. |
 | `>rain`, `<lightsnow`, `*rain` | `>` means *at least*, and `<` means *strictly below*. Snow and sleet follow rain in the ordering. Combine `>rain,<lightsnow` for rain through torrential rain. `*rain` checks whether the highest recent precipitation reached at least rain, including while it is still falling. |
 | `dim`, `>dim`, `<bright` | The room's illumination using the active light model's description names. A bare name matches its band. A comparison uses that band's lower lux threshold. Lamps can change the result at night. |
+| `wind:breeze`, `>wind:strongwind`, `<wind:galewind` | The wind level of the room's current weather event. The levels in ascending order are `none`, `still`, `occasionalbreeze`, `breeze`, `wind`, `strongwind`, `galewind`, `hurricanewind` and `maelstromwind`. |
 | `!` before a condition | Negates that condition. `!night` includes twilight. `!rain` excludes only the exact rain level, so a quay can still be wet in heavy rain. |
 
 Recent precipitation comes from the room's weather controller. An equally wet or wetter event refreshes its recorded maximum. After more than `MaximumPeriodsForRecentWeather` consecutive lower-precipitation game-minute updates, the controller resets it to current conditions. The world default is 300. Use `show staticconfig MaximumPeriodsForRecentWeather` to inspect your world's setting. On a dry controller, `setroomweather` can make a single room match `rain` without ever making it match `*rain`. Clearing the room effect restores the dry conditions immediately.
@@ -209,7 +210,19 @@ At the ferry landing, give the active weather priority over its aftermath. Write
 environment{>rain,<lightsnow=Rain rings spread across the water between the moored boats.}{*rain=The mooring ropes hang dark and damp against the pilings.}{night,<bright=The ferry steps disappear into shadow below the quay.}{The ferry steps lead down between the moored boats.}
 ```
 
-To inspect alternate wording, use a separate building zone with its own controller and view the room with `look`. As an administrator, `weather transition` lists valid destinations and `weather transition <id>` takes that controller to one of them. Reusing a live town's controller would change that town too. For a different season or hour, use a separate test world or a dedicated test clock and season setup. `calendar set preview` and `celestial preview` show model data and leave the room at its current conditions.
+### Preview the ferry landing in different conditions
+
+Stand on the landing and use `room preview` to read the name and description from the overlay you are viewing. Each command takes one or more factor/value pairs in any order. Omitted factors come from the live room. The result goes only to you and the overrides expire with that command. The preview shows the authored text, including your ordinary trait and literacy substitutions. Occupants, exits and automatic weather notices belong to the full `look` display.
+
+| Command | Passage from the landing above |
+| --- | --- |
+| `room preview rain heavyrain` | Rain rings spread across the water. The first branch matches even if the controller remembers rain. |
+| `room preview rain dry recentrain heavyrain` | The mooring ropes hang dark and damp. You can read the aftermath immediately. |
+| `room preview time night rain dry recentrain dry light 0` | The ferry steps disappear into shadow. Time and illumination are independent, so you can also try the scene under bright quay lamps. |
+
+Wind can change a different part of the same description. Add `environment{>wind:strongwind=The ferry pennant snaps taut above the landing.}{wind:breeze=The ferry pennant stirs.}{The ferry pennant hangs from its staff.}` and try `room preview wind galewind`. To read the autumn wording in the next example, enter `room preview season <season-id> time dusk` using a season in your world's autumn group. The season override supplies both its internal name and its group.
+
+Use `room preview help` for all six factors. `light` accepts lux or a band from your world's light model, such as `light "very dark"`. Specifying night, rain or a season changes that input alone. The preview leaves the clock, controller, precipitation history and overlay untouched.
 
 On a different street, `environment{autumn,!night=Gilded leaves gather beneath the market awnings.}` adds a single seasonal detail. Leave unrelated details in the permanent description so the scene still reads naturally when the clause disappears. [Room description markup](../Markup/Room_Description_Markup.md)
 

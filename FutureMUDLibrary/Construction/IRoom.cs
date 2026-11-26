@@ -99,6 +99,7 @@ namespace MudSharp.Construction
         void RegisterMovement(IMovement move);
         string ProcessedFullDescription(IPerceiver voyeur, PerceiveIgnoreFlags flags, IRoomOverlay overlay);
 		string PublicLandmarkDescription(bool nameOnly);
+		string PreviewDescription(IPerceiver voyeur, RoomDescriptionOverrides conditions);
         IHearingProfile HearingProfile(IPerceiver voyeur);
         IEditableRoomOverlay GetOrCreateOverlay(IRoomOverlayPackage package);
         IRoomOverlay GetOverlay(IRoomOverlayPackage package);

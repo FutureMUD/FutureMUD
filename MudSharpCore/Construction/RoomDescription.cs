@@ -20,7 +20,7 @@ public partial class Room
     /// Form is environment{conditions,text}{optional more conds,text}{fallback}
     /// </summary>
     private readonly Regex _weatherAndLightRegex = new(
-        @"environment\{(?<qualifiers1>[a-zA-Z0-9_!*><, -]+)=(?<text1>[^}]*)\}(?:\{(?<qualifiers2>[a-zA-Z0-9_!*><, -]+)=(?<text2>[^}]*)\}){0,1}(?:\{(?<qualifiers3>[a-zA-Z0-9_!*><, -]+)=(?<text3>[^}]*)\}){0,1}(?:\{(?<qualifiers4>[a-zA-Z0-9_!*><, -]+)=(?<text4>[^}]*)\}){0,1}(?:\{(?<qualifiers5>[a-zA-Z0-9_!*><, -]+)=(?<text5>[^}]*)\}){0,1}(?:\{(?<qualifiers6>[a-zA-Z0-9_!*><, -]+)=(?<text6>[^}]*)\}){0,1}(?:\{(?<qualifiers7>[a-zA-Z0-9_!*><, -]+)=(?<text7>[^}]*)\}){0,1}(?:\{(?<qualifiers8>[a-zA-Z0-9_!*><, -]+)=(?<text8>[^}]*)\}){0,1}(?:\{(?<fallback>[^}=]*)\}){0,1}");
+        @"environment\{(?<qualifiers1>[a-zA-Z0-9_:!*><, -]+)=(?<text1>[^}]*)\}(?:\{(?<qualifiers2>[a-zA-Z0-9_:!*><, -]+)=(?<text2>[^}]*)\}){0,1}(?:\{(?<qualifiers3>[a-zA-Z0-9_:!*><, -]+)=(?<text3>[^}]*)\}){0,1}(?:\{(?<qualifiers4>[a-zA-Z0-9_:!*><, -]+)=(?<text4>[^}]*)\}){0,1}(?:\{(?<qualifiers5>[a-zA-Z0-9_:!*><, -]+)=(?<text5>[^}]*)\}){0,1}(?:\{(?<qualifiers6>[a-zA-Z0-9_:!*><, -]+)=(?<text6>[^}]*)\}){0,1}(?:\{(?<qualifiers7>[a-zA-Z0-9_:!*><, -]+)=(?<text7>[^}]*)\}){0,1}(?:\{(?<qualifiers8>[a-zA-Z0-9_:!*><, -]+)=(?<text8>[^}]*)\}){0,1}(?:\{(?<fallback>[^}=]*)\}){0,1}");
 
     private PrecipitationLevel? PrecipitationFromString(string text)
     {
@@ -62,7 +62,7 @@ public partial class Room
         return null;
     }
 
-    private string SubstituteWeatherAndLightText(string baseDescription, IPerceiver voyeur)
+    private string SubstituteWeatherAndLightText(string baseDescription, IPerceiver voyeur, RoomDescriptionOverrides conditions)
     {
         bool QualifiersApply(string qualifiers)
         {
@@ -71,7 +71,7 @@ public partial class Room
                 return false;
             }
 
-            bool EvaluteQualifier(string qualifier)
+            bool EvaluateQualifier(string qualifier)
             {
                 if (string.IsNullOrWhiteSpace(qualifier))
                 {
@@ -82,71 +82,25 @@ public partial class Room
 
                 if (text[0] == '!')
                 {
-                    return !EvaluteQualifier(text[1..]);
+                    return !EvaluateQualifier(text[1..]);
                 }
 
                 if (text[0] == '*')
                 {
-                    if (HighestRecentPrecipitationLevel(voyeur) >=
-                        (PrecipitationFromString(text[1..]) ?? PrecipitationLevel.Parched))
-                    {
-                        return true;
-                    }
-
-                    return false;
+                    return (conditions?.RecentRain ?? HighestRecentPrecipitationLevel(voyeur)) >=
+                           (PrecipitationFromString(text[1..]) ?? PrecipitationLevel.Parched);
                 }
 
+                TimeOfDay Time() => conditions?.Time ?? CurrentTimeOfDay;
                 switch (text)
                 {
-                    case "day":
-                        if (CurrentTimeOfDay.In(TimeOfDay.Morning, TimeOfDay.Afternoon))
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    case "night":
-                        if (CurrentTimeOfDay == TimeOfDay.Night)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    case "morning":
-                        if (CurrentTimeOfDay == TimeOfDay.Morning)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    case "afternoon":
-                        if (CurrentTimeOfDay == TimeOfDay.Afternoon)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    case "dusk":
-                        if (CurrentTimeOfDay == TimeOfDay.Dusk)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    case "dawn":
-                        if (CurrentTimeOfDay == TimeOfDay.Dawn)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    case "notnight":
-                        if (CurrentTimeOfDay != TimeOfDay.Night)
-                        {
-                            return true;
-                        }
-
-                        return false;
+                    case "day": return Time().In(TimeOfDay.Morning, TimeOfDay.Afternoon);
+                    case "notnight": return Time() != TimeOfDay.Night;
+                    case "night": return Time() == TimeOfDay.Night;
+                    case "morning": return Time() == TimeOfDay.Morning;
+                    case "afternoon": return Time() == TimeOfDay.Afternoon;
+                    case "dusk": return Time() == TimeOfDay.Dusk;
+                    case "dawn": return Time() == TimeOfDay.Dawn;
                 }
 
                 bool greaterThan = false, lessThan = false;
@@ -161,87 +115,47 @@ public partial class Room
                     text = text[1..];
                 }
 
-                ISeason season = Zone.WeatherController?.RegionalClimate.Seasons.FirstOrDefault(x => x.Name.EqualTo(text));
-                if (season != null)
+                if (text.StartsWith("wind:", StringComparison.Ordinal))
                 {
-                    return Zone.WeatherController.CurrentSeason == season;
+                    if (!text[5..].TryParseEnum<WindLevel>(out var threshold)) return false;
+                    var wind = conditions?.Wind ?? CurrentWeather(voyeur)?.Wind;
+                    if (greaterThan) return wind >= threshold;
+                    if (lessThan) return wind < threshold;
+                    return wind == threshold;
                 }
 
-                var seasonGroup = Zone.WeatherController?.RegionalClimate.Seasons.FirstOrDefault(x => x.SeasonGroup.EqualTo(text))?.SeasonGroup;
-                if (!string.IsNullOrEmpty(seasonGroup))
+                var controller = Zone.WeatherController;
+                var season = conditions?.Season ?? controller?.CurrentSeason;
+                if (conditions?.Season?.Name.EqualTo(text) == true ||
+                    controller?.RegionalClimate.Seasons.Any(x => x.Name.EqualTo(text)) == true)
                 {
-                    return Zone.WeatherController.CurrentSeason.SeasonGroup.EqualTo(seasonGroup);
-				}
-
-                PrecipitationLevel? precip = PrecipitationFromString(text);
-                if (precip != null)
-                {
-                    IWeatherEvent weather = CurrentWeather(voyeur);
-                    if (weather == null)
-                    {
-                        return false;
-                    }
-
-                    if (greaterThan)
-                    {
-                        if (weather.Precipitation >= precip.Value)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    }
-
-                    if (lessThan)
-                    {
-                        if (weather.Precipitation < precip.Value)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    }
-
-                    if (weather.Precipitation == precip.Value)
-                    {
-                        return true;
-                    }
-
-                    return false;
+                    return season?.Name.EqualTo(text) == true;
                 }
 
-                double lightLevel = Gameworld.LightModel.GetMinimumIlluminationForDescription(text);
-                if (greaterThan)
+                if (conditions?.Season?.SeasonGroup.EqualTo(text) == true ||
+                    controller?.RegionalClimate.Seasons.Any(x => x.SeasonGroup.EqualTo(text)) == true)
                 {
-                    if (CurrentIllumination(voyeur) >= lightLevel)
-                    {
-                        return true;
-                    }
-
-                    return false;
+                    return season?.SeasonGroup.EqualTo(text) == true;
                 }
 
-                if (lessThan)
+                var precip = PrecipitationFromString(text);
+                if (precip.HasValue)
                 {
-                    if (CurrentIllumination(voyeur) < lightLevel)
-                    {
-                        return true;
-                    }
-
-                    return false;
+                    var current = conditions?.Rain ?? CurrentWeather(voyeur)?.Precipitation;
+                    if (greaterThan) return current >= precip;
+                    if (lessThan) return current < precip;
+                    return current == precip;
                 }
 
-                if (Gameworld.LightModel.GetIlluminationDescription(CurrentIllumination(voyeur)).EqualTo(text))
-                {
-                    return true;
-                }
-
-                return false;
+                var lux = conditions?.Lux ?? CurrentIllumination(voyeur);
+                if (greaterThan) return lux >= Gameworld.LightModel.GetMinimumIlluminationForDescription(text);
+                if (lessThan) return lux < Gameworld.LightModel.GetMinimumIlluminationForDescription(text);
+                return Gameworld.LightModel.GetIlluminationDescription(lux).EqualTo(text);
             }
 
             foreach (string qualifier in qualifiers.Split(','))
             {
-                if (!EvaluteQualifier(qualifier.Trim()))
+                if (!EvaluateQualifier(qualifier.Trim()))
                 {
                     return false;
                 }
@@ -353,10 +267,18 @@ public partial class Room
 		SubstituteDescriptionVariables(nameOnly ? CurrentOverlay.RoomName : CurrentOverlay.RoomDescription,
 			null, PerceiveIgnoreFlags.None, publicLandmark: true).RawText();
 
+	public string PreviewDescription(IPerceiver voyeur, RoomDescriptionOverrides conditions)
+	{
+		var overlay = GetOverlayFor(voyeur);
+		string Render(string text) => SubstituteDescriptionVariables(text, voyeur, PerceiveIgnoreFlags.None,
+			conditions: conditions);
+		return $"{Render(overlay.RoomName).ColourRoom()}\n{Render(overlay.RoomDescription)}";
+	}
+
     private string SubstituteDescriptionVariables(string description, IPerceiver voyeur, PerceiveIgnoreFlags flags,
-		bool publicLandmark = false)
+		bool publicLandmark = false, RoomDescriptionOverrides conditions = null)
     {
-        description = SubstituteWeatherAndLightText(description, voyeur);
+        description = SubstituteWeatherAndLightText(description, voyeur, conditions);
         description = description.SubstituteANSIColour();
         description = description.Replace("@shop", Shop?.Name ?? "An Empty Shop",
             StringComparison.InvariantCultureIgnoreCase);

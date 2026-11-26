@@ -267,6 +267,7 @@ public partial class WeatherController : SaveableItem, IWeatherController
                 string echo = CurrentWeatherEvent.RandomFlavourEcho();
                 if (!string.IsNullOrEmpty(echo))
                 {
+                    MinutesSinceLastFlavourEcho = 0;
                     WeatherEcho?.Invoke(this, echo);
                 }
             }

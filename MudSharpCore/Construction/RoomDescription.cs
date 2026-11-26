@@ -20,7 +20,7 @@ public partial class Room
     /// Form is environment{conditions,text}{optional more conds,text}{fallback}
     /// </summary>
     private readonly Regex _weatherAndLightRegex = new(
-        @"environment\{(?<qualifiers1>[a-zA-Z0-9\*><, ]+)=(?<text1>[^}]*)\}(?:\{(?<qualifiers2>[a-zA-Z0-9\*><, ]+)=(?<text2>[^}]*)\}){0,1}(?:\{(?<qualifiers3>[a-zA-Z0-9\*><, ]+)=(?<text3>[^}]*)\}){0,1}(?:\{(?<qualifiers4>[a-zA-Z0-9\*><, ]+)=(?<text4>[^}]*)\}){0,1}(?:\{(?<qualifiers5>[a-zA-Z0-9\*><, ]+)=(?<text5>[^}]*)\}){0,1}(?:\{(?<qualifiers6>[a-zA-Z0-9\*><, ]+)=(?<text6>[^}]*)\}){0,1}(?:\{(?<qualifiers7>[a-zA-Z0-9\*><, ]+)=(?<text7>[^}]*)\}){0,1}(?:\{(?<qualifiers8>[a-zA-Z0-9\*><, ]+)=(?<text8>[^}]*)\}){0,1}(?:\{(?<fallback>[^}=]*)\}){0,1}");
+        @"environment\{(?<qualifiers1>[a-zA-Z0-9_!*><, -]+)=(?<text1>[^}]*)\}(?:\{(?<qualifiers2>[a-zA-Z0-9_!*><, -]+)=(?<text2>[^}]*)\}){0,1}(?:\{(?<qualifiers3>[a-zA-Z0-9_!*><, -]+)=(?<text3>[^}]*)\}){0,1}(?:\{(?<qualifiers4>[a-zA-Z0-9_!*><, -]+)=(?<text4>[^}]*)\}){0,1}(?:\{(?<qualifiers5>[a-zA-Z0-9_!*><, -]+)=(?<text5>[^}]*)\}){0,1}(?:\{(?<qualifiers6>[a-zA-Z0-9_!*><, -]+)=(?<text6>[^}]*)\}){0,1}(?:\{(?<qualifiers7>[a-zA-Z0-9_!*><, -]+)=(?<text7>[^}]*)\}){0,1}(?:\{(?<qualifiers8>[a-zA-Z0-9_!*><, -]+)=(?<text8>[^}]*)\}){0,1}(?:\{(?<fallback>[^}=]*)\}){0,1}");
 
     private PrecipitationLevel? PrecipitationFromString(string text)
     {
@@ -241,7 +241,7 @@ public partial class Room
 
             foreach (string qualifier in qualifiers.Split(','))
             {
-                if (!EvaluteQualifier(qualifier))
+                if (!EvaluteQualifier(qualifier.Trim()))
                 {
                     return false;
                 }

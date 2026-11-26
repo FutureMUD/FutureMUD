@@ -44,7 +44,7 @@ Current runtime supports:
 - one optional fallback branch with no `=` inside it
 - comma-separated qualifier lists inside each conditional branch
 
-All qualifiers in a branch must match for that branch to fire.
+All qualifiers in a branch must match. The first matching branch wins. Spaces around a comma are optional.
 
 Example:
 
@@ -68,9 +68,7 @@ Supported time keywords:
 
 #### Season Qualifiers
 
-Season matching is not hardcoded to a fixed English list. The parser compares the qualifier against the current regional climate season names.
-
-That means custom climate season names are valid here.
+Season qualifiers match the internal season name or season group of the zone's weather controller. Names such as `temperate_mid_autumn` and groups such as `leaf-fall` are valid. A separate area or terrain controller may supply the room's weather while its season qualifier still follows the zone.
 
 #### Precipitation Qualifiers
 

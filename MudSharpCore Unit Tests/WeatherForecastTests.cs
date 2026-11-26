@@ -381,6 +381,26 @@ public class WeatherForecastTests
 		CollectionAssert.AreEqual(reading.Periods.ToArray(), loaded.Periods.ToArray());
 	}
 
+	[TestMethod]
+	public void HandleWeatherTick_FlavourEchoRespectsMinimumSpacing()
+	{
+		using var fixture = new Fixture(interval: 10);
+		var model = Mock.Get(fixture.Controller.RegionalClimate.ClimateModel);
+		model.SetupGet(x => x.MinuteFlavourEchoChance).Returns(1.0);
+		model.SetupGet(x => x.MinimumMinutesBetweenFlavourEchoes).Returns(2);
+		fixture.Weather[0].Setup(x => x.RandomFlavourEcho()).Returns("Fog drifts past.");
+		var echoMinutes = new List<int>();
+		var minute = 0;
+		fixture.Controller.WeatherEcho += (_, _) => echoMinutes.Add(minute);
+
+		for (minute = 1; minute <= 5; minute++)
+		{
+			fixture.Tick(fixture.Controller);
+		}
+
+		CollectionAssert.AreEqual(new[] { 2, 4 }, echoMinutes);
+	}
+
 	private sealed class Fixture : IDisposable
 	{
 		public Mock<IFuturemud> World { get; } = new();

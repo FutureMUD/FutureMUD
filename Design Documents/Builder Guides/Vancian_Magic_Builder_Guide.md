@@ -10,6 +10,8 @@ This is an engine feature with no installed class catalogue, stock spell set, bo
 
 ## Prerequisites and policy programs
 
+For the in-game steps to build a school, grant a capability and author a ready, ordinary-cast spell, start with [Magic Foundations](Magic_Foundations_Builder_Guide.md). Then choose which spells belong in each repertoire below.
+
 Examples assume you have created a school named `Arcane` whose player verb is `arcane`, a concentration/casting trait named `Spellcasting`, and ready ordinary-cast spells `Spark` (level 0) and `Ember Bolt` (level 1). These are illustrative names for your authored content, not shipped records. Use `magic spell set level <number>` to assign a non-negative base level. Existing spells migrate to level zero without becoming known or scroll eligible. Use `magic spell set scroll true` to opt in, and `magic spell set scrollcheck` to inspect compatibility. `scroll false` explicitly revokes unused scrolls while retaining already-applied effects.
 
 Use the normal `prog` editor to create the ten programs in [Vancian_Example_Progs.json](../Magic/Vancian_Example_Progs.json). That file contains exact names, parameter order and executable bodies. `VancianExampleProgTests` compiles every body against the real compiler and executes every example, including both sides of the elapsed-time permission check. Register these character variables before compiling:

@@ -71,10 +71,10 @@ magic power set mode Opposed
 magic power set cost kineticguard Focus 2
 magic power set cost reaction Focus 2
 magic power set stamina 1
-magic power set duration 120000
+magic power set duration 120
 ```
 
-The inherited sustained duration expression is in milliseconds. Set upkeep, concentration, requirements and echoes using the power's sustained and defense help. Threat and damage-type commands toggle the selected flag/type.
+The defense lasts up to two minutes. The inherited sustained-power editor accepts duration expressions in seconds. Set upkeep, concentration, requirements and echoes using the power's sustained and defense help. Threat and damage-type commands toggle the selected flag/type.
 
 For phantom doubles, use `mode Charged`, `charges 3`, and `attackervision true`. Supply an eligibility prog when the setting has additional illusion immunity rules. Use success echoes to describe a double vanishing. The doubles are finite reactions, not separately targetable entities.
 

@@ -4,6 +4,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## Master guides
 
+- [Magic Foundations builder guide](../Builder%20Guides/Magic_Foundations_Builder_Guide.md)
 - [FutureMUD Magic System Overview](Magic_System_Overview.md)
 - [Configurable casting (ARM-02)](Configurable_Casting.md)
 - [Vancian magic runtime](Vancian_Magic_Runtime.md)

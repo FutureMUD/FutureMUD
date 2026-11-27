@@ -6,6 +6,8 @@ summary: Author land and resource profiles, bind them to terrain and rooms, and 
 
 # Environmental Magic Builder Guide
 
+For character-held resources, capability grants and a first spell and power, start with [Magic Foundations](Magic_Foundations_Builder_Guide.md). This guide takes the resource model into rooms and terrain.
+
 For shared ecological life on physical Areas/Zones, use the separate [Regional Land gathering guide](../Magic/Regional_Land_Gathering.md). Regional profiles share one regenerating stock owner and are distinct from room environmental generators and forage-profile inheritance. Their builder surface is `magic environment regional`.
 
 An `environmental` regenerator is a reusable profile for resources held by physical cells. It uses the existing magic-resource balances, one environmental maximum for each configured resource, and persistent cell damage. It applies only after an explicit cell binding or terrain default is configured. No stock setting content is installed.

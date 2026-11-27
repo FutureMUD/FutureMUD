@@ -268,6 +268,8 @@ Use `PaperSheet` for paper-like loose sheets and scrolls, and `Book` for paged c
 
 Use `ScribingImplement` when an implement should behave like a configurable writing tool instead of one of the modern fixed components such as `Biro`, `Pencil`, or `Crayon`. The prototype stores `ImplementType`, `Colour` or `ColourCharacteristic`, and `TotalUses`. Set `TotalUses` to `0` for non-consuming stylus-style tools.
 
+Handwriting on a sheet, book page or inscribable surface uses the passage's occupied document length multiplied by its script's ink-use percentage. Round fractional uses up once per passage. Page capacity uses document length alone. A 0% ink setting consumes no implement uses, and the usual compatibility and priming rules still apply. Drawings use their drawing size.
+
 Use `InscribableSurface` for wax, clay, wood, ostraca, or other non-paper surfaces. The prototype stores `MaximumCharacterLengthOfText` and an `AllowedImplementTypes` list. Builders should configure the accepted implement types narrowly: wax and clay generally use `Stylus`, wooden blocks may use `Stylus`, `Chisel`, or `Charcoal`, and ostraca may use ink or charcoal implements.
 
 `BlowgunGameItemComponent` also enforces the physical breathing requirement. It cannot be readied or fired by a body that does not breathe, cannot currently breathe, lacks a mouth bodypart, or has anything worn over the mouth. This covers breathing filters and apparatus without a separate item-type check because those components are supplied by mouth-worn items in the breathing system.

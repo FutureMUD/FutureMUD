@@ -20,6 +20,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.RPG.Checks;
 using DbEditableItem = MudSharp.Models.EditableItem;
 using DbGameItemComponentProto = MudSharp.Models.GameItemComponentProto;
 using DbWriting = MudSharp.Models.Writing;
@@ -33,6 +34,51 @@ public class PreloadedBookContentTests
 	private const long ScriptId = 2L;
 	private const long ColourId = 3L;
 	private const long PaperProtoId = 4L;
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Write_BookOrLooseSheet_ChargesInkForOccupiedLength(bool useBook)
+	{
+		var script = CreateScript(ScriptId, "Quayside Hand", 2.0);
+		Mock.Get(script).SetupGet(x => x.InkUseModifier).Returns(1.5);
+		var world = CreateGameworld(CreateLanguage(LanguageId, "River Tongue"), script, CreateColour(ColourId, "black"), 40);
+		world.Setup(x => x.GetCheck(CheckType.HandwritingImprovementCheck)).Returns(Mock.Of<ICheck>());
+		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
+		var pen = new Mock<IWritingImplement>();
+		pen.SetupGet(x => x.Parent).Returns(CreateParent(world.Object, 1));
+		pen.SetupGet(x => x.WritingImplementType).Returns(WritingImplementType.Quill);
+		pen.SetupGet(x => x.Primed).Returns(true);
+		var sheet = CreateParent(world.Object, 2);
+		IWriteable surface;
+		if (useBook)
+		{
+			var book = (BookGameItemComponent)CreateBookProto(world.Object, BookDefinition(1, "Manifest")).CreateNew(sheet);
+			book.Open();
+			surface = book;
+		}
+		else
+		{
+			surface = (PaperSheetGameItemComponent)CreatePaperProto(world.Object, 40).CreateNew(sheet);
+		}
+
+		var writing = new SimpleWriting(new DbWriting
+		{
+			Id = 3, LanguageId = LanguageId, ScriptId = ScriptId, Definition = new string('a', 20), WritingColour = ColourId
+		}, world.Object);
+		Assert.AreEqual(40, writing.DocumentLength);
+		Assert.IsTrue(surface.Write(actor.Object, pen.Object, writing));
+		Assert.IsFalse(surface.HasSpareRoom);
+		if (surface is BookGameItemComponent completedBook)
+		{
+			Assert.IsTrue(completedBook.ConsumePage(null, true));
+			Assert.IsFalse(surface.CanWrite(actor.Object, pen.Object, null));
+			Assert.IsFalse(surface.Write(actor.Object, pen.Object, writing));
+		}
+
+		pen.Verify(x => x.Use(60), Times.Once);
+	}
 
 	[TestMethod]
 	public void SheetConsumption_ProtectsWrittenSheetsUntilExplicitlyAllowed()

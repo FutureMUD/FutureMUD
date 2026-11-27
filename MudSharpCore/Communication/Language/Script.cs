@@ -205,9 +205,9 @@ public class Script : SaveableItem, IScript
             return false;
         }
 
-        if (!command.SafeRemainingArgument.TryParsePercentage(out double value))
+        if (!command.SafeRemainingArgument.TryParsePercentage(out double value) || !double.IsFinite(value) || value < 0.0)
         {
-            actor.OutputHandler.Send("That is not a valid percentage.");
+            actor.OutputHandler.Send("Enter a finite ink-use percentage of zero or more.");
             return false;
         }
 

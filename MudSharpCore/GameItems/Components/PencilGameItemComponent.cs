@@ -96,8 +96,9 @@ public class PencilGameItemComponent : GameItemComponent, IWritingImplement
 
     public void Use(int uses)
     {
-        RemainingUses -= uses;
-        UsesSinceSharpening += uses;
+        int consumed = Math.Clamp(uses, 0, Math.Max(0, RemainingUses));
+        RemainingUses -= consumed;
+        UsesSinceSharpening = int.CreateSaturating((long)UsesSinceSharpening + consumed);
     }
 
     public WritingImplementType WritingImplementType => WritingImplementType.Pencil;

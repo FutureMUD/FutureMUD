@@ -275,7 +275,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         }
 
         Readables.Add(writing);
-        implement?.Use(writing.DocumentLength);
+        implement?.Use(writing.HandwritingImplementUses());
         RegisterReadable(writing);
         Changed = true;
         return true;

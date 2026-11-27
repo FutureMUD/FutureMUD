@@ -4,6 +4,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## Master guides
 
+- [Languages, accents, signing and literacy for builders](../Builder%20Guides/Languages_Accents_Signing_and_Literacy_Builder_Guide.md)
 - [Native Languages and Accents](Native_Languages_and_Accents.md)
 - [Signed Language Communication System](Sign_Language_System.md)
 

@@ -9,7 +9,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
-- [Character Creation Builder Workflows](../Builder%20Guides/Character_Creation_Builder_Workflows.md)
+- [Playable peoples and character creation](../Builder%20Guides/Character_Creation_Builder_Workflows.md)
 - [Character Creation Documentation Index](Character_Creation_Documentation_Index.md)
 - [Character Creation Seeder](Character_Creation_Seeder.md)
 - [Chargen Skill Selection Groups](Chargen_Skill_Selection_Groups.md)

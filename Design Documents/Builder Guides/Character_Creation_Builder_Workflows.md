@@ -113,6 +113,8 @@ Use `ethnicity list`, `ethnicity show <name>`, `ethnicity edit <name>`, `ethnici
 
 ## Culture and upbringing
 
+For the language records behind a culture's native-language default, and a worked example of bilingual education, accent acquisition and script grants, see [Languages, accents, signing and literacy](Languages_Accents_Signing_and_Literacy_Builder_Guide.md).
+
 Culture records upbringing-related defaults. Use `culture list`, `culture show <name>`, `culture edit <name>`, `culture set ...` and `culture close`. `culture edit new <name>` creates a culture. Use `culture clone <source> <new name>` to build on an existing upbringing. The culture command requires Junior Admin permission.
 
 | Setting | What it means and what to decide |

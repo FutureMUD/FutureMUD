@@ -12,6 +12,7 @@ Start with the master guides below. Outstanding designs are requirements or prop
 
 ## System contracts and guides
 
+- [Property, leasing and conveyancing builder guide](../Builder%20Guides/Property_and_Conveyancing_Builder_Guide.md)
 - [Markets, impacts and shoppers builder guide](../Builder%20Guides/Markets_and_Shoppers_Builder_Guide.md)
 - [Building the justice system](../Builder%20Guides/Justice_System_Builder_Guide.md)
 - [Shops, currencies and banking builder guide](../Builder%20Guides/Shop_and_Banking_Builder_Guide.md)

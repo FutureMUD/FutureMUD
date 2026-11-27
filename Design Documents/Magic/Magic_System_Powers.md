@@ -124,6 +124,11 @@ Power load invariants:
 - Player-authored or externally supplied text that is embedded into runtime emotes must be sanitised before it reaches the emote parser.
 
 ## Builder Workflow
+
+For powers using the shared sustained duration, `magic power set duration <expression>` takes seconds and supplies the activation check's success degrees as `degrees`. Entering the literal `0` removes the time limit. An existing effect keeps its scheduled expiry when the power definition is edited.
+
+Finite durations persist as a `Duration` element with a `unit` attribute. Unmarked definitions use historical milliseconds, including on subsequent saves. Power help displays the formula and its unit. Entering a replacement formula in the editor records it in seconds. An absent `Duration` element means the power can last while sustained.
+
 ### Entry point
 The builder entry point is `magic power`.
 

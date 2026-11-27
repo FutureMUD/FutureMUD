@@ -192,6 +192,10 @@ magic power show
 
 The type uses `MagicTelepathyCheck` with the selected Lamplore trait for activation. This skill roll is separate from the 50-point unlock. `duration 0` allows the reading to continue while sustained. The activation cost is spent when the sense opens successfully. If upkeep can no longer be paid, the sense ends. Leave the release verb free so the inspector can always choose to stop spending Wicklight.
 
+For a guild that teaches short inspections, use `magic power set duration 120` to give the reading a two-minute limit. To reward a strong activation, use `magic power set duration 60 + 30 * degrees`. With two success degrees the reading can last 120 seconds, and the inspector can still release it early or lose it when upkeep runs out. Enter the formula directly in the power editor. Use `magic power set duration 0` to restore the open-ended reading.
+
+When revising an existing power, check the formula's unit in the school's player help, for example `lamplight help "Read the Weave"`. An older formula displayed as `120000` milliseconds already gives two minutes. To set the same limit again, enter `magic power set duration 120`.
+
 The stock `magicksense` type starts with psionic classification and durable psionic traces enabled. This guild treats its reading as ordinary magic. On the **new** power, switch each setting off once and inspect the result; they are independent toggles. If your setting treats the guild as psychics, keep the defaults. Then add the power to the existing capability:
 
 ```text

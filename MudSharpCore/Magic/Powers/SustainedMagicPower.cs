@@ -53,6 +53,12 @@ public abstract class SustainedMagicPower : MagicPowerBase
         else
         {
             HasDuration = true;
+            _durationInMilliseconds = (string)element.Attribute("unit") switch
+            {
+                null or "milliseconds" => true,
+                "seconds" => false,
+                var unit => throw new ApplicationException($"Power {Id} has an unknown duration unit '{unit}'.")
+            };
             DurationExpression = new Expression(element.Value);
         }
 
@@ -124,12 +130,15 @@ public abstract class SustainedMagicPower : MagicPowerBase
     protected abstract void ExpireSustainedEffect(ICharacter actor);
 
     private Expression DurationExpression { get; set; }
+    private bool _durationInMilliseconds;
+    private string DurationUnit => _durationInMilliseconds ? "milliseconds" : "seconds";
 
     public TimeSpan GetDuration(int successDegrees)
     {
         if (HasDuration)
         {
-            return TimeSpan.FromMilliseconds(DurationExpression.EvaluateDoubleWith(("degrees", successDegrees)));
+            var duration = DurationExpression.EvaluateDoubleWith(("degrees", successDegrees));
+            return _durationInMilliseconds ? TimeSpan.FromMilliseconds(duration) : TimeSpan.FromSeconds(duration);
         }
 
         return TimeSpan.MinValue;
@@ -150,7 +159,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
 
         if (HasDuration)
         {
-            sb.AppendLine($"Duration Formula: {DurationExpression.OriginalExpression.ColourCommand()}");
+            sb.AppendLine($"Duration Formula ({DurationUnit}): {DurationExpression.OriginalExpression.ColourCommand()}");
         }
 
         sb.AppendLine($"Concentration to Sustain: {ConcentrationPointsToSustain.ToString("N2", voyeur).ColourValue()}");
@@ -167,7 +176,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
         root.Add(new XElement("DetectableWithDetectMagic", (int)DetectableWithDetectMagic));
         if (HasDuration)
         {
-            root.Add(new XElement("Duration", DurationExpression.OriginalExpression));
+            root.Add(new XElement("Duration", new XAttribute("unit", DurationUnit), DurationExpression.OriginalExpression));
         }
         root.Add(new XElement("SustainResourceCosts",
             from item in SustainCostsPerMinute
@@ -195,7 +204,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
 	#3tracedifficulty <difficulty>#0 - sets how hard traces are to read
 	#3tracedesc <text>#0 - sets the trace activity text
 	#3sustaincost <which> <number>#0 - sets the sustain cost per minute of the power
-	#3duration <expression>#0 - sets the duration the power will last
+	#3duration <expression>#0 - sets the duration in seconds (degrees = activation success degrees; 0 = while sustained)
 	#3concentration <points>#0 - sets the number of concentration points this power occupies
 	#3sustainpenalty <degrees>#0 - sets the skill check penalty for sustaining this power
 	#3detect <difficulty>#0 - sets the difficulty to detect this power
@@ -245,6 +254,8 @@ public abstract class SustainedMagicPower : MagicPowerBase
         }
 
         DurationExpression = expression;
+        _durationInMilliseconds = false;
+        HasDuration = true;
         Changed = true;
         actor.OutputHandler.Send($"This power will now last for {expression.OriginalExpression.ColourCommand()} seconds.");
         return true;

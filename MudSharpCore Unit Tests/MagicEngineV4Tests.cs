@@ -33,6 +33,43 @@ namespace MudSharp_Unit_Tests;
 public partial class MagicEngineV4Tests
 {
 	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void SustainedDuration_EditingAndReloadingPreserveUnitsAndIndefiniteMode(bool legacyDuration)
+	{
+		var world = CreateGameworld();
+		world.SetupGet(x => x.SaveManager).Returns(Mock.Of<MudSharp.Framework.Save.ISaveManager>());
+		var actor = CreateCharacter(1, world.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<MudSharp.PerceptionEngine.IOutputHandler>());
+		var model = CreatePowerModel("magicksense");
+		var definition = XElement.Parse(model.Definition);
+		if (legacyDuration)
+		{
+			definition.Add(new XElement("Duration", "1000 + 500 * degrees"));
+		}
+		model.Definition = definition.ToString();
+		SustainedMagicPower Load() => (SustainedMagicPower)MagicPowerFactory.LoadPower(model, world.Object);
+		var power = Load();
+
+		var originalDuration = legacyDuration ? TimeSpan.FromSeconds(2) : TimeSpan.MinValue;
+		Assert.AreEqual(originalDuration, power.GetDuration(2));
+		model.Definition = InvokeSaveDefinition(power).ToString();
+		power = Load();
+		Assert.AreEqual(originalDuration, power.GetDuration(2));
+
+		Assert.IsTrue(power.BuildingCommand(actor.Object, new StringStack("duration 60 + 30 * degrees")));
+		Assert.AreEqual(TimeSpan.FromMinutes(2), power.GetDuration(2));
+		model.Definition = InvokeSaveDefinition(power).ToString();
+		power = Load();
+		Assert.AreEqual(TimeSpan.FromSeconds(90), power.GetDuration(1));
+
+		Assert.IsTrue(power.BuildingCommand(actor.Object, new StringStack("duration 0")));
+		Assert.AreEqual(TimeSpan.MinValue, power.GetDuration(1));
+		model.Definition = InvokeSaveDefinition(power).ToString();
+		Assert.AreEqual(TimeSpan.MinValue, Load().GetDuration(1));
+	}
+
+	[TestMethod]
 	public void MindContactSpellSelector_RequiresLiveExactPairedPhysicalContact()
 	{
 		var world = CreateGameworld();

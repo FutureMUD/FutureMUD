@@ -13,6 +13,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -183,6 +184,33 @@ public class ScribingWritingComponentsTests
 
 		Assert.AreEqual("Tablet Note", copy.Title);
 		Assert.AreSame(writing.Object, ((IReadable)copy).Writings.Single());
+	}
+
+	[TestMethod]
+	[DataRow(1.0, 10)]
+	[DataRow(0.25, 3)]
+	[DataRow(1.1, 11)]
+	[DataRow(0.0, 0)]
+	[DataRow(-1.0, 10)]
+	[DataRow(double.NaN, 10)]
+	[DataRow(double.MaxValue, int.MaxValue)]
+	public void InscribableSurface_Write_ChargesScriptRateOnceAndPreservesCapacity(double inkRate, int expectedUses)
+	{
+		var actor = new Mock<ICharacter>();
+		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
+		var world = CreateGameworld(CreateColour(ColourId, "black"));
+		world.Setup(x => x.GetCheck(CheckType.HandwritingImprovementCheck)).Returns(Mock.Of<ICheck>());
+		var proto = CreateInscribableSurfaceProto(world.Object, 10, WritingImplementType.ReedPen);
+		var surface = (InscribableSurfaceGameItemComponent)proto.CreateNew(CreateParent(world.Object, 1));
+		var pen = CreateImplement(WritingImplementType.ReedPen, true, world.Object);
+		var writing = CreateWriting(2, 10);
+		writing.SetupGet(x => x.Script.InkUseModifier).Returns(inkRate);
+
+		Assert.IsTrue(surface.Write(actor.Object, pen.Object, writing.Object));
+		Assert.AreEqual(10, surface.DocumentLengthUsed);
+		Assert.IsFalse(surface.Write(actor.Object, pen.Object, writing.Object));
+		pen.Verify(x => x.Use(expectedUses), Times.Once);
+		pen.Verify(x => x.Use(It.IsAny<int>()), Times.Once);
 	}
 
 	private static ScribingImplementGameItemComponentProto CreateScribingProto(IFuturemud gameworld,

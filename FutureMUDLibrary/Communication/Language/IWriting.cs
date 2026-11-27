@@ -7,6 +7,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace MudSharp.Communication.Language
@@ -164,6 +165,28 @@ namespace MudSharp.Communication.Language
                 default:
                     return 0.0;
             }
+        }
+
+        /// <summary>Whole implement uses charged for handwriting this passage, based on its occupied length.</summary>
+        public static int HandwritingImplementUses(this IWriting writing)
+        {
+            int length = Math.Max(0, writing.DocumentLength);
+            double multiplier = writing.Script?.InkUseModifier ?? 1.0;
+            if (length == 0 || multiplier == 0.0)
+            {
+                return 0;
+            }
+
+            if (!double.IsFinite(multiplier) || multiplier < 0.0)
+            {
+                return length;
+            }
+
+            // Recover the decimal rate the builder entered. Casting the binary double directly can turn 110% of 10 into 12 charges.
+            string rateText = Math.Min(multiplier, int.MaxValue).ToString("R", CultureInfo.InvariantCulture);
+            decimal rate = decimal.Parse(rateText, NumberStyles.Float, CultureInfo.InvariantCulture);
+            decimal uses = decimal.Ceiling(length * rate);
+            return (int)Math.Clamp(uses, 1m, int.MaxValue);
         }
     }
 

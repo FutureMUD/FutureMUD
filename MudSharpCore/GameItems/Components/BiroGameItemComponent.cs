@@ -80,7 +80,7 @@ public class BiroGameItemComponent : GameItemComponent, IWritingImplement
 
     public void Use(int uses)
     {
-        RemainingUses -= uses;
+        RemainingUses -= Math.Clamp(uses, 0, Math.Max(0, RemainingUses));
     }
 
     public WritingImplementType WritingImplementType => WritingImplementType.Biro;

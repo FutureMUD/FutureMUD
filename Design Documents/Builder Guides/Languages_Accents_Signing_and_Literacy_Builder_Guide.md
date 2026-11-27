@@ -95,7 +95,7 @@ Use `show scripts` to find installed scripts. `script edit new "<name>" "<knowle
 | `name <name>`, `knowledge <knowledge>` | Set the script’s identity and the knowledge that grants it. Link the knowledge before awarding it to characters. |
 | `known <description>`, `unknown <description>` | Describe the recognised script and what an untrained observer can see, for example “the Quayside Hand” and “columns of narrow, hooked strokes”. |
 | `language <language>` | Toggle a language the script was designed to represent. This supplies conventional pairings. A literate writer can choose another known language with the script. |
-| `length <percentage>`, `ink <percentage>` | Length sets how much space a passage occupies. Both settings start at 100%. The ink setting is stored and displayed, but ordinary handwriting currently does not use this separate multiplier to charge the implement. |
+| `length <percentage>`, `ink <percentage>` | Length sets how much page space a passage occupies. Ink sets the implement uses per unit of that space. Both start at 100%. Fractional uses round up once per passage. At 0% the writer still needs a usable implement, but writing consumes no uses. |
 
 Build the linked knowledge with `knowledge edit new "<name>"`. `desc` and `ldesc` explain what its holder has learned. `type` and `subtype` organise it. Use `knowledge show <name>` to inspect acquisition before changing anything. `knowledge set learnable LearnableFromTeacher` toggles teaching, while `sessions`, `learndifficulty`, `teachdifficulty` and the Boolean character `learnprog` govern lessons. In play the teacher can use `teach <student> "<knowledge>"`. Prefix the name inside the quotes with `*` to disambiguate it from a skill.
 
@@ -208,6 +208,7 @@ script set unknown a script of narrow, hooked strokes
 script set language "River Tongue"
 script set language "Harbour Speech"
 script set length 100%
+script set ink 150%
 script show "Quayside Hand"
 script close
 ```
@@ -263,6 +264,8 @@ chargen close
 A pilot can select Quay Sign without a regional variety. If the named deck crew are NPCs, give their templates the Quay Sign skill. Grant a variety to a specific character when you want that extra familiarity. The manual accent picker can offer several accents. For an upbringing-specific origin story, a Boolean prog taking one chargen and returning `@app.culture.name == "Reedbank"` can control which applicants may pick the Reedbank accent. Attach it with `accent set chargen <prog>` on that accent. The Foreign role and source association still describe how a character can acquire Upriver Harbour during play.
 
 ### Write a bilingual manifest
+
+The clerk writes Quayside Hand with heavy downstrokes. With the settings above, an entry occupying 40 units of page space uses 60 charges from a finite pen or pencil. Set `script set ink 100%` while editing Quayside Hand for a lighter hand that uses 40 charges for the same entry.
 
 Supply a writable sheet or an open ledger with space on the current page, and a writing implement the clerk can hold and use. Give the items suitable keywords such as `ledger` and `pen`. Use a **Book** component for a reusable ledger or **PaperSheet** for a loose manifest. A serviceable **Pencil** can stand in for the clerk’s pen. Inspect its point and keep a sharpener at the desk. A sheet filled by the upriver entry has no room for its harbour counterpart. [Item authoring](Item_Authoring_Guidelines.md)
 

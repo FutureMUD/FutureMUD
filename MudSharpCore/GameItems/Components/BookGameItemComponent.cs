@@ -341,13 +341,12 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             }
         }
 
-        if (writing != null &&
-            writing.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsed)
+        if (CurrentPage < 1 || CurrentPage > _prototype.PageCount || TornPages.Contains(CurrentPage))
         {
             return false;
         }
 
-        return true;
+        return writing == null || CanAddWriting(writing);
     }
 
     public string WhyCannotWrite(ICharacter character, IWritingImplement implement, IWriting writing)
@@ -379,10 +378,14 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             }
         }
 
-        if (writing != null && writing.DocumentLength > MaximumCharacterLengthOfText - DocumentLengthUsed)
+        if (CurrentPage < 1 || CurrentPage > _prototype.PageCount || TornPages.Contains(CurrentPage))
         {
-            return
-                $"There is not enough space left on the current page of {Parent.HowSeen(character)} to write all that.";
+            return "There is no page here to write on.";
+        }
+
+        if (writing != null && !CanAddWriting(writing))
+        {
+            return WhyCannotAddWriting(writing, CurrentPage);
         }
 
         throw new ApplicationException("Unknown WhyCannotWrite reason in PaperSheetGameItemComponent.");
@@ -409,8 +412,13 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
             check.Check(character, difficulty);
         }
 
-        AddReadableReference(writing, CurrentPage);
-        implement?.Use(writing.DocumentLength);
+        if (!AddReadableReference(writing, CurrentPage))
+        {
+            character.Send(WhyCannotAddReadable(writing, CurrentPage));
+            return false;
+        }
+
+        implement?.Use(writing.HandwritingImplementUses());
         return true;
     }
 

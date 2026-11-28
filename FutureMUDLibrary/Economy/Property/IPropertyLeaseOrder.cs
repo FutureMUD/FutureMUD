@@ -12,6 +12,7 @@ namespace MudSharp.Economy.Property
         IProperty Property { get; }
         decimal PricePerInterval { get; set; }
         decimal BondRequired { get; set; }
+        decimal PaymentDueAtSigning => Math.Truncate(BondRequired + 2.0M * PricePerInterval);
         IReadOnlyDictionary<IPropertyOwner, bool> PropertyOwnerConsent { get; }
         void SetConsent(IPropertyOwner owner);
         void ChangeConsentDueToSale(IPropertyOwner newOwner);

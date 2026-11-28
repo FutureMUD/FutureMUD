@@ -276,7 +276,7 @@ A useful shop needs:
 This is all possible, but it stops being "easy seeding" and starts becoming opinionated world construction.
 
 ### Properties
-Properties are even more world-specific because the seeded content would need to answer:
+World builders can establish civic holdings, rent and bonds in game using the [property and conveyancing guide](../Builder%20Guides/Property_and_Conveyancing_Builder_Guide.md). Seeded property content would need to answer:
 
 - which cells belong to which property
 - who owns them at install time

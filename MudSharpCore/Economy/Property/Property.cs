@@ -1219,6 +1219,10 @@ public partial class Property : SaveableItem, IProperty
         }
 
         IPropertyOwner newPropertyOwner = _propertyOwners.FirstOrDefault(x => x.Owner == newOwnerItem);
+        if (newPropertyOwner == owner)
+        {
+            return;
+        }
 
         if (newPropertyOwner == null)
         {
@@ -1234,6 +1238,7 @@ public partial class Property : SaveableItem, IProperty
         if (percentage >= 1.0M)
         {
             owner.Delete();
+            _propertyOwners.Remove(owner);
         }
         else
         {

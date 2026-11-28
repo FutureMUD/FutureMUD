@@ -322,6 +322,8 @@ The current implementation ties property to:
 - agriculture field work permissions when a field cell belongs to a property
 - approved hotel-room rental workflows through the `roomrent` command
 
+A full divestment removes the surrendered owner from the active ownership list before lease and sale order consent is recalculated. At lease signing the rent portion of the payment is persisted as the opening lease balance. The bond is tracked separately. Renewal carries the existing balance forward. A landlord may terminate for arrears only while the active lease balance is strictly negative, including when accepting a pending termination.
+
 Verified load-time constraint:
 
 - property owner consent reconstruction for sale and lease orders matches owners by raw owner id plus owner type, not by dereferencing `PropertyOwner.Owner`

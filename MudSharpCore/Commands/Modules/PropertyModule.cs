@@ -567,6 +567,12 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
+        if (target == actor)
+        {
+            actor.OutputHandler.Send("You cannot divest ownership to yourself.");
+            return;
+        }
+
         actor.OutputHandler.Send(
             $"Are you sure that you want to divest {value.ToString("P", actor).ColourValue()} of your ownership in {property.Name.ColourName()} to {target.HowSeen(actor)}?\n{Accept.StandardAcceptPhrasing}");
         actor.AddEffect(new Accept(actor, new GenericProposal
@@ -1824,7 +1830,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        decimal amount = Math.Truncate(property.LeaseOrder!.BondRequired + 2.0M * property.LeaseOrder.PricePerInterval);
+        decimal amount = property.LeaseOrder!.PaymentDueAtSigning;
         // Cash payment
         if (ss.IsFinished)
         {
@@ -1947,7 +1953,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (property.Lease.PaymentBalance > 0.0M)
+        if (property.Lease.PaymentBalance >= 0.0M)
         {
             actor.OutputHandler.Send($"You may not terminate the lease of a property which is not in arrears.");
             return;
@@ -1961,6 +1967,18 @@ The following commands are specific to those who own a property (or who are mana
             DescriptionString = "Terminating a lease",
             AcceptAction = text =>
             {
+                if (property.Lease != lease || !property.IsAuthorisedOwner(actor))
+                {
+                    actor.OutputHandler.Send("You can no longer terminate that lease.");
+                    return;
+                }
+
+                if (lease.PaymentBalance >= 0.0M)
+                {
+                    actor.OutputHandler.Send("The rent is no longer in arrears.");
+                    return;
+                }
+
                 actor.OutputHandler.Send($"You terminate the lease on {property.Name.ColourName()}.");
                 lease.TerminateLease();
             },

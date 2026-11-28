@@ -932,7 +932,7 @@ All of the following commands must happen with an edited clan selected:
             return;
         }
 
-        decimal amount = Math.Truncate(property.LeaseOrder!.BondRequired + 2.0M * property.LeaseOrder.PricePerInterval);
+        decimal amount = property.LeaseOrder!.PaymentDueAtSigning;
         // Cash payment
         if (ss.IsFinished)
         {

@@ -49,7 +49,7 @@ public class PropertyLease : SaveableItem, IPropertyLease
         { Gameworld = Gameworld, FrameworkItemType = leaseholder.FrameworkItemType, Id = leaseholder.Id };
         _pricePerInterval = leaseOrder.PricePerInterval;
         _bondPayment = leaseOrder.BondRequired;
-        _paymentBalance = 0.0M;
+        _paymentBalance = leaseOrder.PaymentDueAtSigning - _bondPayment;
         _leaseStart = startDate;
         _leaseEnd = endDate;
         _lastLeasePayment = startDate;
